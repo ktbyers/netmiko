@@ -6,7 +6,9 @@ from netmiko_globals import MAX_BUFFER
 
 class BaseSSHConnection(object):
     '''
-    Base class
+    Defines vendor independent methods.
+
+    Otherwise method left as a stub method.
     '''
 
     def __init__(self, ip, username, password, port=22):
@@ -29,13 +31,14 @@ class BaseSSHConnection(object):
         # Create instance of SSHClient object
         self.remote_conn_pre = paramiko.SSHClient()
 
-        # Automatically add untrusted hosts (make sure okay for security policy in your environment)
+        # Automatically add untrusted hosts (make sure appropriate for your environment)
         self.remote_conn_pre.set_missing_host_key_policy(
              paramiko.AutoAddPolicy())
 
         # initiate SSH connection
-        print "SSH connection established to {}:{}".format(self.ip, self.port)
-        self.remote_conn_pre.connect(hostname=self.ip, port=self.port, username=self.username, password=self.password)
+        print "SSH connection established to {0}:{1}".format(self.ip, self.port)
+        self.remote_conn_pre.connect(hostname=self.ip, port=self.port, 
+                        username=self.username, password=self.password)
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
