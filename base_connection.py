@@ -11,12 +11,13 @@ class BaseSSHConnection(object):
     Otherwise method left as a stub method.
     '''
 
-    def __init__(self, ip, username, password, port=22):
+    def __init__(self, ip, username, password, secret='', port=22):
 
         self.ip = ip
         self.port = port
         self.username = username
         self.password = password
+        self.secret = secret
 
         self.establish_connection()
         self.disable_paging()
@@ -101,7 +102,7 @@ class BaseSSHConnection(object):
         return a_string.replace('\r\n', '\n')
 
 
-    def enable_mode(self):
+    def enable(self):
         pass
 
 

@@ -104,11 +104,14 @@ class SSHConnection(BaseSSHConnection):
         return output
 
 
-    def enable_mode(self):
+    def enable(self):
         '''
-        Needs expanded to include sending enable secret
+        Enter enable mode
         '''
         output = self.send_command('enable\n')
+        if 'assword' in output:
+            output += self.send_command(self.secret)
+
         self.find_prompt()
         self.clear_buffer()
 
