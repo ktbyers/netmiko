@@ -2,17 +2,8 @@ import paramiko
 import time
 
 from base_connection import BaseSSHConnection
-from netmiko_globals import CLASS_MAPPER, MAX_BUFFER
+from netmiko_globals import MAX_BUFFER
 
-
-def ssh_dispatcher(device_type):
-    '''
-    Select the class to be instantiated based on vendor/platform
-    ''' 
-
-    # FIX - should raise an exception if it fails
-    return CLASS_MAPPER.get(device_type)
-        
 
 class SSHConnection(BaseSSHConnection):
     '''

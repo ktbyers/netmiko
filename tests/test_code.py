@@ -2,9 +2,7 @@
 
 import unittest
 
-from ssh_connection import ssh_dispatcher
-from . import
-
+import netmiko
 from DEVICE_CREDS import *
 
 
@@ -75,7 +73,7 @@ if __name__ == "__main__":
 
     print "\n"
     print "#" * 80
-    SSHClass = ssh_dispatcher(cisco_881['device_type'])
+    SSHClass = netmiko.ssh_dispatcher(cisco_881['device_type'])
     net_connect = SSHClass(**cisco_881)
     show_version = net_connect.send_command(show_ver_command)
     show_ip = net_connect.send_command(basic_command)
