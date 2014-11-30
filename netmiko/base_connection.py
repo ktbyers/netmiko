@@ -11,13 +11,14 @@ class BaseSSHConnection(object):
     Otherwise method left as a stub method.
     '''
 
-    def __init__(self, ip, username, password, secret='', port=22):
+    def __init__(self, ip, username, password, secret='', port=22, device_type=''):
 
         self.ip = ip
         self.port = port
         self.username = username
         self.password = password
         self.secret = secret
+        self.device_type = device_type
 
         self.establish_connection()
         self.disable_paging()
