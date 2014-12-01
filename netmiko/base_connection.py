@@ -121,11 +121,19 @@ class BaseSSHConnection(object):
     def send_config_set(self, config_commands=None):
         pass
 
+    
+    def cleanup(self):
+        '''
+        Any needed cleanup before closing connection
+        '''
+        pass
+
 
     def disconnect(self):
         '''
         Gracefully close the SSH connection
         '''
 
+        self.cleanup()
         self.remote_conn_pre.close()
 
