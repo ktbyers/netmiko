@@ -50,7 +50,7 @@ class SSHConnection(BaseSSHConnection):
         if DEBUG: print "router_name: {}; prompt: {}".format(self.router_name, self.router_prompt)
 
     
-    def send_command(self, command_string, delay_factor=1, max_loops=30, strip_prompt=True, strip_command=True):
+    def send_command(self, command_string, delay_factor=.5, max_loops=30, strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
 
@@ -150,12 +150,12 @@ class SSHConnection(BaseSSHConnection):
 
         # Check if already in config mode
         output = ''
-        output += self.send_command('\n', delay_factor=.5, strip_prompt=False, strip_command=False)
+        output += self.send_command('\n', strip_prompt=False, strip_command=False)
         if not '(config)' in output:
             self.config_mode()
   
         for a_command in config_commands:
-            output += self.send_command(a_command, delay_factor=.5, strip_prompt=False, strip_command=False)
+            output += self.send_command(a_command, strip_prompt=False, strip_command=False)
 
         return output
 
