@@ -16,8 +16,6 @@ def setup_module(module):
         'config_mode'   : '(config)',
     }
     
-    print "\n"
-    print "#" * 80
     SSHClass = netmiko.ssh_dispatcher(arista_veos_sw['device_type'])
     net_connect = SSHClass(**arista_veos_sw)
 

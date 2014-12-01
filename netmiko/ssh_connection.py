@@ -143,6 +143,8 @@ class SSHConnection(BaseSSHConnection):
         Send in a set of configuration commands as a list
 
         The commands will be executed one after the other
+
+        Automatically exits/enters configuration mode.
         '''
         
         if config_commands is None:
@@ -156,6 +158,8 @@ class SSHConnection(BaseSSHConnection):
   
         for a_command in config_commands:
             output += self.send_command(a_command, strip_prompt=False, strip_command=False)
+
+        self.exit_config_mode()
 
         return output
 

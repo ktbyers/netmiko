@@ -1,9 +1,10 @@
 from cisco import CiscoIosSSH
+from cisco import CiscoAsaSSH
 from arista import AristaSSH
 
 CLASS_MAPPER = {
-    'cisco_ios' : CiscoIosSSH,
-#    'cisco_asa' : CiscoASAConn,
+    'cisco_ios'     : CiscoIosSSH,
+    'cisco_asa'     : CiscoAsaSSH,
     'arista_eos'    : AristaSSH,
 }
 
