@@ -1,9 +1,10 @@
 from cisco import CiscoIosSSH
+from arista import AristaSSH
 
 CLASS_MAPPER = {
     'cisco_ios' : CiscoIosSSH,
 #    'cisco_asa' : CiscoASAConn,
-#    'arista'    : AristaConn,
+    'arista_eos'    : AristaSSH,
 }
 
 def ssh_dispatcher(device_type):

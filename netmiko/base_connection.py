@@ -11,7 +11,7 @@ class BaseSSHConnection(object):
     Otherwise method left as a stub method.
     '''
 
-    def __init__(self, ip, username, password, secret='', port=22, device_type=''):
+    def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True):
 
         self.ip = ip
         self.port = port
@@ -20,12 +20,15 @@ class BaseSSHConnection(object):
         self.secret = secret
         self.device_type = device_type
 
-        self.establish_connection()
+        if not verbose:
+            self.establish_connection(verbose=False)
+        else:
+            self.establish_connection()
         self.disable_paging()
         self.find_prompt()
 
 
-    def establish_connection(self, sleep_time=3):
+    def establish_connection(self, sleep_time=3, verbose=True):
         '''
         Establish SSH connection to the network device
         '''
@@ -38,13 +41,13 @@ class BaseSSHConnection(object):
              paramiko.AutoAddPolicy())
 
         # initiate SSH connection
-        print "SSH connection established to {0}:{1}".format(self.ip, self.port)
+        if verbose: print "SSH connection established to {0}:{1}".format(self.ip, self.port)
         self.remote_conn_pre.connect(hostname=self.ip, port=self.port, 
                         username=self.username, password=self.password)
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
-        print "Interactive SSH session established"
+        if verbose: print "Interactive SSH session established"
 
         # Strip the initial router prompt
         time.sleep(sleep_time)
