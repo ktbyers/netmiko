@@ -50,7 +50,7 @@ class SSHConnection(BaseSSHConnection):
         if DEBUG: print "router_name: {}; prompt: {}".format(self.router_name, self.router_prompt)
 
     
-    def send_command(self, command_string, delay_factor=1, max_loops=30):
+    def send_command(self, command_string, delay_factor=1, max_loops=30, strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
 
@@ -97,8 +97,10 @@ class SSHConnection(BaseSSHConnection):
                 not_done = False
 
         output = self.normalize_linefeeds(output)
-        output = self.strip_command(command_string, output)
-        output = self.strip_prompt(output)
+        if strip_command:
+            output = self.strip_command(command_string, output)
+        if strip_prompt:
+            output = self.strip_prompt(output)
    
         if DEBUG: print output 
         return output
@@ -119,5 +121,41 @@ class SSHConnection(BaseSSHConnection):
 
 
     def config_mode(self):
-        pass
+        '''
+        Enter config mode
+        '''
+        output = self.send_command('config term\n')
+        if not '(config)' in output:
+            raise ValueError("Failed to enter configuration mode")
+
+        return output
+
+
+    def exit_config_mode(self):
+        output = self.send_command('end', strip_prompt=False, strip_command=False)
+        if '(config)' in output:
+            raise ValueError("Failed to exit configuration mode")
+        return output
+
+
+    def send_config_set(self, config_commands=None):
+        '''
+        Send in a set of configuration commands as a list
+
+        The commands will be executed one after the other
+        '''
+        
+        if config_commands is None:
+            return ''
+
+        # Check if already in config mode
+        output = ''
+        output += self.send_command('\n', delay_factor=.5, strip_prompt=False, strip_command=False)
+        if not '(config)' in output:
+            self.config_mode()
+  
+        for a_command in config_commands:
+            output += self.send_command(a_command, delay_factor=.5, strip_prompt=False, strip_command=False)
+
+        return output
 

@@ -110,3 +110,19 @@ class BaseSSHConnection(object):
     def config_mode(self):
         pass
 
+
+    def exit_config_mode(self):
+        pass
+
+
+    def send_config_set(self, config_commands=None):
+        pass
+
+
+    def disconnect(self):
+        '''
+        Gracefully close the SSH connection
+        '''
+
+        self.remote_conn_pre.close()
+
