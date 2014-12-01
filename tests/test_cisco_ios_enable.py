@@ -38,8 +38,9 @@ def setup_module(module):
 
     module.exit_config_mode = net_connect.exit_config_mode()
 
-    output = net_connect.send_command('show run | inc logging buffer')
-    print output
+    module.config_commands_output = net_connect.send_command('show run | inc logging buffer')
+
+    net_connect.disconnect()
 
 
 def test_enable_mode():
@@ -51,8 +52,9 @@ def test_config_mode():
     assert EXPECTED_RESPONSES['config_mode'] in config_mode
 
 
-#def test_command_set():
-#    assert
-    
+def test_command_set():
+    assert 'logging buffered 20010' in config_commands_output
+   
+ 
 def test_exit_config_mode():
     assert not EXPECTED_RESPONSES['config_mode'] in exit_config_mode
