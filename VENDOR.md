@@ -48,7 +48,7 @@ from arista import AristaSSH            # Add here
 CLASS_MAPPER = {
     'cisco_ios'     : CiscoIosSSH,
     'cisco_asa'     : CiscoAsaSSH,
-    'arista_eos'    : AristaSSH,        # Add Here
+    'arista_eos'    : AristaSSH,        # Add Here (device_type to class mapping)
 }
 ```
 
