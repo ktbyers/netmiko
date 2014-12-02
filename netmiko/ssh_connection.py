@@ -117,7 +117,7 @@ class SSHConnection(BaseSSHConnection):
         self.find_prompt()
         self.clear_buffer()
 
-        return output
+        return None
 
 
     def config_mode(self):
@@ -152,14 +152,14 @@ class SSHConnection(BaseSSHConnection):
 
         # Check if already in config mode
         output = ''
-        output += self.send_command('\n', strip_prompt=False, strip_command=False)
         if not '(config)' in output:
             self.config_mode()
+            output += self.send_command('\n', strip_prompt=False, strip_command=False)
   
         for a_command in config_commands:
             output += self.send_command(a_command, strip_prompt=False, strip_command=False)
 
-        self.exit_config_mode()
+        output += self.exit_config_mode()
 
         return output
 

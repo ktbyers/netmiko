@@ -74,7 +74,7 @@ class CiscoAsaSSH(SSHConnection):
             time.sleep(1*delay_factor)
             output += self.remote_conn.recv(MAX_BUFFER)
 
-        return output
+        return None
 
 
     def cleanup(self):
