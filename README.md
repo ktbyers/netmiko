@@ -16,7 +16,7 @@ Cisco ASA running 8.0(4)32
 Arista vEOS running 4.12.3  
    
    
-Simple example:  
+##### Simple example: #####
 
 ```
 # Specify the type of device. Currently supported device_types are 'cisco_ios',
@@ -65,3 +65,6 @@ pynet-rtr1(config)#end
 pynet-rtr1#
 ```
 
+
+Kirk Byers
+https://pynet.twb-tech.com
