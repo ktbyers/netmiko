@@ -8,6 +8,8 @@ $ cd netmiko/netmiko
 $ mkdir arista
 ```
   
+
+
   
 Make the directory a Python package:
 
