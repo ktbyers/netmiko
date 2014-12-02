@@ -5,18 +5,18 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 
 Under development 
 
-Requires:
+Requires:  
 Paramiko >= 1.7.5  
-Python 2.6 or Python 2.7
-pytest for unit tests (I used pytest 2.6.4)
+Python 2.6 or Python 2.7  
+pytest for unit tests (I used pytest 2.6.4)  
 
-Tested on:
-Cisco 881 running IOS 15.4(2)T1
-Cisco ASA running 8.0(4)32
-Arista vEOS running 4.12.3
+Tested on:  
+Cisco 881 running IOS 15.4(2)T1  
+Cisco ASA running 8.0(4)32  
+Arista vEOS running 4.12.3  
 
 
-Simple example:
+Simple example:  
 
 # Specify the type of device. Currently supported device_types are 'cisco_ios',
 # 'cisco_asa', and 'arista_eos'
