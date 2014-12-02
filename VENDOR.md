@@ -7,10 +7,7 @@ Create a new vendor directory underneath netmiko/netmiko:
 $ cd netmiko/netmiko
 $ mkdir arista
 ```
-    
-   
-    
-     
+ 
 Make the directory a Python package:
 
 ```
