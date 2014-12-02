@@ -75,7 +75,7 @@ def disconnect(self):
 As much as possible, you should re-use the inherited methods from SSHConnection 
 and BaseSSHConnection (i.e. only re-write what you have to).
 
-BaseSSHConnection is intended to be generic (work irrespective of the vendor)
-SSHConnection is Cisco-IOS specific because lots of network devices imitate Cisco IOS.
+BaseSSHConnection is intended to be generic (i.e. irrespective of the vendor)
+SSHConnection is Cisco-IOS specific (because lots of vendors imitate Cisco IOS).
 
 
