@@ -65,7 +65,7 @@ pynet-rtr1(config)#end
 pynet-rtr1#
 ```
 
-.    
-.    
+    
+---    
 Kirk Byers  
 https://pynet.twb-tech.com
