@@ -19,8 +19,6 @@ def setup_module(module):
     show_ver_command = 'show version'
     module.basic_command = 'show ip int brief'
     
-    print "\n"
-    print "#" * 80
     SSHClass = netmiko.ssh_dispatcher(cisco_881['device_type'])
     net_connect = SSHClass(**cisco_881)
     module.show_version = net_connect.send_command(show_ver_command)
