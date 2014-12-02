@@ -18,12 +18,12 @@ Arista vEOS running 4.12.3
 
 Simple example:  
 
-'''
+```
 # Specify the type of device. Currently supported device_types are 'cisco_ios',
 # 'cisco_asa', and 'arista_eos'
 >>> import netmiko
 >>> SSHClass = netmiko.ssh_dispatcher(device_type='cisco_ios')
-'''
+```
 
 # Establish SSH connection to device
 >>> net_connect = SSHClass(ip = '10.10.10.10', username = 'username', 
