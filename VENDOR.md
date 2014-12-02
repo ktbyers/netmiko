@@ -26,10 +26,10 @@ class AristaSSH(SSHConnection):
     pass
 ```
   
-Inherit from SSHConnection class. Note, the netmiko package will need to be in 
+Inherit from the SSHConnection class. Note, the netmiko package will need to be in 
 your PYTHONPATH
 
-Update __init__.py to export the new class:
+Update '__init__.py' to export the new class:
 
 ```
 $ vi __init__.py
