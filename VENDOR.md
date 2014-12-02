@@ -78,4 +78,8 @@ and BaseSSHConnection (i.e. only re-write what you have to).
 BaseSSHConnection is intended to be generic (i.e. irrespective of the vendor)
 SSHConnection is Cisco-IOS specific (because lots of vendors imitate Cisco IOS).
 
+You should also write unit tests and verify the functionality of your new class.
+See netmiko/tests/test_cisco_ios.py and netmiko/tests/test_cisco_ios_enable.py
+for an example.
+
 
