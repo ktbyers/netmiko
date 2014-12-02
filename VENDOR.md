@@ -7,14 +7,14 @@ Create a new vendor directory underneath netmiko/netmiko:
 $ cd netmiko/netmiko
 $ mkdir arista
 ```
-
+  
 Make the directory a Python package:
 
 ```
 $ cd arista
 $ touch __init__.py
 ```
-
+  
 Create a new module for the vendor:
 
 ```
@@ -25,9 +25,9 @@ class AristaSSH(SSHConnection):
 
     pass
 ```
-
-Inherit from SSHConnection class. Note, netmiko package will need to be in 
-PYTHONPATH
+  
+Inherit from SSHConnection class. Note, the netmiko package will need to be in 
+your PYTHONPATH
 
 Update __init__.py to export the new class:
 
