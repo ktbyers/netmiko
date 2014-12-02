@@ -1,3 +1,4 @@
 *.pyc
 *.swp
 tests/DEVICE_CREDS.py
+build
