@@ -8,7 +8,7 @@ Under development
 Requires:
 Paramiko >= 1.7.5
 Python 2.6 or Python 2.7
-pytest for unit tests
+pytest for unit tests (I used pytest 2.6.4)
 
 Tested on:
 Cisco 881 running IOS 15.4(2)T1
