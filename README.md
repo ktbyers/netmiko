@@ -53,7 +53,8 @@ Vlan1                      unassigned      YES unset  down                  down
 
 ```
 # Execute configuration change commands (will automatically enter into config mode)
->>> config_commands = ['logging buffered 20000', 'logging buffered 20010', 'no logging console']
+>>> config_commands = ['logging buffered 20000', 'logging buffered 20010', 
+                                        'no logging console']
 >>> output = net_connect.send_config_set(config_commands)
 >>> print output
 
