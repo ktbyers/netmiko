@@ -44,6 +44,8 @@ class SSHConnection(BaseSSHConnection):
         else:
             raise ValueError("Router name not found after multiple attempts")
 
+        # .strip_ansi_escape_codes does nothing unless overridden in child-class
+        router_name = self.strip_ansi_escape_codes(router_name)  
         router_name = self.normalize_linefeeds(router_name)
         self.router_name = router_name.strip()
         self.router_prompt = self.router_name + z_prompt
@@ -96,6 +98,8 @@ class SSHConnection(BaseSSHConnection):
                 if DEBUG: print "recv_ready = False"
                 not_done = False
 
+        # .strip_ansi_escape_codes does nothing unless overridden in child-class
+        output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
         if strip_command:
             output = self.strip_command(command_string, output)

@@ -121,6 +121,15 @@ class BaseSSHConnection(object):
     def send_config_set(self, config_commands=None):
         pass
 
+
+    def strip_ansi_escape_codes(self, string_buffer):
+        '''
+        Not needed in the general case (just return unmodified)
+
+        HP ProCurve requires ansi escape codes to be stripped
+        '''
+        return string_buffer 
+
     
     def cleanup(self):
         '''
