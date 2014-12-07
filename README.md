@@ -12,8 +12,10 @@ pytest for unit tests (I used pytest 2.6.4)
 
 Tested on:  
 Cisco 881 running IOS 15.4(2)T1  
+Cisco CSR1000V running IOS XE 03.13.01.S  
 Cisco ASA running 8.0(4)32  
 Arista vEOS running 4.12.3  
+HP ProCurve 2510-24  
    
    
 ##### Simple example: #####
