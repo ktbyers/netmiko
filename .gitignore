@@ -1,4 +1,5 @@
 *.pyc
 *.swp
 tests/DEVICE_CREDS.py
+teests/DEVICE_CREDS.py.orig
 build
