@@ -26,7 +26,7 @@ class SSHConnection(BaseSSHConnection):
         '''
         Finds the network device name and prompt ('>', '#')
         '''
-    
+
         DEBUG = False
         if DEBUG: print "In find_prompt"
 
@@ -45,13 +45,13 @@ class SSHConnection(BaseSSHConnection):
             raise ValueError("Router name not found after multiple attempts")
 
         # .strip_ansi_escape_codes does nothing unless overridden in child-class
-        router_name = self.strip_ansi_escape_codes(router_name)  
+        router_name = self.strip_ansi_escape_codes(router_name)
         router_name = self.normalize_linefeeds(router_name)
         self.router_name = router_name.strip()
         self.router_prompt = self.router_name + z_prompt
         if DEBUG: print "router_name: {}; prompt: {}".format(self.router_name, self.router_prompt)
 
-    
+
     def send_command(self, command_string, delay_factor=.5, max_loops=30, strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
@@ -61,7 +61,7 @@ class SSHConnection(BaseSSHConnection):
         delay_factor can be used to increase the delays.
 
         max_loops can be used to increase the number of times it reads the data buffer
-        
+
         Returns the output of the command.
         '''
 
@@ -77,7 +77,7 @@ class SSHConnection(BaseSSHConnection):
         command_string += '\n'
 
         if DEBUG: print "Command is: {}".format(command_string)
- 
+
         self.remote_conn.send(command_string)
 
         time.sleep(1*delay_factor)
@@ -105,8 +105,8 @@ class SSHConnection(BaseSSHConnection):
             output = self.strip_command(command_string, output)
         if strip_prompt:
             output = self.strip_prompt(output)
-   
-        if DEBUG: print output 
+
+        if DEBUG: print output
         return output
 
 
@@ -150,7 +150,7 @@ class SSHConnection(BaseSSHConnection):
 
         Automatically exits/enters configuration mode.
         '''
-        
+
         if config_commands is None:
             return ''
 
@@ -159,7 +159,7 @@ class SSHConnection(BaseSSHConnection):
         if not '(config)' in output:
             self.config_mode()
             output += self.send_command('\n', strip_prompt=False, strip_command=False)
-  
+
         for a_command in config_commands:
             output += self.send_command(a_command, strip_prompt=False, strip_command=False)
 
