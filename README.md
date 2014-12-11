@@ -14,8 +14,8 @@ Tested on:
 Cisco 881 running IOS 15.4(2)T1  
 Cisco CSR1000V running IOS XE 03.13.01.S  
 Cisco ASA running 8.0(4)32  
-Cisco Nexus 5K
-Cisco Nexus 7K
+Cisco Nexus 5K  
+Cisco Nexus 7K  
 Arista vEOS running 4.12.3  
 HP ProCurve 2510-24  
    
