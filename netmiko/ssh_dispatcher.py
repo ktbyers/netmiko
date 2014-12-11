@@ -1,5 +1,6 @@
 from cisco import CiscoIosSSH
 from cisco import CiscoAsaSSH
+from cisco import CiscoNxosSSH
 from arista import AristaSSH
 from hp import HPProcurveSSH
 
@@ -7,6 +8,7 @@ CLASS_MAPPER = {
     'cisco_ios'     : CiscoIosSSH,
     'cisco_xe'      : CiscoIosSSH,
     'cisco_asa'     : CiscoAsaSSH,
+    'cisco_nxos'	: CiscoNxosSSH,
     'arista_eos'    : AristaSSH,
     'hp_procurve'   : HPProcurveSSH,
 }

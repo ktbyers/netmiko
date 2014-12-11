@@ -101,6 +101,7 @@ class SSHConnection(BaseSSHConnection):
         # .strip_ansi_escape_codes does nothing unless overridden in child-class
         output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
+
         if strip_command:
             output = self.strip_command(command_string, output)
         if strip_prompt:
