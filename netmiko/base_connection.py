@@ -84,7 +84,7 @@ class BaseSSHConnection(object):
         '''
 
         response_list = a_string.split('\n')
-        if response_list[-1] == self.router_prompt:
+        if response_list[-1].strip() == self.router_prompt:
             return '\n'.join(response_list[:-1])
         else:
             return a_string
