@@ -148,6 +148,7 @@ class SSHConnection(BaseSSHConnection):
         '''
 
         output = self.send_command('\n', strip_prompt=False, strip_command=False)
+        new_output = ''
         if '(config)' in output:
             new_output = self.send_command('end', strip_prompt=False, strip_command=False)
             if '(config)' in new_output:

@@ -52,7 +52,7 @@ class CiscoXrSSH(SSHConnection):
             fail_msg = self.send_command('show configuration failed',
                                      strip_prompt=False, strip_command=False)
 
-            raise ValueError('Commit failed with the following errors:\n\n
+            raise ValueError('Commit failed with the following errors:\n\n \
                         {fail_msg}'.format(fail_msg=fail_msg))
 
         output += self.exit_config_mode()
