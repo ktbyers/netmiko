@@ -126,11 +126,16 @@ class SSHConnection(BaseSSHConnection):
 
     def config_mode(self):
         '''
-        Enter config mode
+        First check whether currently already in configuration mode.
+
+        Enter config mode (if necessary)
         '''
-        output = self.send_command('config term\n')
+
+        output = self.send_command('\n', strip_prompt=False, strip_command=False)
         if not '(config)' in output:
-            raise ValueError("Failed to enter configuration mode")
+            output += self.send_command('config term\n')
+            if not '(config)' in output:
+                raise ValueError("Failed to enter configuration mode")
 
         return output
 
@@ -154,11 +159,13 @@ class SSHConnection(BaseSSHConnection):
         if config_commands is None:
             return ''
 
+        if type(config_commands) != type([]):
+            raise ValueError("Invalid argument passed into send_config_set")
+
         # Check if already in config mode
-        output = ''
+        output = self.send_command('\n', strip_prompt=False, strip_command=False)
         if not '(config)' in output:
-            self.config_mode()
-            output += self.send_command('\n', strip_prompt=False, strip_command=False)
+            output += self.config_mode()
 
         for a_command in config_commands:
             output += self.send_command(a_command, strip_prompt=False, strip_command=False)
