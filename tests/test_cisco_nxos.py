@@ -68,8 +68,8 @@ def test_strip_command():
 
 def test_normalize_linefeeds():
     '''
-    Ensure no '\r\n' sequences
+    Ensure no '\r' sequences
     '''
-    assert not '\r\n' in show_version
+    assert not '\r' in show_version
 
 
