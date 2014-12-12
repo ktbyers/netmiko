@@ -158,7 +158,7 @@ class SSHConnection(BaseSSHConnection):
         return output
 
 
-    def send_config_set(self, config_commands=None):
+    def send_config_set(self, config_commands=None, commit=False):
         '''
         Send in a set of configuration commands as a list
 
@@ -178,6 +178,9 @@ class SSHConnection(BaseSSHConnection):
 
         for a_command in config_commands:
             output += self.send_command(a_command, strip_prompt=False, strip_command=False)
+
+        if commit:
+            output += self.commit()
 
         output += self.exit_config_mode()
 

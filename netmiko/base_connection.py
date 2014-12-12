@@ -147,3 +147,10 @@ class BaseSSHConnection(object):
         self.cleanup()
         self.remote_conn_pre.close()
 
+
+    def commit(self):
+        '''
+        Commit method for platforms that support this
+        '''
+
+        pass

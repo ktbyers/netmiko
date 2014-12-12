@@ -3,37 +3,6 @@ import re
 
 class CiscoXrSSH(SSHConnection):
 
-    def send_config_set(self, config_commands=None, commit=False):
-        '''
-        Send in a set of configuration commands as a list
-
-        The commands will be executed one after the other
-
-        Automatically exits/enters configuration mode.
-
-        Optionally perform a commit action
-        '''
-
-        if config_commands is None:
-            return ''
-
-        if type(config_commands) != type([]):
-            raise ValueError("Invalid argument passed into send_config_set")
-
-        # Enter config mode (if necessary)
-        output = self.config_mode()
-
-        for a_command in config_commands:
-            output += self.send_command(a_command, strip_prompt=False, strip_command=False)
-
-        if commit:
-            output += self.commit()
-
-        output += self.exit_config_mode()
-
-        return output
-
-
     def commit(self):
         '''
         Commit the entered configuration. Raise an error
