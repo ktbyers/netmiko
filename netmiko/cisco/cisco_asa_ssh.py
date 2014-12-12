@@ -33,27 +33,12 @@ class CiscoAsaSSH(SSHConnection):
         Must manually control the channel at this point.
         '''
 
-        # ASA disables paging from configuration mode
-        self.remote_conn.send("config term\n")
-        time.sleep(1*delay_factor)
-        self.remote_conn.send("pager 0\n")
-        time.sleep(1*delay_factor)
-        self.remote_conn.send("end\n")
+        self.remote_conn.send("terminal pager 0\n")
         time.sleep(1*delay_factor)
 
         output = self.remote_conn.recv(MAX_BUFFER)
 
         return output
-
-
-    def restore_paging(self):
-        '''
-        A paging requires a configuration change i.e. it is retained
-        Restore the default paging after execution
-        '''
-
-        # Reset paging to 'pager 24' for ASA
-        return self.send_config_set(['pager 24'])
 
 
     def enable(self, delay_factor=1):
@@ -76,9 +61,3 @@ class CiscoAsaSSH(SSHConnection):
 
         return None
 
-
-    def cleanup(self):
-        '''
-        Any needed cleanup before closing connection
-        '''
-        return self.restore_paging()
