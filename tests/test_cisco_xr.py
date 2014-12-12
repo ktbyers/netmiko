@@ -6,17 +6,17 @@ import netmiko
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_name'   : 'vna1ds1-sf',
-        'router_prompt' : 'vna1ds1-sf#',
-        'router_enable' : 'vna1ds1-sf#',
-        'interface_ip'  : '10.3.3.245'
+        'router_name'   : 'RP/0/0/CPU0:XRv-1',
+        'router_prompt' : 'RP/0/0/CPU0:XRv-1#',
+        'router_enable' : 'RP/0/0/CPU0:XRv-1#',
+        'interface_ip'  : '169.254.254.181'
     }
     
     show_ver_command = 'show version'
-    module.basic_command = 'show ip int brief'
+    module.basic_command = 'show ipv4 int brief'
     
-    SSHClass = netmiko.ssh_dispatcher(cisco_nxos['device_type'])
-    net_connect = SSHClass(**cisco_nxos)
+    SSHClass = netmiko.ssh_dispatcher(cisco_xr['device_type'])
+    net_connect = SSHClass(**cisco_xr)
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
     module.router_name = net_connect.router_name
@@ -27,14 +27,14 @@ def test_disable_paging():
     Verify paging is disabled by looking for string after when paging would
     normally occur
     '''
-    assert 'Core Plugin, Ethernet Plugin' in show_version
+    assert 'fullk9-x' in show_version
 
 
 def test_verify_ssh_connect():
     '''
     Verify the connection was established successfully
     '''
-    assert 'Cisco Nexus Operating System' in show_version
+    assert 'Cisco IOS XR Software,' in show_version
 
 
 def test_verify_send_command():
@@ -44,7 +44,7 @@ def test_verify_send_command():
     assert EXPECTED_RESPONSES['interface_ip'] in show_ip
 
 
-def test_find_prompt():
+def test_find_name():
     '''
     Verify the router prompt is detected correctly
     '''
@@ -70,6 +70,6 @@ def test_normalize_linefeeds():
     '''
     Ensure no '\r\n' sequences
     '''
-    assert not '\r\n' in show_version
+    assert not ('\r\n' or '\n\r') in show_version
 
 
