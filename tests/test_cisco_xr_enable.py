@@ -21,10 +21,11 @@ def setup_module(module):
 
     SSHClass = netmiko.ssh_dispatcher(cisco_xr['device_type'])
     net_connect = SSHClass(**cisco_xr)
+
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
-    module.router_name = net_connect.router_name
 
+    module.router_name = net_connect.router_name
     module.router_prompt_initial = net_connect.router_prompt
     net_connect.enable()
     module.router_prompt = net_connect.router_prompt
