@@ -147,14 +147,15 @@ class SSHConnection(BaseSSHConnection):
         If so, exit config mode
         '''
 
+        # only new_output is returned if 'end' is executed
         output = self.send_command('\n', strip_prompt=False, strip_command=False)
-        new_output = ''
         if '(config)' in output:
             new_output = self.send_command('end', strip_prompt=False, strip_command=False)
             if '(config)' in new_output:
                 raise ValueError("Failed to exit configuration mode")
+            return new_output
 
-        return output + new_output
+        return output
 
 
     def send_config_set(self, config_commands=None):
