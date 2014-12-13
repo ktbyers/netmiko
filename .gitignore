@@ -2,4 +2,5 @@
 *.swp
 tests/DEVICE_CREDS.py
 tests/DEVICE_CREDS.py.orig
+test_use/
 build
