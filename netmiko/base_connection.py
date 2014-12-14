@@ -1,5 +1,6 @@
 import paramiko
 import time
+import socket
 
 from netmiko_globals import MAX_BUFFER
 
@@ -28,7 +29,7 @@ class BaseSSHConnection(object):
         self.find_prompt()
 
 
-    def establish_connection(self, sleep_time=3, verbose=True):
+    def establish_connection(self, sleep_time=3, verbose=True, timeout=8):
         '''
         Establish SSH connection to the network device
         '''
@@ -42,9 +43,19 @@ class BaseSSHConnection(object):
 
         # initiate SSH connection
         if verbose: print "SSH connection established to {0}:{1}".format(self.ip, self.port)
-        self.remote_conn_pre.connect(hostname=self.ip, port=self.port, 
+
+        try:
+            self.remote_conn_pre.connect(hostname=self.ip, port=self.port, 
                         username=self.username, password=self.password,
-                        look_for_keys=False)
+                        look_for_keys=False, timeout=timeout)
+        except socket.error as e:
+            msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
+                device_type=self.device_type, ip=self.ip, port=self.port)
+            raise ValueError(msg)
+        except paramiko.ssh_exception.AuthenticationException as e:
+            msg = "Authentication failure: unable to connect to device {device_type} {ip}:{port}\n".format(
+                device_type=self.device_type, ip=self.ip, port=self.port)
+            raise ValueError(msg)
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
