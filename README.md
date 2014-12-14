@@ -16,6 +16,8 @@ Cisco CSR1000V running IOS XE 03.13.01.S
 Cisco ASA running 8.0(4)32  
 Cisco Nexus 5K  
 Cisco Nexus 7K  
+Cisco IOS XR ASR9K
+Cisco IOS XRv
 Arista vEOS running 4.12.3  
 HP ProCurve 2510-24  
    
