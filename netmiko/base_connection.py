@@ -3,6 +3,7 @@ import time
 import socket
 
 from netmiko_globals import MAX_BUFFER
+from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 
 
 class BaseSSHConnection(object):
@@ -32,6 +33,9 @@ class BaseSSHConnection(object):
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8):
         '''
         Establish SSH connection to the network device
+
+        Timeout will generate a NetMikoTimeoutException
+        Authentication failure will generate a NetMikoAuthenticationException
         '''
 
         # Create instance of SSHClient object
@@ -51,11 +55,12 @@ class BaseSSHConnection(object):
         except socket.error as e:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
-            raise ValueError(msg)
+            raise NetMikoTimeoutException(msg)
         except paramiko.ssh_exception.AuthenticationException as e:
-            msg = "Authentication failure: unable to connect to device {device_type} {ip}:{port}\n".format(
+            msg = "Authentication failure: unable to connect to device {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
-            raise ValueError(msg)
+            msg += '\n' + str(e)
+            raise NetMikoAuthenticationException(msg)
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
