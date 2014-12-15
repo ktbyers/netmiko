@@ -21,9 +21,9 @@ class F5LtmSSH(SSHConnection):
             self.establish_connection()
 	
 	time.sleep(1)
+	self.enable()
         self.disable_paging()
-        self.find_prompt()
-
+       
 
     def disable_paging(self, delay_factor=1):
         '''
