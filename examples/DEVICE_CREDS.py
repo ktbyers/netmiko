@@ -64,6 +64,16 @@ hp_procurve = {
     'verbose': False,
 }
 
+f5_ltm = {
+    'device_type': 'hp_procurve',
+    'ip':   '10.10.10.227',
+    'username': 'admin',
+    'password': 'password',
+    'secret': '',
+    'port': 22,
+    'verbose': False,  
+}    
+    
 all_devices = [
     cisco_881,
     cisco_asa,
@@ -72,4 +82,5 @@ all_devices = [
     arista_veos_sw3,
     arista_veos_sw4,
     hp_procurve
+    f5_ltm    
 ]
