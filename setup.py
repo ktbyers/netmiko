@@ -10,6 +10,6 @@ setup(
     author          = 'Kirk Byers',
     install_requires = ['paramiko>=1.7.5'],
     description     = 'Multi-vendor library to simplify Paramiko SSH connections to network devices',
-    packages        = ['netmiko', 'netmiko/cisco', 'netmiko/arista', 'netmiko/hp'],
+    packages        = ['netmiko', 'netmiko/cisco', 'netmiko/arista', 'netmiko/hp', 'netmiko/f5'],
     )
     
