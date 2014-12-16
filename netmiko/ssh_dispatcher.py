@@ -13,6 +13,7 @@ CLASS_MAPPER = {
     'cisco_xr'      : CiscoXrSSH,
     'arista_eos'    : AristaSSH,
     'hp_procurve'   : HPProcurveSSH,
+    'f5_ltm_ssh'    : F5LtmSSH,
 }
 
 def ssh_dispatcher(device_type):
