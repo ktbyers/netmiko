@@ -19,9 +19,9 @@ class F5LtmSSH(SSHConnection):
             self.establish_connection(verbose=False)
         else:
             self.establish_connection()
-	
-	time.sleep(1)
-	self.enable()
+
+        time.sleep(1)
+        self.enable()
         self.disable_paging()
        
 
@@ -42,9 +42,10 @@ class F5LtmSSH(SSHConnection):
         return output
 
 
-     def enable(self):
-	'''
-	Enter enable mode
-	Not implemented on F5 LTMs
-	'''		
-	return None
+    def enable(self):
+        '''
+        Enter enable mode
+        Not implemented on F5 LTMs
+        '''
+
+        return None
