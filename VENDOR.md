@@ -82,3 +82,7 @@ You should also write unit tests and verify the functionality of your new class.
 See netmiko/tests/test_cisco_ios.py and netmiko/tests/test_cisco_ios_enable.py.
 
 
+  
+
+Note, you will also need to update the setup.py file if you are adding a 
+completely new package.
