@@ -4,6 +4,7 @@ from cisco import CiscoNxosSSH
 from cisco import CiscoXrSSH
 from arista import AristaSSH
 from hp import HPProcurveSSH
+from f5 import F5LtmSSH
 
 CLASS_MAPPER = {
     'cisco_ios'     : CiscoIosSSH,
