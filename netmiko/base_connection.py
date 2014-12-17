@@ -90,7 +90,8 @@ class BaseSSHConnection(object):
             return None
 
     
-    def send_command(self, command_string, delay_factor=1, max_loops=30):
+    def send_command(self, command_string, delay_factor=1, max_loops=30, 
+                                    strip_prompt=True, strip_command=True):
         pass
 
 
