@@ -22,7 +22,7 @@ class SSHConnection(BaseSSHConnection):
         return self.remote_conn.recv(MAX_BUFFER)
 
 
-    def find_prompt(self):
+    def find_prompt(self, strip_ansi_escape=False):
         '''
         Finds the network device name and prompt ('>', '#')
         '''
@@ -44,8 +44,9 @@ class SSHConnection(BaseSSHConnection):
         else:
             raise ValueError("Router name not found after multiple attempts")
 
-        # .strip_ansi_escape_codes does nothing unless overridden in child-class
-        router_name = self.strip_ansi_escape_codes(router_name)
+        # Some platforms have ANSI escape codes
+        if strip_ansi_escape:
+            router_name = self.strip_ansi_escape_codes(router_name)
         router_name = self.normalize_linefeeds(router_name)
         self.router_name = router_name.strip()
         self.router_prompt = self.router_name + z_prompt

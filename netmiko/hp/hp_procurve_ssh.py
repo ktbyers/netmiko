@@ -29,6 +29,22 @@ class HPProcurveSSH(SSHConnection):
         self.find_prompt()
 
 
+    def find_prompt(self, *args, **kwargs, strip_ansi_escape=True):
+        '''
+        Call parent method with strip_ansi_escape=True
+        '''
+        super(HPProcurveSSH, self).find_prompt(*args, **kwargs, 
+                                    strip_ansi_escape=strip_ansi_escape)
+
+
+    def send_command(self, *args, **kwargs, strip_ansi_escape=True):
+        '''
+        Call parent method with strip_ansi_escape=True
+        '''
+        super(HPProcurveSSH, self).send_command(*args, **kwargs, 
+                                        strip_ansi_escape=strip_ansi_escape)
+
+
     def disable_paging(self, delay_factor=1):
         '''
         Ensures that multi-page output doesn't prompt for user interaction 
@@ -42,49 +58,6 @@ class HPProcurveSSH(SSHConnection):
         time.sleep(1*delay_factor)
 
         output = self.remote_conn.recv(MAX_BUFFER)
-        return output
-
-
-    def strip_ansi_escape_codes(self, string_buffer):
-        '''
-        Remove any ANSI (VT100) ESC codes from the output
-
-        Note: this does not capture ALL possible ANSI Escape Codes only the ones
-        I have encountered
-        
-        Current codes that are filtered:
-        ^[[24;27H   Position cursor
-        ^[[?25h     Show the cursor
-        ^[E         Next line
-        ^[[2K       Erase line
-        ^[[1;24r    Enable scrolling from start to row end
-        0x1b = is the escape character [^ in hex
-
-        '''
-
-        DEBUG = False
-        if DEBUG: print "In strip_ansi_escape_codes"
-        if DEBUG: print "repr = %s" % repr(string_buffer)
-
-        CODE_POSITION_CURSOR = '\x1b\[\d+;\d+H'
-        CODE_SHOW_CURSOR = '\x1b\[\?25h'
-        CODE_NEXT_LINE = '\x1bE'
-        CODE_ERASE_LINE = '\x1b\[2K'
-        CODE_ENABLE_SCROLL = '\x1b\[\d+;\d+r'
-
-        CODE_SET = [ CODE_POSITION_CURSOR, CODE_SHOW_CURSOR, CODE_ERASE_LINE, CODE_ENABLE_SCROLL ] 
-
-        output = string_buffer
-        for ansi_esc_code in CODE_SET:
-            output = re.sub(ansi_esc_code, '', output)
-
-        # CODE_NEXT_LINE must substitute with '\n'
-        output = re.sub(CODE_NEXT_LINE, '\n', output)
-
-        if DEBUG:
-            print "new_output = %s" % output
-            print "repr = %s" % repr(output)
-        
         return output
 
 

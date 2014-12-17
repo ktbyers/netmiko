@@ -91,7 +91,7 @@ class BaseSSHConnection(object):
 
 
     def send_command(self, command_string, delay_factor=.5, max_loops=30, 
-                                        strip_prompt=True, strip_command=True):
+              strip_prompt=True, strip_command=True, strip_ansi_escape=False):
         '''
         Execute command_string on the SSH channel.
 
@@ -137,8 +137,9 @@ class BaseSSHConnection(object):
                 if DEBUG: print "recv_ready = False"
                 not_done = False
 
-        # .strip_ansi_escape_codes does nothing unless overridden in child-class
-        output = self.strip_ansi_escape_codes(output)
+        # Some platforms have ansi_escape codes
+        if strip_ansi_escape:
+            output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
         if strip_command:
             output = self.strip_command(command_string, output)
@@ -198,11 +199,46 @@ class BaseSSHConnection(object):
 
     def strip_ansi_escape_codes(self, string_buffer):
         '''
-        Not needed in the general case (just return unmodified)
+        Remove any ANSI (VT100) ESC codes from the output
 
-        HP ProCurve requires ansi escape codes to be stripped
+        Note: this does not capture ALL possible ANSI Escape Codes only the ones
+        I have encountered
+        
+        Current codes that are filtered:
+        ^[[24;27H   Position cursor
+        ^[[?25h     Show the cursor
+        ^[E         Next line
+        ^[[2K       Erase line
+        ^[[1;24r    Enable scrolling from start to row end
+        0x1b = is the escape character [^ in hex
+
+        HP ProCurve's and F5 LTM's require this (possible others)
         '''
-        return string_buffer 
+
+        DEBUG = False
+        if DEBUG: print "In strip_ansi_escape_codes"
+        if DEBUG: print "repr = %s" % repr(string_buffer)
+
+        CODE_POSITION_CURSOR = '\x1b\[\d+;\d+H'
+        CODE_SHOW_CURSOR = '\x1b\[\?25h'
+        CODE_NEXT_LINE = '\x1bE'
+        CODE_ERASE_LINE = '\x1b\[2K'
+        CODE_ENABLE_SCROLL = '\x1b\[\d+;\d+r'
+
+        CODE_SET = [ CODE_POSITION_CURSOR, CODE_SHOW_CURSOR, CODE_ERASE_LINE, CODE_ENABLE_SCROLL ]
+
+        output = string_buffer
+        for ansi_esc_code in CODE_SET:
+            output = re.sub(ansi_esc_code, '', output)
+
+        # CODE_NEXT_LINE must substitute with '\n'
+        output = re.sub(CODE_NEXT_LINE, '\n', output)
+
+        if DEBUG:
+            print "new_output = %s" % output
+            print "repr = %s" % repr(output)
+
+        return output
 
     
     def cleanup(self):
