@@ -89,10 +89,64 @@ class BaseSSHConnection(object):
         else:
             return None
 
-    
-    def send_command(self, command_string, delay_factor=1, max_loops=30, 
-                                    strip_prompt=True, strip_command=True):
-        pass
+
+    def send_command(self, command_string, delay_factor=.5, max_loops=30, 
+                                        strip_prompt=True, strip_command=True):
+        '''
+        Execute command_string on the SSH channel.
+
+        Use delay based mechanism to obtain output.  Strips echoed characters and router prompt.
+
+        delay_factor can be used to increase the delays.
+
+        max_loops can be used to increase the number of times it reads the data buffer
+
+        Returns the output of the command.
+        '''
+
+        DEBUG = False
+        output = ''
+
+        if DEBUG: print 'In send_command'
+
+        self.clear_buffer()
+
+        # Ensure there is a newline at the end of the command
+        command_string = command_string.rstrip("\n")
+        command_string += '\n'
+
+        if DEBUG: print "Command is: {}".format(command_string)
+
+        self.remote_conn.send(command_string)
+
+        time.sleep(1*delay_factor)
+        not_done = True
+        i = 1
+
+        while (not_done) and (i <= max_loops):
+
+            if DEBUG: print "In while loop"
+            time.sleep(2*delay_factor)
+            i += 1
+
+            # Keep reading data as long as available (up to max_loops)
+            if self.remote_conn.recv_ready():
+                if DEBUG: print "recv_ready = True"
+                output += self.remote_conn.recv(MAX_BUFFER)
+            else:
+                if DEBUG: print "recv_ready = False"
+                not_done = False
+
+        # .strip_ansi_escape_codes does nothing unless overridden in child-class
+        output = self.strip_ansi_escape_codes(output)
+        output = self.normalize_linefeeds(output)
+        if strip_command:
+            output = self.strip_command(command_string, output)
+        if strip_prompt:
+            output = self.strip_prompt(output)
+
+        if DEBUG: print output
+        return output
 
 
     def strip_prompt(self, a_string):
@@ -118,10 +172,12 @@ class BaseSSHConnection(object):
 
     def normalize_linefeeds(self, a_string):
         '''
-        Convert '\r\n' to '\n'
+        Convert '\r\r\n','\r\n', '\n\r' to '\n
         '''
 
-        return a_string.replace('\r\n', '\n')
+        newline = re.compile(r'(\r\r\n|\r\n|\n\r)')
+
+        return newline.sub('\n', a_string)
 
 
     def enable(self):

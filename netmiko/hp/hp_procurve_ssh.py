@@ -88,15 +88,6 @@ class HPProcurveSSH(SSHConnection):
         return output
 
 
-    def normalize_linefeeds(self, a_string):
-        '''
-        For some reason on ProCurves after I normalize the ansi escape codes
-        the output contains \n\r for the linefeed/carriage return
-        '''
-
-        return a_string.replace('\n\r', '\n')
-
-
     def enable(self):
         '''
         Enter enable mode
