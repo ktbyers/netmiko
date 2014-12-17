@@ -29,20 +29,27 @@ class HPProcurveSSH(SSHConnection):
         self.find_prompt()
 
 
-    def find_prompt(self, *args, **kwargs, strip_ansi_escape=True):
+    def find_prompt(self, *args, **kwargs):
+        '''
+        Call parent method with default value of strip_ansi_escape=True
+        '''
+
+        try:
+            kwargs['strip_ansi_escape']
+        except KeyError:
+            kwargs['strip_ansi_escape'] = True
+        super(HPProcurveSSH, self).find_prompt(*args, **kwargs)
+
+
+    def send_command(self, *args, **kwargs):
         '''
         Call parent method with strip_ansi_escape=True
         '''
-        super(HPProcurveSSH, self).find_prompt(*args, **kwargs, 
-                                    strip_ansi_escape=strip_ansi_escape)
-
-
-    def send_command(self, *args, **kwargs, strip_ansi_escape=True):
-        '''
-        Call parent method with strip_ansi_escape=True
-        '''
-        super(HPProcurveSSH, self).send_command(*args, **kwargs, 
-                                        strip_ansi_escape=strip_ansi_escape)
+        try:
+            kwargs['strip_ansi_escape']
+        except KeyError:
+            kwargs['strip_ansi_escape'] = True
+        super(HPProcurveSSH, self).send_command(*args, **kwargs)
 
 
     def disable_paging(self, delay_factor=1):
