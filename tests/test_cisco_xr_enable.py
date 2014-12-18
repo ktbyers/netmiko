@@ -8,7 +8,6 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_name'   : 'RP/0/0/CPU0:XRv-1',
         'router_prompt' : 'RP/0/0/CPU0:XRv-1#',
         'router_enable' : 'RP/0/0/CPU0:XRv-1#',
         'interface_ip'  : '169.254.254.181',
@@ -25,7 +24,6 @@ def setup_module(module):
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
 
-    module.router_name = net_connect.router_name
     module.router_prompt_initial = net_connect.router_prompt
     net_connect.enable()
     module.router_prompt = net_connect.router_prompt

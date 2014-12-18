@@ -8,7 +8,6 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_name'   : 'vna1ds1-sf',
         'router_prompt' : 'vna1ds1-sf#',
         'router_enable' : 'vna1ds1-sf#',
         'interface_ip'  : '10.3.3.245',
@@ -23,7 +22,6 @@ def setup_module(module):
     net_connect = SSHClass(**cisco_nxos)
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
-    module.router_name = net_connect.router_name
 
     module.router_prompt_initial = net_connect.router_prompt
     net_connect.enable()

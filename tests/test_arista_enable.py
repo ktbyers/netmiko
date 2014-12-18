@@ -9,7 +9,6 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_name'   : 'sf-arista-sw4',
         'router_prompt' : 'sf-arista-sw4>',
         'router_enable' : 'sf-arista-sw4#',
         'interface_ip'  : '10.220.88.31',
@@ -20,7 +19,6 @@ def setup_module(module):
     net_connect = SSHClass(**arista_veos_sw)
 
     # Enter enable mode
-    module.router_name = net_connect.router_name
     module.router_prompt_initial = net_connect.router_prompt
     net_connect.enable()
     module.router_prompt = net_connect.router_prompt

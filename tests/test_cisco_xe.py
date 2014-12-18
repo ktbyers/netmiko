@@ -9,7 +9,6 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_name'   : 'xe-test-rtr',
         'router_prompt' : 'xe-test-rtr>',
         'router_enable' : 'xe-test-rtr#',
         'interface_ip'  : '172.30.0.167',
@@ -22,7 +21,7 @@ def setup_module(module):
     net_connect = SSHClass(**cisco_xe)
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
-    module.router_name = net_connect.router_name
+    module.router_prompt = net_connect.router_prompt
 
 
 def test_disable_paging():
@@ -51,7 +50,7 @@ def test_find_prompt():
     '''
     Verify the router prompt is detected correctly
     '''
-    assert router_name == EXPECTED_RESPONSES['router_name']
+    assert router_prompt == EXPECTED_RESPONSES['router_prompt']
 
 
 def test_strip_prompt():
