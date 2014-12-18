@@ -1,22 +1,18 @@
 #!/usr/bin/env python
 
-
-
 import pytest
 import re
-
 
 import netmiko
 from DEVICE_CREDS import *
 
 
 def setup_module(module):
-	
+
     module.EXPECTED_RESPONSES = {
         'device_type'   : 'BIG-IP',
-        'pool_name'		: 'Ltm::Pool: TEST',
+        'pool_name'     : 'Ltm::Pool: TEST',
     }
-    
     
     show_sys_command = 'tmsh show sys version'
     multiple_line_command = 'tmsh show sys log ltm'
@@ -27,9 +23,6 @@ def setup_module(module):
     module.show_version = net_connect.send_command(show_sys_command)
     module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=2)
     module.show_pool = net_connect.send_command(module.basic_command)
-   
-
-
 
 
 def test_disable_paging():
@@ -40,7 +33,6 @@ def test_disable_paging():
     assert re.search(r'warning f5-inova', multiple_line_output)
 
 
-
 def test_verify_ssh_connect():
     '''
     Verify the connection was established successfully
@@ -48,13 +40,11 @@ def test_verify_ssh_connect():
     assert EXPECTED_RESPONSES['device_type'] in show_version
 
 
-
 def test_verify_send_command():
     '''
     Verify a command can be sent down the channel successfully
     '''
     assert EXPECTED_RESPONSES['pool_name'] in show_pool
-
 
 
 def test_strip_command():
@@ -65,15 +55,8 @@ def test_strip_command():
     assert basic_command not in show_pool
 
 
-
-
 def test_normalize_linefeeds():
     '''
     Ensure no '\r\n' sequences
     '''
     assert not '\r\n' in show_version
-
-    
-
-
-
