@@ -42,6 +42,15 @@ class F5LtmSSH(SSHConnection):
         if DEBUG: print "Paging has been disabled\n"
 
         return output
+        
+    def strip_command(self, command_string, output):
+        '''
+        Strip command_string from output string
+        '''
+
+        command_length = len(command_string)
+        return output[command_length:]
+        
     
 
     def enable(self, delay_factor=1):
@@ -72,6 +81,11 @@ class F5LtmSSH(SSHConnection):
         time.sleep(1)
 
         output = self.remote_conn.recv(MAX_BUFFER)
+        output = self.remote_conn.recv(MAX_BUFFER)
+
+        output = self.normalize_linefeeds(output)
+        output = self.strip_command(command_string,output)
+        
         return output   
 
 
@@ -105,5 +119,6 @@ class F5LtmSSH(SSHConnection):
         '''
         Convert '\r\n' or '\r\r\n' to '\n, and remove '\r's in the text
         '''    
-        # In Progress.
-        pass 
+        newline = re.compile(r'(\r\n|\r\n\r\n|\r\r\n|\n\r|\r)')
+
+        return newline.sub('\n', a_string)
