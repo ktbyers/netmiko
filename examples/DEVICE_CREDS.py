@@ -25,6 +25,7 @@ arista_veos_sw1 = {
     'port': 8222,
     'verbose': False,
 }
+
 arista_veos_sw2 = {
     'device_type': 'arista_eos',
     'ip':   '10.10.10.227',
@@ -34,6 +35,7 @@ arista_veos_sw2 = {
     'port': 8322,
     'verbose': False,
 }
+
 arista_veos_sw3 = {
     'device_type': 'arista_eos',
     'ip':   '10.10.10.227',
