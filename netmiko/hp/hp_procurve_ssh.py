@@ -5,21 +5,12 @@ import time
 
 class HPProcurveSSH(SSHConnection):
 
-    def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True):
+    def session_preparation(self):
+        '''
+        Prepare the session after the connection has been established
+        '''
 
-        self.ip = ip
-        self.port = port
-        self.username = username
-        self.password = password
-        self.secret = secret
-        self.device_type = device_type
-
-        if not verbose:
-            self.establish_connection(verbose=False)
-        else:
-            self.establish_connection()
-
-        # HP sends up - 'Press any key to continue'
+        # HP uses - 'Press any key to continue'
         time.sleep(1)
         self.remote_conn.send("\n")
         time.sleep(1)

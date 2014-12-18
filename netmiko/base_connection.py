@@ -28,6 +28,23 @@ class BaseSSHConnection(object):
             self.establish_connection(verbose=False)
         else:
             self.establish_connection()
+
+        self.session_preparation()
+
+
+    def session_preparation(self):
+        '''
+        Prepare the session after the connection has been established
+
+        This method handles some of vagaries that occur between various devices
+        early on in the session.
+
+        In general, it should include:
+        self.disable_paging()   # if applicable
+        self.find_prompt()
+
+        '''
+
         self.disable_paging()
         self.find_prompt()
 

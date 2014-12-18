@@ -4,22 +4,13 @@ import time
 
 class CiscoAsaSSH(SSHConnection):
 
-    def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True):
+    def session_preparation(self):
+        '''
+        Prepare the session after the connection has been established
 
-        self.ip = ip
-        self.port = port
-        self.username = username
-        self.password = password
-        self.secret = secret
-        self.device_type = device_type
-        self.ansi_escape_codes = False
+        ASA must go into enable mode to disable_paging
+        '''
 
-        if not verbose:
-            self.establish_connection(verbose=False)
-        else:
-            self.establish_connection()
-
-        # ASA must go into enable mode to disable_paging
         self.enable()
         self.disable_paging()
         self.find_prompt()
