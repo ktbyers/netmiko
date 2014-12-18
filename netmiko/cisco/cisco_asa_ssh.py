@@ -12,6 +12,7 @@ class CiscoAsaSSH(SSHConnection):
         self.password = password
         self.secret = secret
         self.device_type = device_type
+        self.ansi_escape_codes = False
 
         if not verbose:
             self.establish_connection(verbose=False)

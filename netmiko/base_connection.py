@@ -1,6 +1,7 @@
 import paramiko
 import time
 import socket
+import re
 
 from netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -21,6 +22,7 @@ class BaseSSHConnection(object):
         self.password = password
         self.secret = secret
         self.device_type = device_type
+        self.ansi_escape_codes = False
 
         if not verbose:
             self.establish_connection(verbose=False)
@@ -68,7 +70,7 @@ class BaseSSHConnection(object):
 
         # Strip the initial router prompt
         time.sleep(sleep_time)
-        output = self.remote_conn.recv(MAX_BUFFER)
+        return self.remote_conn.recv(MAX_BUFFER)
 
 
     def disable_paging(self):
@@ -91,7 +93,7 @@ class BaseSSHConnection(object):
 
 
     def send_command(self, command_string, delay_factor=.5, max_loops=30, 
-              strip_prompt=True, strip_command=True, strip_ansi_escape=False):
+              strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
 
@@ -138,7 +140,7 @@ class BaseSSHConnection(object):
                 not_done = False
 
         # Some platforms have ansi_escape codes
-        if strip_ansi_escape:
+        if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
         if strip_command:

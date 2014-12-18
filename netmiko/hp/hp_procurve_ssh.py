@@ -1,7 +1,6 @@
 from netmiko.ssh_connection import SSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 
-import re
 import time
 
 class HPProcurveSSH(SSHConnection):
@@ -25,31 +24,11 @@ class HPProcurveSSH(SSHConnection):
         self.remote_conn.send("\n")
         time.sleep(1)
 
+        # HP output contains VT100 escape codes
+        self.ansi_escape_codes = True
+
         self.disable_paging()
         self.find_prompt()
-
-
-    def find_prompt(self, *args, **kwargs):
-        '''
-        Call parent method with default value of strip_ansi_escape=True
-        '''
-
-        try:
-            kwargs['strip_ansi_escape']
-        except KeyError:
-            kwargs['strip_ansi_escape'] = True
-        super(HPProcurveSSH, self).find_prompt(*args, **kwargs)
-
-
-    def send_command(self, *args, **kwargs):
-        '''
-        Call parent method with strip_ansi_escape=True
-        '''
-        try:
-            kwargs['strip_ansi_escape']
-        except KeyError:
-            kwargs['strip_ansi_escape'] = True
-        super(HPProcurveSSH, self).send_command(*args, **kwargs)
 
 
     def disable_paging(self, delay_factor=1):
@@ -65,6 +44,7 @@ class HPProcurveSSH(SSHConnection):
         time.sleep(1*delay_factor)
 
         output = self.remote_conn.recv(MAX_BUFFER)
+        output = self.strip_ansi_escape_codes(output)
         return output
 
 
