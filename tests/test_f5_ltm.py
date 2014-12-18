@@ -12,7 +12,7 @@ def setup_module(module):
 	
     module.EXPECTED_RESPONSES = {
         'device_type'   : 'BIG-IP',
-        'pool_name'	  	: 'Ltm::Pool: TEST',
+        'pool_name'	: 'Ltm::Pool: TEST',
     }
     
     
@@ -35,7 +35,7 @@ def test_disable_paging():
     Verify paging is disabled by looking for string after when paging would
     normally occur
     '''
-    assert re.search(r'warning f5-inova', multiple_line_output)
+    assert re.search(r'warning*', multiple_line_output)
 
 
 
