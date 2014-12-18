@@ -3,13 +3,13 @@
 import pytest
 
 import netmiko
+import time
 from DEVICE_CREDS import *
 
 
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_name'   : 'pynet-rtr1',
         'router_prompt' : 'pynet-rtr1>',
         'router_enable' : 'pynet-rtr1#',
         'interface_ip'  : '10.220.88.20'
@@ -22,8 +22,15 @@ def setup_module(module):
     net_connect = SSHClass(**cisco_881)
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
-    module.router_name = net_connect.router_name
+    module.router_prompt = net_connect.router_prompt
 
+    # Test buffer clearing
+    net_connect.remote_conn.send(show_ver_command)
+    time.sleep(2)
+    net_connect.clear_buffer()
+    # Should not be anything there on the second pass
+    module.clear_buffer_check = net_connect.clear_buffer()
+    
 
 def test_disable_paging():
     '''
@@ -51,7 +58,7 @@ def test_find_prompt():
     '''
     Verify the router prompt is detected correctly
     '''
-    assert router_name == EXPECTED_RESPONSES['router_name']
+    assert router_prompt == EXPECTED_RESPONSES['router_prompt']
 
 
 def test_strip_prompt():
@@ -76,3 +83,8 @@ def test_normalize_linefeeds():
     assert not '\r\n' in show_version
 
 
+def test_clear_buffer():
+    '''
+    Test that clearing the buffer works
+    '''
+    assert clear_buffer_check is None

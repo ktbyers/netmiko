@@ -9,7 +9,6 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_name'   : 'pynet-rtr1',
         'router_prompt' : 'pynet-rtr1>',
         'router_enable' : 'pynet-rtr1#',
         'interface_ip'  : '10.220.88.20',
@@ -23,7 +22,6 @@ def setup_module(module):
     net_connect = SSHClass(**cisco_881)
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
-    module.router_name = net_connect.router_name
 
     module.router_prompt_initial = net_connect.router_prompt
     net_connect.enable()
