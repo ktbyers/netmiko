@@ -21,41 +21,9 @@ class F5LtmSSH(SSHConnection):
         else:
             self.establish_connection()
 
-        time.sleep(1)
-        self.enable()
-        self.disable_paging()
-       
-
-    def disable_paging(self, delay_factor=1):
-        '''
-        F5 LTM does not require paging disable 
-        Ensures that multi-page output doesn't prompt for user interaction 
-        (i.e. --MORE--)
-
-        Must manually control the channel at this point.
-        '''
-
-        self.remote_conn.send("\n")
-        time.sleep(1*delay_factor)
-
-        output = self.remote_conn.recv(MAX_BUFFER)
-
-        return output
-
-
-    def enable(self):
-        '''
-        Enter enable mode
-        Not implemented on F5 LTMs
-        '''
-
-        return None
-
-=======
         self.disable_paging()
         time.sleep(1)            
-	
-        
+       
 
     def disable_paging(self, delay_factor=1):
         '''
@@ -78,14 +46,14 @@ class F5LtmSSH(SSHConnection):
 
     def enable(self, delay_factor=1):
         '''
-        TMSH command is equivalent to config command on F5.
-        '''		
+        tmsh command is equivalent to config command on F5.
+        '''
         self.clear_buffer()
         self.remote_conn.send("\ntmsh\n")
         time.sleep(1*delay_factor)
-        
 
         return None
+
 
     def send_command(self, command_string, delay_factor=1):
         '''
@@ -104,9 +72,6 @@ class F5LtmSSH(SSHConnection):
         time.sleep(1)
 
         output = self.remote_conn.recv(MAX_BUFFER)
-
-        #print output
-
         return output   
 
 
@@ -141,5 +106,4 @@ class F5LtmSSH(SSHConnection):
         Convert '\r\n' or '\r\r\n' to '\n, and remove '\r's in the text
         '''    
         # In Progress.
-        
->>>>>>> c8127da3bac2b602964b0676c04cc8adb4fbec2e
+        pass 
