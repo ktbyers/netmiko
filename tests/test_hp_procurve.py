@@ -117,3 +117,9 @@ def test_config_mode():
 def test_exit_config_mode():
     assert not EXPECTED_RESPONSES['config_mode'] in exit_config_mode
 
+
+def test_strip_ansi_escape():
+    '''
+    Test that a long string comes back as expected
+    '''
+    assert '----  Bottom of Log : Events Listed = ' in multiple_line_output
