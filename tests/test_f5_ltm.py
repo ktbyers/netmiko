@@ -8,6 +8,7 @@ import netmiko
 from DEVICE_CREDS import *
 
 
+
 def setup_module(module):
 	
     module.EXPECTED_RESPONSES = {
