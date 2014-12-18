@@ -7,7 +7,7 @@ from netmiko_globals import MAX_BUFFER
 
 class SSHConnection(BaseSSHConnection):
     '''
-    Based upon Cisco IOS behavior.
+    Based upon Cisco CLI behavior.
     '''
 
     def disable_paging(self):
