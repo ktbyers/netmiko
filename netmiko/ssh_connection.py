@@ -24,33 +24,30 @@ class SSHConnection(BaseSSHConnection):
 
     def find_prompt(self):
         '''
-        Finds the network device name and prompt ('>', '#')
+        Finds the network device prompt
+
+        Assumes the prompt ends in either: '>' or '#'
         '''
 
         DEBUG = False
         if DEBUG: print "In find_prompt"
 
+        self.clear_buffer()
         self.remote_conn.send("\n")
         time.sleep(1)
 
-        router_name = self.remote_conn.recv(MAX_BUFFER)
+        prompt = self.remote_conn.recv(MAX_BUFFER)
 
-        if (router_name.count('>') == 1):
-            z_prompt = '>'
-            router_name = router_name.split('>')[0]
-        elif (router_name.count('#') == 1):
-            z_prompt = '#'
-            router_name = router_name.split('#')[0]
-        else:
+        if not (prompt.count('>') == 1 or prompt.count('#') == 1):
             raise ValueError("Router name not found after multiple attempts")
 
         # Some platforms have ANSI escape codes
         if self.ansi_escape_codes:
-            router_name = self.strip_ansi_escape_codes(router_name)
-        router_name = self.normalize_linefeeds(router_name)
-        self.router_name = router_name.strip()
-        self.router_prompt = self.router_name + z_prompt
-        if DEBUG: print "router_name: {}; prompt: {}".format(self.router_name, self.router_prompt)
+            prompt = self.strip_ansi_escape_codes(prompt)
+
+        prompt = self.normalize_linefeeds(prompt)
+        self.router_prompt = prompt.strip()
+        if DEBUG: print "prompt: {}".format(self.router_prompt)
 
 
     def enable(self):
