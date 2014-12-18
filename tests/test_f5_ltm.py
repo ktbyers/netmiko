@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import pytest
-import re
+import re 
 
 
 import netmiko
