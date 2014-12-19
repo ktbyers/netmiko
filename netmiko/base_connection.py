@@ -106,8 +106,35 @@ class BaseSSHConnection(object):
         return output
 
 
-    def find_prompt(self):
-        pass    
+    def find_prompt(self, pri_prompt_terminator='#', alt_prompt_terminator='>', delay_factor=1):
+        '''
+        Finds the network device prompt
+
+        Assumes Cisco CLI style prompts by default
+        '''
+
+        DEBUG = False
+        if DEBUG: print "In find_prompt"
+
+        self.clear_buffer()
+        self.remote_conn.send("\n")
+        time.sleep(1*delay_factor)
+
+        prompt = self.remote_conn.recv(MAX_BUFFER)
+
+        # Some platforms have ANSI escape codes
+        if self.ansi_escape_codes:
+            prompt = self.strip_ansi_escape_codes(prompt)
+
+        prompt = self.normalize_linefeeds(prompt)
+        self.router_prompt = prompt.strip()
+
+        # Must end with a valid terminator character
+        if not self.router_prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError("Router prompt not found: {0}".format(self.router_prompt) )
+
+        if DEBUG: print "prompt: {}".format(self.router_prompt)
+        return self.router_prompt
 
 
     def clear_buffer(self):
@@ -217,15 +244,40 @@ class BaseSSHConnection(object):
 
 
     def config_mode(self):
-        pass
+        return ''
 
 
     def exit_config_mode(self):
-        pass
+        return ''
 
 
-    def send_config_set(self, config_commands=None):
-        pass
+    def send_config_set(self, config_commands=None, commit=False):
+        '''
+        Send in a set of configuration commands as a list
+
+        The commands will be executed one after the other
+
+        Automatically exits/enters configuration mode.
+        '''
+
+        if config_commands is None:
+            return ''
+
+        if type(config_commands) != type([]):
+            raise ValueError("Invalid argument passed into send_config_set")
+
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+
+        for a_command in config_commands:
+            output += self.send_command(a_command, strip_prompt=False, strip_command=False)
+
+        if commit:
+            output += self.commit()
+
+        output += self.exit_config_mode()
+
+        return output
 
 
     def strip_ansi_escape_codes(self, string_buffer):
@@ -292,5 +344,4 @@ class BaseSSHConnection(object):
         '''
         Commit method for platforms that support this
         '''
-
-        pass
+        return ''
