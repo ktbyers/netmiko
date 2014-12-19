@@ -10,7 +10,6 @@ class SSHConnection(BaseSSHConnection):
     Based upon Cisco CLI behavior.
     '''
 
-
     def find_prompt(self):
         '''
         Finds the network device prompt

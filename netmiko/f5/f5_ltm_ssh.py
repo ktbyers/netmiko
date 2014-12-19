@@ -1,4 +1,4 @@
-from netmiko.ssh_connection import SSHConnection
+from netmiko.base_connection import BaseSSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 
 import time
