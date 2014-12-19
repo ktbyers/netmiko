@@ -10,17 +10,6 @@ class SSHConnection(BaseSSHConnection):
     Based upon Cisco CLI behavior.
     '''
 
-    def disable_paging(self):
-        '''
-        Disable paging on a Cisco router
-        '''
-
-        self.remote_conn.send("terminal length 0\n")
-        time.sleep(1)
-
-        # Clear the buffer on the screen
-        return self.remote_conn.recv(MAX_BUFFER)
-
 
     def find_prompt(self):
         '''

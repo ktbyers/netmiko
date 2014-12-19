@@ -90,8 +90,20 @@ class BaseSSHConnection(object):
         return self.remote_conn.recv(MAX_BUFFER)
 
 
-    def disable_paging(self):
-        pass
+    def disable_paging(self, command="terminal length 0\n", delay_factor=1):
+        '''
+        Disable paging default to a Cisco CLI method
+        '''
+
+        self.remote_conn.send(command)
+        time.sleep(1*delay_factor)
+
+        # Clear the buffer on the screen
+        output = self.remote_conn.recv(MAX_BUFFER)
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
+
+        return output
 
 
     def find_prompt(self):

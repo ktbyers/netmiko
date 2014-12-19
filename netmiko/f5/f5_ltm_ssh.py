@@ -4,54 +4,16 @@ from netmiko.netmiko_globals import MAX_BUFFER
 import time
 import re
 
-class F5LtmSSH(SSHConnection):
+class F5LtmSSH(BaseSSHConnection):
 
-    def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True):
+    def session_preparation(self):
+        '''
+        Prepare the session after the connection has been established
+        '''
 
-        self.ip = ip
-        self.port = port
-        self.username = username
-        self.password = password
-        self.secret = secret
-        self.device_type = device_type
-        self.ansi_escape_codes = False
-
-        if not verbose:
-            self.establish_connection(verbose=False)
-        else:
-            self.establish_connection()
-
-        self.disable_paging()
+        self.disable_paging(command="\nset length 0\n")
         time.sleep(1)            
        
-
-    def disable_paging(self, delay_factor=1):
-        '''
-        Ensures that multi-page output doesn't prompt for user interaction
-        (i.e. --MORE--)
-        
-        On F5 LTM devices, 'set length 0' is equivalent to 'terminal length 0' for disabling paging    
-
-        '''            
-        DEBUG = True
-        self.remote_conn.send("\n")
-        self.remote_conn.send('set length 0\n')
-        time.sleep(1*delay_factor)
-
-        output = self.remote_conn.recv(MAX_BUFFER)
-        if DEBUG: print "Paging has been disabled\n"
-
-        return output
-        
-    def strip_command(self, command_string, output):
-        '''
-        Strip command_string from output string
-        '''
-
-        command_length = len(command_string)
-        return output[command_length:]
-        
-    
 
     def enable(self, delay_factor=1):
         '''
