@@ -3,7 +3,7 @@ netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-##### Under early, early development -- needs considerably more testing #####
+##### Under early development -- needs considerably more testing #####
 
 Requires:  
 Paramiko >= 1.7.5  
@@ -26,22 +26,34 @@ Juniper SRX100 running 12.1X44-D35.5
 ##### Simple example: #####
 
 ```
-# Specify the type of device. Currently supported device_types are 'cisco_ios',
-# 'cisco_asa', and 'arista_eos'
 >>> import netmiko
->>> SSHClass = netmiko.ssh_dispatcher(device_type='cisco_ios')
+
+# Create a dictionary representing the device
+>>> cisco_881 = {
+...     'device_type': 'cisco_ios',
+...     'ip':   '10.10.10.10',
+...     'username': 'test',
+...     'password': 'password',
+...     'secret': 'secret',
+...     'verbose': False,
+... }
+
+# Dynamically select the class to use based on the device_type
+>>> SSHClass = netmiko.ssh_dispatcher(device_type=cisco_881['device_type'])
+
+# Supported device_types can be found at:
+# https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py
+
 ```
 
 ```
-# Establish SSH connection to device
->>> net_connect = SSHClass(ip = '10.10.10.10', username = 'username', 
-                password = 'password', secret = 'secret')
-SSH connection established to 10.10.10.10:22
-Interactive SSH session established
+# Establish an SSH connection to the device pass in the device dictionary.
+>>> net_connect = SSHClass(**cisco_881)
+                
 ```
 
 ```
-# Execute a show command
+# Execute show commands on the channel:
 >>> output = net_connect.send_command('show ip int brief')
 >>> print output
 Interface                  IP-Address      OK? Method Status                Protocol
@@ -49,7 +61,7 @@ FastEthernet0              unassigned      YES unset  down                  down
 FastEthernet1              unassigned      YES unset  down                  down    
 FastEthernet2              unassigned      YES unset  down                  down    
 FastEthernet3              unassigned      YES unset  down                  down    
-FastEthernet4              10.220.88.20    YES manual up                    up      
+FastEthernet4              10.10.10.10     YES manual up                    up      
 Vlan1                      unassigned      YES unset  down                  down    
 ```
 
@@ -60,16 +72,21 @@ Vlan1                      unassigned      YES unset  down                  down
 
 ```
 # Execute configuration change commands (will automatically enter into config mode)
->>> config_commands = ['logging buffered 20000', 'logging buffered 20010', 
-                                        'no logging console']
+>>> config_commands = [ 'logging buffered 20000', 
+                        'logging buffered 20010', 
+                        'no logging console' ]
+>>> output = net_connect.send_config_set(config_commands)
 >>> output = net_connect.send_config_set(config_commands)
 >>> print output
 
+pynet-rtr1#config term
+Enter configuration commands, one per line.  End with CNTL/Z.
 pynet-rtr1(config)#logging buffered 20000
 pynet-rtr1(config)#logging buffered 20010
 pynet-rtr1(config)#no logging console
 pynet-rtr1(config)#end
 pynet-rtr1#
+
 ```
 
   
