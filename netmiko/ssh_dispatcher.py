@@ -7,6 +7,7 @@ from hp import HPProcurveSSH
 from f5 import F5LtmSSH
 from juniper import JuniperSSH
 
+# The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
     'cisco_ios'     : CiscoIosSSH,
     'cisco_xe'      : CiscoIosSSH,
