@@ -5,6 +5,7 @@ from cisco import CiscoXrSSH
 from arista import AristaSSH
 from hp import HPProcurveSSH
 from f5 import F5LtmSSH
+from juniper import JuniperSSH
 
 CLASS_MAPPER = {
     'cisco_ios'     : CiscoIosSSH,
@@ -15,6 +16,7 @@ CLASS_MAPPER = {
     'arista_eos'    : AristaSSH,
     'hp_procurve'   : HPProcurveSSH,
     'f5_ltm'        : F5LtmSSH,
+    'juniper'       : JuniperSSH,
 }
 
 def ssh_dispatcher(device_type):
