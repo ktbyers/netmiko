@@ -3,7 +3,7 @@ netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-##### Under early development -- needs considerably more testing #####
+##### Under early development -- needs more testing #####
 
 Requires:  
 Paramiko >= 1.7.5  
