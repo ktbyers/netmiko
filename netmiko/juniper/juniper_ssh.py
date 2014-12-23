@@ -36,7 +36,7 @@ class JuniperSSH(BaseSSHConnection):
 
         output = self.send_command('\n', strip_prompt=False, strip_command=False)
         if not '[edit' in output:
-            output += self.send_command('configure\n')
+            output += self.send_command('configure\n', strip_prompt=False, strip_command=False)
             if 'unknown command' in output:
                 raise ValueError("Failed to enter configuration mode")
             if not '[edit' in output:
