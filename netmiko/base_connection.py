@@ -218,7 +218,10 @@ class BaseSSHConnection(object):
         '''
 
         response_list = a_string.split('\n')
-        if response_list[-1].strip() == self.router_prompt:
+        last_line = response_list[-1]
+
+        # Take off the last char using [:-1] (usually > or # on Cisco)
+        if self.router_prompt[:-1] in last_line:
             return '\n'.join(response_list[:-1])
         else:
             return a_string
