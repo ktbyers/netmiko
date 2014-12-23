@@ -48,6 +48,15 @@ def setup_module(module):
     net_connect.exit_config_mode()
     module.manual_commit = net_connect.send_command('show configuration | match time-zone')
 
+    # Test that prompt is stripped correctly from config mode
+    net_connect.config_mode()
+    net_connect.send_command('edit services')
+    module.show_version_from_config = net_connect.send_command('run show version')
+
+    print "*** SHOW VERSION: {0}".format(module.show_version_from_config)
+
+    net_connect.exit_config_mode()
+
     net_connect.disconnect()
 
 
@@ -65,3 +74,11 @@ def test_exit_config_mode():
 
 def test_manual_commit():
     assert 'time-zone America/Los_Angeles' in manual_commit
+
+
+def test_edit_context_stripped():
+    '''
+    Verify [edit] is properly stripped for show commands in config mode
+    '''
+
+    assert '[edit' not in show_version_from_config

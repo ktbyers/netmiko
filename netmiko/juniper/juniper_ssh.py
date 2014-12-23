@@ -1,4 +1,6 @@
 import time
+import re
+
 from netmiko.base_connection import BaseSSHConnection
 
 class JuniperSSH(BaseSSHConnection):
@@ -82,3 +84,40 @@ class JuniperSSH(BaseSSHConnection):
         output += self.exit_config_mode()
         return output
 
+
+    def strip_prompt(self, *args, **kwargs):
+        '''
+        Strip the trailing router prompt from the output
+        '''
+
+        # Call the parent strip_prompt method
+        a_string = super(JuniperSSH, self).strip_prompt(*args, **kwargs)
+
+        # Call additional method to strip some context items
+        return self.strip_context_items(a_string)
+
+
+    def strip_context_items(self, a_string):
+        '''
+        Juniper will also put a configuration context:
+        [edit]
+
+        and a virtual chassis context:
+        {master:0}, {backup:1}
+        '''
+
+        strings_to_strip = [
+            r'\[edit.*\]',
+            r'\{master:.*\}',
+            r'\{backup:.*\}',
+            r'\{line.*\}',
+        ]
+
+        response_list = a_string.split('\n') 
+        last_line = response_list[-1]
+
+        for pattern in strings_to_strip:
+            if re.search(pattern, last_line):
+                return "\n".join(response_list[:-1])
+
+        return a_string

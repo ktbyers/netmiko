@@ -127,6 +127,10 @@ class BaseSSHConnection(object):
             prompt = self.strip_ansi_escape_codes(prompt)
 
         prompt = self.normalize_linefeeds(prompt)
+        prompt = prompt.strip()
+
+        # If multiple lines in the output take the last line
+        prompt = prompt.split('\n')[-1]
         self.router_prompt = prompt.strip()
 
         # Must end with a valid terminator character
