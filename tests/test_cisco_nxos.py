@@ -6,14 +6,14 @@ import netmiko
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_prompt' : 'vna1ds1-sf#',
-        'router_enable' : 'vna1ds1-sf#',
+        'router_prompt' : 'n7k1#',
+        'router_enable' : 'n7k1#',
         'interface_ip'  : '10.3.3.245'
     }
-    
+
     show_ver_command = 'show version'
     module.basic_command = 'show ip int brief'
-    
+
     SSHClass = netmiko.ssh_dispatcher(cisco_nxos['device_type'])
     net_connect = SSHClass(**cisco_nxos)
     module.show_version = net_connect.send_command(show_ver_command)
@@ -59,7 +59,7 @@ def test_strip_prompt():
 
 def test_strip_command():
     '''
-    Ensure that the command that was executed does not show up in the 
+    Ensure that the command that was executed does not show up in the
     command output
     '''
     assert basic_command not in show_ip
