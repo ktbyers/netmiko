@@ -30,6 +30,7 @@ class BaseSSHConnection(object):
             self.establish_connection()
 
         self.session_preparation()
+        return None
 
 
     def session_preparation(self):
@@ -47,6 +48,7 @@ class BaseSSHConnection(object):
 
         self.disable_paging()
         self.find_prompt()
+        return None
 
 
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8):
@@ -247,16 +249,22 @@ class BaseSSHConnection(object):
 
 
     def enable(self):
-        pass
+        return None
 
+    def exit_enable_mode(self):
+        return None
 
     def config_mode(self):
-        return ''
-
+        return None
 
     def exit_config_mode(self):
-        return ''
+        return None
 
+    def check_enable_mode(self):
+        return None
+    
+    def check_config_mode(self):
+        return None
 
     def send_config_set(self, config_commands=None, commit=False):
         '''
@@ -335,7 +343,7 @@ class BaseSSHConnection(object):
         '''
         Any needed cleanup before closing connection
         '''
-        pass
+        return None
 
 
     def disconnect(self):
@@ -345,10 +353,11 @@ class BaseSSHConnection(object):
 
         self.cleanup()
         self.remote_conn_pre.close()
+        return None
 
 
     def commit(self):
         '''
         Commit method for platforms that support this
         '''
-        return ''
+        return None

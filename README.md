@@ -19,7 +19,10 @@ Cisco Nexus 7K
 Cisco IOS XR ASR9K  
 Cisco IOS XRv  
 Arista vEOS running 4.12.3  
-HP ProCurve 2510-24  
+HP ProCurve 2510-24
+HP 2920 - Procurve Software Version WB.15.16.0005
+HP 8206 zl - Procurve Software Version K.15.16.0005
+HP 870 LSW - Comware Software Version 5.20.105
 Juniper SRX100 running 12.1X44-D35.5  
 Juniper EX2200 running 12.3R3.4  
 F5 LTM (very limited testing)  

@@ -47,10 +47,23 @@ class HPComwareSSH(SSHConnection):
 
         return output
     
+    def check_config_mode(self):
+        '''
+        Finds the HP Comware prompt and checks if the prompt contains the right config mode characters ']'
+        
+        '''
+        
+        self.find_prompt()
+        if self.router_prompt[-1] == ']':
+            return True
+        else:
+            return False
+    
     def find_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']', delay_factor=1):
         '''
         Finds the HP Comware prompt
         
         '''
+        
         self.router_prompt = SSHConnection.find_prompt(self, pri_prompt_terminator, alt_prompt_terminator, delay_factor)
         return self.router_prompt    
