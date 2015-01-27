@@ -17,7 +17,8 @@ Cisco ASA running 8.0(4)32
 Cisco Nexus 5K  
 Cisco Nexus 7K  
 Cisco IOS XR ASR9K  
-Cisco IOS XRv  
+Cisco IOS XRv
+Cisco IOS Catalyst 3750
 Arista vEOS running 4.12.3  
 HP ProCurve 2510-24
 HP 2920 - Procurve Software Version WB.15.16.0005

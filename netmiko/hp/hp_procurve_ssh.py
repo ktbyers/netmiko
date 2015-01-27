@@ -25,26 +25,22 @@ class HPProcurveSSH(SSHConnection):
         '''
         Exit config mode
         '''
-        output = self.send_command('config terminal\n')
-
+        output = self.send_command('configure terminal\n')
+        
         if self.check_config_mode():
-            self.clear_buffer()
-            return False
-        else:
-            self.clear_buffer()
             return True
+        else:
+            return False
 
     def exit_config_mode(self):
         '''
         Exit config mode
         '''
         output = self.send_command('end\n')
-
+        
         if self.check_config_mode():
-            self.clear_buffer()
             return False
         else:
-            self.clear_buffer()
             return True
 
     def enable_mode(self):
@@ -52,16 +48,15 @@ class HPProcurveSSH(SSHConnection):
         Enter enable mode
         '''
         output = self.send_command('enable\n')
+        
         if 'sername' in output:
             output += self.send_command('manager')
         if 'assword' in output:
             output += self.send_command(self.secret)
 
         if self.check_enable_mode():
-            self.clear_buffer()
             return True
         else:
-            self.clear_buffer()
             return False
 
         return None
@@ -73,10 +68,8 @@ class HPProcurveSSH(SSHConnection):
         output = self.send_command('exit\n')
 
         if self.check_enable_mode():
-            self.clear_buffer()
             return False
         else:
-            self.clear_buffer()
             return True
     
     def check_enable_mode(self):
@@ -98,7 +91,7 @@ class HPProcurveSSH(SSHConnection):
         '''
         
         self.find_prompt()
-        if self.router_prompt[-9:] == '(config)#':
+        if self.router_prompt[-2:] == ')#':
             return True
         else:
             return False
