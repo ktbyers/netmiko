@@ -14,38 +14,44 @@ class HPComwareSSH(SSHConnection):
         self.find_prompt()
         
         return None
-
+    
     def config_mode(self):
         '''
-        First check whether currently already in configuration mode.
-
-        Enter config mode (if necessary)
+        Enter config mode
         '''
         
-        output = self.send_command('\n', strip_prompt=False, strip_command=False)
-        if not ']' in output:
-            output += self.send_command('system-view\n', strip_prompt=False, strip_command=False)
-            if not ']' in output:
-                raise ValueError("Failed to enter system view for configuration")
+        DEBUG = False
+        
+        if self.check_config_mode():
+            return True
+        
+        output = self.send_command('system-view\n')
 
-        return output
-    
+        if DEBUG: print output
+        
+        if self.check_config_mode():
+            return True
+        else:
+            return False
+        
     def exit_config_mode(self):
         '''
-        First check whether in configuration mode.
-
-        If so, exit config mode
+        Exit config mode
         '''
-
-        # only new_output is returned if 'quit' is executed
-        output = self.send_command('\n', strip_prompt=False, strip_command=False)
-        if '(config' in output:
-            new_output = self.send_command('quit', strip_prompt=False, strip_command=False)
-            if ']' in new_output:
-                raise ValueError("Failed to exit configuration mode")
-            return new_output
-
-        return output
+        
+        DEBUG = False
+        
+        if not self.check_config_mode():
+            return True
+        
+        output = self.send_command('return\n')
+        
+        if DEBUG: print output
+        
+        if self.check_config_mode():
+            return False
+        else:
+            return True
     
     def check_config_mode(self):
         '''
@@ -54,7 +60,7 @@ class HPComwareSSH(SSHConnection):
         '''
         
         self.find_prompt()
-        if self.router_prompt[-1] == ']':
+        if self.router_prompt[0] == '[' and self.router_prompt[-1] == ']':
             return True
         else:
             return False
@@ -66,4 +72,5 @@ class HPComwareSSH(SSHConnection):
         '''
         
         self.router_prompt = SSHConnection.find_prompt(self, pri_prompt_terminator, alt_prompt_terminator, delay_factor)
-        return self.router_prompt    
+        return self.router_prompt
+      

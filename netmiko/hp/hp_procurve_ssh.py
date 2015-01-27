@@ -25,7 +25,15 @@ class HPProcurveSSH(SSHConnection):
         '''
         Exit config mode
         '''
+        
+        DEBUG = False
+        
+        if self.check_config_mode():
+            return True
+        
         output = self.send_command('configure terminal\n')
+
+        if DEBUG: print output
         
         if self.check_config_mode():
             return True
@@ -36,7 +44,15 @@ class HPProcurveSSH(SSHConnection):
         '''
         Exit config mode
         '''
+        
+        DEBUG = False
+        
+        if not self.check_config_mode():
+            return True
+        
         output = self.send_command('end\n')
+        
+        if DEBUG: print output
         
         if self.check_config_mode():
             return False
@@ -47,12 +63,20 @@ class HPProcurveSSH(SSHConnection):
         '''
         Enter enable mode
         '''
+        
+        DEBUG = False
+        
+        if self.check_enable_mode():
+            return True
+        
         output = self.send_command('enable\n')
         
         if 'sername' in output:
             output += self.send_command('manager')
         if 'assword' in output:
             output += self.send_command(self.secret)
+
+        if DEBUG: print output
 
         if self.check_enable_mode():
             return True
@@ -65,7 +89,15 @@ class HPProcurveSSH(SSHConnection):
         '''
         Exit enable mode
         '''
+        
+        DEBUG = False
+        
+        if not self.check_enable_mode():
+            return True
+        
         output = self.send_command('exit\n')
+
+        if DEBUG: print output
 
         if self.check_enable_mode():
             return False

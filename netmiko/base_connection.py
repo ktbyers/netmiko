@@ -116,6 +116,7 @@ class BaseSSHConnection(object):
         '''
 
         DEBUG = False
+        
         if DEBUG: print "In find_prompt"
 
         self.clear_buffer()

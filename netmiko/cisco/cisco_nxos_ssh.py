@@ -14,28 +14,40 @@ class CiscoNxosSSH(SSHConnection):
 
     def config_mode(self):
         '''
-        Exit config mode
+        Enter config mode
         '''
-        output = self.send_command('config terminal\n')
+        
+        DEBUG = False
+        
+        if self.check_config_mode():
+            return True
+        
+        output = self.send_command('configure terminal\n')
+
+        if DEBUG: print output
 
         if self.check_config_mode():
-            self.clear_buffer()
-            return False
-        else:
-            self.clear_buffer()
             return True
+        else:
+            return False
 
     def exit_config_mode(self):
         '''
         Exit config mode
         '''
+        
+        DEBUG = False
+        
+        if not self.check_config_mode():
+            return True
+        
         output = self.send_command('end\n')
 
+        if DEBUG: print output
+
         if self.check_config_mode():
-            self.clear_buffer()
             return False
         else:
-            self.clear_buffer()
             return True
 	   		
     def check_config_mode(self):
