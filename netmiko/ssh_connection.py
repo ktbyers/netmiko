@@ -33,7 +33,7 @@ class SSHConnection(BaseSSHConnection):
 
         output = self.send_command('\n', strip_prompt=False, strip_command=False)
         if not '(config' in output:
-            output += self.send_command('config term\n', strip_prompt=False, strip_command=False)
+            output += self.send_command('config term', strip_prompt=False, strip_command=False)
             if not '(config' in output:
                 raise ValueError("Failed to enter configuration mode")
 
@@ -47,7 +47,7 @@ class SSHConnection(BaseSSHConnection):
         If so, exit config mode
         '''
 
-        # only new_output is returned if 'end' is executed
+        # new_output is only returned if 'end' is executed
         output = self.send_command('\n', strip_prompt=False, strip_command=False)
         if '(config' in output:
             new_output = self.send_command('end', strip_prompt=False, strip_command=False)
