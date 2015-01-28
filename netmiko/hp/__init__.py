@@ -1,1 +1,2 @@
 from hp_procurve_ssh import HPProcurveSSH
+from hp_comware_ssh import HPComwareSSH
