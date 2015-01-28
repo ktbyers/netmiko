@@ -30,6 +30,7 @@ class BaseSSHConnection(object):
             self.establish_connection()
 
         self.session_preparation()
+        return None
 
 
     def session_preparation(self):
@@ -47,6 +48,7 @@ class BaseSSHConnection(object):
 
         self.disable_paging()
         self.find_prompt()
+        return None
 
 
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8):
@@ -114,6 +116,7 @@ class BaseSSHConnection(object):
         '''
 
         DEBUG = False
+        
         if DEBUG: print "In find_prompt"
 
         self.clear_buffer()
@@ -247,16 +250,22 @@ class BaseSSHConnection(object):
 
 
     def enable(self):
-        pass
+        return None
 
+    def exit_enable_mode(self):
+        return None
 
     def config_mode(self):
-        return ''
-
+        return None
 
     def exit_config_mode(self):
-        return ''
+        return None
 
+    def check_enable_mode(self):
+        return None
+    
+    def check_config_mode(self):
+        return None
 
     def send_config_set(self, config_commands=None, commit=False):
         '''
@@ -266,7 +275,10 @@ class BaseSSHConnection(object):
 
         Automatically exits/enters configuration mode.
         '''
-
+        
+        DEBUG = False
+        output = ''
+        
         if config_commands is None:
             return ''
 
@@ -274,16 +286,20 @@ class BaseSSHConnection(object):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Enter config mode (if necessary)
-        output = self.config_mode()
-
+        if not self.config_mode():
+            output += 'Error entering config mode!'
+            return output
+        
         for a_command in config_commands:
             output += self.send_command(a_command, strip_prompt=False, strip_command=False)
 
         if commit:
             output += self.commit()
 
-        output += self.exit_config_mode()
+        if not self.exit_config_mode():
+            output += 'Error leaving config mode!'
 
+        if DEBUG: print output
         return output
 
 
@@ -335,7 +351,7 @@ class BaseSSHConnection(object):
         '''
         Any needed cleanup before closing connection
         '''
-        pass
+        return None
 
 
     def disconnect(self):
@@ -345,10 +361,11 @@ class BaseSSHConnection(object):
 
         self.cleanup()
         self.remote_conn_pre.close()
+        return None
 
 
     def commit(self):
         '''
         Commit method for platforms that support this
         '''
-        return ''
+        return None
