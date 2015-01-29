@@ -14,17 +14,17 @@ Tested on:
 Cisco 881 running IOS 15.4(2)T1  
 Cisco CSR1000V running IOS XE 03.13.01.S  
 Cisco ASA running 8.0(4)32  
-Cisco Nexus 5K
-Cisco Nexus 5596UP NXOS Version 5.2.(1)N1(8b)
+Cisco Nexus 5K  
+Cisco Nexus 5596UP NXOS Version 5.2.(1)N1(8b)  
 Cisco Nexus 7K  
 Cisco IOS XR ASR9K  
-Cisco IOS XRv
-Cisco IOS Catalyst WS-C3750G Version 12.2(55)SE8
+Cisco IOS XRv  
+Cisco IOS Catalyst WS-C3750G Version 12.2(55)SE8  
 Arista vEOS running 4.12.3  
-HP ProCurve 2510-24
-HP 2920 - Procurve Software Version WB.15.16.0005
-HP 8206 zl - Procurve Software Version K.15.16.0005
-HP 870 LSW - Comware Software Version 5.20.105
+HP ProCurve 2510-24  
+HP 2920 - Procurve Software Version WB.15.16.0005  
+HP 8206 zl - Procurve Software Version K.15.16.0005  
+HP 870 LSW - Comware Software Version 5.20.105  
 Juniper SRX100 running 12.1X44-D35.5  
 Juniper EX2200 running 12.3R3.4  
 F5 LTM (very limited testing)  
