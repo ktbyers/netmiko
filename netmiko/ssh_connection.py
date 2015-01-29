@@ -44,9 +44,9 @@ class SSHConnection(BaseSSHConnection):
         '''
 
         output = ''
-        if not check_config_mode:
+        if not self.check_config_mode():
             output = self.send_command(config_command, strip_prompt=False, strip_command=False)
-            if not check_config_mode:
+            if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode")
 
         return output
@@ -60,9 +60,9 @@ class SSHConnection(BaseSSHConnection):
         '''
 
         output = ''
-        if check_config_mode:
+        if self.check_config_mode():
             output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
-            if check_config_mode:
+            if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
 
         return output
