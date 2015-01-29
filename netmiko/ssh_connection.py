@@ -14,17 +14,29 @@ class SSHConnection(BaseSSHConnection):
         '''
         Enter enable mode
         '''
-        output = self.send_command('enable\n')
+
+        output = self.send_command('enable')
         if 'assword' in output:
             output += self.send_command(self.secret)
 
         self.find_prompt()
         self.clear_buffer()
 
-        return None
+
+    def check_enable_mode(self, check_string='#'):
+        '''
+        Checks if the device is in enable mode or not
+
+        Returns a boolean
+        '''
+        output = self.send_command('\n', strip_prompt=False, strip_command=False)
+        if check_string in output:
+            return True
+        else:
+            return False
 
 
-    def config_mode(self, config_command='configure terminal'):
+    def config_mode(self, config_command='config term'):
         '''
         First check whether currently already in configuration mode.
 

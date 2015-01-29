@@ -299,9 +299,7 @@ class BaseSSHConnection(object):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Enter config mode (if necessary)
-        if not self.config_mode():
-            output += 'Error entering config mode!'
-            return output
+        output = self.config_mode()
 
         for a_command in config_commands:
             output += self.send_command(a_command, strip_prompt=False, strip_command=False)
@@ -309,10 +307,11 @@ class BaseSSHConnection(object):
         if commit:
             output += self.commit()
 
-        if not self.exit_config_mode():
-            output += 'Error leaving config mode!'
+        output += self.exit_config_mode()
 
-        if DEBUG: print output
+        if DEBUG: 
+            print output
+
         return output
 
 

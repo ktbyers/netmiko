@@ -22,10 +22,22 @@ class HPProcurveSSH(SSHConnection):
         self.find_prompt()
 
 
-    def enable(self):
+    def enable(self, default_username='manager'):
         '''
         Enter enable mode
-        Not implemented on ProCurve just SSH as Manager
         '''
 
-        return None
+        DEBUG = False
+
+        output = self.send_command('enable')
+        if 'sername' in output:
+            output += self.send_command(default_username)
+        if 'assword' in output:
+            output += self.send_command(self.secret)
+
+        if DEBUG: 
+            print output
+
+        self.find_prompt()
+        self.clear_buffer()
+
