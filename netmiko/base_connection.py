@@ -1,3 +1,12 @@
+'''
+Base connection class for netmiko
+
+Handles SSH connection and methods that are generically applicable to different
+platforms (Cisco and non-Cisco).
+
+Also defines methods that should generally be supported by child classes
+'''
+
 import paramiko
 import time
 import socket
@@ -30,7 +39,6 @@ class BaseSSHConnection(object):
             self.establish_connection()
 
         self.session_preparation()
-        return None
 
 
     def session_preparation(self):
@@ -48,7 +56,6 @@ class BaseSSHConnection(object):
 
         self.disable_paging()
         self.find_prompt()
-        return None
 
 
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8):
@@ -63,22 +70,22 @@ class BaseSSHConnection(object):
         self.remote_conn_pre = paramiko.SSHClient()
 
         # Automatically add untrusted hosts (make sure appropriate for your environment)
-        self.remote_conn_pre.set_missing_host_key_policy(
-             paramiko.AutoAddPolicy())
+        self.remote_conn_pre.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
         # initiate SSH connection
-        if verbose: print "SSH connection established to {0}:{1}".format(self.ip, self.port)
+        if verbose: 
+            print "SSH connection established to {0}:{1}".format(self.ip, self.port)
 
         try:
-            self.remote_conn_pre.connect(hostname=self.ip, port=self.port, 
-                        username=self.username, password=self.password,
-                        look_for_keys=False, timeout=timeout)
+            self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
+                                         username=self.username, password=self.password,
+                                         look_for_keys=False, timeout=timeout)
         except socket.error as e:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
             raise NetMikoTimeoutException(msg)
         except paramiko.ssh_exception.AuthenticationException as e:
-            msg = "Authentication failure: unable to connect to device {device_type} {ip}:{port}".format(
+            msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
             msg += '\n' + str(e)
             raise NetMikoAuthenticationException(msg)
@@ -116,7 +123,7 @@ class BaseSSHConnection(object):
         '''
 
         DEBUG = False
-        
+
         if DEBUG: print "In find_prompt"
 
         self.clear_buffer()
@@ -138,7 +145,7 @@ class BaseSSHConnection(object):
 
         # Must end with a valid terminator character
         if not self.router_prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(self.router_prompt) )
+            raise ValueError("Router prompt not found: {0}".format(self.router_prompt))
 
         if DEBUG: print "prompt: {}".format(self.router_prompt)
         return self.router_prompt
@@ -146,7 +153,7 @@ class BaseSSHConnection(object):
 
     def clear_buffer(self):
         '''
-        Read any data available in the channel 
+        Read any data available in the channel
         '''
 
         if self.remote_conn.recv_ready():
@@ -155,8 +162,8 @@ class BaseSSHConnection(object):
             return None
 
 
-    def send_command(self, command_string, delay_factor=.5, max_loops=30, 
-              strip_prompt=True, strip_command=True):
+    def send_command(self, command_string, delay_factor=.5, max_loops=30,
+                     strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
 
@@ -250,22 +257,28 @@ class BaseSSHConnection(object):
 
 
     def enable(self):
-        return None
+        pass
+
 
     def exit_enable_mode(self):
-        return None
+        pass
+
 
     def config_mode(self):
-        return None
+        return ''
+
 
     def exit_config_mode(self):
-        return None
+        return ''
+
 
     def check_enable_mode(self):
-        return None
-    
+        pass
+
+
     def check_config_mode(self):
-        return None
+        pass
+
 
     def send_config_set(self, config_commands=None, commit=False):
         '''
@@ -275,10 +288,10 @@ class BaseSSHConnection(object):
 
         Automatically exits/enters configuration mode.
         '''
-        
+
         DEBUG = False
         output = ''
-        
+
         if config_commands is None:
             return ''
 
@@ -286,20 +299,19 @@ class BaseSSHConnection(object):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Enter config mode (if necessary)
-        if not self.config_mode():
-            output += 'Error entering config mode!'
-            return output
-        
+        output = self.config_mode()
+
         for a_command in config_commands:
             output += self.send_command(a_command, strip_prompt=False, strip_command=False)
 
         if commit:
             output += self.commit()
 
-        if not self.exit_config_mode():
-            output += 'Error leaving config mode!'
+        output += self.exit_config_mode()
 
-        if DEBUG: print output
+        if DEBUG: 
+            print output
+
         return output
 
 
@@ -309,7 +321,7 @@ class BaseSSHConnection(object):
 
         Note: this does not capture ALL possible ANSI Escape Codes only the ones
         I have encountered
-        
+
         Current codes that are filtered:
         ^[[24;27H   Position cursor
         ^[[?25h     Show the cursor
@@ -331,7 +343,7 @@ class BaseSSHConnection(object):
         CODE_ERASE_LINE = '\x1b\[2K'
         CODE_ENABLE_SCROLL = '\x1b\[\d+;\d+r'
 
-        CODE_SET = [ CODE_POSITION_CURSOR, CODE_SHOW_CURSOR, CODE_ERASE_LINE, CODE_ENABLE_SCROLL ]
+        CODE_SET = [CODE_POSITION_CURSOR, CODE_SHOW_CURSOR, CODE_ERASE_LINE, CODE_ENABLE_SCROLL]
 
         output = string_buffer
         for ansi_esc_code in CODE_SET:
@@ -346,12 +358,12 @@ class BaseSSHConnection(object):
 
         return output
 
-    
+
     def cleanup(self):
         '''
         Any needed cleanup before closing connection
         '''
-        return None
+        pass
 
 
     def disconnect(self):
@@ -361,11 +373,10 @@ class BaseSSHConnection(object):
 
         self.cleanup()
         self.remote_conn_pre.close()
-        return None
 
 
     def commit(self):
         '''
         Commit method for platforms that support this
         '''
-        return None
+        return ''

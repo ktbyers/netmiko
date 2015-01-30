@@ -13,64 +13,47 @@ class HPComwareSSH(SSHConnection):
         self.disable_paging(command="\nscreen-length disable\n")
         self.find_prompt()
         
-        return None
     
-    def config_mode(self):
+    def config_mode(self, config_command='system-view'):
         '''
-        Enter config mode
-        '''
-        
-        DEBUG = False
-        
-        if self.check_config_mode():
-            return True
-        
-        output = self.send_command('system-view\n')
+        First check whether currently already in configuration mode.
 
-        if DEBUG: print output
-        
-        if self.check_config_mode():
-            return True
-        else:
-            return False
-        
-    def exit_config_mode(self):
+        Enter config mode (if necessary)
         '''
-        Exit config mode
+
+        # Call parent class with different command for entering config mode
+        return super(HPComwareSSH, self).config_mode(config_command=config_command)
+
+        
+    def exit_config_mode(self, exit_config='return'):
         '''
-        
-        DEBUG = False
-        
-        if not self.check_config_mode():
-            return True
-        
-        output = self.send_command('return\n')
-        
-        if DEBUG: print output
-        
-        if self.check_config_mode():
-            return False
-        else:
-            return True
-    
-    def check_config_mode(self):
+        First check whether in configuration mode.
+
+        If so, exit config mode
         '''
-        Finds the HP Comware prompt and checks if the prompt contains the right config mode characters ']'
+
+        # Call parent class with different command for exiting config mode
+        return super(HPComwareSSH, self).exit_config_mode(exit_config=exit_config)
         
+        
+    def check_config_mode(self, check_string=']'):
         '''
-        
-        self.find_prompt()
-        if self.router_prompt[0] == '[' and self.router_prompt[-1] == ']':
-            return True
-        else:
-            return False
+        Checks if the device is in configuration mode or not
+
+        Returns a boolean
+        '''
+
+        # Call parent class with different command for exiting config mode
+        return super(HPComwareSSH, self).check_config_mode(check_string=check_string)
+       
     
     def find_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']', delay_factor=1):
         '''
         Finds the HP Comware prompt
-        
         '''
         
-        self.router_prompt = SSHConnection.find_prompt(self, pri_prompt_terminator, alt_prompt_terminator, delay_factor)
-        return self.router_prompt
+        # Call parent class with different command for exiting config mode
+        return super(HPComwareSSH, self).find_prompt(pri_prompt_terminator=pri_prompt_terminator,
+                                                     alt_prompt_terminator=alt_prompt_terminator)
+
       
