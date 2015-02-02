@@ -22,7 +22,7 @@ class HPProcurveSSH(SSHConnection):
         self.find_prompt()
 
 
-    def enable(self, default_username='manager'):
+    def enable_mode(self, default_username='manager'):
         '''
         Enter enable mode
         '''

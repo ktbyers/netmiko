@@ -10,7 +10,7 @@ class SSHConnection(BaseSSHConnection):
     Based upon Cisco CLI behavior.
     '''
 
-    def enable(self):
+    def enable_mode(self):
         '''
         Enter enable mode
         '''
@@ -68,7 +68,7 @@ class SSHConnection(BaseSSHConnection):
         return output
 
 
-    def check_config_mode(self, check_string='(config'):
+    def check_config_mode(self, check_string=')#'):
         '''
         Checks if the device is in configuration mode or not
 
