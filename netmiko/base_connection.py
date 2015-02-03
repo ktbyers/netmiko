@@ -99,7 +99,7 @@ class BaseSSHConnection(object):
         return self.remote_conn.recv(MAX_BUFFER)
 
 
-    def disable_paging(self, command="terminal length 0\n", delay_factor=1):
+    def disable_paging(self, command="terminal length 0\n", delay_factor=.5):
         '''
         Disable paging default to a Cisco CLI method
         '''
@@ -115,7 +115,7 @@ class BaseSSHConnection(object):
         return output
 
 
-    def find_prompt(self, pri_prompt_terminator='#', alt_prompt_terminator='>', delay_factor=1):
+    def find_prompt(self, pri_prompt_terminator='#', alt_prompt_terminator='>', delay_factor=.5):
         '''
         Finds the network device prompt
 
