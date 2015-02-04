@@ -162,7 +162,7 @@ class BaseSSHConnection(object):
             return None
 
 
-    def send_command(self, command_string, delay_factor=.5, max_loops=30,
+    def send_command(self, command_string, delay_factor=.5, max_loops=20,
                      strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
@@ -198,7 +198,7 @@ class BaseSSHConnection(object):
         while (not_done) and (i <= max_loops):
 
             if DEBUG: print "In while loop"
-            time.sleep(2*delay_factor)
+            time.sleep(1*delay_factor)
             i += 1
 
             # Keep reading data as long as available (up to max_loops)
@@ -307,10 +307,10 @@ class BaseSSHConnection(object):
         if commit:
             output += self.commit()
 
-        output += self.exit_config_mode()
-
         if DEBUG: 
             print output
+
+        output += self.exit_config_mode()
 
         return output
 
