@@ -66,6 +66,15 @@ hp_procurve = {
     'verbose': False,
 }
 
+hp_comware = {
+    'device_type': 'hp_comware',
+    'ip':   '192.168.112.11',
+    'username': 'admin',
+    'password': 'admin',
+    'port': 22,
+    'verbose': False,
+}
+
 all_devices = [
     cisco_881,
     cisco_asa,
@@ -73,5 +82,6 @@ all_devices = [
     arista_veos_sw2,
     arista_veos_sw3,
     arista_veos_sw4,
-    hp_procurve
+    hp_procurve,
+    hp_comware
 ]
