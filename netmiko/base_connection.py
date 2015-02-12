@@ -191,14 +191,14 @@ class BaseSSHConnection(object):
 
         self.remote_conn.send(command_string)
 
-        time.sleep(2*delay_factor)
+        time.sleep(1*delay_factor)
         not_done = True
         i = 1
 
         while (not_done) and (i <= max_loops):
 
             if DEBUG: print "In while loop"
-            time.sleep(1*delay_factor)
+            time.sleep(2*delay_factor)
             i += 1
 
             # Keep reading data as long as available (up to max_loops)
