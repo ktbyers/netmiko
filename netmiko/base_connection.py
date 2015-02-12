@@ -162,7 +162,7 @@ class BaseSSHConnection(object):
             return None
 
 
-    def send_command(self, command_string, delay_factor=.5, max_loops=20,
+    def send_command(self, command_string, delay_factor=.5, max_loops=30,
                      strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
@@ -191,7 +191,7 @@ class BaseSSHConnection(object):
 
         self.remote_conn.send(command_string)
 
-        time.sleep(1*delay_factor)
+        time.sleep(2*delay_factor)
         not_done = True
         i = 1
 

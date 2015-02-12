@@ -10,7 +10,7 @@ class SSHConnection(BaseSSHConnection):
     Based upon Cisco CLI behavior.
     '''
 
-    def enable_mode(self):
+    def enable(self):
         '''
         Enter enable mode
         '''
