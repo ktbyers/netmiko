@@ -307,10 +307,10 @@ class BaseSSHConnection(object):
         if commit:
             output += self.commit()
 
-        output += self.exit_config_mode()
-
         if DEBUG: 
             print output
+
+        output += self.exit_config_mode()
 
         return output
 
