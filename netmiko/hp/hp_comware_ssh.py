@@ -11,7 +11,7 @@ class HPComwareSSH(SSHConnection):
         '''
         
         self.disable_paging(command="\nscreen-length disable\n")
-        self.find_prompt()
+        self.set_base_prompt()
         
     
     def config_mode(self, config_command='system-view'):
@@ -47,13 +47,47 @@ class HPComwareSSH(SSHConnection):
         return super(HPComwareSSH, self).check_config_mode(check_string=check_string)
        
     
-    def find_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']', delay_factor=1):
+    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']', delay_factor=.5):
         '''
-        Finds the HP Comware prompt
-        '''
-        
-        # Call parent class with different command for exiting config mode
-        return super(HPComwareSSH, self).find_prompt(pri_prompt_terminator=pri_prompt_terminator,
-                                                     alt_prompt_terminator=alt_prompt_terminator)
+        Sets self.base_prompt
 
-      
+        Used as delimiter for stripping of trailing prompt in output.
+
+        Should be set to something that is general and applies in multiple contexts. For Comware
+        this will be the router prompt with < > or [ ] stripped off.
+
+        This will be set on logging in, but not when entering system-view
+        '''
+
+        DEBUG = False
+
+        if DEBUG:
+            print "In set_base_prompt"
+
+        self.clear_buffer()
+        self.remote_conn.send("\n")
+        time.sleep(1*delay_factor)
+
+        prompt = self.remote_conn.recv(MAX_BUFFER)
+        prompt = self.normalize_linefeeds(prompt)
+
+        # If multiple lines in the output take the last line
+        prompt = prompt.split('\n')[-1]
+        prompt = prompt.strip()
+
+        # Check that begins and ends with a valid terminator character
+        if not prompt[0] in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError("Router prompt not found: {0}".format(self.base_prompt))
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError("Router prompt not found: {0}".format(self.base_prompt))
+
+        # Strip off leading and trailing terminator
+        prompt = prompt[1:-1]
+        prompt = prompt.strip()
+
+        self.base_prompt = prompt
+
+        if DEBUG:
+            print "prompt: {}".format(self.base_prompt)
+
+        return self.base_prompt

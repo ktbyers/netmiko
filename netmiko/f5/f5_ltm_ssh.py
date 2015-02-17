@@ -15,7 +15,7 @@ class F5LtmSSH(BaseSSHConnection):
         time.sleep(1)
 
         self.tmsh_mode()        
-        self.find_prompt()
+        self.set_base_prompt()
        
 
     def tmsh_mode(self, delay_factor=1):

@@ -12,7 +12,7 @@ class JuniperSSH(BaseSSHConnection):
 
         self.cli_mode()
         self.disable_paging(command="set cli screen-length 0\n")
-        self.find_prompt()
+        self.set_base_prompt()
 
 
     def cli_mode(self, delay_factor=1):

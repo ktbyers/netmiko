@@ -19,7 +19,7 @@ class SSHConnection(BaseSSHConnection):
         if 'assword' in output:
             output += self.send_command(self.secret)
 
-        self.find_prompt()
+        self.set_base_prompt()
         self.clear_buffer()
 
 

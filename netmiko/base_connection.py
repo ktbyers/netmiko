@@ -50,12 +50,11 @@ class BaseSSHConnection(object):
 
         In general, it should include:
         self.disable_paging()   # if applicable
-        self.find_prompt()
-
+        self.set_base_prompt()
         '''
 
         self.disable_paging()
-        self.find_prompt()
+        self.set_base_prompt()
 
 
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8):
@@ -115,16 +114,23 @@ class BaseSSHConnection(object):
         return output
 
 
-    def find_prompt(self, pri_prompt_terminator='#', alt_prompt_terminator='>', delay_factor=.5):
+    def set_base_prompt(self, pri_prompt_terminator='#', alt_prompt_terminator='>', delay_factor=.5):
         '''
-        Finds the network device prompt
+        Sets self.base_prompt
 
-        Assumes Cisco CLI style prompts by default
+        Used as delimiter for stripping of trailing prompt in output.
+
+        Should be set to something that is general and applies in multiple contexts. For Cisco 
+        devices this will be set to router hostname (i.e. prompt without '>' or '#').
+
+        This will be set on entering user exec or privileged exec on Cisco, but not when 
+        entering/exiting config mode
         '''
 
         DEBUG = False
 
-        if DEBUG: print "In find_prompt"
+        if DEBUG: 
+            print "In set_base_prompt"
 
         self.clear_buffer()
         self.remote_conn.send("\n")
@@ -137,18 +143,54 @@ class BaseSSHConnection(object):
             prompt = self.strip_ansi_escape_codes(prompt)
 
         prompt = self.normalize_linefeeds(prompt)
-        prompt = prompt.strip()
 
         # If multiple lines in the output take the last line
         prompt = prompt.split('\n')[-1]
-        self.router_prompt = prompt.strip()
+        prompt = prompt.strip()
 
-        # Must end with a valid terminator character
-        if not self.router_prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(self.router_prompt))
+        # Check that ends with a valid terminator character
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError("Router prompt not found: {0}".format(self.base_prompt))
 
-        if DEBUG: print "prompt: {}".format(self.router_prompt)
-        return self.router_prompt
+        # Strip off trailing terminator
+        self.base_prompt = prompt[:-1]
+
+        if DEBUG: 
+            print "prompt: {}".format(self.base_prompt)
+
+        return self.base_prompt
+
+
+    def find_prompt(self, delay_factor=.5):
+        '''
+        Finds the current network device prompt, last line only
+        '''
+
+        DEBUG = False
+
+        if DEBUG: 
+            print "In find_prompt"
+
+        self.clear_buffer()
+        self.remote_conn.send("\n")
+        time.sleep(1*delay_factor)
+
+        prompt = self.remote_conn.recv(MAX_BUFFER)
+
+        # Some platforms have ANSI escape codes
+        if self.ansi_escape_codes:
+            prompt = self.strip_ansi_escape_codes(prompt)
+
+        prompt = self.normalize_linefeeds(prompt)
+
+        # If multiple lines in the output take the last line
+        prompt = prompt.split('\n')[-1]
+        prompt = prompt.strip()
+
+        if DEBUG: 
+            print "prompt: {}".format(prompt)
+
+        return prompt
 
 
     def clear_buffer(self):
@@ -230,8 +272,7 @@ class BaseSSHConnection(object):
         response_list = a_string.split('\n')
         last_line = response_list[-1]
 
-        # Take off the last char using [:-1] (usually > or # on Cisco)
-        if self.router_prompt[:-1] in last_line:
+        if self.base_prompt in last_line:
             return '\n'.join(response_list[:-1])
         else:
             return a_string
@@ -307,10 +348,10 @@ class BaseSSHConnection(object):
         if commit:
             output += self.commit()
 
+        output += self.exit_config_mode()
+
         if DEBUG: 
             print output
-
-        output += self.exit_config_mode()
 
         return output
 
