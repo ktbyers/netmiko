@@ -9,8 +9,7 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_prompt' : 'xe-test-rtr>',
-        'router_enable' : 'xe-test-rtr#',
+        'base_prompt' : 'xe-test-rtr',
         'interface_ip'  : '172.30.0.167',
         'config_mode'   : '(config)',
     }
@@ -23,9 +22,9 @@ def setup_module(module):
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
 
-    module.router_prompt_initial = net_connect.router_prompt
+    module.base_prompt_initial = net_connect.base_prompt
     net_connect.enable()
-    module.router_prompt = net_connect.router_prompt
+    module.base_prompt = net_connect.base_prompt
 
     module.config_mode = net_connect.config_mode()
 
@@ -40,8 +39,8 @@ def setup_module(module):
 
 
 def test_enable_mode():
-    assert router_prompt_initial == EXPECTED_RESPONSES['router_prompt']
-    assert router_prompt == EXPECTED_RESPONSES['router_enable']
+    assert base_prompt_initial == EXPECTED_RESPONSES['base_prompt']
+    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
 
 
 def test_config_mode():
