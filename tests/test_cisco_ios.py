@@ -10,8 +10,7 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_prompt' : 'pynet-rtr1>',
-        'router_enable' : 'pynet-rtr1#',
+        'base_prompt' : 'pynet-rtr1',
         'interface_ip'  : '10.220.88.20'
     }
     
@@ -22,7 +21,7 @@ def setup_module(module):
     net_connect = SSHClass(**cisco_881)
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
-    module.router_prompt = net_connect.router_prompt
+    module.base_prompt = net_connect.base_prompt
 
     # Test buffer clearing
     net_connect.remote_conn.send(show_ver_command)
@@ -58,14 +57,14 @@ def test_find_prompt():
     '''
     Verify the router prompt is detected correctly
     '''
-    assert router_prompt == EXPECTED_RESPONSES['router_prompt']
+    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
 
 
 def test_strip_prompt():
     '''
     Ensure the router prompt is not in the command output
     '''
-    assert EXPECTED_RESPONSES['router_prompt'] not in show_ip
+    assert EXPECTED_RESPONSES['base_prompt'] not in show_ip
 
 
 def test_strip_command():

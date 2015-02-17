@@ -10,8 +10,7 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_prompt' : 'twb-sf-hpsw1#',
-        'router_enable' : 'twb-sf-hpsw1#',
+        'base_prompt' : 'twb-sf-hpsw1',
         'interface_ip'  : '10.220.88.10',
         'config_mode'   : '(config)',
     }
@@ -27,7 +26,7 @@ def setup_module(module):
     module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=2)
     module.show_ip = net_connect.send_command(module.basic_command)
 
-    module.router_prompt = net_connect.router_prompt
+    module.base_prompt = net_connect.base_prompt
 
     # Enable doesn't do anything on ProCurve
     net_connect.enable()
@@ -75,14 +74,14 @@ def test_find_prompt():
     '''
     Verify the router prompt is detected correctly
     '''
-    assert router_prompt == EXPECTED_RESPONSES['router_prompt']
+    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
 
 
 def test_strip_prompt():
     '''
     Ensure the router prompt is not in the command output
     '''
-    assert EXPECTED_RESPONSES['router_prompt'] not in show_ip
+    assert EXPECTED_RESPONSES['base_prompt'] not in show_ip
 
 
 def test_strip_command():
@@ -103,7 +102,7 @@ def test_normalize_linefeeds():
 
 
 def test_enable_mode():
-    assert router_prompt == EXPECTED_RESPONSES['router_enable']
+    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
 
 
 def test_command_set():

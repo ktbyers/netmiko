@@ -6,6 +6,7 @@ import netmiko
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
+        'base_prompt' : 'RP/0/0/CPU0:XRv-1#',
         'router_prompt' : 'RP/0/0/CPU0:XRv-1#',
         'router_enable' : 'RP/0/0/CPU0:XRv-1#',
         'interface_ip'  : '169.254.254.181'

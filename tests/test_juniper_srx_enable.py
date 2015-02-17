@@ -10,6 +10,7 @@ from DEVICE_CREDS import *
 def setup_module(module):
     
     module.EXPECTED_RESPONSES = {
+        'base_prompt'     : 'root@pynet-jnpr-srx1',
         'router_prompt'     : 'root@pynet-jnpr-srx1>',
         'router_conf_mode'  : 'root@pynet-jnpr-srx1#',
         'interface_ip'      : '10.220.88.39',
@@ -26,9 +27,9 @@ def setup_module(module):
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
 
-    module.router_prompt_initial = net_connect.router_prompt
+    module.base_prompt_initial = net_connect.base_prompt
     module.config_mode = net_connect.config_mode()
-    module.router_prompt = net_connect.router_prompt
+    module.base_prompt = net_connect.base_prompt
 
     config_commands = [
         'set system syslog archive size 110k files 3',

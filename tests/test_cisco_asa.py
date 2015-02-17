@@ -10,8 +10,7 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_prompt' : 'twb-py-lab#',
-        'router_enable' : 'twb-py-lab#',
+        'base_prompt' : 'twb-py-lab',
         'interface_ip'  : '10.220.88.1',
         'config_mode'   : '(config)',
     }
@@ -25,7 +24,7 @@ def setup_module(module):
 
     # ASA enters enable mode as part of connection (disable paging is
     # a config-mode command)
-    module.router_prompt = net_connect.router_prompt
+    module.base_prompt = net_connect.base_prompt
 
     # Test connection successful
     module.show_version = net_connect.send_command(show_ver_command)
@@ -76,14 +75,14 @@ def test_find_prompt():
     '''
     Verify the router prompt is detected correctly
     '''
-    assert router_prompt == EXPECTED_RESPONSES['router_prompt']
+    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
 
 
 def test_strip_prompt():
     '''
     Ensure the router prompt is not in the command output
     '''
-    assert EXPECTED_RESPONSES['router_prompt'] not in show_ip
+    assert EXPECTED_RESPONSES['base_prompt'] not in show_ip
 
 
 def test_strip_command():
@@ -102,7 +101,7 @@ def test_normalize_linefeeds():
 
 
 def test_enable_mode():
-    assert router_prompt == EXPECTED_RESPONSES['router_enable']
+    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
 
 
 def test_command_set():
