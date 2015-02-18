@@ -240,7 +240,7 @@ class BaseSSHConnection(object):
         while (not_done) and (i <= max_loops):
 
             if DEBUG: print "In while loop"
-            time.sleep(2*delay_factor)
+            time.sleep(1*delay_factor)
             i += 1
 
             # Keep reading data as long as available (up to max_loops)

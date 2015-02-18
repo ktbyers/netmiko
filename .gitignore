@@ -2,5 +2,6 @@
 *.swp
 tests/DEVICE_CREDS.py
 tests/DEVICE_CREDS.py.orig
+tests/test_prep.sh
 examples/SECRET_DEVICE_CREDS.py
 build
