@@ -20,9 +20,9 @@ def setup_module(module):
     
     SSHClass = netmiko.ssh_dispatcher(arista_veos_sw['device_type'])
     net_connect = SSHClass(**arista_veos_sw)
-    module.show_version = net_connect.send_command(show_ver_command)
-    module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=2)
-    module.show_ip = net_connect.send_command(module.basic_command)
+    module.show_version = net_connect.send_command(show_ver_command, delay_factor=2)
+    module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=4)
+    module.show_ip = net_connect.send_command(module.basic_command, delay_factor=2)
     module.base_prompt = net_connect.base_prompt
 
 
