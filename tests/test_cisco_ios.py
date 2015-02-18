@@ -53,7 +53,7 @@ def test_verify_send_command():
     assert EXPECTED_RESPONSES['interface_ip'] in show_ip
 
 
-def test_find_prompt():
+def test_base_prompt():
     '''
     Verify the router prompt is detected correctly
     '''

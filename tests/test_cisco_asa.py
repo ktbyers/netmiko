@@ -11,6 +11,7 @@ def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
         'base_prompt' : 'twb-py-lab',
+        'enable_prompt' : 'twb-py-lab#',
         'interface_ip'  : '10.220.88.1',
         'config_mode'   : '(config)',
     }
@@ -25,6 +26,7 @@ def setup_module(module):
     # ASA enters enable mode as part of connection (disable paging is
     # a config-mode command)
     module.base_prompt = net_connect.base_prompt
+    module.enable_prompt = net_connect.find_prompt()
 
     # Test connection successful
     module.show_version = net_connect.send_command(show_ver_command)
@@ -71,7 +73,7 @@ def test_verify_send_command():
     assert EXPECTED_RESPONSES['interface_ip'] in show_ip
 
 
-def test_find_prompt():
+def test_base_prompt():
     '''
     Verify the router prompt is detected correctly
     '''
@@ -101,7 +103,7 @@ def test_normalize_linefeeds():
 
 
 def test_enable_mode():
-    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
+    assert enable_prompt == EXPECTED_RESPONSES['enable_prompt']
 
 
 def test_command_set():

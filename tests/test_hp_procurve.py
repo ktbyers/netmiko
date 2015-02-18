@@ -10,7 +10,8 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'base_prompt' : 'twb-sf-hpsw1',
+        'enable_prompt' : 'twb-sf-hpsw1#',
+        'base_prompt'   : 'twb-sf-hpsw1',
         'interface_ip'  : '10.220.88.10',
         'config_mode'   : '(config)',
     }
@@ -30,6 +31,7 @@ def setup_module(module):
 
     # Enable doesn't do anything on ProCurve
     net_connect.enable()
+    module.enable_prompt = net_connect.find_prompt()
 
     # Enter config mode
     module.config_mode = net_connect.config_mode()
@@ -70,7 +72,7 @@ def test_verify_send_command():
     assert EXPECTED_RESPONSES['interface_ip'] in show_ip
 
 
-def test_find_prompt():
+def test_base_prompt():
     '''
     Verify the router prompt is detected correctly
     '''
@@ -102,7 +104,7 @@ def test_normalize_linefeeds():
 
 
 def test_enable_mode():
-    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
+    assert enable_prompt == EXPECTED_RESPONSES['enable_prompt']
 
 
 def test_command_set():

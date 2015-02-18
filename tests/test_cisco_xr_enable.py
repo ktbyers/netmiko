@@ -8,7 +8,8 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'base_prompt' : 'RP/0/0/CPU0:XRv-1',
+        'enable_prompt' : 'RP/0/0/CPU0:XRv-1#',
+        'base_prompt'   : 'RP/0/0/CPU0:XRv-1',
         'interface_ip'  : '169.254.254.181',
         'config_mode'   : '(config)'
     }
@@ -23,9 +24,8 @@ def setup_module(module):
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
 
-    module.base_prompt_initial = net_connect.base_prompt
     net_connect.enable()
-    module.base_prompt = net_connect.base_prompt
+    module.enable_prompt = net_connect.find_prompt()
 
     current_commit_history = net_connect.send_command(commit_history_cmd)
 
@@ -46,8 +46,7 @@ def setup_module(module):
 
 
 def test_enable_mode():
-    assert base_prompt_initial == EXPECTED_RESPONSES['base_prompt']
-    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
+    assert enable_prompt == EXPECTED_RESPONSES['enable_prompt']
 
 
 def test_config_mode():
