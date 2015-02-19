@@ -9,8 +9,9 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_prompt' : 'sf-arista-sw4>',
-        'router_enable' : 'sf-arista-sw4#',
+        'base_prompt' : 'sf-arista-sw4',
+        'user_exec_prompt' : 'sf-arista-sw4>',
+        'enable_prompt' : 'sf-arista-sw4#',
         'interface_ip'  : '10.220.88.31',
         'config_mode'   : '(config)',
     }
@@ -19,9 +20,9 @@ def setup_module(module):
     net_connect = SSHClass(**arista_veos_sw)
 
     # Enter enable mode
-    module.router_prompt_initial = net_connect.router_prompt
+    module.prompt_initial = net_connect.find_prompt()
     net_connect.enable()
-    module.router_prompt = net_connect.router_prompt
+    module.enable_prompt = net_connect.find_prompt()
 
     # Send a set of config commands
     module.config_mode = net_connect.config_mode()
@@ -38,8 +39,8 @@ def setup_module(module):
 
 
 def test_enable_mode():
-    assert router_prompt_initial == EXPECTED_RESPONSES['router_prompt']
-    assert router_prompt == EXPECTED_RESPONSES['router_enable']
+    assert prompt_initial == EXPECTED_RESPONSES['user_exec_prompt']
+    assert enable_prompt == EXPECTED_RESPONSES['enable_prompt']
 
 
 def test_config_mode():

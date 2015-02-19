@@ -13,10 +13,10 @@ class CiscoAsaSSH(SSHConnection):
 
         self.enable()
         self.disable_paging(command="terminal pager 0\n")
-        self.find_prompt()
+        self.set_base_prompt()
 
 
-    def enable(self, delay_factor=1):
+    def enable(self, delay_factor=.5):
         '''
         Enter enable mode
 
@@ -33,3 +33,6 @@ class CiscoAsaSSH(SSHConnection):
             self.remote_conn.send('\n')
             time.sleep(1*delay_factor)
             output += self.remote_conn.recv(MAX_BUFFER)
+
+        self.set_base_prompt()
+        self.clear_buffer()

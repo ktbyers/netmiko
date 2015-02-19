@@ -19,7 +19,7 @@ class HPProcurveSSH(SSHConnection):
         self.ansi_escape_codes = True
 
         self.disable_paging(command="\nno page\n")
-        self.find_prompt()
+        self.set_base_prompt()
 
 
     def enable(self, default_username='manager'):
@@ -38,6 +38,6 @@ class HPProcurveSSH(SSHConnection):
         if DEBUG: 
             print output
 
-        self.find_prompt()
+        self.set_base_prompt()
         self.clear_buffer()
 

@@ -10,8 +10,7 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'router_prompt' : 'sf-arista-sw4>',
-        'router_enable' : 'sf-arista-sw4#',
+        'base_prompt' : 'sf-arista-sw4',
         'interface_ip'  : '10.220.88.31'
     }
     
@@ -21,10 +20,10 @@ def setup_module(module):
     
     SSHClass = netmiko.ssh_dispatcher(arista_veos_sw['device_type'])
     net_connect = SSHClass(**arista_veos_sw)
-    module.show_version = net_connect.send_command(show_ver_command)
-    module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=2)
-    module.show_ip = net_connect.send_command(module.basic_command)
-    module.router_prompt = net_connect.router_prompt
+    module.show_version = net_connect.send_command(show_ver_command, delay_factor=2)
+    module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=4)
+    module.show_ip = net_connect.send_command(module.basic_command, delay_factor=2)
+    module.base_prompt = net_connect.base_prompt
 
 
 def test_disable_paging():
@@ -49,18 +48,18 @@ def test_verify_send_command():
     assert EXPECTED_RESPONSES['interface_ip'] in show_ip
 
 
-def test_find_prompt():
+def test_base_prompt():
     '''
     Verify the router prompt is detected correctly
     '''
-    assert router_prompt == EXPECTED_RESPONSES['router_prompt']
+    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
 
 
 def test_strip_prompt():
     '''
     Ensure the router prompt is not in the command output
     '''
-    assert EXPECTED_RESPONSES['router_prompt'] not in show_ip
+    assert EXPECTED_RESPONSES['base_prompt'] not in show_ip
 
 
 def test_strip_command():
