@@ -78,7 +78,7 @@ class BaseSSHConnection(object):
         try:
             self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
                                          username=self.username, password=self.password,
-                                         look_for_keys=False, timeout=timeout)
+                                         look_for_keys=False, allow_agent=False, timeout=timeout)
         except socket.error as e:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
