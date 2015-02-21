@@ -68,7 +68,7 @@ class BaseSSHConnection(object):
         if verbose: print "SSH connection established to {0}:{1}".format(self.ip, self.port)
 
         try:
-            self.remote_conn_pre.connect(hostname=self.ip, port=self.port, 
+            self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
                         username=self.username, password=self.password,
                         look_for_keys=False, timeout=timeout)
         except socket.error as e:
@@ -143,7 +143,7 @@ class BaseSSHConnection(object):
 
     def clear_buffer(self):
         '''
-        Read any data available in the channel 
+        Read any data available in the channel
         '''
 
         if self.remote_conn.recv_ready():
@@ -152,7 +152,7 @@ class BaseSSHConnection(object):
             return None
 
 
-    def send_command(self, command_string, delay_factor=.5, max_loops=30, 
+    def send_command(self, command_string, delay_factor=.5, max_loops=30,
               strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
@@ -270,7 +270,7 @@ class BaseSSHConnection(object):
         if config_commands is None:
             return ''
 
-        if type(config_commands) != type([]):
+        if not hasattr(config_commands, '__iter__'):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Enter config mode (if necessary)
@@ -293,7 +293,7 @@ class BaseSSHConnection(object):
 
         Note: this does not capture ALL possible ANSI Escape Codes only the ones
         I have encountered
-        
+
         Current codes that are filtered:
         ^[[24;27H   Position cursor
         ^[[?25h     Show the cursor
@@ -330,7 +330,7 @@ class BaseSSHConnection(object):
 
         return output
 
-    
+
     def cleanup(self):
         '''
         Any needed cleanup before closing connection
