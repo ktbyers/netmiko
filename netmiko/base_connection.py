@@ -336,7 +336,8 @@ class BaseSSHConnection(object):
         if config_commands is None:
             return ''
 
-        if type(config_commands) != type([]):
+        # Config commands must be iterable, but not a string
+        if not hasattr(config_commands, '__iter__'):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Enter config mode (if necessary)
