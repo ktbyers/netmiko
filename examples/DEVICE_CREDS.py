@@ -94,4 +94,5 @@ all_devices = [
     arista_veos_sw4,
     hp_procurve,
     hp_comware
+    brocade_vdx,
 ]
