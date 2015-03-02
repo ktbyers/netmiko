@@ -6,6 +6,7 @@ from arista import AristaSSH
 from hp import HPProcurveSSH, HPComwareSSH
 from f5 import F5LtmSSH
 from juniper import JuniperSSH
+from brocade import BrocadeVdxSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
@@ -19,6 +20,7 @@ CLASS_MAPPER = {
     'hp_comware'    : HPComwareSSH,
     'f5_ltm'        : F5LtmSSH,
     'juniper'       : JuniperSSH,
+    'brocade_vdx'   : BrocadeVdxSSH,
 }
 
 def ssh_dispatcher(device_type):

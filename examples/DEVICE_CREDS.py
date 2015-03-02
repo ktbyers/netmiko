@@ -75,6 +75,16 @@ hp_comware = {
     'verbose': False,
 }
 
+brocade_vdx = {
+    'device_type': 'brocade_vdx',
+    'ip':   '10.254.8.8',
+    'username': 'admin',
+    'password': 'password',
+    'port': 22,
+    'verbose': False,
+}
+
+
 all_devices = [
     cisco_881,
     cisco_asa,
@@ -83,5 +93,6 @@ all_devices = [
     arista_veos_sw3,
     arista_veos_sw4,
     hp_procurve,
-    hp_comware
+    hp_comware,
+    brocade_vdx,
 ]
