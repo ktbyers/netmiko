@@ -2,6 +2,7 @@ from cisco import CiscoIosSSH
 from cisco import CiscoAsaSSH
 from cisco import CiscoNxosSSH
 from cisco import CiscoXrSSH
+from cisco import CiscoWlcSSH
 from arista import AristaSSH
 from hp import HPProcurveSSH, HPComwareSSH
 from f5 import F5LtmSSH
@@ -15,6 +16,7 @@ CLASS_MAPPER = {
     'cisco_asa'     : CiscoAsaSSH,
     'cisco_nxos'    : CiscoNxosSSH,
     'cisco_xr'      : CiscoXrSSH,
+    'cisco_wlc_ssh' : CiscoWlcSSH,
     'arista_eos'    : AristaSSH,
     'hp_procurve'   : HPProcurveSSH,
     'hp_comware'    : HPComwareSSH,
