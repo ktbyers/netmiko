@@ -83,7 +83,6 @@ Vlan1                      unassigned      YES unset  down                  down
                         'logging buffered 20010', 
                         'no logging console' ]
 >>> output = net_connect.send_config_set(config_commands)
->>> output = net_connect.send_config_set(config_commands)
 >>> print output
 
 pynet-rtr1#config term
