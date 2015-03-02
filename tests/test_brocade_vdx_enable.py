@@ -12,7 +12,7 @@ def setup_module(module):
         'base_prompt' : 'openstack-rb5',
         'config_mode'   : '(config)',
     }
-    
+
     SSHClass = netmiko.ssh_dispatcher(brocade_vdx['device_type'])
     net_connect = SSHClass(**brocade_vdx)
 
@@ -29,15 +29,10 @@ def setup_module(module):
     # Exit config mode
     module.exit_config_mode = net_connect.exit_config_mode()
 
-    # Verify config changes 
+    # Verify config changes
     module.config_commands_output = net_connect.send_command('show vlan brief')
 
     net_connect.disconnect()
-
-
-#def test_enable_mode():
-    #assert prompt_initial == EXPECTED_RESPONSES['user_exec_prompt']
-    #assert enable_prompt == EXPECTED_RESPONSES['enable_prompt']
 
 
 def test_config_mode():
@@ -46,7 +41,7 @@ def test_config_mode():
 
 def test_command_set():
     assert 'VLAN0020' in config_commands_output
-   
- 
+
+
 def test_exit_config_mode():
     assert not EXPECTED_RESPONSES['config_mode'] in exit_config_mode
