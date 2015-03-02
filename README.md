@@ -3,7 +3,7 @@ netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-##### Under early development -- needs more testing #####
+##### Under development -- needs more testing #####
 
 Requires:  
 Paramiko >= 1.7.5  
@@ -27,6 +27,7 @@ HP 8206 zl - Procurve Software Version K.15.16.0005
 HP 870 LSW - Comware Software Version 5.20.105  
 Juniper SRX100 running 12.1X44-D35.5  
 Juniper EX2200 running 12.3R3.4  
+Brocade VDX  
 F5 LTM (very limited testing)  
  
    
