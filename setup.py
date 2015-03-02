@@ -16,6 +16,7 @@ setup(
                         'netmiko/hp', 
                         'netmiko/f5', 
                         'netmiko/juniper',
+                        'netmiko/brocade',
                       ],
     )
     
