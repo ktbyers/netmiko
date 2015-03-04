@@ -1,9 +1,9 @@
-from netmiko.ssh_connection import SSHConnection
+from netmiko.ssh_connection import BaseSSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 import time
 
-class CiscoWlcSSH(SSHConnection):
+class CiscoWlcSSH(BaseSSHConnection):
 
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8):
         '''
@@ -62,4 +62,23 @@ class CiscoWlcSSH(SSHConnection):
         # Strip the initial router prompt
         time.sleep(sleep_time)
         return self.remote_conn.recv(MAX_BUFFER)
+
+
+    def session_preparation(self):
+        '''
+        Prepare the session after the connection has been established
+
+        Cisco WLC uses "config paging disable" to disable paging
+        '''
+
+        self.disable_paging(command="config paging disable\n")
+        self.set_base_prompt()
+
+
+    def cleanup(self):
+        '''
+        Reset WLC back to normal paging
+        '''
+
+        self.send_command("config paging enable\n")
 

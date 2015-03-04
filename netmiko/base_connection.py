@@ -195,7 +195,7 @@ class BaseSSHConnection(object):
 
     def clear_buffer(self):
         '''
-        Read any data available in the channel
+        Read any data available in the channel up to MAX_BUFFER
         '''
 
         if self.remote_conn.recv_ready():
