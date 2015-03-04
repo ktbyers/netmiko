@@ -6,7 +6,12 @@ class BrocadeVdxSSH(SSHConnection):
         '''
         No enable mode on Brocade VDX
         '''
-
     	pass
 
+
+    def exit_enable_mode(self):
+        '''
+        No enable mode on Brocade VDX
+        '''
+        pass
 
