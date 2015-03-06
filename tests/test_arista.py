@@ -10,7 +10,7 @@ from DEVICE_CREDS import *
 def setup_module(module):
 
     module.EXPECTED_RESPONSES = {
-        'base_prompt' : 'sf-arista-sw4',
+        'base_prompt' : 'pynet-sw4',
         'interface_ip'  : '10.220.88.31'
     }
     

@@ -123,4 +123,5 @@ def test_strip_ansi_escape():
     '''
     Test that a long string comes back as expected
     '''
+    print multiple_line_output
     assert '----  Bottom of Log : Events Listed = ' in multiple_line_output
