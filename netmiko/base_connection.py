@@ -57,12 +57,14 @@ class BaseSSHConnection(object):
         self.set_base_prompt()
 
 
-    def establish_connection(self, sleep_time=3, verbose=True, timeout=8):
+    def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False):
         '''
         Establish SSH connection to the network device
 
         Timeout will generate a NetMikoTimeoutException
         Authentication failure will generate a NetMikoAuthenticationException
+
+        use_keys is a boolean that allows ssh-keys to be used for authentication
         '''
 
         # Create instance of SSHClient object
@@ -78,7 +80,8 @@ class BaseSSHConnection(object):
         try:
             self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
                                          username=self.username, password=self.password,
-                                         look_for_keys=False, allow_agent=False, timeout=timeout)
+                                         look_for_keys=use_keys, allow_agent=False,
+                                         timeout=timeout)
         except socket.error as e:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
