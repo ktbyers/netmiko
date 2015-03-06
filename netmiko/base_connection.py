@@ -375,7 +375,7 @@ class BaseSSHConnection(object):
 
         HP ProCurve's and F5 LTM's require this (possible others)
         '''
-
+    
         DEBUG = False
         if DEBUG: print "In strip_ansi_escape_codes"
         if DEBUG: print "repr = %s" % repr(string_buffer)
