@@ -232,7 +232,7 @@ class BaseSSHConnection(object):
         command_string = command_string.rstrip("\n")
         command_string += '\n'
 
-        if DEBUG: print "Command is: {}".format(command_string)
+        if DEBUG: print "Command is: {0}".format(command_string)
 
         self.remote_conn.send(command_string)
 
