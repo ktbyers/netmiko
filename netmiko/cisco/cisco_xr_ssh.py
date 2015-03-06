@@ -27,6 +27,7 @@ class CiscoXrSSH(SSHConnection):
         output += self.exit_config_mode()
         return output
 
+
     def exit_config_mode(self, exit_config='end'):
         '''
         First check whether in configuration mode.
@@ -39,13 +40,14 @@ class CiscoXrSSH(SSHConnection):
         if self.check_config_mode():
             output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
             if "Uncommitted changes found" in output:
-                output += self.send_command('yes\n', strip_prompt=False, strip_command=False)
+                output += self.send_command('no\n', strip_prompt=False, strip_command=False)
             if DEBUG:
                 print output
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
             
         return output
+
 
     def normalize_linefeeds(self, a_string):
         '''
