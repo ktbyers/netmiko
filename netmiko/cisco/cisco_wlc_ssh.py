@@ -5,7 +5,7 @@ import time
 
 class CiscoWlcSSH(BaseSSHConnection):
 
-    def establish_connection(self, sleep_time=3, verbose=True, timeout=8):
+    def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False):
         '''
         Establish SSH connection to the network device
 
@@ -38,7 +38,8 @@ class CiscoWlcSSH(BaseSSHConnection):
         try:
             self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
                                          username=self.username, password=self.password,
-                                         look_for_keys=False, allow_agent=False, timeout=timeout)
+                                         look_for_keys=use_keys, allow_agent=False,
+                                         timeout=timeout)
         except socket.error as e:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)

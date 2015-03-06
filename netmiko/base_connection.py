@@ -23,7 +23,8 @@ class BaseSSHConnection(object):
     Otherwise method left as a stub method.
     '''
 
-    def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True):
+    def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True,
+                 use_keys=False):
 
         self.ip = ip
         self.port = port
@@ -33,11 +34,7 @@ class BaseSSHConnection(object):
         self.device_type = device_type
         self.ansi_escape_codes = False
 
-        if not verbose:
-            self.establish_connection(verbose=False)
-        else:
-            self.establish_connection()
-
+        self.establish_connection(verbose=verbose, use_keys=use_keys)
         self.session_preparation()
 
 
@@ -74,7 +71,7 @@ class BaseSSHConnection(object):
         self.remote_conn_pre.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
         # initiate SSH connection
-        if verbose: 
+        if verbose:
             print "SSH connection established to {0}:{1}".format(self.ip, self.port)
 
         try:
@@ -117,22 +114,23 @@ class BaseSSHConnection(object):
         return output
 
 
-    def set_base_prompt(self, pri_prompt_terminator='#', alt_prompt_terminator='>', delay_factor=.5):
+    def set_base_prompt(self, pri_prompt_terminator='#',
+                        alt_prompt_terminator='>', delay_factor=.5):
         '''
         Sets self.base_prompt
 
         Used as delimiter for stripping of trailing prompt in output.
 
-        Should be set to something that is general and applies in multiple contexts. For Cisco 
+        Should be set to something that is general and applies in multiple contexts. For Cisco
         devices this will be set to router hostname (i.e. prompt without '>' or '#').
 
-        This will be set on entering user exec or privileged exec on Cisco, but not when 
+        This will be set on entering user exec or privileged exec on Cisco, but not when
         entering/exiting config mode
         '''
 
         DEBUG = False
 
-        if DEBUG: 
+        if DEBUG:
             print "In set_base_prompt"
 
         self.clear_buffer()
@@ -158,7 +156,7 @@ class BaseSSHConnection(object):
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
 
-        if DEBUG: 
+        if DEBUG:
             print "prompt: {}".format(self.base_prompt)
 
         return self.base_prompt
@@ -171,7 +169,7 @@ class BaseSSHConnection(object):
 
         DEBUG = False
 
-        if DEBUG: 
+        if DEBUG:
             print "In find_prompt"
 
         self.clear_buffer()
@@ -190,7 +188,7 @@ class BaseSSHConnection(object):
         prompt = prompt.split('\n')[-1]
         prompt = prompt.strip()
 
-        if DEBUG: 
+        if DEBUG:
             print "prompt: {}".format(prompt)
 
         return prompt
@@ -354,7 +352,7 @@ class BaseSSHConnection(object):
 
         output += self.exit_config_mode()
 
-        if DEBUG: 
+        if DEBUG:
             print output
 
         return output
