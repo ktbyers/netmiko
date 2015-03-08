@@ -322,6 +322,22 @@ class BaseSSHConnection(object):
         pass
 
 
+    def send_config_file(self, config_file=None, commit=False):
+        '''
+        Parse a configuration file and relay the data to
+        self.send_config_set()
+        '''
+
+        config_commands = []
+        try:
+            for line in open(config_file, "r"):
+                config_commands.append(line.strip())
+        except IOError as (errno, strerr):
+            print "I/O Error {0}: {1}".format(errno, strerr)
+
+        return self.send_config_set(config_commands=config_commands,
+                                    commit=commit)
+
     def send_config_set(self, config_commands=None, commit=False):
         '''
         Send in a set of configuration commands as a list
