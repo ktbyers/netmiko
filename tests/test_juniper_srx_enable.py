@@ -53,9 +53,6 @@ def setup_module(module):
     net_connect.config_mode()
     net_connect.send_command('edit services')
     module.show_version_from_config = net_connect.send_command('run show version')
-
-    print "*** SHOW VERSION: {0}".format(module.show_version_from_config)
-
     net_connect.exit_config_mode()
 
     net_connect.disconnect()
