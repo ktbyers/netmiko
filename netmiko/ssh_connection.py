@@ -52,6 +52,17 @@ class SSHConnection(BaseSSHConnection):
         return output
 
 
+    def check_config_mode(self, check_string=')#'):
+        '''
+        Checks if the device is in configuration mode or not
+
+        Returns a boolean
+        '''
+
+        # Call parent class with different command for exiting config mode
+        return super(SSHConnection, self).check_config_mode(check_string=check_string)
+
+
     def exit_config_mode(self, exit_config='end'):
         '''
         First check whether in configuration mode.

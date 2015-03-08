@@ -321,7 +321,7 @@ class BaseSSHConnection(object):
         raise AttributeError("Network device does not support 'check_enable_mode()' method")
 
 
-    def check_config_mode(self, check_string=')#'):
+    def check_config_mode(self, check_string):
         '''
         Checks if the device is in configuration mode or not
 
