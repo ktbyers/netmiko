@@ -1,42 +1,23 @@
 import time
 import re
 
-from netmiko.ssh_connection import SSHConnection
+from netmiko.ssh_connection import BaseSSHConnection
 
-class JuniperSSH(SSHConnection):
+class JuniperSSH(BaseSSHConnection):
     """Implement methods for interacting with Juniper Networks devices.
 
     Subclass of SSHConnection.  Disables `enable()` and `check_enable_mode()`
     methods.  Overrides several methods for Juniper-specific compatibility.
     """
 
-    def enable(self):
-        """Disable superclass `enable()` method."""
-        raise AttributeError("'JuniperSSH' object has no attribute 'enable'")
-
-    def check_enable_mode(self):
-        """Disable superclass `check_enable_mode()` method."""
-        raise AttributeError("'JuniperSSH' object has no attribute \
-                             'check_enable_mode'")
-
     def session_preparation(self):
         """Prepare the session after the connection has been established.
 
-        Ensure we're in CLI mode.  Disable paging (the '--more--' prompts).  Set
-        the base prompt for interaction ('>').
+        Disable paging (the '--more--' prompts).
+        Set the base prompt for interaction ('>').
         """
-        self.cli_mode()
         self.disable_paging(command="set cli screen-length 0\n")
         self.set_base_prompt()
-
-
-    def cli_mode(self, delay_factor=1):
-        """Enter CLI mode."""
-        self.clear_buffer()
-        self.remote_conn.send("cli\n")
-        time.sleep(1*delay_factor)
-        self.clear_buffer()
-        return None
 
 
     def config_mode(self):
