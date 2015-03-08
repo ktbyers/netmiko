@@ -299,11 +299,13 @@ class BaseSSHConnection(object):
 
 
     def enable(self):
-        pass
+        """Disable 'enable()' method."""
+        raise AttributeError("Network device does not support 'enable()' method")
 
 
     def exit_enable_mode(self):
-        pass
+        """Disable 'exit_enable_mode()' method."""
+        raise AttributeError("Network device does not support 'exit_enable_mode()' method")
 
 
     def config_mode(self):
@@ -315,7 +317,8 @@ class BaseSSHConnection(object):
 
 
     def check_enable_mode(self):
-        pass
+        """Disable 'check_enable_mode()' method."""
+        raise AttributeError("Network device does not support 'check_enable_mode()' method")
 
 
     def check_config_mode(self):
