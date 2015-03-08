@@ -61,6 +61,17 @@ class JuniperSSH(BaseSSHConnection):
         return output
 
 
+    def check_config_mode(self, check_string=']'):
+        '''
+        Checks if the device is in configuration mode or not
+
+        Returns a boolean
+        '''
+
+        # Call parent class with Juniper check_string
+        return super(JuniperSSH, self).check_config_mode(check_string=check_string)
+
+
     def commit(self, delay_factor=10):
         """Commit the candidate configuration.
 
