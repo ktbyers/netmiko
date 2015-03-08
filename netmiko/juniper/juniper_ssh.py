@@ -20,45 +20,40 @@ class JuniperSSH(BaseSSHConnection):
         self.set_base_prompt()
 
 
-    def config_mode(self):
-        """Enter configuration mode.
+    def config_mode(self, config_command='configure')
+        '''
+        Enter configuration mode.
 
         Checks to see if the session is already in configuration mode first.
         Raises `ValueError` if the session was unable to enter configuration
         mode.
-        """
-        output = ""
-        configure_marker = "[edit"
-        if not self.check_config_mode(check_string=configure_marker):
-            cmd = "configure\n"
-            output = self.send_command(cmd,
-                                       strip_prompt=False,
-                                       strip_command=False)
-            if 'unknown command' in output:
-                raise ValueError("Failed to enter configuration mode")
-            if not configure_marker in output:
+        '''
+
+        output = ''
+        if not self.check_config_mode():
+            output = self.send_command(config_command, strip_prompt=False, strip_command=False)
+            if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode")
 
         return output
 
 
-    def exit_config_mode(self):
+    def exit_config_mode(self, exit_config='exit'):
         """Exit configuration mode.
 
         Check if we're in configuration mode.  If we are, exit configuration
         mode.  If we aren't, do nothing.
         """
+
         output = ""
-        configure_marker = "[edit"
-        if self.check_config_mode(check_string=configure_marker):
-            cmd = "exit"
-            output = self.send_command(cmd,
-                                       strip_prompt=False,
-                                       strip_command=False)
-            if configure_marker in output:
+        if self.check_config_mode():
+            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
+            if 'Exit with uncommitted changes?' in output:
+                output += self.send_command('yes', strip_prompt=False, strip_command=False)
+            if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
 
-        return output
+        return output 
 
 
     def check_config_mode(self, check_string=']'):
