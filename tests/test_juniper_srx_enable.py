@@ -10,9 +10,9 @@ from DEVICE_CREDS import *
 def setup_module(module):
     
     module.EXPECTED_RESPONSES = {
-        'base_prompt'     : 'root@pynet-jnpr-srx1',
-        'router_prompt'     : 'root@pynet-jnpr-srx1>',
-        'router_conf_mode'  : 'root@pynet-jnpr-srx1#',
+        'base_prompt'     : 'pyclass@pynet-jnpr-srx1',
+        'router_prompt'     : 'pyclass@pynet-jnpr-srx1>',
+        'router_conf_mode'  : 'pyclass@pynet-jnpr-srx1#',
         'interface_ip'      : '10.220.88.39',
         'config_mode'       : '[edit',
     }
