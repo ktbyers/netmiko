@@ -12,7 +12,7 @@ import time
 import socket
 import re
 
-from netmiko_globals import MAX_BUFFER
+from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 
 
@@ -33,6 +33,9 @@ class BaseSSHConnection(object):
         self.secret = secret
         self.device_type = device_type
         self.ansi_escape_codes = False
+
+        # set in set_base_prompt method
+        self.base_prompt = ''
 
         self.establish_connection(verbose=verbose, use_keys=use_keys)
         self.session_preparation()
@@ -91,7 +94,8 @@ class BaseSSHConnection(object):
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
-        if verbose: print "Interactive SSH session established"
+        if verbose:
+            print "Interactive SSH session established"
 
         # Strip the initial router prompt
         time.sleep(sleep_time)
@@ -128,9 +132,9 @@ class BaseSSHConnection(object):
         entering/exiting config mode
         '''
 
-        DEBUG = False
+        debug = False
 
-        if DEBUG:
+        if debug:
             print "In set_base_prompt"
 
         self.clear_buffer()
@@ -151,12 +155,12 @@ class BaseSSHConnection(object):
 
         # Check that ends with a valid terminator character
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(self.base_prompt))
+            raise ValueError("Router prompt not found: {0}".format(prompt))
 
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
 
-        if DEBUG:
+        if debug:
             print "prompt: {}".format(self.base_prompt)
 
         return self.base_prompt
@@ -167,9 +171,9 @@ class BaseSSHConnection(object):
         Finds the current network device prompt, last line only
         '''
 
-        DEBUG = False
+        debug = False
 
-        if DEBUG:
+        if debug:
             print "In find_prompt"
 
         self.clear_buffer()
@@ -188,7 +192,7 @@ class BaseSSHConnection(object):
         prompt = prompt.split('\n')[-1]
         prompt = prompt.strip()
 
-        if DEBUG:
+        if debug:
             print "prompt: {}".format(prompt)
 
         return prompt
@@ -219,10 +223,11 @@ class BaseSSHConnection(object):
         Returns the output of the command.
         '''
 
-        DEBUG = False
+        debug = False
         output = ''
 
-        if DEBUG: print 'In send_command'
+        if debug:
+            print 'In send_command'
 
         self.clear_buffer()
 
@@ -230,7 +235,8 @@ class BaseSSHConnection(object):
         command_string = command_string.rstrip("\n")
         command_string += '\n'
 
-        if DEBUG: print "Command is: {0}".format(command_string)
+        if debug:
+            print "Command is: {0}".format(command_string)
 
         self.remote_conn.send(command_string)
 
@@ -240,16 +246,19 @@ class BaseSSHConnection(object):
 
         while (not_done) and (i <= max_loops):
 
-            if DEBUG: print "In while loop"
+            if debug:
+                print "In while loop"
             time.sleep(1*delay_factor)
             i += 1
 
             # Keep reading data as long as available (up to max_loops)
             if self.remote_conn.recv_ready():
-                if DEBUG: print "recv_ready = True"
+                if debug:
+                    print "recv_ready = True"
                 output += self.remote_conn.recv(MAX_BUFFER)
             else:
-                if DEBUG: print "recv_ready = False"
+                if debug:
+                    print "recv_ready = False"
                 not_done = False
 
         # Some platforms have ansi_escape codes
@@ -261,7 +270,8 @@ class BaseSSHConnection(object):
         if strip_prompt:
             output = self.strip_prompt(output)
 
-        if DEBUG: print output
+        if debug:
+            print output
         return output
 
 
@@ -308,7 +318,7 @@ class BaseSSHConnection(object):
         raise AttributeError("Network device does not support 'exit_enable_mode()' method")
 
 
-    def config_mode(self, config_command):
+    def config_mode(self, config_command=''):
         '''
         Enter into config_mode.
 
@@ -326,6 +336,9 @@ class BaseSSHConnection(object):
 
 
     def exit_config_mode(self):
+        '''
+        Exit from configuration mode
+        '''
         return ''
 
 
@@ -334,7 +347,7 @@ class BaseSSHConnection(object):
         raise AttributeError("Network device does not support 'check_enable_mode()' method")
 
 
-    def check_config_mode(self, check_string):
+    def check_config_mode(self, check_string=''):
         '''
         Checks if the device is in configuration mode or not
 
@@ -373,7 +386,7 @@ class BaseSSHConnection(object):
         Automatically exits/enters configuration mode.
         '''
 
-        DEBUG = False
+        debug = False
         output = ''
 
         if config_commands is None:
@@ -394,7 +407,7 @@ class BaseSSHConnection(object):
 
         output += self.exit_config_mode()
 
-        if DEBUG:
+        if debug:
             print output
 
         return output
@@ -417,27 +430,29 @@ class BaseSSHConnection(object):
 
         HP ProCurve's and F5 LTM's require this (possible others)
         '''
-    
-        DEBUG = False
-        if DEBUG: print "In strip_ansi_escape_codes"
-        if DEBUG: print "repr = %s" % repr(string_buffer)
 
-        CODE_POSITION_CURSOR = '\x1b\[\d+;\d+H'
-        CODE_SHOW_CURSOR = '\x1b\[\?25h'
-        CODE_NEXT_LINE = '\x1bE'
-        CODE_ERASE_LINE = '\x1b\[2K'
-        CODE_ENABLE_SCROLL = '\x1b\[\d+;\d+r'
+        debug = False
+        if debug:
+            print "In strip_ansi_escape_codes"
+        if debug:
+            print "repr = %s" % repr(string_buffer)
 
-        CODE_SET = [CODE_POSITION_CURSOR, CODE_SHOW_CURSOR, CODE_ERASE_LINE, CODE_ENABLE_SCROLL]
+        code_position_cursor = '\x1b\[\d+;\d+H'
+        code_show_cursor = '\x1b\[\?25h'
+        code_next_line = '\x1bE'
+        code_erase_line = '\x1b\[2K'
+        code_enable_scroll = '\x1b\[\d+;\d+r'
+
+        code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll]
 
         output = string_buffer
-        for ansi_esc_code in CODE_SET:
+        for ansi_esc_code in code_set:
             output = re.sub(ansi_esc_code, '', output)
 
         # CODE_NEXT_LINE must substitute with '\n'
-        output = re.sub(CODE_NEXT_LINE, '\n', output)
+        output = re.sub(code_next_line, '\n', output)
 
-        if DEBUG:
+        if debug:
             print "new_output = %s" % output
             print "repr = %s" % repr(output)
 
