@@ -20,7 +20,7 @@ class JuniperSSH(BaseSSHConnection):
         self.set_base_prompt()
 
 
-    def config_mode(self, config_command='configure')
+    def config_mode(self, config_command='configure'):
         '''
         Enter configuration mode.
 
@@ -29,16 +29,11 @@ class JuniperSSH(BaseSSHConnection):
         mode.
         '''
 
-        output = ''
-        if not self.check_config_mode():
-            output = self.send_command(config_command, strip_prompt=False, strip_command=False)
-            if not self.check_config_mode():
-                raise ValueError("Failed to enter configuration mode")
-
-        return output
+        # Call parent class with specific command for entering config mode
+        return super(JuniperSSH, self).config_mode(config_command=config_command)
 
 
-    def exit_config_mode(self, exit_config='exit'):
+    def exit_config_mode(self, exit_config='exit configuration-mode'):
         """Exit configuration mode.
 
         Check if we're in configuration mode.  If we are, exit configuration

@@ -308,8 +308,21 @@ class BaseSSHConnection(object):
         raise AttributeError("Network device does not support 'exit_enable_mode()' method")
 
 
-    def config_mode(self):
-        return ''
+    def config_mode(self, config_command):
+        '''
+        Enter into config_mode.
+
+        First check whether currently already in configuration mode.
+        Enter config mode (if necessary)
+        '''
+
+        output = ''
+        if not self.check_config_mode():
+            output = self.send_command(config_command, strip_prompt=False, strip_command=False)
+            if not self.check_config_mode():
+                raise ValueError("Failed to enter configuration mode")
+
+        return output
 
 
     def exit_config_mode(self):

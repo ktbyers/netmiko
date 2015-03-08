@@ -43,13 +43,8 @@ class SSHConnection(BaseSSHConnection):
         Enter config mode (if necessary)
         '''
 
-        output = ''
-        if not self.check_config_mode():
-            output = self.send_command(config_command, strip_prompt=False, strip_command=False)
-            if not self.check_config_mode():
-                raise ValueError("Failed to enter configuration mode")
-
-        return output
+        # Call parent class with specific command for entering config mode
+        return super(SSHConnection, self).config_mode(config_command=config_command)
 
 
     def check_config_mode(self, check_string=')#'):
@@ -59,7 +54,7 @@ class SSHConnection(BaseSSHConnection):
         Returns a boolean
         '''
 
-        # Call parent class with different command for exiting config mode
+        # Call parent class with Cisco check string
         return super(SSHConnection, self).check_config_mode(check_string=check_string)
 
 
