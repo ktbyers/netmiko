@@ -335,14 +335,21 @@ class BaseSSHConnection(object):
         return output
 
 
-    def exit_config_mode(self):
+    def exit_config_mode(self, exit_config=''):
         '''
-        Exit from configuration mode
+        Exit from configuration mode.
         '''
-        return ''
+
+        output = ''
+        if self.check_config_mode():
+            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
+            if self.check_config_mode():
+                raise ValueError("Failed to exit configuration mode")
+
+        return output
 
 
-    def check_enable_mode(self):
+    def check_enable_mode(self, check_string=''):
         """Disable 'check_enable_mode()' method."""
         raise AttributeError("Network device does not support 'check_enable_mode()' method")
 

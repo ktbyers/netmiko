@@ -56,22 +56,15 @@ class SSHConnection(BaseSSHConnection):
         Returns a boolean
         '''
 
-        # Call parent class with Cisco check string
+        # Call super class with Cisco check string
         return super(SSHConnection, self).check_config_mode(check_string=check_string)
 
 
     def exit_config_mode(self, exit_config='end'):
         '''
-        First check whether in configuration mode.
-
-        If so, exit config mode
+        Exit from configuration mode.
         '''
 
-        output = ''
-        if self.check_config_mode():
-            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
-            if self.check_config_mode():
-                raise ValueError("Failed to exit configuration mode")
-
-        return output
+        # Call super class with Cisco check string
+        return super(SSHConnection, self).exit_config_mode(exit_config=exit_config)
 
