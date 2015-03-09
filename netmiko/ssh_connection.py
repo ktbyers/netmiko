@@ -1,8 +1,10 @@
-import paramiko
-import time
+'''
+SSHConnection is netmiko SSH class for Cisco and Cisco-like platforms
 
-from base_connection import BaseSSHConnection
-from netmiko_globals import MAX_BUFFER
+Exports SSHConnection class
+'''
+
+from netmiko.base_connection import BaseSSHConnection
 
 
 class SSHConnection(BaseSSHConnection):
