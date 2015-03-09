@@ -288,6 +288,68 @@ class BaseSSHConnection(object):
         else:
             return a_string
 
+    def send_command_expect(self, command_string, max_loops=60,
+                     delay_factor=.5, strip_prompt=True, strip_command=True):
+        '''
+        Execute command_string and wait for router prompt to signify all expected output has been returned.
+		
+        Delay factor stipulates how often the loop is run.
+		
+        Max_loops stipulates the number of times the loop is processed.
+		
+        Using delay factor and max loops creates a time-out in case router prompt is never received.
+		
+        Example: 30 loops with 1 second intervals would create roughly a 30 second timeout.
+        '''
+
+        DEBUG = False
+        output = ''
+
+        self.clear_buffer()
+
+        # Ensure there is a newline at the end of the command
+        command_string = command_string.rstrip("\n")
+        command_string += '\n'
+
+        device_prompt = self.find_prompt()
+
+        if DEBUG: print "Command is: {0}".format(command_string)
+        if DEBUG: print "Router prompt to stop receiving data is: '{0}'".format(device_prompt)
+
+        self.remote_conn.send(command_string)
+
+        not_done = True
+        i = 1
+
+        while (not_done) and (i <= max_loops):
+
+            if DEBUG: print "In while loop"
+            time.sleep(delay_factor*2)
+            i += 1
+
+            # Keep reading data until time-out, unless device prompt is received
+            if self.remote_conn.recv_ready():
+                if DEBUG: print "recv_ready = True"
+                output += self.remote_conn.recv(MAX_BUFFER)
+            else:
+                if DEBUG: print "recv_ready = False"
+                if device_prompt in output.split('\n')[-1]:
+                    if DEBUG: print "Router prompt found in received data"
+                    not_done = False
+                    break
+
+		# Some platforms have ansi_escape codes
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
+        output = self.normalize_linefeeds(output)
+        if strip_command:
+            output = self.strip_command(command_string, output)
+        if strip_prompt:
+            output = self.strip_prompt(output)
+
+        if DEBUG: print output
+		
+        return output
 
     def strip_command(self, command_string, output):
         '''
