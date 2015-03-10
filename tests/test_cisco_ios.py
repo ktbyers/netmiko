@@ -23,6 +23,9 @@ def setup_module(module):
     module.show_ip = net_connect.send_command(module.basic_command)
     module.base_prompt = net_connect.base_prompt
 
+    module.show_ip_alt = net_connect.send_command_expect(module.basic_command)
+    module.show_version_alt = net_connect.send_command_expect(show_ver_command)
+
     # Test buffer clearing
     net_connect.remote_conn.send(show_ver_command)
     time.sleep(2)
@@ -39,18 +42,25 @@ def test_disable_paging():
     assert 'Configuration register is' in show_version
 
 
-def test_verify_ssh_connect():
+def test_ssh_connect():
     '''
     Verify the connection was established successfully
     '''
     assert 'Cisco IOS Software' in show_version
 
 
-def test_verify_send_command():
+def test_send_command():
     '''
     Verify a command can be sent down the channel successfully
     '''
     assert EXPECTED_RESPONSES['interface_ip'] in show_ip
+
+
+def test_send_command_expect():
+    '''
+    Verify a command can be sent down the channel successfully
+    '''
+    assert EXPECTED_RESPONSES['interface_ip'] in show_ip_alt
 
 
 def test_base_prompt():
@@ -65,6 +75,7 @@ def test_strip_prompt():
     Ensure the router prompt is not in the command output
     '''
     assert EXPECTED_RESPONSES['base_prompt'] not in show_ip
+    assert EXPECTED_RESPONSES['base_prompt'] not in show_ip_alt
 
 
 def test_strip_command():
@@ -73,6 +84,7 @@ def test_strip_command():
     command output
     '''
     assert basic_command not in show_ip
+    assert basic_command not in show_ip_alt
 
 
 def test_normalize_linefeeds():
@@ -80,6 +92,7 @@ def test_normalize_linefeeds():
     Ensure no '\r\n' sequences
     '''
     assert not '\r\n' in show_version
+    assert not '\r\n' in show_version_alt
 
 
 def test_clear_buffer():
@@ -87,3 +100,4 @@ def test_clear_buffer():
     Test that clearing the buffer works
     '''
     assert clear_buffer_check is None
+

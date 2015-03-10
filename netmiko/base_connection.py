@@ -289,6 +289,89 @@ class BaseSSHConnection(object):
             return a_string
 
 
+    def send_command_expect(self, command_string, expect_string=None,
+                            delay_factor=.5, max_loops=240,
+                            strip_prompt=True, strip_command=True):
+        '''
+        Send command to network device retrieve output until router_prompt or expect_string
+
+        By default this method will keep waiting to receive data until the network device prompt is
+        detected. The network device prompt will be determined by the find_prompt() method.
+
+        command_string = command to execute
+        expect_string = pattern to search for in output
+        delay_factor = decrease the initial delay before we start looking for data
+        max_loops = number of iterations before we give up and raise an exception
+        strip_prompt = strip the trailing prompt from the output
+        strip_command = strip the leading command from the output
+        '''
+
+        debug = False
+        output = ''
+
+        # Ensure there is a newline at the end of the command
+        command_string = command_string.rstrip("\n")
+        command_string += '\n'
+
+        if expect_string is None:
+            search_pattern = self.find_prompt()
+            time.sleep(delay_factor*1)
+        else:
+            search_pattern = expect_string
+
+        self.clear_buffer()
+
+        if debug:
+            print "Command is: {0}".format(command_string)
+            print "Search to stop receiving data is: '{0}'".format(search_pattern)
+
+        self.remote_conn.send(command_string)
+
+        # Initial delay after sending command
+        time.sleep(delay_factor*1)
+
+        i = 1
+        # Keep reading data until search_pattern is found (or max_loops)
+        while i <= max_loops:
+
+            if debug:
+                print "In while loop"
+
+            if self.remote_conn.recv_ready():
+                if debug:
+                    print "recv_ready = True"
+                output += self.remote_conn.recv(MAX_BUFFER)
+                if search_pattern in output:
+                    break
+            else:
+                if debug:
+                    print "recv_ready = False"
+                # No data, wait a little bit
+                time.sleep(delay_factor*1)
+
+            i += 1
+
+        else:   # nobreak
+            # search_pattern never found
+            raise IOError("Search pattern never detected in send_command_expect: {0}".format(
+                search_pattern))
+
+
+		# Some platforms have ansi_escape codes
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
+        output = self.normalize_linefeeds(output)
+        if strip_command:
+            output = self.strip_command(command_string, output)
+        if strip_prompt:
+            output = self.strip_prompt(output)
+
+        if debug:
+            print output
+
+        return output
+
+
     def strip_command(self, command_string, output):
         '''
         Strip command_string from output string
@@ -325,7 +408,6 @@ class BaseSSHConnection(object):
         First check whether currently already in configuration mode.
         Enter config mode (if necessary)
         '''
-
         output = ''
         if not self.check_config_mode():
             output = self.send_command(config_command, strip_prompt=False, strip_command=False)
@@ -335,14 +417,20 @@ class BaseSSHConnection(object):
         return output
 
 
-    def exit_config_mode(self):
+    def exit_config_mode(self, exit_config=''):
         '''
-        Exit from configuration mode
+        Exit from configuration mode.
         '''
-        return ''
+        output = ''
+        if self.check_config_mode():
+            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
+            if self.check_config_mode():
+                raise ValueError("Failed to exit configuration mode")
+
+        return output
 
 
-    def check_enable_mode(self):
+    def check_enable_mode(self, check_string=''):
         """Disable 'check_enable_mode()' method."""
         raise AttributeError("Network device does not support 'check_enable_mode()' method")
 
@@ -353,7 +441,6 @@ class BaseSSHConnection(object):
 
         Returns a boolean
         '''
-
         output = self.send_command('\n', strip_prompt=False, strip_command=False)
         if check_string in output:
             return True
