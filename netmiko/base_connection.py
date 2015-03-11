@@ -161,7 +161,7 @@ class BaseSSHConnection(object):
         self.base_prompt = prompt[:-1]
 
         if debug:
-            print "prompt: {}".format(self.base_prompt)
+            print "prompt: {0}".format(self.base_prompt)
 
         return self.base_prompt
 
