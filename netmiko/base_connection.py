@@ -153,6 +153,11 @@ class BaseSSHConnection(object):
         prompt = prompt.split('\n')[-1]
         prompt = prompt.strip()
 
+        # If prompt returned is empty, throw an exception with more information
+        if len(prompt) < 1:
+            if DEBUG: print "Length of base prompt is {0}".format(len(prompt))
+            raise ValueError("Base prompt return was empty")
+
         # Check that ends with a valid terminator character
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError("Router prompt not found: {0}".format(prompt))
