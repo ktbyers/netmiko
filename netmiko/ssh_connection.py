@@ -68,11 +68,14 @@ class SSHConnection(BaseSSHConnection):
         # Call super class with Cisco check string
         return super(SSHConnection, self).exit_config_mode(exit_config=exit_config)
 
-    def exit_enable_mode(self):
-        """Exits enable (privileged exec) mode."""
+
+    def exit_enable_mode(self, exit_command='disable'):
+        '''
+        Exits enable (privileged exec) mode.
+        '''
         output = ""
         if self.check_enable_mode():
-            output = self.send_command("exit", strip_prompt=False, strip_command=False)
+            output = self.send_command(exit_command, strip_prompt=False, strip_command=False)
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
