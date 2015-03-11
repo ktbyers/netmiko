@@ -28,8 +28,8 @@ HP 8206 zl - Procurve Software Version K.15.16.0005
 HP 870 LSW - Comware Software Version 5.20.105  
 Juniper SRX100 running 12.1X44-D35.5  
 Juniper EX2200 running 12.3R3.4  
-Brocade VDX (limited testing)
-F5 LTM (very limited testing)  
+Brocade VDX (limited testing)  
+F5 LTM (limited testing)  
  
    
 ##### Simple example: #####
