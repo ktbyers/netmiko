@@ -34,9 +34,10 @@ def setup_module(module):
     net_connect.send_config_set(config_commands)
 
     module.exit_config_mode = net_connect.exit_config_mode()
-    module.exit_enable_mode = net_connect.exit_enable_mode()
 
     module.config_commands_output = net_connect.send_command('show run | inc logging buffer')
+
+    module.exit_enable_mode = net_connect.exit_enable_mode()
 
     net_connect.disconnect()
 
@@ -57,5 +58,6 @@ def test_command_set():
 def test_exit_config_mode():
     assert not EXPECTED_RESPONSES['config_mode'] in exit_config_mode
 
+
 def test_exit_enable_mode():
-    assert EXEPECTED_RESPONSES["user_exec_prompt"] in exit_enable_mode
+    assert EXPECTED_RESPONSES["user_exec_prompt"] in exit_enable_mode
