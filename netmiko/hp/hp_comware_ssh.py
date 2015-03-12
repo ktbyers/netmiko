@@ -47,7 +47,7 @@ class HPComwareSSH(SSHConnection):
         return super(HPComwareSSH, self).check_config_mode(check_string=check_string)
        
     
-    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']', delay_factor=.5):
+    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']', start_prompt_terminator='<', delay_factor=.5):
         '''
         Sets self.base_prompt
 
@@ -76,10 +76,10 @@ class HPComwareSSH(SSHConnection):
         prompt = prompt.strip()
 
         # Check that begins and ends with a valid terminator character
-        if not prompt[0] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(self.base_prompt))
+        if not prompt[0] in (pri_prompt_terminator, alt_prompt_terminator, start_prompt_terminator):
+            raise ValueError("Router prompt not found: {0}".format(prompt))
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(self.base_prompt))
+            raise ValueError("Router prompt not found: {0}".format(self.prompt))
 
         # Strip off leading and trailing terminator
         prompt = prompt[1:-1]
@@ -88,6 +88,6 @@ class HPComwareSSH(SSHConnection):
         self.base_prompt = prompt
 
         if DEBUG:
-            print "prompt: {}".format(self.base_prompt)
+            print "prompt: {}".format(prompt)
 
         return self.base_prompt
