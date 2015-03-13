@@ -56,10 +56,7 @@ def setup_module(module):
     module.strip_command_false = net_connect.send_command(module.basic_command,
         strip_command=False)
 
-
-    #def send_command_expect(self, command_string, expect_string=None,
-    #                        delay_factor=.5, max_loops=240,
-    #                        strip_prompt=True, strip_command=True):
+    # send_command_expect() parameters
     module.cmd_expect_std = net_connect.send_command_expect(module.basic_command)
     module.cmd_expect_short = net_connect.send_command_expect(module.basic_command, expect_string="FastEthernet2")
     module.cmd_expect_slow = net_connect.send_command_expect(module.basic_command, delay_factor=2)
@@ -72,16 +69,6 @@ def setup_module(module):
     module.expect_strip_command_false = net_connect.send_command_expect(module.basic_command,
         strip_command=False)
 
-#    module.show_ip_alt = net_connect.send_command_expect(module.basic_command)
-#    module.show_version_alt = net_connect.send_command_expect(show_ver_command)
-
-    # Test buffer clearing
-#    net_connect.remote_conn.send(show_ver_command)
-#    time.sleep(2)
-#    net_connect.clear_buffer()
-    # Should not be anything there on the second pass
-#    module.clear_buffer_check = net_connect.clear_buffer()
-    
 
 def test_init_method():
     '''
@@ -176,7 +163,6 @@ def test_strip_prompt():
     assert EXPECTED_RESPONSES['base_prompt'] in strip_prompt_false
     assert EXPECTED_RESPONSES['base_prompt'] not in expect_strip_prompt_true
     assert EXPECTED_RESPONSES['base_prompt'] in expect_strip_prompt_false
-
 
 
 def test_strip_command():
