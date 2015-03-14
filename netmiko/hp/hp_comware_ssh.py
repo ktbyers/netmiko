@@ -77,9 +77,9 @@ class HPComwareSSH(SSHConnection):
 
         # Check that begins and ends with a valid terminator character
         if not prompt[0] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(self.base_prompt))
+            raise ValueError("Router prompt not found: {0}".format(prompt))
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(self.base_prompt))
+            raise ValueError("Router prompt not found: {0}".format(prompt))
 
         # Strip off leading and trailing terminator
         prompt = prompt[1:-1]
