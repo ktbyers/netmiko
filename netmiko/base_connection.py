@@ -157,7 +157,7 @@ class BaseSSHConnection(object):
             # Check that ends with a valid terminator character
             if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
                 raise ValueError()
-        except (IndexError, ValueError): 
+        except (IndexError, ValueError):
             if debug:
                 print "Router prompt not found: {0}".format(prompt)
             raise ValueError("Router prompt not found: {0}".format(prompt))
