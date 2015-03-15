@@ -509,16 +509,19 @@ class BaseSSHConnection(object):
         '''
         Remove any ANSI (VT100) ESC codes from the output
 
+        http://en.wikipedia.org/wiki/ANSI_escape_code
+
         Note: this does not capture ALL possible ANSI Escape Codes only the ones
         I have encountered
 
         Current codes that are filtered:
-        ^[[24;27H   Position cursor
-        ^[[?25h     Show the cursor
-        ^[E         Next line
-        ^[[2K       Erase line
-        ^[[1;24r    Enable scrolling from start to row end
-        0x1b = is the escape character [^ in hex
+        ESC = '\x1b' or chr(27)
+        ESC = is the escape character [^ in hex ('\x1b')
+        ESC[24;27H   Position cursor
+        ESC[?25h     Show the cursor
+        ESC[E        Next line (HP does ESC-E)
+        ESC[2K       Erase line
+        ESC[1;24r    Enable scrolling from start to row end
 
         HP ProCurve's and F5 LTM's require this (possible others)
         '''
@@ -529,11 +532,11 @@ class BaseSSHConnection(object):
         if debug:
             print "repr = %s" % repr(string_buffer)
 
-        code_position_cursor = '\x1b\[\d+;\d+H'
-        code_show_cursor = '\x1b\[\?25h'
-        code_next_line = '\x1bE'
-        code_erase_line = '\x1b\[2K'
-        code_enable_scroll = '\x1b\[\d+;\d+r'
+        code_position_cursor = chr(27) + r'\[\d+;\d+H'
+        code_show_cursor = chr(27) + r'\[\?25h'
+        code_next_line = chr(27) + r'E'
+        code_erase_line = chr(27) + r'\[2K'
+        code_enable_scroll = chr(27) + r'\[\d+;\d+r'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll]
 
