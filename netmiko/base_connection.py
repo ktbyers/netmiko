@@ -453,21 +453,20 @@ class BaseSSHConnection(object):
             return False
 
 
-    def send_config_file(self, config_file=None, commit=False):
+    def process_config_file(self, config_file=None):
         '''
-        Parse a configuration file and relay the data to
-        self.send_config_set()
+        Parse a configuration file and return a list of commands
         '''
 
         config_commands = []
         try:
-            for line in open(config_file, "r"):
-                config_commands.append(line.strip())
+            with open(config_file) as f:
+                config_commands = f.readlines()
         except IOError as (errno, strerr):
             print "I/O Error {0}: {1}".format(errno, strerr)
 
-        return self.send_config_set(config_commands=config_commands,
-                                    commit=commit)
+        return config_commands 
+
 
     def send_config_set(self, config_commands=None, commit=False):
         '''
