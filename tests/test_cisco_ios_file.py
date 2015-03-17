@@ -31,7 +31,7 @@ def setup_module(module):
 
     module.config_mode = net_connect.config_mode()
 
-    net_connect.process_config_file('config_commands.txt')
+    config_commands = net_connect.process_config_file('config_commands.txt')
     net_connect.send_config_set(config_commands)
 
     module.exit_config_mode = net_connect.exit_config_mode()
@@ -50,7 +50,7 @@ def test_config_mode():
     assert EXPECTED_RESPONSES['config_mode'] in config_mode
 
 
-def test_command_set():
+def test_commands_from_file():
     assert 'logging buffered 8880' in config_commands_output
    
  
