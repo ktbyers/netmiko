@@ -453,28 +453,37 @@ class BaseSSHConnection(object):
             return False
 
 
-    def process_config_file(self, config_file=None):
+    def send_config_from_file(self, config_file=None, **kwargs):
         '''
-        Parse a configuration file and return a list of commands
+        Send configuration commands down the SSH channel from a file.
+
+        The file is processed line-by-line and each command is sent down the
+        SSH channel.
+
+        **kwargs are passed to send_config_set method.
         '''
 
-        config_commands = []
         try:
-            with open(config_file) as f:
-                config_commands = f.readlines()
+            with open(config_file) as cfg_file:
+                return self.send_config_set(cfg_file, **kwargs)
         except IOError as (errno, strerr):
             print "I/O Error {0}: {1}".format(errno, strerr)
 
-        return config_commands 
+        return ''
 
 
-    def send_config_set(self, config_commands=None):
+    def send_config_set(self, config_commands=None, **kwargs):
         '''
-        Send in a set of configuration commands as a list
+        Send group of configuration commands down the SSH channel.
 
-        The commands will be executed one after the other
+        config_commands is an iterable containing all of the configuration commands.
+        The commands will be executed one after the other.
 
         Automatically exits/enters configuration mode.
+
+        **kwargs will allow passing of all the arguments to send_command
+        strip_prompt and strip_command will be set to False if not explicitly set in 
+        the method call.
         '''
 
         debug = False
@@ -482,6 +491,10 @@ class BaseSSHConnection(object):
 
         if config_commands is None:
             return ''
+
+        # Set strip_prompt and strip_command to default to False
+        kwargs.setdefault('strip_prompt', False)
+        kwargs.setdefault('strip_command', False)
 
         # Config commands must be iterable, but not a string
         if not hasattr(config_commands, '__iter__'):
@@ -491,7 +504,7 @@ class BaseSSHConnection(object):
         output = self.config_mode()
 
         for a_command in config_commands:
-            output += self.send_command(a_command, strip_prompt=False, strip_command=False)
+            output += self.send_command(a_command, **kwargs)
 
         output += self.exit_config_mode()
 

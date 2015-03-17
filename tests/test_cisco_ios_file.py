@@ -31,8 +31,7 @@ def setup_module(module):
 
     module.config_mode = net_connect.config_mode()
 
-    config_commands = net_connect.process_config_file('config_commands.txt')
-    net_connect.send_config_set(config_commands)
+    net_connect.send_config_from_file("config_commands.txt")
 
     module.exit_config_mode = net_connect.exit_config_mode()
     module.config_commands_output = net_connect.send_command('show run | inc logging buffer')
