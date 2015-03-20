@@ -79,14 +79,14 @@ class BaseSSHConnection(object):
                                          username=self.username, password=self.password,
                                          look_for_keys=use_keys, allow_agent=False,
                                          timeout=timeout)
-        except socket.error as e:
+        except socket.error:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
             raise NetMikoTimeoutException(msg)
-        except paramiko.ssh_exception.AuthenticationException as e:
+        except paramiko.ssh_exception.AuthenticationException as auth_err:
             msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
-            msg += '\n' + str(e)
+            msg += '\n' + str(auth_err)
             raise NetMikoAuthenticationException(msg)
 
         if verbose:
@@ -377,7 +377,8 @@ class BaseSSHConnection(object):
         return output
 
 
-    def strip_command(self, command_string, output):
+    @staticmethod
+    def strip_command(command_string, output):
         '''
         Strip command_string from output string
         '''
@@ -386,7 +387,8 @@ class BaseSSHConnection(object):
         return output[command_length:]
 
 
-    def normalize_linefeeds(self, a_string):
+    @staticmethod
+    def normalize_linefeeds(a_string):
         '''
         Convert '\r\r\n','\r\n', '\n\r' to '\n
         '''
@@ -482,7 +484,7 @@ class BaseSSHConnection(object):
         Automatically exits/enters configuration mode.
 
         **kwargs will allow passing of all the arguments to send_command
-        strip_prompt and strip_command will be set to False if not explicitly set in 
+        strip_prompt and strip_command will be set to False if not explicitly set in
         the method call.
         '''
 
@@ -514,7 +516,8 @@ class BaseSSHConnection(object):
         return output
 
 
-    def strip_ansi_escape_codes(self, string_buffer):
+    @staticmethod
+    def strip_ansi_escape_codes(string_buffer):
         '''
         Remove any ANSI (VT100) ESC codes from the output
 

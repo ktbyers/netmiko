@@ -3,7 +3,8 @@ import re
 
 class CiscoNxosSSH(SSHConnection):
 
-    def normalize_linefeeds(self, a_string):
+    @staticmethod
+    def normalize_linefeeds(a_string):
         '''
         Convert '\r\n' or '\r\r\n' to '\n, and remove extra '\r's in the text
         '''

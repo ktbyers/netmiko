@@ -29,8 +29,9 @@ class F5LtmSSH(BaseSSHConnection):
 
         return None
 
-
-    def normalize_linefeeds(self, a_string):
+    
+    @staticmethod
+    def normalize_linefeeds(a_string):
         '''
         Convert '\r\n' or '\r\r\n' to '\n, and remove '\r's in the text
         '''    

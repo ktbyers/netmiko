@@ -49,7 +49,8 @@ class CiscoXrSSH(SSHConnection):
         return output
 
 
-    def normalize_linefeeds(self, a_string):
+    @staticmethod
+    def normalize_linefeeds(a_string):
         '''
         Convert '\r\n','\r\r\n', '\n\r', or '\r' to '\n
         '''
