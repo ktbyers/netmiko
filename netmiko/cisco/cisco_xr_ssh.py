@@ -5,10 +5,11 @@ class CiscoXrSSH(SSHConnection):
 
     def commit(self):
         '''
-        Commit the entered configuration. Raise an error
-        and return the failure if the commit fails.
+        Commit the entered configuration. 
 
-        IOS-XR commit command must be in config mode
+        Raise an error and return the failure if the commit fails.
+
+        Automatically enter and exit configuration mode.
         '''
 
         # Enter config mode (if necessary)
