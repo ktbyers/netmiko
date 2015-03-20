@@ -36,7 +36,7 @@ def setup_module(module):
         'set system syslog archive size 120k files 3',
         'set system time-zone America/New_York',
     ]
-    net_connect.send_config_set(config_commands, commit=True)
+    net_connect.send_config_set(config_commands)
 
     module.exit_config_mode = net_connect.exit_config_mode()
 
