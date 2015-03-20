@@ -37,6 +37,7 @@ def setup_module(module):
         'set system time-zone America/New_York',
     ]
     net_connect.send_config_set(config_commands)
+    net_connect.commit()
 
     module.exit_config_mode = net_connect.exit_config_mode()
 

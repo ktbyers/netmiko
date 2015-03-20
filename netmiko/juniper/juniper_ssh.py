@@ -63,20 +63,22 @@ class JuniperSSH(BaseSSHConnection):
 
 
     def commit(self, delay_factor=10):
-        """Commit the candidate configuration.
+        """
+        Commit the candidate configuration.
 
         Commit the entered configuration. Raise an error and return the failure
         if the commit fails.
 
-        Juniper commit command must be entered in configuration mode.
+        Automatically enters and exits configuration mode
         """
+
         cmd = "commit and-quit"
         commit_marker = "commit complete"
-        output = self.send_command(cmd,
-                                   strip_prompt=False,
-                                   strip_command=False,
-                                   delay_factor=delay_factor)
 
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+        output += self.send_command(cmd, strip_prompt=False, strip_command=False,
+                                   delay_factor=delay_factor)
         if not commit_marker in output:
             raise ValueError("Commit failed with the following errors:\n\n{0}"
                              .format(output))
