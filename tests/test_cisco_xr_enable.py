@@ -33,11 +33,11 @@ def setup_module(module):
     module.current_commit = current_commit_history.split('\n')[4].split()[1]
     module.config_mode = net_connect.config_mode()
     config_commands = ['logging monitor warning', 'logging buffered 30720100', 'logging console errors']
-    net_connect.send_config_set(config_commands, commit=True)
-
-    new_commit_history = net_connect.send_command(commit_history_cmd)
+    net_connect.send_config_set(config_commands)
+    net_connect.commit()
 
     # get the new 10 digit commit Label ID 
+    new_commit_history = net_connect.send_command(commit_history_cmd)
     module.new_commit = new_commit_history.split('\n')[4].split()[1]
 
     module.config_commands_output = net_connect.send_command("show run | inc logging")
