@@ -35,9 +35,11 @@ F5 LTM (limited testing)
 ##### Simple example: #####
 
 ```
->>> import netmiko
+>>> from netmiko import ConnectHandler
 
-# Create a dictionary representing the device
+# Create a dictionary representing the device.
+# Supported device_types can be found at:
+# https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py
 >>> cisco_881 = {
 ...     'device_type': 'cisco_ios',
 ...     'ip':   '10.10.10.10',
@@ -47,17 +49,11 @@ F5 LTM (limited testing)
 ...     'verbose': False,
 ... }
 
-# Dynamically select the class to use based on the device_type
->>> SSHClass = netmiko.ssh_dispatcher(device_type=cisco_881['device_type'])
-
-# Supported device_types can be found at:
-# https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py
-
 ```
 
 ```
-# Establish an SSH connection to the device pass in the device dictionary.
->>> net_connect = SSHClass(**cisco_881)
+# Establish an SSH connection to the device by passing in the device dictionary.
+>>> net_connect = ConnectClass(**cisco_881)
                 
 ```
 
