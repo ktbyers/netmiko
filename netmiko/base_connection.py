@@ -586,4 +586,4 @@ class BaseSSHConnection(object):
         '''
         Commit method for platforms that support this
         '''
-        return ''
+        raise AttributeError("Network device does not support 'commit()' method")

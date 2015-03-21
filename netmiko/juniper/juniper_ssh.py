@@ -62,22 +62,63 @@ class JuniperSSH(BaseSSHConnection):
         return super(JuniperSSH, self).check_config_mode(check_string=check_string)
 
 
-    def commit(self, delay_factor=10):
+    def commit(self, confirm=False, confirm_delay=None, check=False, comment='', 
+               and_quit=False, delay_factor=10):
         """
         Commit the candidate configuration.
 
         Commit the entered configuration. Raise an error and return the failure
         if the commit fails.
 
-        Automatically enters and exits configuration mode
+        Automatically enters configuration mode
+
+        default:
+            command_string = commit
+        check and (confirm or confirm_dely or comment):
+            Exception
+        confirm_delay and no confirm:
+            Exception
+        confirm:
+            confirm_delay option
+            comment option
+            command_string = commit confirmed or commit confirmed <confirm_delay>
+        check:
+            command_string = commit check
+
         """
 
-        cmd = "commit and-quit"
-        commit_marker = "commit complete"
+        if check and (confirm or confirm_delay or comment):
+            raise ValueError("Invalid arguments supplied with commit check")
+
+        if confirm_delay and not confirm:
+            raise ValueError("Invalid arguments supplied to commit method both confirm and check")
+
+        # Select proper command string based on arguments provided
+        commit_marker = 'commit complete'
+        if check:
+            command_string = 'commit check'
+            commit_marker = 'configuration check succeeds'
+        elif confirm:
+            if confirm_delay:
+                command_string = 'commit confirmed ' + str(confirm_delay)
+            else:
+                command_string = 'commit confirmed'
+            commit_marker = 'commit confirmed will be automatically rolled back in'
+
+        # wrap the comment in quotes
+        if comment:
+            if '"' in comment:
+                raise ValueError("Invalid comment contains double quote")
+            comment = '"{0}"'.format(comment)
+
+            command_string += ' comment ' + comment
+
+        if and_quit:
+            command_string += ' and-quit'
 
         # Enter config mode (if necessary)
         output = self.config_mode()
-        output += self.send_command(cmd, strip_prompt=False, strip_command=False,
+        output += self.send_command(command_string, strip_prompt=False, strip_command=False,
                                    delay_factor=delay_factor)
         if not commit_marker in output:
             raise ValueError("Commit failed with the following errors:\n\n{0}"
