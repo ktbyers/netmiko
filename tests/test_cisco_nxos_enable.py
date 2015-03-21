@@ -2,7 +2,7 @@
 
 import pytest
 
-import netmiko
+from netmiko import ConnectHandler
 from DEVICE_CREDS import *
 
 def setup_module(module):
@@ -18,8 +18,7 @@ def setup_module(module):
     show_ver_command = 'show version'
     module.basic_command = 'show ip int brief'
 
-    SSHClass = netmiko.ssh_dispatcher(cisco_nxos['device_type'])
-    net_connect = SSHClass(**cisco_nxos)
+    net_connect = ConnectHandler(**cisco_nxos)
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)
 

@@ -2,7 +2,7 @@
 
 import pytest
 
-import netmiko
+from netmiko import ConnectHandler
 from DEVICE_CREDS import *
 
 
@@ -17,8 +17,7 @@ def setup_module(module):
     multiple_line_command = 'show interface'
     module.basic_command = 'show system'
 
-    SSHClass = netmiko.ssh_dispatcher(brocade_vdx['device_type'])
-    net_connect = SSHClass(**brocade_vdx)
+    net_connect = ConnectHandler(**brocade_vdx)
 
     module.show_version = net_connect.send_command(show_ver_command)
     module.multiple_line_output = net_connect.send_command(multiple_line_command)

@@ -2,7 +2,7 @@
 
 import pytest
 
-import netmiko
+from netmiko import ConnectHandler
 import time
 from DEVICE_CREDS import *
 
@@ -18,8 +18,7 @@ def setup_module(module):
     show_ver_command = 'show version'
     module.basic_command = 'show ip int brief'
     
-    SSHClass = netmiko.ssh_dispatcher(cisco_881['device_type'])
-    net_connect = SSHClass(**cisco_881)
+    net_connect = ConnectHandler(**cisco_881)
 
     module.ip_addr = net_connect.ip
     module.port = net_connect.port

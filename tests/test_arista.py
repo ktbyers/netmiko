@@ -3,7 +3,7 @@
 import pytest
 import re
 
-import netmiko
+from netmiko import ConnectHandler
 from DEVICE_CREDS import *
 
 
@@ -18,8 +18,7 @@ def setup_module(module):
     multiple_line_command = 'show logging'
     module.basic_command = 'show ip int brief'
     
-    SSHClass = netmiko.ssh_dispatcher(arista_veos_sw['device_type'])
-    net_connect = SSHClass(**arista_veos_sw)
+    net_connect = ConnectHandler(**arista_veos_sw)
     module.show_version = net_connect.send_command(show_ver_command, delay_factor=2)
     module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=4)
     module.show_ip = net_connect.send_command(module.basic_command, delay_factor=2)

@@ -2,7 +2,7 @@
 
 import pytest
 
-import netmiko
+from netmiko import ConnectHandler
 import time
 from DEVICE_CREDS import *
 
@@ -20,8 +20,7 @@ def setup_module(module):
     multiple_line_command = 'show configuration'
     module.basic_command = 'show interfaces terse'
     
-    SSHClass = netmiko.ssh_dispatcher(juniper_srx['device_type'])
-    net_connect = SSHClass(**juniper_srx)
+    net_connect = ConnectHandler(**juniper_srx)
 
     module.show_version = net_connect.send_command(show_ver_command)
     module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=2)

@@ -2,7 +2,7 @@
 
 import pytest
 
-import netmiko
+from netmiko import ConnectHandler
 from DEVICE_CREDS import *
 
 def setup_module(module):
@@ -18,8 +18,7 @@ def setup_module(module):
     commit_history_cmd = 'show configuration commit list'
     module.basic_command = 'show ipv4 int brief'
 
-    SSHClass = netmiko.ssh_dispatcher(cisco_xr['device_type'])
-    net_connect = SSHClass(**cisco_xr)
+    net_connect = ConnectHandler(**cisco_xr)
 
     module.show_version = net_connect.send_command(show_ver_command)
     module.show_ip = net_connect.send_command(module.basic_command)

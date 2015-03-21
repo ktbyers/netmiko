@@ -3,7 +3,7 @@
 import pytest
 import re
 
-import netmiko
+from netmiko import ConnectHandler
 from DEVICE_CREDS import *
 
 
@@ -20,8 +20,7 @@ def setup_module(module):
     multiple_line_command = 'show version'
     module.basic_command = 'show ip'
     
-    SSHClass = netmiko.ssh_dispatcher(cisco_asa['device_type'])
-    net_connect = SSHClass(**cisco_asa)
+    net_connect = ConnectHandler(**cisco_asa)
 
     # ASA enters enable mode as part of connection (disable paging is
     # a config-mode command)

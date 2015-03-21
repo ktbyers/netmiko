@@ -2,7 +2,7 @@
 
 import pytest
 
-import netmiko
+from netmiko import ConnectHandler
 from DEVICE_CREDS import *
 
 
@@ -13,8 +13,7 @@ def setup_module(module):
         'config_mode'   : '(config)',
     }
 
-    SSHClass = netmiko.ssh_dispatcher(brocade_vdx['device_type'])
-    net_connect = SSHClass(**brocade_vdx)
+    net_connect = ConnectHandler(**brocade_vdx)
 
     # Enter enable mode
     module.prompt_initial = net_connect.find_prompt()

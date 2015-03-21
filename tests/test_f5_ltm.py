@@ -3,7 +3,7 @@
 import pytest
 import re
 
-import netmiko
+from netmiko import ConnectHandler
 from DEVICE_CREDS import *
 
 
@@ -18,8 +18,7 @@ def setup_module(module):
     multiple_line_command = 'tmsh show sys log ltm'
     module.basic_command = 'tmsh show ltm pool TEST'
     
-    SSHClass = netmiko.ssh_dispatcher(f5_ltm_1['device_type'])
-    net_connect = SSHClass(**f5_ltm_1)
+    net_connect = ConnectHandler(**f5_ltm_1)
     module.show_version = net_connect.send_command(show_sys_command)
     module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=2)
     module.show_pool = net_connect.send_command(module.basic_command)

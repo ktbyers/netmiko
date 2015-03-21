@@ -2,7 +2,7 @@
 
 import pytest
 
-import netmiko
+from netmiko import ConnectHandler
 from DEVICE_CREDS import *
 
 
@@ -16,8 +16,7 @@ def setup_module(module):
         'config_mode'   : '(config)',
     }
     
-    SSHClass = netmiko.ssh_dispatcher(arista_veos_sw['device_type'])
-    net_connect = SSHClass(**arista_veos_sw)
+    net_connect = ConnectHandler(**arista_veos_sw)
 
     # Enter enable mode
     module.prompt_initial = net_connect.find_prompt()

@@ -3,7 +3,7 @@
 import pytest
 import re
 
-import netmiko
+from netmiko import ConnectHandler
 from DEVICE_CREDS import *
 
 
@@ -20,8 +20,7 @@ def setup_module(module):
     multiple_line_command = 'show logging'
     module.basic_command = 'show ip'
     
-    SSHClass = netmiko.ssh_dispatcher(hp_procurve['device_type'])
-    net_connect = SSHClass(**hp_procurve)
+    net_connect = ConnectHandler(**hp_procurve)
 
     module.show_version = net_connect.send_command(show_ver_command)
     module.multiple_line_output = net_connect.send_command(multiple_line_command, delay_factor=2)
