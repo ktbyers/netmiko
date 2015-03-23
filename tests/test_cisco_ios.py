@@ -47,15 +47,6 @@ def setup_module(module):
 
     module.net_connect = ConnectHandler(**device)
 
-    
-    
-#    net_connect = ConnectHandler(**cisco_881)
-#    module.show_version = net_connect.send_command(show_ver_command)
-#    module.show_ip = net_connect.send_command(module.basic_command)
-#
-#    module.show_ip_alt = net_connect.send_command_expect(module.basic_command)
-#    module.show_version_alt = net_connect.send_command_expect(show_ver_command)
-#
 
 def test_disable_paging():
     '''

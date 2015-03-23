@@ -1,62 +1,100 @@
 #!/usr/bin/env python
+'''
+This module runs Cisco IOS enable mode and configuration commands
+
+setup_module: setup variables for later use.
+
+test_enable_mode: verify enter enable mode
+test_config_mode: verify enter/exit config mode
+test_command_set: verify sending a set of config commands
+test_commands_from_file: verify sending a set of config commands from a file
+test_exit_enable_mode: verify exit enable mode
+test_disconnect: cleanly disconnect the SSH session
+
+'''
+
+from os import path
+import time
 
 import pytest
 
 from netmiko import ConnectHandler
-from DEVICE_CREDS import *
+from test_utils import parse_yaml
 
 
 def setup_module(module):
 
-    module.EXPECTED_RESPONSES = {
-        'base_prompt'      : 'pynet-rtr1',
-        'user_exec_prompt' : 'pynet-rtr1>',
-        'enable_prompt'    : 'pynet-rtr1#',
-        'interface_ip'     : '10.220.88.20',
-        'config_mode'      : '(config)',
-    }
-    
-    show_ver_command = 'show version'
-    module.basic_command = 'show ip int brief'
-    
-    net_connect = ConnectHandler(**cisco_881)
-    module.show_version = net_connect.send_command(show_ver_command)
-    module.show_ip = net_connect.send_command(module.basic_command)
+    test_type = 'cisco_ios'
 
-    module.prompt_initial = net_connect.find_prompt()
-    net_connect.enable()
-    module.enable_prompt = net_connect.find_prompt()
+    pwd = path.dirname(path.realpath(__file__))
 
-    module.config_mode = net_connect.config_mode()
+    responses = parse_yaml(pwd + "/etc/responses.yml")
+    module.EXPECTED_RESPONSES = responses[test_type]
 
-    config_commands = ['logging buffered 20000', 'logging buffered 20010', 'no logging console']
-    net_connect.send_config_set(config_commands)
+    commands = parse_yaml(pwd + "/etc/commands.yml")
+    module.commands = commands[test_type]
 
-    module.exit_config_mode = net_connect.exit_config_mode()
+    test_devices = parse_yaml(pwd + "/etc/test_devices.yml")
+    device = test_devices[test_type]
+    device['verbose'] = False
 
-    module.config_commands_output = net_connect.send_command('show run | inc logging buffer')
-
-    module.exit_enable_mode = net_connect.exit_enable_mode()
-
-    net_connect.disconnect()
+    module.net_connect = ConnectHandler(**device)
 
 
 def test_enable_mode():
-    assert prompt_initial == EXPECTED_RESPONSES['user_exec_prompt']
+    '''
+    Test entering enable mode
+    '''
+    router_prompt = net_connect.find_prompt()
+    assert router_prompt == EXPECTED_RESPONSES['router_prompt']
+    net_connect.enable()
+    enable_prompt = net_connect.find_prompt()
     assert enable_prompt == EXPECTED_RESPONSES['enable_prompt']
 
 
 def test_config_mode():
+    '''
+    Test entering/exit config mode
+    '''
+    config_mode = net_connect.config_mode()
     assert EXPECTED_RESPONSES['config_mode'] in config_mode
+    exit_config_mode = net_connect.exit_config_mode()
+    assert EXPECTED_RESPONSES['config_mode'] not in exit_config_mode
 
 
 def test_command_set():
+    '''
+    Test sending configuration commands
+    '''
+    config_commands = commands['config']
+    net_connect.send_config_set(config_commands[0:1])
+    config_commands_output = net_connect.send_command('show run | inc logging buffer')
+    assert 'logging buffered 20000' in config_commands_output
+    net_connect.send_config_set(config_commands)
+    config_commands_output = net_connect.send_command('show run | inc logging buffer')
     assert 'logging buffered 20010' in config_commands_output
-   
- 
-def test_exit_config_mode():
-    assert not EXPECTED_RESPONSES['config_mode'] in exit_config_mode
+
+
+def test_commands_from_file():
+    '''
+    Test sending configuration commands from a file
+    '''
+    net_connect.send_config_from_file(commands['config_file'])
+    config_commands_output = net_connect.send_command('show run | inc logging buffer')
+    assert 'logging buffered 8880' in config_commands_output
 
 
 def test_exit_enable_mode():
-    assert EXPECTED_RESPONSES["user_exec_prompt"] in exit_enable_mode
+    '''
+    Test exit enable mode
+    '''
+    exit_enable_mode = net_connect.exit_enable_mode()
+    assert EXPECTED_RESPONSES["router_prompt"] in exit_enable_mode
+
+
+def test_disconnect():
+    '''
+    Terminate the SSH session
+    '''
+    net_connect.disconnect()
+
