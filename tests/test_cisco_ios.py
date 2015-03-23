@@ -1,43 +1,67 @@
 #!/usr/bin/env python
+"""
+This module runs tests against Cisco IOS devices.
+
+setup_module: setup variables for later use.
+
+test_disable_paging: disable paging
+test_ssh_connect: verify ssh connectivity
+test_send_command: send a command
+test_send_command_expect: send a command
+test_base_prompt: test the base prompt
+test_strip_prompt: test removing the prompt
+test_strip_command: test stripping extraneous info after sending a command
+test_normalize_linefeeds: ensure \n is the only line termination character in output
+test_clear_buffer: clear text buffer
+test_disconnect: cleanly disconnect the SSH session
+
+"""
+
+from os import path
+import time
 
 import pytest
 
 from netmiko import ConnectHandler
-import time
-from DEVICE_CREDS import *
+from test_utils import parse_yaml
 
 
 def setup_module(module):
+    '''
+    Setup variables for tests.
+    '''
 
-    module.EXPECTED_RESPONSES = {
-        'base_prompt' : 'pynet-rtr1',
-        'interface_ip'  : '10.220.88.20'
-    }
-    
-    show_ver_command = 'show version'
-    module.basic_command = 'show ip int brief'
-    
-    net_connect = ConnectHandler(**cisco_881)
-    module.show_version = net_connect.send_command(show_ver_command)
-    module.show_ip = net_connect.send_command(module.basic_command)
-    module.base_prompt = net_connect.base_prompt
+    test_type = 'cisco_ios'
 
-    module.show_ip_alt = net_connect.send_command_expect(module.basic_command)
-    module.show_version_alt = net_connect.send_command_expect(show_ver_command)
+    pwd = path.dirname(path.realpath(__file__))
 
-    # Test buffer clearing
-    net_connect.remote_conn.send(show_ver_command)
-    time.sleep(2)
-    net_connect.clear_buffer()
-    # Should not be anything there on the second pass
-    module.clear_buffer_check = net_connect.clear_buffer()
+    responses = parse_yaml(pwd + "/etc/responses.yml")
+    module.EXPECTED_RESPONSES = responses[test_type]
+
+    commands = parse_yaml(pwd + "/etc/commands.yml")
+    module.commands = commands[test_type]
+
+    test_devices = parse_yaml(pwd + "/etc/test_devices.yml")
+    device = test_devices[test_type]
+    device['verbose'] = False
+
+    module.net_connect = ConnectHandler(**device)
+
     
+    
+#    net_connect = ConnectHandler(**cisco_881)
+#    module.show_version = net_connect.send_command(show_ver_command)
+#    module.show_ip = net_connect.send_command(module.basic_command)
+#
+#    module.show_ip_alt = net_connect.send_command_expect(module.basic_command)
+#    module.show_version_alt = net_connect.send_command_expect(show_ver_command)
+#
 
 def test_disable_paging():
     '''
-    Verify paging is disabled by looking for string after when paging would
-    normally occur
+    Verify paging is disabled by looking for string after when paging would normally occur
     '''
+    show_version = net_connect.send_command(commands["version"])
     assert 'Configuration register is' in show_version
 
 
@@ -45,6 +69,7 @@ def test_ssh_connect():
     '''
     Verify the connection was established successfully
     '''
+    show_version = net_connect.send_command(commands["version"])
     assert 'Cisco IOS Software' in show_version
 
 
@@ -52,13 +77,15 @@ def test_send_command():
     '''
     Verify a command can be sent down the channel successfully
     '''
+    show_ip = net_connect.send_command(commands["basic"])
     assert EXPECTED_RESPONSES['interface_ip'] in show_ip
 
 
 def test_send_command_expect():
     '''
-    Verify a command can be sent down the channel successfully
+    Verify a command can be sent down the channel successfully using _expect method
     '''
+    show_ip_alt = net_connect.send_command_expect(commands["basic"])
     assert EXPECTED_RESPONSES['interface_ip'] in show_ip_alt
 
 
@@ -66,30 +93,35 @@ def test_base_prompt():
     '''
     Verify the router prompt is detected correctly
     '''
-    assert base_prompt == EXPECTED_RESPONSES['base_prompt']
+    assert net_connect.base_prompt == EXPECTED_RESPONSES['base_prompt']
 
 
 def test_strip_prompt():
     '''
     Ensure the router prompt is not in the command output
     '''
+    show_ip = net_connect.send_command(commands["basic"])
+    show_ip_alt = net_connect.send_command_expect(commands["basic"])
     assert EXPECTED_RESPONSES['base_prompt'] not in show_ip
     assert EXPECTED_RESPONSES['base_prompt'] not in show_ip_alt
 
 
 def test_strip_command():
     '''
-    Ensure that the command that was executed does not show up in the 
-    command output
+    Ensure that the command that was executed does not show up in the command output
     '''
-    assert basic_command not in show_ip
-    assert basic_command not in show_ip_alt
+    show_ip = net_connect.send_command(commands["basic"])
+    show_ip_alt = net_connect.send_command_expect(commands["basic"])
+    assert commands['basic'] not in show_ip
+    assert commands['basic'] not in show_ip_alt
 
 
 def test_normalize_linefeeds():
     '''
     Ensure no '\r\n' sequences
     '''
+    show_version = net_connect.send_command(commands["version"])
+    show_version_alt = net_connect.send_command_expect(commands["version"])
     assert not '\r\n' in show_version
     assert not '\r\n' in show_version_alt
 
@@ -98,5 +130,19 @@ def test_clear_buffer():
     '''
     Test that clearing the buffer works
     '''
+    # Manually send a command down the channel so that data needs read.
+    net_connect.remote_conn.send(commands["basic"] + '\n')
+    time.sleep(2)
+    net_connect.clear_buffer()
+
+    # Should not be anything there on the second pass
+    clear_buffer_check = net_connect.clear_buffer()
     assert clear_buffer_check is None
+
+
+def test_disconnect():
+    '''
+    Terminate the SSH session
+    '''
+    net_connect.disconnect()
 
