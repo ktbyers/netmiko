@@ -3,5 +3,8 @@
 tests/DEVICE_CREDS.py
 tests/DEVICE_CREDS.py.orig
 tests/test_prep.sh
+tests/etc/test_devices.yml
+tests/etc/commands.yml
+tests/etc/responses.yml
 examples/SECRET_DEVICE_CREDS.py
 build
