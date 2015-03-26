@@ -83,8 +83,8 @@ def test_disable_paging():
     '''
     Verify paging is disabled
     '''
-    show_version = net_connect.send_command(commands['version'])
-    assert 'Configuration register is' in show_version
+    multiple_line_output = net_connect.send_command(commands['extended_output'])
+    assert 'Configuration register is' in multiple_line_output
 
 
 def test_set_base_prompt():

@@ -5,7 +5,8 @@ This module runs Cisco IOS enable mode and configuration commands
 setup_module: setup variables for later use.
 
 test_enable_mode: verify enter enable mode
-test_config_mode: verify enter/exit config mode
+test_config_mode: verify enter config mode
+test_exit_config_mode: verify exit config mode
 test_command_set: verify sending a set of config commands
 test_commands_from_file: verify sending a set of config commands from a file
 test_exit_enable_mode: verify exit enable mode
@@ -54,12 +55,18 @@ def test_enable_mode():
 
 def test_config_mode():
     '''
-    Test entering/exit config mode
+    Test enter config mode
     '''
-    config_mode = net_connect.config_mode()
-    assert EXPECTED_RESPONSES['config_mode'] in config_mode
-    exit_config_mode = net_connect.exit_config_mode()
-    assert EXPECTED_RESPONSES['config_mode'] not in exit_config_mode
+    net_connect.config_mode()
+    assert EXPECTED_RESPONSES['config_mode'] in net_connect.find_prompt()
+
+
+def test_exit_config_mode():
+    '''
+    Test exit config mode
+    '''
+    net_connect.exit_config_mode()
+    assert EXPECTED_RESPONSES['config_mode'] not in net_connect.find_prompt()
 
 
 def test_command_set():
