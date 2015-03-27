@@ -58,7 +58,7 @@ def test_disable_paging():
     normally occur
     '''
     multiple_line_output = net_connect.send_command(commands["extended_output"], delay_factor=4)
-    assert re.search(r'ztp.*debugging', multiple_line_output) is not None
+    assert EXPECTED_RESPONSES["multiple_line_output"] in multiple_line_output
 
 
 def test_ssh_connect():
@@ -66,7 +66,7 @@ def test_ssh_connect():
     Verify the connection was established successfully
     '''
     show_version = net_connect.send_command(commands["version"])
-    assert 'Arista' in show_version
+    assert EXPECTED_RESPONSES["version_banner"] in show_version
 
 
 def test_send_command():
@@ -147,10 +147,10 @@ def test_command_set():
     config_commands = commands['config']
     net_connect.send_config_set(config_commands[0:1])
     config_commands_output = net_connect.send_command('show run | inc logging buffer')
-    assert 'logging buffered 20000' in config_commands_output
+    assert config_commands[0] in config_commands_output
     net_connect.send_config_set(config_commands)
     config_commands_output = net_connect.send_command('show run | inc logging buffer')
-    assert 'logging buffered 20010' in config_commands_output 
+    assert config_commands[-1] in config_commands_output
 
 
 def test_exit_config_mode():
