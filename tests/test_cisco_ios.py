@@ -13,6 +13,12 @@ test_strip_prompt: test removing the prompt
 test_strip_command: test stripping extraneous info after sending a command
 test_normalize_linefeeds: ensure \n is the only line termination character in output
 test_clear_buffer: clear text buffer
+test_enable_mode: verify enter enable mode
+test_config_mode: verify enter config mode
+test_exit_config_mode: verify exit config mode
+test_command_set: verify sending a set of config commands
+test_commands_from_file: verify sending a set of config commands from a file
+test_exit_enable_mode: verify exit enable mode
 test_disconnect: cleanly disconnect the SSH session
 
 """
@@ -129,6 +135,63 @@ def test_clear_buffer():
     # Should not be anything there on the second pass
     clear_buffer_check = net_connect.clear_buffer()
     assert clear_buffer_check is None
+
+
+def test_enable_mode():
+    '''
+    Test entering enable mode
+    '''
+    router_prompt = net_connect.find_prompt()
+    assert router_prompt == EXPECTED_RESPONSES['router_prompt']
+    net_connect.enable()
+    enable_prompt = net_connect.find_prompt()
+    assert enable_prompt == EXPECTED_RESPONSES['enable_prompt']
+
+
+def test_config_mode():
+    '''
+    Test enter config mode
+    '''
+    net_connect.config_mode()
+    assert EXPECTED_RESPONSES['config_mode'] in net_connect.find_prompt()
+
+
+def test_exit_config_mode():
+    '''
+    Test exit config mode
+    '''
+    net_connect.exit_config_mode()
+    assert EXPECTED_RESPONSES['config_mode'] not in net_connect.find_prompt()
+
+
+def test_command_set():
+    '''
+    Test sending configuration commands
+    '''
+    config_commands = commands['config']
+    net_connect.send_config_set(config_commands[0:1])
+    config_commands_output = net_connect.send_command('show run | inc logging buffer')
+    assert 'logging buffered 20000' in config_commands_output
+    net_connect.send_config_set(config_commands)
+    config_commands_output = net_connect.send_command('show run | inc logging buffer')
+    assert 'logging buffered 20010' in config_commands_output
+
+
+def test_commands_from_file():
+    '''
+    Test sending configuration commands from a file
+    '''
+    net_connect.send_config_from_file(commands['config_file'])
+    config_commands_output = net_connect.send_command('show run | inc logging buffer')
+    assert 'logging buffered 8880' in config_commands_output
+
+
+def test_exit_enable_mode():
+    '''
+    Test exit enable mode
+    '''
+    exit_enable_mode = net_connect.exit_enable_mode()
+    assert EXPECTED_RESPONSES["router_prompt"] in exit_enable_mode
 
 
 def test_disconnect():

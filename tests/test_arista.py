@@ -133,6 +133,9 @@ def test_enable_mode():
 
 
 def test_config_mode():
+    '''
+    Verify enter into configuration mode
+    '''
     net_connect.config_mode()
     assert EXPECTED_RESPONSES['config_mode'] in net_connect.find_prompt()
 
@@ -151,6 +154,9 @@ def test_command_set():
 
 
 def test_exit_config_mode():
+    '''
+    Verify exit configuration mode
+    '''
     net_connect.exit_config_mode()
     assert not EXPECTED_RESPONSES['config_mode'] in net_connect.find_prompt()
 
