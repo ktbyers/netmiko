@@ -14,10 +14,6 @@ test_strip_command: test stripping extraneous info after sending a command
 test_normalize_linefeeds: ensure \n is the only line termination character in output
 test_clear_buffer: clear text buffer
 test_enable_mode: verify enter enable mode
-test_config_mode: verify enter config mode
-test_exit_config_mode: verify exit config mode
-test_command_set: verify sending a set of config commands
-test_commands_from_file: verify sending a set of config commands from a file
 test_exit_enable_mode: verify exit enable mode
 test_disconnect: cleanly disconnect the SSH session
 
@@ -134,43 +130,3 @@ def test_disconnect(net_connect, commands, expected_responses):
     Terminate the SSH session
     '''
     net_connect.disconnect()
-
-
-#def test_config_mode():
-#    '''
-#    Test enter config mode
-#    '''
-#    net_connect.config_mode()
-#    assert expected_responses['config_mode'] in net_connect.find_prompt()
-#
-#
-#def test_exit_config_mode():
-#    '''
-#    Test exit config mode
-#    '''
-#    net_connect.exit_config_mode()
-#    assert expected_responses['config_mode'] not in net_connect.find_prompt()
-#
-#
-#def test_command_set():
-#    '''
-#    Test sending configuration commands
-#    '''
-#    config_commands = commands['config']
-#    net_connect.send_config_set(config_commands[0:1])
-#    config_commands_output = net_connect.send_command('show run | inc logging buffer')
-#    assert config_commands[0] in config_commands_output
-#    net_connect.send_config_set(config_commands)
-#    config_commands_output = net_connect.send_command('show run | inc logging buffer')
-#    assert config_commands[-1] in config_commands_output
-#
-#
-#def test_commands_from_file():
-#    '''
-#    Test sending configuration commands from a file
-#    '''
-#    net_connect.send_config_from_file(commands['config_file'])
-#    config_commands_output = net_connect.send_command('show run | inc logging buffer')
-#    assert expected_responses["file_check_cmd"] in config_commands_output
-#
-#
