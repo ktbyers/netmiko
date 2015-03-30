@@ -30,6 +30,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
     '''
     Test entering enable mode
     '''
+    exit_enable_mode = net_connect.exit_enable_mode()
     router_prompt = net_connect.find_prompt()
     assert router_prompt == expected_responses['router_prompt']
     net_connect.enable()
@@ -76,7 +77,7 @@ def test_commands_from_file(net_connect, commands, expected_responses):
         config_commands_output = net_connect.send_command('show run | inc logging buffer')
         assert expected_responses["file_check_cmd"] in config_commands_output
     else:
-        print "Skipping test"
+        print "Skipping test (no file specified)...",
 
 
 def test_exit_enable_mode(net_connect, commands, expected_responses):

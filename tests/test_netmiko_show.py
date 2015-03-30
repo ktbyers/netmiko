@@ -110,6 +110,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
     '''
     Test entering enable mode
     '''
+    exit_enable_mode = net_connect.exit_enable_mode()
     router_prompt = net_connect.find_prompt()
     assert router_prompt == expected_responses['router_prompt']
     net_connect.enable()
