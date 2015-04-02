@@ -14,7 +14,6 @@ test_strip_command: test stripping extraneous info after sending a command
 test_normalize_linefeeds: ensure \n is the only line termination character in output
 test_clear_buffer: clear text buffer
 test_enable_mode: verify enter enable mode
-test_exit_enable_mode: verify exit enable mode
 test_disconnect: cleanly disconnect the SSH session
 
 """
@@ -110,20 +109,9 @@ def test_enable_mode(net_connect, commands, expected_responses):
     '''
     Test entering enable mode
     '''
-    exit_enable_mode = net_connect.exit_enable_mode()
-    router_prompt = net_connect.find_prompt()
-    assert router_prompt == expected_responses['router_prompt']
     net_connect.enable()
     enable_prompt = net_connect.find_prompt()
     assert enable_prompt == expected_responses['enable_prompt']
-
-
-def test_exit_enable_mode(net_connect, commands, expected_responses):
-    '''
-    Test exit enable mode
-    '''
-    exit_enable_mode = net_connect.exit_enable_mode()
-    assert expected_responses["router_prompt"] in exit_enable_mode
 
 
 def test_disconnect(net_connect, commands, expected_responses):
