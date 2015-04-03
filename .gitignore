@@ -1,6 +1,6 @@
 *.pyc
 *.swp
-tests/old/DEVICE_CREDS.py
+tests/old_format/DEVICE_CREDS.py
 tests/test_prep.sh
 tests/etc/test_devices.yml
 tests/etc/commands.yml
