@@ -28,10 +28,15 @@ def test_ssh_connect(net_connect, commands, expected_responses):
 def test_enable_mode(net_connect, commands, expected_responses):
     '''
     Test entering enable mode
+
+    Catch exception for devices that don't support enable
     '''
-    net_connect.enable()
-    enable_prompt = net_connect.find_prompt()
-    assert enable_prompt == expected_responses['enable_prompt']
+    try:
+        net_connect.enable()
+        enable_prompt = net_connect.find_prompt()
+        assert enable_prompt == expected_responses['enable_prompt']
+    except AttributeError:
+        assert True == True
 
 
 def test_config_mode(net_connect, commands, expected_responses):
@@ -39,7 +44,7 @@ def test_config_mode(net_connect, commands, expected_responses):
     Test enter config mode
     '''
     net_connect.config_mode()
-    assert expected_responses['config_mode'] in net_connect.find_prompt()
+    assert net_connect.check_config_mode() == True
 
 
 def test_exit_config_mode(net_connect, commands, expected_responses):
@@ -47,21 +52,39 @@ def test_exit_config_mode(net_connect, commands, expected_responses):
     Test exit config mode
     '''
     net_connect.exit_config_mode()
-    assert expected_responses['config_mode'] not in net_connect.find_prompt()
+    assert net_connect.check_config_mode() == False
 
 
 def test_command_set(net_connect, commands, expected_responses):
     '''
     Test sending configuration commands
     '''
+
     config_commands = commands['config']
+    support_commit = commands.get('support_commit')
     config_verify = commands['config_verification']
+
     net_connect.send_config_set(config_commands[0:1])
+    if support_commit:
+        net_connect.commit()
+
+    cmd_response = expected_responses.get('cmd_response_init')
     config_commands_output = net_connect.send_command(config_verify)
-    assert config_commands[0] in config_commands_output
+    if cmd_response:
+        assert cmd_response in config_commands_output
+    else:
+        assert config_commands[0] in config_commands_output
+
     net_connect.send_config_set(config_commands)
+    if support_commit:
+        net_connect.commit()
+
+    cmd_response = expected_responses.get('cmd_response_final')
     config_commands_output = net_connect.send_command(config_verify)
-    assert config_commands[-1] in config_commands_output
+    if cmd_response:
+        assert cmd_response in config_commands_output
+    else:
+        assert config_commands[-1] in config_commands_output
 
 
 def test_commands_from_file(net_connect, commands, expected_responses):
