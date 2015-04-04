@@ -94,6 +94,7 @@ class JuniperSSH(BaseSSHConnection):
             raise ValueError("Invalid arguments supplied to commit method both confirm and check")
 
         # Select proper command string based on arguments provided
+        command_string = 'commit'
         commit_marker = 'commit complete'
         if check:
             command_string = 'commit check'
