@@ -22,9 +22,9 @@ pytest for unit tests (I used pytest 2.6.4)
 ...     'ip':   '10.10.10.10',
 ...     'username': 'test',
 ...     'password': 'password',
-...     'port' : 8022 (optional, defaults to 22)
-...     'secret': 'secret', (optional, defaults to '')
-...     'verbose': False, (optional, defaults to True)
+...     'port' : 8022,          # optional, defaults to 22
+...     'secret': 'secret',     # optional, defaults to ''
+...     'verbose': False,       # optional, defaults to True
 ... }
 # Supported device_types can be found at:
 # https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py
