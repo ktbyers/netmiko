@@ -3,35 +3,13 @@ netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-##### Under development -- needs more testing #####
+##### Under development #####
 
 Requires:  
 Paramiko >= 1.7.5  
 Python 2.6 or Python 2.7  
 pytest for unit tests (I used pytest 2.6.4)  
 
-Tested on:  
-Cisco 881 running IOS 15.4(2)T1  
-Cisco CSR1000V running IOS XE 03.13.01.S  
-Cisco ASA running 8.0(4)32  
-Cisco Nexus 5K  
-Cisco Nexus 5596UP NXOS Version 5.2.(1)N1(8b)  
-Cisco Nexus 7K  
-Cisco IOS XR ASR9K  
-Cisco IOS XRv  
-Cisco IOS Catalyst WS-C3750G Version 12.2(55)SE8  
-Cisco WLC (limited testing)  
-Arista vEOS running 4.12.3  
-HP ProCurve 2510-24  
-HP 2920 - Procurve Software Version WB.15.16.0005  
-HP 8206 zl - Procurve Software Version K.15.16.0005  
-HP 870 LSW - Comware Software Version 5.20.105  
-Juniper SRX100 running 12.1X44-D35.5  
-Juniper EX2200 running 12.3R3.4  
-Brocade VDX (limited testing)  
-F5 LTM (limited testing)  
- 
-   
 ##### Simple example: #####
 
 ```
@@ -99,3 +77,27 @@ pynet-rtr1#
 ---    
 Kirk Byers  
 https://pynet.twb-tech.com
+
+
+Tested on:  
+Cisco 881 running IOS 15.4(2)T1  
+Cisco CSR1000V running IOS XE 03.13.01.S  
+Cisco ASA running 8.0(4)32  
+Cisco Nexus 5K  
+Cisco Nexus 5596UP NXOS Version 5.2.(1)N1(8b)  
+Cisco Nexus 7K  
+Cisco IOS XR ASR9K  
+Cisco IOS XRv  
+Cisco IOS Catalyst WS-C3750G Version 12.2(55)SE8  
+Cisco WLC (limited testing)  
+Arista vEOS running 4.12.3  
+HP ProCurve 2510-24  
+HP 2920 - Procurve Software Version WB.15.16.0005  
+HP 8206 zl - Procurve Software Version K.15.16.0005  
+HP 870 LSW - Comware Software Version 5.20.105  
+Juniper SRX100 running 12.1X44-D35.5  
+Juniper EX2200 running 12.3R3.4  
+Brocade VDX (limited testing)  
+F5 LTM (limited testing)  
+ 
+   
