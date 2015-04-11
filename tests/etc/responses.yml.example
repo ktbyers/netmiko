@@ -1,0 +1,22 @@
+---
+
+cisco_ios:
+  base_prompt: pynet-rtr1
+  router_prompt : pynet-rtr1>
+  enable_prompt: pynet-rtr1#
+  interface_ip: 10.220.88.20
+  interface_name: FastEthernet2
+  version_banner: "Cisco IOS Software"
+  multiple_line_output: "Configuration register is"
+  file_check_cmd: "logging buffered 8880"
+
+juniper:
+  base_prompt: pyclass@pynet-jnpr-srx1
+  router_prompt: pyclass@pynet-jnpr-srx1>
+  enable_prompt: pyclass@pynet-jnpr-srx1#
+  interface_ip: 10.220.88.39
+  version_banner: 'JUNOS Software Release'
+  multiple_line_output: 'security-zone untrust'
+  cmd_response_init: 'archive size 110k files 3'
+  cmd_response_final: 'archive size 120k files 3'
+  commit_comment: 'Unit test on commit with comment'
