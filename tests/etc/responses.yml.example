@@ -5,7 +5,6 @@ cisco_ios:
   router_prompt : pynet-rtr1>
   enable_prompt: pynet-rtr1#
   interface_ip: 10.220.88.20
-  interface_name: FastEthernet2
   version_banner: "Cisco IOS Software"
   multiple_line_output: "Configuration register is"
   file_check_cmd: "logging buffered 8880"
