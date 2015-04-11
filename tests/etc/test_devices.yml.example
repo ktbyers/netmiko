@@ -1,3 +1,5 @@
+---
+
 # Available device_type's are specified in the CLASS_MAPPER variable in
 # netmiko/netmiko/ssh_dispatcher.py
 
