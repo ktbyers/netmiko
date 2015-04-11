@@ -1,0 +1,18 @@
+# Available device_type's are specified in the CLASS_MAPPER variable in
+# netmiko/netmiko/ssh_dispatcher.py
+
+cisco_ios:
+  device_type: cisco_ios
+  ip: 10.10.10.10
+  username: admin
+  password: test123
+  secret: cisco123
+
+arista_eos:
+  device_type: arista_eos
+  ip: 10.10.10.11
+  username: admin1
+  password: test123
+  secret: ""
+  port: 8522
+
