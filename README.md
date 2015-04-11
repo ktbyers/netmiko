@@ -19,13 +19,15 @@ pytest for unit tests (I used pytest 2.6.4)
 # Create a dictionary representing the device.
 # Supported device_types can be found at:
 # https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py
+# (see CLASS_MAPPER keys)
 >>> cisco_881 = {
 ...     'device_type': 'cisco_ios',
 ...     'ip':   '10.10.10.10',
 ...     'username': 'test',
 ...     'password': 'password',
-...     'secret': 'secret',
-...     'verbose': False,
+...     'port' : 8022 (optional, defaults to 22)
+...     'secret': 'secret', (optional, defaults to '')
+...     'verbose': False, (optional, defaults to True)
 ... }
 
 ```
