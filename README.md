@@ -34,8 +34,8 @@ pytest for unit tests (I used pytest 2.6.4)
 
 ```
 # Establish an SSH connection to the device by passing in the device dictionary.
->>> net_connect = ConnectClass(**cisco_881)
-                
+>>> net_connect = ConnectHandler(**cisco_881)
+
 ```
 
 ```
