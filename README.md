@@ -71,14 +71,6 @@ pynet-rtr1#
 
 ```
 
-  
-<br>  
-<br>      
----    
-Kirk Byers  
-https://pynet.twb-tech.com
-
-
 Tested on:  
 Cisco 881 running IOS 15.4(2)T1  
 Cisco CSR1000V running IOS XE 03.13.01.S  
@@ -101,3 +93,11 @@ Brocade VDX (limited testing)
 F5 LTM (limited testing)  
  
    
+  
+<br>  
+<br>      
+---    
+Kirk Byers  
+https://pynet.twb-tech.com
+
+
