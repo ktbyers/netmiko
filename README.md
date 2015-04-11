@@ -10,6 +10,7 @@ Paramiko >= 1.7.5
 Python 2.6 or Python 2.7  
 pytest for unit tests (I used pytest 2.6.4)  
 
+<br>      
 ##### Simple example: #####
 
 ```
@@ -71,6 +72,7 @@ pynet-rtr1#
 
 ```
 
+<br>  
 Tested on:  
 Cisco 881 running IOS 15.4(2)T1  
 Cisco CSR1000V running IOS XE 03.13.01.S  
@@ -94,7 +96,6 @@ F5 LTM (limited testing)
  
    
   
-<br>  
 <br>      
 ---    
 Kirk Byers  
