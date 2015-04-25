@@ -2,6 +2,24 @@
 
 This document covers the test suite for Netmiko.
 
+## The simple version
+
+cd ./netmiko/tests/etc
+cp test_devices.yml.example test_devices.yml
+cp responses.yml.example responses.yml
+
+edit test_devices.yml
+
+Pick the device_types you want to test against. Update the ip, username, password, 
+secret (optional).
+
+edit responses.yml
+
+For the device_types that you are testing against, update the base_prompt, router_prompt, 
+enable_prompt, interface_ip to match the device(s) you are testing.
+
+
+
 ## Preparing to Run Tests
 
 In order to run tests, you should create a copy of the following files:
