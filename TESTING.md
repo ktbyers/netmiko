@@ -31,4 +31,29 @@ each of the keys to match your environment.
 * `file_check_cmd`: (optional) See file_check_cmd and config_file below
 * `cmd_response_init`: (optional) See cmd_response_init and cmd_response_final below
 * `cmd_response_final`: (optional) See cmd_response_init and cmd_response_final below
-* `commit_comment`: (optional) See commit section below
+* `commit_comment`: (optional) See commit testing section below
+
+
+cmd_response_init/cmd_response_final
+
+These two responses are used in conjunction with the "config" commands in commands.yml. 
+cmd_responses_init is the initial state the network device configuration must be in and is taken
+from config[0] (in commands.yml). cmd_responses_final is the final state the network device
+configuration must be in and is taken from config[2] (in commands.yml).
+
+Basically, the config needs to be set to an initial state so that we can verify the config
+changes properly during testing.
+
+
+
+## commands.yml
+
+commands.yml indicates commands that will be executed in various parts of the unit tests. There 
+should be a command dictionary corresponding to each support Netmiko device_type. You will need to
+make sure that the commands sent in the "config" match the responses in cmd_response_init /
+cmd_response_final (see cmd_response_init section above).
+
+
+## Running Tests
+
+Netmiko uses [`pytest`](http://pytest.org/latest/).  
