@@ -4,7 +4,7 @@ This document covers the test suite for Netmiko.
 
 ## The simple version
 
-cd ./netmiko/tests/etc
+cd ./netmiko/tests/etc  
 cp test_devices.yml.example test_devices.yml
 cp responses.yml.example responses.yml
 
