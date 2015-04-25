@@ -2,6 +2,7 @@
 
 This document covers the test suite for Netmiko.
 
+<br />
 ## The simple version
 
 cd ./netmiko/tests/etc  
@@ -17,6 +18,16 @@ edit responses.yml
 
 For the device_types that you are testing against, update the base_prompt, router_prompt, 
 enable_prompt, interface_ip to match the device(s) you are testing.
+
+cd ./netmiko/tests
+
+Execute the test (note, the test_platform is the name of the device from test_devices.yml)
+py.test -v test_netmiko_show.py --test_platform cisco_ios
+
+There are three tests available:  
+test_netmiko_show.py  
+test_netmiko_config.py  
+test_netmiko_commit.py      # currently only for Juniper  
 
 <br />
 ## The long version
