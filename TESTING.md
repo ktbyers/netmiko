@@ -24,7 +24,7 @@ enable_prompt, interface_ip to match the device(s) you are testing.
 <br />
 cd ./netmiko/tests
 
-Execute the test (note, the test_platform is the name of the device from test_devices.yml)  
+Execute the test (note, the test_platform is the name of the device from test_devices.yml):  
 py.test -v test_netmiko_show.py --test_platform cisco_ios
 
 <br />
