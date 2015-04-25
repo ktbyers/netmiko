@@ -18,7 +18,7 @@ edit responses.yml
 For the device_types that you are testing against, update the base_prompt, router_prompt, 
 enable_prompt, interface_ip to match the device(s) you are testing.
 
-
+<br />
 ## The long version
 
 ## Preparing to Run Tests
