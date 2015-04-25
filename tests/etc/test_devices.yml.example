@@ -1,5 +1,8 @@
 ---
 
+# Available device_type's are specified in the CLASS_MAPPER variable in
+# netmiko/netmiko/ssh_dispatcher.py
+
 cisco_ios:
   device_type: cisco_ios
   ip: 10.10.10.10
