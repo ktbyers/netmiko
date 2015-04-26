@@ -9,11 +9,11 @@ class HPComwareSSH(SSHConnection):
         '''
         Prepare the session after the connection has been established
         '''
-        
+
         self.disable_paging(command="\nscreen-length disable\n")
         self.set_base_prompt()
-        
-    
+
+
     def config_mode(self, config_command='system-view'):
         '''
         First check whether currently already in configuration mode.
@@ -24,7 +24,7 @@ class HPComwareSSH(SSHConnection):
         # Call parent class with different command for entering config mode
         return super(HPComwareSSH, self).config_mode(config_command=config_command)
 
-        
+
     def exit_config_mode(self, exit_config='return'):
         '''
         First check whether in configuration mode.
@@ -34,8 +34,8 @@ class HPComwareSSH(SSHConnection):
 
         # Call parent class with different command for exiting config mode
         return super(HPComwareSSH, self).exit_config_mode(exit_config=exit_config)
-        
-        
+
+
     def check_config_mode(self, check_string=']'):
         '''
         Checks if the device is in configuration mode or not
@@ -45,8 +45,8 @@ class HPComwareSSH(SSHConnection):
 
         # Call parent class with different command for exiting config mode
         return super(HPComwareSSH, self).check_config_mode(check_string=check_string)
-       
-    
+
+
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']', delay_factor=.5):
         '''
         Sets self.base_prompt
@@ -62,7 +62,7 @@ class HPComwareSSH(SSHConnection):
         DEBUG = False
 
         if DEBUG:
-            print "In set_base_prompt"
+            print("In set_base_prompt")
 
         self.clear_buffer()
         self.remote_conn.send("\n")
@@ -86,6 +86,6 @@ class HPComwareSSH(SSHConnection):
         self.base_prompt = prompt
 
         if DEBUG:
-            print "prompt: {}".format(self.base_prompt)
+            print("prompt: {}".format(self.base_prompt))
 
         return self.base_prompt

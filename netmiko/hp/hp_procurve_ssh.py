@@ -35,8 +35,8 @@ class HPProcurveSSH(SSHConnection):
         if 'assword' in output:
             output += self.send_command(self.secret)
 
-        if DEBUG: 
-            print output
+        if DEBUG:
+            print(output)
 
         self.set_base_prompt()
         self.clear_buffer()
