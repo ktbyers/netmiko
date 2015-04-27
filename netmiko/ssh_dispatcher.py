@@ -25,6 +25,9 @@ CLASS_MAPPER = {
     'brocade_vdx'   : BrocadeVdxSSH,
 }
 
+platforms = CLASS_MAPPER.keys()
+platforms.sort()
+
 
 def ConnectHandler(*args, **kwargs):
     '''
