@@ -10,13 +10,13 @@ cp test_devices.yml.example test_devices.yml
 cp responses.yml.example responses.yml  
 
 <br />
-###### edit test_devices.yml  
+##### edit test_devices.yml  
 
 Pick the device_types you want to test against. Update the ip, username, password, and
 secret (optional).
 
 <br />
-edit responses.yml  
+##### edit responses.yml  
 
 For the device_types that you are testing against, update the base_prompt, router_prompt, 
 enable_prompt, interface_ip to match the device(s) you are testing.
