@@ -18,8 +18,12 @@ secret (optional).
 <br />
 ##### edit responses.yml  
 
-For the device_types that you are testing against, update the base_prompt, router_prompt, 
-enable_prompt, interface_ip to match the device(s) you are testing.
+For the device_types that you are testing against, update the following to match the test 
+device(s):  
+* the base_prompt
+* router_prompt
+* enable_prompt
+* interface_ip
 
 <br />
 cd ./netmiko/tests
