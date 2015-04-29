@@ -29,16 +29,17 @@ device(s):
 * interface_ip
 
 <br />
+##### Execute the test
 cd ./netmiko/tests
 
-Execute the test (note, the test_platform is the name of the device from test_devices.yml):  
+Note, the test_platform is the name of the device from test_devices.yml:  
 py.test -v test_netmiko_show.py --test_platform cisco_ios
 
 <br />
 There are three tests available:  
-test_netmiko_show.py  
-test_netmiko_config.py  
-test_netmiko_commit.py      # currently only for Juniper  
+* test_netmiko_show.py  
+* test_netmiko_config.py  
+* test_netmiko_commit.py      # currently only for Juniper  
 
 <br />
 ## The long version
