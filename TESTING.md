@@ -8,6 +8,7 @@ This document covers the test suite for Netmiko.
 cd ./netmiko/tests/etc  
 cp test_devices.yml.example test_devices.yml  
 cp responses.yml.example responses.yml  
+cp commands.yml.example commands.yml  
 
 <br />
 ##### edit test_devices.yml  
@@ -32,8 +33,8 @@ device(s):
 ##### Execute the test
 cd ./netmiko/tests
 
-Note, the test_platform is the name of the device from test_devices.yml:  
-py.test -v test_netmiko_show.py --test_platform cisco_ios
+Note, the test_device is the name of the device from test_devices.yml and responses.yml:  
+py.test -v test_netmiko_show.py --test_device cisco881
 
 <br />
 There are three tests available:  
