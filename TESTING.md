@@ -35,6 +35,7 @@ cd ./netmiko/tests
 
 Note, the test_device is the name of the device from test_devices.yml and responses.yml:  
 py.test -v test_netmiko_show.py --test_device cisco881
+py.test -v test_netmiko_config.py --test_device cisco881
 
 <br />
 There are three tests available:  
