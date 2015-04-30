@@ -30,9 +30,9 @@ class HPProcurveSSH(SSHConnection):
         DEBUG = False
 
         output = self.send_command('enable')
-        if 'sername' in output:
+        if 'username' in output.lower():
             output += self.send_command(default_username)
-        if 'assword' in output:
+        if 'password' in output.lower():
             output += self.send_command(self.secret)
 
         if DEBUG: 
