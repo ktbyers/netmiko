@@ -18,7 +18,7 @@ class SSHConnection(BaseSSHConnection):
         '''
 
         output = self.send_command('enable')
-        if 'assword' in output:
+        if 'password' in output.lower():
             output += self.send_command(self.secret)
 
         self.set_base_prompt()
