@@ -1,0 +1,56 @@
+---
+
+cisco_ios:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"   # requires paging to be disabled
+  config: 
+    - "logging buffered 20000"      # base command
+    - "no logging console"
+    - "logging buffered 20010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: "cisco_ios_commands.txt"
+
+cisco_asa:
+  version: "show version"
+  basic: "show ip"
+  extended_output: "show version"   # requires paging to be disabled
+  config:
+    - 'logging buffered notifications'
+    - 'no logging console'
+    - 'logging buffered warnings'
+  config_verification: "show run | inc logging buffer"
+  config_file: "cisco_asa_commands.txt"
+
+arista_eos:
+  version: "show version"
+  basic: "show ip int brief"
+  extended_output: "show logging"   # requires paging to be disabled
+  config: 
+    - "logging buffered 20000"
+    - "no logging console"
+    - "logging buffered 20010"
+  config_verification: "show run | inc logging buffer"
+
+hp_procurve:
+  version: "show version"
+  basic: "show ip"
+  extended_output: "show logging"   # requires paging to be disabled
+  config: 
+    - 'time timezone -420'
+    - 'time daylight-time-rule Continental-US-and-Canada'
+    - 'time timezone -480'
+  config_verification: "show run" 
+
+juniper:
+  version: "show version"
+  basic: "show interfaces terse"
+  extended_output: "show configuration"   # requires paging to be disabled
+  config: 
+   - 'set system syslog archive size 110k files 3'
+   - 'set system time-zone America/New_York'
+   - 'set system syslog archive size 120k files 3'
+  config_verification: "run show configuration | match archive"
+  support_commit: True
+  rollback: 'rollback 0'
+  commit_verification: "run show system commit"

@@ -26,7 +26,7 @@ def test_disable_paging(net_connect, commands, expected_responses):
     Verify paging is disabled by looking for string after when paging would normally occur
     '''
 
-    multiple_line_output = net_connect.send_command(commands["extended_output"], delay_factor=4)
+    multiple_line_output = net_connect.send_command(commands["extended_output"], delay_factor=8)
     assert expected_responses["multiple_line_output"] in multiple_line_output
 
 

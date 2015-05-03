@@ -15,9 +15,9 @@ PWD = path.dirname(path.realpath(__file__))
 
 def pytest_addoption(parser):
     '''
-    Add test_platform option to py.test invocations
+    Add test_device option to py.test invocations
     '''
-    parser.addoption("--test_platform", action="store", dest="test_platform", type=str,
+    parser.addoption("--test_device", action="store", dest="test_device", type=str,
                      help="Specify the platform type to test on")
 
 
@@ -29,10 +29,10 @@ def net_connect(request):
     Return the netmiko connection object 
     '''
 
-    test_type = request.config.getoption('test_platform')
+    device_under_test = request.config.getoption('test_device')
 
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
-    device = test_devices[test_type]
+    device = test_devices[device_under_test]
     device['verbose'] = False
 
     conn = ConnectHandler(**device)
@@ -45,9 +45,9 @@ def expected_responses(request):
     '''
     Parse the responses.yml file to get a responses dictionary
     '''
-    test_type = request.config.getoption('test_platform')
+    device_under_test = request.config.getoption('test_device')
     responses = parse_yaml(PWD + "/etc/responses.yml")
-    return responses[test_type]
+    return responses[device_under_test]
 
 
 @pytest.fixture(scope='module')
@@ -55,8 +55,13 @@ def commands(request):
     '''
     Parse the commands.yml file to get a commands dictionary
     '''
-    test_type = request.config.getoption('test_platform')
+
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    test_platform = device['device_type']
+     
     commands = parse_yaml(PWD + "/etc/commands.yml")
-    return commands[test_type]
+    return commands[test_platform]
 
 
