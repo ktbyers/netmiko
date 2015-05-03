@@ -1,1 +1,1 @@
-from arista_ssh import AristaSSH
+from netmiko.arista.arista_ssh import AristaSSH
