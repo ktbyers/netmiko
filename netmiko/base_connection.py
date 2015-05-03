@@ -7,10 +7,13 @@ platforms (Cisco and non-Cisco).
 Also defines methods that should generally be supported by child classes
 '''
 
+from __future__ import print_function
+from __future__ import unicode_literals
 import paramiko
 import time
 import socket
 import re
+import io
 
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -99,7 +102,7 @@ class BaseSSHConnection(object):
 
         # Strip the initial router prompt
         time.sleep(sleep_time)
-        return self.remote_conn.recv(MAX_BUFFER)
+        return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
 
 
     def disable_paging(self, command="terminal length 0\n", delay_factor=.5):
@@ -466,7 +469,7 @@ class BaseSSHConnection(object):
         '''
 
         try:
-            with open(config_file) as cfg_file:
+            with io.open(config_file, encoding='utf-8') as cfg_file:
                 return self.send_config_set(cfg_file, **kwargs)
         except IOError as e:
             errno, strerr = e.args

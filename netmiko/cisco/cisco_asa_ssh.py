@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from netmiko.ssh_connection import SSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 import time

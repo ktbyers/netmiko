@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import time
 import re
 
@@ -48,7 +49,7 @@ class JuniperSSH(BaseSSHConnection):
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
 
-        return output 
+        return output
 
 
     def check_config_mode(self, check_string=']'):
@@ -62,7 +63,7 @@ class JuniperSSH(BaseSSHConnection):
         return super(JuniperSSH, self).check_config_mode(check_string=check_string)
 
 
-    def commit(self, confirm=False, confirm_delay=None, check=False, comment='', 
+    def commit(self, confirm=False, confirm_delay=None, check=False, comment='',
                and_quit=False, delay_factor=10):
         """
         Commit the candidate configuration.

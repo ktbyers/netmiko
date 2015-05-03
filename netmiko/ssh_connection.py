@@ -3,7 +3,7 @@ SSHConnection is netmiko SSH class for Cisco and Cisco-like platforms
 
 Exports SSHConnection class
 '''
-
+from __future__ import unicode_literals
 from netmiko.base_connection import BaseSSHConnection
 
 

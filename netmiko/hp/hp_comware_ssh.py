@@ -1,7 +1,10 @@
+from __future__ import print_function
+from __future__ import unicode_literals
+import time
+
 from netmiko.ssh_connection import SSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 
-import time
 
 class HPComwareSSH(SSHConnection):
 

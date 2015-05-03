@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from netmiko.ssh_connection import SSHConnection
 import re
 

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from netmiko.cisco import CiscoIosSSH
 from netmiko.cisco import CiscoAsaSSH
 from netmiko.cisco import CiscoNxosSSH
