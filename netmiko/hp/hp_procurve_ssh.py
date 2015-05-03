@@ -6,7 +6,6 @@ from netmiko.ssh_connection import SSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 
 
-
 class HPProcurveSSH(SSHConnection):
 
     def session_preparation(self):
