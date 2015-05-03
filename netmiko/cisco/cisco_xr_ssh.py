@@ -1,5 +1,9 @@
-from netmiko.ssh_connection import SSHConnection
+from __future__ import print_function
+
 import re
+
+from netmiko.ssh_connection import SSHConnection
+
 
 class CiscoXrSSH(SSHConnection):
 
@@ -43,7 +47,7 @@ class CiscoXrSSH(SSHConnection):
             if "Uncommitted changes found" in output:
                 output += self.send_command('no\n', strip_prompt=False, strip_command=False)
             if DEBUG:
-                print output
+                print(output)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
             

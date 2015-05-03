@@ -1,7 +1,10 @@
+from __future__ import print_function
+
+import time
+
 from netmiko.ssh_connection import SSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 
-import time
 
 class HPComwareSSH(SSHConnection):
 
@@ -62,7 +65,7 @@ class HPComwareSSH(SSHConnection):
         DEBUG = False
 
         if DEBUG:
-            print "In set_base_prompt"
+            print("In set_base_prompt")
 
         self.clear_buffer()
         self.remote_conn.send("\n")
@@ -86,6 +89,6 @@ class HPComwareSSH(SSHConnection):
         self.base_prompt = prompt
 
         if DEBUG:
-            print "prompt: {}".format(self.base_prompt)
+            print("prompt: {}".format(self.base_prompt))
 
         return self.base_prompt

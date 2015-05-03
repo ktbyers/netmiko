@@ -25,7 +25,7 @@ CLASS_MAPPER = {
     'brocade_vdx'   : BrocadeVdxSSH,
 }
 
-platforms = CLASS_MAPPER.keys()
+platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
 
 

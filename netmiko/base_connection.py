@@ -470,7 +470,8 @@ class BaseSSHConnection(object):
         try:
             with open(config_file) as cfg_file:
                 return self.send_config_set(cfg_file, **kwargs)
-        except IOError as (errno, strerr):
+        except IOError as e:
+            errno, strerror = e.args
             print("I/O Error {0}: {1}".format(errno, strerr))
 
         return ''
