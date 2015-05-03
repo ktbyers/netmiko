@@ -1,10 +1,10 @@
 from __future__ import print_function
 from __future__ import unicode_literals
+import time
 
 from netmiko.ssh_connection import BaseSSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
-import time
 
 class CiscoWlcSSH(BaseSSHConnection):
 
@@ -60,7 +60,11 @@ class CiscoWlcSSH(BaseSSHConnection):
         self.remote_conn.send(self.username + '\n')
         time.sleep(.2)
         self.remote_conn.send(self.password + '\n')
+<<<<<<< HEAD
         if verbose:
+=======
+        if verbose:
+>>>>>>> 5731e157c7273aef0ca9b3b163c82f36d88dc0af
             print("Interactive SSH session established")
 
         # Strip the initial router prompt

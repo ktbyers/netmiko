@@ -29,7 +29,7 @@ class CiscoAsaSSH(SSHConnection):
         time.sleep(1*delay_factor)
 
         output = self.remote_conn.recv(MAX_BUFFER)
-        if 'assword' in output:
+        if 'password' in output.lower():
             self.remote_conn.send(self.secret+'\n')
             self.remote_conn.send('\n')
             time.sleep(1*delay_factor)

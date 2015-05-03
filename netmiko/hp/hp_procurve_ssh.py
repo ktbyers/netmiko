@@ -1,7 +1,6 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 import time
-
 from netmiko.ssh_connection import SSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 
@@ -33,12 +32,16 @@ class HPProcurveSSH(SSHConnection):
         DEBUG = False
 
         output = self.send_command('enable')
-        if 'sername' in output:
+        if 'username' in output.lower():
             output += self.send_command(default_username)
-        if 'assword' in output:
+        if 'password' in output.lower():
             output += self.send_command(self.secret)
 
+<<<<<<< HEAD
         if DEBUG:
+=======
+        if DEBUG:
+>>>>>>> 5731e157c7273aef0ca9b3b163c82f36d88dc0af
             print(output)
 
         self.set_base_prompt()

@@ -1,8 +1,15 @@
 from __future__ import print_function
+<<<<<<< HEAD
 from __future__ import unicode_literals
 
 from netmiko.ssh_connection import SSHConnection
+=======
+
+>>>>>>> 5731e157c7273aef0ca9b3b163c82f36d88dc0af
 import re
+
+from netmiko.ssh_connection import SSHConnection
+
 
 class CiscoXrSSH(SSHConnection):
 
