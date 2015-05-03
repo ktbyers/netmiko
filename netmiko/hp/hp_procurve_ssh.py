@@ -37,11 +37,7 @@ class HPProcurveSSH(SSHConnection):
         if 'password' in output.lower():
             output += self.send_command(self.secret)
 
-<<<<<<< HEAD
         if DEBUG:
-=======
-        if DEBUG:
->>>>>>> 5731e157c7273aef0ca9b3b163c82f36d88dc0af
             print(output)
 
         self.set_base_prompt()

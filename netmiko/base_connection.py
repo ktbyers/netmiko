@@ -94,11 +94,7 @@ class BaseSSHConnection(object):
             raise NetMikoAuthenticationException(msg)
 
         if verbose:
-<<<<<<< HEAD
             print("SSH connection established to {0}:{1}".format(self.ip, self.port))
-=======
-            print("SSH connection established to {0}:{1}").format(self.ip, self.port)
->>>>>>> 5731e157c7273aef0ca9b3b163c82f36d88dc0af
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
@@ -477,11 +473,7 @@ class BaseSSHConnection(object):
             with io.open(config_file, encoding='utf-8') as cfg_file:
                 return self.send_config_set(cfg_file, **kwargs)
         except IOError as e:
-<<<<<<< HEAD
             errno, strerr = e.args
-=======
-            errno, strerror = e.args
->>>>>>> 5731e157c7273aef0ca9b3b163c82f36d88dc0af
             print("I/O Error {0}: {1}".format(errno, strerr))
 
         return ''
