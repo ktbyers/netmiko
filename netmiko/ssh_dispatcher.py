@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from netmiko.cisco import CiscoIosSSH
 from netmiko.cisco import CiscoAsaSSH
 from netmiko.cisco import CiscoNxosSSH
@@ -33,7 +34,7 @@ def ConnectHandler(*args, **kwargs):
     '''
     Factory function that selects the proper class and instantiates the object based on device_type
 
-    Returns the object 
+    Returns the object
     '''
 
     ConnectionClass = ssh_dispatcher(kwargs['device_type'])

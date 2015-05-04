@@ -8,11 +8,13 @@ Also defines methods that should generally be supported by child classes
 '''
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import paramiko
 import time
 import socket
 import re
+import io
 
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -92,7 +94,7 @@ class BaseSSHConnection(object):
             raise NetMikoAuthenticationException(msg)
 
         if verbose:
-            print("SSH connection established to {0}:{1}").format(self.ip, self.port)
+            print("SSH connection established to {0}:{1}".format(self.ip, self.port))
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
@@ -468,10 +470,10 @@ class BaseSSHConnection(object):
         '''
 
         try:
-            with open(config_file) as cfg_file:
+            with io.open(config_file, encoding='utf-8') as cfg_file:
                 return self.send_config_set(cfg_file, **kwargs)
         except IOError as e:
-            errno, strerror = e.args
+            errno, strerr = e.args
             print("I/O Error {0}: {1}".format(errno, strerr))
 
         return ''

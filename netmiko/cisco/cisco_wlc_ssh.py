@@ -1,5 +1,5 @@
 from __future__ import print_function
-
+from __future__ import unicode_literals
 import time
 
 from netmiko.ssh_connection import BaseSSHConnection
@@ -24,8 +24,8 @@ class CiscoWlcSSH(BaseSSHConnection):
         User: user
 
         Password:****
-       
-        Manually send username/password to work around this. 
+
+        Manually send username/password to work around this.
         '''
 
         # Create instance of SSHClient object
@@ -60,7 +60,7 @@ class CiscoWlcSSH(BaseSSHConnection):
         self.remote_conn.send(self.username + '\n')
         time.sleep(.2)
         self.remote_conn.send(self.password + '\n')
-        if verbose: 
+        if verbose:
             print("Interactive SSH session established")
 
         # Strip the initial router prompt

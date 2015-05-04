@@ -1,7 +1,8 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import re
-
+from netmiko.ssh_connection import SSHConnection
 from netmiko.ssh_connection import SSHConnection
 
 
@@ -9,7 +10,7 @@ class CiscoXrSSH(SSHConnection):
 
     def commit(self):
         '''
-        Commit the entered configuration. 
+        Commit the entered configuration.
 
         Raise an error and return the failure if the commit fails.
 
@@ -19,7 +20,7 @@ class CiscoXrSSH(SSHConnection):
         # Enter config mode (if necessary)
         output = self.config_mode()
 
-        output += self.send_command('commit', 
+        output += self.send_command('commit',
                     strip_prompt=False, strip_command=False)
 
         if "Failed to commit" in output:
@@ -41,7 +42,7 @@ class CiscoXrSSH(SSHConnection):
         '''
         DEBUG = False
         output = ''
-        
+
         if self.check_config_mode():
             output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
             if "Uncommitted changes found" in output:
@@ -50,7 +51,7 @@ class CiscoXrSSH(SSHConnection):
                 print(output)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-            
+
         return output
 
 
