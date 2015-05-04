@@ -7,7 +7,7 @@ from os import path
 import pytest
 
 from netmiko import ConnectHandler
-from . test_utils import parse_yaml
+from tests.test_utils import parse_yaml
 
 
 PWD = path.dirname(path.realpath(__file__))

@@ -14,6 +14,9 @@ test_disconnect: cleanly disconnect the SSH session
 
 """
 
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import time
 
 
@@ -98,7 +101,7 @@ def test_commands_from_file(net_connect, commands, expected_responses):
         config_commands_output = net_connect.send_command(config_verify)
         assert expected_responses["file_check_cmd"] in config_commands_output
     else:
-        print "Skipping test (no file specified)...",
+        print("Skipping test (no file specified)...",)
 
 
 def test_disconnect(net_connect, commands, expected_responses):

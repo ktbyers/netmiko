@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import re
-from netmiko.ssh_connection import SSHConnection
+
 from netmiko.ssh_connection import SSHConnection
 
 
