@@ -1,0 +1,12 @@
+---
+
+language: python
+python:
+  - "3.4"
+  - "3.3"
+  - "2.7"
+  - "2.6"
+# command to install dependencies
+install: "pip install -r requirements.txt"
+# command to run tests
+script: ./tests/test_suite.sh 
