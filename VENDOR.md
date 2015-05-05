@@ -33,7 +33,7 @@ Update \_\_init__.py to export the new class:
 
 ```
 $ vi __init__.py
-from arista_ssh import AristaSSH
+from netmiko.arista.arista_ssh import AristaSSH
 ```
 
 Update the dispatcher adding the new class:  
@@ -41,9 +41,9 @@ Update the dispatcher adding the new class:
 ```
 $ cd netmiko/netmiko
 $ vi ssh_dispatcher.py
-from cisco import CiscoIosSSH
-from cisco import CiscoAsaSSH
-from arista import AristaSSH            # Add here
+from netmiko.cisco import CiscoIosSSH
+from netmiko.cisco import CiscoAsaSSH
+from netmiko.arista import AristaSSH            # Add here
 
 CLASS_MAPPER = {
     'cisco_ios'     : CiscoIosSSH,

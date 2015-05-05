@@ -1,13 +1,13 @@
-from cisco import CiscoIosSSH
-from cisco import CiscoAsaSSH
-from cisco import CiscoNxosSSH
-from cisco import CiscoXrSSH
-from cisco import CiscoWlcSSH
-from arista import AristaSSH
-from hp import HPProcurveSSH, HPComwareSSH
-from f5 import F5LtmSSH
-from juniper import JuniperSSH
-from brocade import BrocadeVdxSSH
+from netmiko.cisco import CiscoIosSSH
+from netmiko.cisco import CiscoAsaSSH
+from netmiko.cisco import CiscoNxosSSH
+from netmiko.cisco import CiscoXrSSH
+from netmiko.cisco import CiscoWlcSSH
+from netmiko.arista import AristaSSH
+from netmiko.hp import HPProcurveSSH, HPComwareSSH
+from netmiko.f5 import F5LtmSSH
+from netmiko.juniper import JuniperSSH
+from netmiko.brocade import BrocadeVdxSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {

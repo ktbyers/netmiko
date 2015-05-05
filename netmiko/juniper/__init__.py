@@ -1,1 +1,1 @@
-from juniper_ssh import JuniperSSH
+from netmiko.juniper.juniper_ssh import JuniperSSH

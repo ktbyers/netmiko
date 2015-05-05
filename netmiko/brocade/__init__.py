@@ -1,1 +1,1 @@
-from brocade_ssh import BrocadeVdxSSH
+from netmiko.brocade.brocade_ssh import BrocadeVdxSSH
