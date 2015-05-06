@@ -6,7 +6,8 @@ python:
   - "2.7"
   - "3.3"
   - "3.4"
-# command to install dependencies
+before_install: 
+  - openssl aes-256-cbc -K $encrypted_1bd26713204a_key -iv $encrypted_1bd26713204a_iv -in travis_test_env.tar.enc -out travis_test_env.tar -d
+  - tar xvf travis_test_env.tar
 install: "pip install -r requirements.txt"
-# command to run tests
 script: ./tests/test_suite.sh 
