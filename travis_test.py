@@ -4,7 +4,6 @@ Delay the Travis CI testing for Python versions so that they don't interfere wit
 
 from __future__ import print_function
 
-import subprocess
 import re
 import os
 import time
@@ -18,7 +17,7 @@ def main():
     Delay the Travis CI testing for Python versions so that they don't interfere with each other
     '''
 
-    python_version = "{0}.{1}".format(sys.version_info.major, sys.version_info.minor)
+    python_version = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
 
     if re.search(r"^3.4", python_version):
         total_delay = 3 * TRAVIS_DELAY
