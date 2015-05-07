@@ -8,6 +8,7 @@ import subprocess
 import re
 import os
 import time
+import sys
 
 TRAVIS_DELAY = 180
 
@@ -16,27 +17,31 @@ def main():
     '''
     Delay the Travis CI testing for Python versions so that they don't interfere with each other
     '''
-    proc = subprocess.Popen(['python', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (std_out, _) = proc.communicate()
 
-    std_out = std_out.decode('utf-8')
-    std_out = std_out.strip()
-
-    (_, python_version) = std_out.split()
+    python_version = "{0}.{1}".format(sys.version_info.major, sys.version_info.minor)
 
     if re.search(r"^3.4", python_version):
+        total_delay = 3 * TRAVIS_DELAY
         print("Python 3.4 found")
-        print("Sleeping for {0} seconds".format(TRAVIS_DELAY))
-        time.sleep(TRAVIS_DELAY)
-        os.system("sh travis_test.sh")
+        print("Sleeping for {0} seconds".format(total_delay))
+        time.sleep(total_delay)
     elif re.search(r"^3.3", python_version):
+        total_delay = 2 * TRAVIS_DELAY
         print("Python 3.3 found")
+        print("Sleeping for {0} seconds".format(total_delay))
+        time.sleep(total_delay)
     elif re.search(r"^2.7", python_version):
+        total_delay = 1 * TRAVIS_DELAY
         print("Python 2.7 found")
-        print("Sleeping for {0} seconds".format(TRAVIS_DELAY * 0))
-        os.system("sh travis_test.sh")
+        print("Sleeping for {0} seconds".format(total_delay))
+        time.sleep(total_delay)
     elif re.search(r"^2.6", python_version):
+        total_delay = 0 * TRAVIS_DELAY
         print("Python 2.6 found")
+        print("Sleeping for {0} seconds".format(total_delay))
+
+    # Execute the unit tests
+    os.system("sh travis_test.sh")
 
 
 if __name__ == "__main__":
