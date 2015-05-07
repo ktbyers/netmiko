@@ -4,7 +4,7 @@ language: python
 python:
 #  - "2.6"
 #  - "2.7"
-#  - "3.3"
+  - "3.3"
   - "3.4"
 before_install: 
   - openssl aes-256-cbc -K $encrypted_2f5875ed219b_key -iv $encrypted_2f5875ed219b_iv -in travis_test_env.tar.enc -out travis_test_env.tar -d
