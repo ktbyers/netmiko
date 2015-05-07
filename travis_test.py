@@ -40,7 +40,7 @@ def main():
         print("Sleeping for {0} seconds".format(total_delay))
 
     # Execute the unit tests
-    os.system("sh travis_test.sh")
+    sys.exit(os.system("sh travis_test.sh"))
 
 
 if __name__ == "__main__":
