@@ -9,7 +9,7 @@ import os
 import time
 import sys
 
-TRAVIS_DELAY = 180
+TRAVIS_DELAY = 0
 
 
 def main():
@@ -40,7 +40,12 @@ def main():
         print("Sleeping for {0} seconds".format(total_delay))
 
     # Execute the unit tests
-    sys.exit(os.system("sh travis_test.sh"))
+    return_code = os.system("sh travis_test.sh")
+    # return_code comes back as 256 on failure and sys.exit is only 8-bit
+    if return_code != 0:
+        sys.exit(1)
+    else:
+        sys.exit(0)
 
 
 if __name__ == "__main__":
