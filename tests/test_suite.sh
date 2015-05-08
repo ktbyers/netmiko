@@ -1,7 +1,7 @@
 #!/bin/sh
 
 RETURN_CODE=0
-py.test -v test_netmiko_show.py --test_device cisco881
+py.test -v test_netmiko_show.py --test_device cisco8812
 if [ $? -ne 0 ]; then
     RETURN_CODE=1
 fi
