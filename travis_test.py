@@ -9,7 +9,7 @@ import os
 import time
 import sys
 
-TRAVIS_DELAY = 0
+TRAVIS_DELAY = 180
 
 
 def main():
