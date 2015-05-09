@@ -6,7 +6,5 @@ tests/standard_tests.sh
 tests/etc/test_devices.yml
 tests/etc/commands.yml
 tests/etc/responses.yml
-tests/cisco_logging.txt
-tests/test_script.py
 examples/SECRET_DEVICE_CREDS.py
 build
