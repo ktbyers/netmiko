@@ -8,6 +8,8 @@ from __future__ import unicode_literals
 import paramiko
 import scp
 
+from netmiko.netmiko_globals import MAX_BUFFER
+
 
 class SCPConn(object):
     '''
@@ -51,7 +53,7 @@ class SCPConn(object):
         self.scp_client.put(source_file, dest_file)
 
 
-    def close_conn(self):
+    def close(self):
         '''
         Close the SCP connection
         '''
