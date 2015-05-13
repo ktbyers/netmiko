@@ -5,14 +5,14 @@ from netmiko.ssh_connection import SSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 
 
-class HPComwareSSH(SSHConnection):
+class HuaweiSSH(SSHConnection):
 
     def session_preparation(self):
         '''
         Prepare the session after the connection has been established
         '''
 
-        self.disable_paging(command="\nscreen-length disable\n")
+        self.disable_paging(command="screen-length 0 temporary\n")
         self.set_base_prompt()
 
 
@@ -24,7 +24,7 @@ class HPComwareSSH(SSHConnection):
         '''
 
         # Call parent class with different command for entering config mode
-        return super(HPComwareSSH, self).config_mode(config_command=config_command)
+        return super(HuaweiSSH, self).config_mode(config_command=config_command)
 
 
     def exit_config_mode(self, exit_config='return'):
@@ -35,7 +35,7 @@ class HPComwareSSH(SSHConnection):
         '''
 
         # Call parent class with different command for exiting config mode
-        return super(HPComwareSSH, self).exit_config_mode(exit_config=exit_config)
+        return super(HuaweiSSH, self).exit_config_mode(exit_config=exit_config)
 
 
     def check_config_mode(self, check_string=']'):
@@ -46,7 +46,7 @@ class HPComwareSSH(SSHConnection):
         '''
 
         # Call parent class with different command for exiting config mode
-        return super(HPComwareSSH, self).check_config_mode(check_string=check_string)
+        return super(HuaweiSSH, self).check_config_mode(check_string=check_string)
 
 
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']', delay_factor=.5):
