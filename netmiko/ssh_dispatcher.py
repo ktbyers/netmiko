@@ -6,6 +6,7 @@ from netmiko.cisco import CiscoXrSSH
 from netmiko.cisco import CiscoWlcSSH
 from netmiko.arista import AristaSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
+from netmiko.huawei import HuaweiSSH
 from netmiko.f5 import F5LtmSSH
 from netmiko.juniper import JuniperSSH
 from netmiko.brocade import BrocadeVdxSSH
@@ -21,6 +22,7 @@ CLASS_MAPPER = {
     'arista_eos'    : AristaSSH,
     'hp_procurve'   : HPProcurveSSH,
     'hp_comware'    : HPComwareSSH,
+    'huawei'        : HuaweiSSH,
     'f5_ltm'        : F5LtmSSH,
     'juniper'       : JuniperSSH,
     'brocade_vdx'   : BrocadeVdxSSH,
@@ -47,5 +49,3 @@ def ssh_dispatcher(device_type):
     '''
 
     return CLASS_MAPPER[device_type]
-
-
