@@ -254,20 +254,12 @@ class BaseSSHConnection(object):
         i = 1
 
         while (not_done) and (i <= max_loops):
-
-            if debug:
-                print("In while loop")
             time.sleep(1*delay_factor)
             i += 1
-
             # Keep reading data as long as available (up to max_loops)
             if self.remote_conn.recv_ready():
-                if debug:
-                    print("recv_ready = True")
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
             else:
-                if debug:
-                    print("recv_ready = False")
                 not_done = False
 
         # Some platforms have ansi_escape codes
