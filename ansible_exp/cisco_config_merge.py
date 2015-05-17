@@ -38,24 +38,25 @@ def main():
 
     ssh_conn = ConnectHandler(**net_device)
     ssh_conn.enable()
-    merge_file = module.params['dest_file']
+    merge_file = module.params['merge_file']
     dest_file_system = module.params['dest_file_system']
 
     # Disable file copy confirmation
     ssh_conn.send_config_set(['file prompt quiet'])
 
     # Perform config merge
-    cmd = "copy {0}:{1} running-config".format(dest_file_system, merge_file)
+    cmd = "copy {0}{1} running-config".format(dest_file_system, merge_file)
     output = ssh_conn.send_command(cmd)
+
+    # Enable file copy confirmation
+    ssh_conn.send_config_set(['file prompt alert'])
+
     if ' bytes copied in ' in output:
         module.exit_json(msg="Check mode: file would be changed on the remote device",
                          changed=True)
     else:
-        module.fail_json(msg="Unexpected failure during config merge. "
-                             "Please check your configuration.")
-
-    # Enable file copy confirmation
-    ssh_conn.send_config_set(['file prompt alert'])
+        module.fail_json(msg="Unexpected failure during attempted config merge. "
+                             "Please verify the current configuration on the network device.")
 
 
 if __name__ == "__main__":
