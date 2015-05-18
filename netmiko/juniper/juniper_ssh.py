@@ -120,7 +120,7 @@ class JuniperSSH(BaseSSHConnection):
         # Enter config mode (if necessary)
         output = self.config_mode()
         output += self.send_command(command_string, strip_prompt=False, strip_command=False,
-                                   delay_factor=delay_factor)
+                                    delay_factor=delay_factor)
         if not commit_marker in output:
             raise ValueError("Commit failed with the following errors:\n\n{0}"
                              .format(output))
@@ -138,7 +138,8 @@ class JuniperSSH(BaseSSHConnection):
         return self.strip_context_items(a_string)
 
 
-    def strip_context_items(self, a_string):
+    @staticmethod
+    def strip_context_items(a_string):
         """Strip Juniper-specific output.
 
         Juniper will also put a configuration context:

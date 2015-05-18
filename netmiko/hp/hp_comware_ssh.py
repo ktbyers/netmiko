@@ -49,7 +49,8 @@ class HPComwareSSH(SSHConnection):
         return super(HPComwareSSH, self).check_config_mode(check_string=check_string)
 
 
-    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']', delay_factor=.5):
+    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',
+                        delay_factor=.5):
         '''
         Sets self.base_prompt
 
@@ -61,9 +62,9 @@ class HPComwareSSH(SSHConnection):
         This will be set on logging in, but not when entering system-view
         '''
 
-        DEBUG = False
+        debug = False
 
-        if DEBUG:
+        if debug:
             print("In set_base_prompt")
 
         self.clear_buffer()
@@ -87,7 +88,7 @@ class HPComwareSSH(SSHConnection):
 
         self.base_prompt = prompt
 
-        if DEBUG:
+        if debug:
             print("prompt: {}".format(self.base_prompt))
 
         return self.base_prompt
