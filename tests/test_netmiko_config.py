@@ -17,8 +17,6 @@ test_disconnect: cleanly disconnect the SSH session
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import time
-
 
 def test_ssh_connect(net_connect, commands, expected_responses):
     '''

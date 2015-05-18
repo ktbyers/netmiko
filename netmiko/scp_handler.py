@@ -8,8 +8,6 @@ from __future__ import unicode_literals
 import paramiko
 import scp
 
-from netmiko.netmiko_globals import MAX_BUFFER
-
 
 class SCPConn(object):
     '''

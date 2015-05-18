@@ -358,7 +358,7 @@ class BaseSSHConnection(object):
                 search_pattern))
 
 
-		# Some platforms have ansi_escape codes
+        # Some platforms have ansi_escape codes
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
@@ -486,7 +486,6 @@ class BaseSSHConnection(object):
         '''
 
         debug = False
-        output = ''
 
         if config_commands is None:
             return ''
