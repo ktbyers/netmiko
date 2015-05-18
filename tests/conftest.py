@@ -7,7 +7,7 @@ from os import path
 import pytest
 
 from netmiko import ConnectHandler
-from test_utils import parse_yaml
+from tests.test_utils import parse_yaml
 
 
 PWD = path.dirname(path.realpath(__file__))
@@ -25,8 +25,8 @@ def pytest_addoption(parser):
 def net_connect(request):
     '''
     Create the SSH connection to the remote device
-   
-    Return the netmiko connection object 
+
+    Return the netmiko connection object
     '''
 
     device_under_test = request.config.getoption('test_device')

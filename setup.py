@@ -8,7 +8,7 @@ setup(
     url             = 'https://github.com/ktbyers/netmiko',
     license         = 'MIT',
     author          = 'Kirk Byers',
-    install_requires = ['paramiko>=1.7.5'],
+    install_requires = ['paramiko>=1.7.5', 'scp>=0.10.0'],
     description     = 'Multi-vendor library to simplify Paramiko SSH connections to network devices',
     packages        = ['netmiko', 
                         'netmiko/cisco', 
@@ -17,6 +17,7 @@ setup(
                         'netmiko/f5', 
                         'netmiko/juniper',
                         'netmiko/brocade',
+                        'netmiko/huawei',
                       ],
     )
     

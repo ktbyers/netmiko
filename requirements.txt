@@ -1,0 +1,4 @@
+paramiko>=1.13.0
+scp>=0.10.0
+pytest>=2.6.0
+pyyaml

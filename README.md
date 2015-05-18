@@ -5,9 +5,10 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 
 ##### Under development #####
 
+Supports Python 2.6, 2.7, 3.3, 3.4  
+
 Requires:  
-Paramiko >= 1.7.5  
-Python 2.6 or Python 2.7  
+Paramiko >= 1.13+ (1.7.5+ if on Python2)  
 pytest for unit tests (I used pytest 2.6.4)  
 
 <br>      
