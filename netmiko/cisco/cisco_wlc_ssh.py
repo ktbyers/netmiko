@@ -5,6 +5,8 @@ import time
 from netmiko.ssh_connection import BaseSSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
+import paramiko
+import socket
 
 class CiscoWlcSSH(BaseSSHConnection):
 

@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from netmiko.base_connection import BaseSSHConnection
-from netmiko.netmiko_globals import MAX_BUFFER
 
 import time
 import re
