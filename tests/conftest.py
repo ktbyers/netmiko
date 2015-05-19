@@ -60,8 +60,8 @@ def commands(request):
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     test_platform = device['device_type']
-     
-    commands = parse_yaml(PWD + "/etc/commands.yml")
-    return commands[test_platform]
+
+    commands_yml = parse_yaml(PWD + "/etc/commands.yml")
+    return commands_yml[test_platform]
 
 

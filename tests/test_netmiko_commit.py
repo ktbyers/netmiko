@@ -39,10 +39,10 @@ def setup_initial_state(net_connect, commands, expected_responses):
     cmd_response = expected_responses.get('cmd_response_init', config_commands[0])
     initial_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert initial_state is True
-   
+
     return config_commands, support_commit, config_verify
 
- 
+
 def setup_base_config(net_connect, config_changes):
     """
     Send set of config commands and commit
@@ -78,7 +78,7 @@ def test_config_mode(net_connect, commands, expected_responses):
     net_connect.config_mode()
     assert net_connect.check_config_mode() == True
 
-  
+
 def test_commit_base(net_connect, commands, expected_responses):
     '''
     Test .commit() with no options
@@ -202,7 +202,7 @@ def test_commit_comment(net_connect, commands, expected_responses):
     # Verify commit comment
     commit_verification = commands.get("commit_verification")
     tmp_output = net_connect.send_command(commit_verification)
-    commit_comment =  tmp_output.split("\n")[2]
+    commit_comment = tmp_output.split("\n")[2]
     assert commit_comment.strip() in expected_responses.get("commit_comment")
 
 
@@ -225,13 +225,13 @@ def test_commit_andquit(net_connect, commands, expected_responses):
     final_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert final_state is True
 
- 
+
 def test_exit_config_mode(net_connect, commands, expected_responses):
     '''
     Test exit config mode
     '''
     net_connect.exit_config_mode()
-    assert net_connect.check_config_mode() == False 
+    assert net_connect.check_config_mode() == False
 
 
 def test_disconnect(net_connect, commands, expected_responses):

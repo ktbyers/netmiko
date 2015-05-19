@@ -399,7 +399,7 @@ class BaseSSHConnection(object):
         raise AttributeError("Network device does not support 'enable()' method")
 
 
-    def exit_enable_mode(self):
+    def exit_enable_mode(self, exit_command=''):
         """Disable 'exit_enable_mode()' method."""
         raise AttributeError("Network device does not support 'exit_enable_mode()' method")
 
@@ -464,9 +464,8 @@ class BaseSSHConnection(object):
         try:
             with io.open(config_file, encoding='utf-8') as cfg_file:
                 return self.send_config_set(cfg_file, **kwargs)
-        except IOError as e:
-            errno, strerr = e.args
-            print("I/O Error {0}: {1}".format(errno, strerr))
+        except IOError:
+            print("I/O Error opening config file: {0}".format(config_file))
 
         return ''
 

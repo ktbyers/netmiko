@@ -15,5 +15,5 @@ class NetMikoTimeoutException(SSHException):
 class NetMikoAuthenticationException(AuthenticationException):
     '''
     SSH authentication exception based on Paramiko AuthenticationException
-    ''' 
+    '''
     pass

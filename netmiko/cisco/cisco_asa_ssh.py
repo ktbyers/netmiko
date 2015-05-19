@@ -17,12 +17,14 @@ class CiscoAsaSSH(SSHConnection):
         self.set_base_prompt()
 
 
-    def enable(self, delay_factor=.5):
+    def enable(self):
         '''
         Enter enable mode
 
         Must manually control the channel at this point for ASA
         '''
+
+        delay_factor = .5
 
         self.clear_buffer()
         self.remote_conn.send("\nenable\n")

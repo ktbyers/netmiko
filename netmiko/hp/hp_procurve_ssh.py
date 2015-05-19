@@ -28,7 +28,7 @@ class HPProcurveSSH(SSHConnection):
         Enter enable mode
         '''
 
-        DEBUG = False
+        debug = False
 
         output = self.send_command('enable')
         if 'username' in output.lower():
@@ -36,7 +36,7 @@ class HPProcurveSSH(SSHConnection):
         if 'password' in output.lower():
             output += self.send_command(self.secret)
 
-        if DEBUG:
+        if debug:
             print(output)
 
         self.set_base_prompt()
