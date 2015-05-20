@@ -9,6 +9,7 @@ problems encountered on the SCP connection (I think due to how Cisco's SSH is im
 FIX -- should have an overwrite option?
 FIX -- might need to assume the flash: file system
 FIX -- hard coded to flash:
+FIX -- need to verify space on flash: before transfer
 '''
 
 import re
