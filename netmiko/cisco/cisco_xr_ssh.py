@@ -32,6 +32,66 @@ class CiscoXrSSH(SSHConnection):
         return output
 
 
+    def commit_new(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=10):
+        """
+        Commit the candidate configuration.
+
+        Commit the entered configuration. Raise an error and return the failure
+        if the commit fails.
+
+        default
+            command_string = "commit"
+        confirm_delay and no confirm (or vice versa)
+            Exception
+        confirm and confirm_delay
+            comment option (verify?)
+            label option (verify?)
+            command_string = commit confirmed <confirm_delay>
+        label
+            comment option (verify?)
+
+        """
+
+        if confirm and not confirm_delay:
+            raise ValueError("Invalid arguments supplied to commit-confirm but no confirm_delay")
+        if confirm_delay and not confirm:
+            raise ValueError("Invalid arguments supplied to commit-confirm_delay but no confirm")
+
+        # Select proper command string based on arguments provided
+        command_string = 'commit'
+        commit_marker = 'commit complete'       
+        if check:
+            command_string = 'commit check'
+            commit_marker = 'configuration check succeeds'
+        elif confirm:
+            if confirm_delay:
+                command_string = 'commit confirmed ' + str(confirm_delay)
+            else:
+                command_string = 'commit confirmed'
+            commit_marker = 'commit confirmed will be automatically rolled back in'
+
+        # wrap the comment in quotes
+        if comment:
+            if '"' in comment:
+                raise ValueError("Invalid comment contains double quote")
+            comment = '"{0}"'.format(comment)
+
+            command_string += ' comment ' + comment
+
+        if and_quit:
+            command_string += ' and-quit'
+
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+        output += self.send_command(command_string, strip_prompt=False, strip_command=False,
+                                    delay_factor=delay_factor)
+        if not commit_marker in output:
+            raise ValueError("Commit failed with the following errors:\n\n{0}"
+                             .format(output))
+
+        return output
+
+
     def exit_config_mode(self, exit_config='end'):
         '''
         First check whether in configuration mode.
