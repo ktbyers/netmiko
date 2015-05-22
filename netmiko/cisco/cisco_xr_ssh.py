@@ -36,20 +36,32 @@ class CiscoXrSSH(SSHConnection):
         """
         Commit the candidate configuration.
 
-        Commit the entered configuration. Raise an error and return the failure
-        if the commit fails.
-
-        default
-            command_string = "commit"
-        confirm_delay and no confirm (or vice versa)
-            Exception
-        confirm and confirm_delay
-            comment option (verify?)
-            label option (verify?)
+        default (no options):
+            command_string = commit
+        confirm and confirm_delay:
             command_string = commit confirmed <confirm_delay>
-        label
-            comment option (verify?)
+        label (which is a label name):
+            command_string = commit label <label>
+        comment:
+            command_string = commit comment <comment>
 
+        combinations
+        label and confirm:
+            command_string = commit label <label> confirmed <confirm_delay>
+        label and comment:        
+            command_string = commit label <label> comment <comment>
+        label, confirm, and comment:
+            command_string = commit label <label> comment <comment> confirmed <confirm_delay>
+        comment and confirm:
+            command_string = commit comment <comment> confirmed <confirm_delay>
+
+        failed commit message:
+        % Failed to commit one or more configuration items during a pseudo-atomic operation. All 
+        changes made have been reverted. Please issue 'show configuration failed [inheritance]' from 
+        this session to view the errors        
+
+        Exit of configuration mode with pending changes will cause the changes to be discarded and
+        an exception to be generated.
         """
 
         if confirm and not confirm_delay:
@@ -59,11 +71,8 @@ class CiscoXrSSH(SSHConnection):
 
         # Select proper command string based on arguments provided
         command_string = 'commit'
-        commit_marker = 'commit complete'       
-        if check:
-            command_string = 'commit check'
-            commit_marker = 'configuration check succeeds'
-        elif confirm:
+        commit_marker = 'Failed to'
+        if confirm:
             if confirm_delay:
                 command_string = 'commit confirmed ' + str(confirm_delay)
             else:
