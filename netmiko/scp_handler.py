@@ -50,9 +50,9 @@ class SCPConn(object):
     def scp_transfer_file(self, source_file, dest_file):
         '''
         Transfer file using SCP
-        '''
 
-        print("Transferring file: {}".format(source_file))
+        Must close the SCP connection to get the file to write to the remote filesystem
+        '''
         self.scp_client.put(source_file, dest_file)
 
 
@@ -168,8 +168,7 @@ class FileTransfer(object):
 
         Return boolean
         '''
-        remote_md5_cmd = "{0} {1}".format(base_cmd, self.dest_file)
-
+        remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, self.dest_file)
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd)
         dest_md5 = self.process_md5(dest_md5)
         if self.source_md5 != dest_md5:
@@ -186,6 +185,8 @@ class FileTransfer(object):
         '''
 
         self.scp_conn.scp_transfer_file(self.source_file, self.dest_file)
+        # Must close the SCP connection to get the file written to the remote filesystem (flush)
+        self.scp_conn.close()
 
 
     def verify_file(self):
@@ -193,8 +194,3 @@ class FileTransfer(object):
         Verify the file has been transferred correctly
         '''
         return self.compare_md5()
-
-
-
-
-
