@@ -74,7 +74,7 @@ class FileTransfer(object):
         '''
         Establish a SCP connection to the remote network device
         '''
-        self.scp_conn = SCPConn(self.ssh_ctl_chan)
+        self.ssh_ctl_chan = ssh_conn
 
         self.source_file = source_file
         self.source_md5 = self.file_md5(source_file)
@@ -83,6 +83,8 @@ class FileTransfer(object):
 
         src_file_stats = os.stat(source_file)
         self.file_size = src_file_stats.st_size
+
+        self.scp_conn = SCPConn(ssh_conn)
 
 
     def close_scp_chan(self):
@@ -183,9 +185,7 @@ class FileTransfer(object):
         Verifies MD5 of file on remote device or generates an exception
         '''
 
-        self.open_scp_chan()
         self.scp_conn.scp_transfer_file(self.source_file, self.dest_file)
-        self.close_scp_chan()
 
 
     def verify_file(self):
