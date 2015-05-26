@@ -174,11 +174,13 @@ class FileTransfer(object):
             raise ValueError("Invalid output from MD5 command: {0}".format(md5_output))
 
 
-    def compare_md5(self, base_cmd='verify /md5'):
+    def compare_md5(self, base_cmd='verify /md5', delay_factor=8):
         '''
         Calculate remote MD5 and compare to source MD5
 
         Default command is Cisco specific
+
+        This command can be CPU intensive on the remote device
 
         Return boolean
         '''
