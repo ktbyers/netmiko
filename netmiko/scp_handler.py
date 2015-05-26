@@ -16,8 +16,6 @@ import hashlib
 import paramiko
 import scp
 
-from netmiko.ssh_dispatcher import ConnectHandler
-
 
 class SCPConn(object):
     '''
@@ -124,7 +122,7 @@ class FileTransfer(object):
 
         if space_avail > self.file_size:
             return True
-    
+
         return False
 
 
@@ -164,8 +162,8 @@ class FileTransfer(object):
     def process_md5(md5_output, pattern=r"= (.*)"):
         '''
         Process the string to retrieve the MD5 hash
-   
-        Output from Cisco IOS: 
+
+        Output from Cisco IOS:
         .MD5 of flash:file_name Done!
         verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
         '''
