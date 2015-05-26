@@ -77,6 +77,7 @@ class FileTransfer(object):
         self.ssh_ctl_chan = ssh_conn
 
         self.source_file = source_file
+
         self.source_md5 = self.file_md5(source_file)
         self.dest_file = dest_file
         self.file_system = file_system
@@ -84,13 +85,28 @@ class FileTransfer(object):
         src_file_stats = os.stat(source_file)
         self.file_size = src_file_stats.st_size
 
-        self.scp_conn = SCPConn(ssh_conn)
+
+    def __enter__(self):
+        '''Context manager setup'''
+        self.establish_scp_conn()
+        return self
+
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        '''Context manager cleanup'''
+        self.close_scp_chan()
+
+        if exc_type is not None:
+            raise exc_type(exc_value)
+
+
+    def establish_scp_conn(self):
+        '''Establish SCP connection'''
+        self.scp_conn = SCPConn(self.ssh_ctl_chan)
 
 
     def close_scp_chan(self):
-        '''
-        Close the SCP connection to the remote network device
-        '''
+        '''Close the SCP connection to the remote network device'''
         self.scp_conn.close()
         self.scp_conn = None
 
@@ -194,3 +210,31 @@ class FileTransfer(object):
         Verify the file has been transferred correctly
         '''
         return self.compare_md5()
+
+
+    def enable_scp(self, cmd=None):
+        '''
+        Enable SCP on remote device.
+
+        Defaults to Cisco IOS command
+        '''
+        if cmd is None:
+            cmd = ['ip scp server enable']
+        elif not hasattr(cmd, '__iter__'):
+            cmd = [cmd]
+
+        self.ssh_ctl_chan.send_config_set(cmd)
+
+
+    def disable_scp(self, cmd=None):
+        '''
+        Disable SCP on remote device.
+
+        Defaults to Cisco IOS command
+        '''
+        if cmd is None:
+            cmd = ['no ip scp server enable']
+        elif not hasattr(cmd, '__iter__'):
+            cmd = [cmd]
+
+        self.ssh_ctl_chan.send_config_set(cmd)
