@@ -185,7 +185,7 @@ class FileTransfer(object):
         Return boolean
         '''
         remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, self.dest_file)
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=delay_factor)
         dest_md5 = self.process_md5(dest_md5)
         if self.source_md5 != dest_md5:
             return False
