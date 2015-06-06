@@ -8,6 +8,24 @@ from netmiko.ssh_connection import SSHConnection
 
 class CiscoXrSSH(SSHConnection):
 
+    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+        '''
+        Send group of configuration commands down the SSH channel.
+
+        config_commands is an iterable containing all of the configuration commands.
+        The commands will be executed one after the other.
+
+        Automatically exits/enters configuration mode.
+
+        **kwargs will allow passing of all the arguments to send_command
+        strip_prompt and strip_command will be set to False if not explicitly set in
+        the method call.
+
+        IOS-XR requires you not exit from configuration mode
+        '''
+
+
+
     def commit(self):
         '''
         Commit the entered configuration.
