@@ -10,44 +10,9 @@ class CiscoXrSSH(SSHConnection):
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         '''
-        Send group of configuration commands down the SSH channel.
-
-        config_commands is an iterable containing all of the configuration commands.
-        The commands will be executed one after the other.
-
-        Automatically exits/enters configuration mode.
-
-        **kwargs will allow passing of all the arguments to send_command
-        strip_prompt and strip_command will be set to False if not explicitly set in
-        the method call.
-
         IOS-XR requires you not exit from configuration mode
         '''
-
-
-
-    def commit(self):
-        '''
-        Commit the entered configuration.
-
-        Raise an error and return the failure if the commit fails.
-
-        Automatically enter and exit configuration mode.
-        '''
-
-        # Enter config mode (if necessary)
-        output = self.config_mode()
-        output += self.send_command('commit', strip_prompt=False, strip_command=False)
-
-        if "Failed to commit" in output:
-            fail_msg = self.send_command('show configuration failed',
-                                         strip_prompt=False, strip_command=False)
-
-            raise ValueError('Commit failed with the following errors:\n\n \
-                        {fail_msg}'.format(fail_msg=fail_msg))
-
-        output += self.exit_config_mode()
-        return output
+        return super(CiscoXrSSH, self).send_config_set(config_commands=config_commands, exit_config_mode=False, **kwargs)
 
 
     def commit_new(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=10):
@@ -64,13 +29,13 @@ class CiscoXrSSH(SSHConnection):
             command_string = commit comment <comment>
 
         combinations
-        label and confirm:
+        label and confirm:      [Valid]
             command_string = commit label <label> confirmed <confirm_delay>
-        label and comment:        
+        label and comment:       [Valid] 
             command_string = commit label <label> comment <comment>
-        label, confirm, and comment:
+        label, confirm, and comment:  [Invalid, not allowed]
             command_string = commit label <label> comment <comment> confirmed <confirm_delay>
-        comment and confirm:
+        comment and confirm:   [Invalid not allowed]
             command_string = commit comment <comment> confirmed <confirm_delay>
 
         failed commit message:
@@ -80,6 +45,14 @@ class CiscoXrSSH(SSHConnection):
 
         Exit of configuration mode with pending changes will cause the changes to be discarded and
         an exception to be generated.
+
+One or more commits have occurred from other
+configuration sessions since this session started
+or since the last commit was made from this session.
+You can use the 'show configuration commit changes'
+command to browse the changes.
+Do you wish to proceed with this commit anyway? [no]: yes
+
         """
 
         if confirm and not confirm_delay:
@@ -91,11 +64,7 @@ class CiscoXrSSH(SSHConnection):
         command_string = 'commit'
         commit_marker = 'Failed to'
         if confirm:
-            if confirm_delay:
-                command_string = 'commit confirmed ' + str(confirm_delay)
-            else:
-                command_string = 'commit confirmed'
-            commit_marker = 'commit confirmed will be automatically rolled back in'
+            command_string = 'commit confirmed ' + str(confirm_delay)
 
         # wrap the comment in quotes
         if comment:
@@ -105,8 +74,7 @@ class CiscoXrSSH(SSHConnection):
 
             command_string += ' comment ' + comment
 
-        if and_quit:
-            command_string += ' and-quit'
+
 
         # Enter config mode (if necessary)
         output = self.config_mode()
