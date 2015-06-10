@@ -470,7 +470,7 @@ class BaseSSHConnection(object):
         return ''
 
 
-    def send_config_set(self, config_commands=None, **kwargs):
+    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         '''
         Send group of configuration commands down the SSH channel.
 
@@ -503,7 +503,8 @@ class BaseSSHConnection(object):
         for a_command in config_commands:
             output += self.send_command(a_command, **kwargs)
 
-        output += self.exit_config_mode()
+        if exit_config_mode:
+            output += self.exit_config_mode()
 
         if debug:
             print(output)
