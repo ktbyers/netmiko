@@ -162,7 +162,7 @@ def test_no_confirm(net_connect, commands, expected_responses):
     # Perform commit-confirm test
     net_connect.send_config_set(config_commands)
     if net_connect.device_type == 'cisco_xr':
-        net_connect.commit(confirm=True, confirm_delay=60)
+        net_connect.commit(confirm=True, confirm_delay=30)
     else:
         net_connect.commit(confirm=True, confirm_delay=1)
 
@@ -170,12 +170,39 @@ def test_no_confirm(net_connect, commands, expected_responses):
     final_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert final_state is True
 
-    time.sleep(190)
+    time.sleep(130)
 
     # Verify rolled back to initial state
     cmd_response = expected_responses.get('cmd_response_init', config_commands[0])
     init_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert init_state is True
+
+
+def test_clear_msg(net_connect, commands, expected_responses):
+    '''
+    IOS-XR generates the following message upon a failed commit
+
+    One or more commits have occurred from other
+    configuration sessions since this session started
+    or since the last commit was made from this session.
+    You can use the 'show configuration commit changes'
+    command to browse the changes.
+    Do you wish to proceed with this commit anyway? [no]: yes
+
+    Clear it
+    '''
+
+    # Setup the initial config state
+    config_commands, support_commit, config_verify = retrieve_commands(commands)
+
+    if net_connect.device_type == 'cisco_xr':
+        output = net_connect.send_config_set(config_commands)
+        output += net_connect.send_command('commit')
+        time.sleep(2)
+        if 'Do you wish to proceed with this commit' in output:
+            output += net_connect.send_command('yes')
+
+    assert True is True
 
 
 def test_commit_check(net_connect, commands, expected_responses):
@@ -330,7 +357,7 @@ def test_commit_label_confirm(net_connect, commands, expected_responses):
         # Execute change and commit
         net_connect.send_config_set(config_commands)
         label = "test_lbl_" + gen_random()
-        net_connect.commit(label=label, confirm=True, confirm_delay=60)
+        net_connect.commit(label=label, confirm=True, confirm_delay=120)
     
         cmd_response = expected_responses.get('cmd_response_final', config_commands[-1])
         final_state = config_change_verify(net_connect, config_verify, cmd_response)
@@ -344,12 +371,15 @@ def test_commit_label_confirm(net_connect, commands, expected_responses):
         response_label = response_label.strip()
         assert label == response_label
 
+        net_connect.commit()
+
 
 def test_exit_config_mode(net_connect, commands, expected_responses):
     '''
     Test exit config mode
     '''
     net_connect.exit_config_mode()
+    time.sleep(1)
     assert net_connect.check_config_mode() == False
 
 
