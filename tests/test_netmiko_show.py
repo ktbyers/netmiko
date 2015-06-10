@@ -36,6 +36,7 @@ def test_ssh_connect(net_connect, commands, expected_responses):
     Verify the connection was established successfully
     '''
     show_version = net_connect.send_command(commands["version"])
+    time.sleep(1)
     assert expected_responses["version_banner"] in show_version
 
 
