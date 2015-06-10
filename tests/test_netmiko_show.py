@@ -18,6 +18,7 @@ test_disconnect: cleanly disconnect the SSH session
 
 """
 
+from __future__ import print_function
 import time
 
 
@@ -43,6 +44,7 @@ def test_send_command(net_connect, commands, expected_responses):
     Verify a command can be sent down the channel successfully
     '''
     show_ip = net_connect.send_command(commands["basic"])
+    print(show_ip)
     assert expected_responses['interface_ip'] in show_ip
 
 
