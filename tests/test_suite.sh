@@ -16,6 +16,10 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device juniper_srx \
 && py.test -v test_netmiko_config.py --test_device juniper_srx \
 && py.test -v test_netmiko_commit.py --test_device juniper_srx \
+\
+&& py.test -v test_netmiko_show.py --test_device cisco_xrv \
+&& py.test -v test_netmiko_config.py --test_device cisco_xrv \
+&& py.test -v test_netmiko_commit.py --test_device cisco_xrv \
 || RETURN_CODE=1
 
 #\
