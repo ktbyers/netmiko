@@ -12,7 +12,7 @@ pytest (for unit tests)
 pyyaml (for unit tests)   
 
 <br>  
-###### Supports: #####
+##### Supports: #####
 Cisco IOS  
 Cisco IOS-XE  
 Cisco ASA  
@@ -21,7 +21,7 @@ Cisco IOS-XR
 Cisco WLC (limited testing)  
 Arista vEOS  
 HP ProCurve  
-HP Comware (limited testing)
+HP Comware (limited testing)  
 Juniper Junos  
 Brocade VDX (limited testing)  
 F5 LTM (experimental)  
