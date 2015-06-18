@@ -4,14 +4,16 @@ netmiko
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
 Python 2.6, 2.7, 3.3, 3.4  
-
+  
+  
+<br>
 ##### Requires: #####
 Paramiko >= 1.13+ ( >=1.7.5+ if Python2)  
 scp >= 0.10.0  
 pytest (for unit tests)   
 pyyaml (for unit tests)   
-    
-
+  
+  
 <br>  
 ##### Supports: #####
 Cisco IOS  
