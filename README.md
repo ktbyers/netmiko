@@ -29,8 +29,13 @@ Juniper Junos
 Brocade VDX (limited testing)  
 F5 LTM (experimental)  
 Huawei (limited testing)  
-   
 
+   
+<br>      
+##### More detailed example: #####
+See https://pynet.twb-tech.com/blog/automation/netmiko.html  
+  
+  
 <br>      
 ##### Simple example: #####
 
