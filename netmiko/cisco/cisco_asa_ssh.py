@@ -30,6 +30,12 @@ class CiscoAsaSSH(SSHConnection):
             self.set_base_prompt()
         return output
 
+    def set_base_prompt(self):
+        output=super(CiscoAsaSSH,self).set_base_prompt()
+        if "(config)" in output:
+            self.base_prompt=output[0:-9]
+            return self.base_prompt
+
     def enable(self):
         '''
         Enter enable mode
