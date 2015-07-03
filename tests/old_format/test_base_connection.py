@@ -107,7 +107,7 @@ def test_clear_buffer():
     '''
 
     # Manually send a command down the channel so that data needs read.
-    net_connect.remote_conn.send(commands["basic"] + '\n')
+    net_connect.remote_conn.sendall(commands["basic"] + '\n')
     time.sleep(2)
     net_connect.clear_buffer()
 
@@ -185,7 +185,7 @@ def test_normalize_linefeeds():
     Verify that '\r\n' are converted to '\n'
     '''
     show_ip = net_connect.send_command(commands['basic'])
-    net_connect.remote_conn.send('show ip int brief\n')
+    net_connect.remote_conn.sendall('show ip int brief\n')
     time.sleep(1)
     raw_output = net_connect.clear_buffer()
 

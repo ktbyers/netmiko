@@ -68,7 +68,7 @@ class HuaweiSSH(SSHConnection):
             print("In set_base_prompt")
 
         self.clear_buffer()
-        self.remote_conn.send("\n")
+        self.remote_conn.sendall("\n")
         time.sleep(1*delay_factor)
 
         prompt = self.remote_conn.recv(MAX_BUFFER)

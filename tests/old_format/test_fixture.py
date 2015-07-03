@@ -107,7 +107,7 @@ def test_disable_paging(net_connect, commands, expected_responses):
 #    Test that clearing the buffer works
 #    '''
 #    # Manually send a command down the channel so that data needs read.
-#    net_connect.remote_conn.send(commands["basic"] + '\n')
+#    net_connect.remote_conn.sendall(commands["basic"] + '\n')
 #    time.sleep(2)
 #    net_connect.clear_buffer()
 #

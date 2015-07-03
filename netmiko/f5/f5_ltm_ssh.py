@@ -24,7 +24,7 @@ class F5LtmSSH(BaseSSHConnection):
         tmsh command is equivalent to config command on F5.
         '''
         self.clear_buffer()
-        self.remote_conn.send("\ntmsh\n")
+        self.remote_conn.sendall("\ntmsh\n")
         time.sleep(1*delay_factor)
         self.clear_buffer()
 
