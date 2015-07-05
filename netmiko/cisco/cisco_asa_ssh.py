@@ -1,3 +1,7 @@
+'''
+Subclass specific to Cisco ASA
+'''
+
 from __future__ import unicode_literals
 from netmiko.ssh_connection import SSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
@@ -5,6 +9,9 @@ import time
 import re
 
 class CiscoAsaSSH(SSHConnection):
+    '''
+    Subclass specific to Cisco ASA
+    '''
 
     def session_preparation(self):
         '''
@@ -19,30 +26,28 @@ class CiscoAsaSSH(SSHConnection):
 
 
     def send_command(self, command_string, delay_factor=.5, max_loops=30,
-                 strip_prompt=True, strip_command=True):
+                     strip_prompt=True, strip_command=True):
         '''
-        If ASA is in multi-context mode, then the base_prompt needs to be
-        updated after each change of context to make strip_prompt behave
-        properly.
+        If the ASA is in multi-context mode, then the base_prompt needs to be
+        updated after each context change.
         '''
-
-        output=super(CiscoAsaSSH,self).send_command(command_string,delay_factor,
-                max_loops,strip_prompt,strip_command)
+        output = super(CiscoAsaSSH, self).send_command(command_string, delay_factor,
+                                                       max_loops, strip_prompt, strip_command)
         if "changeto" in command_string:
             self.set_base_prompt()
         return output
 
 
-    def set_base_prompt(self):
+    def set_base_prompt(self, *args, **kwargs):
         '''
         Cisco ASA in multi-context mode needs to have the base prompt updated
         (if you switch contexts i.e. 'changeto')
 
-        This switch of ASA contexts can occur in configuration mode. If this 
+        This switch of ASA contexts can occur in configuration mode. If this
         happens the trailing '(config*' needs stripped off.
         '''
-        cur_base_prompt = super(CiscoAsaSSH, self).set_base_prompt()
-        match = re.search(r'(.*)\(conf.*', a)
+        cur_base_prompt = super(CiscoAsaSSH, self).set_base_prompt(*args, **kwargs)
+        match = re.search(r'(.*)\(conf.*', cur_base_prompt)
         if match:
             # strip off (conf.* from base_prompt
             self.base_prompt = match.group(1)
