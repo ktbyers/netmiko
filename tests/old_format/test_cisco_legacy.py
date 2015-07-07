@@ -31,7 +31,7 @@ def setup_module(module):
     module.show_version_alt = net_connect.send_command_expect(show_ver_command)
 
     # Test buffer clearing
-    net_connect.remote_conn.send(show_ver_command)
+    net_connect.remote_conn.sendall(show_ver_command)
     time.sleep(2)
     net_connect.clear_buffer()
     # Should not be anything there on the second pass

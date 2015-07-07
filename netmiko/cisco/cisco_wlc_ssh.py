@@ -59,9 +59,9 @@ class CiscoWlcSSH(BaseSSHConnection):
         self.remote_conn = self.remote_conn_pre.invoke_shell()
 
         # Handle WLCs extra
-        self.remote_conn.send(self.username + '\n')
+        self.remote_conn.sendall(self.username + '\n')
         time.sleep(.2)
-        self.remote_conn.send(self.password + '\n')
+        self.remote_conn.sendall(self.password + '\n')
         if verbose:
             print("Interactive SSH session established")
 

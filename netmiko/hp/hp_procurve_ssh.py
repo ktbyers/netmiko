@@ -13,7 +13,7 @@ class HPProcurveSSH(SSHConnection):
 
         # HP uses - 'Press any key to continue'
         time.sleep(1)
-        self.remote_conn.send("\n")
+        self.remote_conn.sendall("\n")
         time.sleep(1)
 
         # HP output contains VT100 escape codes

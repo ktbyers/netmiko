@@ -111,7 +111,7 @@ class BaseSSHConnection(object):
         Disable paging default to a Cisco CLI method
         '''
 
-        self.remote_conn.send(command)
+        self.remote_conn.sendall(command)
         time.sleep(1*delay_factor)
 
         # Clear the buffer on the screen
@@ -142,7 +142,7 @@ class BaseSSHConnection(object):
             print("In set_base_prompt")
 
         self.clear_buffer()
-        self.remote_conn.send("\n")
+        self.remote_conn.sendall("\n")
         time.sleep(1*delay_factor)
 
         prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
@@ -186,7 +186,7 @@ class BaseSSHConnection(object):
             print("In find_prompt")
 
         self.clear_buffer()
-        self.remote_conn.send("\n")
+        self.remote_conn.sendall("\n")
         time.sleep(1*delay_factor)
 
         prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
@@ -247,7 +247,7 @@ class BaseSSHConnection(object):
         if debug:
             print("Command is: {0}".format(command_string))
 
-        self.remote_conn.send(command_string)
+        self.remote_conn.sendall(command_string)
 
         time.sleep(1*delay_factor)
         not_done = True
@@ -326,7 +326,7 @@ class BaseSSHConnection(object):
             print("Command is: {0}".format(command_string))
             print("Search to stop receiving data is: '{0}'".format(search_pattern))
 
-        self.remote_conn.send(command_string)
+        self.remote_conn.sendall(command_string)
 
         # Initial delay after sending command
         time.sleep(delay_factor*1)
