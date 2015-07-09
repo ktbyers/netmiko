@@ -1,7 +1,7 @@
 import os
 import re
 
-from distutils.core import setup
+from setuptools import setup
 
 
 def find_version(*file_paths):
