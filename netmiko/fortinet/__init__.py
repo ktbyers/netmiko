@@ -1,1 +1,1 @@
-from netmiko.arista.arista_ssh import FortinetSSH
+from netmiko.fortinet.fortinet_ssh import FortinetSSH
