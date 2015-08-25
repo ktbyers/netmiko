@@ -101,10 +101,21 @@ class BaseSSHConnection(object):
         if verbose:
             print("Interactive SSH session established")
 
-        # Strip the initial router prompt
         time.sleep(sleep_time)
-        self.remote_conn.send('\n')
-        return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        # Strip any initial data
+        if self.remote_conn.recv_ready():
+            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        else:
+            i = 0
+            while i <= 10:
+                # Send a newline if no data is present
+                self.remote_conn.send('\n')
+                time.sleep(.5)
+                if self.remote_conn.recv_ready():
+                    return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                else:
+                    i += 1
+            return ""
 
 
     def disable_paging(self, command="terminal length 0\n", delay_factor=.5):
