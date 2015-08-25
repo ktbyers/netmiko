@@ -103,6 +103,7 @@ class BaseSSHConnection(object):
 
         # Strip the initial router prompt
         time.sleep(sleep_time)
+        self.remote_conn.send('\n')
         return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
 
 
