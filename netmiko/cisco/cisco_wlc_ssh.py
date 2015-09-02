@@ -10,7 +10,7 @@ import socket
 
 class CiscoWlcSSH(BaseSSHConnection):
 
-    def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False):
+    def establish_connection(self, sleep_time=1, verbose=True, timeout=8, use_keys=False):
         '''
         Establish SSH connection to the network device
 
@@ -58,16 +58,39 @@ class CiscoWlcSSH(BaseSSHConnection):
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
 
-        # Handle WLCs extra
-        self.remote_conn.sendall(self.username + '\n')
-        time.sleep(.2)
-        self.remote_conn.sendall(self.password + '\n')
-        if verbose:
-            print("Interactive SSH session established")
+        # Handle WLCs extra 'login as'
+        i = 0
+        while i <= 12:
+            if self.remote_conn.recv_ready():
+                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                if 'login as' in output or 'User' in output:
+                    self.remote_conn.sendall(self.username + '\n')
+                elif 'Password' in output:
+                    self.remote_conn.sendall(self.password + '\n')
+                    if verbose:
+                        print("Interactive SSH session established")
+                        break
+                time.sleep(.25)
+            else:
+                self.remote_conn.sendall('\n')
+                time.sleep(1)
+                i += 1
 
         # Strip the initial router prompt
         time.sleep(sleep_time)
-        return self.remote_conn.recv(MAX_BUFFER)
+        if self.remote_conn.recv_ready():
+            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        else:
+            i = 0
+            while i <= 10:
+                # Send a newline if no data is present
+                self.remote_conn.send('\n')
+                time.sleep(.5)
+                if self.remote_conn.recv_ready():
+                    return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                else:
+                    i += 1
+            return ""
 
 
     def session_preparation(self):
