@@ -19,6 +19,7 @@ CLASS_MAPPER = {
     'cisco_nxos'    : CiscoNxosSSH,
     'cisco_xr'      : CiscoXrSSH,
     'cisco_wlc_ssh' : CiscoWlcSSH,
+    'cisco_wlc'     : CiscoWlcSSH,
     'arista_eos'    : AristaSSH,
     'hp_procurve'   : HPProcurveSSH,
     'hp_comware'    : HPComwareSSH,
