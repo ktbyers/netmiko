@@ -37,5 +37,6 @@ setup(
               'netmiko/juniper',
               'netmiko/brocade',
               'netmiko/huawei',
+              'netmiko/a10',
               'netmiko/avaya'],
     )

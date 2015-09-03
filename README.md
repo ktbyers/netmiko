@@ -29,6 +29,7 @@ Juniper Junos
 Brocade VDX (limited testing)  
 F5 LTM (experimental)  
 Huawei (limited testing)  
+A10 (limited testing)  
 Avaya ERS (limited testing)  
 Avaya VSP (limited testing)  
 
