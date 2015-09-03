@@ -10,6 +10,8 @@ from netmiko.huawei import HuaweiSSH
 from netmiko.f5 import F5LtmSSH
 from netmiko.juniper import JuniperSSH
 from netmiko.brocade import BrocadeVdxSSH
+from netmiko.avaya import AvayaVspSSH
+from netmiko.avaya import AvayaErsSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
@@ -27,6 +29,8 @@ CLASS_MAPPER = {
     'f5_ltm'        : F5LtmSSH,
     'juniper'       : JuniperSSH,
     'brocade_vdx'   : BrocadeVdxSSH,
+    'avaya_vsp'     : AvayaVspSSH,
+    'avaya_ers'     : AvayaErsSSH,
 }
 
 platforms = list(CLASS_MAPPER.keys())

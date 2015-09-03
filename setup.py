@@ -36,5 +36,6 @@ setup(
               'netmiko/f5',
               'netmiko/juniper',
               'netmiko/brocade',
-              'netmiko/huawei',],
+              'netmiko/huawei',
+              'netmiko/avaya'],
     )
