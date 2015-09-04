@@ -71,7 +71,7 @@ class HuaweiSSH(SSHConnection):
         self.remote_conn.sendall("\n")
         time.sleep(1*delay_factor)
 
-        prompt = self.remote_conn.recv(MAX_BUFFER)
+        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
         prompt = self.normalize_linefeeds(prompt)
 
         # If multiple lines in the output take the last line
