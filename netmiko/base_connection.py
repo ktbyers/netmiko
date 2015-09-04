@@ -110,7 +110,7 @@ class BaseSSHConnection(object):
             i = 0
             while i <= 10:
                 # Send a newline if no data is present
-                self.remote_conn.send('\n')
+                self.remote_conn.sendall('\n')
                 time.sleep(.5)
                 if self.remote_conn.recv_ready():
                     return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
