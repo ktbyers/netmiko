@@ -86,6 +86,8 @@ class CiscoWlcSSH(BaseSSHConnection):
 
         strip_prompt = kwargs.get('strip_prompt', True)
         if strip_prompt:
+            # Had to strip trailing prompt twice.
+            output = self.strip_prompt(output)
             output = self.strip_prompt(output)
         return output
 
