@@ -17,7 +17,7 @@ class SSHConnection(BaseSSHConnection):
         Enter enable mode
         '''
 
-        output = self.send_command('enable')
+        output = self.send_command_expect('enable', expect_string="password:")
         if 'password' in output.lower():
             output += self.send_command(self.secret)
 
