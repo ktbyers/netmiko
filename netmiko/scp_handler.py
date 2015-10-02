@@ -134,7 +134,7 @@ class FileTransfer(object):
         '''
 
         if not remote_cmd:
-            remote_cmd = "dir flash:/{0}".format(self.dest_file)
+            remote_cmd = "dir {0}/{1}".format(self.file_system, self.dest_file)
 
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
 
