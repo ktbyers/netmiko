@@ -98,12 +98,32 @@ class BaseSSHConnection(object):
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
+        self.special_login_handler()
         if verbose:
             print("Interactive SSH session established")
 
-        # Strip the initial router prompt
         time.sleep(sleep_time)
-        return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        # Strip any initial data
+        if self.remote_conn.recv_ready():
+            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        else:
+            i = 0
+            while i <= 10:
+                # Send a newline if no data is present
+                self.remote_conn.sendall('\n')
+                time.sleep(.5)
+                if self.remote_conn.recv_ready():
+                    return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                else:
+                    i += 1
+            return ""
+
+
+    def special_login_handler(self, delay_factor=1):
+        '''
+        Special handler for devices like WLC, Avaya ERS that throw up characters prior to login
+        '''
+        pass
 
 
     def disable_paging(self, command="terminal length 0\n", delay_factor=.5):

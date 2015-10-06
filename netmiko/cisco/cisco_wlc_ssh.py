@@ -1,23 +1,20 @@
+'''
+Netmiko Cisco WLC support
+'''
 from __future__ import print_function
 from __future__ import unicode_literals
 import time
 
 from netmiko.ssh_connection import BaseSSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
-from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
-import paramiko
-import socket
 
 class CiscoWlcSSH(BaseSSHConnection):
-
-    def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False):
+    '''
+    Netmiko Cisco WLC support
+    '''
+    def special_login_handler(self, delay_factor=.3):
         '''
-        Establish SSH connection to the network device
-
-        Timeout will generate a NetmikoTimeoutException
-        Authentication failure will generate a NetmikoAuthenticationException
-
-        WLC presents with the following on login
+        WLC presents with the following on login (in certain OS versions)
 
         login as: user
 
@@ -26,48 +23,73 @@ class CiscoWlcSSH(BaseSSHConnection):
         User: user
 
         Password:****
+        '''
+        i = 0
+        while i <= 12:
+            if self.remote_conn.recv_ready():
+                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                if 'login as' in output or 'User' in output:
+                    self.remote_conn.sendall(self.username + '\n')
+                elif 'Password' in output:
+                    self.remote_conn.sendall(self.password + '\n')
+                    break
+                time.sleep(delay_factor)
+            else:
+                self.remote_conn.sendall('\n')
+                time.sleep(delay_factor*3)
+            i += 1
 
-        Manually send username/password to work around this.
+
+    def send_command_w_enter(self, *args, **kwargs):
+        '''
+        For 'show run-config' Cisco WLC adds a 'Press Enter to continue...' message
+        Even though pagination is disabled
+
+        show run-config also has excessive delays in the output which requires special
+        handling.
+
+        Arguments are the same as send_command() method
         '''
 
-        # Create instance of SSHClient object
-        self.remote_conn_pre = paramiko.SSHClient()
+        output = self.send_command(*args, **kwargs)
+        if 'Press Enter to' in output:
+            new_args = list(args)
+            if len(args) >= 1:
+                new_args[0] = '\n'
+            else:
+                kwargs['command_string'] = '\n'
 
-        # Automatically add untrusted hosts (make sure appropriate for your environment)
-        self.remote_conn_pre.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            if not kwargs.get('delay_factor') and not len(args) >= 2:
+                kwargs['delay_factor'] = 3
+            if not kwargs.get('max_loops') and not len(args) >= 3:
+                kwargs['max_loops'] = 150
 
-        # initiate SSH connection
-        if verbose:
-            print("SSH connection established to {0}:{1}".format(self.ip, self.port))
+            # Send an 'enter'
+            output = self.send_command(*new_args, **kwargs)
 
-        try:
-            self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
-                                         username=self.username, password=self.password,
-                                         look_for_keys=use_keys, allow_agent=False,
-                                         timeout=timeout)
-        except socket.error as e:
-            msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
-                device_type=self.device_type, ip=self.ip, port=self.port)
-            raise NetMikoTimeoutException(msg)
-        except paramiko.ssh_exception.AuthenticationException as e:
-            msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
-                device_type=self.device_type, ip=self.ip, port=self.port)
-            msg += '\n' + str(e)
-            raise NetMikoAuthenticationException(msg)
+            # WLC has excessive delay after this appears on screen
+            if '802.11b Advanced Configuration' in output:
 
-        # Use invoke_shell to establish an 'interactive session'
-        self.remote_conn = self.remote_conn_pre.invoke_shell()
+                # Defaults to 30 seconds
+                time.sleep(kwargs['delay_factor'] * 10)
+                not_done = True
+                i = 1
+                while (not_done) and (i <= 150):
+                    time.sleep(kwargs['delay_factor'])
+                    i += 1
+                    if self.remote_conn.recv_ready():
+                        # Unicode error occurred in output (errors=ignore strips this out).
+                        output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8',
+                                                                           errors='ignore')
+                    else:
+                        not_done = False
 
-        # Handle WLCs extra
-        self.remote_conn.sendall(self.username + '\n')
-        time.sleep(.2)
-        self.remote_conn.sendall(self.password + '\n')
-        if verbose:
-            print("Interactive SSH session established")
-
-        # Strip the initial router prompt
-        time.sleep(sleep_time)
-        return self.remote_conn.recv(MAX_BUFFER)
+        strip_prompt = kwargs.get('strip_prompt', True)
+        if strip_prompt:
+            # Had to strip trailing prompt twice.
+            output = self.strip_prompt(output)
+            output = self.strip_prompt(output)
+        return output
 
 
     def session_preparation(self):

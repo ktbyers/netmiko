@@ -1,3 +1,7 @@
+'''
+Controls selection of proper class based on the device type
+'''
+
 from __future__ import unicode_literals
 from netmiko.cisco import CiscoIosSSH
 from netmiko.cisco import CiscoAsaSSH
@@ -11,6 +15,9 @@ from netmiko.f5 import F5LtmSSH
 from netmiko.juniper import JuniperSSH
 from netmiko.brocade import BrocadeVdxSSH
 from netmiko.fortinet import FortinetSSH
+from netmiko.a10 import A10SSH
+from netmiko.avaya import AvayaVspSSH
+from netmiko.avaya import AvayaErsSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
@@ -20,6 +27,7 @@ CLASS_MAPPER = {
     'cisco_nxos'    : CiscoNxosSSH,
     'cisco_xr'      : CiscoXrSSH,
     'cisco_wlc_ssh' : CiscoWlcSSH,
+    'cisco_wlc'     : CiscoWlcSSH,
     'arista_eos'    : AristaSSH,
     'hp_procurve'   : HPProcurveSSH,
     'hp_comware'    : HPComwareSSH,
@@ -28,6 +36,9 @@ CLASS_MAPPER = {
     'juniper'       : JuniperSSH,
     'brocade_vdx'   : BrocadeVdxSSH,
     'fortinet'      : FortinetSSH,
+    'a10'           : A10SSH,	
+    'avaya_vsp'     : AvayaVspSSH,
+    'avaya_ers'     : AvayaErsSSH,
 }
 
 platforms = list(CLASS_MAPPER.keys())
