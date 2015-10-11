@@ -9,3 +9,4 @@ tests/etc/responses.yml
 examples/SECRET_DEVICE_CREDS.py
 build
 dist
+netmiko.egg-info/

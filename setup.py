@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 import os
 import re
 
@@ -22,13 +22,21 @@ def find_version(*file_paths):
 setup(
     name='netmiko',
     version=find_version('netmiko', '__init__.py'),
+    description='Multi-vendor library to simplify Paramiko SSH connections to network devices',
     url='https://github.com/ktbyers/netmiko',
-    download_url='https://github.com/ktbyers/netmiko/archive/v' + find_version('netmiko', '__init__.py') + '.tar.gz',
-    license='MIT',
     author='Kirk Byers',
     author_email='ktbyers@twb-tech.com',
-    install_requires=['paramiko>=1.13.0', 'scp>=0.10.0'],
-    description='Multi-vendor library to simplify Paramiko SSH connections to network devices',
+    license='MIT',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+    ],
     packages=['netmiko',
               'netmiko/cisco',
               'netmiko/arista',
@@ -39,4 +47,9 @@ setup(
               'netmiko/huawei',
               'netmiko/a10',
               'netmiko/avaya'],
+    install_requires=['paramiko>=1.13.0', 'scp>=0.10.0'],
+    extras_require={
+        'test': ['pytest>=2.6.0', 'pyyaml']
+    },
+    #download_url='https://github.com/ktbyers/netmiko/archive/v' + find_version('netmiko', '__init__.py') + '.tar.gz',
     )
