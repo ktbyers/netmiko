@@ -46,7 +46,8 @@ setup(
               'netmiko/brocade',
               'netmiko/huawei',
               'netmiko/a10',
-              'netmiko/avaya'],
+              'netmiko/avaya',
+              'netmiko/ruckus'],
     install_requires=['paramiko>=1.13.0', 'scp>=0.10.0'],
     extras_require={
         'test': ['pytest>=2.6.0', 'pyyaml']
