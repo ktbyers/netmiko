@@ -28,7 +28,7 @@ class BaseSSHConnection(object):
     '''
 
     def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True,
-                 use_keys=False):
+                 use_keys=False, key_file=None):
 
         self.ip = ip
         self.port = port
@@ -41,7 +41,7 @@ class BaseSSHConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
 
-        self.establish_connection(verbose=verbose, use_keys=use_keys)
+        self.establish_connection(verbose=verbose, use_keys=use_keys, key_file=key_file)
         self.session_preparation()
 
 
@@ -61,7 +61,7 @@ class BaseSSHConnection(object):
         self.set_base_prompt()
 
 
-    def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False):
+    def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False, key_file=None):
         '''
         Establish SSH connection to the network device
 
@@ -79,10 +79,16 @@ class BaseSSHConnection(object):
 
         # initiate SSH connection
         try:
-            self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
-                                         username=self.username, password=self.password,
-                                         look_for_keys=use_keys, allow_agent=False,
-                                         timeout=timeout)
+            if key_file is None:
+                self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
+                                             username=self.username, password=self.password,
+                                             look_for_keys=use_keys, allow_agent=False,
+                                             timeout=timeout)
+            else:
+                self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
+                                             look_for_keys=use_keys, allow_agent=False,
+                                             key_filename=key_file, timeout=timeout)
+                                             
         except socket.error:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
