@@ -10,6 +10,7 @@ import time
 # Avaya presents Enter Ctrl-Y to begin.
 CTRL_Y = '\x19'
 
+
 class AvayaErsSSH(SSHConnection):
     '''
     Netmiko support for Avaya Ethernet Routing Switch
@@ -35,6 +36,5 @@ class AvayaErsSSH(SSHConnection):
                 time.sleep(delay_factor)
             else:
                 self.remote_conn.sendall('\n')
-                time.sleep(2*delay_factor)
+                time.sleep(2 * delay_factor)
             i += 1
-

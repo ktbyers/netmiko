@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from netmiko.ssh_connection import SSHConnection
 
+
 class AvayaVspSSH(SSHConnection):
     '''
     Avaya Virtual Services Platform Support
@@ -15,4 +16,3 @@ class AvayaVspSSH(SSHConnection):
         '''
         self.disable_paging(command="terminal more disable\n")
         self.set_base_prompt()
-

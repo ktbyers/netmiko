@@ -41,4 +41,3 @@ class HPProcurveSSH(SSHConnection):
 
         self.set_base_prompt()
         self.clear_buffer()
-

@@ -3,6 +3,7 @@ A10 support
 '''
 from netmiko.ssh_connection import SSHConnection
 
+
 class A10SSH(SSHConnection):
     '''
     A10 support
@@ -14,4 +15,3 @@ class A10SSH(SSHConnection):
         self.enable()
         self.disable_paging(command="terminal length 0\n")
         self.set_base_prompt()
-
