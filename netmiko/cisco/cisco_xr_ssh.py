@@ -12,7 +12,8 @@ class CiscoXrSSH(SSHConnection):
         '''
         IOS-XR requires you not exit from configuration mode
         '''
-        return super(CiscoXrSSH, self).send_config_set(config_commands=config_commands, exit_config_mode=False, **kwargs)
+        return super(CiscoXrSSH, self).send_config_set(config_commands=config_commands,
+                                                       exit_config_mode=False, **kwargs)
 
 
     def commit(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=10):
@@ -37,13 +38,13 @@ class CiscoXrSSH(SSHConnection):
         All other combinations will result in an exception.
 
         failed commit message:
-        % Failed to commit one or more configuration items during a pseudo-atomic operation. All 
-        changes made have been reverted. Please issue 'show configuration failed [inheritance]' 
+        % Failed to commit one or more configuration items during a pseudo-atomic operation. All
+        changes made have been reverted. Please issue 'show configuration failed [inheritance]'
         from this session to view the errors
 
         message XR shows if other commits occurred:
-        One or more commits have occurred from other configuration sessions since this session 
-        started or since the last commit was made from this session. You can use the 'show 
+        One or more commits have occurred from other configuration sessions since this session
+        started or since the last commit was made from this session. You can use the 'show
         configuration commit changes' command to browse the changes.
 
         Exit of configuration mode with pending changes will cause the changes to be discarded and
@@ -54,7 +55,7 @@ class CiscoXrSSH(SSHConnection):
             raise ValueError("Invalid arguments supplied to XR commit")
         if confirm_delay and not confirm:
             raise ValueError("Invalid arguments supplied to XR commit")
-        if comment and confirm: 
+        if comment and confirm:
             raise ValueError("Invalid arguments supplied to XR commit")
 
         # wrap the comment in quotes
@@ -124,5 +125,3 @@ class CiscoXrSSH(SSHConnection):
         newline = re.compile(r'(\r\r\n|\r\n|\n\r|\r)')
 
         return newline.sub('\n', a_string)
-
-

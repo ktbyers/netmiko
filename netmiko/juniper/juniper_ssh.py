@@ -3,6 +3,7 @@ import re
 
 from netmiko.ssh_connection import BaseSSHConnection
 
+
 class JuniperSSH(BaseSSHConnection):
     """Implement methods for interacting with Juniper Networks devices.
 
@@ -121,7 +122,7 @@ class JuniperSSH(BaseSSHConnection):
         output = self.config_mode()
         output += self.send_command(command_string, strip_prompt=False, strip_command=False,
                                     delay_factor=delay_factor)
-        if not commit_marker in output:
+        if commit_marker not in output:
             raise ValueError("Commit failed with the following errors:\n\n{0}"
                              .format(output))
 

@@ -5,6 +5,7 @@ from netmiko.base_connection import BaseSSHConnection
 import time
 import re
 
+
 class F5LtmSSH(BaseSSHConnection):
 
     def session_preparation(self):
@@ -25,7 +26,7 @@ class F5LtmSSH(BaseSSHConnection):
         '''
         self.clear_buffer()
         self.remote_conn.sendall("\ntmsh\n")
-        time.sleep(1*delay_factor)
+        time.sleep(1 * delay_factor)
         self.clear_buffer()
 
         return None
