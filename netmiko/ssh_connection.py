@@ -79,4 +79,3 @@ class SSHConnection(BaseSSHConnection):
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
-

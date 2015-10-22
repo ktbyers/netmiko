@@ -133,7 +133,7 @@ class BaseSSHConnection(object):
         '''
 
         self.remote_conn.sendall(command)
-        time.sleep(1*delay_factor)
+        time.sleep(1 * delay_factor)
 
         # Clear the buffer on the screen
         output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
@@ -164,7 +164,7 @@ class BaseSSHConnection(object):
 
         self.clear_buffer()
         self.remote_conn.sendall("\n")
-        time.sleep(1*delay_factor)
+        time.sleep(1 * delay_factor)
 
         prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
 
@@ -208,7 +208,7 @@ class BaseSSHConnection(object):
 
         self.clear_buffer()
         self.remote_conn.sendall("\n")
-        time.sleep(1*delay_factor)
+        time.sleep(1 * delay_factor)
 
         prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
 
@@ -270,12 +270,12 @@ class BaseSSHConnection(object):
 
         self.remote_conn.sendall(command_string)
 
-        time.sleep(1*delay_factor)
+        time.sleep(1 * delay_factor)
         not_done = True
         i = 1
 
         while (not_done) and (i <= max_loops):
-            time.sleep(1*delay_factor)
+            time.sleep(1 * delay_factor)
             i += 1
             # Keep reading data as long as available (up to max_loops)
             if self.remote_conn.recv_ready():
@@ -337,7 +337,7 @@ class BaseSSHConnection(object):
 
         if expect_string is None:
             search_pattern = self.find_prompt()
-            time.sleep(delay_factor*1)
+            time.sleep(delay_factor * 1)
         else:
             search_pattern = expect_string
 
@@ -350,7 +350,7 @@ class BaseSSHConnection(object):
         self.remote_conn.sendall(command_string)
 
         # Initial delay after sending command
-        time.sleep(delay_factor*1)
+        time.sleep(delay_factor * 1)
 
         i = 1
         # Keep reading data until search_pattern is found (or max_loops)
@@ -369,7 +369,7 @@ class BaseSSHConnection(object):
                 if debug:
                     print("recv_ready = False")
                 # No data, wait a little bit
-                time.sleep(delay_factor*1)
+                time.sleep(delay_factor * 1)
 
             i += 1
 
