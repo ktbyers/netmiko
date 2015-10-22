@@ -8,6 +8,7 @@ from netmiko.netmiko_globals import MAX_BUFFER
 import time
 import re
 
+
 class CiscoAsaSSH(SSHConnection):
     '''
     Subclass specific to Cisco ASA
@@ -65,13 +66,13 @@ class CiscoAsaSSH(SSHConnection):
 
         self.clear_buffer()
         self.remote_conn.sendall("\nenable\n")
-        time.sleep(1*delay_factor)
+        time.sleep(1 * delay_factor)
 
         output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
         if 'password' in output.lower():
-            self.remote_conn.sendall(self.secret+'\n')
+            self.remote_conn.sendall(self.secret + '\n')
             self.remote_conn.sendall('\n')
-            time.sleep(1*delay_factor)
+            time.sleep(1 * delay_factor)
             output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
 
         self.set_base_prompt()

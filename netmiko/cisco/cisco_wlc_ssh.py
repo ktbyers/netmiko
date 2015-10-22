@@ -8,6 +8,7 @@ import time
 from netmiko.ssh_connection import BaseSSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 
+
 class CiscoWlcSSH(BaseSSHConnection):
     '''
     Netmiko Cisco WLC support
@@ -36,7 +37,7 @@ class CiscoWlcSSH(BaseSSHConnection):
                 time.sleep(delay_factor)
             else:
                 self.remote_conn.sendall('\n')
-                time.sleep(delay_factor*3)
+                time.sleep(delay_factor * 3)
             i += 1
 
 
@@ -109,4 +110,3 @@ class CiscoWlcSSH(BaseSSHConnection):
         '''
 
         self.send_command("config paging enable\n")
-
