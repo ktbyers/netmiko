@@ -17,6 +17,7 @@ from netmiko.brocade import BrocadeVdxSSH
 from netmiko.a10 import A10SSH
 from netmiko.avaya import AvayaVspSSH
 from netmiko.avaya import AvayaErsSSH
+from netmiko.alcatel import AlcatelSrosSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
@@ -37,6 +38,7 @@ CLASS_MAPPER = {
     'a10': A10SSH,
     'avaya_vsp': AvayaVspSSH,
     'avaya_ers': AvayaErsSSH,
+    'alcatel_sros': AlcatelSrosSSH,
 }
 
 platforms = list(CLASS_MAPPER.keys())
