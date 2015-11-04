@@ -9,7 +9,7 @@ class AlcatelSrosSSH(SSHConnection):
     SROS support
     '''
     def session_preparation(self):
-        self.disable_paging(command="/environment no more\n")
+        self.disable_paging(command="environment no more\n")
         self.set_base_prompt()
 
     def enable(self):
