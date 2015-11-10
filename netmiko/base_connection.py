@@ -143,6 +143,20 @@ class BaseSSHConnection(object):
         return output
 
 
+    def wait_for_recv_ready(self, delay_factor, max_loops):
+        '''
+        Wait for data to be in the buffer so it can be received.
+
+        delay_factor can be used to increase the delays.
+
+        max_loops can be used to increase the number of times it reads the data buffer
+        '''
+        i = 0
+        while not self.remote_conn.recv_ready() and i < max_loops:
+            time.sleep(1 * delay_factor)
+            i += 1
+
+    
     def set_base_prompt(self, pri_prompt_terminator='#',
                         alt_prompt_terminator='>', delay_factor=.5):
         '''
@@ -164,7 +178,8 @@ class BaseSSHConnection(object):
 
         self.clear_buffer()
         self.remote_conn.sendall("\n")
-        time.sleep(1 * delay_factor)
+        
+        self.wait_for_recv_ready(delay_factor, 10)
 
         prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
 
@@ -238,7 +253,6 @@ class BaseSSHConnection(object):
         else:
             return None
 
-
     def send_command(self, command_string, delay_factor=.5, max_loops=30,
                      strip_prompt=True, strip_command=True):
         '''
@@ -270,18 +284,14 @@ class BaseSSHConnection(object):
 
         self.remote_conn.sendall(command_string)
 
-        time.sleep(1 * delay_factor)
-        not_done = True
-        i = 1
-
-        while (not_done) and (i <= max_loops):
-            time.sleep(1 * delay_factor)
-            i += 1
-            # Keep reading data as long as available (up to max_loops)
-            if self.remote_conn.recv_ready():
-                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
-            else:
-                not_done = False
+        # Wait for recv_ready()
+        self.wait_for_recv_ready(delay_factor, max_loops)
+        
+        # Keep reading data as long as available (up to max_loops)
+        i = 0
+        while self.remote_conn.recv_ready() and i < max_loops:
+            output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+            self.wait_for_recv_ready(delay_factor, max_loops)
 
         # Some platforms have ansi_escape codes
         if self.ansi_escape_codes:
