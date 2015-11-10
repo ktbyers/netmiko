@@ -164,7 +164,11 @@ class BaseSSHConnection(object):
 
         self.clear_buffer()
         self.remote_conn.sendall("\n")
-        time.sleep(1 * delay_factor)
+        
+        i = 0
+        while not self.remote_conn.recv_ready() and i < 10:
+            time.sleep(1 * delay_factor)
+            i += 1
 
         prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
 
