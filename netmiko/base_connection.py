@@ -156,7 +156,7 @@ class BaseSSHConnection(object):
             time.sleep(1 * delay_factor)
             i += 1
 
-    
+
     def set_base_prompt(self, pri_prompt_terminator='#',
                         alt_prompt_terminator='>', delay_factor=.5):
         '''
