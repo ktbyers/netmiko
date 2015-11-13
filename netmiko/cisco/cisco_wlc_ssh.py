@@ -13,7 +13,7 @@ class CiscoWlcSSH(BaseSSHConnection):
     '''
     Netmiko Cisco WLC support
     '''
-    def special_login_handler(self, delay_factor=.3):
+    def special_login_handler(self, delay_factor=.5):
         '''
         WLC presents with the following on login (in certain OS versions)
 
@@ -35,10 +35,10 @@ class CiscoWlcSSH(BaseSSHConnection):
                 elif 'Password' in output:
                     self.remote_conn.sendall(self.password + '\n')
                     break
-                time.sleep(delay_factor)
+                time.sleep(delay_factor / 2)
             else:
                 self.remote_conn.sendall('\n')
-                time.sleep(delay_factor * 3)
+                time.sleep(delay_factor * 2)
             i += 1
 
 

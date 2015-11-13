@@ -28,7 +28,7 @@ class BaseSSHConnection(object):
     '''
 
     def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True,
-                 use_keys=False, key_file=None):
+                 use_keys=False, key_file=None, global_delay_factor=.5):
 
         self.ip = ip
         self.port = port
@@ -38,7 +38,7 @@ class BaseSSHConnection(object):
         self.device_type = device_type
         self.ansi_escape_codes = False
         # Use the greater of global_delay_factor or delay_factor local to method
-        self.global_delay_factor = .5
+        self.global_delay_factor = global_delay_factor
 
         # set in set_base_prompt method
         self.base_prompt = ''
