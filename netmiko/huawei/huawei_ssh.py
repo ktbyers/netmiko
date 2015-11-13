@@ -61,12 +61,11 @@ class HuaweiSSH(SSHConnection):
 
         This will be set on logging in, but not when entering system-view
         '''
-
         debug = False
-
         if debug:
             print("In set_base_prompt")
 
+        delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
         time.sleep(1 * delay_factor)

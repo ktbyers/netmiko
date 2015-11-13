@@ -27,7 +27,6 @@ class HPProcurveSSH(SSHConnection):
         '''
         Enter enable mode
         '''
-
         debug = False
 
         output = self.send_command('enable')

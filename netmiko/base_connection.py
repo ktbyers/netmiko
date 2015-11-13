@@ -37,6 +37,8 @@ class BaseSSHConnection(object):
         self.secret = secret
         self.device_type = device_type
         self.ansi_escape_codes = False
+        # Use the greater of global_delay_factor or delay_factor local to method
+        self.global_delay_factor = .5
 
         # set in set_base_prompt method
         self.base_prompt = ''
@@ -120,7 +122,17 @@ class BaseSSHConnection(object):
             return ""
 
 
-    def special_login_handler(self, delay_factor=1):
+    def select_delay_factor(self, delay_factor):
+        '''
+        Choose the greater of delay_factor or self.global_delay_factor
+        '''
+        if delay_factor >= self.global_delay_factor:
+            return delay_factor
+        else:
+            return self.global_delay_factor
+
+
+    def special_login_handler(self, delay_factor=.5):
         '''
         Special handler for devices like WLC, Avaya ERS that throw up characters prior to login
         '''
@@ -131,7 +143,7 @@ class BaseSSHConnection(object):
         '''
         Disable paging default to a Cisco CLI method
         '''
-
+        delay_factor = self.select_delay_factor(delay_factor)
         self.remote_conn.sendall(command)
         time.sleep(1 * delay_factor)
 
@@ -151,6 +163,7 @@ class BaseSSHConnection(object):
 
         max_loops can be used to increase the number of times it reads the data buffer
         '''
+        delay_factor = self.select_delay_factor(delay_factor)
         i = 0
         while not self.remote_conn.recv_ready() and i < max_loops:
             time.sleep(1 * delay_factor)
@@ -170,12 +183,11 @@ class BaseSSHConnection(object):
         This will be set on entering user exec or privileged exec on Cisco, but not when
         entering/exiting config mode
         '''
-
         debug = False
-
         if debug:
             print("In set_base_prompt")
 
+        delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
         self.wait_for_recv_ready(delay_factor)
@@ -213,12 +225,11 @@ class BaseSSHConnection(object):
         '''
         Finds the current network device prompt, last line only
         '''
-
         debug = False
-
         if debug:
             print("In find_prompt")
 
+        delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
         time.sleep(1 * delay_factor)
@@ -266,11 +277,11 @@ class BaseSSHConnection(object):
         '''
 
         debug = False
-        output = ''
-
         if debug:
             print('In send_command')
 
+        delay_factor = self.select_delay_factor(delay_factor)
+        output = ''
         self.clear_buffer()
 
         # Ensure there is a newline at the end of the command
@@ -339,8 +350,9 @@ class BaseSSHConnection(object):
         strip_prompt = strip the trailing prompt from the output
         strip_command = strip the leading command from the output
         '''
-
         debug = False
+
+        delay_factor = self.select_delay_factor(delay_factor)
         output = ''
 
         # Ensure there is a newline at the end of the command
@@ -411,7 +423,6 @@ class BaseSSHConnection(object):
         '''
         Strip command_string from output string
         '''
-
         command_length = len(command_string)
         return output[command_length:]
 
@@ -421,9 +432,7 @@ class BaseSSHConnection(object):
         '''
         Convert '\r\r\n','\r\n', '\n\r' to '\n
         '''
-
         newline = re.compile(r'(\r\r\n|\r\n|\n\r)')
-
         return newline.sub('\n', a_string)
 
 
@@ -449,7 +458,6 @@ class BaseSSHConnection(object):
             output = self.send_command(config_command, strip_prompt=False, strip_command=False)
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode")
-
         return output
 
 
@@ -462,7 +470,6 @@ class BaseSSHConnection(object):
             output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-
         return output
 
 
@@ -493,13 +500,11 @@ class BaseSSHConnection(object):
 
         **kwargs are passed to send_config_set method.
         '''
-
         try:
             with io.open(config_file, encoding='utf-8') as cfg_file:
                 return self.send_config_set(cfg_file, **kwargs)
         except IOError:
             print("I/O Error opening config file: {0}".format(config_file))
-
         return ''
 
 
@@ -516,7 +521,6 @@ class BaseSSHConnection(object):
         strip_prompt and strip_command will be set to False if not explicitly set in
         the method call.
         '''
-
         debug = False
 
         if config_commands is None:
@@ -566,7 +570,6 @@ class BaseSSHConnection(object):
 
         HP ProCurve's and F5 LTM's require this (possible others)
         '''
-
         debug = False
         if debug:
             print("In strip_ansi_escape_codes")
@@ -606,7 +609,6 @@ class BaseSSHConnection(object):
         '''
         Gracefully close the SSH connection
         '''
-
         self.cleanup()
         self.remote_conn_pre.close()
 

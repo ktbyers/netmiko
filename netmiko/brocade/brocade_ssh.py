@@ -3,14 +3,14 @@ from netmiko.ssh_connection import SSHConnection
 
 class BrocadeVdxSSH(SSHConnection):
 
-    def enable(self):
+    def enable(self, *args, **kwargs):
         '''
         No enable mode on Brocade VDX
         '''
         pass
 
 
-    def exit_enable_mode(self, exit_command=''):
+    def exit_enable_mode(self, *args, **kwargs):
         '''
         No enable mode on Brocade VDX
         '''

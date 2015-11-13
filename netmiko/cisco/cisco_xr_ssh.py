@@ -50,7 +50,7 @@ class CiscoXrSSH(SSHConnection):
         Exit of configuration mode with pending changes will cause the changes to be discarded and
         an exception to be generated.
         """
-
+        delay_factor = self.select_delay_factor(delay_factor)
         if confirm and not confirm_delay:
             raise ValueError("Invalid arguments supplied to XR commit")
         if confirm_delay and not confirm:

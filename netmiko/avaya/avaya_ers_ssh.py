@@ -21,6 +21,8 @@ class AvayaErsSSH(SSHConnection):
 
         Enter Ctrl-Y to begin.
         '''
+        delay_factor = self.select_delay_factor(delay_factor)
+
         # Handle 'Enter Ctrl-Y to begin'
         i = 0
         while i <= 12:

@@ -32,6 +32,7 @@ class CiscoAsaSSH(SSHConnection):
         If the ASA is in multi-context mode, then the base_prompt needs to be
         updated after each context change.
         '''
+        delay_factor = self.select_delay_factor(delay_factor)
         output = super(CiscoAsaSSH, self).send_command(command_string, delay_factor,
                                                        max_loops, strip_prompt, strip_command)
         if "changeto" in command_string:
@@ -55,15 +56,13 @@ class CiscoAsaSSH(SSHConnection):
             return self.base_prompt
 
 
-    def enable(self):
+    def enable(self, delay_factor=.5):
         '''
         Enter enable mode
 
         Must manually control the channel at this point for ASA
         '''
-
-        delay_factor = .5
-
+        delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\nenable\n")
         time.sleep(1 * delay_factor)

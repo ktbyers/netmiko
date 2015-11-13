@@ -87,6 +87,7 @@ class JuniperSSH(BaseSSHConnection):
             command_string = commit check
 
         """
+        delay_factor = self.select_delay_factor(delay_factor)
 
         if check and (confirm or confirm_delay or comment):
             raise ValueError("Invalid arguments supplied with commit check")

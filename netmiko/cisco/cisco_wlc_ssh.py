@@ -25,6 +25,7 @@ class CiscoWlcSSH(BaseSSHConnection):
 
         Password:****
         '''
+        delay_factor = self.select_delay_factor(delay_factor)
         i = 0
         while i <= 12:
             if self.remote_conn.recv_ready():
@@ -45,24 +46,27 @@ class CiscoWlcSSH(BaseSSHConnection):
         '''
         For 'show run-config' Cisco WLC adds a 'Press Enter to continue...' message
         Even though pagination is disabled
-
         show run-config also has excessive delays in the output which requires special
         handling.
-
         Arguments are the same as send_command() method
         '''
+        if len(args) > 1:
+            raise ValueError("Must pass in delay_factor as keyword argument")
 
+        # If no delay_factor use 3 for default value (unless global_delay_factor is greater)
+        if kwargs.get('delay_factor'):
+            kwargs['delay_factor'] = self.select_delay_factor(kwargs['delay_factor'])
+        else:
+            kwargs['delay_factor'] = self.select_delay_factor(3)
         output = self.send_command(*args, **kwargs)
+
         if 'Press Enter to' in output:
             new_args = list(args)
-            if len(args) >= 1:
+            if len(args) == 1:
                 new_args[0] = '\n'
             else:
                 kwargs['command_string'] = '\n'
-
-            if not kwargs.get('delay_factor') and not len(args) >= 2:
-                kwargs['delay_factor'] = 3
-            if not kwargs.get('max_loops') and not len(args) >= 3:
+            if not kwargs.get('max_loops'):
                 kwargs['max_loops'] = 150
 
             # Send an 'enter'

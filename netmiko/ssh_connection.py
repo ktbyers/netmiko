@@ -11,16 +11,13 @@ class SSHConnection(BaseSSHConnection):
     '''
     Based upon Cisco CLI behavior.
     '''
-
     def enable(self):
         '''
         Enter enable mode
         '''
-
         output = self.send_command('enable')
         if 'password' in output.lower():
             output += self.send_command(self.secret)
-
         self.set_base_prompt()
         self.clear_buffer()
 
