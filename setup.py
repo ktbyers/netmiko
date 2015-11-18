@@ -2,6 +2,7 @@ from setuptools import setup
 import os
 import re
 
+
 def find_version(*file_paths):
     """
     This pattern was modeled on a method from the Python Packaging User Guide:
@@ -51,5 +52,4 @@ setup(
     extras_require={
         'test': ['pytest>=2.6.0', 'pyyaml']
     },
-    #download_url='https://github.com/ktbyers/netmiko/archive/v' + find_version('netmiko', '__init__.py') + '.tar.gz',
-    )
+)
