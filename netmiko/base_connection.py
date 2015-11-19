@@ -120,7 +120,6 @@ class BaseSSHConnection(object):
             key_file=key_file,
             timeout=timeout,
         )
-        print(ssh_config['sock'])
         # Create instance of SSHClient object
         self.remote_conn_pre = paramiko.SSHClient()
 
