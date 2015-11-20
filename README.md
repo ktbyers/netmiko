@@ -3,7 +3,7 @@ netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-Python 2.6, 2.7, 3.3, 3.4  
+Python 2.6, 2.7, 3.3, 3.4, 3.5  
   
   
 <br>
@@ -32,6 +32,7 @@ Huawei (limited testing)
 A10 (limited testing)  
 Avaya ERS (limited testing)  
 Avaya VSP (limited testing)  
+OVS (experimental)  
 
    
 <br>      
