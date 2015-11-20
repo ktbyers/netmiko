@@ -16,11 +16,15 @@ def main():
     '''
     Delay the Travis CI testing for Python versions so that they don't interfere with each other
     '''
-
     python_version = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
 
-    if re.search(r"^3.4", python_version):
-        total_delay = 3 * TRAVIS_DELAY
+    if re.search(r"^3.5", python_version):
+        total_delay = 0 * TRAVIS_DELAY
+        print("Python 3.5 found")
+        print("Sleeping for {0} seconds".format(total_delay))
+        time.sleep(total_delay)
+    elif re.search(r"^3.4", python_version):
+        total_delay = 1 * TRAVIS_DELAY
         print("Python 3.4 found")
         print("Sleeping for {0} seconds".format(total_delay))
         time.sleep(total_delay)
@@ -30,12 +34,12 @@ def main():
         print("Sleeping for {0} seconds".format(total_delay))
         time.sleep(total_delay)
     elif re.search(r"^2.7", python_version):
-        total_delay = 1 * TRAVIS_DELAY
+        total_delay = 3 * TRAVIS_DELAY
         print("Python 2.7 found")
         print("Sleeping for {0} seconds".format(total_delay))
         time.sleep(total_delay)
     elif re.search(r"^2.6", python_version):
-        total_delay = 0 * TRAVIS_DELAY
+        total_delay = 4 * TRAVIS_DELAY
         print("Python 2.6 found")
         print("Sleeping for {0} seconds".format(total_delay))
 
