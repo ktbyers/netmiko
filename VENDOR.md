@@ -55,7 +55,7 @@ CLASS_MAPPER = {
 Your class will need to support the following methods:
 
 ```
-def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True):
+def __init__(self, ip, username, password='', secret='', port=22, device_type='', verbose=True):
 def establish_connection(self, sleep_time=3, verbose=True):
 def disable_paging(self):
 def find_prompt(self):
