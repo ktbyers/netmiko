@@ -1,1 +1,1 @@
-from netmiko.extreme.ext_ssh import EXTSSH
+from netmiko.extreme.extreme_ssh import ExtremeSSH

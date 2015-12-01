@@ -1,17 +1,17 @@
 '''
-EXT support
+Enterasys support
 '''
 from netmiko.ssh_connection import SSHConnection
 
 
-class EXTSSH(SSHConnection):
+class EnterasysSSH(SSHConnection):
     '''
-    EXT support
+    Enterasys support
     '''
     def session_preparation(self):
         '''
-        EXT requires to be enable mode to disable paging
+        Enterasys requires enable mode to disable paging
         '''
         self.enable()
-        self.disable_paging(command="disable clipaging\n")
+        self.disable_paging(command="set length 0\n")
         self.set_base_prompt()

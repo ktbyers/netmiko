@@ -18,8 +18,8 @@ from netmiko.a10 import A10SSH
 from netmiko.avaya import AvayaVspSSH
 from netmiko.avaya import AvayaErsSSH
 from netmiko.ovs import OvsLinuxSSH
-from netmiko.enterasys import ENTSSH
-from netmiko.extreme import EXTSSH
+from netmiko.enterasys import EnterasysSSH
+from netmiko.extreme import ExtremeSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
@@ -41,8 +41,8 @@ CLASS_MAPPER = {
     'avaya_vsp': AvayaVspSSH,
     'avaya_ers': AvayaErsSSH,
     'ovs_linux': OvsLinuxSSH,
-    'enterasys': ENTSSH,
-    'extreme': EXTSSH,
+    'enterasys': EnterasysSSH,
+    'extreme': ExtremeSSH,
 }
 
 platforms = list(CLASS_MAPPER.keys())

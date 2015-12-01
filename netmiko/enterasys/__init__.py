@@ -1,1 +1,1 @@
-from netmiko.enterasys.ent_ssh import ENTSSH
+from netmiko.enterasys.enterasys_ssh import EnterasysSSH

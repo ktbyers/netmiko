@@ -1,17 +1,17 @@
 '''
-ENT support
+Extreme support
 '''
 from netmiko.ssh_connection import SSHConnection
 
 
-class ENTSSH(SSHConnection):
+class EXTSSH(SSHConnection):
     '''
-    ENT support
+    Extreme support
     '''
     def session_preparation(self):
         '''
-        ENT requires to be enable mode to disable paging
+        Extreme requires enable mode to disable paging
         '''
         self.enable()
-        self.disable_paging(command="set length 0\n")
+        self.disable_paging(command="disable clipaging\n")
         self.set_base_prompt()
