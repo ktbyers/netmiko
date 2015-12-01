@@ -47,6 +47,7 @@ setup(
               'netmiko/juniper',
               'netmiko/brocade',
               'netmiko/huawei',
+              'netmiko/fortinet',
               'netmiko/a10',
               'netmiko/ovs',
               'netmiko/linux',

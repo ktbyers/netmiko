@@ -54,3 +54,14 @@ juniper:
   support_commit: True
   rollback: 'rollback 0'
   commit_verification: "run show system commit"
+
+fortinet:
+  basic: "get system interface physical"
+  version: "get system status"
+  extended_output: "get system status" 
+  config:
+    - 'config firewall service category'
+    - 'edit Database'
+    - 'set comment "Generated comment"'
+    - 'end'
+  config_verification: "show firewall service category Database | grep comment"

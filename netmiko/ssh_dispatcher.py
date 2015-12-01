@@ -14,6 +14,7 @@ from netmiko.huawei import HuaweiSSH
 from netmiko.f5 import F5LtmSSH
 from netmiko.juniper import JuniperSSH
 from netmiko.brocade import BrocadeVdxSSH
+from netmiko.fortinet import FortinetSSH
 from netmiko.a10 import A10SSH
 from netmiko.avaya import AvayaVspSSH
 from netmiko.avaya import AvayaErsSSH
@@ -24,6 +25,7 @@ from netmiko.alcatel import AlcatelSrosSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
+<<<<<<< HEAD
     'cisco_ios': CiscoIosSSH,
     'cisco_xe': CiscoIosSSH,
     'cisco_asa': CiscoAsaSSH,
@@ -45,6 +47,7 @@ CLASS_MAPPER = {
     'enterasys': EnterasysSSH,
     'extreme': ExtremeSSH,
     'alcatel_sros': AlcatelSrosSSH,
+    'fortinet' : FortinetSSH,
 }
 
 platforms = list(CLASS_MAPPER.keys())
