@@ -49,6 +49,7 @@ setup(
               'netmiko/huawei',
               'netmiko/a10',
               'netmiko/ovs',
+              'netmiko/linux',
               'netmiko/avaya'],
     install_requires=['paramiko>=1.13.0', 'scp>=0.10.0'],
     extras_require={
