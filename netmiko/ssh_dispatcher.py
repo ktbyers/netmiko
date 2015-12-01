@@ -20,6 +20,7 @@ from netmiko.avaya import AvayaErsSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
+from netmiko.alcatel import AlcatelSrosSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
@@ -43,6 +44,7 @@ CLASS_MAPPER = {
     'ovs_linux': OvsLinuxSSH,
     'enterasys': EnterasysSSH,
     'extreme': ExtremeSSH,
+    'alcatel_sros': AlcatelSrosSSH,
 }
 
 platforms = list(CLASS_MAPPER.keys())
@@ -55,7 +57,6 @@ def ConnectHandler(*args, **kwargs):
 
     Returns the object
     '''
-
     ConnectionClass = ssh_dispatcher(kwargs['device_type'])
     return ConnectionClass(*args, **kwargs)
 
@@ -64,5 +65,4 @@ def ssh_dispatcher(device_type):
     '''
     Select the class to be instantiated based on vendor/platform
     '''
-
     return CLASS_MAPPER[device_type]
