@@ -4,7 +4,7 @@ Extreme support
 from netmiko.ssh_connection import SSHConnection
 
 
-class EXTSSH(SSHConnection):
+class ExtremeSSH(SSHConnection):
     '''
     Extreme support
     '''
