@@ -56,8 +56,8 @@ juniper:
   commit_verification: "run show system commit"
 
 fortinet:
-  basic: "get system interface physical"
   version: "get system status"
+  basic: "get system interface physical"
   extended_output: "get system status" 
   config:
     - 'config firewall service category'
