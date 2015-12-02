@@ -33,11 +33,10 @@ class LinuxSSH(SSHConnection):
         return super(SSHConnection, self).exit_config_mode(exit_config=exit_config)
 
     def exit_enable_mode(self, exit_command='exit'):
-        return self.exit_config_mode()
+        pass
 
     def check_enable_mode(self, check_string='#'):
-        return self.check_config_mode()
+        pass
 
     def enable(self):
-        '''Attempt to become root'''
-        return self.config_mode()
+        pass
