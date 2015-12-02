@@ -46,7 +46,7 @@ CLASS_MAPPER = {
     'enterasys': EnterasysSSH,
     'extreme': ExtremeSSH,
     'alcatel_sros': AlcatelSrosSSH,
-    'fortinet' : FortinetSSH,
+    'fortinet': FortinetSSH,
 }
 
 platforms = list(CLASS_MAPPER.keys())

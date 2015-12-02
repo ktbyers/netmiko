@@ -24,19 +24,23 @@ class LinuxSSH(SSHConnection):
 
     def config_mode(self, config_command='sudo su'):
         '''Attempt to become root'''
-        output = self.send_command(config_command)
-        if 'ssword' in output:
-            self.send_command(self.secret)
-        return super(SSHConnection, self).config_mode(config_command='')
+        output = ''
+        if not self.check_config_mode():
+            output += self.send_command(config_command)
+            if 'ssword' in output:
+                output += self.send_command(self.secret)
+        if not self.check_config_mode():
+            raise ValueError("Failed to enter configuration mode")
+        return output
 
     def exit_config_mode(self, exit_config='exit'):
         return super(SSHConnection, self).exit_config_mode(exit_config=exit_config)
 
     def exit_enable_mode(self, exit_command='exit'):
-        return self.exit_config_mode()
+        return self.exit_config_mode(exit_config=exit_command)
 
     def check_enable_mode(self, check_string='#'):
-        return self.check_config_mode()
+        return self.check_config_mode(check_string=check_string)
 
     def enable(self):
         '''Attempt to become root'''
