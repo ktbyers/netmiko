@@ -19,3 +19,13 @@ juniper:
   cmd_response_init: 'archive size 110k files 3'
   cmd_response_final: 'archive size 120k files 3'
   commit_comment: 'Unit test on commit with comment'
+
+fortinet:
+  base_prompt: 'pynet-40net '
+  router_prompt: 'pynet-40net $'
+  enable_prompt: 'pynet-40net $'
+  interface_ip: 10.220.88.28
+  cmd_response_init: 'config firewall service category'
+  cmd_response_final: 'end'
+  multiple_line_output: 'Hostname: pynet-40net'
+  version_banner: 'Version: FortiCarrier-3005B v5.3.1,build0541,150714 (GA)'
