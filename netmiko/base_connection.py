@@ -26,10 +26,8 @@ class BaseSSHConnection(object):
 
     Otherwise method left as a stub method.
     '''
-
-    def __init__(self, ip, username, password, secret='', port=22, device_type='', verbose=True,
+    def __init__(self, ip, username, password='', secret='', port=22, device_type='', verbose=True,
                  use_keys=False, key_file=None, global_delay_factor=.5):
-
         self.ip = ip
         self.port = port
         self.username = username
