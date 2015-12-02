@@ -25,7 +25,6 @@ from netmiko.alcatel import AlcatelSrosSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
-<<<<<<< HEAD
     'cisco_ios': CiscoIosSSH,
     'cisco_xe': CiscoIosSSH,
     'cisco_asa': CiscoAsaSSH,

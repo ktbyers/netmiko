@@ -10,7 +10,7 @@ cisco_ios:
   password: cisco123
   secret: cisco123
 
-cisco_asa_21:                  # the device_name does not necessarily have to match the device type
+cisco_asa_21:               # the device_name does not have to match the device type
   device_type: cisco_asa
   ip: 10.10.10.11
   username: admin
@@ -29,7 +29,7 @@ hp_procurve:
   device_type: hp_procurve
   ip: 10.10.10.13
   username: admin
-  password: '{more%comple9'     # for passwords with special chars use quotes
+  password: '{more%comple9' # for passwords with special chars use quotes
   secret: ''
 
 juniper:
