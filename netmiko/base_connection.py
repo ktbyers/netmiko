@@ -15,6 +15,7 @@ import time
 import socket
 import re
 import io
+from os import path
 
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -27,7 +28,8 @@ class BaseSSHConnection(object):
     Otherwise method left as a stub method.
     '''
     def __init__(self, ip, username, password='', secret='', port=22, device_type='', verbose=True,
-                 use_keys=False, key_file=None, global_delay_factor=.5):
+                 global_delay_factor=.5, use_keys=False, key_file=None, ssh_strict=False,
+                 system_host_keys=False, alt_host_keys=False, alt_key_file=''):
         self.ip = ip
         self.port = port
         self.username = username
@@ -41,9 +43,18 @@ class BaseSSHConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
 
+        if not ssh_strict:
+            self.key_policy = paramiko.AutoAddPolicy()
+        else:
+            self.key_policy = paramiko.RejectPolicy()
+
+        # Options for SSH host_keys
+        self.system_host_keys = system_host_keys
+        self.alt_host_keys = alt_host_keys
+        self.alt_key_file = alt_key_file
+
         self.establish_connection(verbose=verbose, use_keys=use_keys, key_file=key_file)
         self.session_preparation()
-
 
     def session_preparation(self):
         '''
@@ -60,7 +71,6 @@ class BaseSSHConnection(object):
         self.disable_paging()
         self.set_base_prompt()
 
-
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8,
                              use_keys=False, key_file=None):
         '''
@@ -75,8 +85,14 @@ class BaseSSHConnection(object):
         # Create instance of SSHClient object
         self.remote_conn_pre = paramiko.SSHClient()
 
-        # Automatically add untrusted hosts (make sure appropriate for your environment)
-        self.remote_conn_pre.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # Load host_keys for better SSH security
+        if self.system_host_keys:
+            self.remote_conn_pre.load_system_host_keys()
+        if self.alt_host_keys and path.isfile(self.alt_key_file):
+            self.remote_conn_pre.load_host_keys(self.alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        self.remote_conn_pre.set_missing_host_key_policy(self.key_policy)
 
         # initiate SSH connection
         try:
