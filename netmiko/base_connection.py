@@ -30,7 +30,7 @@ class BaseSSHConnection(object):
     def __init__(self, ip, username, password='', secret='', port=22, device_type='', verbose=True,
                  global_delay_factor=.5, use_keys=False, key_file=None, ssh_strict=False,
                  system_host_keys=False, alt_host_keys=False, alt_key_file='',
-                 ssh_config_path=None):
+                 ssh_config_file=None):
 
         self.ip = ip
         self.port = port
@@ -57,7 +57,7 @@ class BaseSSHConnection(object):
         self.alt_key_file = alt_key_file
 
         # For SSH proxy support
-        self.ssh_config_path = ssh_config_path
+        self.ssh_config_file = ssh_config_file
 
         self.establish_connection(verbose=verbose, use_keys=use_keys, key_file=key_file)
         self.session_preparation()
@@ -76,44 +76,44 @@ class BaseSSHConnection(object):
         self.disable_paging()
         self.set_base_prompt()
 
-    def _return_config(self, use_keys=False, key_file=None, timeout=8):
-        '''Return dict of kwargs that Paramiko will accept for connect'''
+    def _use_ssh_config(self, connect_dict):
+        '''
+        Update SSH connection parameters based on contents of SSH 'config' file
 
-        # If ssh_config_path is given, go through the following process to
-        # validate and pull selected values if they exist. Otherwise set source
-        # to empty dict
-        #
-        # This lets the return code be the same by utilizing source.get
-        if self.ssh_config_path:
-            # Fully expand ssh_config_path and test its existence
-            # If it exists, use Paramiko SSHConfig to generate source content.
-            # Otherwise use empty dict
-            full_path = path.abspath(path.expanduser(self.ssh_config_path))
-            if path.exists(full_path):
-                ssh_config_instance = paramiko.SSHConfig()
-                with open(full_path) as f:
-                    ssh_config_instance.parse(f)
-                    source = ssh_config_instance.lookup(self.ip)
-            else:
-                source = {}
-
-            if source.get('proxycommand'):
-                proxy = paramiko.ProxyCommand(source['proxycommand'])
-            else:
-                proxy = None
+        This method modifies the connect_dict dictionary, returns None
+        '''
+        # Use SSHConfig to generate source content.
+        full_path = path.abspath(path.expanduser(self.ssh_config_file))
+        if path.exists(full_path):
+            ssh_config_instance = paramiko.SSHConfig()
+            with open(full_path) as f:
+                ssh_config_instance.parse(f)
+                source = ssh_config_instance.lookup(self.ip)
         else:
             source = {}
 
-        # Contents of source aren't reliable, except for hostname and even
-        # then we're setting source to empty dict sometimes. When these fields
-        # are present though, favoring them should result in smoother user
-        # experience.
+        if source.get('proxycommand'):
+            proxy = paramiko.ProxyCommand(source['proxycommand'])
+        else:
+            proxy = None
+
+        # Only update 'hostname', 'sock', 'port', and 'username'
+        # For 'port' and 'username' only update if using object defaults
+        if connect_dict['port'] == 22:
+            connect_dict['port'] = source.get('port', self.port)
+        if connect_dict['username'] == '':
+            connect_dict['username'] = source.get('username', self.username)
+        if proxy:
+            connect_dict['sock'] = proxy
+        connect_dict['hostname'] = source.get('hostname', self.ip)
+
+    def _connect_params_dict(self, use_keys=False, key_file=None, timeout=8):
+        '''Convert Paramiko connect params to a dictionary'''
         return {
-            'hostname': source.get('hostname', self.ip),
-            'port': source.get('port', self.port),
-            'username': source.get('username', self.username),
+            'hostname': self.ip,
+            'port': self.port,
+            'username': self.username,
             'password': self.password,
-            'sock': proxy,
             'look_for_keys': use_keys,
             'allow_agent': False,
             'key_filename': key_file,
@@ -131,12 +131,14 @@ class BaseSSHConnection(object):
         use_keys is a boolean that allows ssh-keys to be used for authentication
         '''
 
-        # Fetch configuration for Paramiko client
-        ssh_config = self._return_config(
-            use_keys=use_keys,
-            key_file=key_file,
-            timeout=timeout,
-        )
+        # Convert Paramiko connection parameters to a dictionary
+        ssh_connect_params = self._connect_params_dict(use_keys=use_keys, key_file=key_file,
+                                                       timeout=timeout)
+
+        # Check if using SSH 'config' file mainly for SSH proxy support (updates ssh_connect_params)
+        if self.ssh_config_file:
+            self._use_ssh_config(ssh_connect_params)
+
         # Create instance of SSHClient object
         self.remote_conn_pre = paramiko.SSHClient()
 
@@ -151,18 +153,8 @@ class BaseSSHConnection(object):
 
         # initiate SSH connection
         try:
-            self.remote_conn_pre.connect(**ssh_config)
+            self.remote_conn_pre.connect(**ssh_connect_params)
 
-        # TODO: If the user provides 'my_router' or other custom SSH Host Alias
-        # that gets stuffed into self.ip, but properly converted via SSHConfig
-        # these logs and further documentation'd use of self.ip in subclasses
-        # might be unintuitive. Maybe not though considering it is what the
-        # user provides
-        #
-        # Guess this depends on whether we want to ignore from the user that
-        # they are using a proxy or whether it should be shown to be more
-        # forward about technical details (eg, why isn't this working oh it's
-        # because my route to proxy server is gone!)
         except socket.error:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.ip, port=self.port)
@@ -197,7 +189,6 @@ class BaseSSHConnection(object):
                 else:
                     i += 1
             return ""
-
 
     def select_delay_factor(self, delay_factor):
         '''
