@@ -30,7 +30,7 @@ class BaseSSHConnection(object):
 
     def __init__(self, ip, username, password, secret='', port=22, device_type='',
                  verbose=True, use_keys=False, key_file=None, global_delay_factor=.5,
-                 ssh_config_path='~/.ssh/config'):
+                 ssh_config_path=None):
 
         self.ip = ip
         self.port = port
@@ -69,22 +69,30 @@ class BaseSSHConnection(object):
     def _return_config(self, use_keys=False, key_file=None, timeout=8):
         '''Return dict of kwargs that Paramiko will accept for connect'''
 
-        # Fully expand ssh_config_path and test its existence
-        # If it exists, use Paramiko SSHConfig to generate source content.
-        # Otherwise use empty dict
-        full_path = os.path.abspath(os.path.expanduser(self.ssh_config_path))
-        if os.path.exists(full_path):
-            ssh_config_instance = paramiko.SSHConfig()
-            with open(full_path) as f:
-                ssh_config_instance.parse(f)
-                source = ssh_config_instance.lookup(self.ip)
+        # If ssh_config_path is given, go through the following process to
+        # validate and pull selected values if they exist. Otherwise set source
+        # to empty dict
+        #
+        # This lets the return code be the same by utilizing source.get
+        if self.ssh_config_path:
+            # Fully expand ssh_config_path and test its existence
+            # If it exists, use Paramiko SSHConfig to generate source content.
+            # Otherwise use empty dict
+            full_path = os.path.abspath(os.path.expanduser(self.ssh_config_path))
+            if os.path.exists(full_path):
+                ssh_config_instance = paramiko.SSHConfig()
+                with open(full_path) as f:
+                    ssh_config_instance.parse(f)
+                    source = ssh_config_instance.lookup(self.ip)
+            else:
+                source = {}
+
+            if source.get('proxycommand'):
+                proxy = paramiko.ProxyCommand(source['proxycommand'])
+            else:
+                proxy = None
         else:
             source = {}
-
-        if source.get('proxycommand'):
-            proxy = paramiko.ProxyCommand(source['proxycommand'])
-        else:
-            None
 
         # Contents of source aren't reliable, except for hostname and even
         # then we're setting source to empty dict sometimes. When these fields
