@@ -109,13 +109,13 @@ class FileTransfer(object):
         self.scp_conn = None
 
 
-    def verify_space_available(self, search_pattern=r"(.*) bytes available "):
+    def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
         '''
         Verify sufficient space is available on remote network device
 
         Return a boolean
         '''
-        remote_cmd = "show {0}".format(self.file_system)
+        remote_cmd = "dir {0}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
         match = re.search(search_pattern, remote_output)
         space_avail = int(match.group(1))
@@ -192,18 +192,18 @@ class FileTransfer(object):
         else:
             return True
 
-
     def transfer_file(self):
         '''
         SCP transfer source_file to Cisco IOS device
 
         Verifies MD5 of file on remote device or generates an exception
         '''
-
-        self.scp_conn.scp_transfer_file(self.source_file, self.dest_file)
-        # Must close the SCP connection to get the file written to the remote filesystem (flush)
+        destination = "{}{}".format(self.file_system, self.dest_file)
+        if not ':' in destination:
+            raise ValueError("Invalid destination file system specified")
+        self.scp_conn.scp_transfer_file(self.source_file, destination)
+        # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()
-
 
     def verify_file(self):
         '''
