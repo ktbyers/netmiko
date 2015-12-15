@@ -63,11 +63,10 @@ class FortinetSSH(SSHConnection):
                 self.send_command(command)
 
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False,
-                             width=None, height=None):
+                             key_file=None, width=None, height=None):
         '''
         Special Fortinet handler for SSH connection
         '''
-
         # Create instance of SSHClient object
         self.remote_conn_pre = paramiko.SSHClient()
 
