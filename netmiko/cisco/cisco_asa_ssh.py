@@ -74,5 +74,11 @@ class CiscoAsaSSH(SSHConnection):
             time.sleep(1 * delay_factor)
             output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
 
+        if not self.check_enable_mode() and self.secret == '':
+            raise ValueError("Failed to enter enable mode - Warning: secret is not set")
+        elif not self.check_enable_mode():
+            raise ValueError("Failed to enter enable mode")
+
+
         self.set_base_prompt()
         self.clear_buffer()
