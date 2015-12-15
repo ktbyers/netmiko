@@ -199,7 +199,7 @@ class FileTransfer(object):
         Verifies MD5 of file on remote device or generates an exception
         '''
         destination = "{}{}".format(self.file_system, self.dest_file)
-        if not ':' in destination:
+        if ':' not in destination:
             raise ValueError("Invalid destination file system specified")
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
