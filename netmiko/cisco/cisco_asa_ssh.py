@@ -13,7 +13,6 @@ class CiscoAsaSSH(SSHConnection):
     '''
     Subclass specific to Cisco ASA
     '''
-
     def session_preparation(self):
         '''
         Prepare the session after the connection has been established
@@ -24,7 +23,6 @@ class CiscoAsaSSH(SSHConnection):
         self.enable()
         self.disable_paging(command="terminal pager 0\n")
         self.set_base_prompt()
-
 
     def send_command(self, command_string, delay_factor=.5, max_loops=30,
                      strip_prompt=True, strip_command=True):
@@ -38,7 +36,6 @@ class CiscoAsaSSH(SSHConnection):
         if "changeto" in command_string:
             self.set_base_prompt()
         return output
-
 
     def set_base_prompt(self, *args, **kwargs):
         '''
@@ -54,7 +51,6 @@ class CiscoAsaSSH(SSHConnection):
             # strip off (conf.* from base_prompt
             self.base_prompt = match.group(1)
             return self.base_prompt
-
 
     def enable(self, delay_factor=.5):
         '''
@@ -74,11 +70,8 @@ class CiscoAsaSSH(SSHConnection):
             time.sleep(1 * delay_factor)
             output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
 
-        if not self.check_enable_mode() and self.secret == '':
-            raise ValueError("Failed to enter enable mode - Warning: secret is not set")
-        elif not self.check_enable_mode():
+        if not self.check_enable_mode():
             raise ValueError("Failed to enter enable mode")
-
 
         self.set_base_prompt()
         self.clear_buffer()
