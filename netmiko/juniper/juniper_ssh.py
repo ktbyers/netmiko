@@ -2,24 +2,42 @@ from __future__ import unicode_literals
 import re
 
 from netmiko.ssh_connection import BaseSSHConnection
+from netmiko.netmiko_globals import MAX_BUFFER
+import time
 
 
 class JuniperSSH(BaseSSHConnection):
-    """Implement methods for interacting with Juniper Networks devices.
+    '''
+    Implement methods for interacting with Juniper Networks devices.
 
     Subclass of SSHConnection.  Disables `enable()` and `check_enable_mode()`
     methods.  Overrides several methods for Juniper-specific compatibility.
-    """
-
+    '''
     def session_preparation(self):
-        """Prepare the session after the connection has been established.
+        """
+        Prepare the session after the connection has been established.
 
         Disable paging (the '--more--' prompts).
         Set the base prompt for interaction ('>').
         """
+        self.enter_cli_mode()
         self.disable_paging(command="set cli screen-length 0\n")
         self.set_base_prompt()
 
+    def enter_cli_mode(self):
+        '''
+        Check if at shell prompt root@.*% shell prompt and go into CLI
+        '''
+        while True:
+            self.remote_conn.sendall("\n")
+            time.sleep(1)
+            cur_prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+            if re.search(r'root@.*%', cur_prompt):
+                self.remote_conn.sendall("cli\n")
+                time.sleep(1)
+                self.clear_buffer()
+            else:
+                break
 
     def config_mode(self, config_command='configure'):
         '''
@@ -29,7 +47,6 @@ class JuniperSSH(BaseSSHConnection):
         Raises `ValueError` if the session was unable to enter configuration
         mode.
         '''
-
         # Call parent class with specific command for entering config mode
         return super(JuniperSSH, self).config_mode(config_command=config_command)
 
