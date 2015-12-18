@@ -21,11 +21,9 @@ class SCPConn(object):
     '''
     Establish an SCP channel to the remote network
     '''
-
     def __init__(self, ssh_conn):
         self.ssh_ctl_chan = ssh_conn
         self.establish_scp_conn()
-
 
     def establish_scp_conn(self):
         '''
@@ -44,7 +42,6 @@ class SCPConn(object):
 
         self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
 
-
     def scp_transfer_file(self, source_file, dest_file):
         '''
         Transfer file using SCP
@@ -52,7 +49,6 @@ class SCPConn(object):
         Must close the SCP connection to get the file to write to the remote filesystem
         '''
         self.scp_client.put(source_file, dest_file)
-
 
     def close(self):
         '''
@@ -62,52 +58,41 @@ class SCPConn(object):
         self.scp_conn.close()
 
 
-
 class FileTransfer(object):
     '''
     Class to manage SCP file transfer and associated SSH control channel
     '''
-
     def __init__(self, ssh_conn, source_file, dest_file, file_system="flash:"):
         '''
         Establish a SCP connection to the remote network device
         '''
         self.ssh_ctl_chan = ssh_conn
-
         self.source_file = source_file
-
         self.source_md5 = self.file_md5(source_file)
         self.dest_file = dest_file
         self.file_system = file_system
-
         src_file_stats = os.stat(source_file)
         self.file_size = src_file_stats.st_size
-
 
     def __enter__(self):
         '''Context manager setup'''
         self.establish_scp_conn()
         return self
 
-
     def __exit__(self, exc_type, exc_value, traceback):
         '''Context manager cleanup'''
         self.close_scp_chan()
-
         if exc_type is not None:
             raise exc_type(exc_value)
-
 
     def establish_scp_conn(self):
         '''Establish SCP connection'''
         self.scp_conn = SCPConn(self.ssh_ctl_chan)
 
-
     def close_scp_chan(self):
         '''Close the SCP connection to the remote network device'''
         self.scp_conn.close()
         self.scp_conn = None
-
 
     def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
         '''
@@ -122,9 +107,7 @@ class FileTransfer(object):
 
         if space_avail > self.file_size:
             return True
-
         return False
-
 
     def check_file_exists(self, remote_cmd=""):
         '''
@@ -132,7 +115,6 @@ class FileTransfer(object):
 
         Return a boolean
         '''
-
         if not remote_cmd:
             remote_cmd = "dir {0}/{1}".format(self.file_system, self.dest_file)
 
@@ -146,7 +128,6 @@ class FileTransfer(object):
         else:
             raise ValueError("Unexpected output from check_file_exists")
 
-
     @staticmethod
     def file_md5(file_name):
         '''
@@ -156,7 +137,6 @@ class FileTransfer(object):
             file_contents = f.read()
             file_hash = hashlib.md5(file_contents).hexdigest()
         return file_hash
-
 
     @staticmethod
     def process_md5(md5_output, pattern=r"= (.*)"):
@@ -172,7 +152,6 @@ class FileTransfer(object):
             return match.group(1)
         else:
             raise ValueError("Invalid output from MD5 command: {0}".format(md5_output))
-
 
     def compare_md5(self, base_cmd='verify /md5', delay_factor=8):
         '''
@@ -211,7 +190,6 @@ class FileTransfer(object):
         '''
         return self.compare_md5()
 
-
     def enable_scp(self, cmd=None):
         '''
         Enable SCP on remote device.
@@ -224,7 +202,6 @@ class FileTransfer(object):
             cmd = [cmd]
 
         self.ssh_ctl_chan.send_config_set(cmd)
-
 
     def disable_scp(self, cmd=None):
         '''
