@@ -31,7 +31,7 @@ class JuniperSSH(BaseSSHConnection):
         while True:
             self.remote_conn.sendall("\n")
             time.sleep(1)
-            cur_prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+            cur_prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             if re.search(r'root@.*%', cur_prompt):
                 self.remote_conn.sendall("cli\n")
                 time.sleep(1)
