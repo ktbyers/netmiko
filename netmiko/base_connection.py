@@ -343,7 +343,6 @@ class BaseSSHConnection(object):
 
         Returns the output of the command.
         '''
-
         debug = False
         if debug:
             print('In send_command')
@@ -378,6 +377,7 @@ class BaseSSHConnection(object):
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
+        output = self.remove_backspaces(output)
         if strip_command:
             output = self.strip_command(command_string, output)
         if strip_prompt:
@@ -387,20 +387,16 @@ class BaseSSHConnection(object):
             print(output)
         return output
 
-
     def strip_prompt(self, a_string):
         '''
         Strip the trailing router prompt from the output
         '''
-
         response_list = a_string.split('\n')
         last_line = response_list[-1]
-
         if self.base_prompt in last_line:
             return '\n'.join(response_list[:-1])
         else:
             return a_string
-
 
     def send_command_expect(self, command_string, expect_string=None,
                             delay_factor=.5, max_loops=240,
@@ -447,10 +443,8 @@ class BaseSSHConnection(object):
         i = 1
         # Keep reading data until search_pattern is found (or max_loops)
         while i <= max_loops:
-
             if debug:
                 print("In while loop")
-
             if self.remote_conn.recv_ready():
                 if debug:
                     print("recv_ready = True")
@@ -462,19 +456,16 @@ class BaseSSHConnection(object):
                     print("recv_ready = False")
                 # No data, wait a little bit
                 time.sleep(delay_factor * 1)
-
             i += 1
-
         else:   # nobreak
-            # search_pattern never found
             raise IOError("Search pattern never detected in send_command_expect: {0}".format(
                 search_pattern))
-
 
         # Some platforms have ansi_escape codes
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
+        output = self.remove_backspaces(output)
         if strip_command:
             output = self.strip_command(command_string, output)
         if strip_prompt:
@@ -616,7 +607,6 @@ class BaseSSHConnection(object):
 
         return output
 
-
     @staticmethod
     def strip_ansi_escape_codes(string_buffer):
         '''
@@ -665,13 +655,19 @@ class BaseSSHConnection(object):
 
         return output
 
+    @staticmethod
+    def remove_backspaces(src_str=''):
+        '''
+        Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
+        '''
+        backspace_char = '\x08'
+        return src_str.replace(backspace_char, '')
 
     def cleanup(self):
         '''
         Any needed cleanup before closing connection
         '''
         pass
-
 
     def disconnect(self):
         '''

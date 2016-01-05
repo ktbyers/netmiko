@@ -31,7 +31,6 @@ class SCPConn(object):
         '''
         self.scp_conn = paramiko.SSHClient()
         self.scp_conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
         self.scp_conn.connect(hostname=self.ssh_ctl_chan.ip,
                               port=self.ssh_ctl_chan.port,
                               username=self.ssh_ctl_chan.username,
@@ -39,7 +38,6 @@ class SCPConn(object):
                               look_for_keys=False,
                               allow_agent=False,
                               timeout=8)
-
         self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
 
     def scp_transfer_file(self, source_file, dest_file):
