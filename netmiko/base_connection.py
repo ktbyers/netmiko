@@ -377,7 +377,6 @@ class BaseSSHConnection(object):
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
-        output = self.remove_backspaces(output)
         if strip_command:
             output = self.strip_command(command_string, output)
         if strip_prompt:
@@ -465,26 +464,32 @@ class BaseSSHConnection(object):
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
-        output = self.remove_backspaces(output)
         if strip_command:
             output = self.strip_command(command_string, output)
         if strip_prompt:
             output = self.strip_prompt(output)
-
         if debug:
             print(output)
-
         return output
-
 
     @staticmethod
     def strip_command(command_string, output):
         '''
         Strip command_string from output string
-        '''
-        command_length = len(command_string)
-        return output[command_length:]
 
+        Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
+        '''
+        backspace_char = '\x08'
+
+        # Check for line wrap (remove backspaces)
+        if backspace_char in output:
+            output = output.replace(backspace_char, '')
+            output_lines = output.split("\n")
+            new_output = output_lines[1:]
+            return "\n".join(new_output)
+        else:
+            command_length = len(command_string)
+            return output[command_length:]
 
     @staticmethod
     def normalize_linefeeds(a_string):
@@ -654,14 +659,6 @@ class BaseSSHConnection(object):
             print("repr = %s" % repr(output))
 
         return output
-
-    @staticmethod
-    def remove_backspaces(src_str=''):
-        '''
-        Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
-        '''
-        backspace_char = '\x08'
-        return src_str.replace(backspace_char, '')
 
     def cleanup(self):
         '''
