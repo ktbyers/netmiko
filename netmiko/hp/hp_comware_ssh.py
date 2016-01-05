@@ -11,10 +11,8 @@ class HPComwareSSH(SSHConnection):
         '''
         Prepare the session after the connection has been established
         '''
-
         self.disable_paging(command="\nscreen-length disable\n")
         self.set_base_prompt()
-
 
     def config_mode(self, config_command='system-view'):
         '''
@@ -22,10 +20,8 @@ class HPComwareSSH(SSHConnection):
 
         Enter config mode (if necessary)
         '''
-
         # Call parent class with different command for entering config mode
         return super(HPComwareSSH, self).config_mode(config_command=config_command)
-
 
     def exit_config_mode(self, exit_config='return'):
         '''
@@ -33,10 +29,8 @@ class HPComwareSSH(SSHConnection):
 
         If so, exit config mode
         '''
-
         # Call parent class with different command for exiting config mode
         return super(HPComwareSSH, self).exit_config_mode(exit_config=exit_config)
-
 
     def check_config_mode(self, check_string=']'):
         '''
@@ -44,10 +38,8 @@ class HPComwareSSH(SSHConnection):
 
         Returns a boolean
         '''
-
         # Call parent class with different command for exiting config mode
         return super(HPComwareSSH, self).check_config_mode(check_string=check_string)
-
 
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',
                         delay_factor=.5):

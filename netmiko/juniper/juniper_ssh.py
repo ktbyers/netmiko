@@ -50,14 +50,12 @@ class JuniperSSH(BaseSSHConnection):
         # Call parent class with specific command for entering config mode
         return super(JuniperSSH, self).config_mode(config_command=config_command)
 
-
     def exit_config_mode(self, exit_config='exit configuration-mode'):
         """Exit configuration mode.
 
         Check if we're in configuration mode.  If we are, exit configuration
         mode.  If we aren't, do nothing.
         """
-
         output = ""
         if self.check_config_mode():
             output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
@@ -68,17 +66,14 @@ class JuniperSSH(BaseSSHConnection):
 
         return output
 
-
     def check_config_mode(self, check_string=']'):
         '''
         Checks if the device is in configuration mode or not
 
         Returns a boolean
         '''
-
         # Call parent class with Juniper check_string
         return super(JuniperSSH, self).check_config_mode(check_string=check_string)
-
 
     def commit(self, confirm=False, confirm_delay=None, check=False, comment='',
                and_quit=False, delay_factor=10):
@@ -146,7 +141,6 @@ class JuniperSSH(BaseSSHConnection):
 
         return output
 
-
     def strip_prompt(self, *args, **kwargs):
         """Strip the trailing router prompt from the output."""
 
@@ -155,7 +149,6 @@ class JuniperSSH(BaseSSHConnection):
 
         # Call additional method to strip some context items
         return self.strip_context_items(a_string)
-
 
     @staticmethod
     def strip_context_items(a_string):
@@ -169,7 +162,6 @@ class JuniperSSH(BaseSSHConnection):
 
         This method removes those lines.
         """
-
         strings_to_strip = [
             r'\[edit.*\]',
             r'\{master:.*\}',

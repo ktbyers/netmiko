@@ -21,7 +21,6 @@ class SSHConnection(BaseSSHConnection):
         self.set_base_prompt()
         self.clear_buffer()
 
-
     def check_enable_mode(self, check_string='#'):
         '''
         Checks if the device is in enable mode or not
@@ -34,17 +33,14 @@ class SSHConnection(BaseSSHConnection):
         else:
             return False
 
-
     def config_mode(self, config_command='config term'):
         '''
         First check whether currently already in configuration mode.
 
         Enter config mode (if necessary)
         '''
-
         # Call parent class with specific command for entering config mode
         return super(SSHConnection, self).config_mode(config_command=config_command)
-
 
     def check_config_mode(self, check_string=')#'):
         '''
@@ -52,10 +48,8 @@ class SSHConnection(BaseSSHConnection):
 
         Returns a boolean
         '''
-
         # Call super class with Cisco check string
         return super(SSHConnection, self).check_config_mode(check_string=check_string)
-
 
     def exit_config_mode(self, exit_config='end'):
         '''
@@ -64,7 +58,6 @@ class SSHConnection(BaseSSHConnection):
 
         # Call super class with Cisco check string
         return super(SSHConnection, self).exit_config_mode(exit_config=exit_config)
-
 
     def exit_enable_mode(self, exit_command='disable'):
         '''

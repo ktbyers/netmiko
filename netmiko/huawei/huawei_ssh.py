@@ -11,10 +11,8 @@ class HuaweiSSH(SSHConnection):
         '''
         Prepare the session after the connection has been established
         '''
-
         self.disable_paging(command="screen-length 0 temporary\n")
         self.set_base_prompt()
-
 
     def config_mode(self, config_command='system-view'):
         '''
@@ -26,7 +24,6 @@ class HuaweiSSH(SSHConnection):
         # Call parent class with different command for entering config mode
         return super(HuaweiSSH, self).config_mode(config_command=config_command)
 
-
     def exit_config_mode(self, exit_config='return'):
         '''
         First check whether in configuration mode.
@@ -37,17 +34,14 @@ class HuaweiSSH(SSHConnection):
         # Call parent class with different command for exiting config mode
         return super(HuaweiSSH, self).exit_config_mode(exit_config=exit_config)
 
-
     def check_config_mode(self, check_string=']'):
         '''
         Checks if the device is in configuration mode or not
 
         Returns a boolean
         '''
-
         # Call parent class with different command for exiting config mode
         return super(HuaweiSSH, self).check_config_mode(check_string=check_string)
-
 
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',
                         delay_factor=.5):

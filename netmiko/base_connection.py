@@ -504,11 +504,9 @@ class BaseSSHConnection(object):
         """Disable 'enable()' method."""
         raise AttributeError("Network device does not support 'enable()' method")
 
-
     def exit_enable_mode(self, exit_command=''):
         """Disable 'exit_enable_mode()' method."""
         raise AttributeError("Network device does not support 'exit_enable_mode()' method")
-
 
     def config_mode(self, config_command=''):
         '''
@@ -524,7 +522,6 @@ class BaseSSHConnection(object):
                 raise ValueError("Failed to enter configuration mode")
         return output
 
-
     def exit_config_mode(self, exit_config=''):
         '''
         Exit from configuration mode.
@@ -536,11 +533,9 @@ class BaseSSHConnection(object):
                 raise ValueError("Failed to exit configuration mode")
         return output
 
-
     def check_enable_mode(self, check_string=''):
         """Disable 'check_enable_mode()' method."""
         raise AttributeError("Network device does not support 'check_enable_mode()' method")
-
 
     def check_config_mode(self, check_string=''):
         '''
@@ -548,12 +543,15 @@ class BaseSSHConnection(object):
 
         Returns a boolean
         '''
+        count = 1
         output = self.send_command('\n', strip_prompt=False, strip_command=False)
-        if check_string in output:
-            return True
-        else:
-            return False
-
+        while count <= 3:
+            if check_string in output:
+                return True
+            else:
+                output = self.send_command('\n', strip_prompt=False, strip_command=False)
+                count += 1
+        return False
 
     def send_config_from_file(self, config_file=None, **kwargs):
         '''
@@ -570,7 +568,6 @@ class BaseSSHConnection(object):
         except IOError:
             print("I/O Error opening config file: {0}".format(config_file))
         return ''
-
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         '''
@@ -672,7 +669,6 @@ class BaseSSHConnection(object):
         '''
         self.cleanup()
         self.remote_conn_pre.close()
-
 
     def commit(self):
         '''
