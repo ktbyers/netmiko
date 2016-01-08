@@ -33,7 +33,7 @@ class BaseSSHConnection(object):
                  ssh_config_file=None):
 
         self.ip = ip
-        self.port = port
+        self.port = int(port)
         self.username = username
         self.password = password
         self.secret = secret
