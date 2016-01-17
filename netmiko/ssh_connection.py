@@ -69,3 +69,10 @@ class SSHConnection(BaseSSHConnection):
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
+
+    def cleanup(self):
+        '''
+        Gracefully exit the SSH session.
+        '''
+        self.exit_config_mode()
+        self.remote_conn.sendall("exit\n")
