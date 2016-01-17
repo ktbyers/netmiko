@@ -34,6 +34,8 @@ Update \_\_init__.py to export the new class:
 ```
 $ vi __init__.py
 from netmiko.arista.arista_ssh import AristaSSH
+
+__all__ = ['AristaSSH']
 ```
 
 Update the dispatcher adding the new class:  
