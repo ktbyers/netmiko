@@ -22,6 +22,7 @@ from netmiko.ovs import OvsLinuxSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
 from netmiko.alcatel import AlcatelSrosSSH
+from netmiko.dell import DellForce10SSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
@@ -47,6 +48,7 @@ CLASS_MAPPER = {
     'extreme': ExtremeSSH,
     'alcatel_sros': AlcatelSrosSSH,
     'fortinet': FortinetSSH,
+    'dell_force10': DellForce10SSH,
 }
 
 platforms = list(CLASS_MAPPER.keys())

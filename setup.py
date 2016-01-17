@@ -54,6 +54,7 @@ setup(
               'netmiko/enterasys',
               'netmiko/extreme',
               'netmiko/alcatel',
+              'netmiko/dell',
               'netmiko/avaya'],
     install_requires=['paramiko>=1.13.0', 'scp>=0.10.0'],
     extras_require={
