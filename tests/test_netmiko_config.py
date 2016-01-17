@@ -55,12 +55,10 @@ def test_exit_config_mode(net_connect, commands, expected_responses):
     net_connect.exit_config_mode()
     assert net_connect.check_config_mode() == False
 
-
 def test_command_set(net_connect, commands, expected_responses):
     '''
     Test sending configuration commands
     '''
-
     config_commands = commands['config']
     support_commit = commands.get('support_commit')
     config_verify = commands['config_verification']
