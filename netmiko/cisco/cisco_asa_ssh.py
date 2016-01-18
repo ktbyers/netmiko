@@ -63,12 +63,12 @@ class CiscoAsaSSH(SSHConnection):
         self.remote_conn.sendall("\nenable\n")
         time.sleep(1 * delay_factor)
 
-        output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         if 'password' in output.lower():
             self.remote_conn.sendall(self.secret + '\n')
             self.remote_conn.sendall('\n')
             time.sleep(1 * delay_factor)
-            output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+            output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
 
         if not self.check_enable_mode():
             raise ValueError("Failed to enter enable mode")

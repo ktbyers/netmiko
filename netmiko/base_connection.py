@@ -177,7 +177,7 @@ class BaseSSHConnection(object):
         time.sleep(sleep_time)
         # Strip any initial data
         if self.remote_conn.recv_ready():
-            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         else:
             i = 0
             while i <= 10:
@@ -185,7 +185,7 @@ class BaseSSHConnection(object):
                 self.remote_conn.sendall('\n')
                 time.sleep(.5)
                 if self.remote_conn.recv_ready():
-                    return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                    return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 else:
                     i += 1
             return ""
@@ -216,7 +216,7 @@ class BaseSSHConnection(object):
         time.sleep(1 * delay_factor)
 
         # Clear the buffer on the screen
-        output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
 
@@ -259,7 +259,7 @@ class BaseSSHConnection(object):
         self.clear_buffer()
         self.remote_conn.sendall("\n")
         self.wait_for_recv_ready(delay_factor)
-        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
 
         # Some platforms have ANSI escape codes
         if self.ansi_escape_codes:
@@ -302,7 +302,7 @@ class BaseSSHConnection(object):
         self.remote_conn.sendall("\n")
         time.sleep(1 * delay_factor)
 
-        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
 
         # Some platforms have ANSI escape codes
         if self.ansi_escape_codes:
@@ -326,7 +326,7 @@ class BaseSSHConnection(object):
         '''
 
         if self.remote_conn.recv_ready():
-            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         else:
             return None
 
@@ -369,7 +369,7 @@ class BaseSSHConnection(object):
             i += 1
             # Keep reading data as long as available (up to max_loops)
             if self.remote_conn.recv_ready():
-                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             else:
                 not_done = False
 
@@ -447,7 +447,7 @@ class BaseSSHConnection(object):
             if self.remote_conn.recv_ready():
                 if debug:
                     print("recv_ready = True")
-                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if search_pattern in output:
                     break
             else:

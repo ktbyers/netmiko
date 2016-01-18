@@ -27,7 +27,7 @@ class AvayaErsSSH(SSHConnection):
         i = 0
         while i <= 12:
             if self.remote_conn.recv_ready():
-                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if 'Ctrl-Y' in output:
                     self.remote_conn.sendall(CTRL_Y)
                 if 'sername' in output:

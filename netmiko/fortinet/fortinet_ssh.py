@@ -105,7 +105,7 @@ class FortinetSSH(SSHConnection):
 
         # Strip the initial router prompt
         time.sleep(sleep_time)
-        return self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+        return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
 
     def config_mode(self, config_command=''):
         '''

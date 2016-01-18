@@ -29,7 +29,7 @@ class CiscoWlcSSH(BaseSSHConnection):
         i = 0
         while i <= 12:
             if self.remote_conn.recv_ready():
-                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8')
+                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if 'login as' in output or 'User' in output:
                     self.remote_conn.sendall(self.username + '\n')
                 elif 'Password' in output:
@@ -84,8 +84,7 @@ class CiscoWlcSSH(BaseSSHConnection):
                     i += 1
                     if self.remote_conn.recv_ready():
                         # Unicode error occurred in output (errors=ignore strips this out).
-                        output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8',
-                                                                           errors='ignore')
+                        output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                     else:
                         not_done = False
 
