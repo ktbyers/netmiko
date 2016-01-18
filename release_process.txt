@@ -1,0 +1,40 @@
+# Use pynetcio machine
+
+# From base of project run
+python setup.py sdist
+
+# Now you should see the new .tar.gz file and .egg file in ./dist
+
+# Create a blank virtualenv to test
+cd ~/VENV
+virtualenv -p /usr/bin/python2.7 --no-site-packages netmiko_0_3_0_packaging
+source ~/VENV/netmiko_0_3_0_packaging/bin/activate
+
+# Test install
+cd ~/netmiko
+pip install dist/netmiko-0.3.0.tar.gz
+
+# Back to your normal virtualenv
+source ~/VENV/py27_netmiko/bin/activate
+
+# Register to pypitest
+python setup.py register -r pypitest
+
+# Use Twine to upload to pypittest
+twine upload -r pypitest dist/netmiko-0.3.0.tar.gz
+
+# Register to pypi
+python setup.py register
+
+# Use Twine to upload to pypi
+twine upload dist/netmiko-0.3.0.tar.gz
+
+# Test clean install from pypi
+cd ~/VENV
+rm -r netmiko_0_3_0_packaging
+virtualenv -p /usr/bin/python2.7 --no-site-packages netmiko_0_3_0_packaging
+deactivate
+source ~/VENV/netmiko_0_3_0_packaging/bin/activate
+
+pip install netmiko
+
