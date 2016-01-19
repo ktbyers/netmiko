@@ -30,7 +30,7 @@ class BaseSSHConnection(object):
     def __init__(self, ip, username, password='', secret='', port=22, device_type='', verbose=True,
                  global_delay_factor=.5, use_keys=False, key_file=None, ssh_strict=False,
                  system_host_keys=False, alt_host_keys=False, alt_key_file='',
-                 ssh_config_file=None):
+                 ssh_config_file=None, ansi_escape_codes=False):
 
         self.ip = ip
         self.port = int(port)
@@ -38,7 +38,7 @@ class BaseSSHConnection(object):
         self.password = password
         self.secret = secret
         self.device_type = device_type
-        self.ansi_escape_codes = False
+        self.ansi_escape_codes = ansi_escape_codes
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -267,7 +267,6 @@ class BaseSSHConnection(object):
         # Some platforms have ANSI escape codes
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
-
         prompt = self.normalize_linefeeds(prompt)
 
         try:
@@ -624,18 +623,15 @@ class BaseSSHConnection(object):
         http://en.wikipedia.org/wiki/ANSI_escape_code
 
         Note: this does not capture ALL possible ANSI Escape Codes only the ones
-        I have encountered
+        matched by the regular expression [ESC character]{1}[[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><] 
+        This matches probably the most of the possible escape codes.
 
         Current codes that are filtered:
         ESC = '\x1b' or chr(27)
         ESC = is the escape character [^ in hex ('\x1b')
-        ESC[24;27H   Position cursor
-        ESC[?25h     Show the cursor
         ESC[E        Next line (HP does ESC-E)
-        ESC[2K       Erase line
-        ESC[1;24r    Enable scrolling from start to row end
 
-        HP ProCurve's and F5 LTM's require this (possible others)
+        HP ProCurve's and F5 LTM's and Cisco Nexus require this (possible others)
         '''
         debug = False
         if debug:
@@ -643,20 +639,15 @@ class BaseSSHConnection(object):
         if debug:
             print("repr = %s" % repr(string_buffer))
 
-        code_position_cursor = chr(27) + r'\[\d+;\d+H'
-        code_show_cursor = chr(27) + r'\[\?25h'
+        ansi_code_regex =  chr(27) + r'[[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]'
         code_next_line = chr(27) + r'E'
-        code_erase_line = chr(27) + r'\[2K'
-        code_enable_scroll = chr(27) + r'\[\d+;\d+r'
-
-        code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll]
 
         output = string_buffer
-        for ansi_esc_code in code_set:
-            output = re.sub(ansi_esc_code, '', output)
 
         # CODE_NEXT_LINE must substitute with '\n'
         output = re.sub(code_next_line, '\n', output)
+
+        output = re.sub(ansi_code_regex, '', output)
 
         if debug:
             print("new_output = %s" % output)
