@@ -53,6 +53,8 @@ CLASS_MAPPER = {
 
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
+platforms_str = u"\n".join(platforms)
+platforms_str = u"\n" + platforms_str
 
 
 def ConnectHandler(*args, **kwargs):
@@ -63,7 +65,8 @@ def ConnectHandler(*args, **kwargs):
     '''
 
     if kwargs['device_type'] not in platforms:
-        raise ValueError('Invalid Device Type. Available options are:', platforms)
+        raise ValueError('Unsupported device_type: '
+                         'currently supported platforms are: {0}'.format(platforms_str))
     ConnectionClass = ssh_dispatcher(kwargs['device_type'])
     return ConnectionClass(*args, **kwargs)
 
