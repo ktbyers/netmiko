@@ -61,6 +61,9 @@ def ConnectHandler(*args, **kwargs):
 
     Returns the object
     '''
+
+    if kwargs['device_type'] not in platforms:
+        raise ValueError('Invalid Device Type. Available options are:', platforms)
     ConnectionClass = ssh_dispatcher(kwargs['device_type'])
     return ConnectionClass(*args, **kwargs)
 
