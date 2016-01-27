@@ -411,7 +411,7 @@ class BaseSSHConnection(object):
 
         self.global_delay_factor is not used (to make this method faster)
         '''
-        debug = True
+        debug = False
         output = ''
 
         # Ensure there is a newline at the end of the command
@@ -434,6 +434,7 @@ class BaseSSHConnection(object):
             prompt = self.normalize_linefeeds(prompt)
             # If multiple lines in the output take the last line
             search_pattern = prompt.split('\n')[-1].strip()
+            search_pattern = re.escape(search_pattern)
         else:
             search_pattern = expect_string
 
