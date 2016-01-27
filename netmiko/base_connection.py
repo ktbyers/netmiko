@@ -394,7 +394,7 @@ class BaseSSHConnection(object):
             return a_string
 
     def send_command_expect(self, command_string, expect_string=None,
-                            delay_factor=.1, max_loops=500,
+                            delay_factor=.2, max_loops=500,
                             strip_prompt=True, strip_command=True):
         '''
         Send command to network device retrieve output until router_prompt or expect_string
@@ -403,7 +403,7 @@ class BaseSSHConnection(object):
         detected. The current network device prompt will be determined automatically.
 
         command_string = command to execute
-        expect_string = pattern to search for in output
+        expect_string = pattern to search for uses re.search (use raw strings)
         delay_factor = decrease the initial delay before we start looking for data
         max_loops = number of iterations before we give up and raise an exception
         strip_prompt = strip the trailing prompt from the output
@@ -411,7 +411,7 @@ class BaseSSHConnection(object):
 
         self.global_delay_factor is not used (to make this method faster)
         '''
-        debug = False
+        debug = True
         output = ''
 
         # Ensure there is a newline at the end of the command
@@ -453,7 +453,7 @@ class BaseSSHConnection(object):
                 if debug:
                     print("recv_ready = True")
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                if search_pattern in output:
+                if re.search(search_pattern, output):
                     break
             else:
                 if debug:
