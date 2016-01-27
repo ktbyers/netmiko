@@ -99,7 +99,7 @@ class FileTransfer(object):
         Return a boolean
         '''
         remote_cmd = "dir {0}".format(self.file_system)
-        remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
+        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
         space_avail = int(match.group(1))
 
@@ -115,9 +115,7 @@ class FileTransfer(object):
         '''
         if not remote_cmd:
             remote_cmd = "dir {0}/{1}".format(self.file_system, self.dest_file)
-
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
-
+        remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         search_string = r"Directory of .*{0}".format(self.dest_file)
         if 'Error opening' in remote_out:
             return False
@@ -162,7 +160,7 @@ class FileTransfer(object):
         Return boolean
         '''
         remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, self.dest_file)
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=delay_factor)
+        dest_md5 = self.ssh_ctl_chan.send_command_expect(remote_md5_cmd)
         dest_md5 = self.process_md5(dest_md5)
         if self.source_md5 != dest_md5:
             return False
