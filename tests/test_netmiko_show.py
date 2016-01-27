@@ -54,6 +54,8 @@ def test_send_command_expect(net_connect, commands, expected_responses):
     '''
     Verify a command can be sent down the channel successfully using _expect method
     '''
+    time.sleep(1)
+    net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command_expect(commands["basic"])
     assert expected_responses['interface_ip'] in show_ip_alt
 
