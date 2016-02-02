@@ -54,7 +54,7 @@ CLASS_MAPPER_BASE = {
 
 # Also support keys that end in _ssh
 new_mapper = {}
-for k, v in CLASS_MAPPER_BASE.iteritems():
+for k, v in CLASS_MAPPER_BASE.items():
     new_mapper[k] = v
     alt_key = k + u"_ssh"
     new_mapper[alt_key] = v
