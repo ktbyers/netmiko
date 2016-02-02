@@ -156,7 +156,6 @@ class BaseSSHConnection(object):
 
         # initiate SSH connection
         try:
-            print(ssh_connect_params)
             self.remote_conn_pre.connect(**ssh_connect_params)
 
         except socket.error:
