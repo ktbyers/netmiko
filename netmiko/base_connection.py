@@ -88,11 +88,14 @@ class BaseSSHConnection(object):
             ssh_config_instance = paramiko.SSHConfig()
             with open(full_path) as f:
                 ssh_config_instance.parse(f)
-                source = ssh_config_instance.lookup(self.ip)
+                host_specifier = "{0}:{1}".format(self.ip, self.port)
+                source = ssh_config_instance.lookup(host_specifier)
         else:
             source = {}
 
         if source.get('proxycommand'):
+            proxy = paramiko.ProxyCommand(source['proxycommand'])
+        elif source.get('ProxyCommand'):
             proxy = paramiko.ProxyCommand(source['proxycommand'])
         else:
             proxy = None
@@ -100,7 +103,7 @@ class BaseSSHConnection(object):
         # Only update 'hostname', 'sock', 'port', and 'username'
         # For 'port' and 'username' only update if using object defaults
         if connect_dict['port'] == 22:
-            connect_dict['port'] = source.get('port', self.port)
+            connect_dict['port'] = int(source.get('port', self.port))
         if connect_dict['username'] == '':
             connect_dict['username'] = source.get('username', self.username)
         if proxy:
@@ -153,6 +156,7 @@ class BaseSSHConnection(object):
 
         # initiate SSH connection
         try:
+            print(ssh_connect_params)
             self.remote_conn_pre.connect(**ssh_connect_params)
 
         except socket.error:
