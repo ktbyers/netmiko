@@ -26,13 +26,12 @@ from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.dell import DellForce10SSH
 
 # The keys of this dictionary are the supported device_types
-CLASS_MAPPER = {
+CLASS_MAPPER_BASE = {
     'cisco_ios': CiscoIosSSH,
     'cisco_xe': CiscoIosSSH,
     'cisco_asa': CiscoAsaSSH,
     'cisco_nxos': CiscoNxosSSH,
     'cisco_xr': CiscoXrSSH,
-    'cisco_wlc_ssh': CiscoWlcSSH,
     'cisco_wlc': CiscoWlcSSH,
     'arista_eos': AristaSSH,
     'hp_procurve': HPProcurveSSH,
@@ -53,9 +52,19 @@ CLASS_MAPPER = {
     'dell_force10': DellForce10SSH,
 }
 
+# Also support keys that end in _ssh
+new_mapper = {}
+for k, v in CLASS_MAPPER_BASE.iteritems():
+    new_mapper[k] = v
+    alt_key = k + u"_ssh"
+    new_mapper[alt_key] = v
+CLASS_MAPPER = new_mapper
+
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
-platforms_str = u"\n".join(platforms)
+platforms_base = list(CLASS_MAPPER_BASE.keys())
+platforms_base.sort()
+platforms_str = u"\n".join(platforms_base)
 platforms_str = u"\n" + platforms_str
 
 
