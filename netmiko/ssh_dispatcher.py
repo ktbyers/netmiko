@@ -18,6 +18,7 @@ from netmiko.fortinet import FortinetSSH
 from netmiko.a10 import A10SSH
 from netmiko.avaya import AvayaVspSSH
 from netmiko.avaya import AvayaErsSSH
+from netmiko.linux import LinuxSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
@@ -43,6 +44,7 @@ CLASS_MAPPER = {
     'a10': A10SSH,
     'avaya_vsp': AvayaVspSSH,
     'avaya_ers': AvayaErsSSH,
+    'linux': LinuxSSH,
     'ovs_linux': OvsLinuxSSH,
     'enterasys': EnterasysSSH,
     'extreme': ExtremeSSH,
