@@ -13,7 +13,9 @@ from netmiko.hp import HPProcurveSSH, HPComwareSSH
 from netmiko.huawei import HuaweiSSH
 from netmiko.f5 import F5LtmSSH
 from netmiko.juniper import JuniperSSH
-from netmiko.brocade import BrocadeVdxSSH
+from netmiko.brocade import BrocadeNosSSH
+from netmiko.brocade import BrocadeNetironSSH
+from netmiko.brocade import BrocadeFastironSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.a10 import A10SSH
 from netmiko.avaya import AvayaVspSSH
@@ -39,7 +41,10 @@ CLASS_MAPPER_BASE = {
     'huawei': HuaweiSSH,
     'f5_ltm': F5LtmSSH,
     'juniper': JuniperSSH,
-    'brocade_vdx': BrocadeVdxSSH,
+    'brocade_vdx': BrocadeNosSSH,
+    'brocade_nos': BrocadeNosSSH,
+    'brocade_fastiron': BrocadeFastironSSH,
+    'brocade_netiron': BrocadeNetironSSH,
     'a10': A10SSH,
     'avaya_vsp': AvayaVspSSH,
     'avaya_ers': AvayaErsSSH,
