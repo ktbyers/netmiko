@@ -41,6 +41,7 @@ CLASS_MAPPER_BASE = {
     'huawei': HuaweiSSH,
     'f5_ltm': F5LtmSSH,
     'juniper': JuniperSSH,
+    'juniper_junos': JuniperSSH,
     'brocade_vdx': BrocadeNosSSH,
     'brocade_nos': BrocadeNosSSH,
     'brocade_fastiron': BrocadeFastironSSH,
