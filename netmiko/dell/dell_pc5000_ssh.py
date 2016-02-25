@@ -179,6 +179,7 @@ class DellPowerConnect5000SSH(SSHConnection):
         pass
 
     def session_preparation(self):
+        self.ansi_escape_codes = True
         self.disable_paging(command="terminal datadump\n")
         self.set_base_prompt()
 
