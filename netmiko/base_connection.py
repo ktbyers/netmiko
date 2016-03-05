@@ -27,12 +27,18 @@ class BaseSSHConnection(object):
 
     Otherwise method left as a stub method.
     '''
-    def __init__(self, ip, username, password='', secret='', port=22, device_type='', verbose=True,
-                 global_delay_factor=.5, use_keys=False, key_file=None, ssh_strict=False,
-                 system_host_keys=False, alt_host_keys=False, alt_key_file='',
-                 ssh_config_file=None):
+    def __init__(self, ip=u'', host=u'', username=u'', password=u'', secret=u'', port=22,
+                 device_type=u'',verbose=False, global_delay_factor=.5, use_keys=False,
+                 key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
+                 alt_key_file='', ssh_config_file=None):
 
-        self.ip = ip
+        if ip:
+            self.host = ip
+            self.ip = ip
+        elif host:
+            self.host = host
+        if not ip and not host:
+            raise ValueError("Either ip or host must be set")
         self.port = int(port)
         self.username = username
         self.password = password
@@ -88,7 +94,7 @@ class BaseSSHConnection(object):
             ssh_config_instance = paramiko.SSHConfig()
             with open(full_path) as f:
                 ssh_config_instance.parse(f)
-                host_specifier = "{0}:{1}".format(self.ip, self.port)
+                host_specifier = "{0}:{1}".format(self.host, self.port)
                 source = ssh_config_instance.lookup(host_specifier)
         else:
             source = {}
@@ -108,12 +114,12 @@ class BaseSSHConnection(object):
             connect_dict['username'] = source.get('username', self.username)
         if proxy:
             connect_dict['sock'] = proxy
-        connect_dict['hostname'] = source.get('hostname', self.ip)
+        connect_dict['hostname'] = source.get('hostname', self.host)
 
     def _connect_params_dict(self, use_keys=False, key_file=None, timeout=8):
         '''Convert Paramiko connect params to a dictionary'''
         return {
-            'hostname': self.ip,
+            'hostname': self.host,
             'port': self.port,
             'username': self.username,
             'password': self.password,
@@ -160,16 +166,16 @@ class BaseSSHConnection(object):
 
         except socket.error:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
-                device_type=self.device_type, ip=self.ip, port=self.port)
+                device_type=self.device_type, ip=self.host, port=self.port)
             raise NetMikoTimeoutException(msg)
         except paramiko.ssh_exception.AuthenticationException as auth_err:
             msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
-                device_type=self.device_type, ip=self.ip, port=self.port)
+                device_type=self.device_type, ip=self.host, port=self.port)
             msg += '\n' + str(auth_err)
             raise NetMikoAuthenticationException(msg)
 
         if verbose:
-            print("SSH connection established to {0}:{1}".format(self.ip, self.port))
+            print("SSH connection established to {0}:{1}".format(self.host, self.port))
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
