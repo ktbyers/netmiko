@@ -7,7 +7,7 @@ from netmiko.ssh_connection import SSHConnection
 class HPProcurveSSH(SSHConnection):
 
     def session_preparation(self):
-        '''Prepare the session after the connection has been established'''
+        """Prepare the session after the connection has been established"""
 
         # HP uses - 'Press any key to continue'
         time.sleep(1)
@@ -21,7 +21,7 @@ class HPProcurveSSH(SSHConnection):
         self.disable_paging(command="\nno page\n")
 
     def enable(self, default_username='manager'):
-        '''Enter enable mode'''
+        """Enter enable mode"""
         debug = False
 
         output = self.send_command('enable')
