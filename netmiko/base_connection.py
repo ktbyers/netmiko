@@ -284,6 +284,7 @@ class BaseSSHConnection(object):
         self.clear_buffer()
         self.remote_conn.sendall("\n")
         time.sleep(delay_factor * 1)
+        prompt = ''
         if self.remote_conn.recv_ready():
             prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             prompt = prompt.strip()
