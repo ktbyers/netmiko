@@ -23,9 +23,7 @@ class FortinetSSH(SSHConnection):
         self.set_base_prompt(pri_prompt_terminator='$')
 
     def disable_paging(self, delay_factor=.5):
-        '''
-        Disable paging is only available with specific roles so it may fail
-        '''
+        '''Disable paging is only available with specific roles so it may fail'''
         check_command = "get system status\n"
         output = self.send_command(check_command)
         self.allow_disable_global = True
@@ -51,9 +49,7 @@ class FortinetSSH(SSHConnection):
         return output + new_output
 
     def cleanup(self):
-        '''
-        Re-enable paging globally
-        '''
+        '''Re-enable paging globally'''
         if self.allow_disable_global:
             enable_paging_commands = ["config system console", "set output more", "end"]
             if self.vdoms:
@@ -64,9 +60,8 @@ class FortinetSSH(SSHConnection):
 
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False,
                              key_file=None, width=None, height=None):
-        '''
-        Special Fortinet handler for SSH connection
-        '''
+        '''Special Fortinet handler for SSH connection'''
+        
         # Create instance of SSHClient object
         self.remote_conn_pre = paramiko.SSHClient()
 
@@ -103,18 +98,22 @@ class FortinetSSH(SSHConnection):
         if verbose:
             print("Interactive SSH session established")
 
-        # Strip the initial router prompt
-        time.sleep(sleep_time)
-        return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        i = 0
+        while i <= 100:
+            time.sleep(.1)
+            if self.remote_conn.recv_ready():
+                return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            else:
+                # Send a newline if no data is present
+                self.remote_conn.sendall('\n')
+                i += 1
+
+        return ""
 
     def config_mode(self, config_command=''):
-        '''
-        No config mode for Fortinet devices
-        '''
+        '''No config mode for Fortinet devices'''
         return ''
 
     def exit_config_mode(self, exit_config=''):
-        '''
-        No config mode for Fortinet devices
-        '''
+        '''No config mode for Fortinet devices'''
         return ''

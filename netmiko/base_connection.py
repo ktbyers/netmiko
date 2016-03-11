@@ -183,43 +183,31 @@ class BaseSSHConnection(object):
         if verbose:
             print("Interactive SSH session established")
 
-        time.sleep(sleep_time)
-        # Strip any initial data
-        if self.remote_conn.recv_ready():
-            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-        else:
-            i = 0
-            while i <= 10:
+        i = 0
+        while i <= 100:
+            time.sleep(.1)
+            if self.remote_conn.recv_ready():
+                return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            else:
                 # Send a newline if no data is present
                 self.remote_conn.sendall('\n')
-                time.sleep(.5)
-                if self.remote_conn.recv_ready():
-                    return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                else:
-                    i += 1
-            return ""
+                i += 1
+
+        return ""
 
     def select_delay_factor(self, delay_factor):
-        '''
-        Choose the greater of delay_factor or self.global_delay_factor
-        '''
+        '''Choose the greater of delay_factor or self.global_delay_factor'''
         if delay_factor >= self.global_delay_factor:
             return delay_factor
         else:
             return self.global_delay_factor
 
-
     def special_login_handler(self, delay_factor=.5):
-        '''
-        Special handler for devices like WLC, Avaya ERS that throw up characters prior to login
-        '''
+        '''Special handler for devices like WLC, Avaya ERS that throw up characters prior to login'''
         pass
 
-
     def disable_paging(self, command="terminal length 0\n", delay_factor=.5):
-        '''
-        Disable paging default to a Cisco CLI method
-        '''
+        '''Disable paging default to a Cisco CLI method'''
         delay_factor = self.select_delay_factor(delay_factor)
         self.remote_conn.sendall(command)
         time.sleep(1 * delay_factor)
