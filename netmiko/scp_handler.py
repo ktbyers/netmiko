@@ -167,6 +167,17 @@ class FileTransfer(object):
         else:
             return True
 
+    def show_remote_md5(self, base_cmd='verify /md5', delay_factor=8):
+        '''
+        Calculate remote MD5 and return the checksum
+
+        Return string
+        '''
+        remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, self.dest_file)
+        dest_md5 = self.ssh_ctl_chan.send_command_expect(remote_md5_cmd)
+        dest_md5 = self.process_md5(dest_md5)
+        return dest_md5
+
     def transfer_file(self):
         '''
         SCP transfer source_file to Cisco IOS device
