@@ -291,7 +291,6 @@ class BaseSSHConnection(object):
         # Check if the only thing you received was the newline
         if not prompt and self.wait_for_recv_ready():
             prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-        print("zzz: {}".format(prompt))
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
         prompt = self.normalize_linefeeds(prompt)
