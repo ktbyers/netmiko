@@ -275,7 +275,7 @@ class BaseSSHConnection(object):
             print("prompt: {0}".format(self.base_prompt))
         return self.base_prompt
 
-    def find_prompt(self, delay_factor=.5):
+    def find_prompt(self, delay_factor=.05):
         '''Finds the current network device prompt, last line only'''
         debug = False
         if debug:
@@ -285,6 +285,7 @@ class BaseSSHConnection(object):
         self.clear_buffer()
         self.remote_conn.sendall("\n")
         if self.wait_for_recv_ready():
+            time.sleep(delay_factor * 1)
             prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
