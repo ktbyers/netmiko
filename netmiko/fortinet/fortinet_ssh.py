@@ -59,15 +59,9 @@ class FortinetSSH(SSHConnection):
 
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False,
                              key_file=None, width=None, height=None):
-        '''Special Fortinet handler for SSH connection'''
-        
-        # Create instance of SSHClient object
+        """Special Fortinet handler for SSH connection"""
         self.remote_conn_pre = paramiko.SSHClient()
-
-        # Automatically add untrusted hosts (make sure appropriate for your environment)
         self.remote_conn_pre.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-        # initiate SSH connection
         try:
             self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
                                          username=self.username, password=self.password,

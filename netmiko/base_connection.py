@@ -28,7 +28,7 @@ class BaseSSHConnection(object):
     Otherwise method left as a stub method.
     '''
     def __init__(self, ip=u'', host=u'', username=u'', password=u'', secret=u'', port=22,
-                 device_type=u'',verbose=False, global_delay_factor=.1, use_keys=False,
+                 device_type=u'', verbose=False, global_delay_factor=.1, use_keys=False,
                  key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
                  alt_key_file='', ssh_config_file=None):
 
@@ -196,7 +196,7 @@ class BaseSSHConnection(object):
             return self.global_delay_factor
 
     def special_login_handler(self, delay_factor=.5):
-        '''Special handler for devices like WLC, Avaya ERS that throw up characters prior to login'''
+        """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
         pass
 
     def disable_paging(self, command="terminal length 0\n", delay_factor=.1):
@@ -239,11 +239,10 @@ class BaseSSHConnection(object):
         debug = False
         if debug:
             print("In set_base_prompt")
-
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
-        #self.wait_for_recv_ready(delay_factor)
+
         i = 0
         while i <= 100:
             if self.remote_conn.recv_ready():
@@ -507,10 +506,6 @@ class BaseSSHConnection(object):
 
         Returns a boolean
         """
-        debug = False
-        if debug:
-            print("In check_config_mode")
-        count = 1
         output = self.send_command('\n', strip_prompt=False, strip_command=False)
         output = output.strip()
         return check_string in output
