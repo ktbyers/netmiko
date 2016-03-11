@@ -183,16 +183,10 @@ class BaseSSHConnection(object):
         if verbose:
             print("Interactive SSH session established")
 
-        i = 0
-        while i <= 100:
-            time.sleep(.1)
-            if self.remote_conn.recv_ready():
-                return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            else:
-                # Send a newline if no data is present
-                self.remote_conn.sendall('\n')
-                i += 1
-
+        time.sleep(.1)
+        if self.wait_for_recv_ready(send_newline=True):
+            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+    
         return ""
 
     def select_delay_factor(self, delay_factor):
@@ -219,21 +213,18 @@ class BaseSSHConnection(object):
 
         return output
 
-
-    def wait_for_recv_ready(self, delay_factor=.5, max_loops=10):
-        '''
-        Wait for data to be in the buffer so it can be received.
-
-        delay_factor can be used to increase the delays.
-
-        max_loops can be used to increase the number of times it reads the data buffer
-        '''
-        delay_factor = self.select_delay_factor(delay_factor)
+    def wait_for_recv_ready(self, delay_factor=.5, max_loops=100, send_newline=False):
+        '''Wait for data to be in the buffer so it can be received.'''
         i = 0
-        while not self.remote_conn.recv_ready() and i < max_loops:
-            time.sleep(1 * delay_factor)
-            i += 1
-
+        while i <= max_loops:
+            if self.remote_conn.recv_ready():
+                return True
+            else:
+                if send_newline:
+                    self.remote_conn.sendall('\n')
+                time.sleep(.1)
+                i += 1
+        raise NetMikoTimeoutException("Timed out waiting for recv_ready")
 
     def set_base_prompt(self, pri_prompt_terminator='#',
                         alt_prompt_terminator='>', delay_factor=.5):
