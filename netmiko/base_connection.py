@@ -28,7 +28,7 @@ class BaseSSHConnection(object):
     Otherwise method left as a stub method.
     '''
     def __init__(self, ip=u'', host=u'', username=u'', password=u'', secret=u'', port=22,
-                 device_type=u'',verbose=False, global_delay_factor=.5, use_keys=False,
+                 device_type=u'',verbose=False, global_delay_factor=.1, use_keys=False,
                  key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
                  alt_key_file='', ssh_config_file=None):
 
@@ -326,6 +326,7 @@ class BaseSSHConnection(object):
         output = ''
         self.clear_buffer()
 
+        from datetime import datetime
         # Ensure there is a newline at the end of the command
         command_string = command_string.rstrip("\n")
         command_string += '\n'
@@ -334,19 +335,9 @@ class BaseSSHConnection(object):
             print("Command is: {0}".format(command_string))
 
         self.remote_conn.sendall(command_string)
-
-        time.sleep(1 * delay_factor)
-        not_done = True
-        i = 1
-
-        while (not_done) and (i <= max_loops):
-            time.sleep(1 * delay_factor)
-            i += 1
-            # Keep reading data as long as available (up to max_loops)
-            if self.remote_conn.recv_ready():
-                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            else:
-                not_done = False
+        for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
+                                                      max_loops=max_loops):
+            output += tmp_output
 
         # Some platforms have ansi_escape codes
         if self.ansi_escape_codes:
@@ -498,9 +489,7 @@ class BaseSSHConnection(object):
         return output
 
     def exit_config_mode(self, exit_config=''):
-        '''
-        Exit from configuration mode.
-        '''
+        """Exit from configuration mode."""
         output = ''
         if self.check_config_mode():
             output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
@@ -513,20 +502,32 @@ class BaseSSHConnection(object):
         raise AttributeError("Network device does not support 'check_enable_mode()' method")
 
     def check_config_mode(self, check_string=''):
-        '''
+        """
         Checks if the device is in configuration mode or not
 
         Returns a boolean
-        '''
+        """
+        debug = False
+        if debug:
+            print("In check_config_mode")
         count = 1
         output = self.send_command('\n', strip_prompt=False, strip_command=False)
-        while count <= 3:
-            if check_string in output:
-                return True
+        output = output.strip()
+        return check_string in output
+
+    def receive_data_generator(self, delay_factor=.1, max_loops=150):
+        """Generator to collect all data available in channel."""
+        i = 0
+        while i <= max_loops:
+            time.sleep(delay_factor * 1)
+            if self.remote_conn.recv_ready():
+                yield self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             else:
-                output = self.send_command('\n', strip_prompt=False, strip_command=False)
-                count += 1
-        return False
+                # Safeguard to make sure really done
+                time.sleep(delay_factor * 1)
+                if not self.remote_conn.recv_ready():
+                    break
+            i += 1
 
     def send_config_from_file(self, config_file=None, **kwargs):
         '''
@@ -544,44 +545,37 @@ class BaseSSHConnection(object):
             print("I/O Error opening config file: {0}".format(config_file))
         return ''
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
-        '''
-        Send group of configuration commands down the SSH channel.
+    def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=.1,
+                        max_loops=150, strip_prompt=False, strip_command=False):
+        """
+        Send configuration commands down the SSH channel.
 
         config_commands is an iterable containing all of the configuration commands.
         The commands will be executed one after the other.
 
         Automatically exits/enters configuration mode.
-
-        **kwargs will allow passing of all the arguments to send_command
-        strip_prompt and strip_command will be set to False if not explicitly set in
-        the method call.
-        '''
+        """
         debug = False
-
         if config_commands is None:
             return ''
-
-        # Set strip_prompt and strip_command to default to False
-        kwargs.setdefault('strip_prompt', False)
-        kwargs.setdefault('strip_command', False)
-
-        # Config commands must be iterable, but not a string
         if not hasattr(config_commands, '__iter__'):
             raise ValueError("Invalid argument passed into send_config_set")
 
-        # Enter config mode (if necessary)
+        # Send config commands
         output = self.config_mode()
+        for cmd in config_commands:
+            # normalize cmd string to single trailing newline
+            cmd = cmd.rstrip("\n") + '\n'
+            self.remote_conn.sendall(cmd)
 
-        for a_command in config_commands:
-            output += self.send_command(a_command, **kwargs)
-
+        # Gather output
+        for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
+                                                      max_loops=max_loops):
+            output += tmp_output
         if exit_config_mode:
             output += self.exit_config_mode()
-
         if debug:
             print(output)
-
         return output
 
     @staticmethod

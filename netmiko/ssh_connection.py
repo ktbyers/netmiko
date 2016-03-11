@@ -43,26 +43,15 @@ class SSHConnection(BaseSSHConnection):
         return super(SSHConnection, self).config_mode(config_command=config_command)
 
     def check_config_mode(self, check_string=')#'):
-        '''
-        Checks if the device is in configuration mode or not
-
-        Returns a boolean
-        '''
-        # Call super class with Cisco check string
+        '''Checks if the device is in configuration mode or not.'''
         return super(SSHConnection, self).check_config_mode(check_string=check_string)
 
     def exit_config_mode(self, exit_config='end'):
-        '''
-        Exit from configuration mode.
-        '''
-
-        # Call super class with Cisco check string
+        '''Exit from configuration mode.'''
         return super(SSHConnection, self).exit_config_mode(exit_config=exit_config)
 
     def exit_enable_mode(self, exit_command='disable'):
-        '''
-        Exits enable (privileged exec) mode.
-        '''
+        '''Exits enable (privileged exec) mode.'''
         output = ""
         if self.check_enable_mode():
             output = self.send_command(exit_command, strip_prompt=False, strip_command=False)

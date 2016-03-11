@@ -9,12 +9,9 @@ from netmiko.ssh_connection import SSHConnection
 class CiscoXrSSH(SSHConnection):
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
-        '''
-        IOS-XR requires you not exit from configuration mode
-        '''
+        """IOS-XR requires you not exit from configuration mode."""
         return super(CiscoXrSSH, self).send_config_set(config_commands=config_commands,
                                                        exit_config_mode=False, **kwargs)
-
 
     def commit(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=10):
         """
