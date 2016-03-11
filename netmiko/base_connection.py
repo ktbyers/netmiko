@@ -424,18 +424,11 @@ class BaseSSHConnection(object):
         i = 1
         # Keep reading data until search_pattern is found (or max_loops)
         while i <= max_loops:
-            if debug:
-                print("In while loop")
             if self.remote_conn.recv_ready():
-                if debug:
-                    print("recv_ready = True")
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if re.search(search_pattern, output):
                     break
             else:
-                if debug:
-                    print("recv_ready = False")
-                # No data, wait a little bit
                 time.sleep(delay_factor * 1)
             i += 1
         else:   # nobreak
