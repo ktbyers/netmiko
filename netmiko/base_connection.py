@@ -199,11 +199,12 @@ class BaseSSHConnection(object):
         '''Special handler for devices like WLC, Avaya ERS that throw up characters prior to login'''
         pass
 
-    def disable_paging(self, command="terminal length 0\n", delay_factor=.5):
+    def disable_paging(self, command="terminal length 0\n", delay_factor=.1):
         '''Disable paging default to a Cisco CLI method'''
         delay_factor = self.select_delay_factor(delay_factor)
         self.remote_conn.sendall(command)
         if self.wait_for_recv_ready():
+            time.sleep(delay_factor * 1)
             output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
