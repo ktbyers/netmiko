@@ -14,15 +14,10 @@ class CiscoAsaSSH(SSHConnection):
     Subclass specific to Cisco ASA
     '''
     def session_preparation(self):
-        '''
-        Prepare the session after the connection has been established
-
-        ASA must go into enable mode to disable_paging
-        '''
-
+        '''Prepare the session after the connection has been established'''
         self.enable()
-        self.disable_paging(command="terminal pager 0\n")
         self.set_base_prompt()
+        self.disable_paging(command="terminal pager 0\n")
 
     def send_command(self, command_string, delay_factor=.5, max_loops=30,
                      strip_prompt=True, strip_command=True):

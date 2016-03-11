@@ -21,8 +21,8 @@ class JuniperSSH(BaseSSHConnection):
         Set the base prompt for interaction ('>').
         """
         self.enter_cli_mode()
-        self.disable_paging(command="set cli screen-length 0\n")
         self.set_base_prompt()
+        self.disable_paging(command="set cli screen-length 0\n")
 
     def enter_cli_mode(self):
         '''

@@ -95,21 +95,17 @@ class CiscoWlcSSH(BaseSSHConnection):
             output = self.strip_prompt(output)
         return output
 
-
     def session_preparation(self):
         '''
         Prepare the session after the connection has been established
 
         Cisco WLC uses "config paging disable" to disable paging
         '''
-
-        self.disable_paging(command="config paging disable\n")
         self.set_base_prompt()
-
+        self.disable_paging(command="config paging disable\n")
 
     def cleanup(self):
         '''
         Reset WLC back to normal paging
         '''
-
         self.send_command("config paging enable\n")

@@ -8,11 +8,9 @@ from netmiko.netmiko_globals import MAX_BUFFER
 class HuaweiSSH(SSHConnection):
 
     def session_preparation(self):
-        '''
-        Prepare the session after the connection has been established
-        '''
-        self.disable_paging(command="screen-length 0 temporary\n")
+        '''Prepare the session after the connection has been established'''
         self.set_base_prompt()
+        self.disable_paging(command="screen-length 0 temporary\n")
 
     def config_mode(self, config_command='system-view'):
         '''

@@ -14,5 +14,5 @@ class AvayaVspSSH(SSHConnection):
         '''
         Prepare the session after the connection has been established
         '''
-        self.disable_paging(command="terminal more disable\n")
         self.set_base_prompt()
+        self.disable_paging(command="terminal more disable\n")

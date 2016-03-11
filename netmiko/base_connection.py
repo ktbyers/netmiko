@@ -79,8 +79,8 @@ class BaseSSHConnection(object):
         self.disable_paging()   # if applicable
         self.set_base_prompt()
         '''
-        self.disable_paging()
         self.set_base_prompt()
+        self.disable_paging()
 
     def _use_ssh_config(self, connect_dict):
         '''
@@ -186,7 +186,6 @@ class BaseSSHConnection(object):
         time.sleep(.1)
         if self.wait_for_recv_ready(send_newline=True):
             return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-    
         return ""
 
     def select_delay_factor(self, delay_factor):
@@ -204,13 +203,10 @@ class BaseSSHConnection(object):
         '''Disable paging default to a Cisco CLI method'''
         delay_factor = self.select_delay_factor(delay_factor)
         self.remote_conn.sendall(command)
-        time.sleep(1 * delay_factor)
-
-        # Clear the buffer on the screen
-        output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        if self.wait_for_recv_ready():
+            output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-
         return output
 
     def wait_for_recv_ready(self, delay_factor=.5, max_loops=100, send_newline=False):
@@ -246,40 +242,40 @@ class BaseSSHConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
-        self.wait_for_recv_ready(delay_factor)
-        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        #self.wait_for_recv_ready(delay_factor)
+        i = 0
+        while i <= 100:
+            if self.remote_conn.recv_ready():
+                prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                if pri_prompt_terminator in prompt or alt_prompt_terminator in prompt:
+                    break
+            time.sleep(.1)
+            i += 1
+        else:   # nobreak
+            raise ValueError("Router prompt not found: {0}".format(prompt))
 
-        # Some platforms have ANSI escape codes
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
-
         prompt = self.normalize_linefeeds(prompt)
 
         try:
             # If multiple lines in the output take the last line
             prompt = prompt.split('\n')[-1]
             prompt = prompt.strip()
-
             # Check that ends with a valid terminator character
             if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-                raise ValueError()
+                raise ValueError("Router prompt not found: {0}".format(prompt))
         except (IndexError, ValueError):
-            if debug:
-                print("Router prompt not found: {0}".format(prompt))
             raise ValueError("Router prompt not found: {0}".format(prompt))
 
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
-
         if debug:
             print("prompt: {0}".format(self.base_prompt))
-
         return self.base_prompt
 
     def find_prompt(self, delay_factor=.5):
-        '''
-        Finds the current network device prompt, last line only
-        '''
+        '''Finds the current network device prompt, last line only'''
         debug = False
         if debug:
             print("In find_prompt")
@@ -287,11 +283,8 @@ class BaseSSHConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
-        time.sleep(1 * delay_factor)
-
-        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-
-        # Some platforms have ANSI escape codes
+        if self.wait_for_recv_ready():
+            prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
         prompt = self.normalize_linefeeds(prompt)
@@ -301,20 +294,16 @@ class BaseSSHConnection(object):
         prompt = prompt.strip()
         if debug:
             print("prompt: {}".format(prompt))
-
         return prompt
 
     def clear_buffer(self):
-        '''
-        Read any data available in the channel up to MAX_BUFFER
-        '''
-
+        '''Read any data available in the channel up to MAX_BUFFER'''
         if self.remote_conn.recv_ready():
             return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         else:
             return None
 
-    def send_command(self, command_string, delay_factor=.5, max_loops=30,
+    def send_command(self, command_string, delay_factor=.1, max_loops=150,
                      strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
@@ -365,7 +354,6 @@ class BaseSSHConnection(object):
             output = self.strip_command(command_string, output)
         if strip_prompt:
             output = self.strip_prompt(output)
-
         if debug:
             print(output)
         return output

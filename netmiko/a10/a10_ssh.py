@@ -13,5 +13,5 @@ class A10SSH(SSHConnection):
         A10 requires to be enable mode to disable paging
         '''
         self.enable()
-        self.disable_paging(command="terminal length 0\n")
         self.set_base_prompt()
+        self.disable_paging(command="terminal length 0\n")

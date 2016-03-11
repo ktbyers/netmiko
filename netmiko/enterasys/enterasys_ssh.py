@@ -9,9 +9,7 @@ class EnterasysSSH(SSHConnection):
     Enterasys support
     '''
     def session_preparation(self):
-        '''
-        Enterasys requires enable mode to disable paging
-        '''
+        '''Enterasys requires enable mode to disable paging'''
         self.enable()
-        self.disable_paging(command="set length 0\n")
         self.set_base_prompt()
+        self.disable_paging(command="set length 0\n")

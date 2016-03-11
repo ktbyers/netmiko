@@ -8,11 +8,9 @@ from netmiko.netmiko_globals import MAX_BUFFER
 class HPComwareSSH(SSHConnection):
 
     def session_preparation(self):
-        '''
-        Prepare the session after the connection has been established
-        '''
-        self.disable_paging(command="\nscreen-length disable\n")
+        '''Prepare the session after the connection has been established'''
         self.set_base_prompt()
+        self.disable_paging(command="\nscreen-length disable\n")
 
     def config_mode(self, config_command='system-view'):
         '''

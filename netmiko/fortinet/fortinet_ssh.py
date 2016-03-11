@@ -18,9 +18,8 @@ class FortinetSSH(SSHConnection):
         Disable paging
         Change base prompt
         '''
-
-        self.disable_paging()
         self.set_base_prompt(pri_prompt_terminator='$')
+        self.disable_paging()
 
     def disable_paging(self, delay_factor=.5):
         '''Disable paging is only available with specific roles so it may fail'''
