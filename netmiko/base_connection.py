@@ -519,7 +519,7 @@ class BaseSSHConnection(object):
                 yield self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             else:
                 # Safeguard to make sure really done
-                time.sleep(delay_factor * 1)
+                time.sleep(delay_factor * 5)
                 if not self.remote_conn.recv_ready():
                     break
             i += 1
