@@ -1,0 +1,26 @@
+$ tar -cvpf travis_test_env.tar tests/etc/*.yml
+tests/etc/commands.yml
+tests/etc/responses.yml
+tests/etc/test_devices.yml
+
+$ tar -tvpf travis_test_env.tar
+-rw-rw-r-- kbyers/kbyers  1776 2015-05-03 18:34 tests/etc/commands.yml
+-rw-rw-r-- kbyers/kbyers  1423 2015-05-03 18:35 tests/etc/responses.yml
+-rw-rw-r-- kbyers/kbyers   635 2015-05-15 11:01 tests/etc/test_devices.yml
+
+$ travis login
+We need your GitHub login to identify you.
+This information will not be sent to Travis CI, only to api.github.com.
+The password will not be displayed.
+
+Try running with --github-token or --auto if you don't want to enter your password anyway.
+
+$ mv travis_test_env.tar.enc travis_test_env.tar.enc_old
+$ travis encrypt-file travis_test_env.tar
+encrypting travis_test_env.tar for ktbyers/netmiko
+storing result as travis_test_env.tar.enc
+storing secure env variables for decryption
+
+Please add the following to your build script (before_install stage in your .travis.yml, for instance):
+
+
