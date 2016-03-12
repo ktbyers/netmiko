@@ -276,7 +276,7 @@ class BaseSSHConnection(object):
 
     def find_prompt(self, delay_factor=.1):
         '''Finds the current network device prompt, last line only'''
-        debug = True
+        debug = False
         if debug:
             print("In find_prompt")
 
@@ -292,26 +292,18 @@ class BaseSSHConnection(object):
             prompt = prompt.strip()
             if self.ansi_escape_codes:
                 prompt = self.strip_ansi_escape_codes(prompt)
-            if debug:
-                print("zzzz1")
-                print("prompt: {}".format(prompt))
 
-        count = 0
         # Check if the only thing you received was a newline
+        count = 0
         while count <= 5 and not prompt.strip():
             if self.wait_for_recv_ready(send_newline=True):
                 prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                print("zzzz2")
-                print("prompt: {}".format(prompt.strip()))
+                if self.ansi_escape_codes:
+                    prompt = self.strip_ansi_escape_codes(prompt)
             count += 1
 
-        if self.ansi_escape_codes:
-            prompt = self.strip_ansi_escape_codes(prompt)
-        if debug:
-            print("prompt: {}".format(prompt))
-        prompt = self.normalize_linefeeds(prompt)
-
         # If multiple lines in the output take the last line
+        prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split('\n')[-1]
         prompt = prompt.strip()
         if not prompt:
