@@ -285,18 +285,24 @@ class BaseSSHConnection(object):
         self.remote_conn.sendall("\n")
         time.sleep(delay_factor * 1)
         prompt = ''
+
+        # Initial attempt to get prompt
         if self.remote_conn.recv_ready():
             prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             prompt = prompt.strip()
             if debug:
                 print("zzzz1")
                 print("prompt: {}".format(prompt))
-        # Check if the only thing you received was the newline
-        if not prompt and self.wait_for_recv_ready():
-            prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            if debug:
+
+        count = 0
+        # Check if the only thing you received was a newline
+        while count <= 5 and not prompt.strip():
+            if self.wait_for_recv_ready(send_newline=True):
+                prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 print("zzzz2")
-                print("prompt: {}".format(prompt))
+                print("prompt: {}".format(prompt.strip()))
+            count += 1
+
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
         if debug:
@@ -306,6 +312,8 @@ class BaseSSHConnection(object):
         # If multiple lines in the output take the last line
         prompt = prompt.split('\n')[-1]
         prompt = prompt.strip()
+        if not prompt:
+            raise ValueError("Unable to find prompt: {}".format(prompt))
         if debug:
             print("prompt: {}".format(prompt))
         return prompt
