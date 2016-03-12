@@ -288,9 +288,15 @@ class BaseSSHConnection(object):
         if self.remote_conn.recv_ready():
             prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             prompt = prompt.strip()
+            if debug:
+                print("zzzz1")
+                print("prompt: {}".format(prompt))
         # Check if the only thing you received was the newline
         if not prompt and self.wait_for_recv_ready():
             prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            if debug:
+                print("zzzz2")
+                print("prompt: {}".format(prompt))
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
         if debug:
