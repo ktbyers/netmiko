@@ -234,46 +234,13 @@ class BaseSSHConnection(object):
         devices this will be set to router hostname (i.e. prompt without '>' or '#').
 
         This will be set on entering user exec or privileged exec on Cisco, but not when
-        entering/exiting config mode
+        entering/exiting config mode.
         """
-        debug = False
-        if debug:
-            print("In set_base_prompt")
-
-        delay_factor = self.select_delay_factor(delay_factor)
-        self.clear_buffer()
-
-        self.remote_conn.sendall("\n")
-
-        i = 0
-        while i <= 100:
-            if self.remote_conn.recv_ready():
-                prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                if pri_prompt_terminator in prompt or alt_prompt_terminator in prompt:
-                    break
-            time.sleep(delay_factor)
-            i += 1
-        else:   # nobreak
+        prompt = self.find_prompt(delay_factor=delay_factor)
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError("Router prompt not found: {0}".format(prompt))
-
-        if self.ansi_escape_codes:
-            prompt = self.strip_ansi_escape_codes(prompt)
-        prompt = self.normalize_linefeeds(prompt)
-
-        try:
-            # If multiple lines in the output take the last line
-            prompt = prompt.split('\n')[-1]
-            prompt = prompt.strip()
-            # Check that ends with a valid terminator character
-            if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-                raise ValueError("Router prompt not found: {0}".format(prompt))
-        except (IndexError, ValueError):
-            raise ValueError("Router prompt not found: {0}".format(prompt))
-
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
-        if debug:
-            print("prompt: {0}".format(self.base_prompt))
         return self.base_prompt
 
     def find_prompt(self, delay_factor=.1):
