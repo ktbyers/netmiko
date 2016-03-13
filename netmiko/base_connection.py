@@ -275,11 +275,7 @@ class BaseSSHConnection(object):
         return self.base_prompt
 
     def find_prompt(self, delay_factor=.1):
-        '''Finds the current network device prompt, last line only'''
-        debug = False
-        if debug:
-            print("In find_prompt")
-
+        """Finds the current network device prompt, last line only."""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
@@ -308,8 +304,6 @@ class BaseSSHConnection(object):
         prompt = prompt.strip()
         if not prompt:
             raise ValueError("Unable to find prompt: {}".format(prompt))
-        if debug:
-            print("prompt: {}".format(prompt))
         return prompt
 
     def clear_buffer(self):
@@ -394,24 +388,24 @@ class BaseSSHConnection(object):
 
         self.global_delay_factor is not used (to make this method faster)
         '''
-        debug = False
-        output = ''
+        debug = True
+        self.clear_buffer()
 
         # Ensure there is a newline at the end of the command
         command_string = command_string.rstrip("\n")
         command_string += '\n'
 
+        # Find the current router prompt
         if expect_string is None:
-            # Find the current router prompt
-            if self.remote_conn.recv_ready():
-                # Clear any existing data
-                self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             self.remote_conn.sendall("\n")
             if self.remote_conn.recv_ready():
                 prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             else:
                 time.sleep(delay_factor * 1)
-                prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                if self.remote_conn.recv_ready():
+                    prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                else:
+                    prompt.self.base_prompt
             if self.ansi_escape_codes:
                 prompt = self.strip_ansi_escape_codes(prompt)
             prompt = self.normalize_linefeeds(prompt)
@@ -424,20 +418,34 @@ class BaseSSHConnection(object):
         if debug:
             print("Command is: {0}".format(command_string))
             print("Search to stop receiving data is: '{0}'".format(search_pattern))
+
+        time.sleep(delay_factor * 1)
+        self.clear_buffer()
         self.remote_conn.sendall(command_string)
 
         # Initial delay after sending command
         time.sleep(delay_factor * 1)
         i = 1
+        print("ttttt....")
         # Keep reading data until search_pattern is found (or max_loops)
+        output = ''
         while i <= max_loops:
             if self.remote_conn.recv_ready():
+                print("ssss....")
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                backspace_char = '\x08'
+                if backspace_char in output:
+                    print("backspace detected")
+                    pattern = search_pattern + r'.*$'
+                    output = re.sub(pattern, '', output, flags=re.M)
+                #output = self.strip_backspaces(output)
+                print("xxx: {}".format(repr(output)))
                 if re.search(search_pattern, output):
                     break
             else:
                 time.sleep(delay_factor * 1)
             i += 1
+            print(i)
         else:   # nobreak
             raise IOError("Search pattern never detected in send_command_expect: {0}".format(
                 search_pattern))
@@ -451,6 +459,12 @@ class BaseSSHConnection(object):
         if strip_prompt:
             output = self.strip_prompt(output)
         return output
+
+    @staticmethod
+    def strip_backspaces(output):
+        """Strip any backspace characters out of the output."""
+        backspace_char = '\x08'
+        return output.replace(backspace_char, '')
 
     @staticmethod
     def strip_command(command_string, output):
@@ -489,24 +503,31 @@ class BaseSSHConnection(object):
         raise AttributeError("Network device does not support 'exit_enable_mode()' method")
 
     def config_mode(self, config_command=''):
-        '''
-        Enter into config_mode.
-
-        First check whether currently already in configuration mode.
-        Enter config mode (if necessary)
-        '''
+        """Enter into config_mode."""
+        print("In config_mode")
         output = ''
         if not self.check_config_mode():
-            output = self.send_command(config_command, strip_prompt=False, strip_command=False)
+            self.remote_conn.sendall(config_command)
+            # FIX (make more robust)
+            time.sleep(.2)
+            if self.remote_conn.recv_ready():
+                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            #output = self.send_command(config_command, strip_prompt=False, strip_command=False)
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode")
         return output
 
     def exit_config_mode(self, exit_config=''):
         """Exit from configuration mode."""
+        print("In exit_config_mode")
         output = ''
         if self.check_config_mode():
-            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
+            self.remote_conn.sendall(exit_config)
+            # FIX (make more robust)
+            time.sleep(.2)
+            if self.remote_conn.recv_ready():
+                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            #output = self.send_command_exit(exit_config, strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
@@ -516,12 +537,15 @@ class BaseSSHConnection(object):
         raise AttributeError("Network device does not support 'check_enable_mode()' method")
 
     def check_config_mode(self, check_string=''):
-        """
-        Checks if the device is in configuration mode or not
-
-        Returns a boolean
-        """
-        output = self.send_command('\n', strip_prompt=False, strip_command=False)
+        """Checks if the device is in configuration mode or not."""
+        print("In check_config_mode")
+        self.remote_conn.sendall('\n')
+        # FIX (make more robust)
+        time.sleep(.2)
+        output = ''
+        if self.remote_conn.recv_ready():
+            output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        #output = self.send_command('\n', strip_prompt=False, strip_command=False)
         output = output.strip()
         return check_string in output
 
@@ -534,7 +558,7 @@ class BaseSSHConnection(object):
                 yield self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             else:
                 # Safeguard to make sure really done
-                time.sleep(delay_factor * 5)
+                time.sleep(delay_factor * 10)
                 if not self.remote_conn.recv_ready():
                     break
             i += 1
@@ -565,7 +589,11 @@ class BaseSSHConnection(object):
 
         Automatically exits/enters configuration mode.
         """
-        debug = False
+        from datetime import datetime
+        debug = True
+        if debug:
+            print("zzz1: {}".format(datetime.now()))
+
         if config_commands is None:
             return ''
         if not hasattr(config_commands, '__iter__'):
@@ -573,17 +601,25 @@ class BaseSSHConnection(object):
 
         # Send config commands
         output = self.config_mode()
+        if debug:
+            print("zzz2: {}".format(datetime.now()))
         for cmd in config_commands:
             # normalize cmd string to single trailing newline
             cmd = cmd.rstrip("\n") + '\n'
             self.remote_conn.sendall(cmd)
+        if debug:
+            print("zzz3: {}".format(datetime.now()))
 
         # Gather output
         for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
                                                       max_loops=max_loops):
             output += tmp_output
+        if debug:
+            print("zzz4: {}".format(datetime.now()))
         if exit_config_mode:
             output += self.exit_config_mode()
+        if debug:
+            print("zzz5: {}".format(datetime.now()))
         if debug:
             print(output)
         return output

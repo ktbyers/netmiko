@@ -25,37 +25,35 @@ class JuniperSSH(BaseSSHConnection):
         self.disable_paging(command="set cli screen-length 0\n")
 
     def enter_cli_mode(self):
-        '''
-        Check if at shell prompt root@.*% shell prompt and go into CLI
-        '''
-        while True:
+        """Check if at shell prompt root@.*% shell prompt and go into CLI."""
+        from datetime import datetime
+
+        print("entire_cli_mode")
+        print("yyy: {}".format(datetime.now()))
+        count = 0
+        cur_prompt = ''
+        while count < 50:
             self.remote_conn.sendall("\n")
-            time.sleep(1)
-            cur_prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            time.sleep(.1)
+            if self.remote_conn.recv_ready():
+                cur_prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             if re.search(r'root@.*%', cur_prompt):
                 self.remote_conn.sendall("cli\n")
-                time.sleep(1)
+                time.sleep(.3)
                 self.clear_buffer()
-            else:
+                print("yyy2: {}".format(datetime.now()))
                 break
+            elif '>' in cur_prompt or '#' in cur_prompt:
+                print("yyy3: {}".format(datetime.now()))
+                break
+            count += 1
 
     def config_mode(self, config_command='configure'):
-        '''
-        Enter configuration mode.
-
-        Checks to see if the session is already in configuration mode first.
-        Raises `ValueError` if the session was unable to enter configuration
-        mode.
-        '''
-        # Call parent class with specific command for entering config mode
+        """Enter configuration mode."""
         return super(JuniperSSH, self).config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config='exit configuration-mode'):
-        """Exit configuration mode.
-
-        Check if we're in configuration mode.  If we are, exit configuration
-        mode.  If we aren't, do nothing.
-        """
+        """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
             output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
@@ -63,20 +61,14 @@ class JuniperSSH(BaseSSHConnection):
                 output += self.send_command('yes', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-
         return output
 
     def check_config_mode(self, check_string=']'):
-        '''
-        Checks if the device is in configuration mode or not
-
-        Returns a boolean
-        '''
-        # Call parent class with Juniper check_string
+        """Checks if the device is in configuration mode or not."""
         return super(JuniperSSH, self).check_config_mode(check_string=check_string)
 
     def commit(self, confirm=False, confirm_delay=None, check=False, comment='',
-               and_quit=False, delay_factor=10):
+               and_quit=False, delay_factor=.1):
         """
         Commit the candidate configuration.
 
@@ -125,7 +117,6 @@ class JuniperSSH(BaseSSHConnection):
             if '"' in comment:
                 raise ValueError("Invalid comment contains double quote")
             comment = '"{0}"'.format(comment)
-
             command_string += ' comment ' + comment
 
         if and_quit:
@@ -133,8 +124,19 @@ class JuniperSSH(BaseSSHConnection):
 
         # Enter config mode (if necessary)
         output = self.config_mode()
-        output += self.send_command(command_string, strip_prompt=False, strip_command=False,
-                                    delay_factor=delay_factor)
+        # and_quit will get out of config mode on commit
+        if and_quit:
+            prompt = self.base_prompt
+            output += self.send_command_expect(command_string, expect_string=prompt,
+                                               strip_prompt=False,
+                                               strip_command=False, delay_factor=delay_factor)
+        else:
+            output += self.send_command_expect(command_string, strip_prompt=False,
+                                               strip_command=False, delay_factor=delay_factor)
+                                              
+        print(command_string)
+        print(output)
+        print(commit_marker)
         if commit_marker not in output:
             raise ValueError("Commit failed with the following errors:\n\n{0}"
                              .format(output))
@@ -143,11 +145,7 @@ class JuniperSSH(BaseSSHConnection):
 
     def strip_prompt(self, *args, **kwargs):
         """Strip the trailing router prompt from the output."""
-
-        # Call the superclass strip_prompt method
         a_string = super(JuniperSSH, self).strip_prompt(*args, **kwargs)
-
-        # Call additional method to strip some context items
         return self.strip_context_items(a_string)
 
     @staticmethod
