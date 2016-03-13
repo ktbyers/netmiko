@@ -17,16 +17,16 @@ import re
 import io
 from os import path
 
-from netmiko.netmiko_globals import MAX_BUFFER
+from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 
 
 class BaseSSHConnection(object):
-    '''
+    """
     Defines vendor independent methods.
 
     Otherwise method left as a stub method.
-    '''
+    """
     def __init__(self, ip=u'', host=u'', username=u'', password=u'', secret=u'', port=22,
                  device_type=u'', verbose=False, global_delay_factor=.1, use_keys=False,
                  key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
@@ -69,7 +69,7 @@ class BaseSSHConnection(object):
         self.session_preparation()
 
     def session_preparation(self):
-        '''
+        """
         Prepare the session after the connection has been established
 
         This method handles some of vagaries that occur between various devices
@@ -78,16 +78,16 @@ class BaseSSHConnection(object):
         In general, it should include:
         self.disable_paging()   # if applicable
         self.set_base_prompt()
-        '''
+        """
         self.set_base_prompt()
         self.disable_paging()
 
     def _use_ssh_config(self, connect_dict):
-        '''
+        """
         Update SSH connection parameters based on contents of SSH 'config' file
 
         This method modifies the connect_dict dictionary, returns None
-        '''
+        """
         # Use SSHConfig to generate source content.
         full_path = path.abspath(path.expanduser(self.ssh_config_file))
         if path.exists(full_path):
@@ -117,7 +117,7 @@ class BaseSSHConnection(object):
         connect_dict['hostname'] = source.get('hostname', self.host)
 
     def _connect_params_dict(self, use_keys=False, key_file=None, timeout=8):
-        '''Convert Paramiko connect params to a dictionary'''
+        """Convert Paramiko connect params to a dictionary."""
         return {
             'hostname': self.host,
             'port': self.port,
@@ -131,14 +131,14 @@ class BaseSSHConnection(object):
 
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8,
                              use_keys=False, key_file=None):
-        '''
+        """
         Establish SSH connection to the network device
 
         Timeout will generate a NetMikoTimeoutException
         Authentication failure will generate a NetMikoAuthenticationException
 
         use_keys is a boolean that allows ssh-keys to be used for authentication
-        '''
+        """
 
         # Convert Paramiko connection parameters to a dictionary
         ssh_connect_params = self._connect_params_dict(use_keys=use_keys, key_file=key_file,
@@ -163,7 +163,6 @@ class BaseSSHConnection(object):
         # initiate SSH connection
         try:
             self.remote_conn_pre.connect(**ssh_connect_params)
-
         except socket.error:
             msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                 device_type=self.device_type, ip=self.host, port=self.port)
@@ -189,7 +188,7 @@ class BaseSSHConnection(object):
         return ""
 
     def select_delay_factor(self, delay_factor):
-        '''Choose the greater of delay_factor or self.global_delay_factor'''
+        """Choose the greater of delay_factor or self.global_delay_factor."""
         if delay_factor >= self.global_delay_factor:
             return delay_factor
         else:
@@ -199,33 +198,34 @@ class BaseSSHConnection(object):
         """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
         pass
 
-    def disable_paging(self, command="terminal length 0\n", delay_factor=.1):
-        '''Disable paging default to a Cisco CLI method'''
+    def disable_paging(self, command="terminal length 0", delay_factor=.1):
+        """Disable paging default to a Cisco CLI method."""
         delay_factor = self.select_delay_factor(delay_factor)
-        self.remote_conn.sendall(command)
+        self.remote_conn.sendall(self.normalize_cmd(command))
         if self.wait_for_recv_ready():
-            time.sleep(delay_factor * 1)
+            time.sleep(delay_factor)
             output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         return output
 
-    def wait_for_recv_ready(self, delay_factor=.5, max_loops=100, send_newline=False):
-        '''Wait for data to be in the buffer so it can be received.'''
+    def wait_for_recv_ready(self, delay_factor=.1, max_loops=100, send_newline=False):
+        """Wait for data to be in the buffer so it can be received."""
         i = 0
+        time.sleep(delay_factor)
         while i <= max_loops:
             if self.remote_conn.recv_ready():
                 return True
             else:
                 if send_newline:
                     self.remote_conn.sendall('\n')
-                time.sleep(.1)
+                time.sleep(delay_factor)
                 i += 1
         raise NetMikoTimeoutException("Timed out waiting for recv_ready")
 
     def set_base_prompt(self, pri_prompt_terminator='#',
-                        alt_prompt_terminator='>', delay_factor=.5):
-        '''
+                        alt_prompt_terminator='>', delay_factor=.1):
+        """
         Sets self.base_prompt
 
         Used as delimiter for stripping of trailing prompt in output.
@@ -235,12 +235,14 @@ class BaseSSHConnection(object):
 
         This will be set on entering user exec or privileged exec on Cisco, but not when
         entering/exiting config mode
-        '''
+        """
         debug = False
         if debug:
             print("In set_base_prompt")
+
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
+
         self.remote_conn.sendall("\n")
 
         i = 0
@@ -249,7 +251,7 @@ class BaseSSHConnection(object):
                 prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if pri_prompt_terminator in prompt or alt_prompt_terminator in prompt:
                     break
-            time.sleep(.1)
+            time.sleep(delay_factor)
             i += 1
         else:   # nobreak
             raise ValueError("Router prompt not found: {0}".format(prompt))
@@ -279,7 +281,7 @@ class BaseSSHConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
-        time.sleep(delay_factor * 1)
+        time.sleep(delay_factor)
         prompt = ''
 
         # Initial attempt to get prompt
@@ -335,9 +337,7 @@ class BaseSSHConnection(object):
         self.clear_buffer()
 
         from datetime import datetime
-        # Ensure there is a newline at the end of the command
-        command_string = command_string.rstrip("\n")
-        command_string += '\n'
+        command_string = self.normalize_cmd(command_string)
 
         if debug:
             print("Command is: {0}".format(command_string))
@@ -389,32 +389,18 @@ class BaseSSHConnection(object):
         self.global_delay_factor is not used (to make this method faster)
         '''
         debug = True
-        self.clear_buffer()
-
-        # Ensure there is a newline at the end of the command
-        command_string = command_string.rstrip("\n")
-        command_string += '\n'
 
         # Find the current router prompt
         if expect_string is None:
-            self.remote_conn.sendall("\n")
-            if self.remote_conn.recv_ready():
-                prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            else:
-                time.sleep(delay_factor * 1)
-                if self.remote_conn.recv_ready():
-                    prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                else:
-                    prompt.self.base_prompt
-            if self.ansi_escape_codes:
-                prompt = self.strip_ansi_escape_codes(prompt)
-            prompt = self.normalize_linefeeds(prompt)
-            # If multiple lines in the output take the last line
-            search_pattern = prompt.split('\n')[-1].strip()
-            search_pattern = re.escape(search_pattern)
+            try:
+                prompt = self.find_prompt(delay_factor=delay_factor)
+            except ValueError:
+                prompt = self.base_prompt
+            search_pattern = re.escape(prompt.strip())
         else:
             search_pattern = expect_string
 
+        command_string = self.normalize_cmd(command_string)
         if debug:
             print("Command is: {0}".format(command_string))
             print("Search to stop receiving data is: '{0}'".format(search_pattern))
@@ -424,7 +410,7 @@ class BaseSSHConnection(object):
         self.remote_conn.sendall(command_string)
 
         # Initial delay after sending command
-        time.sleep(delay_factor * 1)
+        #time.sleep(delay_factor * 1)
         i = 1
         print("ttttt....")
         # Keep reading data until search_pattern is found (or max_loops)
@@ -433,19 +419,27 @@ class BaseSSHConnection(object):
             if self.remote_conn.recv_ready():
                 print("ssss....")
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                backspace_char = '\x08'
-                if backspace_char in output:
-                    print("backspace detected")
-                    pattern = search_pattern + r'.*$'
-                    output = re.sub(pattern, '', output, flags=re.M)
-                #output = self.strip_backspaces(output)
                 print("xxx: {}".format(repr(output)))
+                print("xxx: {}".format(output))
+                try:
+                    lines = output.split("\n")
+                    first_line = lines[0]
+                    # First line is the echo line containing the command. In certain situations
+                    # it gets repainted and needs filtered
+                    if BACKSPACE_CHAR in first_line:
+                        print("backspace detected")
+                        pattern = search_pattern + r'.*$'
+                        first_line = re.sub(pattern, repl='', string=first_line)
+                        lines[0] = first_line
+                        output = "\n".join(lines)
+                except IndexError:
+                    pass
                 if re.search(search_pattern, output):
                     break
             else:
                 time.sleep(delay_factor * 1)
-            i += 1
             print(i)
+            i += 1
         else:   # nobreak
             raise IOError("Search pattern never detected in send_command_expect: {0}".format(
                 search_pattern))
@@ -502,17 +496,21 @@ class BaseSSHConnection(object):
         """Disable 'exit_enable_mode()' method."""
         raise AttributeError("Network device does not support 'exit_enable_mode()' method")
 
+    @staticmethod
+    def normalize_cmd(command):
+        """Normalize CLI commands to have a single trailing newline."""
+        command = command.rstrip("\n")
+        command += '\n'
+        return command 
+
     def config_mode(self, config_command=''):
         """Enter into config_mode."""
         print("In config_mode")
         output = ''
         if not self.check_config_mode():
-            self.remote_conn.sendall(config_command)
-            # FIX (make more robust)
-            time.sleep(.2)
-            if self.remote_conn.recv_ready():
+            self.remote_conn.sendall(self.normalize_cmd(config_command))
+            if self.wait_for_recv_ready(delay_factor=self.global_delay_factor):
                 output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            #output = self.send_command(config_command, strip_prompt=False, strip_command=False)
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode")
         return output
@@ -522,12 +520,9 @@ class BaseSSHConnection(object):
         print("In exit_config_mode")
         output = ''
         if self.check_config_mode():
-            self.remote_conn.sendall(exit_config)
-            # FIX (make more robust)
-            time.sleep(.2)
-            if self.remote_conn.recv_ready():
+            self.remote_conn.sendall(self.normalize_cmd(exit_config))
+            if self.wait_for_recv_ready(delay_factor=self.global_delay_factor):
                 output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            #output = self.send_command_exit(exit_config, strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
@@ -539,13 +534,10 @@ class BaseSSHConnection(object):
     def check_config_mode(self, check_string=''):
         """Checks if the device is in configuration mode or not."""
         print("In check_config_mode")
-        self.remote_conn.sendall('\n')
-        # FIX (make more robust)
-        time.sleep(.2)
         output = ''
-        if self.remote_conn.recv_ready():
+        self.remote_conn.sendall('\n')
+        if self.wait_for_recv_ready(delay_factor=self.global_delay_factor):
             output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-        #output = self.send_command('\n', strip_prompt=False, strip_command=False)
         output = output.strip()
         return check_string in output
 
@@ -553,12 +545,12 @@ class BaseSSHConnection(object):
         """Generator to collect all data available in channel."""
         i = 0
         while i <= max_loops:
-            time.sleep(delay_factor * 1)
+            time.sleep(delay_factor)
             if self.remote_conn.recv_ready():
                 yield self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             else:
                 # Safeguard to make sure really done
-                time.sleep(delay_factor * 10)
+                time.sleep(delay_factor * 5)
                 if not self.remote_conn.recv_ready():
                     break
             i += 1
@@ -604,9 +596,7 @@ class BaseSSHConnection(object):
         if debug:
             print("zzz2: {}".format(datetime.now()))
         for cmd in config_commands:
-            # normalize cmd string to single trailing newline
-            cmd = cmd.rstrip("\n") + '\n'
-            self.remote_conn.sendall(cmd)
+            self.remote_conn.sendall(self.normalize_cmd(cmd))
         if debug:
             print("zzz3: {}".format(datetime.now()))
 
