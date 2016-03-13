@@ -8,7 +8,7 @@ class LinuxSSH(SSHConnection):
         return super(SSHConnection, self).check_config_mode(check_string=check_string)
 
     def set_base_prompt(self, pri_prompt_terminator='$',
-                        alt_prompt_terminator='#', delay_factor=.5):
+                        alt_prompt_terminator='#', delay_factor=.1):
         return super(SSHConnection, self).set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,

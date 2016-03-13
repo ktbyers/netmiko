@@ -41,7 +41,7 @@ class HPComwareSSH(SSHConnection):
 
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',
                         delay_factor=.5):
-        '''
+        """
         Sets self.base_prompt
 
         Used as delimiter for stripping of trailing prompt in output.
@@ -50,7 +50,7 @@ class HPComwareSSH(SSHConnection):
         this will be the router prompt with < > or [ ] stripped off.
 
         This will be set on logging in, but not when entering system-view
-        '''
+        """
         debug = False
         if debug:
             print("In set_base_prompt")
@@ -74,10 +74,7 @@ class HPComwareSSH(SSHConnection):
         # Strip off leading and trailing terminator
         prompt = prompt[1:-1]
         prompt = prompt.strip()
-
         self.base_prompt = prompt
-
         if debug:
             print("prompt: {}".format(self.base_prompt))
-
         return self.base_prompt

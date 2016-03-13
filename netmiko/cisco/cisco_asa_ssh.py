@@ -19,7 +19,7 @@ class CiscoAsaSSH(SSHConnection):
         self.set_base_prompt()
         self.disable_paging(command="terminal pager 0\n")
 
-    def send_command(self, command_string, delay_factor=.5, max_loops=30,
+    def send_command(self, command_string, delay_factor=.1, max_loops=150,
                      strip_prompt=True, strip_command=True):
         '''
         If the ASA is in multi-context mode, then the base_prompt needs to be

@@ -194,7 +194,7 @@ class BaseSSHConnection(object):
         else:
             return self.global_delay_factor
 
-    def special_login_handler(self, delay_factor=.5):
+    def special_login_handler(self, delay_factor=.1):
         """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
         pass
 
@@ -300,7 +300,7 @@ class BaseSSHConnection(object):
 
         Returns the output of the command.
         '''
-        debug = False
+        debug = True
         if debug:
             print('In send_command')
 
@@ -318,6 +318,7 @@ class BaseSSHConnection(object):
         for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
                                                       max_loops=max_loops):
             output += tmp_output
+            print("is: {0}".format(output))
 
         # Some platforms have ansi_escape codes
         if self.ansi_escape_codes:
@@ -522,7 +523,7 @@ class BaseSSHConnection(object):
                 yield self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             else:
                 # Safeguard to make sure really done
-                time.sleep(delay_factor * 5)
+                time.sleep(delay_factor * 8)
                 if not self.remote_conn.recv_ready():
                     break
             i += 1

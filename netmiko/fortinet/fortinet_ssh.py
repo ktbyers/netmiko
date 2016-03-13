@@ -21,7 +21,7 @@ class FortinetSSH(SSHConnection):
         self.set_base_prompt(pri_prompt_terminator='$')
         self.disable_paging()
 
-    def disable_paging(self, delay_factor=.5):
+    def disable_paging(self, delay_factor=.1):
         '''Disable paging is only available with specific roles so it may fail'''
         check_command = "get system status\n"
         output = self.send_command(check_command)
