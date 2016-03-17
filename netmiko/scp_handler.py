@@ -136,13 +136,13 @@ class FileTransfer(object):
 
     @staticmethod
     def process_md5(md5_output, pattern=r"= (.*)"):
-        '''
+        """
         Process the string to retrieve the MD5 hash
 
         Output from Cisco IOS:
         .MD5 of flash:file_name Done!
         verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
-        '''
+        """
         match = re.search(pattern, md5_output)
         if match:
             return match.group(1)
@@ -150,29 +150,16 @@ class FileTransfer(object):
             raise ValueError("Invalid output from MD5 command: {0}".format(md5_output))
 
     def compare_md5(self, base_cmd='verify /md5', delay_factor=8):
-        '''
-        Calculate remote MD5 and compare to source MD5
+        """Compare md5 of file on network device to md5 of local file"""
+        dest_md5 = self.remote_md5(base_cmd=base_cmd)
+        return self.source_md5 == dest_md5
 
-        Default command is Cisco specific
+    def remote_md5(self, base_cmd='verify /md5', delay_factor=8):
+        """
+        Calculate remote MD5 and return the checksum.
 
-        This command can be CPU intensive on the remote device
-
-        Return boolean
-        '''
-        remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, self.dest_file)
-        dest_md5 = self.ssh_ctl_chan.send_command_expect(remote_md5_cmd)
-        dest_md5 = self.process_md5(dest_md5)
-        if self.source_md5 != dest_md5:
-            return False
-        else:
-            return True
-
-    def show_remote_md5(self, base_cmd='verify /md5', delay_factor=8):
-        '''
-        Calculate remote MD5 and return the checksum
-
-        Return string
-        '''
+        This command can be CPU intensive on the remote device.
+        """
         remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, self.dest_file)
         dest_md5 = self.ssh_ctl_chan.send_command_expect(remote_md5_cmd)
         dest_md5 = self.process_md5(dest_md5)
