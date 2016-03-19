@@ -401,7 +401,6 @@ class BaseSSHConnection(object):
         self.remote_conn.sendall(command_string)
 
         # Initial delay after sending command
-        #time.sleep(delay_factor * 1)
         i = 1
         print("ttttt....")
         # Keep reading data until search_pattern is found (or max_loops)
@@ -490,7 +489,7 @@ class BaseSSHConnection(object):
         """Normalize CLI commands to have a single trailing newline."""
         command = command.rstrip("\n")
         command += '\n'
-        return command 
+        return command
 
     def config_mode(self, config_command=''):
         """Enter into config_mode."""

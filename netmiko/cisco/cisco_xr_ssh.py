@@ -83,7 +83,7 @@ class CiscoXrSSH(SSHConnection):
         # Enter config mode (if necessary)
         output = self.config_mode()
         output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
-                                    delay_factor=delay_factor)
+                                           delay_factor=delay_factor)
         if error_marker in output:
             raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
         if alt_error_marker in output:

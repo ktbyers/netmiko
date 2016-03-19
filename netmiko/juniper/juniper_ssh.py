@@ -133,7 +133,7 @@ class JuniperSSH(BaseSSHConnection):
         else:
             output += self.send_command_expect(command_string, strip_prompt=False,
                                                strip_command=False, delay_factor=delay_factor)
-                                              
+
         print(command_string)
         print(output)
         print(commit_marker)
