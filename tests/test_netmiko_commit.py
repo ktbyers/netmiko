@@ -22,7 +22,6 @@ def gen_random(N=6):
     return "".join([random.choice(string.ascii_lowercase + string.ascii_uppercase
                    + string.digits) for x in range(N) ])
 
-
 def retrieve_commands(commands):
     """
     Retrieve context needed for a set of commit actions
@@ -33,7 +32,6 @@ def retrieve_commands(commands):
     config_verify = commands['config_verification']
 
     return (config_commands, support_commit, config_verify)
-
 
 def setup_initial_state(net_connect, commands, expected_responses):
     '''
@@ -50,7 +48,6 @@ def setup_initial_state(net_connect, commands, expected_responses):
 
     return config_commands, support_commit, config_verify
 
-
 def setup_base_config(net_connect, config_changes):
     """
     Send set of config commands and commit
@@ -58,26 +55,22 @@ def setup_base_config(net_connect, config_changes):
     net_connect.send_config_set(config_changes)
     net_connect.commit()
 
-
 def config_change_verify(net_connect, verify_cmd, cmd_response):
     '''
     Send verify_cmd down channel, verify cmd_response in output
     '''
-
-    config_commands_output = net_connect.send_command(verify_cmd)
+    config_commands_output = net_connect.send_command_expect(verify_cmd)
     if cmd_response in config_commands_output:
         return True
     else:
         return False
 
-
 def test_ssh_connect(net_connect, commands, expected_responses):
     '''
     Verify the connection was established successfully
     '''
-    show_version = net_connect.send_command(commands["version"])
+    show_version = net_connect.send_command_expect(commands["version"])
     assert expected_responses["version_banner"] in show_version
-
 
 def test_config_mode(net_connect, commands, expected_responses):
     '''
@@ -86,12 +79,10 @@ def test_config_mode(net_connect, commands, expected_responses):
     net_connect.config_mode()
     assert net_connect.check_config_mode() == True
 
-
 def test_commit_base(net_connect, commands, expected_responses):
     '''
     Test .commit() with no options
     '''
-
     # Setup the initial config state
     config_commands, support_commit, config_verify = setup_initial_state(net_connect,
         commands, expected_responses)
@@ -177,9 +168,8 @@ def test_no_confirm(net_connect, commands, expected_responses):
     init_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert init_state is True
 
-
 def test_clear_msg(net_connect, commands, expected_responses):
-    '''
+    """
     IOS-XR generates the following message upon a failed commit
 
     One or more commits have occurred from other
@@ -190,26 +180,20 @@ def test_clear_msg(net_connect, commands, expected_responses):
     Do you wish to proceed with this commit anyway? [no]: yes
 
     Clear it
-    '''
-
+    """
     # Setup the initial config state
     config_commands, support_commit, config_verify = retrieve_commands(commands)
 
     if net_connect.device_type == 'cisco_xr':
         output = net_connect.send_config_set(config_commands)
-        output += net_connect.send_command('commit')
-        time.sleep(2)
-        if 'Do you wish to proceed with this commit' in output:
-            output += net_connect.send_command('yes')
-
+        output += net_connect.send_command_expect('commit', expect_string=r'Do you wish to')
+        output += net_connect.send_command_expect('yes', auto_find_prompt=False)
     assert True is True
-
 
 def test_commit_check(net_connect, commands, expected_responses):
     '''
     Test commit check
     '''
-
     # IOS-XR does not support commit check
     if net_connect.device_type == 'cisco_xr':
         assert True is True
@@ -285,10 +269,8 @@ def test_commit_andquit(net_connect, commands, expected_responses):
 
 
 def test_commit_label(net_connect, commands, expected_responses):
-    '''
-    Test commit label for IOS-XR
-    '''
-    # IOS-XR only test 
+    """Test commit label for IOS-XR."""
+
     if net_connect.device_type != 'cisco_xr':
         assert True is True
     else:

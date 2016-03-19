@@ -59,14 +59,17 @@ def test_command_set(net_connect, commands, expected_responses):
     '''
     Test sending configuration commands
     '''
+    print(1)
     config_commands = commands['config']
     support_commit = commands.get('support_commit')
     config_verify = commands['config_verification']
 
+    print(2)
     net_connect.send_config_set(config_commands[0:1])
     if support_commit:
         net_connect.commit()
 
+    print(3)
     cmd_response = expected_responses.get('cmd_response_init')
     config_commands_output = net_connect.send_command_expect(config_verify)
     if cmd_response:
@@ -74,12 +77,15 @@ def test_command_set(net_connect, commands, expected_responses):
     else:
         assert config_commands[0] in config_commands_output
 
+    print(4)
     net_connect.send_config_set(config_commands)
     if support_commit:
         net_connect.commit()
 
+    print(5)
     cmd_response = expected_responses.get('cmd_response_final')
     config_commands_output = net_connect.send_command_expect(config_verify)
+    print(6)
     if cmd_response:
         assert cmd_response in config_commands_output
     else:
