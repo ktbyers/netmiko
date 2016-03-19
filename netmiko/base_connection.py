@@ -183,7 +183,7 @@ class BaseSSHConnection(object):
             print("Interactive SSH session established")
 
         time.sleep(.1)
-        if self.wait_for_recv_ready(send_newline=True):
+        if self.wait_for_recv_ready_newline():
             return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         return ""
 
@@ -209,6 +209,22 @@ class BaseSSHConnection(object):
             output = self.strip_ansi_escape_codes(output)
         return output
 
+    def wait_for_recv_ready_newline(self, delay_factor=.1, max_loops=20):
+        """Wait for data to be in the buffer so it can be received."""
+        i = 0
+        time.sleep(delay_factor)
+        while i <= max_loops:
+            if self.remote_conn.recv_ready():
+                return True
+            else:
+                self.remote_conn.sendall('\n')
+                delay_factor = delay_factor * 1.1
+                if delay_factor >= 8:
+                    delay_factor = 8
+                time.sleep(delay_factor)
+                i += 1
+        raise NetMikoTimeoutException("Timed out waiting for recv_ready")
+
     def wait_for_recv_ready(self, delay_factor=.1, max_loops=100, send_newline=False):
         """Wait for data to be in the buffer so it can be received."""
         i = 0
@@ -217,8 +233,6 @@ class BaseSSHConnection(object):
             if self.remote_conn.recv_ready():
                 return True
             else:
-                if send_newline:
-                    self.remote_conn.sendall('\n')
                 time.sleep(delay_factor)
                 i += 1
         raise NetMikoTimeoutException("Timed out waiting for recv_ready")
@@ -344,7 +358,7 @@ class BaseSSHConnection(object):
             return a_string
 
     def send_command_expect(self, command_string, expect_string=None,
-                            delay_factor=.2, max_loops=500,
+                            delay_factor=.2, max_loops=500, auto_find_prompt=True,
                             strip_prompt=True, strip_command=True):
         '''
         Send command to network device retrieve output until router_prompt or expect_string
@@ -365,9 +379,13 @@ class BaseSSHConnection(object):
 
         # Find the current router prompt
         if expect_string is None:
-            try:
-                prompt = self.find_prompt(delay_factor=delay_factor)
-            except ValueError:
+            if auto_find_prompt:
+                print("Here...")
+                try:
+                    prompt = self.find_prompt(delay_factor=delay_factor)
+                except ValueError:
+                    prompt = self.base_prompt
+            else:
                 prompt = self.base_prompt
             search_pattern = re.escape(prompt.strip())
         else:
@@ -408,6 +426,7 @@ class BaseSSHConnection(object):
                 except IndexError:
                     pass
                 if re.search(search_pattern, output):
+                    print("found pattern...")
                     break
             else:
                 time.sleep(delay_factor * 1)
@@ -435,11 +454,11 @@ class BaseSSHConnection(object):
 
     @staticmethod
     def strip_command(command_string, output):
-        '''
+        """
         Strip command_string from output string
 
         Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
-        '''
+        """
         backspace_char = '\x08'
 
         # Check for line wrap (remove backspaces)
@@ -454,12 +473,9 @@ class BaseSSHConnection(object):
 
     @staticmethod
     def normalize_linefeeds(a_string):
-        '''
-        Convert '\r\r\n','\r\n', '\n\r' to '\n
-        '''
+        """Convert '\r\r\n','\r\n', '\n\r' to '\n."""
         newline = re.compile(r'(\r\r\n|\r\n|\n\r)')
         return newline.sub('\n', a_string)
-
 
     def enable(self):
         """Disable 'enable()' method."""
@@ -480,10 +496,18 @@ class BaseSSHConnection(object):
         """Enter into config_mode."""
         print("In config_mode")
         output = ''
-        if not self.check_config_mode():
-            self.remote_conn.sendall(self.normalize_cmd(config_command))
-            if self.wait_for_recv_ready(delay_factor=self.global_delay_factor):
-                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        i = 1
+        attempts = 3
+        while i <= attempts:
+            if not self.check_config_mode():
+                self.remote_conn.sendall(self.normalize_cmd(config_command))
+                if self.wait_for_recv_ready_newline(delay_factor=self.global_delay_factor):
+                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    print("yyy: {}".format(repr(output)))
+            else:
+                break
+            i += 1
+        else:   # no break
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode")
         return output
@@ -492,10 +516,18 @@ class BaseSSHConnection(object):
         """Exit from configuration mode."""
         print("In exit_config_mode")
         output = ''
-        if self.check_config_mode():
-            self.remote_conn.sendall(self.normalize_cmd(exit_config))
-            if self.wait_for_recv_ready(delay_factor=self.global_delay_factor):
-                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        i = 1
+        attempts = 3
+        while i <= attempts:
+            if self.check_config_mode():
+                self.remote_conn.sendall(self.normalize_cmd(exit_config))
+                if self.wait_for_recv_ready_newline(delay_factor=self.global_delay_factor):
+                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    print("yyy: {}".format(repr(output)))
+            else:
+                break
+            i += 1
+        else:   # no break
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output

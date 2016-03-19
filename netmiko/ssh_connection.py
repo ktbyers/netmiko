@@ -34,12 +34,7 @@ class SSHConnection(BaseSSHConnection):
             return False
 
     def config_mode(self, config_command='config term'):
-        '''
-        First check whether currently already in configuration mode.
-
-        Enter config mode (if necessary)
-        '''
-        # Call parent class with specific command for entering config mode
+        """Enter into configuration mode on remote device."""
         return super(SSHConnection, self).config_mode(config_command=config_command)
 
     def check_config_mode(self, check_string=')#'):
