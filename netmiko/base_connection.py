@@ -309,7 +309,7 @@ class BaseSSHConnection(object):
 
         Returns the output of the command.
         '''
-        debug = True
+        debug = False
         if debug:
             print('In send_command')
 
@@ -369,7 +369,7 @@ class BaseSSHConnection(object):
 
         self.global_delay_factor is not used (to make this method faster)
         '''
-        debug = True
+        debug = False
 
         # Find the current router prompt
         if expect_string is None:
@@ -541,20 +541,16 @@ class BaseSSHConnection(object):
             i += 1
 
     def send_config_from_file(self, config_file=None, **kwargs):
-        '''
+        """
         Send configuration commands down the SSH channel from a file.
 
         The file is processed line-by-line and each command is sent down the
         SSH channel.
 
         **kwargs are passed to send_config_set method.
-        '''
-        try:
-            with io.open(config_file, encoding='utf-8') as cfg_file:
-                return self.send_config_set(cfg_file, **kwargs)
-        except IOError:
-            print("I/O Error opening config file: {0}".format(config_file))
-        return ''
+        """
+        with io.open(config_file, encoding='utf-8') as cfg_file:
+            return self.send_config_set(cfg_file, **kwargs)
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=.1,
                         max_loops=150, strip_prompt=False, strip_command=False):
@@ -567,7 +563,7 @@ class BaseSSHConnection(object):
         Automatically exits/enters configuration mode.
         """
         from datetime import datetime
-        debug = True
+        debug = False
 
         if config_commands is None:
             return ''
