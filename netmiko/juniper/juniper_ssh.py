@@ -22,6 +22,7 @@ class JuniperSSH(BaseSSHConnection):
         """
         self.enter_cli_mode()
         self.set_base_prompt()
+        #print(self.find_prompt())
         self.disable_paging(command="set cli screen-length 0\n")
 
     def enter_cli_mode(self):
@@ -36,6 +37,7 @@ class JuniperSSH(BaseSSHConnection):
             if self.remote_conn.recv_ready():
                 cur_prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
             if re.search(r'root@.*%', cur_prompt):
+                #print("Sending cli command")
                 self.remote_conn.sendall("cli\n")
                 time.sleep(.3)
                 self.clear_buffer()
