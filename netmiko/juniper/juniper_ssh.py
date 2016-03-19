@@ -28,8 +28,6 @@ class JuniperSSH(BaseSSHConnection):
         """Check if at shell prompt root@.*% shell prompt and go into CLI."""
         from datetime import datetime
 
-        print("entire_cli_mode")
-        print("yyy: {}".format(datetime.now()))
         count = 0
         cur_prompt = ''
         while count < 50:
@@ -41,10 +39,8 @@ class JuniperSSH(BaseSSHConnection):
                 self.remote_conn.sendall("cli\n")
                 time.sleep(.3)
                 self.clear_buffer()
-                print("yyy2: {}".format(datetime.now()))
                 break
             elif '>' in cur_prompt or '#' in cur_prompt:
-                print("yyy3: {}".format(datetime.now()))
                 break
             count += 1
 
@@ -134,9 +130,6 @@ class JuniperSSH(BaseSSHConnection):
             output += self.send_command_expect(command_string, strip_prompt=False,
                                                strip_command=False, delay_factor=delay_factor)
 
-        print(command_string)
-        print(output)
-        print(commit_marker)
         if commit_marker not in output:
             raise ValueError("Commit failed with the following errors:\n\n{0}"
                              .format(output))

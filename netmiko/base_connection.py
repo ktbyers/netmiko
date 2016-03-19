@@ -260,7 +260,6 @@ class BaseSSHConnection(object):
     def find_prompt(self, delay_factor=.1):
         """Finds the current network device prompt, last line only."""
         delay_factor = self.select_delay_factor(delay_factor)
-        print("delay_factor: {}".format(delay_factor))
         self.clear_buffer()
         self.remote_conn.sendall("\n")
         time.sleep(delay_factor)
@@ -269,23 +268,19 @@ class BaseSSHConnection(object):
         # Initial attempt to get prompt
         if self.remote_conn.recv_ready():
             prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            print("prompt1: {}".format(repr(prompt)))
             prompt = prompt.strip()
             if self.ansi_escape_codes:
                 prompt = self.strip_ansi_escape_codes(prompt)
 
-        print("prompt1: {}".format(prompt))
         # Check if the only thing you received was a newline
         count = 0
         while count <= 10 and not prompt.strip():
             if self.wait_for_recv_ready():
                 prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                print("prompt2: {}".format(repr(prompt)))
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt)
             count += 1
 
-        print("prompt2: {}".format(prompt))
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split('\n')[-1]
@@ -332,7 +327,6 @@ class BaseSSHConnection(object):
         for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
                                                       max_loops=max_loops):
             output += tmp_output
-            print("is: {0}".format(output))
 
         # Some platforms have ansi_escape codes
         if self.ansi_escape_codes:
@@ -380,7 +374,6 @@ class BaseSSHConnection(object):
         # Find the current router prompt
         if expect_string is None:
             if auto_find_prompt:
-                print("Here...")
                 try:
                     prompt = self.find_prompt(delay_factor=delay_factor)
                 except ValueError:
@@ -402,22 +395,17 @@ class BaseSSHConnection(object):
 
         # Initial delay after sending command
         i = 1
-        print("ttttt....")
         # Keep reading data until search_pattern is found (or max_loops)
         output = ''
         while i <= max_loops:
             if self.remote_conn.recv_ready():
-                print("ssss....")
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                print("xxx: {}".format(repr(output)))
-                print("xxx: {}".format(output))
                 try:
                     lines = output.split("\n")
                     first_line = lines[0]
                     # First line is the echo line containing the command. In certain situations
                     # it gets repainted and needs filtered
                     if BACKSPACE_CHAR in first_line:
-                        print("backspace detected")
                         pattern = search_pattern + r'.*$'
                         first_line = re.sub(pattern, repl='', string=first_line)
                         lines[0] = first_line
@@ -425,11 +413,9 @@ class BaseSSHConnection(object):
                 except IndexError:
                     pass
                 if re.search(search_pattern, output):
-                    print("found pattern...")
                     break
             else:
                 time.sleep(delay_factor * 1)
-            print(i)
             i += 1
         else:   # nobreak
             raise IOError("Search pattern never detected in send_command_expect: {0}".format(
@@ -493,7 +479,6 @@ class BaseSSHConnection(object):
 
     def config_mode(self, config_command=''):
         """Enter into config_mode."""
-        print("In config_mode")
         output = ''
         i = 1
         attempts = 3
@@ -502,7 +487,6 @@ class BaseSSHConnection(object):
                 self.remote_conn.sendall(self.normalize_cmd(config_command))
                 if self.wait_for_recv_ready_newline(delay_factor=self.global_delay_factor):
                     output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                    print("yyy: {}".format(repr(output)))
             else:
                 break
             i += 1
@@ -513,7 +497,6 @@ class BaseSSHConnection(object):
 
     def exit_config_mode(self, exit_config=''):
         """Exit from configuration mode."""
-        print("In exit_config_mode")
         output = ''
         i = 1
         attempts = 3
@@ -522,7 +505,6 @@ class BaseSSHConnection(object):
                 self.remote_conn.sendall(self.normalize_cmd(exit_config))
                 if self.wait_for_recv_ready_newline(delay_factor=self.global_delay_factor):
                     output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                    print("yyy: {}".format(repr(output)))
             else:
                 break
             i += 1
@@ -537,7 +519,6 @@ class BaseSSHConnection(object):
 
     def check_config_mode(self, check_string=''):
         """Checks if the device is in configuration mode or not."""
-        print("In check_config_mode")
         output = ''
         self.remote_conn.sendall('\n')
         if self.wait_for_recv_ready(delay_factor=self.global_delay_factor):
@@ -587,8 +568,6 @@ class BaseSSHConnection(object):
         """
         from datetime import datetime
         debug = True
-        if debug:
-            print("zzz1: {}".format(datetime.now()))
 
         if config_commands is None:
             return ''
@@ -597,23 +576,15 @@ class BaseSSHConnection(object):
 
         # Send config commands
         output = self.config_mode()
-        if debug:
-            print("zzz2: {}".format(datetime.now()))
         for cmd in config_commands:
             self.remote_conn.sendall(self.normalize_cmd(cmd))
-        if debug:
-            print("zzz3: {}".format(datetime.now()))
 
         # Gather output
         for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
                                                       max_loops=max_loops):
             output += tmp_output
-        if debug:
-            print("zzz4: {}".format(datetime.now()))
         if exit_config_mode:
             output += self.exit_config_mode()
-        if debug:
-            print("zzz5: {}".format(datetime.now()))
         if debug:
             print(output)
         return output
@@ -642,7 +613,6 @@ class BaseSSHConnection(object):
         debug = False
         if debug:
             print("In strip_ansi_escape_codes")
-        if debug:
             print("repr = %s" % repr(string_buffer))
 
         code_position_cursor = chr(27) + r'\[\d+;\d+H'
