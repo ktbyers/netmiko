@@ -30,7 +30,7 @@ class BaseSSHConnection(object):
     def __init__(self, ip=u'', host=u'', username=u'', password=u'', secret=u'', port=22,
                  device_type=u'', verbose=False, global_delay_factor=.1, use_keys=False,
                  key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
-                 alt_key_file='', ssh_config_file=None):
+                 alt_key_file='', ssh_config_file=None, cmd=u'', cmd_sleep=.1):
 
         if ip:
             self.host = ip
@@ -45,6 +45,8 @@ class BaseSSHConnection(object):
         self.secret = secret
         self.device_type = device_type
         self.ansi_escape_codes = False
+        self.cmd=u''
+        self.cmd_sleep = int(cmd_sleep)
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -176,8 +178,14 @@ class BaseSSHConnection(object):
         if verbose:
             print("SSH connection established to {0}:{1}".format(self.host, self.port))
 
-        # Use invoke_shell to establish an 'interactive session'
-        self.remote_conn = self.remote_conn_pre.invoke_shell()
+        if self.cmd:
+            self.remote_conn = self.remote_conn_pre.get_transport().open_channel("session")
+            self.remote_conn.exec_command(self.cmd)
+            time.sleep(self.cmd_sleep)
+        else
+            # Use invoke_shell to establish an 'interactive session'
+            self.remote_conn = self.remote_conn_pre.invoke_shell()
+
         self.special_login_handler()
         if verbose:
             print("Interactive SSH session established")
