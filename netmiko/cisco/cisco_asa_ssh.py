@@ -1,20 +1,16 @@
-'''
-Subclass specific to Cisco ASA
-'''
+"""Subclass specific to Cisco ASA."""
 
 from __future__ import unicode_literals
-from netmiko.ssh_connection import SSHConnection
-from netmiko.netmiko_globals import MAX_BUFFER
 import time
 import re
+from netmiko.ssh_connection import SSHConnection
+from netmiko.netmiko_globals import MAX_BUFFER
 
 
 class CiscoAsaSSH(SSHConnection):
-    '''
-    Subclass specific to Cisco ASA
-    '''
+    """Subclass specific to Cisco ASA."""
     def session_preparation(self):
-        '''Prepare the session after the connection has been established'''
+        """Prepare the session after the connection has been established."""
         self.enable()
         self.set_base_prompt()
         self.disable_paging(command="terminal pager 0\n")
@@ -48,11 +44,7 @@ class CiscoAsaSSH(SSHConnection):
             return self.base_prompt
 
     def enable(self, delay_factor=.5):
-        '''
-        Enter enable mode
-
-        Must manually control the channel at this point for ASA
-        '''
+        """Enter enable-must manually control the channel at this point for ASA."""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\nenable\n")
@@ -67,6 +59,3 @@ class CiscoAsaSSH(SSHConnection):
 
         if not self.check_enable_mode():
             raise ValueError("Failed to enter enable mode")
-
-        self.set_base_prompt()
-        self.clear_buffer()
