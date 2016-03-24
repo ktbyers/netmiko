@@ -3,7 +3,7 @@ Create a SCP side-channel to transfer a file to remote network device.
 
 SCP requires a separate SSH connection.
 
-Currently only supports Cisco IOS.
+Currently only supports Cisco IOS and Cisco ASA.
 """
 
 from __future__ import print_function
@@ -116,7 +116,7 @@ class FileTransfer(object):
         """
         Process the string to retrieve the MD5 hash
 
-        Output from Cisco IOS:
+        Output from Cisco IOS (ASA is similar)
         .MD5 of flash:file_name Done!
         verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
         """
@@ -143,7 +143,7 @@ class FileTransfer(object):
         return dest_md5
 
     def transfer_file(self):
-        """SCP transfer source_file to Cisco IOS device."""
+        """SCP transfer source_file to remote device."""
         destination = "{}{}".format(self.file_system, self.dest_file)
         if ':' not in destination:
             raise ValueError("Invalid destination file system specified")
