@@ -38,4 +38,3 @@ source ~/VENV/netmiko_0_3_0_packaging/bin/activate
 
 pip install netmiko
 
-
