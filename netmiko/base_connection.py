@@ -531,13 +531,8 @@ class BaseSSHConnection(object):
 
     def check_config_mode(self, check_string=''):
         """Checks if the device is in configuration mode or not."""
-        output = ''
         self.remote_conn.sendall('\n')
-        if self.wait_for_recv_ready(delay_factor=self.global_delay_factor):
-            output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            print("yyy: {}".format(repr(output)))
-        output = output.strip()
-        print("zzz: {}".format(repr(output)))
+        output = self.read_until_prompt()
         return check_string in output
 
     def receive_data_generator(self, delay_factor=.1, max_loops=150):
