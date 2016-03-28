@@ -8,37 +8,20 @@ from netmiko.netmiko_globals import MAX_BUFFER
 class HuaweiSSH(SSHConnection):
 
     def session_preparation(self):
-        '''Prepare the session after the connection has been established'''
+        """Prepare the session after the connection has been established."""
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary\n")
 
     def config_mode(self, config_command='system-view'):
-        '''
-        First check whether currently already in configuration mode.
-
-        Enter config mode (if necessary)
-        '''
-
-        # Call parent class with different command for entering config mode
+        """Enter configuration mode."""
         return super(HuaweiSSH, self).config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config='return'):
-        '''
-        First check whether in configuration mode.
-
-        If so, exit config mode
-        '''
-
-        # Call parent class with different command for exiting config mode
+        """Exit configuration mode."""
         return super(HuaweiSSH, self).exit_config_mode(exit_config=exit_config)
 
     def check_config_mode(self, check_string=']'):
-        '''
-        Checks if the device is in configuration mode or not
-
-        Returns a boolean
-        '''
-        # Call parent class with different command for exiting config mode
+        """Checks whether in configuration mode. Returns a boolean."""
         return super(HuaweiSSH, self).check_config_mode(check_string=check_string)
 
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',

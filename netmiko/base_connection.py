@@ -354,14 +354,21 @@ class BaseSSHConnection(object):
 
     def read_until_prompt(self):
         """Read channel until self.base_prompt detected. Return ALL data available."""
+        return self.read_until_pattern()
+
+    def read_until_pattern(self, pattern='', re_flags=0):
+        """Read channel until pattern detected. Return ALL data available."""
         output = ''
+        if not pattern:
+            pattern = self.base_prompt
+        pattern = re.escape(pattern)
         while True:
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                if self.base_prompt in output:
+                if re.search(pattern, output, flags=re_flags):
                     return output
             except socket.timeout:
-                raise NetMikoTimeoutException("Error reading channel, no data available.")
+                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
     def send_command_expect(self, command_string, expect_string=None,
                             delay_factor=.2, max_loops=500, auto_find_prompt=True,
@@ -474,14 +481,6 @@ class BaseSSHConnection(object):
         newline = re.compile(r'(\r\r\n|\r\n|\n\r)')
         return newline.sub('\n', a_string)
 
-    def enable(self):
-        """Disable 'enable()' method."""
-        raise AttributeError("Network device does not support 'enable()' method")
-
-    def exit_enable_mode(self, exit_command=''):
-        """Disable 'exit_enable_mode()' method."""
-        raise AttributeError("Network device does not support 'exit_enable_mode()' method")
-
     @staticmethod
     def normalize_cmd(command):
         """Normalize CLI commands to have a single trailing newline."""
@@ -489,51 +488,51 @@ class BaseSSHConnection(object):
         command += '\n'
         return command
 
-    def config_mode(self, config_command=''):
-        """Enter into config_mode."""
-        output = ''
-        i = 1
-        attempts = 3
-        while i <= attempts:
-            if not self.check_config_mode():
-                self.remote_conn.sendall(self.normalize_cmd(config_command))
-                if self.wait_for_recv_ready_newline(delay_factor=self.global_delay_factor):
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            else:
-                break
-            i += 1
-        else:   # no break
-            if not self.check_config_mode():
-                raise ValueError("Failed to enter configuration mode")
-        return output
-
-    def exit_config_mode(self, exit_config=''):
-        """Exit from configuration mode."""
-        output = ''
-        i = 1
-        attempts = 3
-        while i <= attempts:
-            if self.check_config_mode():
-                self.remote_conn.sendall(self.normalize_cmd(exit_config))
-                if self.wait_for_recv_ready_newline(delay_factor=self.global_delay_factor):
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            else:
-                break
-            i += 1
-        else:   # no break
-            if self.check_config_mode():
-                raise ValueError("Failed to exit configuration mode")
-        return output
-
     def check_enable_mode(self, check_string=''):
         """Disable 'check_enable_mode()' method."""
         raise AttributeError("Network device does not support 'check_enable_mode()' method")
+
+    def enable(self, cmd='', pattern='password', re_flags=re.IGNORECASE):
+        """Enter enable mode."""
+        output = ""
+        if not self.check_enable_mode():
+            self.remote_conn.sendall(self.normalize_cmd(cmd))
+            output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
+            self.remote_conn.sendall(self.normalize_cmd(self.secret))
+            output += self.read_until_prompt()
+        if not self.check_enable_mode():
+            raise ValueError("Failed to enter configuration mode.")
+        return output
+
+    def exit_enable_mode(self, exit_command=''):
+        """Disable 'exit_enable_mode()' method."""
+        raise AttributeError("Network device does not support 'exit_enable_mode()' method")
 
     def check_config_mode(self, check_string=''):
         """Checks if the device is in configuration mode or not."""
         self.remote_conn.sendall('\n')
         output = self.read_until_prompt()
         return check_string in output
+
+    def config_mode(self, config_command=''):
+        """Enter into config_mode."""
+        output = ''
+        if not self.check_config_mode():
+            self.remote_conn.sendall(self.normalize_cmd(config_command))
+            output = self.read_until_prompt()
+        if not self.check_config_mode():
+            raise ValueError("Failed to enter configuration mode.")
+        return output
+
+    def exit_config_mode(self, exit_config=''):
+        """Exit from configuration mode."""
+        output = ''
+        if self.check_config_mode():
+            self.remote_conn.sendall(self.normalize_cmd(exit_config))
+            output = self.read_until_prompt()
+        if self.check_config_mode():
+            raise ValueError("Failed to exit configuration mode")
+        return output
 
     def receive_data_generator(self, delay_factor=.1, max_loops=150):
         """Generator to collect all data available in channel."""

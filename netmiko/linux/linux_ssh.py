@@ -23,7 +23,7 @@ class LinuxSSH(SSHConnection):
                                                           **kwargs)
 
     def config_mode(self, config_command='sudo su'):
-        '''Attempt to become root'''
+        """Attempt to become root."""
         output = ''
         if not self.check_config_mode():
             output += self.send_command(config_command)

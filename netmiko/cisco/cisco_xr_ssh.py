@@ -94,31 +94,19 @@ class CiscoXrSSH(SSHConnection):
 
         return output
 
-
     def exit_config_mode(self, exit_config='end'):
-        '''
-        First check whether in configuration mode.
-
-        If so, exit config mode. Uncommitted changes will be discarded.
-        '''
+        """Exit configuration mode."""
         output = ''
-
         if self.check_config_mode():
             output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
             if "Uncommitted changes found" in output:
                 output += self.send_command('no\n', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-
         return output
-
 
     @staticmethod
     def normalize_linefeeds(a_string):
-        '''
-        Convert '\r\n','\r\r\n', '\n\r', or '\r' to '\n
-        '''
-
+        """Convert '\r\n','\r\r\n', '\n\r', or '\r' to '\n."""
         newline = re.compile(r'(\r\r\n|\r\n|\n\r|\r)')
-
         return newline.sub('\n', a_string)

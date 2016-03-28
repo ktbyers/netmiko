@@ -12,17 +12,12 @@ from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthentication
 class FortinetSSH(SSHConnection):
 
     def session_preparation(self):
-        '''
-        Prepare the session after the connection has been established
-
-        Disable paging
-        Change base prompt
-        '''
+        """Prepare the session after the connection has been established."""
         self.set_base_prompt(pri_prompt_terminator='$')
         self.disable_paging()
 
     def disable_paging(self, delay_factor=.1):
-        '''Disable paging is only available with specific roles so it may fail'''
+        """Disable paging is only available with specific roles so it may fail."""
         check_command = "get system status\n"
         output = self.send_command(check_command)
         self.allow_disable_global = True
