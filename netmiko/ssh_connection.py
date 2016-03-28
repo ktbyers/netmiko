@@ -22,16 +22,10 @@ class SSHConnection(BaseSSHConnection):
         self.clear_buffer()
 
     def check_enable_mode(self, check_string='#'):
-        '''
-        Checks if the device is in enable mode or not
-
-        Returns a boolean
-        '''
-        output = self.send_command('\n', strip_prompt=False, strip_command=False)
-        if check_string in output:
-            return True
-        else:
-            return False
+        """Check if in enable mode. Return boolean."""
+        self.remote_conn.sendall('\n')
+        output = self.read_until_prompt()
+        return check_string in output
 
     def config_mode(self, config_command='config term'):
         """Enter into configuration mode on remote device."""
