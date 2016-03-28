@@ -178,6 +178,7 @@ class BaseSSHConnection(object):
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
+        self.remote_conn.settimeout(timeout)
         self.special_login_handler()
         if verbose:
             print("Interactive SSH session established")
@@ -350,6 +351,17 @@ class BaseSSHConnection(object):
             return '\n'.join(response_list[:-1])
         else:
             return a_string
+
+    def read_until_prompt(self):
+        """Read channel until self.base_prompt detected. Return ALL data available."""
+        output = ''
+        while True:
+            try:
+                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                if self.base_prompt in output:
+                    return output
+            except socket.timeout:
+                raise NetMikoTimeoutException("Error reading channel, no data available.")
 
     def send_command_expect(self, command_string, expect_string=None,
                             delay_factor=.2, max_loops=500, auto_find_prompt=True,

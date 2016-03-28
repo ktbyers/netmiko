@@ -87,7 +87,7 @@ class FortinetSSH(SSHConnection):
                                                                  height=height)
         else:
             self.remote_conn = self.remote_conn_pre.invoke_shell()
-
+        self.remote_conn.settimeout(timeout)
         if verbose:
             print("Interactive SSH session established")
 
