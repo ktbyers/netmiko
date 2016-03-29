@@ -489,8 +489,10 @@ class BaseSSHConnection(object):
         return command
 
     def check_enable_mode(self, check_string=''):
-        """Disable 'check_enable_mode()' method."""
-        raise AttributeError("Network device does not support 'check_enable_mode()' method")
+        """Check if in enable mode. Return boolean."""
+        self.remote_conn.sendall('\n')
+        output = self.read_until_prompt()
+        return check_string in output
 
     def enable(self, cmd='', pattern='password', re_flags=re.IGNORECASE):
         """Enter enable mode."""
@@ -500,13 +502,19 @@ class BaseSSHConnection(object):
             output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
             self.remote_conn.sendall(self.normalize_cmd(self.secret))
             output += self.read_until_prompt()
-        if not self.check_enable_mode():
-            raise ValueError("Failed to enter configuration mode.")
+            if not self.check_enable_mode():
+                raise ValueError("Failed to enter enable mode.")
         return output
 
     def exit_enable_mode(self, exit_command=''):
-        """Disable 'exit_enable_mode()' method."""
-        raise AttributeError("Network device does not support 'exit_enable_mode()' method")
+        """Exit enable mode."""
+        output = ""
+        if self.check_enable_mode():
+            self.remote_conn.sendall(self.normalize_cmd(exit_command))
+            output += self.read_until_prompt()
+            if self.check_enable_mode():
+                raise ValueError("Failed to exit enable mode.")
+        return output
 
     def check_config_mode(self, check_string=''):
         """Checks if the device is in configuration mode or not."""
@@ -520,8 +528,8 @@ class BaseSSHConnection(object):
         if not self.check_config_mode():
             self.remote_conn.sendall(self.normalize_cmd(config_command))
             output = self.read_until_prompt()
-        if not self.check_config_mode():
-            raise ValueError("Failed to enter configuration mode.")
+            if not self.check_config_mode():
+                raise ValueError("Failed to enter configuration mode.")
         return output
 
     def exit_config_mode(self, exit_config=''):
@@ -530,8 +538,8 @@ class BaseSSHConnection(object):
         if self.check_config_mode():
             self.remote_conn.sendall(self.normalize_cmd(exit_config))
             output = self.read_until_prompt()
-        if self.check_config_mode():
-            raise ValueError("Failed to exit configuration mode")
+            if self.check_config_mode():
+                raise ValueError("Failed to exit configuration mode")
         return output
 
     def receive_data_generator(self, delay_factor=.1, max_loops=150):
@@ -582,6 +590,7 @@ class BaseSSHConnection(object):
         output = self.config_mode()
         for cmd in config_commands:
             self.remote_conn.sendall(self.normalize_cmd(cmd))
+            time.sleep(delay_factor / 2.0)
 
         # Gather output
         for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
