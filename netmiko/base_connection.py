@@ -370,6 +370,22 @@ class BaseSSHConnection(object):
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
+    def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
+        """Read channel until either self.base_prompt or pattern is detected. Return ALL data available."""
+        output = ''
+        if not pattern:
+            pattern = self.base_prompt
+        pattern = re.escape(pattern)
+        base_prompt_pattern = re.escape(self.base_prompt)
+        while True:
+            try:
+                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                if re.search(pattern, output, flags=re_flags) or \
+                    re.search(base_prompt_pattern, output, flags=re_flags):
+                    return output
+            except socket.timeout:
+                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+
     def send_command_expect(self, command_string, expect_string=None,
                             delay_factor=.2, max_loops=500, auto_find_prompt=True,
                             strip_prompt=True, strip_command=True):
@@ -499,7 +515,7 @@ class BaseSSHConnection(object):
         output = ""
         if not self.check_enable_mode():
             self.remote_conn.sendall(self.normalize_cmd(cmd))
-            output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
+            output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
             self.remote_conn.sendall(self.normalize_cmd(self.secret))
             output += self.read_until_prompt()
             if not self.check_enable_mode():
