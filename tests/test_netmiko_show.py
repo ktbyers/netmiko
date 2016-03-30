@@ -29,7 +29,6 @@ def test_disable_paging(net_connect, commands, expected_responses):
     multiple_line_output = net_connect.send_command_expect(commands["extended_output"])
     assert expected_responses["multiple_line_output"] in multiple_line_output
 
-
 def test_ssh_connect(net_connect, commands, expected_responses):
     '''
     Verify the connection was established successfully
@@ -37,7 +36,6 @@ def test_ssh_connect(net_connect, commands, expected_responses):
     show_version = net_connect.send_command_expect(commands["version"])
     time.sleep(1)
     assert expected_responses["version_banner"] in show_version
-
 
 def test_send_command(net_connect, commands, expected_responses):
     '''
@@ -48,67 +46,48 @@ def test_send_command(net_connect, commands, expected_responses):
     show_ip = net_connect.send_command(commands["basic"])
     assert expected_responses['interface_ip'] in show_ip
 
-
 def test_send_command_expect(net_connect, commands, expected_responses):
-    '''
-    Verify a command can be sent down the channel successfully using _expect method
-    '''
+    """Verify a command can be sent down the channel successfully using _expect method."""
     time.sleep(1)
     net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command_expect(commands["basic"])
     assert expected_responses['interface_ip'] in show_ip_alt
 
-
 def test_base_prompt(net_connect, commands, expected_responses):
-    '''
-    Verify the router prompt is detected correctly
-    '''
+    """Verify the router prompt is detected correctly."""
     assert net_connect.base_prompt == expected_responses['base_prompt']
 
-
 def test_strip_prompt(net_connect, commands, expected_responses):
-    '''
-    Ensure the router prompt is not in the command output
-    '''
+    """Ensure the router prompt is not in the command output."""
     show_ip = net_connect.send_command(commands["basic"])
     show_ip_alt = net_connect.send_command_expect(commands["basic"])
     assert expected_responses['base_prompt'] not in show_ip
     assert expected_responses['base_prompt'] not in show_ip_alt
 
-
 def test_strip_command(net_connect, commands, expected_responses):
-    '''
-    Ensure that the command that was executed does not show up in the command output
-    '''
+    """Ensure that the command that was executed does not show up in the command output."""
     show_ip = net_connect.send_command(commands["basic"])
     show_ip_alt = net_connect.send_command_expect(commands["basic"])
     assert commands['basic'] not in show_ip
     assert commands['basic'] not in show_ip_alt
 
-
 def test_normalize_linefeeds(net_connect, commands, expected_responses):
-    '''
-    Ensure no '\r\n' sequences
-    '''
+    """Ensure no '\r\n' sequences."""
     show_version = net_connect.send_command(commands["version"])
     show_version_alt = net_connect.send_command_expect(commands["version"])
     assert not '\r\n' in show_version
     assert not '\r\n' in show_version_alt
 
-
 def test_clear_buffer(net_connect, commands, expected_responses):
-    '''
-    Test that clearing the buffer works
-    '''
+    """Test that clearing the buffer works."""
     # Manually send a command down the channel so that data needs read.
     net_connect.remote_conn.sendall(commands["basic"] + '\n')
-    time.sleep(2)
+    time.sleep(4)
     net_connect.clear_buffer()
 
     # Should not be anything there on the second pass
     clear_buffer_check = net_connect.clear_buffer()
     assert clear_buffer_check is None
-
 
 def test_enable_mode(net_connect, commands, expected_responses):
     '''
@@ -123,9 +102,6 @@ def test_enable_mode(net_connect, commands, expected_responses):
     except AttributeError:
         assert True == True
 
-
 def test_disconnect(net_connect, commands, expected_responses):
-    '''
-    Terminate the SSH session
-    '''
+    """Terminate the SSH session."""
     net_connect.disconnect()
