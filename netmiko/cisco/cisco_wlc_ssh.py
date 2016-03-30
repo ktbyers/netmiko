@@ -1,6 +1,4 @@
-'''
-Netmiko Cisco WLC support
-'''
+"""Netmiko Cisco WLC support."""
 from __future__ import print_function
 from __future__ import unicode_literals
 import time
@@ -10,9 +8,8 @@ from netmiko.netmiko_globals import MAX_BUFFER
 
 
 class CiscoWlcSSH(BaseSSHConnection):
-    '''
-    Netmiko Cisco WLC support
-    '''
+    """Netmiko Cisco WLC support."""
+
     def special_login_handler(self, delay_factor=.5):
         '''
         WLC presents with the following on login (in certain OS versions)
@@ -40,7 +37,6 @@ class CiscoWlcSSH(BaseSSHConnection):
                 self.remote_conn.sendall('\n')
                 time.sleep(delay_factor * 2)
             i += 1
-
 
     def send_command_w_enter(self, *args, **kwargs):
         '''
@@ -105,7 +101,5 @@ class CiscoWlcSSH(BaseSSHConnection):
         self.disable_paging(command="config paging disable\n")
 
     def cleanup(self):
-        '''
-        Reset WLC back to normal paging
-        '''
+        """Reset WLC back to normal paging."""
         self.send_command("config paging enable\n")
