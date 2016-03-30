@@ -380,10 +380,8 @@ class BaseSSHConnection(object):
         while True:
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                print(output)
                 if re.search(pattern, output, flags=re_flags) or \
                     re.search(base_prompt_pattern, output, flags=re_flags):
-                    print(output)
                     return output
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
@@ -510,15 +508,12 @@ class BaseSSHConnection(object):
         """Check if in enable mode. Return boolean."""
         self.remote_conn.sendall('\n')
         output = self.read_until_prompt()
-        print(output)
         return check_string in output
 
     def enable(self, cmd='', pattern='password', re_flags=re.IGNORECASE):
         """Enter enable mode."""
-        print("Here")
         output = ""
         if not self.check_enable_mode():
-            print("Here2")
             self.remote_conn.sendall(self.normalize_cmd(cmd))
             output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
             self.remote_conn.sendall(self.normalize_cmd(self.secret))
