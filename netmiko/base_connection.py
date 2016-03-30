@@ -275,11 +275,12 @@ class BaseSSHConnection(object):
 
         # Check if the only thing you received was a newline
         count = 0
-        while count <= 10 and not prompt.strip():
+        while count <= 10 and not prompt:
             if self.wait_for_recv_ready():
                 prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt)
+                prompt = prompt.strip()
             count += 1
 
         # If multiple lines in the output take the last line
