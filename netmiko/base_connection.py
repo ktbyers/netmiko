@@ -317,10 +317,7 @@ class BaseSSHConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         output = ''
         self.clear_buffer()
-
-        from datetime import datetime
         command_string = self.normalize_cmd(command_string)
-
         if debug:
             print("Command is: {0}".format(command_string))
 
@@ -371,7 +368,7 @@ class BaseSSHConnection(object):
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
     def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
-        """Read channel until either self.base_prompt or pattern is detected. Return ALL data available."""
+        """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
         output = ''
         if not pattern:
             pattern = self.base_prompt
@@ -380,8 +377,8 @@ class BaseSSHConnection(object):
         while True:
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                if re.search(pattern, output, flags=re_flags) or \
-                    re.search(base_prompt_pattern, output, flags=re_flags):
+                if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
+                                                                           output, flags=re_flags):
                     return output
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
@@ -594,7 +591,6 @@ class BaseSSHConnection(object):
 
         Automatically exits/enters configuration mode.
         """
-        from datetime import datetime
         debug = False
 
         if config_commands is None:

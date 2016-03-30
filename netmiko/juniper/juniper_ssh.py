@@ -26,8 +26,6 @@ class JuniperSSH(BaseSSHConnection):
 
     def enter_cli_mode(self):
         """Check if at shell prompt root@.*% shell prompt and go into CLI."""
-        from datetime import datetime
-
         count = 0
         cur_prompt = ''
         while count < 50:

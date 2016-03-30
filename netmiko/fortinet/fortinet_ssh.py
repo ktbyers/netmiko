@@ -2,8 +2,6 @@ from netmiko.ssh_connection import SSHConnection
 import paramiko
 import time
 import socket
-import re
-import io
 
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException

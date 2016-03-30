@@ -1,10 +1,8 @@
 """Subclass specific to Cisco ASA."""
 
 from __future__ import unicode_literals
-import time
 import re
 from netmiko.ssh_connection import SSHConnection
-from netmiko.netmiko_globals import MAX_BUFFER
 
 
 class CiscoAsaSSH(SSHConnection):
