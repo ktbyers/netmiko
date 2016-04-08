@@ -59,7 +59,7 @@ class FileTransfer(object):
         src_file_stats = os.stat(source_file)
         self.file_size = src_file_stats.st_size
 
-        check_file_systems = ['flashx:', 'bootflash:']
+        check_file_systems = ['flash:', 'bootflash:']
         if not file_system:
             for test_fs in check_file_systems:
                 cmd = "dir {}".format(test_fs)
