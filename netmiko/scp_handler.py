@@ -51,14 +51,27 @@ class SCPConn(object):
 
 class FileTransfer(object):
     """Class to manage SCP file transfer and associated SSH control channel."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system="flash:"):
+    def __init__(self, ssh_conn, source_file, dest_file, file_system=None):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.source_md5 = self.file_md5(source_file)
         self.dest_file = dest_file
-        self.file_system = file_system
         src_file_stats = os.stat(source_file)
         self.file_size = src_file_stats.st_size
+
+        check_file_systems = ['flashx:', 'bootflash:']
+        if not file_system:
+            for test_fs in check_file_systems:
+                cmd = "dir {}".format(test_fs)
+                output = self.ssh_ctl_chan.send_command_expect(cmd)
+                if '% Invalid' not in output:
+                    file_system = test_fs
+                    break
+            else:
+                raise ValueError("Standard file_system not found on remote device for SCP. " \
+                                 "Please specify file_system")
+        else:
+            self.file_system = file_system
 
     def __enter__(self):
         """Context manager setup"""
