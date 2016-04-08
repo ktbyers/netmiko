@@ -59,7 +59,7 @@ class FileTransfer(object):
         src_file_stats = os.stat(source_file)
         self.file_size = src_file_stats.st_size
         if not file_system:
-            self._autodetect_fs()
+            self.file_system = self.ssh_ctl_chan._autodetect_fs()
         else:
             self.file_system = file_system
 
@@ -73,26 +73,6 @@ class FileTransfer(object):
         self.close_scp_chan()
         if exc_type is not None:
             raise exc_type(exc_value)
-
-    def _autodetect_fs(self):
-        """
-        Autodetect the file system on the remote device.
-
-        Should work for Cisco IOS, IOS-XE, and Cisco ASA.
-        """
-        cmd = "dir"
-        output = self.ssh_ctl_chan.send_command_expect(cmd)
-        match = re.search(r'Directory of (.*)/', output)
-        if match:
-            self.file_system = match.group(1)
-            # Test file_system
-            cmd = "dir {}".format(self.file_system)
-            output = self.ssh_ctl_chan.send_command_expect(cmd)
-            if '% Invalid' not in output:
-                return None
-
-        raise ValueError("An error occurred in dynamically determining remote file " \
-                         "system: {} {}".format(cmd, output))
 
     def establish_scp_conn(self):
         """Establish SCP connection."""

@@ -34,3 +34,18 @@ class SSHConnection(BaseSSHConnection):
         """Gracefully exit the SSH session."""
         self.exit_config_mode()
         self.remote_conn.sendall("exit\n")
+
+    def _autodetect_fs(self, cmd='dir', pattern=r'Directory of (.*)/'):
+        """Autodetect the file system on the remote device. Used by SCP operations."""
+        output = self.send_command_expect(cmd)
+        match = re.search(pattern, output)
+        if match:
+            file_system = match.group(1)
+            # Test file_system
+            cmd = "dir {}".format(file_system)
+            output = self.send_command_expect(cmd)
+            if '% Invalid' not in output:
+                return file_system
+
+        raise ValueError("An error occurred in dynamically determining remote file "
+                         "system: {} {}".format(cmd, output))
