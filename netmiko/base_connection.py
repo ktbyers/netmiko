@@ -76,8 +76,8 @@ class BaseSSHConnection(object):
         early on in the session.
 
         In general, it should include:
-        self.disable_paging()   # if applicable
         self.set_base_prompt()
+        self.disable_paging()   # if applicable
         """
         self.set_base_prompt()
         self.disable_paging()
@@ -201,11 +201,8 @@ class BaseSSHConnection(object):
 
     def disable_paging(self, command="terminal length 0", delay_factor=.1):
         """Disable paging default to a Cisco CLI method."""
-        delay_factor = self.select_delay_factor(delay_factor)
         self.remote_conn.sendall(self.normalize_cmd(command))
-        if self.wait_for_recv_ready():
-            time.sleep(delay_factor)
-            output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         return output
@@ -289,6 +286,8 @@ class BaseSSHConnection(object):
         prompt = prompt.strip()
         if not prompt:
             raise ValueError("Unable to find prompt: {}".format(prompt))
+        time.sleep(delay_factor)
+        self.clear_buffer()
         return prompt
 
     def clear_buffer(self):

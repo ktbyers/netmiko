@@ -10,6 +10,7 @@ class F5LtmSSH(BaseSSHConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
+        self.set_base_prompt()
         self.disable_paging(command="\nset length 0\n")
         time.sleep(1)
         self.tmsh_mode()
