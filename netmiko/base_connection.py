@@ -645,8 +645,9 @@ class BaseSSHConnection(object):
         code_next_line = chr(27) + r'E'
         code_erase_line = chr(27) + r'\[2K'
         code_enable_scroll = chr(27) + r'\[\d+;\d+r'
+        code_dell = chr(27) + r'\[K'
 
-        code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll]
+        code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll, code_dell ]
 
         output = string_buffer
         for ansi_esc_code in code_set:
