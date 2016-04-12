@@ -43,6 +43,9 @@ Alcatel-Lucent SR-OS (experimental)
 <br>      
 ##### More detailed example: #####
 See https://pynet.twb-tech.com/blog/automation/netmiko.html  
+
+##### Netmiko and SSH Proxy #####
+https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html  
   
   
 <br>      
