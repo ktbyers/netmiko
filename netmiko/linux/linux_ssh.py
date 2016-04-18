@@ -1,4 +1,7 @@
 import re
+import socket
+
+from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_connection import SSHConnection
 
 
@@ -29,14 +32,36 @@ class LinuxSSH(SSHConnection):
         return self.enable(cmd=config_command)
 
     def exit_config_mode(self, exit_config='exit'):
-        return super(SSHConnection, self).exit_config_mode(exit_config=exit_config)
+        output = ""
+        if self.check_enable_mode():
+            self.remote_conn.sendall(self.normalize_cmd(exit_config))
+            self.set_base_prompt()
+            if self.check_enable_mode():
+                raise ValueError("Failed to exit enable mode.")
+        return output
 
     def check_enable_mode(self, check_string='#'):
         return self.check_config_mode(check_string=check_string)
 
     def exit_enable_mode(self, exit_command='exit'):
+        """Exit enable mode."""
         return self.exit_config_mode(exit_config=exit_command)
 
     def enable(self, cmd='sudo su', pattern='ssword', re_flags=re.IGNORECASE):
         """Attempt to become root."""
-        return super(SSHConnection, self).enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        output = ""
+        if not self.check_enable_mode():
+            self.remote_conn.sendall(self.normalize_cmd(cmd))
+            pattern = re.escape(pattern)
+            base_prompt_pattern = re.escape(self.base_prompt)
+            output=''
+            try:
+                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                if re.search(pattern, output, flags=re_flags):
+                    self.remote_conn.sendall(self.normalize_cmd(self.secret))
+                self.set_base_prompt()
+            except socket.timeout:
+                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+            if not self.check_enable_mode():
+                raise ValueError("Failed to enter enable mode.")
+        return output
