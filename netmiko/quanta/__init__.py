@@ -1,3 +1,3 @@
-from netmiko.quanta.quanta_ssh import QuantaSSH
+from netmiko.quanta.quanta_mesh_ssh import QuantaMeshSSH
 
-__all__ = ['QuantaSSH']
+__all__ = ['QuantaMeshSSH']
