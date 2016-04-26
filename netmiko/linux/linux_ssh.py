@@ -10,10 +10,7 @@ class LinuxSSH(SSHConnection):
     def set_base_prompt(self, pri_prompt_terminator='$',
                         alt_prompt_terminator='#', delay_factor=.1):
         """Determine base prompt."""
-        return super(SSHConnection, self).set_base_prompt(
-            pri_prompt_terminator=pri_prompt_terminator,
-            alt_prompt_terminator=alt_prompt_terminator,
-            delay_factor=delay_factor)
+        self.base_prompt = '@'
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         """Can't exit from root (if root)"""
