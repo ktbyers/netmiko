@@ -103,47 +103,6 @@ class PaloAltoSSH(BaseSSHConnection):
                              .format(output))
         return output
 
-    """def send_command(self, command_string, delay_factor=.1, max_loops=150,
-                     strip_prompt=True, strip_command=True):
-        '''
-        Execute command_string on the SSH channel.
-
-        Use delay based mechanism to obtain output.  Strips echoed characters and router prompt.
-
-        delay_factor can be used to increase the delays.
-
-        max_loops can be used to increase the number of times it reads the data buffer
-
-        Returns the output of the command.
-        '''
-        debug = False
-        if debug:
-            print('In send_command')
-
-        delay_factor = self.select_delay_factor(delay_factor)
-        output = ''
-        self.clear_buffer()
-        command_string = self.normalize_cmd(command_string)
-        if debug:
-            print("Command is: {0}".format(command_string))
-
-        self.remote_conn.sendall(command_string)
-        for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
-                                                      max_loops=max_loops):
-            output += tmp_output
-
-        # Some platforms have ansi_escape codes
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
-        output = self.normalize_linefeeds(output)
-        if strip_command:
-            output = self.strip_command(command_string, output)
-        if strip_prompt:
-            output = self.strip_prompt(output)
-        if debug:
-            print(output)
-        return output"""
-
     def strip_prompt(self, a_string):
         '''
         Strip the trailing router prompt from the output
