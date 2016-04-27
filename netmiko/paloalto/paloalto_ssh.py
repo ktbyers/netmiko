@@ -82,15 +82,16 @@ class PaloAltoSSH(BaseSSHConnection):
         if force:
             command_string += ' force'
         if partial:
+            command_string += ' partial'
             if vsys:
                 command_string += ' {0}'.format(vsys)
             if device_and_network:
-                command_string += ' device_and_network'
+                command_string += ' device-and-network'
             if policy_and_objects:
-                command_string += ' device_and_network'
+                command_string += ' device-and-network'
             if no_vsys:
                 command_string += ' no-vsys'
-            command_string += ' exluded'
+            command_string += ' excluded'
 
         # Enter config mode (if necessary)
         output = self.config_mode()
