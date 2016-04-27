@@ -6,7 +6,7 @@ from netmiko.netmiko_globals import MAX_BUFFER
 import time
 
 
-class PaloAltoSSH(BaseSSHConnection):
+class PaloAltoPanosSSH(BaseSSHConnection):
     '''
     Implement methods for interacting with PaloAlto devices.
 
@@ -20,7 +20,7 @@ class PaloAltoSSH(BaseSSHConnection):
         Disable paging (the '--more--' prompts).
         Set the base prompt for interaction ('>').
         """
-        self.set_base_prompt(delay_factor=1.5)
+        self.set_base_prompt(delay_factor=3)
         self.disable_paging(command="set cli pager off\n")
 
     def check_enable_mode(self, *args, **kwargs):
@@ -37,11 +37,11 @@ class PaloAltoSSH(BaseSSHConnection):
 
     def check_config_mode(self, check_string=']'):
         """Checks if the device is in configuration mode or not."""
-        return super(PaloAltoSSH, self).check_config_mode(check_string=check_string)
+        return super(PaloAltoPanosSSH, self).check_config_mode(check_string=check_string)
 
     def config_mode(self, config_command='configure'):
         """Enter configuration mode."""
-        return super(PaloAltoSSH, self).config_mode(config_command=config_command)
+        return super(PaloAltoPanosSSH, self).config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config='exit'):
         """Exit configuration mode."""
@@ -96,33 +96,17 @@ class PaloAltoSSH(BaseSSHConnection):
         # Enter config mode (if necessary)
         output = self.config_mode()
         output += self.send_command_expect(command_string, strip_prompt=False,
-                                           strip_command=False,
-                                           delay_factor=delay_factor)
+                                           strip_command=False, expect_string='100%')
 
         if commit_marker not in output.lower():
             raise ValueError("Commit failed with the following errors:\n\n{0}"
                              .format(output))
         return output
 
-    def strip_prompt(self, a_string):
-        '''
-        Strip the trailing router prompt from the output
-        '''
-        response_list = a_string.split('\n')
-        new_response_list = []
-        for line in response_list:
-            if self.base_prompt not in line:
-                new_response_list.append(line)
-
-        output = '\n'.join(new_response_list)
-        return self.strip_context_items(output)
-
-    def strip_command(self, command_string, output):
-        '''
-        Strip the command string from the output
-        '''
-        output_list = output.split(command_string)
-        return '\n'.join(output_list)
+    def strip_prompt(self, *args, **kwargs):
+        """Strip the trailing router prompt from the output."""
+        a_string = super(PaloAltoPanosSSH, self).strip_prompt(*args, **kwargs)
+        return self.strip_context_items(a_string)
 
     @staticmethod
     def strip_context_items(a_string):

@@ -26,7 +26,7 @@ from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.dell import DellForce10SSH
-from netmiko.paloalto import PaloAltoSSH
+from netmiko.paloalto import PaloAltoPanosSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -57,7 +57,7 @@ CLASS_MAPPER_BASE = {
     'alcatel_sros': AlcatelSrosSSH,
     'fortinet': FortinetSSH,
     'dell_force10': DellForce10SSH,
-    'paloalto': PaloAltoSSH,
+    'paloalto_panos': PaloAltoPanosSSH,
 }
 
 # Also support keys that end in _ssh
