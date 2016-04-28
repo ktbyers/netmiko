@@ -103,10 +103,25 @@ class PaloAltoPanosSSH(BaseSSHConnection):
                              .format(output))
         return output
 
-    def strip_prompt(self, *args, **kwargs):
-        """Strip the trailing router prompt from the output."""
-        a_string = super(PaloAltoPanosSSH, self).strip_prompt(*args, **kwargs)
-        return self.strip_context_items(a_string)
+    def strip_command(self, command_string, output):
+        """
+        Strip command_string from output string
+        """
+        output_list = output.split(command_string)
+        return '\n'.join(output_list)
+
+    def strip_prompt(self, a_string):
+        '''
+        Strip the trailing router prompt from the output
+        '''
+        response_list = a_string.split('\n')
+        new_response_list = []
+        for line in response_list:
+            if self.base_prompt not in line:
+                new_response_list.append(line)
+
+        output = '\n'.join(new_response_list)
+        return self.strip_context_items(output)
 
     @staticmethod
     def strip_context_items(a_string):

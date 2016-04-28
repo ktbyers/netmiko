@@ -19,3 +19,11 @@ juniper:
   cmd_response_init: 'archive size 110k files 3'
   cmd_response_final: 'archive size 120k files 3'
   commit_comment: 'Unit test on commit with comment'
+
+paloalto_panos:
+  base_prompt: ntc@pa1
+  router_prompt: ntc@pa1>
+  enable_prompt: ntc@pa1>
+  interface_ip: '10.0.0.90'
+  multiple_line_output: 'logdb-version: 7.0.9'
+  version_banner: "sw-version: 7.0.1"
