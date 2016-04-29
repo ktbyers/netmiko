@@ -71,7 +71,7 @@ def test_command_set(net_connect, commands, expected_responses):
 
     print(3)
     cmd_response = expected_responses.get('cmd_response_init')
-    config_commands_output = net_connect.send_command_expect(config_verify, delay_factor=2)
+    config_commands_output = net_connect.send_command_expect(config_verify)
     if cmd_response:
         assert cmd_response in config_commands_output
     else:
@@ -84,7 +84,7 @@ def test_command_set(net_connect, commands, expected_responses):
 
     print(5)
     cmd_response = expected_responses.get('cmd_response_final')
-    config_commands_output = net_connect.send_command_expect(config_verify, delay_factor=2)
+    config_commands_output = net_connect.send_command_expect(config_verify)
     print(6)
     if cmd_response:
         assert cmd_response in config_commands_output

@@ -26,16 +26,15 @@ def test_disable_paging(net_connect, commands, expected_responses):
     '''
     Verify paging is disabled by looking for string after when paging would normally occur
     '''
-    multiple_line_output = net_connect.send_command_expect(commands["extended_output"], delay_factor=2)
-    time.sleep(3)
+    multiple_line_output = net_connect.send_command_expect(commands["extended_output"])
     assert expected_responses["multiple_line_output"] in multiple_line_output
 
 def test_ssh_connect(net_connect, commands, expected_responses):
     '''
     Verify the connection was established successfully
     '''
-    show_version = net_connect.send_command_expect(commands["version"], delay_factor=2)
-    time.sleep(3)
+    show_version = net_connect.send_command_expect(commands["version"])
+    time.sleep(1)
     assert expected_responses["version_banner"] in show_version
 
 def test_send_command(net_connect, commands, expected_responses):
@@ -49,9 +48,9 @@ def test_send_command(net_connect, commands, expected_responses):
 
 def test_send_command_expect(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully using _expect method."""
-    time.sleep(3)
+    time.sleep(1)
     net_connect.clear_buffer()
-    show_ip_alt = net_connect.send_command_expect(commands["basic"], delay_factor=2)
+    show_ip_alt = net_connect.send_command_expect(commands["basic"])
     assert expected_responses['interface_ip'] in show_ip_alt
 
 def test_base_prompt(net_connect, commands, expected_responses):
