@@ -1,3 +1,3 @@
-from netmiko.paloalto.paloalto_ssh import PaloAltoPanosSSH
+from netmiko.paloalto.paloalto_panos_ssh import PaloAltoPanosSSH
 
 __all__ = ['PaloAltoPanosSSH']
