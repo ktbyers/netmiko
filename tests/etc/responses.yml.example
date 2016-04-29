@@ -26,4 +26,6 @@ paloalto_panos:
   enable_prompt: ntc@pa1>
   interface_ip: '10.0.0.90'
   multiple_line_output: 'logdb-version: 7.0.9'
-  version_banner: "sw-version: 7.0.1"
+  version_banner: 'sw-version: 7.0.1'
+  cmd_response_init: 'new_test'
+  cmd_response_final: 'another_test'

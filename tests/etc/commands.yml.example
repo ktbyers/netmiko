@@ -71,8 +71,8 @@ paloalto_panos:
   basic: "show system info"
   extended_output: "show system info"
   config:
-    - 'set network vlan testing'
-    - 'set network vlan testingggg'
+    - 'set network vlan new_test'
+    - 'set network vlan another_test'
   support_commit: True
-  config_verification: "run show vlan all"
+  config_verification: 'run show vlan all'
 
