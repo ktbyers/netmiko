@@ -12,10 +12,6 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device arista_sw4 \
 && py.test -v test_netmiko_config.py --test_device arista_sw4 \
 \
-&& echo "HP ProCurve" \
-&& py.test -v test_netmiko_show.py --test_device hp_procurve \
-&& py.test -v test_netmiko_config.py --test_device hp_procurve \
-\
 && echo "Juniper" \
 && py.test -v test_netmiko_show.py --test_device juniper_srx \
 && py.test -v test_netmiko_config.py --test_device juniper_srx \
