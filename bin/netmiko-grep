@@ -10,11 +10,8 @@ import io
 import subprocess
 import re
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 from netmiko import ConnectHandler
+from pprint import pprint as pp
 
 GREP = '/bin/grep'
 
@@ -26,12 +23,9 @@ def grepx(files, pattern, grep_options, use_colors=True):
     if use_colors:
         grep_options += ['--color=auto']
     grep_list = [GREP] + grep_options + [pattern] + files
-    print(grep_list)
-    #proc = subprocess.Popen(grep_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    #print(grep_list)
     proc = subprocess.Popen (grep_list, shell=False)
     proc.communicate()
-    #std_err = ''
-    #(output, std_err) = proc.communicate()
     return ''
 
 def load_devices(yaml_file='.netmiko.cfg'):
@@ -40,7 +34,6 @@ def load_devices(yaml_file='.netmiko.cfg'):
         import yaml
     except ImportError:
         sys.exit("Unable to import yaml module.")
-
     try:
         with io.open(yaml_file, encoding='utf-8') as fname:
             return yaml.load(fname)
@@ -56,30 +49,32 @@ def main():
     parser.add_argument("--password", help="Password", action="store", type=str)
     cli_args = parser.parse_args()
     cli_command = cli_args.cmd
-    device_id = cli_args.device_id
+    device_id = cli_args.device_id.strip()
     pattern = cli_args.pattern
 
     my_devices = load_devices()
     try:
         device = my_devices[device_id]
+        device_group = {}
+        if isinstance(device, list):
+            for tmp_device in device:
+                device_group[tmp_device] = my_devices[tmp_device]
+        else:
+            device_group[device_id] = device
     except KeyError:
         print("Key Error")
         sys.exit(1)
 
-    net_connect = ConnectHandler(**device)
-    # Create memory buffer
-    #output = StringIO()
-    #output.write(net_connect.send_command_expect(cli_command))
-    file_name = "/tmp/netmiko_grep_exp2.txt"
-    file_name2 = "/tmp/netmiko_grep_exp2.txt"
-    #with open(file_name, "w") as f:
-    #    f.write(net_connect.send_command_expect(cli_command))
+    my_files = []
+    for device_name, a_device in device_group.items():
+        net_connect = ConnectHandler(**a_device)
+        file_name = "/tmp/{0}.txt".format(device_name)
+        with open(file_name, "w") as f:
+            f.write(net_connect.send_command_expect(cli_command))
+        my_files.append(file_name)
 
-    #print(output.getvalue())
-    #print(dir(output))
-    #pattern = 'log'
     grep_options = []
-    grep_out = grepx([file_name, file_name2], pattern, grep_options)
+    grep_out = grepx(my_files, pattern, grep_options)
     return 0
 
 if __name__ == "__main__":
