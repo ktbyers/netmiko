@@ -10,7 +10,7 @@ from netmiko.netmiko_globals import MAX_BUFFER
 class CiscoWlcSSH(BaseSSHConnection):
     """Netmiko Cisco WLC support."""
 
-    def special_login_handler(self, delay_factor=.5):
+    def special_login_handler(self, delay_factor=1):
         '''
         WLC presents with the following on login (in certain OS versions)
 
@@ -24,6 +24,7 @@ class CiscoWlcSSH(BaseSSHConnection):
         '''
         delay_factor = self.select_delay_factor(delay_factor)
         i = 0
+        time.sleep(delay_factor * .5)
         while i <= 12:
             if self.remote_conn.recv_ready():
                 output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
@@ -32,10 +33,10 @@ class CiscoWlcSSH(BaseSSHConnection):
                 elif 'Password' in output:
                     self.remote_conn.sendall(self.password + '\n')
                     break
-                time.sleep(delay_factor / 2)
+                time.sleep(delay_factor * 1)
             else:
                 self.remote_conn.sendall('\n')
-                time.sleep(delay_factor * 2)
+                time.sleep(delay_factor * 1.5)
             i += 1
 
     def send_command_w_enter(self, *args, **kwargs):
