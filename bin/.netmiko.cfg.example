@@ -1,0 +1,13 @@
+pynet_rtr1:
+    device_type: cisco_ios
+    ip: 10.10.10.27
+    username: admin
+    password: password1
+    port: 22
+
+pynet_rtr2:
+    device_type: cisco_ios
+    ip: 10.10.10.27
+    username: admin
+    password: password1
+    port: 8022
