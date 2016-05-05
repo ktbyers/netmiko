@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+"""Create grep like remote behavior on show run or command output"""
+
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import argparse
+import sys
+import io
+import subprocess
+import re
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
+from netmiko import ConnectHandler
+
+GREP = '/bin/grep'
+
+
+def grepx(files, pattern, grep_options, use_colors=True):
+    """Call system grep"""
+    if not isinstance(files, (list, tuple)):
+        files = [files]
+    if use_colors:
+        grep_options += ['--color=auto']
+    grep_list = [GREP] + grep_options + [pattern] + files
+    print(grep_list)
+    #proc = subprocess.Popen(grep_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen (grep_list, shell=False)
+    proc.communicate()
+    #std_err = ''
+    #(output, std_err) = proc.communicate()
+    return ''
+
+def load_devices(yaml_file='.netmiko.cfg'):
+    """Parses .netmiko.cfg file, returning its contents as a dict."""
+    try:
+        import yaml
+    except ImportError:
+        sys.exit("Unable to import yaml module.")
+
+    try:
+        with io.open(yaml_file, encoding='utf-8') as fname:
+            return yaml.load(fname)
+    except IOError:
+        sys.exit("Unable to open YAML file: {0}".format(yaml_file))
+
+def main():
+    parser = argparse.ArgumentParser(description="Experimental netmiko-grep")
+    parser.add_argument("pattern", help="Pattern to search for", action="store", type=str)
+    parser.add_argument("device_id", help="Device to connect to", action="store", type=str)
+    parser.add_argument("--cmd", help="Remote command to execute", action="store", default="show run", type=str)
+    parser.add_argument("--username", help="Username", action="store", type=str)
+    parser.add_argument("--password", help="Password", action="store", type=str)
+    cli_args = parser.parse_args()
+    cli_command = cli_args.cmd
+    device_id = cli_args.device_id
+    pattern = cli_args.pattern
+
+    my_devices = load_devices()
+    try:
+        device = my_devices[device_id]
+    except KeyError:
+        print("Key Error")
+        sys.exit(1)
+
+    net_connect = ConnectHandler(**device)
+    # Create memory buffer
+    #output = StringIO()
+    #output.write(net_connect.send_command_expect(cli_command))
+    file_name = "/tmp/netmiko_grep_exp2.txt"
+    file_name2 = "/tmp/netmiko_grep_exp2.txt"
+    #with open(file_name, "w") as f:
+    #    f.write(net_connect.send_command_expect(cli_command))
+
+    #print(output.getvalue())
+    #print(dir(output))
+    #pattern = 'log'
+    grep_options = []
+    grep_out = grepx([file_name, file_name2], pattern, grep_options)
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
