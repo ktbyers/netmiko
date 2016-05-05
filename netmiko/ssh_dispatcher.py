@@ -1,7 +1,4 @@
-'''
-Controls selection of proper class based on the device type
-'''
-
+"""Controls selection of proper class based on the device type"""
 from __future__ import unicode_literals
 from netmiko.cisco import CiscoIosSSH
 from netmiko.cisco import CiscoAsaSSH
@@ -27,6 +24,7 @@ from netmiko.extreme import ExtremeSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.paloalto import PaloAltoPanosSSH
+from netmiko.quanta import QuantaMeshSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -58,6 +56,7 @@ CLASS_MAPPER_BASE = {
     'fortinet': FortinetSSH,
     'dell_force10': DellForce10SSH,
     'paloalto_panos': PaloAltoPanosSSH,
+    'quanta_mesh': QuantaMeshSSH,
 }
 
 # Also support keys that end in _ssh
@@ -82,16 +81,12 @@ def ConnectHandler(*args, **kwargs):
 
     Returns the object
     '''
-
     if kwargs['device_type'] not in platforms:
         raise ValueError('Unsupported device_type: '
                          'currently supported platforms are: {0}'.format(platforms_str))
     ConnectionClass = ssh_dispatcher(kwargs['device_type'])
     return ConnectionClass(*args, **kwargs)
 
-
 def ssh_dispatcher(device_type):
-    '''
-    Select the class to be instantiated based on vendor/platform
-    '''
+    """Select the class to be instantiated based on vendor/platform."""
     return CLASS_MAPPER[device_type]
