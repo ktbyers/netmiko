@@ -56,7 +56,7 @@ setup(
               'netmiko/alcatel',
               'netmiko/dell',
               'netmiko/avaya',
-              'netmiko/paloalto'],
+              'netmiko/paloalto',
               'netmiko/quanta'],
     install_requires=['paramiko>=1.13.0', 'scp>=0.10.0'],
     extras_require={
