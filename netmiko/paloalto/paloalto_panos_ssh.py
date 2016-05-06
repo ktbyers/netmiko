@@ -2,8 +2,6 @@ from __future__ import unicode_literals
 import re
 
 from netmiko.ssh_connection import BaseSSHConnection
-from netmiko.netmiko_globals import MAX_BUFFER
-import time
 
 
 class PaloAltoPanosSSH(BaseSSHConnection):
@@ -144,3 +142,8 @@ class PaloAltoPanosSSH(BaseSSHConnection):
                 return "\n".join(response_list[:-1])
 
         return a_string
+
+    def send_command_expect(self, *args, **kwargs):
+        """Palo Alto requires an extra delay"""
+        kwargs['delay_factor'] = kwargs.get('delay_factor', .5)
+        return super(PaloAltoPanosSSH, self).send_command_expect(*args, **kwargs)
