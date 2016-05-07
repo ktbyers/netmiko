@@ -11,6 +11,7 @@ import subprocess
 import re
 import threading
 from Queue import Queue
+from datetime import datetime, timedelta
 
 from netmiko import ConnectHandler
 from pprint import pprint as pp
@@ -18,7 +19,7 @@ from pprint import pprint as pp
 GREP = '/bin/grep'
 
 # Dictionary mapping 'show run' for vendors with different command
-SHOW_RUN = {
+SHOW_RUN_MAPPER = {
     'juniper': 'show configuration',
     'juniper_junos': 'show configuration',
 }
@@ -61,6 +62,7 @@ def ssh_conn(device_name, a_device, cli_command, output_q):
     output_q.put({device_name: output})
 
 def main():
+    start_time = datetime.now()
     parser = argparse.ArgumentParser(description="Experimental netmiko-grep")
     parser.add_argument("pattern", help="Pattern to search for", action="store", type=str)
     parser.add_argument("device_id", help="Device to connect to", action="store", type=str)
@@ -69,6 +71,9 @@ def main():
     parser.add_argument("--password", help="Password", action="store", type=str)
     cli_args = parser.parse_args()
     cli_command = cli_args.cmd
+    cmd_arg = False
+    if cli_command:
+        cmd_arg = True
     device_id = cli_args.device_id.strip()
     pattern = cli_args.pattern
 
@@ -88,8 +93,8 @@ def main():
         sys.exit(1)
 
     for device_name, a_device in device_group.items():
-        if not cli_command:
-            cli_command = SHOW_RUN.get(a_device['device_type'], 'show run')
+        if not cmd_arg:
+            cli_command = SHOW_RUN_MAPPER.get(a_device['device_type'], 'show run')
         my_thread = threading.Thread(target=ssh_conn, args=(device_name, a_device, cli_command, output_q))
         my_thread.start()
 
@@ -109,6 +114,7 @@ def main():
 
     grep_options = []
     grep_out = grepx(my_files, pattern, grep_options)
+    print("Total time: {0}".format(datetime.now() - start_time))
     return 0
 
 if __name__ == "__main__":
