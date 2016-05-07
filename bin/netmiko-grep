@@ -32,7 +32,6 @@ def grepx(files, pattern, grep_options, use_colors=True):
     if use_colors:
         grep_options += ['--color=auto']
     grep_list = [GREP] + grep_options + [pattern] + files
-    #print(grep_list)
     proc = subprocess.Popen (grep_list, shell=False)
     proc.communicate()
     return ''
@@ -49,8 +48,12 @@ def load_devices(yaml_file='.netmiko.cfg'):
     except IOError:
         sys.exit("Unable to open YAML file: {0}".format(yaml_file))
 
+def obtain_file_name(device_name):
+    """Create file name based on device_name."""
+    return "/tmp/{0}.txt".format(device_name)
+
 def write_tmp_file(device_name, output):
-    file_name = "/tmp/{0}.txt".format(device_name)
+    file_name = obtain_file_name(device_name)
     with open(file_name, "w") as f:
         f.write(output)
     return file_name
@@ -69,6 +72,7 @@ def main():
     parser.add_argument("--cmd", help="Remote command to execute", action="store", default=None, type=str)
     parser.add_argument("--username", help="Username", action="store", type=str)
     parser.add_argument("--password", help="Password", action="store", type=str)
+    parser.add_argument("--use_cache", help="Use cached files", action="store_true")
     cli_args = parser.parse_args()
     cli_command = cli_args.cmd
     cmd_arg = False
@@ -76,6 +80,7 @@ def main():
         cmd_arg = True
     device_id = cli_args.device_id.strip()
     pattern = cli_args.pattern
+    use_cached_files = cli_args.use_cache
 
     output_q = Queue()
     my_devices = load_devices()
@@ -92,25 +97,32 @@ def main():
               " Device or group not found: {0}".format(device_id))
         sys.exit(1)
 
-    for device_name, a_device in device_group.items():
-        if not cmd_arg:
-            cli_command = SHOW_RUN_MAPPER.get(a_device['device_type'], 'show run')
-        my_thread = threading.Thread(target=ssh_conn, args=(device_name, a_device, cli_command, output_q))
-        my_thread.start()
-
-    # Make sure all threads have finished
-    main_thread = threading.currentThread()
-    for some_thread in threading.enumerate():
-        if some_thread != main_thread:
-            some_thread.join()
-
+    # Retrieve output from devices
     my_files = []
-    while not output_q.empty():
-        my_dict = output_q.get()
-        for device_name, output in my_dict.iteritems():
-            file_name = write_tmp_file(device_name, output)
-            my_files.append(file_name)
+    if not use_cached_files:
+        for device_name, a_device in device_group.items():
+            if not cmd_arg:
+                cli_command = SHOW_RUN_MAPPER.get(a_device['device_type'], 'show run')
+            my_thread = threading.Thread(target=ssh_conn, args=(device_name, a_device, cli_command, output_q))
+            my_thread.start()
+    
+        # Make sure all threads have finished
+        main_thread = threading.currentThread()
+        for some_thread in threading.enumerate():
+            if some_thread != main_thread:
+                some_thread.join()
 
+        # Write files
+        while not output_q.empty():
+            my_dict = output_q.get()
+            for device_name, output in my_dict.iteritems():
+                file_name = write_tmp_file(device_name, output)
+                my_files.append(file_name)
+
+    else:
+        for device_name in device_group:
+            file_name = obtain_file_name(device_name)
+            my_files.append(file_name)
 
     grep_options = []
     grep_out = grepx(my_files, pattern, grep_options)
