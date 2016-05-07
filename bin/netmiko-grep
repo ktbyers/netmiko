@@ -1,5 +1,13 @@
 #!/usr/bin/env python
-"""Create grep like remote behavior on show run or command output"""
+"""
+Create grep like remote behavior on show run or command output
+
+ToDo:
+1. Auto-build 'all' group
+2. No support for grep options
+3. Unit tests
+4. Test on larger set of devices >50
+"""
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -131,9 +139,5 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
-
-
 
 
