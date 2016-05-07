@@ -43,7 +43,10 @@ def load_devices(yaml_file='.netmiko.cfg'):
         sys.exit("Unable to open YAML file: {0}".format(yaml_file))
 
 def write_tmp_file(device_name, output):
-    pass
+    file_name = "/tmp/{0}.txt".format(device_name)
+    with open(file_name, "w") as f:
+        f.write(output)
+    return file_name
 
 def ssh_conn(device_name, a_device, cli_command, output_q):
     net_connect = ConnectHandler(**a_device)
@@ -73,7 +76,8 @@ def main():
         else:
             device_group[device_id] = device
     except KeyError:
-        print("Key Error")
+        print("Error reading from .netmiko.cfg file."
+              " Device or group not found: {0}".format(device_id))
         sys.exit(1)
 
     for device_name, a_device in device_group.items():
@@ -90,24 +94,13 @@ def main():
     while not output_q.empty():
         my_dict = output_q.get()
         for device_name, output in my_dict.iteritems():
-#            file_name = write_tmp_file(device_name, output)
-#            print file_name
-#            file_name = "/tmp/{0}.txt".format(device_name)
-            print(device_name)
-            print(output)
-
-#    with open(file_name, "w") as f:
-#        f.write(net_connect.send_command_expect(cli_command))
-#
-#    grep_options = []
-#
-#
-#    grep_out = grepx(my_files, pattern, grep_options)
-#    return 0
+            file_name = write_tmp_file(device_name, output)
+            my_files.append(file_name)
 
 
-
-
+    grep_options = []
+    grep_out = grepx(my_files, pattern, grep_options)
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())
