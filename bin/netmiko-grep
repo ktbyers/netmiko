@@ -9,6 +9,8 @@ ToDo:
 5. Write to ~/.netmiko directory
 6. Look for .netmiko.cfg in local dir then ~
 7. Remove files (what about cache)
+8. Test on windows
+9. Test username/password arguments
 """
 
 from __future__ import print_function
