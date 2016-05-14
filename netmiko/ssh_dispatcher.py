@@ -83,6 +83,7 @@ def ConnectHandler(*args, **kwargs):
     ConnectionClass = ssh_dispatcher(kwargs['device_type'])
     return ConnectionClass(*args, **kwargs)
 
+
 def ssh_dispatcher(device_type):
     """Select the class to be instantiated based on vendor/platform."""
     return CLASS_MAPPER[device_type]
