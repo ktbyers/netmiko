@@ -5,8 +5,7 @@ from netmiko.scp_handler import SCPConn
 from netmiko.scp_handler import FileTransfer
 from netmiko.ssh_exception import NetMikoTimeoutException
 from netmiko.ssh_exception import NetMikoAuthenticationException
-from netmiko.utilities import load_yaml_file
 
 __version__ = '0.5.0'
 __all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTransfer',
-           'NetMikoTimeoutException', 'NetMikoAuthenticationException', 'load_yaml_file',)
+           'NetMikoTimeoutException', 'NetMikoAuthenticationException',)
