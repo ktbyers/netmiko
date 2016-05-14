@@ -1,4 +1,4 @@
-"""Controls selection of proper class based on the device type"""
+"""Controls selection of proper class based on the device type."""
 from __future__ import unicode_literals
 from netmiko.cisco import CiscoIosSSH
 from netmiko.cisco import CiscoAsaSSH
@@ -76,11 +76,7 @@ platforms_str = u"\n" + platforms_str
 
 
 def ConnectHandler(*args, **kwargs):
-    '''
-    Factory function that selects the proper class and instantiates the object based on device_type
-
-    Returns the object
-    '''
+    """Factory function selects the proper class and creates object based on device_type."""
     if kwargs['device_type'] not in platforms:
         raise ValueError('Unsupported device_type: '
                          'currently supported platforms are: {0}'.format(platforms_str))
