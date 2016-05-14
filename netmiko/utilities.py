@@ -1,4 +1,7 @@
 """Miscellaneous utility functions."""
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import sys
 import io
 import os
@@ -35,3 +38,37 @@ def find_cfg_file(file_name=None):
         if os.path.isfile(test_file):
             return test_file
     raise IOError("{} file not found in current dir or home dir.".format(file_name))
+
+
+def display_inventory(my_devices):
+    """Print out inventory devices and groups."""
+    inventory_groups = ['all']
+    inventory_devices = []
+    for k, v in my_devices.items():
+        if isinstance(v, list):
+            inventory_groups.append(k)
+        elif isinstance(v, dict):
+            inventory_devices.append((k, v['device_type']))
+
+    inventory_groups.sort()
+    inventory_devices.sort(key=lambda x: x[0])
+    print("\nDevices:")
+    print('-' * 40)
+    for a_device, device_type in inventory_devices:
+        device_type = "  ({})".format(device_type)
+        print("{:<25}{:>15}".format(a_device, device_type))
+    print("\n\nGroups:")
+    print('-' * 40)
+    for a_group in inventory_groups:
+        print(a_group)
+    print()
+
+
+def obtain_all_devices(my_devices):
+    """Dynamically create 'all' group."""
+    new_devices = {}
+    for device_name, device_or_group in my_devices.items():
+        # Skip any groups
+        if not isinstance(device_or_group, list):
+            new_devices[device_name] = device_or_group
+    return new_devices
