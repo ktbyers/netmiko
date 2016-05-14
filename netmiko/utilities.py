@@ -6,6 +6,12 @@ import sys
 import io
 import os
 
+# Dictionary mapping 'show run' for vendors with different command
+SHOW_RUN_MAPPER = {
+    'juniper': 'show configuration',
+    'juniper_junos': 'show configuration',
+}
+
 
 def load_yaml_file(yaml_file):
     """Read YAML file."""
