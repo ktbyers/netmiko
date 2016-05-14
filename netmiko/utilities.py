@@ -19,11 +19,11 @@ def load_yaml_file(yaml_file):
 
 def load_devices():
     """Find and load .netmiko.cfg YAML file."""
-    yaml_devices_file = find_file()
+    yaml_devices_file = find_cfg_file()
     return load_yaml_file(yaml_devices_file)
 
 
-def find_file(file_name=None):
+def find_cfg_file(file_name=None):
     """Look for .netmiko.cfg in current dir, then ~/.netmiko.cfg."""
     check_files = [
         '.netmiko.cfg',
