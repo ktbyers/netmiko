@@ -8,10 +8,10 @@ Python 2.6, 2.7, 3.3, 3.4, 3.5
   
 <br>
 ##### Requires: #####
-Paramiko >= 1.13+ ( >=1.7.5+ if Python2)  
+Paramiko >= 1.13+  
 scp >= 0.10.0  
+pyyaml  
 pytest (for unit tests)   
-pyyaml (for unit tests)   
   
   
 <br>  
