@@ -110,6 +110,7 @@ def obtain_all_devices(my_devices):
             new_devices[device_name] = device_or_group
     return new_devices
 
+
 def display_inventory(my_devices):
     """Print out inventory devices and groups."""
     inventory_groups = ['all']
@@ -133,54 +134,61 @@ def display_inventory(my_devices):
         print(a_group)
     print()
 
-#    for k in device_group:
-#        print(k)
-#    pprint(device_group)
-    sys.exit()
 
-def main():
-    start_time = datetime.now()
+def parse_arguments(args):
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Grep pattern search on Netmiko output")
-    arg_pattern = parser.add_argument("pattern", nargs='?', help="Pattern to search for", action="store", type=str)
-    arg_device_id = parser.add_argument("device_id", nargs='?', help="Device to connect to", action="store", type=str)
+    arg_pattern = parser.add_argument("pattern", nargs='?', help="Pattern to search for",
+                                      action="store", type=str)
+    arg_devices = parser.add_argument("devices", nargs='?', help="Device or group to connect to",
+                                      action="store", type=str)
     parser.add_argument("--cmd", help="Remote command to execute",
                         action="store", default=None, type=str)
     parser.add_argument("--username", help="Username", action="store", type=str)
     parser.add_argument("--password", help="Password", action="store", type=str)
     parser.add_argument("--use_cache", help="Use cached files", action="store_true")
     parser.add_argument("--list-devices", help="List devices from inventory", action="store_true")
-    #parser.error('whatever')
-    #raise argparse.ArgumentError(arg_pattern, 'test123')
-    cli_args = parser.parse_args()
+    cli_args = parser.parse_args(args)
+    if not cli_args.list_devices:
+        if not cli_args.devices or not cli_args.pattern:
+            parser.error('Grep pattern or devices not specified.')
+    return cli_args
+
+
+def main(args):
+    start_time = datetime.now()
+    cli_args = parse_arguments(args)
+
     list_devices = cli_args.list_devices
     if list_devices:
         my_devices = load_devices()
         display_inventory(my_devices)
+        return 0
 
     cli_command = cli_args.cmd
     cmd_arg = False
     if cli_command:
         cmd_arg = True
-    device_id = cli_args.device_id.strip()
+    device_or_group = cli_args.devices.strip()
     pattern = cli_args.pattern
     use_cached_files = cli_args.use_cache
 
     output_q = Queue()
     my_devices = load_devices()
-    if device_id == 'all':
+    if device_or_group == 'all':
         device_group = obtain_all_devices(my_devices)
     else:
         try:
-            devicedict_or_group = my_devices[device_id]
+            devicedict_or_group = my_devices[device_or_group]
             device_group = {}
             if isinstance(devicedict_or_group, list):
                 for tmp_device_name in devicedict_or_group:
                     device_group[tmp_device_name] = my_devices[tmp_device_name]
             else:
-                device_group[device_id] = devicedict_or_group
+                device_group[device_or_group] = devicedict_or_group
         except KeyError:
             sys.exit("Error reading from .netmiko.cfg file."
-                     " Device or group not found: {0}".format(device_id))
+                     " Device or group not found: {0}".format(device_or_group))
 
     # Retrieve output from devices
     my_files = []
@@ -216,4 +224,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))
