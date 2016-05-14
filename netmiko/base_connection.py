@@ -257,14 +257,15 @@ class BaseSSHConnection(object):
 
     def find_prompt(self, delay_factor=.1):
         """Finds the current network device prompt, last line only."""
-        debug = True
+        debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
         time.sleep(delay_factor)
         prompt = ''
 
-        print("aaa: {}".format(prompt))
+        if debug:
+            print("aaa: {}".format(prompt))
         # Initial attempt to get prompt
         if self.remote_conn.recv_ready():
             prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
@@ -272,20 +273,23 @@ class BaseSSHConnection(object):
             if self.ansi_escape_codes:
                 prompt = self.strip_ansi_escape_codes(prompt)
 
-        print("bbb: {}".format(prompt))
+        if debug:
+            print("bbb: {}".format(prompt))
         # Check if the only thing you received was a newline
         count = 0
         while count <= 10 and not prompt:
             if self.wait_for_recv_ready():
                 prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                print("ccc1: {}".format(repr(prompt)))
-                print("ccc2: {}".format(prompt))
+                if debug:
+                    print("ccc1: {}".format(repr(prompt)))
+                    print("ccc2: {}".format(prompt))
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt)
                 prompt = prompt.strip()
             count += 1
 
-        print("ddd: {}".format(prompt))
+        if debug:
+            print("ddd: {}".format(prompt))
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split('\n')[-1]
