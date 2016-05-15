@@ -12,6 +12,9 @@ SHOW_RUN_MAPPER = {
     'juniper_junos': 'show configuration',
 }
 
+# Default location of netmiko temp directory for netmiko tools
+NETMIKO_BASE_DIR = '~/.netmiko'
+
 
 def load_yaml_file(yaml_file):
     """Read YAML file."""
@@ -78,3 +81,45 @@ def obtain_all_devices(my_devices):
         if not isinstance(device_or_group, list):
             new_devices[device_name] = device_or_group
     return new_devices
+
+
+def obtain_netmiko_filename(device_name):
+    """Create file name based on device_name."""
+    (netmiko_base_dir, netmiko_full_dir) = find_netmiko_dir()
+    # Make sure directories exist (create if necessary)
+    ensure_dir_exists(netmiko_base_dir)
+    ensure_dir_exists(netmiko_full_dir)
+    return "{}/{}.txt".format(netmiko_full_dir, device_name)
+
+
+def write_tmp_file(device_name, output):
+    file_name = obtain_netmiko_filename(device_name)
+    with open(file_name, "w") as f:
+        f.write(output)
+    return file_name
+
+
+def ensure_dir_exists(verify_dir):
+    """Ensure directory exists. Create if necessary."""
+    if not os.path.exists(verify_dir):
+        # Doesn't exist create dir
+        os.makedirs(verify_dir)
+    else:
+        # Exists
+        if not os.path.isdir(verify_dir):
+            # Not a dir, raise an exception
+            raise ValueError("{} is not a directory".format(verify_dir))
+
+
+def find_netmiko_dir():
+    """Check environment first, then default dir"""
+    try:
+        netmiko_base_dir = os.environ['NETMIKO_DIR']
+    except KeyError:
+        netmiko_base_dir = NETMIKO_BASE_DIR
+    netmiko_base_dir = os.path.expanduser(netmiko_base_dir)
+    if netmiko_base_dir == '/':
+        raise ValueError("/ cannot be netmiko_base_dir")
+    netmiko_full_dir = "{}/tmp".format(netmiko_base_dir)
+    return (netmiko_base_dir, netmiko_full_dir)
+
