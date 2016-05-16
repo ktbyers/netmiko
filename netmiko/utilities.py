@@ -85,10 +85,7 @@ def obtain_all_devices(my_devices):
 
 def obtain_netmiko_filename(device_name):
     """Create file name based on device_name."""
-    (netmiko_base_dir, netmiko_full_dir) = find_netmiko_dir()
-    # Make sure directories exist (create if necessary)
-    ensure_dir_exists(netmiko_base_dir)
-    ensure_dir_exists(netmiko_full_dir)
+    _, netmiko_full_dir = find_netmiko_dir()
     return "{}/{}.txt".format(netmiko_full_dir, device_name)
 
 
