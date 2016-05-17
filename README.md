@@ -8,10 +8,10 @@ Python 2.6, 2.7, 3.3, 3.4, 3.5
   
 <br>
 ##### Requires: #####
-Paramiko >= 1.13+ ( >=1.7.5+ if Python2)  
+Paramiko >= 1.13+  
 scp >= 0.10.0  
+pyyaml  
 pytest (for unit tests)   
-pyyaml (for unit tests)   
   
   
 <br>  
@@ -41,8 +41,11 @@ Alcatel-Lucent SR-OS (experimental)
 
    
 <br>      
-##### More detailed example: #####
+##### Netmiko Tutorial: #####
 See https://pynet.twb-tech.com/blog/automation/netmiko.html  
+
+##### Netmiko and SSH Proxy #####
+https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html  
   
   
 <br>      

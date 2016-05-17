@@ -26,8 +26,6 @@ class JuniperSSH(BaseSSHConnection):
 
     def enter_cli_mode(self):
         """Check if at shell prompt root@.*% shell prompt and go into CLI."""
-        from datetime import datetime
-
         count = 0
         cur_prompt = ''
         while count < 50:
@@ -44,6 +42,22 @@ class JuniperSSH(BaseSSHConnection):
                 break
             count += 1
 
+    def check_enable_mode(self, *args, **kwargs):
+        """No enable mode on Juniper."""
+        pass
+
+    def enable(self, *args, **kwargs):
+        """No enable mode on Juniper."""
+        pass
+
+    def exit_enable_mode(self, *args, **kwargs):
+        """No enable mode on Juniper."""
+        pass
+
+    def check_config_mode(self, check_string=']'):
+        """Checks if the device is in configuration mode or not."""
+        return super(JuniperSSH, self).check_config_mode(check_string=check_string)
+
     def config_mode(self, config_command='configure'):
         """Enter configuration mode."""
         return super(JuniperSSH, self).config_mode(config_command=config_command)
@@ -58,10 +72,6 @@ class JuniperSSH(BaseSSHConnection):
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
-
-    def check_config_mode(self, check_string=']'):
-        """Checks if the device is in configuration mode or not."""
-        return super(JuniperSSH, self).check_config_mode(check_string=check_string)
 
     def commit(self, confirm=False, confirm_delay=None, check=False, comment='',
                and_quit=False, delay_factor=.1):

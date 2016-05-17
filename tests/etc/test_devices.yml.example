@@ -37,3 +37,10 @@ juniper:
   ip: 10.10.10.14
   username: admin
   password: juniper123
+
+paloalto_panos:
+  device_type: paloalto_panos
+  ip: 10.10.10.15
+  username: admin
+  password: paloalto123
+

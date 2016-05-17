@@ -76,8 +76,8 @@ class BaseSSHConnection(object):
         early on in the session.
 
         In general, it should include:
-        self.disable_paging()   # if applicable
         self.set_base_prompt()
+        self.disable_paging()   # if applicable
         """
         self.set_base_prompt()
         self.disable_paging()
@@ -178,6 +178,7 @@ class BaseSSHConnection(object):
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
+        self.remote_conn.settimeout(timeout)
         self.special_login_handler()
         if verbose:
             print("Interactive SSH session established")
@@ -200,11 +201,8 @@ class BaseSSHConnection(object):
 
     def disable_paging(self, command="terminal length 0", delay_factor=.1):
         """Disable paging default to a Cisco CLI method."""
-        delay_factor = self.select_delay_factor(delay_factor)
         self.remote_conn.sendall(self.normalize_cmd(command))
-        if self.wait_for_recv_ready():
-            time.sleep(delay_factor)
-            output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         return output
@@ -259,12 +257,15 @@ class BaseSSHConnection(object):
 
     def find_prompt(self, delay_factor=.1):
         """Finds the current network device prompt, last line only."""
+        debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
         time.sleep(delay_factor)
         prompt = ''
 
+        if debug:
+            print("aaa: {}".format(prompt))
         # Initial attempt to get prompt
         if self.remote_conn.recv_ready():
             prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
@@ -272,21 +273,31 @@ class BaseSSHConnection(object):
             if self.ansi_escape_codes:
                 prompt = self.strip_ansi_escape_codes(prompt)
 
+        if debug:
+            print("bbb: {}".format(prompt))
         # Check if the only thing you received was a newline
         count = 0
-        while count <= 10 and not prompt.strip():
+        while count <= 10 and not prompt:
             if self.wait_for_recv_ready():
                 prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                if debug:
+                    print("ccc1: {}".format(repr(prompt)))
+                    print("ccc2: {}".format(prompt))
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt)
+                prompt = prompt.strip()
             count += 1
 
+        if debug:
+            print("ddd: {}".format(prompt))
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split('\n')[-1]
         prompt = prompt.strip()
         if not prompt:
             raise ValueError("Unable to find prompt: {}".format(prompt))
+        time.sleep(delay_factor)
+        self.clear_buffer()
         return prompt
 
     def clear_buffer(self):
@@ -316,10 +327,7 @@ class BaseSSHConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         output = ''
         self.clear_buffer()
-
-        from datetime import datetime
         command_string = self.normalize_cmd(command_string)
-
         if debug:
             print("Command is: {0}".format(command_string))
 
@@ -350,6 +358,40 @@ class BaseSSHConnection(object):
             return '\n'.join(response_list[:-1])
         else:
             return a_string
+
+    def read_until_prompt(self):
+        """Read channel until self.base_prompt detected. Return ALL data available."""
+        return self.read_until_pattern()
+
+    def read_until_pattern(self, pattern='', re_flags=0):
+        """Read channel until pattern detected. Return ALL data available."""
+        output = ''
+        if not pattern:
+            pattern = self.base_prompt
+        pattern = re.escape(pattern)
+        while True:
+            try:
+                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                if re.search(pattern, output, flags=re_flags):
+                    return output
+            except socket.timeout:
+                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+
+    def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
+        """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
+        output = ''
+        if not pattern:
+            pattern = self.base_prompt
+        pattern = re.escape(pattern)
+        base_prompt_pattern = re.escape(self.base_prompt)
+        while True:
+            try:
+                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
+                                                                           output, flags=re_flags):
+                    return output
+            except socket.timeout:
+                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
     def send_command_expect(self, command_string, expect_string=None,
                             delay_factor=.2, max_loops=500, auto_find_prompt=True,
@@ -462,14 +504,6 @@ class BaseSSHConnection(object):
         newline = re.compile(r'(\r\r\n|\r\n|\n\r)')
         return newline.sub('\n', a_string)
 
-    def enable(self):
-        """Disable 'enable()' method."""
-        raise AttributeError("Network device does not support 'enable()' method")
-
-    def exit_enable_mode(self, exit_command=''):
-        """Disable 'exit_enable_mode()' method."""
-        raise AttributeError("Network device does not support 'exit_enable_mode()' method")
-
     @staticmethod
     def normalize_cmd(command):
         """Normalize CLI commands to have a single trailing newline."""
@@ -477,54 +511,59 @@ class BaseSSHConnection(object):
         command += '\n'
         return command
 
+    def check_enable_mode(self, check_string=''):
+        """Check if in enable mode. Return boolean."""
+        self.remote_conn.sendall('\n')
+        output = self.read_until_prompt()
+        return check_string in output
+
+    def enable(self, cmd='', pattern='password', re_flags=re.IGNORECASE):
+        """Enter enable mode."""
+        output = ""
+        if not self.check_enable_mode():
+            self.remote_conn.sendall(self.normalize_cmd(cmd))
+            output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
+            self.remote_conn.sendall(self.normalize_cmd(self.secret))
+            output += self.read_until_prompt()
+            if not self.check_enable_mode():
+                raise ValueError("Failed to enter enable mode.")
+        return output
+
+    def exit_enable_mode(self, exit_command=''):
+        """Exit enable mode."""
+        output = ""
+        if self.check_enable_mode():
+            self.remote_conn.sendall(self.normalize_cmd(exit_command))
+            output += self.read_until_prompt()
+            if self.check_enable_mode():
+                raise ValueError("Failed to exit enable mode.")
+        return output
+
+    def check_config_mode(self, check_string=''):
+        """Checks if the device is in configuration mode or not."""
+        self.remote_conn.sendall('\n')
+        output = self.read_until_prompt()
+        return check_string in output
+
     def config_mode(self, config_command=''):
         """Enter into config_mode."""
         output = ''
-        i = 1
-        attempts = 3
-        while i <= attempts:
+        if not self.check_config_mode():
+            self.remote_conn.sendall(self.normalize_cmd(config_command))
+            output = self.read_until_prompt()
             if not self.check_config_mode():
-                self.remote_conn.sendall(self.normalize_cmd(config_command))
-                if self.wait_for_recv_ready_newline(delay_factor=self.global_delay_factor):
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            else:
-                break
-            i += 1
-        else:   # no break
-            if not self.check_config_mode():
-                raise ValueError("Failed to enter configuration mode")
+                raise ValueError("Failed to enter configuration mode.")
         return output
 
     def exit_config_mode(self, exit_config=''):
         """Exit from configuration mode."""
         output = ''
-        i = 1
-        attempts = 3
-        while i <= attempts:
-            if self.check_config_mode():
-                self.remote_conn.sendall(self.normalize_cmd(exit_config))
-                if self.wait_for_recv_ready_newline(delay_factor=self.global_delay_factor):
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            else:
-                break
-            i += 1
-        else:   # no break
+        if self.check_config_mode():
+            self.remote_conn.sendall(self.normalize_cmd(exit_config))
+            output = self.read_until_prompt()
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
-
-    def check_enable_mode(self, check_string=''):
-        """Disable 'check_enable_mode()' method."""
-        raise AttributeError("Network device does not support 'check_enable_mode()' method")
-
-    def check_config_mode(self, check_string=''):
-        """Checks if the device is in configuration mode or not."""
-        output = ''
-        self.remote_conn.sendall('\n')
-        if self.wait_for_recv_ready(delay_factor=self.global_delay_factor):
-            output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-        output = output.strip()
-        return check_string in output
 
     def receive_data_generator(self, delay_factor=.1, max_loops=150):
         """Generator to collect all data available in channel."""
@@ -562,7 +601,6 @@ class BaseSSHConnection(object):
 
         Automatically exits/enters configuration mode.
         """
-        from datetime import datetime
         debug = False
 
         if config_commands is None:
@@ -574,6 +612,7 @@ class BaseSSHConnection(object):
         output = self.config_mode()
         for cmd in config_commands:
             self.remote_conn.sendall(self.normalize_cmd(cmd))
+            time.sleep(delay_factor / 2.0)
 
         # Gather output
         for tmp_output in self.receive_data_generator(delay_factor=delay_factor,

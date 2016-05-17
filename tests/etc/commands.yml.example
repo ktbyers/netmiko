@@ -65,3 +65,14 @@ fortinet:
     - 'set comment "Generated comment"'
     - 'end'
   config_verification: "show firewall service category Database | grep comment"
+
+paloalto_panos:
+  version: "show system info | match version"
+  basic: "show system info"
+  extended_output: "show system info"
+  config:
+    - 'set network vlan new_test'
+    - 'set network vlan another_test'
+  support_commit: True
+  config_verification: 'run show vlan all'
+

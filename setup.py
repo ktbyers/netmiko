@@ -55,9 +55,11 @@ setup(
               'netmiko/extreme',
               'netmiko/alcatel',
               'netmiko/dell',
-              'netmiko/avaya'],
-    install_requires=['paramiko>=1.13.0', 'scp>=0.10.0'],
+              'netmiko/avaya',
+              'netmiko/paloalto',
+              'netmiko/quanta'],
+    install_requires=['paramiko>=1.13.0', 'scp>=0.10.0', 'pyyaml'],
     extras_require={
-        'test': ['pytest>=2.6.0', 'pyyaml']
+        'test': ['pytest>=2.6.0',]
     },
 )

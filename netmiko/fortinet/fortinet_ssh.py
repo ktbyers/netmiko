@@ -2,8 +2,6 @@ from netmiko.ssh_connection import SSHConnection
 import paramiko
 import time
 import socket
-import re
-import io
 
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -12,17 +10,12 @@ from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthentication
 class FortinetSSH(SSHConnection):
 
     def session_preparation(self):
-        '''
-        Prepare the session after the connection has been established
-
-        Disable paging
-        Change base prompt
-        '''
+        """Prepare the session after the connection has been established."""
         self.set_base_prompt(pri_prompt_terminator='$')
         self.disable_paging()
 
     def disable_paging(self, delay_factor=.1):
-        '''Disable paging is only available with specific roles so it may fail'''
+        """Disable paging is only available with specific roles so it may fail."""
         check_command = "get system status\n"
         output = self.send_command(check_command)
         self.allow_disable_global = True
@@ -87,7 +80,7 @@ class FortinetSSH(SSHConnection):
                                                                  height=height)
         else:
             self.remote_conn = self.remote_conn_pre.invoke_shell()
-
+        self.remote_conn.settimeout(timeout)
         if verbose:
             print("Interactive SSH session established")
 
