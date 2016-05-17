@@ -411,7 +411,7 @@ class BaseSSHConnection(object):
 
         self.global_delay_factor is not used (to make this method faster)
         '''
-        debug = False
+        debug = True
 
         # Find the current router prompt
         if expect_string is None:
@@ -442,6 +442,8 @@ class BaseSSHConnection(object):
         while i <= max_loops:
             if self.remote_conn.recv_ready():
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                if debug:
+                    print("{}:{}".format(i, output))
                 try:
                     lines = output.split("\n")
                     first_line = lines[0]
