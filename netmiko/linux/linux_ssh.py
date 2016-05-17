@@ -1,8 +1,10 @@
 import re
 import socket
+import time
 
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_connection import SSHConnection
+from netmiko.ssh_exception import NetMikoTimeoutException
 
 
 class LinuxSSH(SSHConnection):
@@ -25,36 +27,37 @@ class LinuxSSH(SSHConnection):
 
     def check_config_mode(self, check_string='#'):
         """Verify root"""
-        return super(SSHConnection, self).check_config_mode(check_string=check_string)
+        return self.check_enable_mode(check_string=check_string)
 
     def config_mode(self, config_command='sudo su'):
         """Attempt to become root."""
         return self.enable(cmd=config_command)
 
     def exit_config_mode(self, exit_config='exit'):
+        return self.exit_enable_mode(exit_command=exit_config)
+
+    def check_enable_mode(self, check_string='#'):
+        """Verify root"""
+        return super(SSHConnection, self).check_enable_mode(check_string=check_string)
+
+    def exit_enable_mode(self, exit_command='exit'):
+        """Exit enable mode."""
         output = ""
         if self.check_enable_mode():
-            self.remote_conn.sendall(self.normalize_cmd(exit_config))
+            self.remote_conn.sendall(self.normalize_cmd(exit_command))
+            time.sleep(.3)
             self.set_base_prompt()
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
-
-    def check_enable_mode(self, check_string='#'):
-        return self.check_config_mode(check_string=check_string)
-
-    def exit_enable_mode(self, exit_command='exit'):
-        """Exit enable mode."""
-        return self.exit_config_mode(exit_config=exit_command)
 
     def enable(self, cmd='sudo su', pattern='ssword', re_flags=re.IGNORECASE):
         """Attempt to become root."""
         output = ""
         if not self.check_enable_mode():
             self.remote_conn.sendall(self.normalize_cmd(cmd))
+            time.sleep(.3)
             pattern = re.escape(pattern)
-            base_prompt_pattern = re.escape(self.base_prompt)
-            output=''
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if re.search(pattern, output, flags=re_flags):

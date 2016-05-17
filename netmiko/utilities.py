@@ -119,4 +119,3 @@ def find_netmiko_dir():
         raise ValueError("/ cannot be netmiko_base_dir")
     netmiko_full_dir = "{}/tmp".format(netmiko_base_dir)
     return (netmiko_base_dir, netmiko_full_dir)
-
