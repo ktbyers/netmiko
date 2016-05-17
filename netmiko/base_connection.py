@@ -257,7 +257,7 @@ class BaseSSHConnection(object):
 
     def find_prompt(self, delay_factor=.1):
         """Finds the current network device prompt, last line only."""
-        debug = False
+        debug = True
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
