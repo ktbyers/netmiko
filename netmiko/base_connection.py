@@ -201,7 +201,7 @@ class BaseSSHConnection(object):
 
     def disable_paging(self, command="terminal length 0", delay_factor=.1):
         """Disable paging default to a Cisco CLI method."""
-        debug = True
+        debug = False
         time.sleep(1 * delay_factor)
         self.clear_buffer()
         command = self.normalize_cmd(command)
@@ -267,7 +267,7 @@ class BaseSSHConnection(object):
 
     def find_prompt(self, delay_factor=.1):
         """Finds the current network device prompt, last line only."""
-        debug = True
+        debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.remote_conn.sendall("\n")
@@ -375,7 +375,7 @@ class BaseSSHConnection(object):
 
     def read_until_pattern(self, pattern='', re_flags=0):
         """Read channel until pattern detected. Return ALL data available."""
-        debug = True
+        debug = False
         output = ''
         if not pattern:
             pattern = self.base_prompt
@@ -426,7 +426,7 @@ class BaseSSHConnection(object):
 
         self.global_delay_factor is not used (to make this method faster)
         '''
-        debug = True
+        debug = False
 
         # Find the current router prompt
         if expect_string is None:
