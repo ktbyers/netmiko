@@ -368,6 +368,7 @@ class BaseSSHConnection(object):
 
     def read_until_pattern(self, pattern='', re_flags=0):
         """Read channel until pattern detected. Return ALL data available."""
+        debug = True
         output = ''
         if not pattern:
             pattern = self.base_prompt
@@ -376,6 +377,8 @@ class BaseSSHConnection(object):
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if re.search(pattern, output, flags=re_flags):
+                    if debug:
+                        print("Pattern found: {} {}".format(pattern, output))
                     return output
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
