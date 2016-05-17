@@ -18,17 +18,34 @@ class SSHConnection(BaseSSHConnection):
         """Exits enable (privileged exec) mode."""
         return super(SSHConnection, self).exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string=')#'):
-        """Checks if the device is in configuration mode or not."""
-        return super(SSHConnection, self).check_config_mode(check_string=check_string)
+    def check_config_mode(self, check_string=')#', pattern=''):
+        """
+        Checks if the device is in configuration mode or not.
 
-    def config_mode(self, config_command='config term'):
-        """Enter into configuration mode on remote device."""
-        return super(SSHConnection, self).config_mode(config_command=config_command)
+        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
+        """
+        if not pattern:
+            pattern = self.base_prompt[:16]
+        return super(SSHConnection, self).check_config_mode(check_string=check_string,
+                                                            pattern=pattern)
 
-    def exit_config_mode(self, exit_config='end'):
+    def config_mode(self, config_command='config term', pattern=''):
+        """
+        Enter into configuration mode on remote device.
+
+        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
+        """
+        if not pattern:
+            pattern = self.base_prompt[:16]
+        return super(SSHConnection, self).config_mode(config_command=config_command,
+                                                      pattern=pattern)
+
+    def exit_config_mode(self, exit_config='end', pattern=''):
         """Exit from configuration mode."""
-        return super(SSHConnection, self).exit_config_mode(exit_config=exit_config)
+        if not pattern:
+            pattern = self.base_prompt[:16]
+        return super(SSHConnection, self).exit_config_mode(exit_config=exit_config,
+                                                           pattern=pattern)
 
     def cleanup(self):
         """Gracefully exit the SSH session."""

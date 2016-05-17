@@ -202,6 +202,8 @@ class BaseSSHConnection(object):
     def disable_paging(self, command="terminal length 0", delay_factor=.1):
         """Disable paging default to a Cisco CLI method."""
         debug = True
+        time.sleep(1 * delay_factor)
+        self.clear_buffer()
         command = self.normalize_cmd(command)
         if debug:
             print("In disable_paging")
@@ -378,6 +380,8 @@ class BaseSSHConnection(object):
         if not pattern:
             pattern = self.base_prompt
         pattern = re.escape(pattern)
+        if debug:
+            print("Pattern is: {}".format(pattern))
         while True:
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
@@ -554,28 +558,28 @@ class BaseSSHConnection(object):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def check_config_mode(self, check_string=''):
+    def check_config_mode(self, check_string='', pattern=''):
         """Checks if the device is in configuration mode or not."""
         self.remote_conn.sendall('\n')
-        output = self.read_until_prompt()
+        output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
-    def config_mode(self, config_command=''):
+    def config_mode(self, config_command='', pattern=''):
         """Enter into config_mode."""
         output = ''
         if not self.check_config_mode():
             self.remote_conn.sendall(self.normalize_cmd(config_command))
-            output = self.read_until_prompt()
+            output = self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode.")
         return output
 
-    def exit_config_mode(self, exit_config=''):
+    def exit_config_mode(self, exit_config='', pattern=''):
         """Exit from configuration mode."""
         output = ''
         if self.check_config_mode():
             self.remote_conn.sendall(self.normalize_cmd(exit_config))
-            output = self.read_until_prompt()
+            output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
