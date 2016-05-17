@@ -420,6 +420,8 @@ class BaseSSHConnection(object):
                     prompt = self.find_prompt(delay_factor=delay_factor)
                 except ValueError:
                     prompt = self.base_prompt
+                if debug:
+                    print("Found prompt: {}".format(prompt))
             else:
                 prompt = self.base_prompt
             search_pattern = re.escape(prompt.strip())
