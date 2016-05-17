@@ -202,12 +202,17 @@ class BaseSSHConnection(object):
     def disable_paging(self, command="terminal length 0", delay_factor=.1):
         """Disable paging default to a Cisco CLI method."""
         debug = True
+        command = self.normalize_cmd(command)
+        if debug:
+            print("In disable_paging")
+            print("Command: {}".format(command))
         self.remote_conn.sendall(self.normalize_cmd(command))
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         if debug:
             print(output)
+            print("Exiting disable_paging")
         return output
 
     def wait_for_recv_ready_newline(self, delay_factor=.1, max_loops=20):
