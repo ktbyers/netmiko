@@ -17,6 +17,8 @@ SHOW_RUN_MAPPER = {
     'enterasys': 'show running-config',
     'dell_force10': 'show running-config',
     'fortinet': 'show full-configuration',
+    'avaya_vsp': 'show running-config',
+    'avaya_ers': 'show running-config',
 }
 
 # Expand SHOW_RUN_MAPPER to include '_ssh' key
