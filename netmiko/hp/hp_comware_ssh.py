@@ -36,7 +36,7 @@ class HPComwareSSH(SSHConnection):
 
         This will be set on logging in, but not when entering system-view
         """
-        debug = False
+        debug = True
         if debug:
             print("In set_base_prompt")
 
@@ -47,6 +47,8 @@ class HPComwareSSH(SSHConnection):
 
         prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         prompt = self.normalize_linefeeds(prompt)
+        if debug:
+            print(prompt)
 
         # If multiple lines in the output take the last line
         prompt = prompt.split('\n')[-1]

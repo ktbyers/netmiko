@@ -10,7 +10,22 @@ import os
 SHOW_RUN_MAPPER = {
     'juniper': 'show configuration',
     'juniper_junos': 'show configuration',
+    'cisco_wlc': 'show run-config',
+    'hp_comware': 'display current-configuration',
+    'huawei': 'display current-configuration',
+    'extreme': 'show configuration',
+    'enterasys': 'show running-config',
+    'dell_force10': 'show running-config',
+    'fortinet': 'show full-configuration',
 }
+
+# Expand SHOW_RUN_MAPPER to include '_ssh' key
+new_dict = {}
+for k, v in SHOW_RUN_MAPPER.items():
+    new_key = k + '_ssh'
+    new_dict[k] = v
+    new_dict[new_key] = v
+SHOW_RUN_MAPPER = new_dict
 
 # Default location of netmiko temp directory for netmiko tools
 NETMIKO_BASE_DIR = '~/.netmiko'
