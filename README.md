@@ -21,19 +21,20 @@ Cisco IOS-XE
 Cisco ASA  
 Cisco NX-OS  
 Cisco IOS-XR  
-Cisco WLC (limited testing)  
+Cisco WLC  
 Arista vEOS  
 HP ProCurve  
-HP Comware (limited testing)  
 Juniper Junos  
+Palo Alto PAN-OS  
+Linux (limited testing)  
+HP Comware (limited testing)  
 Brocade VDX (limited testing)  
-F5 LTM (experimental)  
 Huawei (limited testing)  
-A10 (limited testing)  
 Avaya ERS (limited testing)  
 Avaya VSP (limited testing)  
+A10 (experimental)  
+F5 LTM (experimental)  
 Dell-Force10 DNOS9 (limited testing)  
-OVS (experimental)  
 Enterasys (experimental)  
 Extreme (experiemental)  
 Fortinet (experimental)  

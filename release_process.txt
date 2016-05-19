@@ -43,3 +43,13 @@ source ~/VENV/netmiko_0_3_0_packaging/bin/activate
 
 pip install netmiko
 
+# Verify version
+>>> import netmiko
+>>> netmiko.__version__
+'0.5.1'
+
+
+# Create a tag for the version
+$ git tag -a v0.5.1 -m "Version 0.5.1 Release"
+$ git push --tags
+
