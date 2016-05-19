@@ -10,15 +10,19 @@ import os
 SHOW_RUN_MAPPER = {
     'juniper': 'show configuration',
     'juniper_junos': 'show configuration',
-    'cisco_wlc': 'show run-config',
+    'extreme': 'show configuration',
     'hp_comware': 'display current-configuration',
     'huawei': 'display current-configuration',
-    'extreme': 'show configuration',
+    'fortinet': 'show full-configuration',
+    'cisco_wlc': 'show run-config',
     'enterasys': 'show running-config',
     'dell_force10': 'show running-config',
-    'fortinet': 'show full-configuration',
     'avaya_vsp': 'show running-config',
     'avaya_ers': 'show running-config',
+    'brocade_vdx': 'show running-config',
+    'brocade_nos': 'show running-config',
+    'brocade_fastiron': 'show running-config',
+    'brocade_netiron': 'show running-config',
 }
 
 # Expand SHOW_RUN_MAPPER to include '_ssh' key
