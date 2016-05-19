@@ -51,16 +51,16 @@ def load_yaml_file(yaml_file):
 
 
 def load_devices():
-    """Find and load .netmiko.cfg YAML file."""
+    """Find and load .netmiko.yml file."""
     yaml_devices_file = find_cfg_file()
     return load_yaml_file(yaml_devices_file)
 
 
 def find_cfg_file(file_name=None):
-    """Look for .netmiko.cfg in current dir, then ~/.netmiko.cfg."""
+    """Look for .netmiko.yml in current dir, then ~/.netmiko.yml."""
     check_files = [
-        '.netmiko.cfg',
-        os.path.expanduser('~') + '/.netmiko.cfg',
+        '.netmiko.yml',
+        os.path.expanduser('~') + '/.netmiko.yml',
     ]
     if file_name:
         check_files.insert(0, file_name)
