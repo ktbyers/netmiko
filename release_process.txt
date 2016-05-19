@@ -8,6 +8,7 @@ python setup.py sdist
 # Create a blank virtualenv to test
 cd ~/VENV
 virtualenv -p /usr/bin/python2.7 --no-site-packages netmiko_0_3_0_packaging
+deactivate
 source ~/VENV/netmiko_0_3_0_packaging/bin/activate
 
 # Test install
@@ -15,6 +16,7 @@ cd ~/netmiko
 pip install dist/netmiko-0.3.0.tar.gz
 
 # Back to your normal virtualenv
+deactivate
 source ~/VENV/py27_netmiko/bin/activate
 
 # Register to pypitest
