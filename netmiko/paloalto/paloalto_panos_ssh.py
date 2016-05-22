@@ -94,7 +94,8 @@ class PaloAltoPanosSSH(BaseSSHConnection):
         # Enter config mode (if necessary)
         output = self.config_mode()
         output += self.send_command_expect(command_string, strip_prompt=False,
-                                           strip_command=False, expect_string='100%')
+                                           strip_command=False, expect_string='100%',
+                                           delay_factor=delay_factor)
 
         if commit_marker not in output.lower():
             raise ValueError("Commit failed with the following errors:\n\n{0}"
