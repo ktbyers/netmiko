@@ -610,6 +610,7 @@ class BaseSSHConnection(object):
         with io.open(config_file, encoding='utf-8') as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
+
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=.1,
                         max_loops=150, strip_prompt=False, strip_command=False):
         """
@@ -639,9 +640,18 @@ class BaseSSHConnection(object):
             output += tmp_output
         if exit_config_mode:
             output += self.exit_config_mode()
+        # Some platforms have ansi_escape codes
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
+        output = self.normalize_linefeeds(output)
+        if strip_command:
+            output = self.strip_command(command_string, output)
+        if strip_prompt:
+            output = self.strip_prompt(output)
         if debug:
             print(output)
         return output
+
 
     @staticmethod
     def strip_ansi_escape_codes(string_buffer):
