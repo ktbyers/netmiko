@@ -456,7 +456,7 @@ class BaseSSHConnection(object):
         i = 1
         # Keep reading data until search_pattern is found (or max_loops)
         output = ''
-        while i <= max_loops:
+        while i <= max_loops or not self.remote_conn.closed:
             if self.remote_conn.recv_ready():
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if debug:
