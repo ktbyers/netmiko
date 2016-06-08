@@ -382,7 +382,7 @@ class BaseSSHConnection(object):
         pattern = re.escape(pattern)
         if debug:
             print("Pattern is: {}".format(pattern))
-        while True:
+        while self.remote_conn.closed:
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if re.search(pattern, output, flags=re_flags):
@@ -399,7 +399,7 @@ class BaseSSHConnection(object):
             pattern = self.base_prompt
         pattern = re.escape(pattern)
         base_prompt_pattern = re.escape(self.base_prompt)
-        while True:
+        while self.remote_conn.closed:
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
