@@ -1,8 +1,6 @@
 from __future__ import print_function
 from __future__ import unicode_literals
-import time
 from netmiko.ssh_connection import SSHConnection
-from netmiko.netmiko_globals import MAX_BUFFER
 
 
 class HPComwareSSH(SSHConnection):
@@ -36,32 +34,13 @@ class HPComwareSSH(SSHConnection):
 
         This will be set on logging in, but not when entering system-view
         """
-        debug = True
-        if debug:
-            print("In set_base_prompt")
+        prompt = super(HPComwareSSH, self).set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor)
 
-        delay_factor = self.select_delay_factor(delay_factor)
-        self.clear_buffer()
-        self.remote_conn.sendall("\n")
-        time.sleep(1 * delay_factor)
-
-        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-        prompt = self.normalize_linefeeds(prompt)
-        if debug:
-            print(prompt)
-
-        # If multiple lines in the output take the last line
-        prompt = prompt.split('\n')[-1]
-        prompt = prompt.strip()
-
-        # Check that ends with a valid terminator character
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(prompt))
-
-        # Strip off leading and trailing terminator
-        prompt = prompt[1:-1]
+        # Strip off leading character
+        prompt = prompt[1:]
         prompt = prompt.strip()
         self.base_prompt = prompt
-        if debug:
-            print("prompt: {}".format(self.base_prompt))
         return self.base_prompt
