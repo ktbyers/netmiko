@@ -44,3 +44,15 @@ class HPComwareSSH(SSHConnection):
         prompt = prompt.strip()
         self.base_prompt = prompt
         return self.base_prompt
+
+    def enable(self, cmd='system-view'):
+        """enable mode on Comware is system-view."""
+        return self.config_mode(config_command=cmd)
+
+    def exit_enable_mode(self, exit_command='return'):
+        """enable mode on Comware is system-view."""
+        return self.exit_config_mode(exit_config=exit_command)
+
+    def check_enable_mode(self, check_string=']'):
+        """enable mode on Comware is system-view."""
+        return self.check_config_mode(check_string=check_string)
