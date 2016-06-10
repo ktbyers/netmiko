@@ -58,16 +58,17 @@ def load_devices():
 
 def find_cfg_file(file_name=None):
     """Look for .netmiko.yml in current dir, then ~/.netmiko.yml."""
+    base_file = '.netmiko.yml'
     check_files = [
-        '.netmiko.yml',
-        os.path.expanduser('~') + '/.netmiko.yml',
+        base_file,
+        os.path.expanduser('~') + '/' + base_file,
     ]
     if file_name:
         check_files.insert(0, file_name)
     for test_file in check_files:
         if os.path.isfile(test_file):
             return test_file
-    raise IOError("{} file not found in current dir or home dir.".format(file_name))
+    raise IOError("{File not found in current dir or home dir.".format(base_name))
 
 
 def display_inventory(my_devices):
