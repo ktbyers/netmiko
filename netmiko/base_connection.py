@@ -129,6 +129,18 @@ class BaseSSHConnection(object):
             'timeout': timeout,
         }
 
+    def _sanitize_output(self, output, strip_command=False, command_string=None,
+                         strip_prompt=False):
+        """Sanitize the output."""
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
+        output = self.normalize_linefeeds(output)
+        if strip_command and command_string:
+            output = self.strip_command(command_string, output)
+        if strip_prompt:
+            output = self.strip_prompt(output)
+        return output
+
     def establish_connection(self, sleep_time=3, verbose=True, timeout=8,
                              use_keys=False, key_file=None):
         """
@@ -348,14 +360,8 @@ class BaseSSHConnection(object):
                                                       max_loops=max_loops):
             output += tmp_output
 
-        # Some platforms have ansi_escape codes
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
-        output = self.normalize_linefeeds(output)
-        if strip_command:
-            output = self.strip_command(command_string, output)
-        if strip_prompt:
-            output = self.strip_prompt(output)
+        output = self._sanitize_output(output, strip_command=strip_command,
+                                       command_string=command_string, strip_prompt=strip_prompt)
         if debug:
             print(output)
         return output
@@ -484,14 +490,8 @@ class BaseSSHConnection(object):
             raise IOError("Search pattern never detected in send_command_expect: {0}".format(
                 search_pattern))
 
-        # Some platforms have ansi_escape codes
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
-        output = self.normalize_linefeeds(output)
-        if strip_command:
-            output = self.strip_command(command_string, output)
-        if strip_prompt:
-            output = self.strip_prompt(output)
+        output = self._sanitize_output(output, strip_command=strip_command,
+                                       command_string=command_string, strip_prompt=strip_prompt)
         return output
 
     @staticmethod
@@ -612,7 +612,6 @@ class BaseSSHConnection(object):
         with io.open(config_file, encoding='utf-8') as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
-
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=.1,
                         max_loops=150, strip_prompt=False, strip_command=False):
         """
@@ -642,18 +641,10 @@ class BaseSSHConnection(object):
             output += tmp_output
         if exit_config_mode:
             output += self.exit_config_mode()
-        # Some platforms have ansi_escape codes
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
-        output = self.normalize_linefeeds(output)
-        if strip_command:
-            output = self.strip_command(command_string, output)
-        if strip_prompt:
-            output = self.strip_prompt(output)
+        output = self._sanitize_output(output)
         if debug:
             print(output)
         return output
-
 
     @staticmethod
     def strip_ansi_escape_codes(string_buffer):
