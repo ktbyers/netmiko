@@ -287,7 +287,7 @@ class BaseSSHConnection(object):
             print("bbb: {}".format(prompt))
         # Check if the only thing you received was a newline
         count = 0
-        while count <= 10 and not prompt:
+        while count <= 50 and not prompt:
             if self.wait_for_recv_ready():
                 prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if debug:
@@ -296,6 +296,8 @@ class BaseSSHConnection(object):
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt)
                 prompt = prompt.strip()
+            else:
+                time.sleep(delay_factor)
             count += 1
 
         if debug:
