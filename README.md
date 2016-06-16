@@ -15,18 +15,21 @@ pytest (for unit tests)
   
 <br>
 ##### Supports: #####
+
+###### Regularly tested
 Cisco IOS  
 Cisco IOS-XE  
 Cisco ASA  
-Cisco NX-OS  
 Cisco IOS-XR  
-Cisco WLC  
 Arista vEOS  
 HP ProCurve  
 Juniper Junos  
+HP Comware7  
+
+Cisco NX-OS  
+Cisco WLC  
 Palo Alto PAN-OS  
 Linux (limited testing)  
-HP Comware (limited testing)  
 Brocade VDX (limited testing)  
 Huawei (limited testing)  
 Avaya ERS (limited testing)  
