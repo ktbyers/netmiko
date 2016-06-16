@@ -71,15 +71,17 @@ cisco_881 = {
 
 ```
 
+<br>
 #### Establish an SSH connection to the device by passing in the device dictionary.
 ```py
 net_connect = ConnectHandler(**cisco_881)
 ```
 
+<br>
 #### Execute show commands.
 ```py
 output = net_connect.send_command('show ip int brief')
-print( output )
+print(output)
 ```
 ```
 Interface                  IP-Address      OK? Method Status                Protocol
@@ -91,7 +93,8 @@ FastEthernet4              10.10.10.10     YES manual up                    up
 Vlan1                      unassigned      YES unset  down                  down    
 ```
 
-#### For long-running commands, use `send_command_expect()` to capture the full output.
+<br>
+#### For long-running commands, use `send_command_expect()`
 ```py
 net_connect.send_command('write memory')
 ```
