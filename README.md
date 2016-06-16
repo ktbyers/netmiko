@@ -130,8 +130,10 @@ pynet-rtr1(config)#no logging console
 pynet-rtr1(config)#end
 pynet-rtr1#
 ```
-
+  
+  
+<br>
 ---    
-Kirk Byers
-Python for Network Engineers
-https://pynet.twb-tech.com
+Kirk Byers  
+Python for Network Engineers  
+https://pynet.twb-tech.com  
