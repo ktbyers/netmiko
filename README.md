@@ -95,14 +95,8 @@ Vlan1                      unassigned      YES unset  down                  down
 
 <br>
 #### For long-running commands, use `send_command_expect()`
-```py
-net_connect.send_command('write memory')
-```
-returns a partial response:
-```
-Building configuration...
-```
-`send_command_expect` waits for the command prompt, or optional expect value to return.
+
+`send_command_expect` waits for the trailing prompt (or an optional pattern)
 ```py
 net_connect.send_command_expect('write memory')
 ```
