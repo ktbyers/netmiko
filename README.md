@@ -96,29 +96,30 @@ Vlan1                      unassigned      YES unset  down                  down
 <br>
 #### For long-running commands, use `send_command_expect()`
 
-`send_command_expect` waits for the trailing prompt (or an optional pattern)
+`send_command_expect` waits for the trailing prompt (or for an optional pattern)
 ```py
 net_connect.send_command_expect('write memory')
 ```
-returns the full output from the command:
 ```
 Building configuration...
-Compressed configuration from 543610 bytes to 149342 bytes[OK]
+[OK]
 ```
 
-
-#### Enter and Exit enable mode
+<br>
+#### Enter and exit enable mode.
 ```py
 net_connect.enable()
 net_connect.exit_enable_mode()
 ```
+
+<br>
 #### Execute configuration change commands (will automatically enter into config mode)
 ```py
 config_commands = [ 'logging buffered 20000', 
                     'logging buffered 20010', 
                     'no logging console' ]
 output = net_connect.send_config_set(config_commands)
-print( output )
+print(output)
 ```
 ```
 pynet-rtr1#config term
@@ -133,4 +134,4 @@ pynet-rtr1#
 ---    
 Kirk Byers
 Python for Network Engineers
-(https://pynet.twb-tech.com) 
+https://pynet.twb-tech.com
