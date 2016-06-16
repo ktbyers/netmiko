@@ -78,7 +78,7 @@ cisco_881 = {
 ```
 
 <br>
-##### Establish an SSH connection to the device by passing in the device dictionary.
+#### Establish an SSH connection to the device by passing in the device dictionary.
 ```py
 net_connect = ConnectHandler(**cisco_881)
 ```
