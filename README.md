@@ -1,4 +1,4 @@
-netmiko
+Netmiko
 =======
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
@@ -46,17 +46,16 @@ Alcatel-Lucent SR-OS (experimental)
 ##### Standard Tutorial: #####
 https://pynet.twb-tech.com/blog/automation/netmiko.html
   
-<br>
 ##### SSH Proxy: #####
 https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html
-
+  
   
 <br>
 ## Examples:
 
 #### Create a dictionary representing the device.
 
-supported device_types can be found [here](https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py), see CLASS_MAPPER keys.
+Supported device_types can be found [here](https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py), see CLASS_MAPPER keys.
 ```py
 from netmiko import ConnectHandler
 
@@ -67,7 +66,7 @@ cisco_881 = {
     'password': 'password',
     'port' : 8022,          # optional, defaults to 22
     'secret': 'secret',     # optional, defaults to ''
-    'verbose': False,       # optional, defaults to True
+    'verbose': False,       # optional, defaults to False
 }
 
 ```
@@ -77,18 +76,20 @@ cisco_881 = {
 net_connect = ConnectHandler(**cisco_881)
 ```
 
-#### Execute show commands on the channel.
+#### Execute show commands.
 ```py
 output = net_connect.send_command('show ip int brief')
 print( output )
 ```
->Interface                  IP-Address      OK? Method Status                Protocol
->FastEthernet0              unassigned      YES unset  down                  down    
->FastEthernet1              unassigned      YES unset  down                  down    
->FastEthernet2              unassigned      YES unset  down                  down    
->FastEthernet3              unassigned      YES unset  down                  down    
->FastEthernet4              10.10.10.10     YES manual up                    up      
->Vlan1                      unassigned      YES unset  down                  down    
+```
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0              unassigned      YES unset  down                  down    
+FastEthernet1              unassigned      YES unset  down                  down    
+FastEthernet2              unassigned      YES unset  down                  down    
+FastEthernet3              unassigned      YES unset  down                  down    
+FastEthernet4              10.10.10.10     YES manual up                    up      
+Vlan1                      unassigned      YES unset  down                  down    
+```
 
 #### For long-running commands, use `send_command_expect()` to capture the full output.
 ```py
