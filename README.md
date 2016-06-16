@@ -16,7 +16,7 @@ pytest (for unit tests)
 <br>
 #### Supports:
   
-##### Regularly tested
+###### Regularly tested
 Arista vEOS  
 Cisco ASA  
 Cisco IOS  
@@ -26,7 +26,7 @@ HP Comware7
 HP ProCurve  
 Juniper Junos  
   
-##### Limited testing
+###### Limited testing
 Avaya ERS  
 Avaya VSP  
 Brocade VDX  
@@ -37,7 +37,7 @@ Huawei
 Linux  
 Palo Alto PAN-OS  
   
-##### Experimental
+###### Experimental
 A10  
 F5 LTM  
 Enterasys  
@@ -59,7 +59,7 @@ https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html
 <br>
 ## Examples:
 
-##### Create a dictionary representing the device.
+#### Create a dictionary representing the device.
 
 Supported device_types can be found [here](https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py), see CLASS_MAPPER keys.
 ```py
@@ -84,7 +84,7 @@ net_connect = ConnectHandler(**cisco_881)
 ```
 
 <br>
-##### Execute show commands.
+#### Execute show commands.
 ```py
 output = net_connect.send_command('show ip int brief')
 print(output)
@@ -100,7 +100,7 @@ Vlan1                      unassigned      YES unset  down                  down
 ```
 
 <br>
-##### For long-running commands, use `send_command_expect()`
+#### For long-running commands, use `send_command_expect()`
 
 `send_command_expect` waits for the trailing prompt (or for an optional pattern)
 ```py
@@ -112,14 +112,14 @@ Building configuration...
 ```
 
 <br>
-##### Enter and exit enable mode.
+#### Enter and exit enable mode.
 ```py
 net_connect.enable()
 net_connect.exit_enable_mode()
 ```
 
 <br>
-##### Execute configuration change commands (will automatically enter into config mode)
+#### Execute configuration change commands (will automatically enter into config mode)
 ```py
 config_commands = [ 'logging buffered 20000', 
                     'logging buffered 20010', 
