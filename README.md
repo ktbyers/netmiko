@@ -6,7 +6,7 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 Python 2.6, 2.7, 3.3, 3.4, 3.5  
   
 <br>
-##### Requires:
+#### Requires:
 Paramiko >= 1.13+  
 scp >= 0.10.0  
 pyyaml  
@@ -14,7 +14,7 @@ pytest (for unit tests)
   
   
 <br>
-##### Supports:
+#### Supports:
 
 ###### Regularly tested
 Cisco IOS  
