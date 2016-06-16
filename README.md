@@ -16,31 +16,34 @@ pytest (for unit tests)
 <br>
 #### Supports:
 
-###### Regularly tested
+##### Regularly tested
+Arista vEOS  
+Cisco ASA  
 Cisco IOS  
 Cisco IOS-XE  
-Cisco ASA  
 Cisco IOS-XR  
-Arista vEOS  
+HP Comware7  
 HP ProCurve  
 Juniper Junos  
-HP Comware7  
 
+##### Limited testing
+Avaya ERS  
+Avaya VSP  
+Brocade VDX  
 Cisco NX-OS  
 Cisco WLC  
+Dell-Force10 DNOS9  
+Huawei  
+Linux  
 Palo Alto PAN-OS  
-Linux (limited testing)  
-Brocade VDX (limited testing)  
-Huawei (limited testing)  
-Avaya ERS (limited testing)  
-Avaya VSP (limited testing)  
-A10 (experimental)  
-F5 LTM (experimental)  
-Dell-Force10 DNOS9 (limited testing)  
-Enterasys (experimental)  
-Extreme (experiemental)  
-Fortinet (experimental)  
-Alcatel-Lucent SR-OS (experimental)  
+
+##### Experimental
+A10  
+F5 LTM  
+Enterasys  
+Extreme  
+Fortinet  
+Alcatel-Lucent SR-OS  
 
    
 <br>
