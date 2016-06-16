@@ -44,10 +44,11 @@ Alcatel-Lucent SR-OS (experimental)
 ## Tutorials:
 
 ##### Standard Tutorial: #####
-(https://pynet.twb-tech.com/blog/automation/netmiko.html)
-
+https://pynet.twb-tech.com/blog/automation/netmiko.html
+  
+<br>
 ##### SSH Proxy: #####
-(https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html)
+https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html
 
   
 <br>
