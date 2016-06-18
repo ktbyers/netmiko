@@ -5,6 +5,7 @@ from netmiko.cisco import CiscoAsaSSH
 from netmiko.cisco import CiscoNxosSSH
 from netmiko.cisco import CiscoXrSSH
 from netmiko.cisco import CiscoWlcSSH
+from netmiko.eltex import EltexSSH
 from netmiko.arista import AristaSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
 from netmiko.huawei import HuaweiSSH
@@ -34,6 +35,7 @@ CLASS_MAPPER_BASE = {
     'cisco_nxos': CiscoNxosSSH,
     'cisco_xr': CiscoXrSSH,
     'cisco_wlc': CiscoWlcSSH,
+    'eltex': EltexSSH,
     'arista_eos': AristaSSH,
     'hp_procurve': HPProcurveSSH,
     'hp_comware': HPComwareSSH,
