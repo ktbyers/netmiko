@@ -391,6 +391,7 @@ class BaseSSHConnection(object):
                     return output
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+        return output
 
     def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
@@ -407,6 +408,7 @@ class BaseSSHConnection(object):
                     return output
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+        return output
 
     def send_command_expect(self, command_string, expect_string=None,
                             delay_factor=.2, max_loops=500, auto_find_prompt=True,
