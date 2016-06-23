@@ -31,6 +31,7 @@ class SCPConn(object):
                               port=self.ssh_ctl_chan.port,
                               username=self.ssh_ctl_chan.username,
                               password=self.ssh_ctl_chan.password,
+                              key_filename=self.ssh_ctl_chan.key_file,
                               look_for_keys=False,
                               allow_agent=False,
                               timeout=8)
