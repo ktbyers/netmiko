@@ -11,7 +11,7 @@ class FortinetSSH(SSHConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self.set_base_prompt(pri_prompt_terminator='$')
+        self.set_base_prompt(alt_prompt_terminator='$')
         self.disable_paging()
 
     def disable_paging(self, delay_factor=.1):
