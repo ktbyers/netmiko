@@ -1,5 +1,8 @@
 from __future__ import print_function
 from __future__ import unicode_literals
+
+import time
+
 from netmiko.ssh_connection import SSHConnection
 
 
@@ -7,6 +10,9 @@ class HPComwareSSH(SSHConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
+        # Extra time to read HP banners
+        time.sleep(2)
+        self.clear_buffer()
         self.set_base_prompt()
         self.disable_paging(command="\nscreen-length disable\n")
 
