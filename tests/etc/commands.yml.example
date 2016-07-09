@@ -76,3 +76,13 @@ paloalto_panos:
   support_commit: True
   config_verification: 'run show vlan all'
 
+brocade_fastiron:
+  version: "show version"
+  basic: "show ip interface"
+  extended_output: "show running-config"   # requires paging to be disabled
+  config: 
+    - "logging buffered 4000"      # base command
+    - "no logging console"
+    - "logging buffered 3000"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: "brocade_fastiron_commands.txt"
