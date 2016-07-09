@@ -44,3 +44,9 @@ paloalto_panos:
   username: admin
   password: paloalto123
 
+brocade_fastiron:
+  device_type: brocade_fastiron
+  ip: 10.18.253.130
+  username: admin
+  password: password
+  secret: password

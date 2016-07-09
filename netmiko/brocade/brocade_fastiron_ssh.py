@@ -2,6 +2,9 @@ from netmiko.ssh_connection import SSHConnection
 
 
 class BrocadeFastironSSH(SSHConnection):
-    '''Placeholder for Brocade FastIron'''
-    def __init__(self, *args, **kwargs):
-        raise NotImplementedError
+    """Brocade FastIron aka ICX support."""
+    def session_preparation(self):
+        """FastIron requires to be enable mode to disable paging."""
+        self.set_base_prompt()
+        self.enable()
+        self.disable_paging(command="skip-page-display")

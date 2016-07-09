@@ -28,4 +28,13 @@ paloalto_panos:
   multiple_line_output: 'logdb-version: 7.0.9'
   version_banner: 'sw-version: 7.0.1'
   cmd_response_init: 'new_test'
-  cmd_response_final: 'another_test'
+  cmd_response_final: 'another_test'---
+
+brocade_fastiron:
+  base_prompt: SSH@ICX7250-24P Router
+  router_prompt : SSH@ICX7250-24P Router>
+  enable_prompt: SSH@ICX7250-24P Router#
+  interface_ip: 10.18.253.130
+  version_banner: "SW: Version"
+  multiple_line_output: "interface management 1"
+  file_check_cmd: "logging buffered 3000"
