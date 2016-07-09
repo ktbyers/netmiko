@@ -30,6 +30,8 @@ Juniper Junos
 Avaya ERS  
 Avaya VSP  
 Brocade VDX  
+Brocade ICX/FastIron  
+Brocade MLX/NetIron  
 Cisco NX-OS  
 Cisco WLC  
 Dell-Force10 DNOS9  
