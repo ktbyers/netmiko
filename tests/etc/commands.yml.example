@@ -86,3 +86,14 @@ brocade_fastiron:
     - "logging buffered 3000"      # something you can verify has changed
   config_verification: "show run | inc logging buffer"
   config_file: "brocade_fastiron_commands.txt"
+
+brocade_netiron:
+  version: "show version"
+  basic: "show ip interface"
+  extended_output: "show version"   # requires paging to be disabled
+  config: 
+    - "logging buffered 4000"      # base command
+    - "no logging console"
+    - "logging buffered 3000"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: "brocade_netiron_commands.txt"
