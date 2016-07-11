@@ -50,3 +50,10 @@ brocade_fastiron:
   username: admin
   password: password
   secret: password
+
+brocade_netiron:
+  device_type: brocade_netiron
+  ip: 10.254.4.128
+  username: admin
+  password: password
+  secret: password
