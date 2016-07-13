@@ -12,6 +12,6 @@ class BrocadeFastironSSH(SSHConnection):
 
     @staticmethod
     def normalize_linefeeds(a_string):
-        """Convert '\r\r\n','\r\n', '\n\r' to '\n."""
-        newline = re.compile(r'(\r\r\r\n|\r\r\n|\r\n|\n\r)')
-        return newline.sub('\n', a_string).replace('\n\n', '\n')
+        """Convert '\r\n\r\n', '\r\r\n','\r\n', '\n\r' to '\n."""
+        newline = re.compile(r'(\r\n\r\n|\r\r\n|\r\n|\n\r|\r)')
+        return newline.sub('\n', a_string)
