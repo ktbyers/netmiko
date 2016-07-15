@@ -47,3 +47,13 @@ brocade_netiron:
   version_banner: "IronWare : Version"
   multiple_line_output: "All show version done"
   file_check_cmd: "logging buffered 3000"
+
+brocade_nos:
+  base_prompt: Leaf1
+  router_prompt : Leaf1#
+  enable_prompt: Leaf1#
+  interface_ip: 10.254.4.117
+  version_banner: "Network Operating System Version:"
+  multiple_line_output: "TenGigabitEthernet 34/0/48"
+  cmd_response_init: 'logging raslog console WARNING'
+  cmd_response_final: 'logging raslog console INFO'
