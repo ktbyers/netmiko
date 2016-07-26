@@ -26,6 +26,9 @@ def test_disable_paging(net_connect, commands, expected_responses):
     '''
     Verify paging is disabled by looking for string after when paging would normally occur
     '''
+    if net_connect.device_type == 'arista_eos':
+        # Arista logging buffer gets enormous
+        net_connect.send_command_expect('clear logging')
     multiple_line_output = net_connect.send_command_expect(commands["extended_output"])
     assert expected_responses["multiple_line_output"] in multiple_line_output
 
