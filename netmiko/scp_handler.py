@@ -27,14 +27,14 @@ class SCPConn(object):
         """Establish the secure copy connection."""
         self.scp_conn = paramiko.SSHClient()
         self.scp_conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.scp_conn.connect(hostname=self.ssh_ctl_chan.ip,
+        self.scp_conn.connect(hostname=self.ssh_ctl_chan.host,
                               port=self.ssh_ctl_chan.port,
                               username=self.ssh_ctl_chan.username,
                               password=self.ssh_ctl_chan.password,
                               key_filename=self.ssh_ctl_chan.key_file,
-                              look_for_keys=False,
+                              look_for_keys=self.ssh_ctl_chan.use_keys,
                               allow_agent=False,
-                              timeout=8)
+                              timeout=self.ssh_ctl_chan.timeout)
         self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
 
     def scp_transfer_file(self, source_file, dest_file):

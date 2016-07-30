@@ -30,7 +30,7 @@ class BaseSSHConnection(object):
     def __init__(self, ip=u'', host=u'', username=u'', password=u'', secret=u'', port=22,
                  device_type=u'', verbose=False, global_delay_factor=.1, use_keys=False,
                  key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
-                 alt_key_file='', ssh_config_file=None):
+                 alt_key_file='', ssh_config_file=None, timeout=8):
 
         if ip:
             self.host = ip
@@ -42,10 +42,11 @@ class BaseSSHConnection(object):
         self.port = int(port)
         self.username = username
         self.password = password
-        self.key_file = key_file
         self.secret = secret
         self.device_type = device_type
         self.ansi_escape_codes = False
+        self.verbose = verbose
+        self.timeout = timeout
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -59,6 +60,8 @@ class BaseSSHConnection(object):
             self.key_policy = paramiko.RejectPolicy()
 
         # Options for SSH host_keys
+        self.use_keys = use_keys
+        self.key_file = key_file
         self.system_host_keys = system_host_keys
         self.alt_host_keys = alt_host_keys
         self.alt_key_file = alt_key_file
@@ -66,7 +69,7 @@ class BaseSSHConnection(object):
         # For SSH proxy support
         self.ssh_config_file = ssh_config_file
 
-        self.establish_connection(verbose=verbose, use_keys=use_keys, key_file=key_file)
+        self.establish_connection()
         self.session_preparation()
 
     def session_preparation(self):
@@ -117,17 +120,17 @@ class BaseSSHConnection(object):
             connect_dict['sock'] = proxy
         connect_dict['hostname'] = source.get('hostname', self.host)
 
-    def _connect_params_dict(self, use_keys=False, key_file=None, timeout=8):
+    def _connect_params_dict(self):
         """Convert Paramiko connect params to a dictionary."""
         return {
             'hostname': self.host,
             'port': self.port,
             'username': self.username,
             'password': self.password,
-            'look_for_keys': use_keys,
+            'look_for_keys': self.use_keys,
             'allow_agent': False,
-            'key_filename': key_file,
-            'timeout': timeout,
+            'key_filename': self.key_file,
+            'timeout': self.timeout,
         }
 
     def _sanitize_output(self, output, strip_command=False, command_string=None,
@@ -142,20 +145,16 @@ class BaseSSHConnection(object):
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, sleep_time=3, verbose=True, timeout=8,
-                             use_keys=False, key_file=None):
+    def establish_connection(self):
         """
         Establish SSH connection to the network device
 
         Timeout will generate a NetMikoTimeoutException
         Authentication failure will generate a NetMikoAuthenticationException
-
-        use_keys is a boolean that allows ssh-keys to be used for authentication
         """
 
         # Convert Paramiko connection parameters to a dictionary
-        ssh_connect_params = self._connect_params_dict(use_keys=use_keys, key_file=key_file,
-                                                       timeout=timeout)
+        ssh_connect_params = self._connect_params_dict()
 
         # Check if using SSH 'config' file mainly for SSH proxy support (updates ssh_connect_params)
         if self.ssh_config_file:
@@ -186,14 +185,14 @@ class BaseSSHConnection(object):
             msg += '\n' + str(auth_err)
             raise NetMikoAuthenticationException(msg)
 
-        if verbose:
+        if self.verbose:
             print("SSH connection established to {0}:{1}".format(self.host, self.port))
 
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell()
-        self.remote_conn.settimeout(timeout)
+        self.remote_conn.settimeout(self.timeout)
         self.special_login_handler()
-        if verbose:
+        if self.verbose:
             print("Interactive SSH session established")
 
         time.sleep(.1)
