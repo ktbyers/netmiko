@@ -11,6 +11,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import paramiko
+import telnetlib
 import time
 import socket
 import re
@@ -19,6 +20,7 @@ from os import path
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
+from netmiko.utilities import write_bytes
 
 
 class BaseSSHConnection(object):
@@ -52,21 +54,93 @@ class BaseSSHConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
 
-        if not ssh_strict:
-            self.key_policy = paramiko.AutoAddPolicy()
+        # determine if telnet or SSH
+        if '_telnet' in device_type:
+            self.protocol = 'telnet'
+            self.telnet_establish_connection()
         else:
-            self.key_policy = paramiko.RejectPolicy()
+            self.protocol = 'ssh'
 
-        # Options for SSH host_keys
-        self.system_host_keys = system_host_keys
-        self.alt_host_keys = alt_host_keys
-        self.alt_key_file = alt_key_file
+            if not ssh_strict:
+                self.key_policy = paramiko.AutoAddPolicy()
+            else:
+                self.key_policy = paramiko.RejectPolicy()
 
-        # For SSH proxy support
-        self.ssh_config_file = ssh_config_file
+            # Options for SSH host_keys
+            self.system_host_keys = system_host_keys
+            self.alt_host_keys = alt_host_keys
+            self.alt_key_file = alt_key_file
 
-        self.establish_connection(verbose=verbose, use_keys=use_keys, key_file=key_file)
-        self.session_preparation()
+            # For SSH proxy support
+            self.ssh_config_file = ssh_config_file
+
+            self.establish_connection(verbose=verbose, use_keys=use_keys, key_file=key_file)
+            self.session_preparation()
+
+    def write_channel(self, out_data):
+        """Generic handler that will write to both SSH and telnet channel."""
+        if self.protocol == 'ssh':
+            self.remote_conn.sendall(write_bytes(out_data))
+        elif self.protocol == 'telnet':
+            self.remote_conn.write(write_bytes(out_data))
+        else:
+            raise ValueError("Invalid protocol specified")
+
+    def read_channel(self):
+        """Generic handler that will read an SSH channel and a telnet channel."""
+        pass
+
+    def telnet_establish_connection(self, timeout=12):
+        """Establish telnet Connection using telnetlib."""
+        self.remote_conn = telnetlib.Telnet(self.ip, port=self.port, timeout=timeout)
+        self.telnet_login()
+
+    def telnet_login(self):
+        """Telnet login."""
+        debug = True
+        telnet_delay = .5
+        read_until_timeout = 3
+        max_attempts = 30
+
+        # Delay to allow HP ProCurve to put up initial banner
+        # Should move to HP Specific Driver?
+        time.sleep(2 * telnet_delay)
+        output = u''
+        i = 1
+        while i <= max_attempts:
+            try:
+                read_data = self.remote_conn.read_very_eager()
+                if debug:
+                    print(read_data)
+                if re.search("sername", read_data):
+                    print("Z1")
+                    self.write_channel(self.username + u'\n')
+                    time.sleep(2 * telnet_delay)
+                    output += self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+                    if debug:
+                        print(output)
+                elif re.search("assword", output):
+                    print("Z2")
+                    self.write_channel(self.password + u"\n")
+                    output += self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+                    if debug:
+                        print(output)
+                    time.sleep(telnet_delay)
+                    output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+                    if '>' in output or '#' in output:
+                        print("Z3")
+                        print(output)
+                        return output
+                else:
+                    self.write_channel(u"\n")
+                    time.sleep(telnet_delay)
+                i += 1
+            except EOFError:
+                msg = "Telnet login failed: {0}".format(self.ip)
+                raise NetMikoAuthenticationException(msg)
+
+        msg = "Telnet login failed: {0}".format(self.ip)
+        raise NetMikoAuthenticationException(msg)
 
     def session_preparation(self):
         """

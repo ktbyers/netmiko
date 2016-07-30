@@ -67,6 +67,9 @@ for k, v in CLASS_MAPPER_BASE.items():
     new_mapper[alt_key] = v
 CLASS_MAPPER = new_mapper
 
+# Add telnet drivers
+CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosSSH
+
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
 platforms_base = list(CLASS_MAPPER_BASE.keys())
