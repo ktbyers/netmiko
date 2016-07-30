@@ -3,7 +3,7 @@ import socket
 import time
 
 from netmiko.netmiko_globals import MAX_BUFFER
-from netmiko.ssh_connection import CiscoSSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.ssh_exception import NetMikoTimeoutException
 
 
