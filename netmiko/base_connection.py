@@ -42,6 +42,7 @@ class BaseSSHConnection(object):
         self.port = int(port)
         self.username = username
         self.password = password
+        self.key_file = key_file
         self.secret = secret
         self.device_type = device_type
         self.ansi_escape_codes = False
