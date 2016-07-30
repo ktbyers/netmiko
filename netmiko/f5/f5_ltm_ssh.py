@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 import time
 import re
 
-from netmiko.base_connection import BaseSSHConnection
+from netmiko.base_connection import BaseConnection
 
 
-class F5LtmSSH(BaseSSHConnection):
+class F5LtmSSH(BaseConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""

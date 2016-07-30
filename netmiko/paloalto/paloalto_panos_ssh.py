@@ -1,10 +1,10 @@
 from __future__ import unicode_literals
 import re
 
-from netmiko.ssh_connection import BaseSSHConnection
+from netmiko.ssh_connection import BaseConnection
 
 
-class PaloAltoPanosSSH(BaseSSHConnection):
+class PaloAltoPanosSSH(BaseConnection):
     '''
     Implement methods for interacting with PaloAlto devices.
 

@@ -23,7 +23,7 @@ from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthentication
 from netmiko.utilities import write_bytes
 
 
-class BaseSSHConnection(object):
+class BaseConnection(object):
     """
     Defines vendor independent methods.
 

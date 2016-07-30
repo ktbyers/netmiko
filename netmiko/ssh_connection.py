@@ -1,10 +1,10 @@
 """SSHConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
 from __future__ import unicode_literals
-from netmiko.base_connection import BaseSSHConnection
+from netmiko.base_connection import BaseConnection
 import re
 
 
-class SSHConnection(BaseSSHConnection):
+class SSHConnection(BaseConnection):
     """Based upon Cisco CLI behavior."""
     def check_enable_mode(self, check_string='#'):
         """Check if in enable mode. Return boolean."""

@@ -1,12 +1,12 @@
 from __future__ import unicode_literals
 import re
 
-from netmiko.ssh_connection import BaseSSHConnection
+from netmiko.ssh_connection import BaseConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 import time
 
 
-class JuniperSSH(BaseSSHConnection):
+class JuniperSSH(BaseConnection):
     '''
     Implement methods for interacting with Juniper Networks devices.
 
