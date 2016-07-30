@@ -1,5 +1,5 @@
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class BrocadeNetironSSH(SSHConnection):
+class BrocadeNetironSSH(CiscoSSHConnection):
     pass

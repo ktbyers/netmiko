@@ -3,16 +3,16 @@ import socket
 import time
 
 from netmiko.netmiko_globals import MAX_BUFFER
-from netmiko.ssh_connection import SSHConnection
+from netmiko.ssh_connection import CiscoSSHConnection
 from netmiko.ssh_exception import NetMikoTimeoutException
 
 
-class LinuxSSH(SSHConnection):
+class LinuxSSH(CiscoSSHConnection):
 
     def set_base_prompt(self, pri_prompt_terminator='$',
                         alt_prompt_terminator='#', delay_factor=.1):
         """Determine base prompt."""
-        return super(SSHConnection, self).set_base_prompt(
+        return super(CiscoSSHConnection, self).set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor)
@@ -21,9 +21,9 @@ class LinuxSSH(SSHConnection):
         """Can't exit from root (if root)"""
         if self.username == "root":
             exit_config_mode = False
-        return super(SSHConnection, self).send_config_set(config_commands=config_commands,
-                                                          exit_config_mode=exit_config_mode,
-                                                          **kwargs)
+        return super(CiscoSSHConnection, self).send_config_set(config_commands=config_commands,
+                                                               exit_config_mode=exit_config_mode,
+                                                               **kwargs)
 
     def check_config_mode(self, check_string='#'):
         """Verify root"""
@@ -38,7 +38,7 @@ class LinuxSSH(SSHConnection):
 
     def check_enable_mode(self, check_string='#'):
         """Verify root"""
-        return super(SSHConnection, self).check_enable_mode(check_string=check_string)
+        return super(CiscoSSHConnection, self).check_enable_mode(check_string=check_string)
 
     def exit_enable_mode(self, exit_command='exit'):
         """Exit enable mode."""

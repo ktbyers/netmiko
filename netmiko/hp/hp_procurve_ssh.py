@@ -2,10 +2,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import re
 import time
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class HPProcurveSSH(SSHConnection):
+class HPProcurveSSH(CiscoSSHConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established"""

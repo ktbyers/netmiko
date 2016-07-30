@@ -1,8 +1,8 @@
 """Enterasys support."""
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class EnterasysSSH(SSHConnection):
+class EnterasysSSH(CiscoSSHConnection):
     """Enterasys support."""
     def session_preparation(self):
         """Enterasys requires enable mode to disable paging."""

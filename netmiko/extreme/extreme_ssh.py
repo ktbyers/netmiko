@@ -1,8 +1,8 @@
 """Extreme support."""
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ExtremeSSH(SSHConnection):
+class ExtremeSSH(CiscoSSHConnection):
     """Extreme support."""
     def session_preparation(self):
         """Extreme requires enable mode to disable paging."""

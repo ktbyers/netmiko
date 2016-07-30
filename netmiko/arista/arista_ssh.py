@@ -1,8 +1,8 @@
 import time
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class AristaSSH(SSHConnection):
+class AristaSSH(CiscoSSHConnection):
     def special_login_handler(self, delay_factor=1):
         """
         Arista adds a "Last login: " message that doesn't always have sufficient time to be handled

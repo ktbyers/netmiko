@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 
 import time
 
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class HPComwareSSH(SSHConnection):
+class HPComwareSSH(CiscoSSHConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""

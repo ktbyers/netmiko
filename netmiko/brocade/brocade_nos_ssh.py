@@ -1,9 +1,9 @@
 """Support for Brocade NOS/VDX."""
 import time
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class BrocadeNosSSH(SSHConnection):
+class BrocadeNosSSH(CiscoSSHConnection):
     """Support for Brocade NOS/VDX."""
     def enable(self, *args, **kwargs):
         """No enable mode on Brocade VDX."""

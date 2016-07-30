@@ -1,10 +1,10 @@
 """Avaya Virtual Services Platform Support."""
 from __future__ import print_function
 from __future__ import unicode_literals
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class AvayaVspSSH(SSHConnection):
+class AvayaVspSSH(CiscoSSHConnection):
     """Avaya Virtual Services Platform Support."""
     def session_preparation(self):
         """Prepare the session after the connection has been established."""

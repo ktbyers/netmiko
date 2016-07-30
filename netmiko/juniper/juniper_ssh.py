@@ -7,12 +7,12 @@ import time
 
 
 class JuniperSSH(BaseConnection):
-    '''
+    """
     Implement methods for interacting with Juniper Networks devices.
 
-    Subclass of SSHConnection.  Disables `enable()` and `check_enable_mode()`
+    Disables `enable()` and `check_enable_mode()`
     methods.  Overrides several methods for Juniper-specific compatibility.
-    '''
+    """
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.

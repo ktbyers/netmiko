@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 
 import re
 
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class CiscoXrSSH(SSHConnection):
+class CiscoXrSSH(CiscoSSHConnection):
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""

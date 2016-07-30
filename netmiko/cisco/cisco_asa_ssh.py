@@ -2,10 +2,10 @@
 
 from __future__ import unicode_literals
 import re
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class CiscoAsaSSH(SSHConnection):
+class CiscoAsaSSH(CiscoSSHConnection):
     """Subclass specific to Cisco ASA."""
     def session_preparation(self):
         """Prepare the session after the connection has been established."""

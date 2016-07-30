@@ -1,6 +1,7 @@
 """Controls selection of proper class based on the device type."""
 from __future__ import unicode_literals
 from netmiko.cisco import CiscoIosSSH
+from netmiko.cisco import CiscoIosTelnet
 from netmiko.cisco import CiscoAsaSSH
 from netmiko.cisco import CiscoNxosSSH
 from netmiko.cisco import CiscoXrSSH
@@ -68,7 +69,7 @@ for k, v in CLASS_MAPPER_BASE.items():
 CLASS_MAPPER = new_mapper
 
 # Add telnet drivers
-CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosSSH
+CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
 
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()

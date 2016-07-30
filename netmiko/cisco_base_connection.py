@@ -1,22 +1,22 @@
-"""SSHConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
+"""CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
 from __future__ import unicode_literals
 from netmiko.base_connection import BaseConnection
 import re
 
 
-class SSHConnection(BaseConnection):
-    """Based upon Cisco CLI behavior."""
+class CiscoBaseConnection(BaseConnection):
+    """Base Class for cisco-like behavior."""
     def check_enable_mode(self, check_string='#'):
         """Check if in enable mode. Return boolean."""
-        return super(SSHConnection, self).check_enable_mode(check_string=check_string)
+        return super(CiscoBaseConnection, self).check_enable_mode(check_string=check_string)
 
     def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE):
         """Enter enable mode."""
-        return super(SSHConnection, self).enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        return super(CiscoBaseConnection, self).enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
     def exit_enable_mode(self, exit_command='disable'):
         """Exits enable (privileged exec) mode."""
-        return super(SSHConnection, self).exit_enable_mode(exit_command=exit_command)
+        return super(CiscoBaseConnection, self).exit_enable_mode(exit_command=exit_command)
 
     def check_config_mode(self, check_string=')#', pattern=''):
         """
@@ -26,8 +26,8 @@ class SSHConnection(BaseConnection):
         """
         if not pattern:
             pattern = self.base_prompt[:16]
-        return super(SSHConnection, self).check_config_mode(check_string=check_string,
-                                                            pattern=pattern)
+        return super(CiscoBaseConnection, self).check_config_mode(check_string=check_string,
+                                                                  pattern=pattern)
 
     def config_mode(self, config_command='config term', pattern=''):
         """
@@ -37,15 +37,15 @@ class SSHConnection(BaseConnection):
         """
         if not pattern:
             pattern = self.base_prompt[:16]
-        return super(SSHConnection, self).config_mode(config_command=config_command,
-                                                      pattern=pattern)
+        return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
+                                                            pattern=pattern)
 
     def exit_config_mode(self, exit_config='end', pattern=''):
         """Exit from configuration mode."""
         if not pattern:
             pattern = self.base_prompt[:16]
-        return super(SSHConnection, self).exit_config_mode(exit_config=exit_config,
-                                                           pattern=pattern)
+        return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
+                                                                 pattern=pattern)
 
     def cleanup(self):
         """Gracefully exit the SSH session."""
@@ -66,3 +66,11 @@ class SSHConnection(BaseConnection):
 
         raise ValueError("An error occurred in dynamically determining remote file "
                          "system: {} {}".format(cmd, output))
+
+
+class CiscoSSHConnection(CiscoBaseConnection):
+    pass
+
+
+class CiscoTelnetConnection(CiscoBaseConnection):
+    pass

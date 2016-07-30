@@ -1,9 +1,9 @@
 """Alcatel-Lucent SROS support."""
 import re
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class AlcatelSrosSSH(SSHConnection):
+class AlcatelSrosSSH(CiscoSSHConnection):
     """Alcatel-Lucent SROS support."""
     def session_preparation(self):
         self.set_base_prompt()

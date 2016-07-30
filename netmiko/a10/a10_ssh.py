@@ -1,8 +1,8 @@
 """A10 support."""
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class A10SSH(SSHConnection):
+class A10SSH(CiscoSSHConnection):
     """A10 support."""
     def session_preparation(self):
         """A10 requires to be enable mode to disable paging."""

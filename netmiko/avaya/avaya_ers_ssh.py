@@ -3,7 +3,7 @@ Netmiko support for Avaya Ethernet Routing Switch
 '''
 from __future__ import print_function
 from __future__ import unicode_literals
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 import time
 
@@ -11,7 +11,7 @@ import time
 CTRL_Y = '\x19'
 
 
-class AvayaErsSSH(SSHConnection):
+class AvayaErsSSH(CiscoSSHConnection):
     '''
     Netmiko support for Avaya Ethernet Routing Switch
     '''

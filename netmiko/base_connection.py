@@ -784,3 +784,7 @@ class BaseConnection(object):
         Commit method for platforms that support this
         '''
         raise AttributeError("Network device does not support 'commit()' method")
+
+
+class TelnetConnection(BaseConnection):
+    pass
