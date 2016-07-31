@@ -57,6 +57,7 @@ setup(
               'netmiko/dell',
               'netmiko/avaya',
               'netmiko/paloalto',
+              'netmiko/vyos',
               'netmiko/quanta'],
     install_requires=['paramiko>=1.13.0', 'scp>=0.10.0', 'pyyaml'],
     extras_require={

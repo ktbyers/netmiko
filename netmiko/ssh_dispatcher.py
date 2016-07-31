@@ -46,6 +46,9 @@ CLASS_MAPPER_BASE = {
     'brocade_nos': BrocadeNosSSH,
     'brocade_fastiron': BrocadeFastironSSH,
     'brocade_netiron': BrocadeNetironSSH,
+    'vyos': VyOSSSH,
+    'brocade_vyos': VyOSSSH,
+    'vyatta_vyos': VyOSSSH,
     'a10': A10SSH,
     'avaya_vsp': AvayaVspSSH,
     'avaya_ers': AvayaErsSSH,
@@ -58,7 +61,6 @@ CLASS_MAPPER_BASE = {
     'dell_force10': DellForce10SSH,
     'paloalto_panos': PaloAltoPanosSSH,
     'quanta_mesh': QuantaMeshSSH,
-    'vyos': VyOSSSH,
 }
 
 # Also support keys that end in _ssh

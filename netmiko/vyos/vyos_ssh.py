@@ -3,19 +3,12 @@ from netmiko.ssh_connection import BaseSSHConnection
 
 
 class VyOSSSH(BaseSSHConnection):
-    '''
-    Implement methods for interacting with VyOS network devices.
-
-    Disables `enable()` and `check_enable_mode()` methods.
-    '''
+    """Implement methods for interacting with VyOS network devices."""
 
     def session_preparation(self):
-       """
-       Prepare the session after the connection has been established.
-       """
-
-       self.set_base_prompt()
-       self.disable_paging(command="set terminal length 0\n")
+        """Prepare the session after the connection has been established."""
+        self.set_base_prompt()
+        self.disable_paging(command="set terminal length 0\n")
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on VyOS."""
@@ -39,55 +32,47 @@ class VyOSSSH(BaseSSHConnection):
 
     def exit_config_mode(self, exit_config='exit', pattern='exit'):
         """Exit configuration mode"""
-
         output = ""
         if self.check_config_mode():
             output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
-
             if 'Cannot exit: configuration modified' in output:
-                #insert delay?
+                # insert delay?
                 output += self.send_command('exit discard', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
 
     def commit(self, comment='', delay_factor=.1):
-       """
-       Commit the candidate configuration.
+        """
+        Commit the candidate configuration.
 
-       Commit the entered configuration. Raise an error and return the failure
-       if the commit fails.
+        Commit the entered configuration. Raise an error and return the failure
+        if the commit fails.
 
-       default:
+        default:
            command_string = commit
-       comment:
+        comment:
            command_string = commit comment <comment>
 
-       """
-       delay_factor = self.select_delay_factor(delay_factor)
-       error_marker = 'Failed to generate committed config'
-       command_string = 'commit'
+        """
+        delay_factor = self.select_delay_factor(delay_factor)
+        error_marker = 'Failed to generate committed config'
+        command_string = 'commit'
 
-       if comment:
-           command_string += ' comment "{}"'.format(comment)
+        if comment:
+            command_string += ' comment "{}"'.format(comment)
 
-       output = self.config_mode()
-       output += self.send_command_expect(command_string, strip_prompt=False,
-                                          strip_command=False, delay_factor=delay_factor)
+        output = self.config_mode()
+        output += self.send_command_expect(command_string, strip_prompt=False,
+                                           strip_command=False, delay_factor=delay_factor)
 
-       if error_marker in output:
-           raise ValueError('Commit failed with following errors:\n\n{}'.format(output))
-
-       return output
+        if error_marker in output:
+            raise ValueError('Commit failed with following errors:\n\n{}'.format(output))
+        return output
 
     def set_base_prompt(self, pri_prompt_terminator='$', alt_prompt_terminator='#',
                         delay_factor=.5):
-        """
-        Sets self.base_prompt
-
-        Used as delimiter for stripping of trailing prompt in output.
-
-        """
+        """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
         debug = False
         if debug:
             print("In set_base_prompt")
@@ -106,12 +91,8 @@ class VyOSSSH(BaseSSHConnection):
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError("Router prompt not found: {0}".format(prompt))
 
-        # Set prompt to user@hostname 
-
+        # Set prompt to user@hostname
         self.base_prompt = prompt[:-3].strip()
-
         if debug:
             print("prompt: {}".format(self.base_prompt))
-
         return self.base_prompt
-
