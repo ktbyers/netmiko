@@ -4,18 +4,18 @@ Netmiko
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
 Python 2.6, 2.7, 3.3, 3.4, 3.5  
-  
+
 <br>
 #### Requires:
 Paramiko >= 1.13+  
 scp >= 0.10.0  
 pyyaml  
 pytest (for unit tests)   
-  
-  
+
+
 <br>
 #### Supports:
-  
+
 ###### Regularly tested
 Arista vEOS  
 Cisco ASA  
@@ -25,7 +25,7 @@ Cisco IOS-XR
 HP Comware7  
 HP ProCurve  
 Juniper Junos  
-  
+
 ###### Limited testing
 Avaya ERS  
 Avaya VSP  
@@ -39,7 +39,7 @@ Huawei
 Linux  
 Vyatta VyOS  
 Palo Alto PAN-OS  
-  
+
 ###### Experimental
 A10  
 F5 LTM  
@@ -48,17 +48,17 @@ Extreme
 Fortinet  
 Alcatel-Lucent SR-OS  
 
-   
+
 <br>
 ## Tutorials:
 
-##### Standard Tutorial: 
+##### Standard Tutorial:
 https://pynet.twb-tech.com/blog/automation/netmiko.html
-  
-##### SSH Proxy: 
+
+##### SSH Proxy:
 https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html
-  
-  
+
+
 <br>
 ## Examples:
 
@@ -124,8 +124,8 @@ net_connect.exit_enable_mode()
 <br>
 #### Execute configuration change commands (will automatically enter into config mode)
 ```py
-config_commands = [ 'logging buffered 20000', 
-                    'logging buffered 20010', 
+config_commands = [ 'logging buffered 20000',
+                    'logging buffered 20010',
                     'no logging console' ]
 output = net_connect.send_config_set(config_commands)
 print(output)
@@ -139,8 +139,16 @@ pynet-rtr1(config)#no logging console
 pynet-rtr1(config)#end
 pynet-rtr1#
 ```
-  
-  
+
+## Questions/Discussion
+
+If you find an issue with Netmiko, then you can open an issue on this projects issue page here: [https://github.com/ktbyers/netmiko/issues](https://github.com/ktbyers/netmiko/issues)
+
+If you have questions or would like to discuss Netmiko, a Netmiko channel exists on the [networktocode](https://networktocode.slack.com) Slack team.  To join, just visit the url and request access to the Sack team.  Once access is granted you can join the [#netmiko](https://networktocode.slack.com/messages/netmiko/) channel.
+
+
+
+
 <br>
 ---    
 Kirk Byers  
