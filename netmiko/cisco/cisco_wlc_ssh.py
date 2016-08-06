@@ -3,7 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 
-from netmiko.ssh_connection import BaseConnection
+from netmiko.base_connection import BaseConnection
 from netmiko.netmiko_globals import MAX_BUFFER
 
 

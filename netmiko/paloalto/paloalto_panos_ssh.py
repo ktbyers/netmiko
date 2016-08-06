@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import re
 
-from netmiko.ssh_connection import BaseConnection
+from netmiko.base_connection import BaseConnection
 
 
 class PaloAltoPanosSSH(BaseConnection):

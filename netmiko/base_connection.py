@@ -548,7 +548,7 @@ class BaseConnection(object):
 
         self.global_delay_factor is not used (to make this method faster)
         '''
-        debug = False
+        debug = True
 
         # Find the current router prompt
         if expect_string is None:
