@@ -30,7 +30,7 @@ class BaseConnection(object):
     Otherwise method left as a stub method.
     """
     def __init__(self, ip=u'', host=u'', username=u'', password=u'', secret=u'', port=22,
-                 device_type=u'', verbose=False, global_delay_factor=.1, use_keys=False,
+                 device_type=u'', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
                  alt_key_file='', ssh_config_file=None):
 
@@ -86,9 +86,53 @@ class BaseConnection(object):
         else:
             raise ValueError("Invalid protocol specified")
 
-    def read_channel(self):
-        """Generic handler that will read an SSH channel and a telnet channel."""
+    def _read_channel_expect(self, pattern=""):
+        """
+        Function that reads channel until pattern is detected.
+
+        pattern takes a regular expression.
+        """
         pass
+
+    def _read_channel_timing(self, delay_factor=1, max_loops=150):
+        """
+        Read data on the channel based on timing delays.
+
+        Attempt to read channel max_loops number of times. If no data this will cause a 15 second
+        delay.
+
+        Once data is encountered read channel for another two seconds (2 * delay_factor) to make
+        sure reading of channel is complete.
+        """
+        delay_factor = self.select_delay_factor(delay_factor)
+        channel_data = ""
+        i = 0
+        while i <= max_loops:
+            time.sleep(.1 * delay_factor)
+            new_data = self._read_channel()
+            if new_data:
+                channel_data += new_data
+            else:
+                # Safeguard to make sure really done
+                time.sleep(2 * delay_factor)
+                new_data = self._read_channel()
+                if not new_data:
+                    break
+                else:
+                    channel_data += new_data
+            i += 1
+
+    def _read_channel(self):
+        """Generic handler that will read all the data from an SSH or telnet channel."""
+        if self.protocol == 'ssh':
+            output = ""
+            while True:
+                if self.remote_conn.recv_ready():
+                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                else:
+                    return output
+        elif self.protocol == 'telnet':
+            return self.remote_conn.read_very_eager()
 
     def telnet_establish_connection(self, timeout=12):
         """Establish telnet Connection using telnetlib."""
@@ -97,7 +141,7 @@ class BaseConnection(object):
 
     def telnet_login(self):
         """Telnet login."""
-        debug = True
+        debug = False
         telnet_delay = .5
         read_until_timeout = 3
         max_attempts = 30
@@ -129,7 +173,7 @@ class BaseConnection(object):
                     output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
                     if '>' in output or '#' in output:
                         print("Z3")
-                        print(output)
+                        #print(output)
                         return output
                 else:
                     self.write_channel(u"\n")
@@ -351,38 +395,35 @@ class BaseConnection(object):
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(self, delay_factor=.1):
+    def find_prompt(self, delay_factor=1):
         """Finds the current network device prompt, last line only."""
         debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        self.remote_conn.sendall("\n")
-        time.sleep(delay_factor)
-        prompt = ''
+        self.write_channel("\n")
+        time.sleep(delay_factor * .1)
 
         # Initial attempt to get prompt
-        if self.remote_conn.recv_ready():
-            prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            prompt = prompt.strip()
-            if self.ansi_escape_codes:
-                prompt = self.strip_ansi_escape_codes(prompt)
+        prompt = self._read_channel().strip()
+        if self.ansi_escape_codes:
+            prompt = self.strip_ansi_escape_codes(prompt)
 
         if debug:
             print("prompt1: {}".format(prompt))
+
         # Check if the only thing you received was a newline
         count = 0
         while count <= 10 and not prompt:
-            if self.wait_for_recv_ready(delay_factor=delay_factor):
-                prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            prompt = self._read_channel().strip()
+            if prompt:
                 if debug:
                     print("prompt2a: {}".format(repr(prompt)))
                     print("prompt2b: {}".format(prompt))
                 if self.ansi_escape_codes:
-                    prompt = self.strip_ansi_escape_codes(prompt)
-                prompt = prompt.strip()
+                    prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
                 self.remote_conn.sendall("\n")
-                time.sleep(delay_factor)
+                time.sleep(delay_factor * .1)
             count += 1
 
         if debug:
@@ -393,16 +434,16 @@ class BaseConnection(object):
         prompt = prompt.strip()
         if not prompt:
             raise ValueError("Unable to find prompt: {}".format(prompt))
-        time.sleep(delay_factor)
+        time.sleep(delay_factor * .1)
         self.clear_buffer()
         return prompt
 
     def clear_buffer(self):
-        '''Read any data available in the channel up to MAX_BUFFER'''
-        if self.remote_conn.recv_ready():
+        """Read any data available in the channel up to MAX_BUFFER."""
+        if self.protocol == 'ssh' and self.remote_conn.recv_ready():
             return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-        else:
-            return None
+        elif self.protocol == 'telnet':
+            return self.remote_conn.read_very_eager()
 
     def send_command(self, command_string, delay_factor=.1, max_loops=150,
                      strip_prompt=True, strip_command=True):
