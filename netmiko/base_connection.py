@@ -173,7 +173,7 @@ class BaseConnection(object):
                     output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
                     if '>' in output or '#' in output:
                         print("Z3")
-                        #print(output)
+                        # print(output)
                         return output
                 else:
                     self.write_channel(u"\n")
@@ -338,7 +338,7 @@ class BaseConnection(object):
         if debug:
             print("In disable_paging")
             print("Command: {}".format(command))
-        self.remote_conn.sendall(self.normalize_cmd(command))
+        self.write_channel(self.normalize_cmd(command))
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
@@ -422,7 +422,7 @@ class BaseConnection(object):
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
-                self.remote_conn.sendall("\n")
+                self.write_channel("\n")
                 time.sleep(delay_factor * .1)
             count += 1
 
@@ -445,8 +445,8 @@ class BaseConnection(object):
         elif self.protocol == 'telnet':
             return self.remote_conn.read_very_eager()
 
-    def send_command(self, command_string, delay_factor=.1, max_loops=150,
-                     strip_prompt=True, strip_command=True):
+    def send_command_timing(self, command_string, delay_factor=.1, max_loops=150,
+                            strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
 
@@ -460,7 +460,7 @@ class BaseConnection(object):
         '''
         debug = False
         if debug:
-            print('In send_command')
+            print('In send_command_timing')
 
         delay_factor = self.select_delay_factor(delay_factor)
         output = ''
@@ -469,7 +469,7 @@ class BaseConnection(object):
         if debug:
             print("Command is: {0}".format(command_string))
 
-        self.remote_conn.sendall(command_string)
+        self.write_channel(command_string)
         for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
                                                       max_loops=max_loops):
             output += tmp_output
@@ -530,9 +530,9 @@ class BaseConnection(object):
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
-    def send_command_expect(self, command_string, expect_string=None,
-                            delay_factor=.2, max_loops=500, auto_find_prompt=True,
-                            strip_prompt=True, strip_command=True):
+    def send_command(self, command_string, expect_string=None,
+                     delay_factor=.2, max_loops=500, auto_find_prompt=True,
+                     strip_prompt=True, strip_command=True):
         '''
         Send command to network device retrieve output until router_prompt or expect_string
 
@@ -572,15 +572,16 @@ class BaseConnection(object):
 
         time.sleep(delay_factor * 1)
         self.clear_buffer()
-        self.remote_conn.sendall(command_string)
+        self.write_channel(command_string)
 
         # Initial delay after sending command
         i = 1
         # Keep reading data until search_pattern is found (or max_loops)
         output = ''
         while i <= max_loops:
-            if self.remote_conn.recv_ready():
-                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            new_data = self._read_channel()
+            if new_data:
+                output += new_data
                 if debug:
                     print("{}:{}".format(i, output))
                 try:
@@ -607,6 +608,9 @@ class BaseConnection(object):
         output = self._sanitize_output(output, strip_command=strip_command,
                                        command_string=command_string, strip_prompt=strip_prompt)
         return output
+
+    # Support previous name of send_command method
+    send_command_expect = send_command
 
     @staticmethod
     def strip_backspaces(output):
@@ -648,7 +652,7 @@ class BaseConnection(object):
 
     def check_enable_mode(self, check_string=''):
         """Check if in enable mode. Return boolean."""
-        self.remote_conn.sendall('\n')
+        self.write_channel('\n')
         output = self.read_until_prompt()
         return check_string in output
 
@@ -656,9 +660,9 @@ class BaseConnection(object):
         """Enter enable mode."""
         output = ""
         if not self.check_enable_mode():
-            self.remote_conn.sendall(self.normalize_cmd(cmd))
+            self.write_channel(self.normalize_cmd(cmd))
             output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
-            self.remote_conn.sendall(self.normalize_cmd(self.secret))
+            self.write_channel(self.normalize_cmd(self.secret))
             output += self.read_until_prompt()
             if not self.check_enable_mode():
                 raise ValueError("Failed to enter enable mode.")
@@ -668,7 +672,7 @@ class BaseConnection(object):
         """Exit enable mode."""
         output = ""
         if self.check_enable_mode():
-            self.remote_conn.sendall(self.normalize_cmd(exit_command))
+            self.write_channel(self.normalize_cmd(exit_command))
             output += self.read_until_prompt()
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
@@ -676,7 +680,7 @@ class BaseConnection(object):
 
     def check_config_mode(self, check_string='', pattern=''):
         """Checks if the device is in configuration mode or not."""
-        self.remote_conn.sendall('\n')
+        self.write_channel('\n')
         output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
@@ -684,7 +688,7 @@ class BaseConnection(object):
         """Enter into config_mode."""
         output = ''
         if not self.check_config_mode():
-            self.remote_conn.sendall(self.normalize_cmd(config_command))
+            self.write_channel(self.normalize_cmd(config_command))
             output = self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode.")
@@ -694,7 +698,7 @@ class BaseConnection(object):
         """Exit from configuration mode."""
         output = ''
         if self.check_config_mode():
-            self.remote_conn.sendall(self.normalize_cmd(exit_config))
+            self.write_channel(self.normalize_cmd(exit_config))
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
@@ -746,7 +750,7 @@ class BaseConnection(object):
         # Send config commands
         output = self.config_mode()
         for cmd in config_commands:
-            self.remote_conn.sendall(self.normalize_cmd(cmd))
+            self.write_channel(self.normalize_cmd(cmd))
             time.sleep(delay_factor / 2.0)
 
         # Gather output
