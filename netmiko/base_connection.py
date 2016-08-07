@@ -58,6 +58,7 @@ class BaseConnection(object):
         if '_telnet' in device_type:
             self.protocol = 'telnet'
             self.telnet_establish_connection()
+            self.session_preparation()
         else:
             self.protocol = 'ssh'
 
@@ -329,10 +330,10 @@ class BaseConnection(object):
         """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
         pass
 
-    def disable_paging(self, command="terminal length 0", delay_factor=.1):
+    def disable_paging(self, command="terminal length 0", delay_factor=1):
         """Disable paging default to a Cisco CLI method."""
         debug = False
-        time.sleep(1 * delay_factor)
+        time.sleep(delay_factor * .1)
         self.clear_buffer()
         command = self.normalize_cmd(command)
         if debug:
@@ -504,15 +505,18 @@ class BaseConnection(object):
         pattern = re.escape(pattern)
         if debug:
             print("Pattern is: {}".format(pattern))
-        while True:
-            try:
-                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                if re.search(pattern, output, flags=re_flags):
-                    if debug:
-                        print("Pattern found: {} {}".format(pattern, output))
-                    return output
-            except socket.timeout:
-                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+        if self.protocol == 'ssh':
+            while True:
+                try:
+                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    if re.search(pattern, output, flags=re_flags):
+                        if debug:
+                            print("Pattern found: {} {}".format(pattern, output))
+                        return output
+                except socket.timeout:
+                    raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+        elif self.protocol == 'telnet':
+            return self.remote_conn.expect([pattern], 8)
 
     def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
