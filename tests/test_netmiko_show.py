@@ -41,13 +41,13 @@ def test_ssh_connect(net_connect, commands, expected_responses):
     time.sleep(1)
     assert expected_responses["version_banner"] in show_version
 
-def test_send_command(net_connect, commands, expected_responses):
+def test_send_command_timing(net_connect, commands, expected_responses):
     '''
     Verify a command can be sent down the channel successfully
     '''
     time.sleep(1)
     net_connect.clear_buffer()
-    show_ip = net_connect.send_command(commands["basic"])
+    show_ip = net_connect.send_command_timing(commands["basic"])
     assert expected_responses['interface_ip'] in show_ip
 
 def test_send_command_expect(net_connect, commands, expected_responses):
@@ -63,21 +63,21 @@ def test_base_prompt(net_connect, commands, expected_responses):
 
 def test_strip_prompt(net_connect, commands, expected_responses):
     """Ensure the router prompt is not in the command output."""
-    show_ip = net_connect.send_command(commands["basic"])
+    show_ip = net_connect.send_command_timing(commands["basic"])
     show_ip_alt = net_connect.send_command_expect(commands["basic"])
     assert expected_responses['base_prompt'] not in show_ip
     assert expected_responses['base_prompt'] not in show_ip_alt
 
 def test_strip_command(net_connect, commands, expected_responses):
     """Ensure that the command that was executed does not show up in the command output."""
-    show_ip = net_connect.send_command(commands["basic"])
+    show_ip = net_connect.send_command_timing(commands["basic"])
     show_ip_alt = net_connect.send_command_expect(commands["basic"])
     assert commands['basic'] not in show_ip
     assert commands['basic'] not in show_ip_alt
 
 def test_normalize_linefeeds(net_connect, commands, expected_responses):
     """Ensure no '\r\n' sequences."""
-    show_version = net_connect.send_command(commands["version"])
+    show_version = net_connect.send_command_timing(commands["version"])
     show_version_alt = net_connect.send_command_expect(commands["version"])
     assert not '\r\n' in show_version
     assert not '\r\n' in show_version_alt

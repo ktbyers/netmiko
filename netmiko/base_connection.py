@@ -128,6 +128,7 @@ class BaseConnection(object):
                 else:
                     channel_data += new_data
             i += 1
+        return channel_data
 
     def _read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
@@ -334,7 +335,7 @@ class BaseConnection(object):
         else:
             return self.global_delay_factor
 
-    def special_login_handler(self, delay_factor=.1):
+    def special_login_handler(self, delay_factor=1):
         """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
         pass
 
@@ -356,19 +357,20 @@ class BaseConnection(object):
             print("Exiting disable_paging")
         return output
 
-    def wait_for_recv_ready_newline(self, delay_factor=.1, max_loops=20):
+    def wait_for_recv_ready_newline(self, delay_factor=1, max_loops=20):
         """Wait for data to be in the buffer so it can be received."""
         i = 0
-        time.sleep(delay_factor)
+        main_delay = delay_factor * .1
+        time.sleep(main_delay)
         while i <= max_loops:
             if self.remote_conn.recv_ready():
                 return True
             else:
                 self.remote_conn.sendall('\n')
-                delay_factor = delay_factor * 1.1
-                if delay_factor >= 8:
-                    delay_factor = 8
-                time.sleep(delay_factor)
+                main_delay = main_delay * 1.1
+                if main_delay >= 8:
+                    main_delay = 8
+                time.sleep(main_delay)
                 i += 1
         raise NetMikoTimeoutException("Timed out waiting for recv_ready")
 
@@ -454,7 +456,7 @@ class BaseConnection(object):
         elif self.protocol == 'telnet':
             _ = self.remote_conn.read_very_eager()
 
-    def send_command_timing(self, command_string, delay_factor=.1, max_loops=150,
+    def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
                             strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
@@ -479,10 +481,9 @@ class BaseConnection(object):
             print("Command is: {0}".format(command_string))
 
         self.write_channel(command_string)
-        for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
-                                                      max_loops=max_loops):
-            output += tmp_output
-
+        output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
+        if debug:
+            print("zzz: {}".format(output))
         output = self._sanitize_output(output, strip_command=strip_command,
                                        command_string=command_string, strip_prompt=strip_prompt)
         if debug:
@@ -716,20 +717,6 @@ class BaseConnection(object):
                 raise ValueError("Failed to exit configuration mode")
         return output
 
-    def receive_data_generator(self, delay_factor=.1, max_loops=150):
-        """Generator to collect all data available in channel."""
-        i = 0
-        while i <= max_loops:
-            time.sleep(delay_factor)
-            if self.remote_conn.recv_ready():
-                yield self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-            else:
-                # Safeguard to make sure really done
-                time.sleep(delay_factor * 8)
-                if not self.remote_conn.recv_ready():
-                    break
-            i += 1
-
     def send_config_from_file(self, config_file=None, **kwargs):
         """
         Send configuration commands down the SSH channel from a file.
@@ -742,7 +729,7 @@ class BaseConnection(object):
         with io.open(config_file, encoding='utf-8') as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=.1,
+    def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
                         max_loops=150, strip_prompt=False, strip_command=False):
         """
         Send configuration commands down the SSH channel.
@@ -766,9 +753,7 @@ class BaseConnection(object):
             time.sleep(delay_factor / 2.0)
 
         # Gather output
-        for tmp_output in self.receive_data_generator(delay_factor=delay_factor,
-                                                      max_loops=max_loops):
-            output += tmp_output
+        output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)

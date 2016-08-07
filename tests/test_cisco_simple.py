@@ -27,7 +27,7 @@ net_connect1 = ConnectHandler(**telnet_device)
 print "telnet prompt: {}".format(net_connect1.find_prompt())
 print "send_command: "
 print '-' * 50
-print net_connect1.send_command("show arp")
+print net_connect1.send_command_timing("show arp")
 print '-' * 50
 print '-' * 50
 print net_connect1.send_command("show run")
