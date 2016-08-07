@@ -29,7 +29,7 @@ class BaseConnection(object):
 
     Otherwise method left as a stub method.
     """
-    def __init__(self, ip=u'', host=u'', username=u'', password=u'', secret=u'', port=22,
+    def __init__(self, ip=u'', host=u'', username=u'', password=u'', secret=u'', port=None,
                  device_type=u'', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
                  alt_key_file='', ssh_config_file=None):
@@ -41,7 +41,13 @@ class BaseConnection(object):
             self.host = host
         if not ip and not host:
             raise ValueError("Either ip or host must be set")
-        self.port = int(port)
+        if port is None:
+            if 'telnet' in device_type:
+                self.port = 23
+            else:
+                self.port = 22
+        else:
+            self.port = int(port)
         self.username = username
         self.password = password
         self.secret = secret
@@ -142,7 +148,9 @@ class BaseConnection(object):
 
     def telnet_login(self):
         """Telnet login."""
-        debug = False
+        debug = True
+        if debug:
+            print("telnet login function.")
         telnet_delay = .5
         read_until_timeout = 3
         max_attempts = 30
@@ -442,9 +450,9 @@ class BaseConnection(object):
     def clear_buffer(self):
         """Read any data available in the channel up to MAX_BUFFER."""
         if self.protocol == 'ssh' and self.remote_conn.recv_ready():
-            return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            _ = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
         elif self.protocol == 'telnet':
-            return self.remote_conn.read_very_eager()
+            _ = self.remote_conn.read_very_eager()
 
     def send_command_timing(self, command_string, delay_factor=.1, max_loops=150,
                             strip_prompt=True, strip_command=True):
@@ -552,7 +560,7 @@ class BaseConnection(object):
 
         self.global_delay_factor is not used (to make this method faster)
         '''
-        debug = True
+        debug = False
 
         # Find the current router prompt
         if expect_string is None:
@@ -770,7 +778,7 @@ class BaseConnection(object):
 
     @staticmethod
     def strip_ansi_escape_codes(string_buffer):
-        '''
+        """
         Remove any ANSI (VT100) ESC codes from the output
 
         http://en.wikipedia.org/wiki/ANSI_escape_code
@@ -788,7 +796,7 @@ class BaseConnection(object):
         ESC[1;24r    Enable scrolling from start to row end
 
         HP ProCurve's and F5 LTM's require this (possible others)
-        '''
+        """
         debug = False
         if debug:
             print("In strip_ansi_escape_codes")
@@ -816,22 +824,19 @@ class BaseConnection(object):
         return output
 
     def cleanup(self):
-        '''
-        Any needed cleanup before closing connection
-        '''
+        """Any needed cleanup before closing connection."""
         pass
 
     def disconnect(self):
-        '''
-        Gracefully close the SSH connection
-        '''
+        """Gracefully close the SSH connection."""
         self.cleanup()
-        self.remote_conn_pre.close()
+        if self.protocol == 'ssh':
+            self.remote_conn_pre.close()
+        elif self.protocol == 'telnet':
+            self.remote_conn.close()
 
     def commit(self):
-        '''
-        Commit method for platforms that support this
-        '''
+        """Commit method for platforms that support this."""
         raise AttributeError("Network device does not support 'commit()' method")
 
 

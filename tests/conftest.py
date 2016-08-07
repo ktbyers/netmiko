@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-"""
-py.test fixtures to be used in netmiko test suite
-"""
-
+"""py.test fixtures to be used in netmiko test suite."""
 from os import path
 import pytest
 
@@ -14,29 +11,22 @@ PWD = path.dirname(path.realpath(__file__))
 
 
 def pytest_addoption(parser):
-    '''
-    Add test_device option to py.test invocations
-    '''
+    """Add test_device option to py.test invocations."""
     parser.addoption("--test_device", action="store", dest="test_device", type=str,
                      help="Specify the platform type to test on")
 
-
 @pytest.fixture(scope='module')
 def net_connect(request):
-    '''
+    """
     Create the SSH connection to the remote device
 
     Return the netmiko connection object
-    '''
-
+    """
     device_under_test = request.config.getoption('test_device')
-
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device['verbose'] = False
-
     conn = ConnectHandler(**device)
-
     return conn
 
 

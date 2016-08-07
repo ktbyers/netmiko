@@ -19,6 +19,7 @@ test_disconnect: cleanly disconnect the SSH session
 """
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import time
 
 
@@ -84,7 +85,7 @@ def test_normalize_linefeeds(net_connect, commands, expected_responses):
 def test_clear_buffer(net_connect, commands, expected_responses):
     """Test that clearing the buffer works."""
     # Manually send a command down the channel so that data needs read.
-    net_connect.remote_conn.sendall(commands["basic"] + '\n')
+    net_connect.write_channel(commands["basic"] + '\n')
     time.sleep(4)
     net_connect.clear_buffer()
 
