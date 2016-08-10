@@ -50,7 +50,7 @@ class CiscoBaseConnection(BaseConnection):
     def cleanup(self):
         """Gracefully exit the SSH session."""
         self.exit_config_mode()
-        self.remote_conn.sendall("exit\n")
+        self.write_channel("exit\n")
 
     def _autodetect_fs(self, cmd='dir', pattern=r'Directory of (.*)/'):
         """Autodetect the file system on the remote device. Used by SCP operations."""

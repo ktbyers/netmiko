@@ -1,10 +1,10 @@
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.base_connection import TelnetConnection
+from netmiko.cisco_base_connection import CiscoTelnetConnection
 
 
 class CiscoIosSSH(CiscoSSHConnection):
     pass
 
 
-class CiscoIosTelnet(TelnetConnection):
+class CiscoIosTelnet(CiscoTelnetConnection):
     pass
