@@ -149,7 +149,7 @@ class BaseConnection(object):
 
     def telnet_login(self):
         """Telnet login."""
-        debug = True
+        debug = False
         if debug:
             print("telnet login function.")
         telnet_delay = .5
@@ -507,7 +507,7 @@ class BaseConnection(object):
 
     def read_until_pattern(self, pattern='', re_flags=0):
         """Read channel until pattern detected. Return ALL data available."""
-        debug = False
+        debug = True
         output = ''
         if not pattern:
             pattern = self.base_prompt
@@ -517,7 +517,8 @@ class BaseConnection(object):
         if self.protocol == 'ssh':
             while True:
                 try:
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    output += self.remote_conn.recv(nbytes=1).decode('utf-8', 'ignore')
+#                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                     if re.search(pattern, output, flags=re_flags):
                         if debug:
                             print("Pattern found: {} {}".format(pattern, output))
@@ -525,7 +526,12 @@ class BaseConnection(object):
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
         elif self.protocol == 'telnet':
-            return self.remote_conn.expect([pattern], 8)
+                    output += self.remote_conn.recv(nbytes=1).decode('utf-8', 'ignore')
+
+            match_index, match_obj, match_text = self.remote_conn.expect([pattern], 8)
+            print(match_index, match_obj, match_text)
+            print("aaa: {}".format(match_obj.group(0)))
+            return match_text
 
     def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
@@ -695,6 +701,7 @@ class BaseConnection(object):
         """Checks if the device is in configuration mode or not."""
         self.write_channel('\n')
         output = self.read_until_pattern(pattern=pattern)
+        print("xxx: {}".format(output))
         return check_string in output
 
     def config_mode(self, config_command='', pattern=''):
@@ -703,6 +710,7 @@ class BaseConnection(object):
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             output = self.read_until_pattern(pattern=pattern)
+            print("zzz: {}".format(output))
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode.")
         return output
@@ -713,6 +721,7 @@ class BaseConnection(object):
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             output = self.read_until_pattern(pattern=pattern)
+            print("yyy: {}".format(output))
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
