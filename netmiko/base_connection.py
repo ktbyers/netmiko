@@ -93,13 +93,35 @@ class BaseConnection(object):
         else:
             raise ValueError("Invalid protocol specified")
 
-    def _read_channel_expect(self, pattern=""):
+    def _read_channel_expect(self, pattern='', re_flags=0): 
         """
         Function that reads channel until pattern is detected.
 
         pattern takes a regular expression.
+
+        By default pattern will be self.base_prompt 
         """
-        pass
+        debug = False
+        output = ''
+        if not pattern:
+            pattern = self.base_prompt
+        pattern = re.escape(pattern)
+        if debug:
+            print("Pattern is: {}".format(pattern))
+
+        while True:
+            if self.protocol == 'ssh':
+                try:
+                    output += self.remote_conn.recv(nbytes=1).decode('utf-8', 'ignore')
+                except socket.timeout:
+                    raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+            elif self.protocol == 'telnet':
+                output += self.remote_conn.read_very_eager()
+
+            if re.search(pattern, output, flags=re_flags):
+                if debug:
+                    print("Pattern found: {} {}".format(pattern, output))
+                return output
 
     def _read_channel_timing(self, delay_factor=1, max_loops=150):
         """
@@ -141,6 +163,30 @@ class BaseConnection(object):
                     return output
         elif self.protocol == 'telnet':
             return self.remote_conn.read_very_eager()
+
+    def read_until_prompt(self, *args, **kwargs):
+        """Read channel until self.base_prompt detected. Return ALL data available."""
+        return self._read_channel_expect(*args, **kwargs)
+
+    def read_until_pattern(self, *args, **kwargs):
+        """Read channel until pattern detected. Return ALL data available."""
+        return self._read_channel_expect(*args, **kwargs)
+
+    def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
+        """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
+        output = ''
+        if not pattern:
+            pattern = self.base_prompt
+        pattern = re.escape(pattern)
+        base_prompt_pattern = re.escape(self.base_prompt)
+        while True:
+            try:
+                output += self._read_channel()
+                if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
+                                                                           output, flags=re_flags):
+                    return output
+            except socket.timeout:
+                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
     def telnet_establish_connection(self, timeout=12):
         """Establish telnet Connection using telnetlib."""
@@ -499,50 +545,6 @@ class BaseConnection(object):
             return '\n'.join(response_list[:-1])
         else:
             return a_string
-
-    def read_until_prompt(self):
-        """Read channel until self.base_prompt detected. Return ALL data available."""
-        return self.read_until_pattern()
-
-    def read_until_pattern(self, pattern='', re_flags=0):
-        """Read channel until pattern detected. Return ALL data available."""
-        debug = False
-        output = ''
-        if not pattern:
-            pattern = self.base_prompt
-        pattern = re.escape(pattern)
-        if debug:
-            print("Pattern is: {}".format(pattern))
-
-        while True:
-            if self.protocol == 'ssh':
-                try:
-                    output += self.remote_conn.recv(nbytes=1).decode('utf-8', 'ignore')
-                except socket.timeout:
-                    raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
-            elif self.protocol == 'telnet':
-                output += self.remote_conn.read_very_eager()
-
-            if re.search(pattern, output, flags=re_flags):
-                if debug:
-                    print("Pattern found: {} {}".format(pattern, output))
-                return output
-
-    def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
-        """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
-        output = ''
-        if not pattern:
-            pattern = self.base_prompt
-        pattern = re.escape(pattern)
-        base_prompt_pattern = re.escape(self.base_prompt)
-        while True:
-            try:
-                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
-                                                                           output, flags=re_flags):
-                    return output
-            except socket.timeout:
-                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
     def send_command(self, command_string, expect_string=None,
                      delay_factor=.2, max_loops=500, auto_find_prompt=True,
