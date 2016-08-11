@@ -100,6 +100,12 @@ class BaseConnection(object):
         pattern takes a regular expression.
 
         By default pattern will be self.base_prompt 
+
+        Note: this currently reads beyond pattern. In the case of SSH it reads MAX_BUFFER.
+        In the case of telnet it reads all non-blocking data.
+
+        There are dependecies here like determining whether in config_mode that are actually
+        depending on reading beyond pattern.
         """
         debug = False
         output = ''
@@ -112,7 +118,7 @@ class BaseConnection(object):
         while True:
             if self.protocol == 'ssh':
                 try:
-                    output += self.remote_conn.recv(nbytes=1).decode('utf-8', 'ignore')
+                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
             elif self.protocol == 'telnet':
@@ -696,8 +702,13 @@ class BaseConnection(object):
 
     def check_config_mode(self, check_string='', pattern=''):
         """Checks if the device is in configuration mode or not."""
+        debug = False
+        if debug:
+            print("pattern: {}".format(pattern))
         self.write_channel('\n')
         output = self.read_until_pattern(pattern=pattern)
+        if debug:
+            print("check_config_mode: {}".format(repr(output)))
         return check_string in output
 
     def config_mode(self, config_command='', pattern=''):
@@ -712,12 +723,15 @@ class BaseConnection(object):
 
     def exit_config_mode(self, exit_config='', pattern=''):
         """Exit from configuration mode."""
+        debug = False
         output = ''
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
+        if debug:
+            print("exit_config_mode: {}".format(output))
         return output
 
     def send_config_from_file(self, config_file=None, **kwargs):
@@ -743,7 +757,6 @@ class BaseConnection(object):
         Automatically exits/enters configuration mode.
         """
         debug = False
-
         if config_commands is None:
             return ''
         if not hasattr(config_commands, '__iter__'):

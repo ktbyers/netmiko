@@ -1,4 +1,4 @@
-from netmiko.cisco.cisco_ios_ssh import CiscoIosSSH, CiscoIosTelnet
+from netmiko.cisco.cisco_ios import CiscoIosSSH, CiscoIosTelnet
 from netmiko.cisco.cisco_asa_ssh import CiscoAsaSSH
 from netmiko.cisco.cisco_nxos_ssh import CiscoNxosSSH
 from netmiko.cisco.cisco_xr_ssh import CiscoXrSSH
