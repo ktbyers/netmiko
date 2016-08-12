@@ -24,27 +24,25 @@ import time
 
 
 def test_disable_paging(net_connect, commands, expected_responses):
-    '''
-    Verify paging is disabled by looking for string after when paging would normally occur
-    '''
+    """Verify paging is disabled by looking for string after when paging would normally occur."""
     if net_connect.device_type == 'arista_eos':
         # Arista logging buffer gets enormous
         net_connect.send_command_expect('clear logging')
     multiple_line_output = net_connect.send_command_expect(commands["extended_output"])
     assert expected_responses["multiple_line_output"] in multiple_line_output
+    if net_connect.device_type == 'arista_eos':
+        # Arista output is slow and has router-name in output
+        time.sleep(2)
+        net_connect.clear_buffer()
+        net_connect.send_command_expect('clear logging', expect_string='#') 
 
 def test_ssh_connect(net_connect, commands, expected_responses):
-    '''
-    Verify the connection was established successfully
-    '''
+    """Verify the connection was established successfully."""
     show_version = net_connect.send_command_expect(commands["version"])
-    time.sleep(1)
     assert expected_responses["version_banner"] in show_version
 
 def test_send_command_timing(net_connect, commands, expected_responses):
-    '''
-    Verify a command can be sent down the channel successfully
-    '''
+    """Verify a command can be sent down the channel successfully."""
     time.sleep(1)
     net_connect.clear_buffer()
     show_ip = net_connect.send_command_timing(commands["basic"])
