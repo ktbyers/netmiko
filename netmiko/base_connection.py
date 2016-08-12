@@ -194,51 +194,47 @@ class BaseConnection(object):
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
-    def telnet_login(self):
+    def telnet_login(self, delay_factor=1, max_loops=30):
         """Telnet login."""
         debug = False
         if debug:
-            print("telnet login function.")
-        telnet_delay = .5
-        read_until_timeout = 3
-        max_attempts = 30
+            print("In telnet_login():")
+        delay_factor = self.select_delay_factor(delay_factor)
+        time.sleep(1 * delay_factor)
 
-        # Delay to allow HP ProCurve to put up initial banner
-        # Should move to HP Specific Driver?
-        time.sleep(2 * telnet_delay)
-        output = u''
+        output = ''
         i = 1
-        while i <= max_attempts:
+        while i <= max_loops:
             try:
                 read_data = self.remote_conn.read_very_eager()
                 if debug:
                     print(read_data)
                 if re.search("sername", read_data):
-                    print("Z1")
-                    self.write_channel(self.username + u'\n')
-                    time.sleep(2 * telnet_delay)
+                    self.write_channel(self.username + '\n')
+                    time.sleep(1 * delay_factor)
                     output += self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
                     if debug:
+                        print("Z1")
                         print(output)
                 elif re.search("assword", output):
-                    print("Z2")
-                    self.write_channel(self.password + u"\n")
+                    self.write_channel(self.password + "\n")
                     output += self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
                     if debug:
+                        print("Z2")
                         print(output)
-                    time.sleep(telnet_delay)
+                    time.sleep(.5 * delay_factor)
                     output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
                     if '>' in output or '#' in output:
-                        print("Z3")
+                        if debug:
+                            print("Z3")
                         return output
                 else:
                     self.write_channel(u"\n")
-                    time.sleep(telnet_delay)
+                    time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
                 msg = "Telnet login failed: {0}".format(self.ip)
                 raise NetMikoAuthenticationException(msg)
-
         msg = "Telnet login failed: {0}".format(self.ip)
         raise NetMikoAuthenticationException(msg)
 
