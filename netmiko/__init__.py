@@ -10,7 +10,7 @@ from netmiko.ssh_exception import NetMikoAuthenticationException
 NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
 
-__version__ = '0.6.0'
+__version__ = '0.6.1'
 __all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTransfer',
            'NetMikoTimeoutException', 'NetMikoAuthenticationException',
            'NetmikoTimeoutError', 'NetmikoAuthError')
