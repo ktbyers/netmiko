@@ -11,7 +11,7 @@ class HPProcurveSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established"""
         # HP uses - 'Press any key to continue'
         time.sleep(1)
-        self.remote_conn.sendall("\n")
+        self.write_channel("\n")
         time.sleep(1)
 
         # HP output contains VT100 escape codes

@@ -2,7 +2,6 @@ import paramiko
 import time
 import socket
 
-from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -85,15 +84,16 @@ class FortinetSSH(CiscoSSHConnection):
             print("Interactive SSH session established")
 
         i = 0
+        output = ''
         while i <= 100:
             time.sleep(.1)
-            if self.remote_conn.recv_ready():
-                return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            output = self._read_channel()
+            if output:
+                return output
             else:
                 # Send a newline if no data is present
-                self.remote_conn.sendall('\n')
-                i += 1
-
+                self.write_channel('\n')
+            i += 1
         return ""
 
     def config_mode(self, config_command=''):

@@ -2,7 +2,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.netmiko_globals import MAX_BUFFER
 
 
 class HuaweiSSH(CiscoSSHConnection):
@@ -25,7 +24,7 @@ class HuaweiSSH(CiscoSSHConnection):
         return super(HuaweiSSH, self).check_config_mode(check_string=check_string)
 
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',
-                        delay_factor=.5):
+                        delay_factor=1):
         '''
         Sets self.base_prompt
 
@@ -42,10 +41,10 @@ class HuaweiSSH(CiscoSSHConnection):
 
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        self.remote_conn.sendall("\n")
-        time.sleep(1 * delay_factor)
+        self.write_channel("\n")
+        time.sleep(.5 * delay_factor)
 
-        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        prompt = self._read_channel()
         prompt = self.normalize_linefeeds(prompt)
 
         # If multiple lines in the output take the last line

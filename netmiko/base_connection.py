@@ -93,13 +93,13 @@ class BaseConnection(object):
         else:
             raise ValueError("Invalid protocol specified")
 
-    def _read_channel_expect(self, pattern='', re_flags=0): 
+    def _read_channel_expect(self, pattern='', re_flags=0):
         """
         Function that reads channel until pattern is detected.
 
         pattern takes a regular expression.
 
-        By default pattern will be self.base_prompt 
+        By default pattern will be self.base_prompt
 
         Note: this currently reads beyond pattern. In the case of SSH it reads MAX_BUFFER.
         In the case of telnet it reads all non-blocking data.
@@ -327,27 +327,27 @@ class BaseConnection(object):
             self.telnet_login()
             return ""
         elif self.protocol == 'ssh':
-    
+
             # Convert Paramiko connection parameters to a dictionary
             ssh_connect_params = self._connect_params_dict(use_keys=use_keys, key_file=key_file,
                                                            timeout=timeout)
-    
-            # Check if using SSH 'config' file mainly for SSH proxy support (updates ssh_connect_params)
+
+            # Check if using SSH 'config' file mainly for SSH proxy support
             if self.ssh_config_file:
                 self._use_ssh_config(ssh_connect_params)
-    
+
             # Create instance of SSHClient object
             self.remote_conn_pre = paramiko.SSHClient()
-    
+
             # Load host_keys for better SSH security
             if self.system_host_keys:
                 self.remote_conn_pre.load_system_host_keys()
             if self.alt_host_keys and path.isfile(self.alt_key_file):
                 self.remote_conn_pre.load_host_keys(self.alt_key_file)
-    
+
             # Default is to automatically add untrusted hosts (make sure appropriate for your env)
             self.remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-    
+
             # initiate SSH connection
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
@@ -360,17 +360,17 @@ class BaseConnection(object):
                     device_type=self.device_type, ip=self.host, port=self.port)
                 msg += '\n' + str(auth_err)
                 raise NetMikoAuthenticationException(msg)
-    
+
             if verbose:
                 print("SSH connection established to {0}:{1}".format(self.host, self.port))
-    
+
             # Use invoke_shell to establish an 'interactive session'
             self.remote_conn = self.remote_conn_pre.invoke_shell()
             self.remote_conn.settimeout(timeout)
             self.special_login_handler()
             if verbose:
                 print("Interactive SSH session established")
-    
+
             time.sleep(.1)
             if self.wait_for_recv_ready_newline():
                 return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')

@@ -13,10 +13,8 @@ class BrocadeNosSSH(CiscoSSHConnection):
         """No enable mode on Brocade VDX."""
         pass
 
-    def special_login_handler(self, delay_factor=.5):
-        '''
-            Adding a delay after login
-        '''
+    def special_login_handler(self, delay_factor=1):
+        """Adding a delay after login."""
         delay_factor = self.select_delay_factor(delay_factor)
-        self.remote_conn.sendall('\n')
-        time.sleep(2 * delay_factor)
+        self.write_channel('\n')
+        time.sleep(1 * delay_factor)

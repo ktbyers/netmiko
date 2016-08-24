@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
+
 import re
+import time
 
 from netmiko.base_connection import BaseConnection
-from netmiko.netmiko_globals import MAX_BUFFER
-import time
 
 
 class JuniperSSH(BaseConnection):
@@ -29,12 +29,11 @@ class JuniperSSH(BaseConnection):
         count = 0
         cur_prompt = ''
         while count < 50:
-            self.remote_conn.sendall("\n")
+            self.write_channel("\n")
             time.sleep(.1)
-            if self.remote_conn.recv_ready():
-                cur_prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            cur_prompt = self._read_channel()
             if re.search(r'root@.*%', cur_prompt):
-                self.remote_conn.sendall("cli\n")
+                self.write_channel("cli\n")
                 time.sleep(.3)
                 self.clear_buffer()
                 break

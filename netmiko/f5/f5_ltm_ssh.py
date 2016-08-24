@@ -20,7 +20,7 @@ class F5LtmSSH(BaseConnection):
         """tmsh command is equivalent to config command on F5."""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        self.remote_conn.sendall("\ntmsh\n")
+        self.write_channel("\ntmsh\n")
         time.sleep(1 * delay_factor)
         self.clear_buffer()
         return None

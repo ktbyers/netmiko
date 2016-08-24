@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import time
 
 from netmiko.base_connection import BaseConnection
-from netmiko.netmiko_globals import MAX_BUFFER
 
 
 class CiscoWlcSSH(BaseConnection):
@@ -25,17 +24,18 @@ class CiscoWlcSSH(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         i = 0
         time.sleep(delay_factor * .5)
+        output = ""
         while i <= 12:
-            if self.remote_conn.recv_ready():
-                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            output = self._read_channel()
+            if output:
                 if 'login as' in output or 'User' in output:
-                    self.remote_conn.sendall(self.username + '\n')
+                    self.write_channel(self.username + '\n')
                 elif 'Password' in output:
-                    self.remote_conn.sendall(self.password + '\n')
+                    self.write_channel(self.password + '\n')
                     break
                 time.sleep(delay_factor * 1)
             else:
-                self.remote_conn.sendall('\n')
+                self.write_channel('\n')
                 time.sleep(delay_factor * 1.5)
             i += 1
 
@@ -76,12 +76,13 @@ class CiscoWlcSSH(BaseConnection):
                 time.sleep(kwargs['delay_factor'] * 10)
                 not_done = True
                 i = 1
-                while (not_done) and (i <= 150):
+                while not_done and i <= 150:
                     time.sleep(kwargs['delay_factor'])
                     i += 1
-                    if self.remote_conn.recv_ready():
-                        # Unicode error occurred in output (errors=ignore strips this out).
-                        output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    new_data = ""
+                    new_data = self._read_channel()
+                    if new_data:
+                        output += new_data
                     else:
                         not_done = False
 

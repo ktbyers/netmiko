@@ -2,7 +2,6 @@ import re
 import socket
 import time
 
-from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.ssh_exception import NetMikoTimeoutException
 
@@ -44,7 +43,7 @@ class LinuxSSH(CiscoSSHConnection):
         """Exit enable mode."""
         output = ""
         if self.check_enable_mode():
-            self.remote_conn.sendall(self.normalize_cmd(exit_command))
+            self.write_channel(self.normalize_cmd(exit_command))
             time.sleep(.3)
             self.set_base_prompt()
             if self.check_enable_mode():
@@ -55,13 +54,13 @@ class LinuxSSH(CiscoSSHConnection):
         """Attempt to become root."""
         output = ""
         if not self.check_enable_mode():
-            self.remote_conn.sendall(self.normalize_cmd(cmd))
+            self.write_channel(self.normalize_cmd(cmd))
             time.sleep(.3)
             pattern = re.escape(pattern)
             try:
-                output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                output += self._read_channel()
                 if re.search(pattern, output, flags=re_flags):
-                    self.remote_conn.sendall(self.normalize_cmd(self.secret))
+                    self.write_channel(self.normalize_cmd(self.secret))
                 self.set_base_prompt()
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")

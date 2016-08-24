@@ -7,4 +7,4 @@ class DellForce10SSH(CiscoSSHConnection):
     def cleanup(self):
         """Gracefully exit the SSH session."""
         self.exit_config_mode()
-        self.remote_conn.sendall("exit\n")
+        self.write_channel("exit\n")
