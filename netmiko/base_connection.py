@@ -321,11 +321,9 @@ class BaseConnection(object):
 
         use_keys is a boolean that allows ssh-keys to be used for authentication
         """
-
         if self.protocol == 'telnet':
             self.remote_conn = telnetlib.Telnet(self.ip, port=self.port, timeout=timeout)
             self.telnet_login()
-            return ""
         elif self.protocol == 'ssh':
 
             # Convert Paramiko connection parameters to a dictionary
@@ -371,10 +369,26 @@ class BaseConnection(object):
             if verbose:
                 print("Interactive SSH session established")
 
-            time.sleep(.1)
-            if self.wait_for_recv_ready_newline():
-                return self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+        # make sure you can read the channel
+        i = 0
+        main_delay = self.global_delay_factor * .1
+        time.sleep(main_delay)
+        while i <= 20:
+            new_data = self._read_channel()
+            if new_data:
+                break
+            else:
+                self.write_channel('\n')
+                main_delay = main_delay * 1.1
+                if main_delay >= 8:
+                    main_delay = 8
+                time.sleep(main_delay)
+                i += 1
+        # check if data was ever present
+        if new_data:
             return ""
+        else:
+            raise NetMikoTimeoutException("Timed out waiting for data")
 
     def select_delay_factor(self, delay_factor):
         """Choose the greater of delay_factor or self.global_delay_factor."""
@@ -404,35 +418,6 @@ class BaseConnection(object):
             print(output)
             print("Exiting disable_paging")
         return output
-
-    def wait_for_recv_ready_newline(self, delay_factor=1, max_loops=20):
-        """Wait for data to be in the buffer so it can be received."""
-        i = 0
-        main_delay = delay_factor * .1
-        time.sleep(main_delay)
-        while i <= max_loops:
-            if self.remote_conn.recv_ready():
-                return True
-            else:
-                self.remote_conn.sendall('\n')
-                main_delay = main_delay * 1.1
-                if main_delay >= 8:
-                    main_delay = 8
-                time.sleep(main_delay)
-                i += 1
-        raise NetMikoTimeoutException("Timed out waiting for recv_ready")
-
-    def wait_for_recv_ready(self, delay_factor=.1, max_loops=100, send_newline=False):
-        """Wait for data to be in the buffer so it can be received."""
-        i = 0
-        time.sleep(delay_factor)
-        while i <= max_loops:
-            if self.remote_conn.recv_ready():
-                return True
-            else:
-                time.sleep(delay_factor)
-                i += 1
-        raise NetMikoTimeoutException("Timed out waiting for recv_ready")
 
     def set_base_prompt(self, pri_prompt_terminator='#',
                         alt_prompt_terminator='>', delay_factor=.1):
