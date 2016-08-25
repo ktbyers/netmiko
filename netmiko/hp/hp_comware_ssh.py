@@ -10,7 +10,7 @@ class HPComwareSSH(CiscoSSHConnection):
 
     def session_preparation(self):
         """
-        Prepare the session after the connection has been established. 
+        Prepare the session after the connection has been established.
         Extra time to read HP banners.
         """
         delay_factor = self.select_delay_factor(delay_factor=0)

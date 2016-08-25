@@ -1,7 +1,3 @@
-import paramiko
-import socket
-
-from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -39,7 +35,7 @@ class FortinetSSH(CiscoSSHConnection):
         return output + new_output
 
     def cleanup(self):
-        '''Re-enable paging globally'''
+        """Re-enable paging globally."""
         if self.allow_disable_global:
             enable_paging_commands = ["config system console", "set output more", "end"]
             if self.vdoms:
@@ -49,9 +45,9 @@ class FortinetSSH(CiscoSSHConnection):
                 self.send_command(command)
 
     def config_mode(self, config_command=''):
-        '''No config mode for Fortinet devices'''
+        """No config mode for Fortinet devices."""
         return ''
 
     def exit_config_mode(self, exit_config=''):
-        '''No config mode for Fortinet devices'''
+        """No config mode for Fortinet devices."""
         return ''
