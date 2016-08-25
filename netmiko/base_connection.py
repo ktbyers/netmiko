@@ -615,7 +615,7 @@ class BaseConnection(object):
 
     def send_command_expect(self, *args, **kwargs):
         """Support previous name of send_command method."""
-        return super(BaseConnection, self).send_command(*args, **kwargs)
+        return self.send_command(*args, **kwargs)
 
     @staticmethod
     def strip_backspaces(output):
