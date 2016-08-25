@@ -13,15 +13,30 @@ class CiscoAsaSSH(CiscoSSHConnection):
         self.enable()
         self.disable_paging(command="terminal pager 0\n")
 
-    def send_command(self, command_string, delay_factor=.1, max_loops=150,
-                     strip_prompt=True, strip_command=True):
+    def send_command_timing(self, *args, **kwargs):
         """
         If the ASA is in multi-context mode, then the base_prompt needs to be
         updated after each context change.
         """
-        delay_factor = self.select_delay_factor(delay_factor)
-        output = super(CiscoAsaSSH, self).send_command(command_string, delay_factor,
-                                                       max_loops, strip_prompt, strip_command)
+        output = super(CiscoAsaSSH, self).send_command_timing(*args, **kwargs)
+        if len(args) >= 1:
+            command_string = args[0]
+        else:
+            command_string = kwargs['command_string']
+        if "changeto" in command_string:
+            self.set_base_prompt()
+        return output
+
+    def send_command(self, *args, **kwargs):
+        """
+        If the ASA is in multi-context mode, then the base_prompt needs to be
+        updated after each context change.
+        """
+        output = super(CiscoAsaSSH, self).send_command(*args, **kwargs)
+        if len(args) >= 1:
+            command_string = args[0]
+        else:
+            command_string = kwargs['command_string']
         if "changeto" in command_string:
             self.set_base_prompt()
         return output
