@@ -9,7 +9,7 @@ from netmiko.ssh_exception import NetMikoTimeoutException
 class LinuxSSH(CiscoSSHConnection):
 
     def set_base_prompt(self, pri_prompt_terminator='$',
-                        alt_prompt_terminator='#', delay_factor=.1):
+                        alt_prompt_terminator='#', delay_factor=1):
         """Determine base prompt."""
         return super(CiscoSSHConnection, self).set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
@@ -41,10 +41,11 @@ class LinuxSSH(CiscoSSHConnection):
 
     def exit_enable_mode(self, exit_command='exit'):
         """Exit enable mode."""
+        delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
-            time.sleep(.3)
+            time.sleep(.3 * delay_factor)
             self.set_base_prompt()
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
@@ -52,10 +53,11 @@ class LinuxSSH(CiscoSSHConnection):
 
     def enable(self, cmd='sudo su', pattern='ssword', re_flags=re.IGNORECASE):
         """Attempt to become root."""
+        delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(.3)
+            time.sleep(.3 * delay_factor)
             pattern = re.escape(pattern)
             try:
                 output += self._read_channel()

@@ -150,5 +150,5 @@ class PaloAltoPanosSSH(BaseConnection):
 
     def send_command(self, *args, **kwargs):
         """Palo Alto requires an extra delay"""
-        kwargs['delay_factor'] = kwargs.get('delay_factor', .5)
+        kwargs['delay_factor'] = kwargs.get('delay_factor', 2.5)
         return super(PaloAltoPanosSSH, self).send_command(*args, **kwargs)

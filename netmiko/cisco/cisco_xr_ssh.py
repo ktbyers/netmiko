@@ -13,7 +13,7 @@ class CiscoXrSSH(CiscoSSHConnection):
         return super(CiscoXrSSH, self).send_config_set(config_commands=config_commands,
                                                        exit_config_mode=False, **kwargs)
 
-    def commit(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=.1):
+    def commit(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=1):
         """
         Commit the candidate configuration.
 

@@ -41,6 +41,10 @@ class CiscoAsaSSH(CiscoSSHConnection):
             self.set_base_prompt()
         return output
 
+    def send_command_expect(self, *args, **kwargs):
+        """Backwards compaitibility."""
+        return self.send_command(*args, **kwargs)
+
     def set_base_prompt(self, *args, **kwargs):
         """
         Cisco ASA in multi-context mode needs to have the base prompt updated

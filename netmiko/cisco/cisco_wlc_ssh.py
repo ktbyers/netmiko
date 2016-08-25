@@ -50,11 +50,9 @@ class CiscoWlcSSH(BaseConnection):
         if len(args) > 1:
             raise ValueError("Must pass in delay_factor as keyword argument")
 
-        # If no delay_factor use 3 for default value (unless global_delay_factor is greater)
-        if kwargs.get('delay_factor'):
-            kwargs['delay_factor'] = self.select_delay_factor(kwargs['delay_factor'])
-        else:
-            kwargs['delay_factor'] = self.select_delay_factor(3)
+        # If no delay_factor use 1 for default value
+        delay_factor = kwargs.get('delay_factor', 1)
+        kwargs['delay_factor'] = self.select_delay_factor(delay_factor)
         output = self.send_command(*args, **kwargs)
 
         if 'Press Enter to' in output:
@@ -73,11 +71,11 @@ class CiscoWlcSSH(BaseConnection):
             if '802.11b Advanced Configuration' in output:
 
                 # Defaults to 30 seconds
-                time.sleep(kwargs['delay_factor'] * 10)
+                time.sleep(kwargs['delay_factor'] * 30)
                 not_done = True
                 i = 1
                 while not_done and i <= 150:
-                    time.sleep(kwargs['delay_factor'])
+                    time.sleep(kwargs['delay_factor'] * 3)
                     i += 1
                     new_data = ""
                     new_data = self._read_channel()

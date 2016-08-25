@@ -129,12 +129,12 @@ class FileTransfer(object):
         else:
             raise ValueError("Invalid output from MD5 command: {0}".format(md5_output))
 
-    def compare_md5(self, base_cmd='verify /md5', delay_factor=8):
+    def compare_md5(self, base_cmd='verify /md5', delay_factor=1):
         """Compare md5 of file on network device to md5 of local file"""
         dest_md5 = self.remote_md5(base_cmd=base_cmd)
         return self.source_md5 == dest_md5
 
-    def remote_md5(self, base_cmd='verify /md5', delay_factor=8):
+    def remote_md5(self, base_cmd='verify /md5', delay_factor=1):
         """
         Calculate remote MD5 and return the checksum.
 

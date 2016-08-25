@@ -26,15 +26,16 @@ class JuniperSSH(BaseConnection):
 
     def enter_cli_mode(self):
         """Check if at shell prompt root@.*% shell prompt and go into CLI."""
+        delay_factor = self.select_delay_factor(delay_factor=0)
         count = 0
         cur_prompt = ''
         while count < 50:
             self.write_channel("\n")
-            time.sleep(.1)
+            time.sleep(.1 * delay_factor)
             cur_prompt = self._read_channel()
             if re.search(r'root@.*%', cur_prompt):
                 self.write_channel("cli\n")
-                time.sleep(.3)
+                time.sleep(.3 * delay_factor)
                 self.clear_buffer()
                 break
             elif '>' in cur_prompt or '#' in cur_prompt:
@@ -73,7 +74,7 @@ class JuniperSSH(BaseConnection):
         return output
 
     def commit(self, confirm=False, confirm_delay=None, check=False, comment='',
-               and_quit=False, delay_factor=.1):
+               and_quit=False, delay_factor=1):
         """
         Commit the candidate configuration.
 

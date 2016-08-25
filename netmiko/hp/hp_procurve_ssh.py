@@ -8,11 +8,14 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class HPProcurveSSH(CiscoSSHConnection):
 
     def session_preparation(self):
-        """Prepare the session after the connection has been established"""
-        # HP uses - 'Press any key to continue'
-        time.sleep(1)
+        """
+        Prepare the session after the connection has been established.
+        Procurve uses - 'Press any key to continue'
+        """
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        time.sleep(1 * delay_factor)
         self.write_channel("\n")
-        time.sleep(1)
+        time.sleep(1 * delay_factor)
 
         # HP output contains VT100 escape codes
         self.ansi_escape_codes = True

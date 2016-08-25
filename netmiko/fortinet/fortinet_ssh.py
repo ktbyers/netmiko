@@ -1,5 +1,4 @@
 import paramiko
-import time
 import socket
 
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -13,7 +12,7 @@ class FortinetSSH(CiscoSSHConnection):
         self.set_base_prompt(alt_prompt_terminator='$')
         self.disable_paging()
 
-    def disable_paging(self, delay_factor=.1):
+    def disable_paging(self, delay_factor=1):
         """Disable paging is only available with specific roles so it may fail."""
         check_command = "get system status\n"
         output = self.send_command(check_command)
@@ -48,53 +47,6 @@ class FortinetSSH(CiscoSSHConnection):
             # Should test output is valid
             for command in enable_paging_commands:
                 self.send_command(command)
-
-    def establish_connection(self, sleep_time=3, verbose=True, timeout=8, use_keys=False,
-                             key_file=None, width=None, height=None):
-        """Special Fortinet handler for SSH connection"""
-        self.remote_conn_pre = paramiko.SSHClient()
-        self.remote_conn_pre.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        try:
-            self.remote_conn_pre.connect(hostname=self.ip, port=self.port,
-                                         username=self.username, password=self.password,
-                                         look_for_keys=use_keys, allow_agent=False,
-                                         timeout=timeout)
-        except socket.error:
-            msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
-                device_type=self.device_type, ip=self.ip, port=self.port)
-            raise NetMikoTimeoutException(msg)
-        except paramiko.ssh_exception.AuthenticationException as auth_err:
-            msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
-                device_type=self.device_type, ip=self.ip, port=self.port)
-            msg += '\n' + str(auth_err)
-            raise NetMikoAuthenticationException(msg)
-
-        if verbose:
-            print("SSH connection established to {0}:{1}".format(self.ip, self.port))
-
-        # Since Fortinet paging setting is global use terminal settings instead (if necessary)
-        if width and height:
-            self.remote_conn = self.remote_conn_pre.invoke_shell(term='vt100',
-                                                                 width=width,
-                                                                 height=height)
-        else:
-            self.remote_conn = self.remote_conn_pre.invoke_shell()
-        self.remote_conn.settimeout(timeout)
-        if verbose:
-            print("Interactive SSH session established")
-
-        i = 0
-        output = ''
-        while i <= 100:
-            time.sleep(.1)
-            output = self._read_channel()
-            if output:
-                return output
-            else:
-                # Send a newline if no data is present
-                self.write_channel('\n')
-            i += 1
-        return ""
 
     def config_mode(self, config_command=''):
         '''No config mode for Fortinet devices'''
