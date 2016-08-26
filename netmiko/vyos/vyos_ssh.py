@@ -1,4 +1,3 @@
-from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.ssh_connection import BaseSSHConnection
 
 
@@ -71,24 +70,11 @@ class VyOSSSH(BaseSSHConnection):
         return output
 
     def set_base_prompt(self, pri_prompt_terminator='$', alt_prompt_terminator='#',
-                        delay_factor=.5):
+                        delay_factor=1):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        debug = False
-        if debug:
-            print("In set_base_prompt")
-
-        delay_factor = self.select_delay_factor(delay_factor)
-        prompt = self.find_prompt(delay_factor=delay_factor)
-
-        # If multiple lines in the output take the last line
-        prompt = prompt.split('\n')[-1].strip()
-
-        # Check that ends with a valid terminator character
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(prompt))
-
-        # Set prompt to user@hostname
-        self.base_prompt = prompt[:-3].strip()
-        if debug:
-            print("prompt: {}".format(self.base_prompt))
+        prompt = super(VyOSSSH, self).set_base_prompt(pri_prompt_terminator=pri_prompt_terminator,
+                                                      alt_prompt_terminator=alt_prompt_terminator,
+                                                      delay_factor=delay_factor)
+        # Set prompt to user@hostname (remove two additional characters)
+        self.base_prompt = prompt[:-2].strip()
         return self.base_prompt
