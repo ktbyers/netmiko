@@ -355,11 +355,11 @@ class BaseConnection(object):
                 msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
                 raise NetMikoTimeoutException(msg)
-#            except paramiko.ssh_exception.AuthenticationException as auth_err:
-#                msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
-#                    device_type=self.device_type, ip=self.host, port=self.port)
-#                msg += '\n' + str(auth_err)
-#                raise NetMikoAuthenticationException(msg)
+            except paramiko.ssh_exception.AuthenticationException as auth_err:
+                msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
+                    device_type=self.device_type, ip=self.host, port=self.port)
+                msg += '\n' + str(auth_err)
+                raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
                 print("SSH connection established to {0}:{1}".format(self.host, self.port))
