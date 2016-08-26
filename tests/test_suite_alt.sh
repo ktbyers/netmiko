@@ -12,6 +12,10 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device cisco881_telnet \
 && py.test -v test_netmiko_config.py --test_device cisco881_telnet \
 \
+&& echo "Cisco SG300" \
+&& py.test -v test_netmiko_show.py --test_device cisco_s300 \
+&& py.test -v test_netmiko_config.py --test_device cisco_s300 \
+\
 && echo "Arista" \
 && py.test -v test_netmiko_show.py --test_device arista_sw4 \
 && py.test -v test_netmiko_config.py --test_device arista_sw4 \
@@ -33,13 +37,13 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device cisco_asa \
 && py.test -v test_netmiko_config.py --test_device cisco_asa \
 \
+&& echo "Cisco IOS-XR" \
+&& py.test -v test_netmiko_show.py --test_device cisco_xrv \
+&& py.test -v test_netmiko_config.py --test_device cisco_xrv \
+&& py.test -v test_netmiko_commit.py --test_device cisco_xrv \
+\
 || RETURN_CODE=1
 
 exit $RETURN_CODE
 
 
-#&& echo "Cisco IOS-XR" \
-#&& py.test -v test_netmiko_show.py --test_device cisco_xrv \
-#&& py.test -v test_netmiko_config.py --test_device cisco_xrv \
-#&& py.test -v test_netmiko_commit.py --test_device cisco_xrv \
-#\
