@@ -78,11 +78,7 @@ class VyOSSSH(BaseSSHConnection):
             print("In set_base_prompt")
 
         delay_factor = self.select_delay_factor(delay_factor)
-        self.clear_buffer()
-        self.remote_conn.sendall("\n")
-
-        prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-        prompt = self.normalize_linefeeds(prompt)
+        prompt = self.find_prompt(delay_factor=delay_factor)
 
         # If multiple lines in the output take the last line
         prompt = prompt.split('\n')[-1].strip()
