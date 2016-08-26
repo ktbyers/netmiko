@@ -355,11 +355,11 @@ class BaseConnection(object):
                 msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
                 raise NetMikoTimeoutException(msg)
-            except paramiko.ssh_exception.AuthenticationException as auth_err:
-                msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
-                    device_type=self.device_type, ip=self.host, port=self.port)
-                msg += '\n' + str(auth_err)
-                raise NetMikoAuthenticationException(msg)
+#            except paramiko.ssh_exception.AuthenticationException as auth_err:
+#                msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
+#                    device_type=self.device_type, ip=self.host, port=self.port)
+#                msg += '\n' + str(auth_err)
+#                raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
                 print("SSH connection established to {0}:{1}".format(self.host, self.port))
@@ -786,7 +786,7 @@ class BaseConnection(object):
         ESC[2K       Erase line
         ESC[1;24r    Enable scrolling from start to row end
 
-        HP ProCurve's and F5 LTM's require this (possible others)
+        HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
         """
         debug = False
         if debug:
@@ -797,9 +797,11 @@ class BaseConnection(object):
         code_show_cursor = chr(27) + r'\[\?25h'
         code_next_line = chr(27) + r'E'
         code_erase_line = chr(27) + r'\[2K'
+        code_erase_start_line = chr(27) + r'\[K'
         code_enable_scroll = chr(27) + r'\[\d+;\d+r'
 
-        code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll]
+        code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
+                    code_erase_start_line]
 
         output = string_buffer
         for ansi_esc_code in code_set:
