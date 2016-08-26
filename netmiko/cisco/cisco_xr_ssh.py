@@ -88,8 +88,8 @@ class CiscoXrSSH(CiscoSSHConnection):
             raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
-            output += self.send_command("no", strip_prompt=False, strip_command=False,
-                                        delay_factor=delay_factor)
+            output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
+                                               delay_factor=delay_factor)
             raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
 
         return output
@@ -98,9 +98,9 @@ class CiscoXrSSH(CiscoSSHConnection):
         """Exit configuration mode."""
         output = ''
         if self.check_config_mode():
-            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
+            output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
             if "Uncommitted changes found" in output:
-                output += self.send_command('no\n', strip_prompt=False, strip_command=False)
+                output += self.send_command_timing('no\n', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
