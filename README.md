@@ -22,6 +22,7 @@ Cisco ASA
 Cisco IOS  
 Cisco IOS-XE  
 Cisco IOS-XR  
+Cisco SG300  
 HP Comware7  
 HP ProCurve  
 Juniper Junos  
