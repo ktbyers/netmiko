@@ -378,7 +378,8 @@ class BaseConnection(object):
 
         # make sure you can read the channel
         i = 0
-        main_delay = self.global_delay_factor * .1
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        main_delay = delay_factor * .1
         time.sleep(main_delay)
         while i <= 20:
             new_data = self._read_channel()
@@ -411,6 +412,7 @@ class BaseConnection(object):
     def disable_paging(self, command="terminal length 0", delay_factor=1):
         """Disable paging default to a Cisco CLI method."""
         debug = False
+        delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * .1)
         self.clear_buffer()
         command = self.normalize_cmd(command)
@@ -744,6 +746,7 @@ class BaseConnection(object):
         Automatically exits/enters configuration mode.
         """
         debug = False
+        delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ''
         if not hasattr(config_commands, '__iter__'):
