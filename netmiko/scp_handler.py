@@ -208,8 +208,11 @@ class FileTransfer(object):
         return dest_md5
 
     def transfer_file(self):
-        """SCP transfer source_file to remote device."""
-        self.put_file()
+        """SCP transfer file."""
+        if self.direction == 'put':
+            self.put_file()
+        elif self.direction == 'get':
+            self.get_file()
 
     def get_file(self):
         """SCP copy the file from the remote device to local system."""
