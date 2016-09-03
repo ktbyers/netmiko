@@ -663,8 +663,11 @@ class BaseConnection(object):
 
     def check_enable_mode(self, check_string=''):
         """Check if in enable mode. Return boolean."""
+        debug = False
         self.write_channel('\n')
         output = self.read_until_prompt()
+        if debug:
+            print(output)
         return check_string in output
 
     def enable(self, cmd='', pattern='password', re_flags=re.IGNORECASE):

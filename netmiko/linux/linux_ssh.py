@@ -8,6 +8,10 @@ from netmiko.ssh_exception import NetMikoTimeoutException
 
 class LinuxSSH(CiscoSSHConnection):
 
+    def disable_paging(self, *args, **kwargs):
+        """Linux doesn't have paging by default."""
+        return ""
+
     def set_base_prompt(self, pri_prompt_terminator='$',
                         alt_prompt_terminator='#', delay_factor=1):
         """Determine base prompt."""
