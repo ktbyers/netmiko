@@ -1,11 +1,12 @@
 """
-Create a SCP side-channel to transfer a file to remote network device.
+Netmiko SCP operations.
 
-SCP requires a separate SSH connection.
+Supports file get and file put operations.
+
+SCP requires a separate SSH connection for a control channel.
 
 Currently only supports Cisco IOS and Cisco ASA.
 """
-
 from __future__ import print_function
 from __future__ import unicode_literals
 
@@ -18,7 +19,11 @@ import scp
 
 
 class SCPConn(object):
-    """Establish a secure copy channel to the remote network device."""
+    """
+    Establish a secure copy channel to the remote network device.
+
+    Must close the SCP connection to get the file to write to the remote filesystem
+    """
     def __init__(self, ssh_conn):
         self.ssh_ctl_chan = ssh_conn
         self.establish_scp_conn()
@@ -27,25 +32,22 @@ class SCPConn(object):
         """Establish the secure copy connection."""
         self.scp_conn = paramiko.SSHClient()
         self.scp_conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.scp_conn.connect(hostname=self.ssh_ctl_chan.ip,
+        self.scp_conn.connect(hostname=self.ssh_ctl_chan.host,
                               port=self.ssh_ctl_chan.port,
                               username=self.ssh_ctl_chan.username,
                               password=self.ssh_ctl_chan.password,
-                              look_for_keys=False,
+                              key_filename=self.ssh_ctl_chan.key_file,
+                              look_for_keys=self.ssh_ctl_chan.use_keys,
                               allow_agent=False,
-                              timeout=8)
+                              timeout=self.ssh_ctl_chan.timeout)
         self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
 
     def scp_transfer_file(self, source_file, dest_file):
-        """
-        Transfer file using SCP
-
-        Must close the SCP connection to get the file to write to the remote filesystem
-        """
+        """Put file using SCP (for backwards compatibility)."""
         self.scp_client.put(source_file, dest_file)
 
     def scp_get_file(self, source_file, dest_file):
-        """Fetch file using SCP."""
+        """Get file using SCP."""
         self.scp_client.get(source_file, dest_file)
 
     def scp_put_file(self, source_file, dest_file):
@@ -117,7 +119,6 @@ class FileTransfer(object):
             space_avail = self.remote_space_available(search_pattern=search_pattern)
         elif self.direction == 'get':
             space_avail = self.local_space_available()
-
         if space_avail > self.file_size:
             return True
         return False
@@ -186,8 +187,12 @@ class FileTransfer(object):
 
     def compare_md5(self, base_cmd='verify /md5'):
         """Compare md5 of file on network device to md5 of local file"""
-        dest_md5 = self.remote_md5(base_cmd=base_cmd)
-        return self.source_md5 == dest_md5
+        if self.direction == 'put':
+            remote_md5 = self.remote_md5(base_cmd=base_cmd)
+            return self.source_md5 == remote_md5
+        elif self.direction == 'get':
+            local_md5 = self.file_md5(self.dest_file)
+            return self.source_md5 == local_md5
 
     def remote_md5(self, base_cmd='verify /md5', remote_file=None):
         """
