@@ -6,7 +6,7 @@ class CiscoS300SSH(CiscoSSHConnection):
     Support for Cisco SG300 series of devices.
 
     Note, must configure the following to disable SG300 from prompting for username twice:
-    
+
     configure terminal
     ip ssh password-auth
     """
