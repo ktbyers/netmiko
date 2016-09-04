@@ -45,7 +45,6 @@ def commands(request):
     '''
     Parse the commands.yml file to get a commands dictionary
     '''
-
     device_under_test = request.config.getoption('test_device')
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]

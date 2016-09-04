@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 """
-This module runs tests against Cisco IOS devices.
-
 setup_module: setup variables for later use.
 
 test_disable_paging: disable paging
@@ -15,7 +13,6 @@ test_normalize_linefeeds: ensure \n is the only line termination character in ou
 test_clear_buffer: clear text buffer
 test_enable_mode: verify enter enable mode
 test_disconnect: cleanly disconnect the SSH session
-
 """
 
 from __future__ import print_function
