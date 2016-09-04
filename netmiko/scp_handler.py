@@ -203,7 +203,7 @@ class FileTransfer(object):
         if remote_file is None:
             remote_file = self.dest_file
         remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, remote_file)
-        dest_md5 = self.ssh_ctl_chan.send_command_expect(remote_md5_cmd)
+        dest_md5 = self.ssh_ctl_chan.send_command_expect(remote_md5_cmd, delay_factor=3.0)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
