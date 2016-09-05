@@ -38,19 +38,19 @@ def test_local_space_available(scp_fixture):
     local_space = scp_transfer.local_space_available()
     assert local_space >= 1000000000
     
-def test_verify_space_available_put(scp_fixture)
+def test_verify_space_available_put(scp_fixture):
+    ssh_conn, scp_transfer = scp_fixture
     assert scp_transfer.verify_space_available() == True
     # intentional make there not be enough space available
     scp_transfer.file_size = 1000000000
     assert scp_transfer.verify_space_available() == False
 
-    direction = 'get'
-    with FileTransfer(net_connect, source_file=source_file, dest_file=dest_file,
-                      file_system=dest_file_system, direction=direction) as scp_transfer:
-        assert scp_transfer.verify_space_available() == True
-        # intentional make there not be enough space available
-        scp_transfer.file_size = 100000000000
-        assert scp_transfer.verify_space_available() == False
+def test_verify_space_available_get(scp_fixture_get):
+    ssh_conn, scp_transfer = scp_fixture
+    assert scp_transfer.verify_space_available() == True
+    # intentional make there not be enough space available
+    scp_transfer.file_size = 100000000000
+    assert scp_transfer.verify_space_available() == False
 
 def test_remote_file_size(net_connect, commands, expected_responses):
     debug = False

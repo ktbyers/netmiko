@@ -106,8 +106,39 @@ def scp_fixture(request):
     local_file = 'testx.txt'
     direction = 'put'
 
-    #with FileTransfer(ssh_conn, source_file=source_file, dest_file=dest_file,
-    #                  file_system=dest_file_system, direction=direction) as scp_transfer:
+    scp_transfer = FileTransfer(ssh_conn, source_file=source_file, dest_file=dest_file,
+                                file_system=dest_file_system, direction=direction)
+    scp_transfer.establish_scp_conn()
+
+    # Make sure SCP is enabled
+    scp_transfer.enable_scp()
+
+    # Delete the test transfer files
+    if scp_transfer.check_file_exists():
+        delete_file_ios(ssh_conn, dest_file_system, dest_file)
+    if os.path.exists(local_file):
+        os.remove(local_file)
+
+    return (ssh_conn, scp_transfer)
+
+@pytest.fixture(scope='module')
+def scp_fixture_get(request):
+    """
+    Create an FileTransfer object (direction=get)
+
+    Return a tuple (ssh_conn, scp_handle)
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    ssh_conn = ConnectHandler(**device)
+
+    dest_file_system = 'flash:'
+    source_file = 'test9.txt'
+    dest_file = 'test9.txt'
+    local_file = 'testx.txt'
+    direction = 'get'
 
     scp_transfer = FileTransfer(ssh_conn, source_file=source_file, dest_file=dest_file,
                                 file_system=dest_file_system, direction=direction)
