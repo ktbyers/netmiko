@@ -8,7 +8,22 @@ from datetime import datetime
 from getpass import getpass
 from netmiko import ConnectHandler, FileTransfer
 
-@pytest.fixture()
+def test_enable_scp(net_connect):
+    dest_file_system = 'flash:'
+    source_file = 'test9.txt'
+    dest_file = 'test9.txt'
+    direction = 'put'
+
+    with FileTransfer(net_connect, source_file=source_file, dest_file=dest_file,
+                      file_system=dest_file_system, direction=direction) as scp_transfer:
+        scp_transfer.disable_scp()
+        output = net_connect.send_command_expect("show run | inc scp")
+        assert 'ip scp server enable' not in output
+
+        scp_transfer.enable_scp()
+        output = net_connect.send_command_expect("show run | inc scp")
+        assert 'ip scp server enable' in output
+
 def test_delete_file(net_connect):
     """
     Delete the remote file
@@ -55,7 +70,6 @@ def test_delete_file(net_connect):
         if debug:
             print("File doesn't exist.")
         assert True == True
-    return net_connect
 
 def test_delete_local_file():
     """Delete local file."""
