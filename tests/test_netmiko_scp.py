@@ -3,11 +3,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 import sys
+import os
 from datetime import datetime
 from getpass import getpass
 from netmiko import ConnectHandler, FileTransfer
 
-def test_delete_file(net_connect, commands, expected_responses):
+@pytest.fixture()
+def test_delete_file(net_connect):
     """
     Delete the remote file
 
@@ -52,6 +54,17 @@ def test_delete_file(net_connect, commands, expected_responses):
         # Remote file doesn't exist
         if debug:
             print("File doesn't exist.")
+        assert True == True
+    return net_connect
+
+def test_delete_local_file():
+    """Delete local file."""
+    local_file = 'testx.txt'
+    if os.path.exists(local_file):
+        os.remove(local_file)
+        assert os.path.exists(local_file) == False
+    else:
+        # local file doesn't exist
         assert True == True
 
 def test_scp_put(net_connect, commands, expected_responses):
@@ -156,13 +169,12 @@ def test_md5_methods(net_connect, commands, expected_responses):
                       file_system=dest_file_system, direction=direction) as scp_transfer:
         assert scp_transfer.compare_md5() == True
     
-def test_scp_put(net_connect, commands, expected_responses):
-    """SCP transfer file to remote file system."""
+def test_scp_get(net_connect, commands, expected_responses):
     debug = False
     dest_file_system = 'flash:'
     source_file = 'test9.txt'
-    dest_file = 'test9.txt'
-    direction = 'put'
+    dest_file = 'testx.txt'
+    direction = 'get'
 
     with FileTransfer(net_connect, source_file=source_file, dest_file=dest_file,
                       file_system=dest_file_system, direction=direction) as scp_transfer:
@@ -172,34 +184,9 @@ def test_scp_put(net_connect, commands, expected_responses):
             # File should not already exist
             assert False == True
         else:
-            scp_transfer.put_file()
+            scp_transfer.get_file()
             if scp_transfer.check_file_exists():
                 assert True == True
             else:
                 assert False == True
 
-#def test_check_file_exists(net_connect, commands, expected_responses):
-#    """ """
-#    dest_file_system = 'flash:'
-#    source_file = 'test9.txt'
-#    dest_file = 'test9.txt'
-#    direction = 'put'
-#
-#    with FileTransfer(net_connect, source_file=source_file, dest_file=dest_file,
-#                      file_system=dest_file_system, direction=direction) as scp_transfer:
-#        if scp_transfer.check_file_exists():
-#            print("File already exists")
-#        else:
-#            print("File doesn't exist")
-#            
-#
-##        show_version = net_connect.send_command_expect(commands["version"])
-##        assert expected_responses["version_banner"] in show_version
-#
-#
-##    # PUT OPERATION
-##
-##        print "check_file_exists()"
-##        if not scp_transfer.check_file_exists():
-##
-##
