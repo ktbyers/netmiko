@@ -136,8 +136,8 @@ def scp_fixture_get(request):
 
     dest_file_system = 'flash:'
     source_file = 'test9.txt'
-    dest_file = 'test9.txt'
     local_file = 'testx.txt'
+    dest_file = local_file
     direction = 'get'
 
     scp_transfer = FileTransfer(ssh_conn, source_file=source_file, dest_file=dest_file,
@@ -148,8 +148,6 @@ def scp_fixture_get(request):
     scp_transfer.enable_scp()
 
     # Delete the test transfer files
-    if scp_transfer.check_file_exists():
-        delete_file_ios(ssh_conn, dest_file_system, dest_file)
     if os.path.exists(local_file):
         os.remove(local_file)
 

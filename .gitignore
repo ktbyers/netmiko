@@ -2,6 +2,7 @@
 *.swp
 tests/old_format/DEVICE_CREDS.py
 tests/test_prep.sh
+tests/testx.txt
 tests/standard_tests.sh
 tests/etc/test_devices.yml
 tests/etc/commands.yml
