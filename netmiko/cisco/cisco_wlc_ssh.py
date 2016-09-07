@@ -103,3 +103,50 @@ class CiscoWlcSSH(BaseConnection):
     def cleanup(self):
         """Reset WLC back to normal paging."""
         self.send_command("config paging enable\n")
+
+    def check_config_mode(self, check_string='config', pattern=''):
+        """Checks if the device is in configuration mode or not."""
+        if not pattern:
+            pattern = self.base_prompt
+        return super(CiscoWlcSSH, self).check_config_mode(check_string, pattern)
+
+    def config_mode(self, config_command='config', pattern=''):
+        """Enter into config_mode."""
+        if not pattern:
+            pattern = self.base_prompt
+        return super(CiscoWlcSSH, self).config_mode(config_command, pattern)
+
+    def exit_config_mode(self, exit_config='exit', pattern=''):
+        """Exit config_mode."""
+        if not pattern:
+            pattern = self.base_prompt
+        return super(CiscoWlcSSH, self).exit_config_mode(exit_config, pattern)
+
+    def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
+                        max_loops=150, strip_prompt=False, strip_command=False):
+        """
+        Send configuration commands down the SSH channel.
+
+        config_commands is an iterable containing all of the configuration commands.
+        The commands will be executed one after the other.
+
+        Does not automatically exit/enter configuration mode.
+        """
+        debug = False
+        delay_factor = self.select_delay_factor(delay_factor)
+        if config_commands is None:
+            return ''
+        if not hasattr(config_commands, '__iter__'):
+            raise ValueError("Invalid argument passed into send_config_set")
+
+        # Send config commands
+        for cmd in config_commands:
+            self.write_channel(self.normalize_cmd(cmd))
+            time.sleep(delay_factor * .5)
+
+        # Gather output
+        output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
+        output = self._sanitize_output(output)
+        if debug:
+            print(output)
+        return output

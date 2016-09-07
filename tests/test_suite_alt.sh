@@ -7,7 +7,8 @@ echo "Starting tests...good luck:" \
 && echo "Linux SSH (using keys)" \
 && py.test -s -v test_netmiko_show.py --test_device linux_srv1 \
 \
-&& echo "Cisco IOS SSH" \
+&& echo "Cisco IOS SSH (including SCP)" \
+&& py.test -s -v test_netmiko_scp.py --test_device cisco881 \
 && py.test -v test_netmiko_show.py --test_device cisco881 \
 && py.test -v test_netmiko_config.py --test_device cisco881 \
 \
