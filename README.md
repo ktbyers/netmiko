@@ -139,7 +139,14 @@ pynet-rtr1(config)#no logging console
 pynet-rtr1(config)#end
 pynet-rtr1#
 ```
-  
+
+## Questions/Discussion
+
+If you find an issue with Netmiko, then you can open an issue on this projects issue page here: [https://github.com/ktbyers/netmiko/issues](https://github.com/ktbyers/netmiko/issues)
+
+If you have questions or would like to discuss Netmiko, a Netmiko channel exists on the [networktocode](https://networktocode.slack.com) Slack team.  To join, just visit the url and request access to the Sack team.  Once access is granted you can join the [#netmiko](https://networktocode.slack.com/messages/netmiko/) channel.
+
+
   
 <br>
 ---    
