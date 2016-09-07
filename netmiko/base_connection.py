@@ -381,7 +381,7 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor=0)
         main_delay = delay_factor * .1
         time.sleep(main_delay)
-        while i <= 20:
+        while i <= 40:
             new_data = self._read_channel()
             if new_data:
                 break
