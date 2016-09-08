@@ -10,7 +10,7 @@ class CiscoIosSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self.set_base_prompt()
         self.disable_paging()
-        self.set_terminal_width(command='terminal width 511\n')
+        self.set_terminal_width(command='terminal width 511')
 
 
 class CiscoIosTelnet(CiscoTelnetConnection):
@@ -19,4 +19,4 @@ class CiscoIosTelnet(CiscoTelnetConnection):
         """Prepare the session after the connection has been established."""
         self.set_base_prompt()
         self.disable_paging()
-        self.set_terminal_width(command='terminal width 511\n')
+        self.set_terminal_width(command='terminal width 511')

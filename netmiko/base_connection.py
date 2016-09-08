@@ -441,6 +441,7 @@ class BaseConnection(object):
             return ""
         debug = False
         delay_factor = self.select_delay_factor(delay_factor)
+        command = self.normalize_cmd(command)
         self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
