@@ -12,6 +12,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="terminal pager 0\n")
+        self.set_terminal_width(command="terminal width 511")
 
     def send_command_timing(self, *args, **kwargs):
         """

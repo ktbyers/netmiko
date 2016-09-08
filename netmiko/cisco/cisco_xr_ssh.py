@@ -8,6 +8,12 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class CiscoXrSSH(CiscoSSHConnection):
 
+    def session_preparation(self):
+        """Prepare the session after the connection has been established."""
+        self.set_base_prompt()
+        self.disable_paging()
+        self.set_terminal_width(command='terminal width 511')
+
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
         return super(CiscoXrSSH, self).send_config_set(config_commands=config_commands,

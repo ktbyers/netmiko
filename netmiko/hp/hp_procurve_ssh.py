@@ -22,6 +22,7 @@ class HPProcurveSSH(CiscoSSHConnection):
 
         self.set_base_prompt()
         self.disable_paging(command="\nno page\n")
+        self.set_terminal_width(command='terminal width 511')
 
     def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE,
                default_username='manager'):

@@ -23,6 +23,7 @@ class JuniperSSH(BaseConnection):
         self.enter_cli_mode()
         self.set_base_prompt()
         self.disable_paging(command="set cli screen-length 0\n")
+        self.set_terminal_width(command='set cli screen-width 511')
 
     def enter_cli_mode(self):
         """Check if at shell prompt root@.*% shell prompt and go into CLI."""

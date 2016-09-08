@@ -251,10 +251,12 @@ class BaseConnection(object):
 
         In general, it should include:
         self.set_base_prompt()
-        self.disable_paging()   # if applicable
+        self.disable_paging()
+        self.set_terminal_width()
         """
         self.set_base_prompt()
         self.disable_paging()
+        self.set_terminal_width()
 
     def _use_ssh_config(self, connect_dict):
         """
@@ -419,13 +421,33 @@ class BaseConnection(object):
         if debug:
             print("In disable_paging")
             print("Command: {}".format(command))
-        self.write_channel(self.normalize_cmd(command))
+        self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         if debug:
             print(output)
             print("Exiting disable_paging")
+        return output
+
+    def set_terminal_width(self, command="", delay_factor=1):
+        """
+        CLI terminals try to automatically adjust the line based on the width of the terminal.
+        This causes the output to get distorted when accessed programmatically.
+
+        Set terminal width to 511 which works on a broad set of devices.
+        """
+        if not command:
+            return ""
+        debug = False
+        delay_factor = self.select_delay_factor(delay_factor)
+        self.write_channel(command)
+        output = self.read_until_prompt()
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
+        if debug:
+            print(output)
+            print("Exiting set_terminal_width")
         return output
 
     def set_base_prompt(self, pri_prompt_terminator='#',
