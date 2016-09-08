@@ -389,7 +389,7 @@ class BaseSSHConnection(object):
         pattern = re.escape(pattern)
         if debug:
             print("Pattern is: {}".format(pattern))
-        while True:
+        while self.remote_conn.closed:
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if re.search(pattern, output, flags=re_flags):
@@ -398,6 +398,7 @@ class BaseSSHConnection(object):
                     return output
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+        return output
 
     def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
@@ -406,7 +407,7 @@ class BaseSSHConnection(object):
             pattern = self.base_prompt
         pattern = re.escape(pattern)
         base_prompt_pattern = re.escape(self.base_prompt)
-        while True:
+        while self.remote_conn.closed:
             try:
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
@@ -414,6 +415,7 @@ class BaseSSHConnection(object):
                     return output
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+        return output
 
     def send_command_expect(self, command_string, expect_string=None,
                             delay_factor=.2, max_loops=500, auto_find_prompt=True,
@@ -463,7 +465,7 @@ class BaseSSHConnection(object):
         i = 1
         # Keep reading data until search_pattern is found (or max_loops)
         output = ''
-        while i <= max_loops:
+        while i <= max_loops or not self.remote_conn.closed:
             if self.remote_conn.recv_ready():
                 output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 if debug:
