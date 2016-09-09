@@ -119,19 +119,27 @@ class BaseConnection(object):
         if debug:
             print("Pattern is: {}".format(pattern))
 
-        while True:
+        # Will loop for self.timeout time (unless modified by global_delay_factor)
+        i = 1
+        loop_delay = .1
+        max_loops = self.timeout / loop_delay
+        while i < max_loops:
             if self.protocol == 'ssh':
                 try:
+                    # If no data available will wait timeout seconds trying to read
                     output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
             elif self.protocol == 'telnet':
                 output += self.remote_conn.read_very_eager()
-
             if re.search(pattern, output, flags=re_flags):
                 if debug:
                     print("Pattern found: {} {}".format(pattern, output))
                 return output
+            time.sleep(loop_delay * self.global_delay_factor)
+            i += 1
+        raise NetMikoTimeoutException("Timed-out reading channel, pattern not found in output: {}"
+                                      .format(pattern))
 
     def _read_channel_timing(self, delay_factor=1, max_loops=150):
         """
