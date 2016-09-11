@@ -87,3 +87,13 @@ def test_md5_methods_get(scp_fixture_get):
     local_md5 = scp_transfer.file_md5("test9.txt")
     assert local_md5 == md5_value
     assert scp_transfer.compare_md5() == True
+
+def test_disconnect(scp_fixture):
+    """Terminate the SSH session."""
+    ssh_conn, scp_transfer = scp_fixture
+    ssh_conn.disconnect()
+
+def test_disconnect_get(scp_fixture_get):
+    """Terminate the SSH session."""
+    ssh_conn, scp_transfer = scp_fixture_get
+    ssh_conn.disconnect()
