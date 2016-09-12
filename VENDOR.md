@@ -19,14 +19,14 @@ Create a new module for the vendor:
 
 ```
 $ vi arista_ssh.py
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
-class AristaSSH(SSHConnection):
+class AristaSSH(CiscoSSHConnection):
 
     pass
 ```
   
-Inherit from the SSHConnection class. Note, the netmiko package will need to be in 
+Inherit from the CiscoSSHConnection class. Note, the netmiko package will need to be in 
 your PYTHONPATH
 
 Update \_\_init__.py to export the new class:
@@ -74,11 +74,11 @@ def cleanup(self):
 def disconnect(self):
 ```
 
-As much as possible, you should re-use the inherited methods from SSHConnection 
-and BaseSSHConnection (i.e. only re-write what you have to).
+As much as possible, you should re-use the inherited methods from CiscoSSHConnection 
+and BaseConnection (i.e. only re-write what you have to).
 
-BaseSSHConnection is intended to be generic (i.e. irrespective of the vendor)
-SSHConnection is Cisco-IOS specific (because lots of vendors imitate Cisco IOS).
+BaseConnection is intended to be generic (i.e. irrespective of the vendor)
+CiscoSSHConnection is Cisco-IOS specific (because lots of vendors imitate Cisco IOS).
 
 You should also write unit tests and verify the functionality of your new class.
 See netmiko/tests/test_cisco_ios.py and netmiko/tests/test_cisco_ios_enable.py.
