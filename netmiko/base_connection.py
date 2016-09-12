@@ -697,6 +697,7 @@ class BaseConnection(object):
         """Check if in enable mode. Return boolean."""
         debug = False
         self.write_channel('\n')
+        time.sleep(self.global_delay_factor)
         output = self.read_until_prompt()
         if debug:
             print(output)
