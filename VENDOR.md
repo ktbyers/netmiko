@@ -22,7 +22,6 @@ $ vi arista_ssh.py
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class AristaSSH(CiscoSSHConnection):
-
     pass
 ```
   
