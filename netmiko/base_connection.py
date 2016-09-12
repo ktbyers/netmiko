@@ -131,7 +131,7 @@ class BaseConnection(object):
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
             elif self.protocol == 'telnet':
-                output += self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+                output += self._read_channel()
             if re.search(pattern, output, flags=re_flags):
                 if debug:
                     print("Pattern found: {} {}".format(pattern, output))
@@ -218,25 +218,24 @@ class BaseConnection(object):
         i = 1
         while i <= max_loops:
             try:
-                read_data = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+                read_data = self._read_channel()
                 if debug:
-                    print(type(read_data))
                     print(read_data)
                 if re.search(r"sername", read_data):
                     self.write_channel(self.username + '\n')
                     time.sleep(1 * delay_factor)
-                    output += self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+                    output += self._read_channel()
                     if debug:
                         print("Z1")
                         print(output)
                 elif re.search(r"assword", output):
                     self.write_channel(self.password + "\n")
-                    output += self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+                    output += self._read_channel()
                     if debug:
                         print("Z2")
                         print(output)
                     time.sleep(.5 * delay_factor)
-                    output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+                    output += self._read_channel()
                     if '>' in output or '#' in output:
                         if debug:
                             print("Z3")
@@ -524,11 +523,8 @@ class BaseConnection(object):
         return prompt
 
     def clear_buffer(self):
-        """Read any data available in the channel up to MAX_BUFFER."""
-        if self.protocol == 'ssh' and self.remote_conn.recv_ready():
-            self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-        elif self.protocol == 'telnet':
-            self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+        """Read any data available in the channel."""
+        self._read_channel()
 
     def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
                             strip_prompt=True, strip_command=True):
