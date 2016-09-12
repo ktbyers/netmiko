@@ -33,7 +33,7 @@ class JuniperSSH(BaseConnection):
         while count < 50:
             self.write_channel("\n")
             time.sleep(.1 * delay_factor)
-            cur_prompt = self._read_channel()
+            cur_prompt = self.read_channel()
             if re.search(r'root@.*%', cur_prompt):
                 self.write_channel("cli\n")
                 time.sleep(.3 * delay_factor)

@@ -64,7 +64,7 @@ class LinuxSSH(CiscoSSHConnection):
             time.sleep(.3 * delay_factor)
             pattern = re.escape(pattern)
             try:
-                output += self._read_channel()
+                output += self.read_channel()
                 if re.search(pattern, output, flags=re_flags):
                     self.write_channel(self.normalize_cmd(self.secret))
                 self.set_base_prompt()

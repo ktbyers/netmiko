@@ -97,6 +97,18 @@ class BaseConnection(object):
         else:
             raise ValueError("Invalid protocol specified")
 
+    def read_channel(self):
+        """Generic handler that will read all the data from an SSH or telnet channel."""
+        if self.protocol == 'ssh':
+            output = ""
+            while True:
+                if self.remote_conn.recv_ready():
+                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                else:
+                    return output
+        elif self.protocol == 'telnet':
+            return self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+
     def _read_channel_expect(self, pattern='', re_flags=0):
         """
         Function that reads channel until pattern is detected.
@@ -131,7 +143,7 @@ class BaseConnection(object):
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
             elif self.protocol == 'telnet':
-                output += self._read_channel()
+                output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
                 if debug:
                     print("Pattern found: {} {}".format(pattern, output))
@@ -156,31 +168,19 @@ class BaseConnection(object):
         i = 0
         while i <= max_loops:
             time.sleep(.1 * delay_factor)
-            new_data = self._read_channel()
+            new_data = self.read_channel()
             if new_data:
                 channel_data += new_data
             else:
                 # Safeguard to make sure really done
                 time.sleep(2 * delay_factor)
-                new_data = self._read_channel()
+                new_data = self.read_channel()
                 if not new_data:
                     break
                 else:
                     channel_data += new_data
             i += 1
         return channel_data
-
-    def _read_channel(self):
-        """Generic handler that will read all the data from an SSH or telnet channel."""
-        if self.protocol == 'ssh':
-            output = ""
-            while True:
-                if self.remote_conn.recv_ready():
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                else:
-                    return output
-        elif self.protocol == 'telnet':
-            return self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
 
     def read_until_prompt(self, *args, **kwargs):
         """Read channel until self.base_prompt detected. Return ALL data available."""
@@ -199,14 +199,15 @@ class BaseConnection(object):
         base_prompt_pattern = re.escape(self.base_prompt)
         while True:
             try:
-                output += self._read_channel()
+                output += self.read_channel()
                 if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
                                                                            output, flags=re_flags):
                     return output
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
-    def telnet_login(self, delay_factor=1, max_loops=30):
+    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
+                     delay_factor=1, max_loops=30):
         """Telnet login."""
         debug = False
         if debug:
@@ -218,25 +219,25 @@ class BaseConnection(object):
         i = 1
         while i <= max_loops:
             try:
-                read_data = self._read_channel()
+                read_data = self.read_channel()
                 if debug:
                     print(read_data)
                 if re.search(r"sername", read_data):
                     self.write_channel(self.username + '\n')
                     time.sleep(1 * delay_factor)
-                    output += self._read_channel()
+                    output += self.read_channel()
                     if debug:
                         print("Z1")
                         print(output)
                 elif re.search(r"assword", output):
                     self.write_channel(self.password + "\n")
-                    output += self._read_channel()
+                    output += self.read_channel()
                     if debug:
                         print("Z2")
                         print(output)
                     time.sleep(.5 * delay_factor)
-                    output += self._read_channel()
-                    if '>' in output or '#' in output:
+                    output += self.read_channel()
+                    if pri_prompt_terminator in output or alt_prompt_terminator in output:
                         if debug:
                             print("Z3")
                         return output
@@ -392,7 +393,7 @@ class BaseConnection(object):
         main_delay = delay_factor * .1
         time.sleep(main_delay)
         while i <= 40:
-            new_data = self._read_channel()
+            new_data = self.read_channel()
             if new_data:
                 break
             else:
@@ -488,7 +489,7 @@ class BaseConnection(object):
         time.sleep(delay_factor * .1)
 
         # Initial attempt to get prompt
-        prompt = self._read_channel().strip()
+        prompt = self.read_channel().strip()
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
 
@@ -498,7 +499,7 @@ class BaseConnection(object):
         # Check if the only thing you received was a newline
         count = 0
         while count <= 10 and not prompt:
-            prompt = self._read_channel().strip()
+            prompt = self.read_channel().strip()
             if prompt:
                 if debug:
                     print("prompt2a: {}".format(repr(prompt)))
@@ -524,7 +525,7 @@ class BaseConnection(object):
 
     def clear_buffer(self):
         """Read any data available in the channel."""
-        self._read_channel()
+        self.read_channel()
 
     def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
                             strip_prompt=True, strip_command=True):
@@ -617,7 +618,7 @@ class BaseConnection(object):
         # Keep reading data until search_pattern is found (or max_loops)
         output = ''
         while i <= max_loops:
-            new_data = self._read_channel()
+            new_data = self.read_channel()
             if new_data:
                 output += new_data
                 if debug:

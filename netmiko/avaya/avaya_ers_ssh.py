@@ -22,7 +22,7 @@ class AvayaErsSSH(CiscoSSHConnection):
         output = ""
         i = 0
         while i <= 12:
-            output = self._read_channel()
+            output = self.read_channel()
             if output:
                 if 'Ctrl-Y' in output:
                     self.write_channel(CTRL_Y)

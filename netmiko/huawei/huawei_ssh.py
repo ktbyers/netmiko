@@ -44,7 +44,7 @@ class HuaweiSSH(CiscoSSHConnection):
         self.write_channel("\n")
         time.sleep(.5 * delay_factor)
 
-        prompt = self._read_channel()
+        prompt = self.read_channel()
         prompt = self.normalize_linefeeds(prompt)
 
         # If multiple lines in the output take the last line

@@ -26,7 +26,7 @@ class CiscoWlcSSH(BaseConnection):
         time.sleep(delay_factor * .5)
         output = ""
         while i <= 12:
-            output = self._read_channel()
+            output = self.read_channel()
             if output:
                 if 'login as' in output or 'User' in output:
                     self.write_channel(self.username + '\n')
@@ -78,7 +78,7 @@ class CiscoWlcSSH(BaseConnection):
                     time.sleep(kwargs['delay_factor'] * 3)
                     i += 1
                     new_data = ""
-                    new_data = self._read_channel()
+                    new_data = self.read_channel()
                     if new_data:
                         output += new_data
                     else:
