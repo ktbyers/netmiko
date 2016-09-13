@@ -72,6 +72,8 @@ def test_command_set(net_connect, commands, expected_responses):
     print(3)
     cmd_response = expected_responses.get('cmd_response_init')
     config_commands_output = net_connect.send_command_expect(config_verify)
+    print(config_verify)
+    print(config_commands_output)
     if cmd_response:
         assert cmd_response in config_commands_output
     else:

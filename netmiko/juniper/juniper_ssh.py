@@ -1,18 +1,18 @@
 from __future__ import unicode_literals
-import re
 
-from netmiko.ssh_connection import BaseSSHConnection
-from netmiko.netmiko_globals import MAX_BUFFER
+import re
 import time
 
+from netmiko.base_connection import BaseConnection
 
-class JuniperSSH(BaseSSHConnection):
-    '''
+
+class JuniperSSH(BaseConnection):
+    """
     Implement methods for interacting with Juniper Networks devices.
 
-    Subclass of SSHConnection.  Disables `enable()` and `check_enable_mode()`
+    Disables `enable()` and `check_enable_mode()`
     methods.  Overrides several methods for Juniper-specific compatibility.
-    '''
+    """
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
@@ -23,19 +23,20 @@ class JuniperSSH(BaseSSHConnection):
         self.enter_cli_mode()
         self.set_base_prompt()
         self.disable_paging(command="set cli screen-length 0\n")
+        self.set_terminal_width(command='set cli screen-width 511')
 
     def enter_cli_mode(self):
         """Check if at shell prompt root@.*% shell prompt and go into CLI."""
+        delay_factor = self.select_delay_factor(delay_factor=0)
         count = 0
         cur_prompt = ''
         while count < 50:
-            self.remote_conn.sendall("\n")
-            time.sleep(.1)
-            if self.remote_conn.recv_ready():
-                cur_prompt = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            self.write_channel("\n")
+            time.sleep(.1 * delay_factor)
+            cur_prompt = self.read_channel()
             if re.search(r'root@.*%', cur_prompt):
-                self.remote_conn.sendall("cli\n")
-                time.sleep(.3)
+                self.write_channel("cli\n")
+                time.sleep(.3 * delay_factor)
                 self.clear_buffer()
                 break
             elif '>' in cur_prompt or '#' in cur_prompt:
@@ -66,15 +67,15 @@ class JuniperSSH(BaseSSHConnection):
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
-            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
+            output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
             if 'Exit with uncommitted changes?' in output:
-                output += self.send_command('yes', strip_prompt=False, strip_command=False)
+                output += self.send_command_timing('yes', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
 
     def commit(self, confirm=False, confirm_delay=None, check=False, comment='',
-               and_quit=False, delay_factor=.1):
+               and_quit=False, delay_factor=1):
         """
         Commit the candidate configuration.
 

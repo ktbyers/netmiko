@@ -1,42 +1,38 @@
-'''
-Netmiko support for Avaya Ethernet Routing Switch
-'''
+"""Netmiko support for Avaya Ethernet Routing Switch."""
 from __future__ import print_function
 from __future__ import unicode_literals
-from netmiko.ssh_connection import SSHConnection
-from netmiko.netmiko_globals import MAX_BUFFER
 import time
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 # Avaya presents Enter Ctrl-Y to begin.
 CTRL_Y = '\x19'
 
 
-class AvayaErsSSH(SSHConnection):
-    '''
-    Netmiko support for Avaya Ethernet Routing Switch
-    '''
-    def special_login_handler(self, delay_factor=.5):
-        '''
+class AvayaErsSSH(CiscoSSHConnection):
+    """Netmiko support for Avaya Ethernet Routing Switch."""
+    def special_login_handler(self, delay_factor=1):
+        """
         Avaya ERS presents the following as part of the login process:
 
         Enter Ctrl-Y to begin.
-        '''
+        """
         delay_factor = self.select_delay_factor(delay_factor)
 
         # Handle 'Enter Ctrl-Y to begin'
+        output = ""
         i = 0
         while i <= 12:
-            if self.remote_conn.recv_ready():
-                output = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+            output = self.read_channel()
+            if output:
                 if 'Ctrl-Y' in output:
-                    self.remote_conn.sendall(CTRL_Y)
+                    self.write_channel(CTRL_Y)
                 if 'sername' in output:
-                    self.remote_conn.sendall(self.username + '\n')
+                    self.write_channel(self.username + '\n')
                 elif 'ssword' in output:
-                    self.remote_conn.sendall(self.password + '\n')
+                    self.write_channel(self.password + '\n')
                     break
-                time.sleep(delay_factor)
+                time.sleep(.5 * delay_factor)
             else:
-                self.remote_conn.sendall('\n')
-                time.sleep(2 * delay_factor)
+                self.write_channel('\n')
+                time.sleep(1 * delay_factor)
             i += 1

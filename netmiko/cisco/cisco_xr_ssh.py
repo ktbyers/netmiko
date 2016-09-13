@@ -3,17 +3,23 @@ from __future__ import unicode_literals
 
 import re
 
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class CiscoXrSSH(SSHConnection):
+class CiscoXrSSH(CiscoSSHConnection):
+
+    def session_preparation(self):
+        """Prepare the session after the connection has been established."""
+        self.set_base_prompt()
+        self.disable_paging()
+        self.set_terminal_width(command='terminal width 511')
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
         return super(CiscoXrSSH, self).send_config_set(config_commands=config_commands,
                                                        exit_config_mode=False, **kwargs)
 
-    def commit(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=.1):
+    def commit(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=1):
         """
         Commit the candidate configuration.
 
@@ -88,8 +94,8 @@ class CiscoXrSSH(SSHConnection):
             raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
-            output += self.send_command("no", strip_prompt=False, strip_command=False,
-                                        delay_factor=delay_factor)
+            output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
+                                               delay_factor=delay_factor)
             raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
 
         return output
@@ -98,9 +104,9 @@ class CiscoXrSSH(SSHConnection):
         """Exit configuration mode."""
         output = ''
         if self.check_config_mode():
-            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
+            output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
             if "Uncommitted changes found" in output:
-                output += self.send_command('no\n', strip_prompt=False, strip_command=False)
+                output += self.send_command_timing('no\n', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output

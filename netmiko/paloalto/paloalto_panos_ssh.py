@@ -1,16 +1,16 @@
 from __future__ import unicode_literals
 import re
 
-from netmiko.ssh_connection import BaseSSHConnection
+from netmiko.base_connection import BaseConnection
 
 
-class PaloAltoPanosSSH(BaseSSHConnection):
-    '''
+class PaloAltoPanosSSH(BaseConnection):
+    """
     Implement methods for interacting with PaloAlto devices.
 
-    Subclass of SSHConnection.  Disables `enable()` and `check_enable_mode()`
+    Disables `enable()` and `check_enable_mode()`
     methods.  Overrides several methods for PaloAlto-specific compatibility.
-    '''
+    """
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
@@ -146,5 +146,9 @@ class PaloAltoPanosSSH(BaseSSHConnection):
 
     def send_command_expect(self, *args, **kwargs):
         """Palo Alto requires an extra delay"""
-        kwargs['delay_factor'] = kwargs.get('delay_factor', .5)
-        return super(PaloAltoPanosSSH, self).send_command_expect(*args, **kwargs)
+        return self.send_command(*args, **kwargs)
+
+    def send_command(self, *args, **kwargs):
+        """Palo Alto requires an extra delay"""
+        kwargs['delay_factor'] = kwargs.get('delay_factor', 2.5)
+        return super(PaloAltoPanosSSH, self).send_command(*args, **kwargs)

@@ -1,8 +1,8 @@
 import re
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class BrocadeFastironSSH(SSHConnection):
+class BrocadeFastironSSH(CiscoSSHConnection):
     """Brocade FastIron aka ICX support."""
     def session_preparation(self):
         """FastIron requires to be enable mode to disable paging."""

@@ -1,16 +1,10 @@
-'''
-Dell Force10 Driver - supports DNOS9
-'''
-from netmiko.ssh_connection import SSHConnection
+"""Dell Force10 Driver - supports DNOS9."""
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class DellForce10SSH(SSHConnection):
-    '''
-    Dell Force10 Driver - supports DNOS9
-    '''
+class DellForce10SSH(CiscoSSHConnection):
+    """Dell Force10 Driver - supports DNOS9."""
     def cleanup(self):
-        '''
-        Gracefully exit the SSH session.
-        '''
+        """Gracefully exit the SSH session."""
         self.exit_config_mode()
-        self.remote_conn.sendall("exit\n")
+        self.write_channel("exit\n")

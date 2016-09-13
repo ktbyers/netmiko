@@ -20,33 +20,34 @@ pytest (for unit tests)
 Arista vEOS  
 Cisco ASA  
 Cisco IOS  
-Cisco IOS-XE  
 Cisco IOS-XR  
+Cisco SG300  
 HP Comware7  
 HP ProCurve  
 Juniper Junos  
-
+Linux  
+  
 ###### Limited testing
 Avaya ERS  
 Avaya VSP  
 Brocade VDX  
 Brocade ICX/FastIron  
 Brocade MLX/NetIron  
+Cisco IOS-XE  
 Cisco NX-OS  
 Cisco WLC  
 Dell-Force10 DNOS9  
 Huawei  
-Linux  
-Vyatta VyOS  
 Palo Alto PAN-OS  
+Vyatta VyOS  
 
 ###### Experimental
 A10  
-F5 LTM  
+Alcatel-Lucent SR-OS  
 Enterasys  
 Extreme  
+F5 LTM  
 Fortinet  
-Alcatel-Lucent SR-OS  
 
 
 <br>

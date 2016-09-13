@@ -3,15 +3,18 @@ from __future__ import unicode_literals
 
 import time
 
-from netmiko.ssh_connection import SSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class HPComwareSSH(SSHConnection):
+class HPComwareSSH(CiscoSSHConnection):
 
     def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        # Extra time to read HP banners
-        time.sleep(2)
+        """
+        Prepare the session after the connection has been established.
+        Extra time to read HP banners.
+        """
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        time.sleep(2 * delay_factor)
         self.clear_buffer()
         self.set_base_prompt()
         self.disable_paging(command="\nscreen-length disable\n")
@@ -29,7 +32,7 @@ class HPComwareSSH(SSHConnection):
         return super(HPComwareSSH, self).check_config_mode(check_string=check_string)
 
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',
-                        delay_factor=.5):
+                        delay_factor=1):
         """
         Sets self.base_prompt
 

@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-"""
-py.test fixtures to be used in netmiko test suite
-"""
-
+"""py.test fixtures to be used in netmiko test suite."""
 from os import path
+import os
+
 import pytest
 
-from netmiko import ConnectHandler
+from netmiko import ConnectHandler, FileTransfer
 from tests.test_utils import parse_yaml
 
 
@@ -14,29 +13,22 @@ PWD = path.dirname(path.realpath(__file__))
 
 
 def pytest_addoption(parser):
-    '''
-    Add test_device option to py.test invocations
-    '''
+    """Add test_device option to py.test invocations."""
     parser.addoption("--test_device", action="store", dest="test_device", type=str,
                      help="Specify the platform type to test on")
 
-
 @pytest.fixture(scope='module')
 def net_connect(request):
-    '''
+    """
     Create the SSH connection to the remote device
 
     Return the netmiko connection object
-    '''
-
+    """
     device_under_test = request.config.getoption('test_device')
-
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device['verbose'] = False
-
     conn = ConnectHandler(**device)
-
     return conn
 
 
@@ -55,7 +47,6 @@ def commands(request):
     '''
     Parse the commands.yml file to get a commands dictionary
     '''
-
     device_under_test = request.config.getoption('test_device')
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
@@ -65,3 +56,99 @@ def commands(request):
     return commands_yml[test_platform]
 
 
+def delete_file_ios(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for a Cisco IOS device."""
+    debug = False
+
+    if not dest_file_system:
+        raise ValueError("Invalid file system specified")
+    if not dest_file:
+        raise ValueError("Invalid dest file specified")
+
+    # Check if the dest_file already exists
+    full_file_name = "{0}/{1}".format(dest_file_system, dest_file)
+
+    cmd = "delete {0}".format(full_file_name)
+    output = ssh_conn.send_command_timing(cmd)
+    if debug:
+        print(output)
+    if 'Delete filename' in output and dest_file in output:
+        output += ssh_conn.send_command_timing("\n")
+        if debug:
+            print(output)
+        if 'Delete' in output and full_file_name in output and 'confirm' in output:
+            if debug:
+                print("Deleting file.")
+            output += ssh_conn.send_command_timing("y")
+            return output
+        else:
+            output += ssh_conn.send_command_timing("n")
+
+    raise ValueError("An error happened deleting file on Cisco IOS")
+
+
+@pytest.fixture(scope='module')
+def scp_fixture(request):
+    """
+    Create an FileTransfer object.
+
+    Return a tuple (ssh_conn, scp_handle)
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    ssh_conn = ConnectHandler(**device)
+
+    dest_file_system = 'flash:'
+    source_file = 'test9.txt'
+    dest_file = 'test9.txt'
+    local_file = 'testx.txt'
+    direction = 'put'
+
+    scp_transfer = FileTransfer(ssh_conn, source_file=source_file, dest_file=dest_file,
+                                file_system=dest_file_system, direction=direction)
+    scp_transfer.establish_scp_conn()
+
+    # Make sure SCP is enabled
+    scp_transfer.enable_scp()
+
+    # Delete the test transfer files
+    if scp_transfer.check_file_exists():
+        delete_file_ios(ssh_conn, dest_file_system, dest_file)
+    if os.path.exists(local_file):
+        os.remove(local_file)
+
+    return (ssh_conn, scp_transfer)
+
+@pytest.fixture(scope='module')
+def scp_fixture_get(request):
+    """
+    Create an FileTransfer object (direction=get)
+
+    Return a tuple (ssh_conn, scp_handle)
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    ssh_conn = ConnectHandler(**device)
+
+    dest_file_system = 'flash:'
+    source_file = 'test9.txt'
+    local_file = 'testx.txt'
+    dest_file = local_file
+    direction = 'get'
+
+    scp_transfer = FileTransfer(ssh_conn, source_file=source_file, dest_file=dest_file,
+                                file_system=dest_file_system, direction=direction)
+    scp_transfer.establish_scp_conn()
+
+    # Make sure SCP is enabled
+    scp_transfer.enable_scp()
+
+    # Delete the test transfer files
+    if os.path.exists(local_file):
+        os.remove(local_file)
+
+    return (ssh_conn, scp_transfer)

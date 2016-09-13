@@ -1,10 +1,12 @@
 """Controls selection of proper class based on the device type."""
 from __future__ import unicode_literals
 from netmiko.cisco import CiscoIosSSH
+from netmiko.cisco import CiscoIosTelnet
 from netmiko.cisco import CiscoAsaSSH
 from netmiko.cisco import CiscoNxosSSH
 from netmiko.cisco import CiscoXrSSH
 from netmiko.cisco import CiscoWlcSSH
+from netmiko.cisco import CiscoS300SSH
 from netmiko.arista import AristaSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
 from netmiko.huawei import HuaweiSSH
@@ -35,6 +37,7 @@ CLASS_MAPPER_BASE = {
     'cisco_nxos': CiscoNxosSSH,
     'cisco_xr': CiscoXrSSH,
     'cisco_wlc': CiscoWlcSSH,
+    'cisco_s300': CiscoS300SSH,
     'arista_eos': AristaSSH,
     'hp_procurve': HPProcurveSSH,
     'hp_comware': HPComwareSSH,
@@ -70,6 +73,9 @@ for k, v in CLASS_MAPPER_BASE.items():
     alt_key = k + u"_ssh"
     new_mapper[alt_key] = v
 CLASS_MAPPER = new_mapper
+
+# Add telnet drivers
+CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
 
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
