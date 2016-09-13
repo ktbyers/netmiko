@@ -70,3 +70,4 @@ aruba_os:
   username: admin
   password: password
   secret: secret
+...
