@@ -1,4 +1,6 @@
 """Alcatel-Lucent SROS support."""
+from __future__ import print_function
+from __future__ import unicode_literals
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -23,15 +25,15 @@ class AlcatelSrosSSH(CiscoSSHConnection):
 
     def config_mode(self, config_command='configure', pattern='#'):
         """ Enter into configuration mode on SROS device."""
-        return super(SSHConnection, self).config_mode(config_command=config_command,
-                                                      pattern=pattern)
+        return super(AlcatelSrosSSH, self).config_mode(config_command=config_command,
+                                                       pattern=pattern)
 
     def exit_config_mode(self, exit_config='exit all', pattern='#'):
         """ Exit from configuration mode."""
-        return super(SSHConnection, self).exit_config_mode(exit_config=exit_config,
-                                                           pattern=pattern)
-                                                           
+        return super(AlcatelSrosSSH, self).exit_config_mode(exit_config=exit_config,
+                                                            pattern=pattern)
+
     def check_config_mode(self, check_string='config', pattern='#'):
         """ Checks if the device is in configuration mode or not. """
-        return super(SSHConnection, self).check_config_mode(check_string=check_string,
-                                                            pattern=pattern)
+        return super(AlcatelSrosSSH, self).check_config_mode(check_string=check_string,
+                                                             pattern=pattern)

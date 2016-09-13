@@ -1,7 +1,9 @@
-from netmiko.ssh_connection import BaseSSHConnection
+from __future__ import print_function
+from __future__ import unicode_literals
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class VyOSSSH(BaseSSHConnection):
+class VyOSSSH(CiscoSSHConnection):
     """Implement methods for interacting with VyOS network devices."""
 
     def session_preparation(self):

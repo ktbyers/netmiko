@@ -109,16 +109,6 @@ class BaseConnection(object):
         elif self.protocol == 'telnet':
             return self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
 
-###        # Options for SSH host_keys
-###        self.use_keys = use_keys
-###        self.key_file = key_file
-###        self.system_host_keys = system_host_keys
-###        self.alt_host_keys = alt_host_keys
-###        self.alt_key_file = alt_key_file
-
-###        self.establish_connection()
-###        self.session_preparation()
-
     def _read_channel_expect(self, pattern='', re_flags=0):
         """
         Function that reads channel until pattern is detected.

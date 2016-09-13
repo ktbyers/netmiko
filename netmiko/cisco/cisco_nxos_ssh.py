@@ -1,3 +1,4 @@
+from __future__ import print_function
 from __future__ import unicode_literals
 import re
 import time
@@ -5,13 +6,6 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
-
-    def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        self.set_base_prompt()
-        self.disable_paging()
-        self.set_terminal_width(command='terminal width 511')
-
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
