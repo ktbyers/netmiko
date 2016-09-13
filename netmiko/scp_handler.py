@@ -151,7 +151,7 @@ class FileTransfer(object):
         remote_out = "".join(remote_out)
         # Match line containing file name
         escape_file_name = re.escape(remote_file)
-        pattern = r".*({}).*".format(escape_file_name)
+        pattern = r".*({0}).*".format(escape_file_name)
         match = re.search(pattern, remote_out)
         if match:
             line = match.group(0)
@@ -221,7 +221,7 @@ class FileTransfer(object):
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
-        destination = "{}{}".format(self.file_system, self.dest_file)
+        destination = "{0}{1}".format(self.file_system, self.dest_file)
         if ':' not in destination:
             raise ValueError("Invalid destination file system specified")
         self.scp_conn.scp_transfer_file(self.source_file, destination)

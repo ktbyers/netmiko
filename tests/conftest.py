@@ -66,9 +66,9 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
         raise ValueError("Invalid dest file specified")
 
     # Check if the dest_file already exists
-    full_file_name = "{}/{}".format(dest_file_system, dest_file)
+    full_file_name = "{0}/{1}".format(dest_file_system, dest_file)
 
-    cmd = "delete {}".format(full_file_name)
+    cmd = "delete {0}".format(full_file_name)
     output = ssh_conn.send_command_timing(cmd)
     if debug:
         print(output)
