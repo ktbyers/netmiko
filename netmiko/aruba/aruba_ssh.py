@@ -6,6 +6,6 @@ class ArubaSSH(CiscoSSHConnection):
     """Aruba OS support"""
     def session_preparation(self):
         """Aruba OS requires enable mode to disable paging."""
-        self.enable()
         self.set_base_prompt()
+        self.enable()
         self.disable_paging(command="no paging")
