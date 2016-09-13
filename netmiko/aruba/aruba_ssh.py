@@ -9,3 +9,14 @@ class ArubaSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="no paging")
+
+    def check_config_mode(self, check_string='(config) #', pattern=''):
+        """
+        Checks if the device is in configuration mode or not.
+
+        Aruba uses "(<controller name>) (config) #" as config prompt 
+        """
+        if not pattern:
+            pattern = self.base_prompt[:16]
+        return super(ArubaSSH, self).check_config_mode(check_string=check_string,
+                                                       pattern=pattern)
