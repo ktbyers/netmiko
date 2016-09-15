@@ -63,3 +63,11 @@ brocade_nos:
   ip: 10.254.4.117
   username: admin
   password: password
+
+aruba_os:
+  device_type: aruba_os
+  ip: 10.1.200.242
+  username: admin
+  password: password
+  secret: secret
+...
