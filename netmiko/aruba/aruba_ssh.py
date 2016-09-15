@@ -14,7 +14,7 @@ class ArubaSSH(CiscoSSHConnection):
         """
         Checks if the device is in configuration mode or not.
 
-        Aruba uses "(<controller name>) (config) #" as config prompt 
+        Aruba uses "(<controller name>) (config) #" as config prompt
         """
         if not pattern:
             pattern = self.base_prompt[:16]
