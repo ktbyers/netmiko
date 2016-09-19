@@ -219,10 +219,10 @@ class BaseConnection(object):
         i = 1
         while i <= max_loops:
             try:
-                read_data = self.read_channel()
+                output = self.read_channel()
                 if debug:
-                    print(read_data)
-                if re.search(r"sername", read_data):
+                    print(output)
+                if re.search(r"sername", output):
                     self.write_channel(self.username + '\n')
                     time.sleep(1 * delay_factor)
                     output += self.read_channel()
