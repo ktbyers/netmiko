@@ -17,3 +17,25 @@ class AristaSSH(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(3 * delay_factor)
         self.clear_buffer()
+
+    def check_config_mode(self, check_string=')#', pattern=''):
+        """
+        Checks if the device is in configuration mode or not.
+
+        Arista, unfortunately, does this:
+        loc1-core01(s1)#
+
+        Can also be (s2)
+        """
+        debug = True
+        if debug:
+            print("pattern: {}".format(pattern))
+        self.write_channel('\n')
+        output = self.read_until_pattern(pattern=pattern)
+        if debug:
+            print("check_config_mode: {}".format(repr(output)))
+        output = output.replace("(s1)", "")
+        output = output.replace("(s2)", "")
+        if debug:
+            print("check_config_mode: {}".format(repr(output)))
+        return check_string in output
