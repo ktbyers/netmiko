@@ -232,18 +232,28 @@ class BaseConnection(object):
                     if debug:
                         print("checkpoint1")
                         print(output)
+                elif re.search(r"assword required, but none set", output):
+                    if debug:
+                        print("checkpoint2")
+                    msg = "Telnet login failed - Password required, but none set: {0}".format(
+                            self.host)
+                    raise NetMikoAuthenticationException(msg)
                 if re.search(r"assword", output):
                     self.write_channel(self.password + "\n")
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
                     if debug:
-                        print("checkpoint2")
+                        print("checkpoint3")
                         print(output)
                     if pri_prompt_terminator in output or alt_prompt_terminator in output:
                         if debug:
-                            print("checkpoint3")
+                            print("checkpoint4")
                         return return_msg
+                if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                    if debug:
+                        print("checkpoint5")
+                    return return_msg
                 self.write_channel("\n")
                 time.sleep(.5 * delay_factor)
                 i += 1
@@ -258,7 +268,7 @@ class BaseConnection(object):
         return_msg += output
         if pri_prompt_terminator in output or alt_prompt_terminator in output:
             if debug:
-                print("checkpoint4")
+                print("checkpoint6")
             return return_msg
 
         msg = "Telnet login failed: {0}".format(self.host)
