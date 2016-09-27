@@ -20,7 +20,7 @@ from os import path
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
-from netmiko.utilities import write_bytes
+from netmiko.utilities import write_bytes, initiate_session_log
 
 
 class BaseConnection(object):
@@ -32,7 +32,7 @@ class BaseConnection(object):
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
-                 alt_key_file='', ssh_config_file=None, timeout=8):
+                 alt_key_file='', ssh_config_file=None, timeout=8, session_log=None):
 
         if ip:
             self.host = ip
@@ -61,6 +61,11 @@ class BaseConnection(object):
 
         # set in set_base_prompt method
         self.base_prompt = ''
+
+        if session_log:
+            self.session_log = initiate_session_log(session_log)
+        else:
+            self.session_log = None
 
         # determine if telnet or SSH
         if '_telnet' in device_type:
@@ -105,9 +110,12 @@ class BaseConnection(object):
                 if self.remote_conn.recv_ready():
                     output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 else:
+                    self.write_to_session_log(output)
                     return output
         elif self.protocol == 'telnet':
-            return self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+            output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+            self.write_to_session_log(output)
+            return output
 
     def _read_channel_expect(self, pattern='', re_flags=0):
         """
@@ -147,6 +155,7 @@ class BaseConnection(object):
             if re.search(pattern, output, flags=re_flags):
                 if debug:
                     print("Pattern found: {} {}".format(pattern, output))
+                self.write_to_session_log(output)
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
             i += 1
@@ -378,11 +387,13 @@ class BaseConnection(object):
             except socket.error:
                 msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
+                self.write_to_session_log(msg)
                 raise NetMikoTimeoutException(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
                 msg += '\n' + str(auth_err)
+                self.write_to_session_log(msg)
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
@@ -876,6 +887,10 @@ class BaseConnection(object):
     def commit(self):
         """Commit method for platforms that support this."""
         raise AttributeError("Network device does not support 'commit()' method")
+
+    def write_to_session_log(self, output):
+        if self.session_log:
+            self.session_log.info(output)
 
 
 class TelnetConnection(BaseConnection):
