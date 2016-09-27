@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import sys
 import io
 import os
+import logging
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -35,6 +36,29 @@ SHOW_RUN_MAPPER = new_dict
 
 # Default location of netmiko temp directory for netmiko tools
 NETMIKO_BASE_DIR = '~/.netmiko'
+
+
+class CustomFileHandler(logging.FileHandler):
+    """
+    Sub-classes built-in logging.FileHandler in order to emit records without appending newline.
+    While unnecessary for Py > 3.2, previous versions require this.
+    """
+    def emit(self, record):
+        """
+        Emit a record.
+
+        Directly overrides logging FileHandler and StreamHandler emit methods
+        to avoid printing newline at the end of the record.
+        """
+        if self.stream is None:
+            self.stream = self._open()
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            stream.write(msg)
+            self.flush()
+        except Exception:
+            self.handleError(record)
 
 
 def load_yaml_file(yaml_file):
@@ -68,7 +92,7 @@ def find_cfg_file(file_name=None):
     for test_file in check_files:
         if os.path.isfile(test_file):
             return test_file
-    raise IOError("{File not found in current dir or home dir.".format(base_file))
+    raise IOError("{} File not found in current dir or home dir.".format(base_file))
 
 
 def display_inventory(my_devices):
@@ -157,3 +181,26 @@ def write_bytes(out_data):
             return out_data
     msg = "Invalid value for out_data neither unicode nor byte string: {0}".format(out_data)
     raise ValueError(msg)
+
+
+def initiate_session_log(session_log):
+    """
+    Check if passed a logger first, else attempt to create a logger using provided file path
+    """
+    try:
+        session_log.info('Preparing session\n')
+        return session_log
+    except AttributeError:
+        # not a logging object. Attempt to create new logger using session_log as path name
+        pass
+    try:
+        log_path = os.path.normcase(session_log)
+        logger = logging.getLogger('NETMIKO')
+        logger.setLevel(logging.INFO)
+        fh = CustomFileHandler(log_path)
+        fh.setLevel(logging.INFO)
+        logger.addHandler(fh)
+        session_log.info('Preparing session\n')
+        return logger
+    except (AttributeError, OSError):
+        raise ValueError('{} is not a valid logger or file path'.format(session_log))
