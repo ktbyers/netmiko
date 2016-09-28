@@ -28,6 +28,7 @@ from netmiko.dell import DellForce10SSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.aruba import ArubaSSH
+from netmiko.vyos import VyOSSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -49,6 +50,9 @@ CLASS_MAPPER_BASE = {
     'brocade_nos': BrocadeNosSSH,
     'brocade_fastiron': BrocadeFastironSSH,
     'brocade_netiron': BrocadeNetironSSH,
+    'vyos': VyOSSSH,
+    'brocade_vyos': VyOSSSH,
+    'vyatta_vyos': VyOSSSH,
     'a10': A10SSH,
     'avaya_vsp': AvayaVspSSH,
     'avaya_ers': AvayaErsSSH,

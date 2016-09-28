@@ -58,6 +58,7 @@ setup(
               'netmiko/avaya',
               'netmiko/paloalto',
               'netmiko/quanta',
+              'netmiko/vyos',
               'netmiko/aruba'],
     install_requires=['paramiko>=1.13.0', 'scp>=0.10.0', 'pyyaml'],
     extras_require={
