@@ -147,7 +147,6 @@ class BaseConnection(object):
                 try:
                     # If no data available will wait timeout seconds trying to read
                     output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                    self.write_to_session_log(output)
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
             elif self.protocol == 'telnet':
@@ -155,6 +154,7 @@ class BaseConnection(object):
             if re.search(pattern, output, flags=re_flags):
                 if debug:
                     print("Pattern found: {} {}".format(pattern, output))
+                self.write_to_session_log(output)
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
             i += 1
