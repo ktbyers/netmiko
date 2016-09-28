@@ -207,8 +207,8 @@ class BaseConnection(object):
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
-                     delay_factor=1, max_loops=30):
-        """Telnet login."""
+                     delay_factor=1, max_loops=60):
+        """Telnet login. Can be username/password or just password."""
         debug = False
         if debug:
             print("In telnet_login():")
@@ -216,38 +216,61 @@ class BaseConnection(object):
         time.sleep(1 * delay_factor)
 
         output = ''
+        return_msg = ''
         i = 1
         while i <= max_loops:
             try:
-                read_data = self.read_channel()
+                output = self.read_channel()
+                return_msg += output
                 if debug:
-                    print(read_data)
-                if re.search(r"sername", read_data):
+                    print(output)
+                if re.search(r"sername", output):
                     self.write_channel(self.username + '\n')
                     time.sleep(1 * delay_factor)
-                    output += self.read_channel()
+                    output = self.read_channel()
+                    return_msg += output
                     if debug:
-                        print("Z1")
+                        print("checkpoint1")
                         print(output)
-                elif re.search(r"assword", output):
+                elif re.search(r"assword required, but none set", output):
+                    if debug:
+                        print("checkpoint2")
+                    msg = "Telnet login failed - Password required, but none set: {0}".format(
+                            self.host)
+                    raise NetMikoAuthenticationException(msg)
+                if re.search(r"assword", output):
                     self.write_channel(self.password + "\n")
-                    output += self.read_channel()
-                    if debug:
-                        print("Z2")
-                        print(output)
                     time.sleep(.5 * delay_factor)
-                    output += self.read_channel()
+                    output = self.read_channel()
+                    return_msg += output
+                    if debug:
+                        print("checkpoint3")
+                        print(output)
                     if pri_prompt_terminator in output or alt_prompt_terminator in output:
                         if debug:
-                            print("Z3")
-                        return output
-                else:
-                    self.write_channel(u"\n")
-                    time.sleep(.5 * delay_factor)
+                            print("checkpoint4")
+                        return return_msg
+                if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                    if debug:
+                        print("checkpoint5")
+                    return return_msg
+                self.write_channel("\n")
+                time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
                 msg = "Telnet login failed: {0}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
+
+        # Last try to see if we already logged in
+        self.write_channel("\n")
+        time.sleep(.5 * delay_factor)
+        output = self.read_channel()
+        return_msg += output
+        if pri_prompt_terminator in output or alt_prompt_terminator in output:
+            if debug:
+                print("checkpoint6")
+            return return_msg
+
         msg = "Telnet login failed: {0}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
