@@ -35,10 +35,9 @@ class VyOSSSH(CiscoSSHConnection):
         """Exit configuration mode"""
         output = ""
         if self.check_config_mode():
-            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
+            output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
             if 'Cannot exit: configuration modified' in output:
-                # insert delay?
-                output += self.send_command('exit discard', strip_prompt=False, strip_command=False)
+                output += self.send_command_timing('exit discard', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
