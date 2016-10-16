@@ -11,6 +11,7 @@ NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
 
 __version__ = '1.1.0'
+
 __all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTransfer',
            'NetMikoTimeoutException', 'NetMikoAuthenticationException',
            'NetmikoTimeoutError', 'NetmikoAuthError')
