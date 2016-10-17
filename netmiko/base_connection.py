@@ -33,6 +33,60 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
+	"""
+        Initialize attributes for establishing connection to target device.
+
+        :param ip: IP address of target device. Not required if `host` is
+            provided.
+        :type ip: str
+        :param host: Hostname of target device. Not required if `ip` is
+                provided.
+        :type host: str
+        :param username: Username to authenticate against target device if 
+                required.
+        :type username: str
+        :param password: Password to authenticate against target device if 
+                required.
+        :type password: str
+        :param secret: The enable password if target device requires one.
+        :type secret: str
+        :param port: The destination port used to connect to the target
+                device.
+        :type port: int or None
+        :param device_type: Class selection based on device type.
+        :type device_type: str
+        :param verbose: If `True` enables more verbose logging.
+        :type verbose: bool
+        :param global_delay_factor: Controls global delay factor value.
+        :type global_delay_factor: int
+        :param use_keys: If true, Paramiko will attempt to connect to
+                target device using SSH keys.
+        :type use_keys: bool
+        :param key_file: Name of the SSH key file to use for Paramiko
+                SSH connection authentication.
+        :type key_file: str
+        :param allow_agent: Set to True to enable connect to the SSH agent
+        :type allow_agent: bool
+        :param ssh_strict: If `True` Paramiko will automatically reject 
+                unknown hostname and keys. If 'False' Paramiko will 
+                automatically add the hostname and new host key.
+        :type ssh_strict: bool
+        :param system_host_keys: If `True` Paramiko will load host keys
+                from the user's local 'known hosts' file.
+        :type system_host_keys: bool
+        :param alt_host_keys: If `True` host keys will be loaded from
+                a local host-key file.
+        :type alt_host_keys: bool
+        :param alt_key_file: If `alt_host_keys` is set to `True`, provide
+                the filename of the local host-key file to load.
+        :type alt_key_file: str
+        :param ssh_config_file: File name of a OpenSSH configuration file 
+                to load SSH connection parameters from.
+        :type ssh_config_file: str
+        :param timeout: Set a timeout on blocking read/write operations.
+        :type timeout: float
+
+        """
 
         if ip:
             self.host = ip
