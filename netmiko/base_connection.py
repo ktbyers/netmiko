@@ -88,6 +88,10 @@ class BaseConnection(object):
             self.establish_connection()
             self.session_preparation()
 
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
+
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
         if self.protocol == 'ssh':
