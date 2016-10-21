@@ -31,8 +31,8 @@ class BaseConnection(object):
     """
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
-                 key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
-                 alt_key_file='', ssh_config_file=None, timeout=8):
+                 key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
 
         if ip:
             self.host = ip
@@ -78,6 +78,7 @@ class BaseConnection(object):
             # Options for SSH host_keys
             self.use_keys = use_keys
             self.key_file = key_file
+            self.allow_agent = allow_agent
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
             self.alt_key_file = alt_key_file
@@ -336,7 +337,7 @@ class BaseConnection(object):
             'username': self.username,
             'password': self.password,
             'look_for_keys': self.use_keys,
-            'allow_agent': False,
+            'allow_agent': self.allow_agent,
             'key_filename': self.key_file,
             'timeout': self.timeout,
         }
