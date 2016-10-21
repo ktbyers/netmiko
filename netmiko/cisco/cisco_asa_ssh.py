@@ -38,6 +38,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         else:
             command_string = kwargs['command_string']
 
+        # If changeto in command, look for '#' to determine command is done
         if "changeto" in command_string:
             if len(args) <= 1:
                 expect_string = kwargs.get('expect_string', '#')
