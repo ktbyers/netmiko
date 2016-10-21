@@ -38,7 +38,7 @@ class SCPConn(object):
                               password=self.ssh_ctl_chan.password,
                               key_filename=self.ssh_ctl_chan.key_file,
                               look_for_keys=self.ssh_ctl_chan.use_keys,
-                              allow_agent=False,
+                              allow_agent=self.ssh_ctl_chan.allow_agent,
                               timeout=self.ssh_ctl_chan.timeout)
         self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
 
