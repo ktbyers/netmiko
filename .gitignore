@@ -13,3 +13,4 @@ dist
 netmiko.egg-info
 .cache
 bin/.netmiko.cfg
+*~
