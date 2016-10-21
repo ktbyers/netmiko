@@ -818,7 +818,7 @@ class BaseConnection(object):
             time.sleep(delay_factor * .5)
 
         # Gather output
-        output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
+        output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
