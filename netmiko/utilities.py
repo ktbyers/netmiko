@@ -68,7 +68,7 @@ def find_cfg_file(file_name=None):
     for test_file in check_files:
         if os.path.isfile(test_file):
             return test_file
-    raise IOError("{File not found in current dir or home dir.".format(base_file))
+    raise IOError("{}: file not found in current dir or home dir.".format(base_file))
 
 
 def display_inventory(my_devices):

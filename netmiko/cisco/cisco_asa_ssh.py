@@ -33,13 +33,21 @@ class CiscoAsaSSH(CiscoSSHConnection):
         If the ASA is in multi-context mode, then the base_prompt needs to be
         updated after each context change.
         """
-        output = super(CiscoAsaSSH, self).send_command(*args, **kwargs)
         if len(args) >= 1:
             command_string = args[0]
         else:
             command_string = kwargs['command_string']
+
+        # If changeto in command, look for '#' to determine command is done
+        if "changeto" in command_string:
+            if len(args) <= 1:
+                expect_string = kwargs.get('expect_string', '#')
+                kwargs['expect_string'] = expect_string
+        output = super(CiscoAsaSSH, self).send_command(*args, **kwargs)
+
         if "changeto" in command_string:
             self.set_base_prompt()
+
         return output
 
     def send_command_expect(self, *args, **kwargs):

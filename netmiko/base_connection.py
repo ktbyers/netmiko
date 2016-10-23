@@ -31,8 +31,8 @@ class BaseConnection(object):
     """
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
-                 key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
-                 alt_key_file='', ssh_config_file=None, timeout=8):
+                 key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
 
         if ip:
             self.host = ip
@@ -78,6 +78,7 @@ class BaseConnection(object):
             # Options for SSH host_keys
             self.use_keys = use_keys
             self.key_file = key_file
+            self.allow_agent = allow_agent
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
             self.alt_key_file = alt_key_file
@@ -87,6 +88,10 @@ class BaseConnection(object):
 
             self.establish_connection()
             self.session_preparation()
+
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def __enter__(self):
         """Enter runtime context"""
@@ -252,6 +257,16 @@ class BaseConnection(object):
                         if debug:
                             print("checkpoint3")
                         return return_msg
+                if re.search(r"assword required, but none set", output):
+                    if debug:
+                        print("checkpoint4")
+                    msg = "Telnet login failed - Password required, but none set: {0}".format(
+                        self.host)
+                    raise NetMikoAuthenticationException(msg)
+                if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                    if debug:
+                        print("checkpoint5")
+                    return return_msg
                 self.write_channel("\n")
                 time.sleep(.5 * delay_factor)
                 i += 1
@@ -266,7 +281,7 @@ class BaseConnection(object):
         return_msg += output
         if pri_prompt_terminator in output or alt_prompt_terminator in output:
             if debug:
-                print("checkpoint4")
+                print("checkpoint6")
             return return_msg
 
         msg = "Telnet login failed: {0}".format(self.host)
@@ -330,7 +345,7 @@ class BaseConnection(object):
             'username': self.username,
             'password': self.password,
             'look_for_keys': self.use_keys,
-            'allow_agent': False,
+            'allow_agent': self.allow_agent,
             'key_filename': self.key_file,
             'timeout': self.timeout,
         }
@@ -812,7 +827,7 @@ class BaseConnection(object):
             time.sleep(delay_factor * .5)
 
         # Gather output
-        output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
+        output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)

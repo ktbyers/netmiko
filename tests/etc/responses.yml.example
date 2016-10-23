@@ -28,7 +28,7 @@ paloalto_panos:
   multiple_line_output: 'logdb-version: 7.0.9'
   version_banner: 'sw-version: 7.0.1'
   cmd_response_init: 'new_test'
-  cmd_response_final: 'another_test'---
+  cmd_response_final: 'another_test'
 
 brocade_fastiron:
   base_prompt: SSH@ICX7250-24P Router
@@ -57,3 +57,14 @@ brocade_nos:
   multiple_line_output: "TenGigabitEthernet 34/0/48"
   cmd_response_init: 'logging raslog console WARNING'
   cmd_response_final: 'logging raslog console INFO'
+
+aruba_os:
+  base_prompt: "(ARUBA-MASTER) " 
+  router_prompt: "(ARUBA-MASTER) >"
+  enable_prompt: "(ARUBA-MASTER) #"
+  interface_ip: 10.1.200.242
+  version_banner: "Aruba Operating System Software."
+  multiple_line_output: "Supervisor Card"
+  cmd_response_init: "location1"
+  cmd_response_final: "location2"
+...

@@ -106,3 +106,13 @@ brocade_nos:
     - "logging raslog console WARNING"      # base command
     - "logging raslog console INFO"
   config_verification: "show run | inc raslog"
+
+aruba_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version" 
+  config:
+    - "location location1"
+    - "location location2"
+  config_verification: "show location"
+...
