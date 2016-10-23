@@ -88,6 +88,14 @@ class BaseConnection(object):
             self.establish_connection()
             self.session_preparation()
 
+    def __enter__(self):
+        """Enter runtime context"""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Gracefully close connection on context manager exit"""
+        self.disconnect()
+
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
         if self.protocol == 'ssh':
