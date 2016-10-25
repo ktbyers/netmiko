@@ -27,7 +27,7 @@ class AristaSSH(CiscoSSHConnection):
 
         Can also be (s2)
         """
-        debug = True
+        debug = False
         if debug:
             print("pattern: {}".format(pattern))
         self.write_channel('\n')
