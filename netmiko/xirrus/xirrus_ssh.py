@@ -18,7 +18,7 @@ class XirrusSSH(BaseConnection):
 
         self.config_mode()
         self.disable_paging(command="no more\n")
-        self.exit_config_mode()
+#        self.exit_config_mode()
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on Xirrus APs."""
@@ -40,10 +40,3 @@ class XirrusSSH(BaseConnection):
         """Exit configuration mode."""
         return super(XirrusSSH, self).exit_config_mode(exit_config=exit_config)
 
-
-    def commit(self, force=False, partial=False, device_and_network=False,
-            policy_and_objects=False, delay_factor=.1):
-        """Commit the candidate configuration."""
-        delay_factor = self.select_delay_factor(delay_factor)
-
-        if ((device_and_network or policy_and_objects and not partial):
