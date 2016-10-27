@@ -33,6 +33,22 @@ def net_connect(request):
 
 
 @pytest.fixture(scope='module')
+def net_connect_cm(request):
+    """
+    Create the SSH connection to the remote device using a context manager 
+    retrieve the find_prompt() data and close the connection.
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    my_prompt = ""
+    with ConnectHandler(**device) as conn:
+        my_prompt = conn.find_prompt()
+    return my_prompt
+
+
+@pytest.fixture(scope='module')
 def expected_responses(request):
     '''
     Parse the responses.yml file to get a responses dictionary
