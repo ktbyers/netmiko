@@ -97,9 +97,11 @@ class BaseConnection(object):
         """Enter runtime context"""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_value, traceback):
         """Gracefully close connection on context manager exit"""
         self.disconnect()
+        if exc_type is not None:
+           raise exc_type(exc_value)
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
