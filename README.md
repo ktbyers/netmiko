@@ -1,3 +1,6 @@
+[![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
+  
+  
 Netmiko
 =======
 
