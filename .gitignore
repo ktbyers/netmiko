@@ -9,6 +9,7 @@ tests/etc/commands.yml
 tests/etc/responses.yml
 examples/SECRET_DEVICE_CREDS.py
 ./build
+./build/*
 dist
 netmiko.egg-info
 .cache
