@@ -16,6 +16,8 @@ class HPProcurveSSH(CiscoSSHConnection):
         time.sleep(1 * delay_factor)
         self.write_channel("\n")
         time.sleep(1 * delay_factor)
+        self.write_channel("\n")
+        time.sleep(1 * delay_factor)
 
         # HP output contains VT100 escape codes
         self.ansi_escape_codes = True
