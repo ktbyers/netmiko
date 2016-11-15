@@ -12,7 +12,7 @@ class HPProcurveSSH(CiscoSSHConnection):
         Prepare the session after the connection has been established.
         Procurve uses - 'Press any key to continue'
         """
-        delay_factor = self.select_delay_factor(delay_factor=0)
+        delay_factor = self.select_delay_factor(delay_factor=2)
         time.sleep(1 * delay_factor)
         self.write_channel("\n")
         time.sleep(1 * delay_factor)
