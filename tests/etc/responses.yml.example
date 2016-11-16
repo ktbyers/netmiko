@@ -67,4 +67,14 @@ aruba_os:
   multiple_line_output: "Supervisor Card"
   cmd_response_init: "location1"
   cmd_response_final: "location2"
+
+ubiquiti_edgeswitch:
+  base_prompt: "(UBNT EdgeSwitch) " 
+  router_prompt: "(UBNT EdgeSwitch) >"
+  enable_prompt: "(UBNT EdgeSwitch) #"
+  interface_ip: 172.16.51.102
+  version_banner: "Software Version"
+  multiple_line_output: "Current Configuration:"
+  cmd_response_init: ""
+  cmd_response_final: "logging persistent 4"
 ...
