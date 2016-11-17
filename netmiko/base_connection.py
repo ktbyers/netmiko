@@ -323,7 +323,7 @@ class BaseConnection(object):
                     if debug:
                         print("checkpoint5")
                     return return_msg
-                self.write_channel("\n")
+                self.write_channel("\r\n")
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
