@@ -33,7 +33,7 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
-	"""
+        """
         Initialize attributes for establishing connection to target device.
 
         :param ip: IP address of target device. Not required if `host` is
@@ -155,7 +155,7 @@ class BaseConnection(object):
         """Gracefully close connection on context manager exit"""
         self.disconnect()
         if exc_type is not None:
-           raise exc_type(exc_value)
+            raise exc_type(exc_value)
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
