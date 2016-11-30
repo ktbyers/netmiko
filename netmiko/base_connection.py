@@ -859,9 +859,11 @@ class BaseConnection(object):
         code_erase_line = chr(27) + r'\[2K'
         code_erase_start_line = chr(27) + r'\[K'
         code_enable_scroll = chr(27) + r'\[\d+;\d+r'
+        code_form_feed = chr(27) + r'\[1L'
+        code_carriage_return = chr(27) + r'\[1M'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
-                    code_erase_start_line]
+                    code_erase_start_line, code_form_feed, code_carriage_return]
 
         output = string_buffer
         for ansi_esc_code in code_set:
