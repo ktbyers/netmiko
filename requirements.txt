@@ -2,3 +2,4 @@ paramiko>=1.13.0
 scp>=0.10.0
 pyyaml
 pytest>=2.6.0
+pysnmp
