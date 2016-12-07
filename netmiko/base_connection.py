@@ -42,10 +42,10 @@ class BaseConnection(object):
         :param host: Hostname of target device. Not required if `ip` is
                 provided.
         :type host: str
-        :param username: Username to authenticate against target device if 
+        :param username: Username to authenticate against target device if
                 required.
         :type username: str
-        :param password: Password to authenticate against target device if 
+        :param password: Password to authenticate against target device if
                 required.
         :type password: str
         :param secret: The enable password if target device requires one.
@@ -67,8 +67,8 @@ class BaseConnection(object):
         :type key_file: str
         :param allow_agent: Set to True to enable connect to the SSH agent
         :type allow_agent: bool
-        :param ssh_strict: If `True` Paramiko will automatically reject 
-                unknown hostname and keys. If 'False' Paramiko will 
+        :param ssh_strict: If `True` Paramiko will automatically reject
+                unknown hostname and keys. If 'False' Paramiko will
                 automatically add the hostname and new host key.
         :type ssh_strict: bool
         :param system_host_keys: If `True` Paramiko will load host keys
@@ -80,7 +80,7 @@ class BaseConnection(object):
         :param alt_key_file: If `alt_host_keys` is set to `True`, provide
                 the filename of the local host-key file to load.
         :type alt_key_file: str
-        :param ssh_config_file: File name of a OpenSSH configuration file 
+        :param ssh_config_file: File name of a OpenSSH configuration file
                 to load SSH connection parameters from.
         :type ssh_config_file: str
         :param timeout: Set a timeout on blocking read/write operations.
