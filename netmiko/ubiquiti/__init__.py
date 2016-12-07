@@ -1,3 +1,3 @@
-from netmiko.ubiquiti.edgeswitch_ssh import UbiquitiEdgeSwitchSSH
+from netmiko.ubiquiti.edge_ssh import UbiquitiEdgeSSH
 
-__all__ = ['UbiquitiEdgeSwitchSSH']
+__all__ = ['UbiquitiEdgeSSH']

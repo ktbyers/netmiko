@@ -30,7 +30,7 @@ from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.aruba import ArubaSSH
 from netmiko.vyos import VyOSSSH
-from netmiko.ubiquiti import UbiquitiEdgeSwitchSSH
+from netmiko.ubiquiti import UbiquitiEdgeSSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -69,7 +69,7 @@ CLASS_MAPPER_BASE = {
     'paloalto_panos': PaloAltoPanosSSH,
     'quanta_mesh': QuantaMeshSSH,
     'aruba_os': ArubaSSH,
-    'ubiquiti_edgeswitch' : UbiquitiEdgeSwitchSSH,
+    'ubiquiti_edge': UbiquitiEdgeSSH,
 }
 
 # Also support keys that end in _ssh
