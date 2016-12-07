@@ -20,6 +20,7 @@ def find_version(*file_paths):
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
+
 setup(
     name='netmiko',
     version=find_version('netmiko', '__init__.py'),
