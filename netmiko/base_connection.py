@@ -42,10 +42,10 @@ class BaseConnection(object):
         :param host: Hostname of target device. Not required if `ip` is
                 provided.
         :type host: str
-        :param username: Username to authenticate against target device if 
+        :param username: Username to authenticate against target device if
                 required.
         :type username: str
-        :param password: Password to authenticate against target device if 
+        :param password: Password to authenticate against target device if
                 required.
         :type password: str
         :param secret: The enable password if target device requires one.
@@ -67,8 +67,8 @@ class BaseConnection(object):
         :type key_file: str
         :param allow_agent: Set to True to enable connect to the SSH agent
         :type allow_agent: bool
-        :param ssh_strict: If `True` Paramiko will automatically reject 
-                unknown hostname and keys. If 'False' Paramiko will 
+        :param ssh_strict: If `True` Paramiko will automatically reject
+                unknown hostname and keys. If 'False' Paramiko will
                 automatically add the hostname and new host key.
         :type ssh_strict: bool
         :param system_host_keys: If `True` Paramiko will load host keys
@@ -80,7 +80,7 @@ class BaseConnection(object):
         :param alt_key_file: If `alt_host_keys` is set to `True`, provide
                 the filename of the local host-key file to load.
         :type alt_key_file: str
-        :param ssh_config_file: File name of a OpenSSH configuration file 
+        :param ssh_config_file: File name of a OpenSSH configuration file
                 to load SSH connection parameters from.
         :type ssh_config_file: str
         :param timeout: Set a timeout on blocking read/write operations.
@@ -907,7 +907,8 @@ class BaseConnection(object):
         ESC[24;27H   Position cursor
         ESC[?25h     Show the cursor
         ESC[E        Next line (HP does ESC-E)
-        ESC[2K       Erase line
+        ESC[K        Erase line from cursor to the end of line
+        ESC[2K       Erase entire line
         ESC[1;24r    Enable scrolling from start to row end
 
         HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
@@ -920,6 +921,7 @@ class BaseConnection(object):
         code_position_cursor = chr(27) + r'\[\d+;\d+H'
         code_show_cursor = chr(27) + r'\[\?25h'
         code_next_line = chr(27) + r'E'
+        code_erase_line_end = chr(27) + r'\[K'
         code_erase_line = chr(27) + r'\[2K'
         code_erase_start_line = chr(27) + r'\[K'
         code_enable_scroll = chr(27) + r'\[\d+;\d+r'
@@ -927,7 +929,8 @@ class BaseConnection(object):
         code_carriage_return = chr(27) + r'\[1M'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
-                    code_erase_start_line, code_form_feed, code_carriage_return]
+                    code_erase_start_line, code_form_feed, code_carriage_return,
+                    code_erase_line_end]
 
         output = string_buffer
         for ansi_esc_code in code_set:
