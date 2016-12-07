@@ -54,6 +54,8 @@ setup(
               'netmiko/linux',
               'netmiko/enterasys',
               'netmiko/extreme',
+              'netmiko/eltex',
+              'netmiko/ubiquiti',
               'netmiko/alcatel',
               'netmiko/dell',
               'netmiko/avaya',

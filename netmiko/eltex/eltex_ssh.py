@@ -1,7 +1,9 @@
-from netmiko.ssh_connection import SSHConnection
+from __future__ import print_function
+from __future__ import unicode_literals
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class EltexSSH(SSHConnection):
+class EltexSSH(CiscoSSHConnection):
     def session_preparation(self):
         """
         Prepare the session after the connection has been established
