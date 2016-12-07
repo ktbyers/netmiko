@@ -907,7 +907,8 @@ class BaseConnection(object):
         ESC[24;27H   Position cursor
         ESC[?25h     Show the cursor
         ESC[E        Next line (HP does ESC-E)
-        ESC[2K       Erase line
+        ESC[K        Erase line from cursor to the end of line
+        ESC[2K       Erase entire line
         ESC[1;24r    Enable scrolling from start to row end
 
         HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
@@ -920,6 +921,7 @@ class BaseConnection(object):
         code_position_cursor = chr(27) + r'\[\d+;\d+H'
         code_show_cursor = chr(27) + r'\[\?25h'
         code_next_line = chr(27) + r'E'
+        code_erase_line_end = chr(27) + r'\[K'
         code_erase_line = chr(27) + r'\[2K'
         code_erase_start_line = chr(27) + r'\[K'
         code_enable_scroll = chr(27) + r'\[\d+;\d+r'
@@ -927,7 +929,8 @@ class BaseConnection(object):
         code_carriage_return = chr(27) + r'\[1M'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
-                    code_erase_start_line, code_form_feed, code_carriage_return]
+                    code_erase_start_line, code_form_feed, code_carriage_return,
+                    code_erase_line_end]
 
         output = string_buffer
         for ansi_esc_code in code_set:
