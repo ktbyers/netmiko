@@ -116,7 +116,7 @@ aruba_os:
     - "location location2"
   config_verification: "show location"
 
-ubiquiti_edgeswitch:
+ubiquiti_edge:
   version: "show version"
   basic: "show network"
   extended_output: "show running-config"
@@ -125,4 +125,4 @@ ubiquiti_edgeswitch:
     - "no logging persistent"
     - "logging persistent 4"
   config_verification: "show running-config | include 'logging'"
-...
+

@@ -71,9 +71,8 @@ aruba_os:
   password: password
   secret: secret
 
-ubiquiti_edgeswitch:
-  device_type: ubiquiti_edgeswitch
+ubiquiti_edge
+  device_type: ubiquiti_edge
   ip: 172.16.51.102
   username: admin
   password: password
-...
