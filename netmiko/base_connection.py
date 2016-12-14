@@ -526,6 +526,7 @@ class BaseConnection(object):
 
         # Check if the only thing you received was a newline
         count = 0
+        prompt = prompt.strip()
         while count <= 10 and not prompt:
             prompt = self.read_channel().strip()
             if prompt:
