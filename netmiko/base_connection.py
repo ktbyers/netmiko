@@ -581,7 +581,7 @@ class BaseConnection(object):
         time.sleep(delay_factor * .1)
 
         # Initial attempt to get prompt
-        prompt = self.read_channel().strip()
+        prompt = self.read_channel()
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
 
@@ -590,6 +590,7 @@ class BaseConnection(object):
 
         # Check if the only thing you received was a newline
         count = 0
+        prompt = prompt.strip()
         while count <= 10 and not prompt:
             prompt = self.read_channel().strip()
             if prompt:
