@@ -165,6 +165,7 @@ class BaseConnection(object):
             self.remote_conn.write(write_bytes(out_data))
         else:
             raise ValueError("Invalid protocol specified")
+        log.debug(write_bytes(out_data))
 
     def read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
@@ -174,9 +175,11 @@ class BaseConnection(object):
                 if self.remote_conn.recv_ready():
                     output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 else:
-                    return output
+                    break
         elif self.protocol == 'telnet':
-            return self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+            output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+        log.debug(output)
+        return output
 
     def _read_channel_expect(self, pattern='', re_flags=0):
         """
@@ -208,7 +211,9 @@ class BaseConnection(object):
             if self.protocol == 'ssh':
                 try:
                     # If no data available will wait timeout seconds trying to read
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    new_data = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    log.debug(new_data)
+                    output += new_data
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
             elif self.protocol == 'telnet':
