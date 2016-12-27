@@ -32,15 +32,6 @@ class CiscoTpTCCE(CiscoSSHConnection):
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor)
 
-    def child_clean_output(self, output):
-#        output = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]').sub('\r\n', output)
-        return output
-
-    def child_clean_prompt(self, output):
-        output = output.lstrip("\r\n")
-        output = output.lstrip("\n")
-#        output += '>'   #parent class will remove last character (set_base_prompt method) so we added another one
-        return output
 
     def _sanitize_output(self, output, strip_command=False, command_string=None,
                          strip_prompt=False):
