@@ -31,33 +31,11 @@ class WindowsSSH(CiscoSSHConnection):
             delay_factor=delay_factor)
 
     def child_clean_channel(self, output):
-        output = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]').sub('\r\n', output)
-        return output
-
-    def child_clean_output(self, output):
-#        output = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]').sub('\r\n', output)
-        return output
-
-    def child_clean_prompt(self, output):
-#        output = output.lstrip("\r\n")
-#        output = output.lstrip("\n")
-#        output += '>'   #parent class will remove last character (set_base_prompt method) so we added another one
-        return output
-
-    def _sanitize_output(self, output, strip_command=False, command_string=None,
-                         strip_prompt=False):
-        """Sanitize the output."""
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
-        output = self.normalize_linefeeds(output)
-        if strip_command and command_string:
-            output = self.strip_command(self, command_string, output)
-        if strip_prompt:
-            output = self.strip_prompt(output)
+        output = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]').sub('\r\n', output)      # get rid of 'coloring and formatting' special characters
         return output
 
     @staticmethod
-    def strip_command(self, command_string, output):
+    def strip_command(command_string, output):
         command_string = command_string.rstrip('\r\n')
         output_lines = output.split("\n")
         first_line = output_lines[1]
