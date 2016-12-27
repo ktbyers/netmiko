@@ -29,6 +29,9 @@ from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.aruba import ArubaSSH
 from netmiko.vyos import VyOSSSH
+from netmiko.windows import WindowsSSH
+from netmiko.cisco import CiscoTpTCCE
+
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -66,6 +69,8 @@ CLASS_MAPPER_BASE = {
     'paloalto_panos': PaloAltoPanosSSH,
     'quanta_mesh': QuantaMeshSSH,
     'aruba_os': ArubaSSH,
+    'windows': WindowsSSH,
+    'cisco_tp':CiscoTpTCCE
 }
 
 # Also support keys that end in _ssh

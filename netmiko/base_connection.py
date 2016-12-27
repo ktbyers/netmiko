@@ -17,6 +17,7 @@ import socket
 import re
 import io
 from os import path
+import inspect
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -32,7 +33,7 @@ class BaseConnection(object):
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
-                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8, line_feed='\n', shell_encoding='utf-8'):
 
         if ip:
             self.host = ip
@@ -55,7 +56,9 @@ class BaseConnection(object):
         self.ansi_escape_codes = False
         self.verbose = verbose
         self.timeout = timeout
-
+        self.line_feed = line_feed
+        self.shell_encoding = shell_encoding
+        
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
 
@@ -108,11 +111,15 @@ class BaseConnection(object):
             output = ""
             while True:
                 if self.remote_conn.recv_ready():
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    output += self.remote_conn.recv(MAX_BUFFER).decode(self.shell_encoding, 'ignore')
                 else:
-                    return output
+                    break;
         elif self.protocol == 'telnet':
-            return self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+            output = self.remote_conn.read_very_eager().decode(self.shell_encoding, 'ignore')
+        
+        if (hasattr(self, 'child_clean_channel')):
+            output = self.child_clean_channel(output)
+        return output
 
     def _read_channel_expect(self, pattern='', re_flags=0):
         """
@@ -144,7 +151,7 @@ class BaseConnection(object):
             if self.protocol == 'ssh':
                 try:
                     # If no data available will wait timeout seconds trying to read
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    output += self.remote_conn.recv(MAX_BUFFER).decode(self.shell_encoding, 'ignore')
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
             elif self.protocol == 'telnet':
@@ -230,7 +237,7 @@ class BaseConnection(object):
                 if debug:
                     print(output)
                 if re.search(r"sername", output):
-                    self.write_channel(self.username + '\n')
+                    self.write_channel(self.username + self.line_feed)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -238,7 +245,7 @@ class BaseConnection(object):
                         print("checkpoint1")
                         print(output)
                 if re.search(r"assword", output):
-                    self.write_channel(self.password + "\n")
+                    self.write_channel(self.password + self.line_feed)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -259,7 +266,7 @@ class BaseConnection(object):
                     if debug:
                         print("checkpoint5")
                     return return_msg
-                self.write_channel("\n")
+                self.write_channel(self.line_feed)
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
@@ -267,7 +274,7 @@ class BaseConnection(object):
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
-        self.write_channel("\n")
+        self.write_channel(self.line_feed)
         time.sleep(.5 * delay_factor)
         output = self.read_channel()
         return_msg += output
@@ -291,7 +298,8 @@ class BaseConnection(object):
         self.disable_paging()
         self.set_terminal_width()
         """
-        self.set_base_prompt()
+        if (not hasattr(self, 're_prompt_pattern')):
+            self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
 
@@ -397,11 +405,12 @@ class BaseConnection(object):
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
-                msg += '\n' + str(auth_err)
+                msg += self.line_feed + str(auth_err)
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
                 print("SSH connection established to {0}:{1}".format(self.host, self.port))
+                print("SSH param width={0} height={1}".format(width, height))
 
             # Use invoke_shell to establish an 'interactive session'
             if width and height:
@@ -425,7 +434,7 @@ class BaseConnection(object):
             if new_data:
                 break
             else:
-                self.write_channel('\n')
+                self.write_channel(self.line_feed)
                 main_delay = main_delay * 1.1
                 if main_delay >= 8:
                     main_delay = 8
@@ -454,7 +463,7 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * .1)
         self.clear_buffer()
-        command = self.normalize_cmd(command)
+        command = self.normalize_cmd(self, command)
         if debug:
             print("In disable_paging")
             print("Command: {}".format(command))
@@ -478,7 +487,7 @@ class BaseConnection(object):
             return ""
         debug = False
         delay_factor = self.select_delay_factor(delay_factor)
-        command = self.normalize_cmd(command)
+        command = self.normalize_cmd(self, command)
         self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
@@ -502,6 +511,7 @@ class BaseConnection(object):
         entering/exiting config mode.
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
+
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError("Router prompt not found: {0}".format(prompt))
         # Strip off trailing terminator
@@ -513,7 +523,8 @@ class BaseConnection(object):
         debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        self.write_channel("\n")
+#        self.write_channel("\n")
+        self.write_channel(self.line_feed)  #modif ABA
         time.sleep(delay_factor * .1)
 
         # Initial attempt to get prompt
@@ -544,7 +555,8 @@ class BaseConnection(object):
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split('\n')[-1]
-        prompt = prompt.strip()
+        prompt = prompt.strip() 
+ 
         if not prompt:
             raise ValueError("Unable to find prompt: {}".format(prompt))
         time.sleep(delay_factor * .1)
@@ -593,8 +605,10 @@ class BaseConnection(object):
         """Strip the trailing router prompt from the output."""
         response_list = a_string.split('\n')
         last_line = response_list[-1]
-        if self.base_prompt in last_line:
-            return '\n'.join(response_list[:-1])
+        if hasattr(self, 're_prompt_pattern') and re.search(self.re_prompt_pattern, last_line):
+            return self.line_feed.join(response_list[:-1])        
+        elif self.base_prompt in last_line:
+            return self.line_feed.join(response_list[:-1])
         else:
             return a_string
 
@@ -616,26 +630,34 @@ class BaseConnection(object):
         '''
         debug = False
         delay_factor = self.select_delay_factor(delay_factor)
+        search_scope = 'all'
 
         # Find the current router prompt
         if expect_string is None:
-            if auto_find_prompt:
+            if (hasattr(self, 're_prompt_pattern')):
+                search_pattern = self.re_prompt_pattern
+                if (hasattr(self, 'prompt_search_last_depth')):
+                    prompt_search_last_depth = self.prompt_search_last_depth
+                else:
+                    prompt_search_last_depth = -1
+            elif auto_find_prompt:
                 try:
                     prompt = self.find_prompt(delay_factor=delay_factor)
                 except ValueError:
                     prompt = self.base_prompt
                 if debug:
                     print("Found prompt: {}".format(prompt))
+                search_pattern = re.escape(prompt.strip())
             else:
                 prompt = self.base_prompt
-            search_pattern = re.escape(prompt.strip())
+                search_pattern = re.escape(prompt.strip())
         else:
             search_pattern = expect_string
 
-        command_string = self.normalize_cmd(command_string)
+        command_string = self.normalize_cmd(self, command_string)
         if debug:
             print("Command is: {0}".format(command_string))
-            print("Search to stop receiving data is: '{0}'".format(search_pattern))
+            print("Pattern to stop receiving data is: '{0}'".format(search_pattern))
 
         time.sleep(delay_factor * .2)
         self.clear_buffer()
@@ -648,23 +670,42 @@ class BaseConnection(object):
         while i <= max_loops:
             new_data = self.read_channel()
             if new_data:
+                if (hasattr(self, 'child_clean_output')):
+                    new_data = self.child_clean_output(new_data)
                 output += new_data
-                if debug:
-                    print("{}:{}".format(i, output))
-                try:
-                    lines = output.split("\n")
-                    first_line = lines[0]
-                    # First line is the echo line containing the command. In certain situations
-                    # it gets repainted and needs filtered
-                    if BACKSPACE_CHAR in first_line:
-                        pattern = search_pattern + r'.*$'
-                        first_line = re.sub(pattern, repl='', string=first_line)
-                        lines[0] = first_line
-                        output = "\n".join(lines)
-                except IndexError:
-                    pass
-                if re.search(search_pattern, output):
-                    break
+            if debug:
+                print("{}:{}".format(i, output))
+            try:
+                lines = output.split(self.line_feed)
+                first_line = lines[0]
+                # First line is the echo line containing the command. In certain situations
+                # it gets repainted and needs filtered
+#                    print("DO FILTERING? |{0}|".format(BACKSPACE_CHAR))
+#                    if ((BACKSPACE_CHAR in first_line) or (self.device_type=='windows3' and i==1)):
+                if BACKSPACE_CHAR in first_line:
+                    pattern = search_pattern + r'.*$'
+                    first_line = re.sub(pattern, repl='', string=first_line)
+                    lines[0] = first_line
+                    output = "\n".join(lines)
+            except IndexError:
+                pass
+            is_prompt_found = False
+            j = -1
+            if (prompt_search_last_depth != 0):
+                while (len(lines)>j*(-1)):
+                    if debug:
+                        print("searching on last line {0} of {1} : text= {2}".format(-1*j, -1*prompt_search_last_depth, lines[j]))
+                    if re.search(search_pattern, lines[j].strip()):
+                        is_prompt_found = True
+                        break
+                    if (j <= prompt_search_last_depth):
+                        break
+                    j = j - 1
+
+            if (prompt_search_last_depth!=0 and is_prompt_found):
+               break
+            elif re.search(search_pattern, output):
+                break
             else:
                 time.sleep(delay_factor * .2)
             i += 1
@@ -712,16 +753,16 @@ class BaseConnection(object):
         return newline.sub('\n', a_string)
 
     @staticmethod
-    def normalize_cmd(command):
+    def normalize_cmd(self, command):
         """Normalize CLI commands to have a single trailing newline."""
         command = command.rstrip("\n")
-        command += '\n'
+        command += self.line_feed
         return command
 
     def check_enable_mode(self, check_string=''):
         """Check if in enable mode. Return boolean."""
         debug = False
-        self.write_channel('\n')
+        self.write_channel(self.line_feed)
         output = self.read_until_prompt()
         if debug:
             print(output)
@@ -754,7 +795,7 @@ class BaseConnection(object):
         debug = False
         if debug:
             print("pattern: {}".format(pattern))
-        self.write_channel('\n')
+        self.write_channel(self.line_feed)
         output = self.read_until_pattern(pattern=pattern)
         if debug:
             print("check_config_mode: {}".format(repr(output)))
