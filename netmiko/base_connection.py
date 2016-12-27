@@ -17,7 +17,6 @@ import socket
 import re
 import io
 from os import path
-import inspect
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -628,9 +627,9 @@ class BaseConnection(object):
         strip_prompt = strip the trailing prompt from the output
         strip_command = strip the leading command from the output
         '''
-        debug = False
+        debug = True
         delay_factor = self.select_delay_factor(delay_factor)
-        search_scope = 'all'
+        prompt_search_last_depth = 0
 
         # Find the current router prompt
         if expect_string is None:
@@ -654,7 +653,7 @@ class BaseConnection(object):
         else:
             search_pattern = expect_string
 
-        command_string = self.normalize_cmd(self, command_string)
+        command_string = self.normalize_cmd(command_string)
         if debug:
             print("Command is: {0}".format(command_string))
             print("Pattern to stop receiving data is: '{0}'".format(search_pattern))
@@ -670,8 +669,6 @@ class BaseConnection(object):
         while i <= max_loops:
             new_data = self.read_channel()
             if new_data:
-                if (hasattr(self, 'child_clean_output')):
-                    new_data = self.child_clean_output(new_data)
                 output += new_data
             if debug:
                 print("{}:{}".format(i, output))
@@ -752,7 +749,6 @@ class BaseConnection(object):
         newline = re.compile(r'(\r\r\r\n|\r\r\n|\r\n|\n\r)')
         return newline.sub('\n', a_string)
 
-    @staticmethod
     def normalize_cmd(self, command):
         """Normalize CLI commands to have a single trailing newline."""
         command = command.rstrip("\n")
