@@ -19,3 +19,6 @@ bin/.netmiko.cfg
 
 # Sphinx documentation
 docs/build/doctrees/
+
+# Tox
+.tox/*
