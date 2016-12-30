@@ -277,7 +277,11 @@ class InLineTransfer(FileTransfer):
         """
         NEWLINE = r"\n"
         CARRIAGE_RETURN = r"\r"
-        return re.sub(NEWLINE, CARRIAGE_RETURN, tcl_string)
+        tmp_string = re.sub(NEWLINE, CARRIAGE_RETURN, tcl_string)
+        if re.search(r"[{}]", tmp_string):
+            msg = "Curly brace detected in string; TCL requires this be escaped."
+            raise ValueError(msg)
+        return tmp_string
 
     def __enter__(self):
         self._enter_tcl_mode()
