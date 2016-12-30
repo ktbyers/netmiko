@@ -284,7 +284,7 @@ class InLineTransfer(FileTransfer):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        output = self._exit_tcl_mode()
+        _ = self._exit_tcl_mode()  # noqa
         if exc_type is not None:
             raise exc_type(exc_value)
 
