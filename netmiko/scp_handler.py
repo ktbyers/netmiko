@@ -320,12 +320,8 @@ class InLineTransfer(FileTransfer):
         """Compute MD5 hash of file."""
         file_contents = self._read_file(file_name)
         file_contents = file_contents + '\n'    # Cisco IOS automatically adds this
-        with open("test_file1.txt", "wt") as f:
-            f.write(file_contents)
         file_contents = file_contents.encode('UTF-8')
-        hash = hashlib.md5(file_contents).hexdigest()
-        print(hash)
-        return hash
+        return hashlib.md5(file_contents).hexdigest()
 
     def put_file(self):
         curlybrace = r'{'
@@ -336,21 +332,20 @@ class InLineTransfer(FileTransfer):
         file_contents = self._read_file(self.source_file)
         file_contents = self._tcl_newline_rationalize(file_contents)
 
-        output = self.ssh_ctl_chan.write_channel(TCL_FILECMD_ENTER)
-        output = self.ssh_ctl_chan.write_channel(file_contents)
-        output = self.ssh_ctl_chan.write_channel(TCL_FILECMD_EXIT + "\r")
+        self.ssh_ctl_chan.write_channel(TCL_FILECMD_ENTER)
+        self.ssh_ctl_chan.write_channel(file_contents)
+        self.ssh_ctl_chan.write_channel(TCL_FILECMD_EXIT + "\r")
 
         time.sleep(1)
         output = self.ssh_ctl_chan.read_channel()
-        print(output)
 
         # The file doesn't write until tclquit
         TCL_EXIT = 'tclquit'
-        output = self.ssh_ctl_chan.write_channel(TCL_EXIT + "\r")
+        self.ssh_ctl_chan.write_channel(TCL_EXIT + "\r")
 
         time.sleep(1)
-        output = self.ssh_ctl_chan.read_channel()
-        print(output)
+        output += self.ssh_ctl_chan.read_channel()
+        return output
 
     def get_file(self):
         raise NotImplementedError
