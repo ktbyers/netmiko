@@ -284,6 +284,7 @@ class BaseConnection(object):
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
+        TELNET_RETURN = '\r\n'
         debug = False
         if debug:
             print("In telnet_login():")
@@ -300,7 +301,7 @@ class BaseConnection(object):
                 if debug:
                     print(output)
                 if re.search(r"sername", output):
-                    self.write_channel(self.username + '\n')
+                    self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -308,7 +309,7 @@ class BaseConnection(object):
                         print("checkpoint1")
                         print(output)
                 if re.search(r"assword", output):
-                    self.write_channel(self.password + "\n")
+                    self.write_channel(self.password + TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -319,22 +320,22 @@ class BaseConnection(object):
                         if debug:
                             print("checkpoint3")
                         return return_msg
+
+                # Support direct telnet through terminal server
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
                     if debug:
                         print("checkpoint4")
-                    self.write_channel("no\n")
-                    # we want to drop into a mini loop after this until the router is
-                    # ready for login, occasionally output before the 'press RETURN'
-                    # will contain the prompt character
-                    while i <= max_loops:
+                    self.write_channel("no" + TELNET_RETURN)
+                    time.sleep(.5 * delay_factor)
+                    count = 0
+                    while count < 15:
                         output = self.read_channel()
                         return_msg += output
-                        if re.search(r"ress RETURN to get started!", output):
+                        if re.search(r"ress RETURN to get started", output):
                             output = ""
                             break
-                        output = ""
                         time.sleep(2 * delay_factor)
-                        i += 1
+                        count += 1
                 if re.search(r"assword required, but none set", output):
                     if debug:
                         print("checkpoint5")
@@ -345,7 +346,7 @@ class BaseConnection(object):
                     if debug:
                         print("checkpoint6")
                     return return_msg
-                self.write_channel("\r\n")
+                self.write_channel(TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
@@ -353,7 +354,7 @@ class BaseConnection(object):
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
-        self.write_channel("\n")
+        self.write_channel(TELNET_RETURN)
         time.sleep(.5 * delay_factor)
         output = self.read_channel()
         return_msg += output
