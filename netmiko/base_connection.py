@@ -21,6 +21,7 @@ from os import path
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes
+from netmiko import log
 
 
 class BaseConnection(object):

@@ -23,5 +23,8 @@ __all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTran
            'NetMikoTimeoutException', 'NetMikoAuthenticationException',
            'NetmikoTimeoutError', 'NetmikoAuthError', 'InLineTransfer')
 
+# Cisco cntl-shift-six sequence
+CNTL_SHIFT_6 = chr(30)
+
 # Test logging
 log.critical("Test Message")
