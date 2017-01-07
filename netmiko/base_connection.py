@@ -319,17 +319,33 @@ class BaseConnection(object):
                         if debug:
                             print("checkpoint3")
                         return return_msg
-                if re.search(r"assword required, but none set", output):
+                if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
                     if debug:
                         print("checkpoint4")
+                    self.write_channel("no\n")
+                    # we want to drop into a mini loop after this until the router is
+                    # ready for login, occasionally output before the 'press RETURN'
+                    # will contain the prompt character
+                    while i <= max_loops:
+                        output = self.read_channel()
+                        return_msg += output
+                        if re.search(r"ress RETURN to get started!", output):
+                            output = ""
+                            break
+                        output = ""
+                        time.sleep(2 * delay_factor)
+                        i += 1
+                if re.search(r"assword required, but none set", output):
+                    if debug:
+                        print("checkpoint5")
                     msg = "Telnet login failed - Password required, but none set: {0}".format(
                         self.host)
                     raise NetMikoAuthenticationException(msg)
                 if pri_prompt_terminator in output or alt_prompt_terminator in output:
                     if debug:
-                        print("checkpoint5")
+                        print("checkpoint6")
                     return return_msg
-                self.write_channel("\n")
+                self.write_channel("\r\n")
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
