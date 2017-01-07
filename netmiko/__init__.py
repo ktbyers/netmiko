@@ -1,5 +1,9 @@
 import logging
 
+# Logging configuration
+log = logging.getLogger(__name__) # noqa
+log.addHandler(logging.NullHandler()) # noqa
+
 from netmiko.ssh_dispatcher import ConnectHandler
 from netmiko.ssh_dispatcher import ssh_dispatcher
 from netmiko.ssh_dispatcher import platforms
@@ -8,10 +12,6 @@ from netmiko.scp_handler import FileTransfer
 from netmiko.scp_handler import InLineTransfer
 from netmiko.ssh_exception import NetMikoTimeoutException
 from netmiko.ssh_exception import NetMikoAuthenticationException
-
-# Syslog configuration
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 # Alternate naming
 NetmikoTimeoutError = NetMikoTimeoutException
