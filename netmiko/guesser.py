@@ -1,18 +1,22 @@
 """
 The guesser module is used to Guess the type of a device in order to automatically create a Netmiko ConnectionClass.
 This will avoid to hard code the 'device_type' attribute when using the ConnectHandler function from Netmiko.
-"""
 
-import re
-from pysnmp.entity.rfc3413.oneliner import cmdgen
-
-"""
 This constant dict is matching a 'device type' with 3 defined objects:
 * The OID to GET
 * The regular Expression to match for the OID value you retrieve
 * The priority of the type (the highest the priority is, the better match it will be)
 """
-SNMP_MAPPER = {
+
+import re
+try:
+    from pysnmp.entity.rfc3413.oneliner import cmdgen
+except ImportError:
+    raise ImportError("pysnmp not installed; please install it: 'pip install pysnmp'")
+
+from netmiko.ssh_dispatcher import CLASS_MAPPER
+
+SNMP_MAPPER_BASE = {
     'cisco_ios': {"oid": ".1.3.6.1.2.1.1.1.0",
                   "expr": re.compile(".*Cisco IOS Software,.*", re.IGNORECASE),
                   "priority": 60},
@@ -25,46 +29,38 @@ SNMP_MAPPER = {
     'cisco_nxos': {"oid": ".1.3.6.1.2.1.1.1.0",
                    "expr": re.compile(".*Cisco NX-OS.*", re.IGNORECASE),
                    "priority": 99},
-    'cisco_xr': None,
     'cisco_wlc': {"oid": ".1.3.6.1.2.1.1.1.0",
                   "expr": re.compile(".*Cisco Controller.*", re.IGNORECASE),
                   "priority": 99},
-    'cisco_s300': None,
-    'arista_eos': None,
-    'hp_procurve': None,
-    'hp_comware': None,
-    'huawei': None,
     'f5_ltm': {"oid": ".1.3.6.1.4.1.3375.2.1.4.1.0",
                "expr": re.compile(".*BIG-IP.*", re.IGNORECASE),
                "priority": 99},
-    'juniper': None,
-    'juniper_junos': None,
-    'brocade_vdx': None,
-    'brocade_nos': None,
-    'brocade_fastiron': None,
-    'brocade_netiron': None,
-    'vyos': None,
-    'brocade_vyos': None,
-    'vyatta_vyos': None,
-    'a10': None,
-    'avaya_vsp': None,
-    'avaya_ers': None,
-    'linux': None,
-    'ovs_linux': None,
-    'enterasys': None,
-    'extreme': None,
-    'alcatel_sros': None,
     'fortinet': {"oid": ".1.3.6.1.2.1.1.1.0",
                  "expr": re.compile("Forti.*", re.IGNORECASE),
                  "priority": 80},
-    'dell_force10': None,
-    'paloalto_panos': None,
-    'quanta_mesh': None,
-    'aruba_os': None,
     'dummy': {"oid": ".1.3.6.1.2.1.1.1.0",
               "expr": re.compile("", re.IGNORECASE),
               "priority": 0}
 }
+
+# Build SNMP_MAPPER including _ssh and _telnet; initialize unsupported types to None
+std_device_types = list(CLASS_MAPPER.keys())
+SNMP_MAPPER = {}
+for device_type in std_device_types:
+    if '_ssh' in device_type or '_telnet' in device_type:
+        continue
+    if SNMP_MAPPER_BASE.get(device_type):
+        SNMP_MAPPER[device_type] = SNMP_MAPPER_BASE[device_type]
+    else:
+        SNMP_MAPPER[device_type] = None
+
+    alt_format1 = device_type + "_ssh"
+    alt_format2 = device_type + "_telnet"
+    for alt_format in (alt_format1, alt_format2):
+        if CLASS_MAPPER.get(alt_format):
+            SNMP_MAPPER[alt_format] = SNMP_MAPPER[device_type]
+
+print(SNMP_MAPPER)
 
 
 def available_type():
