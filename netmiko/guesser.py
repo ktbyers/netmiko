@@ -20,61 +20,35 @@ from netmiko.ssh_dispatcher import CLASS_MAPPER
 
 SNMP_MAPPER_BASE = {
     'cisco_ios': {"oid": ".1.3.6.1.2.1.1.1.0",
-                  "expr": re.compile(".*Cisco IOS Software,.*", re.IGNORECASE),
+                  "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
                   "priority": 60},
     'cisco_xe': {"oid": ".1.3.6.1.2.1.1.1.0",
-                 "expr": re.compile(".*IOS-XE Software,.*", re.IGNORECASE),
+                 "expr": re.compile(r".*IOS-XE Software,.*", re.IGNORECASE),
                  "priority": 99},
     'cisco_asa': {"oid": ".1.3.6.1.2.1.1.1.0",
-                  "expr": re.compile(".*Cisco Adaptive Security Appliance.*", re.IGNORECASE),
+                  "expr": re.compile(r".*Cisco Adaptive Security Appliance.*", re.IGNORECASE),
                   "priority": 99},
     'cisco_nxos': {"oid": ".1.3.6.1.2.1.1.1.0",
-                   "expr": re.compile(".*Cisco NX-OS.*", re.IGNORECASE),
+                   "expr": re.compile(r".*Cisco NX-OS.*", re.IGNORECASE),
                    "priority": 99},
     'cisco_wlc': {"oid": ".1.3.6.1.2.1.1.1.0",
-                  "expr": re.compile(".*Cisco Controller.*", re.IGNORECASE),
+                  "expr": re.compile(r".*Cisco Controller.*", re.IGNORECASE),
                   "priority": 99},
     'f5_ltm': {"oid": ".1.3.6.1.4.1.3375.2.1.4.1.0",
-               "expr": re.compile(".*BIG-IP.*", re.IGNORECASE),
+               "expr": re.compile(r".*BIG-IP.*", re.IGNORECASE),
                "priority": 99},
     'fortinet': {"oid": ".1.3.6.1.2.1.1.1.0",
-                 "expr": re.compile("Forti.*", re.IGNORECASE),
+                 "expr": re.compile(r"Forti.*", re.IGNORECASE),
                  "priority": 80},
-    'dummy': {"oid": ".1.3.6.1.2.1.1.1.0",
-              "expr": re.compile("", re.IGNORECASE),
-              "priority": 0}
 }
 
-# Build SNMP_MAPPER including _ssh and _telnet; initialize unsupported types to None
-std_device_types = list(CLASS_MAPPER.keys())
+# Ensure all SNMP device types are supported by Netmiko
 SNMP_MAPPER = {}
+std_device_types = list(CLASS_MAPPER.keys())
 for device_type in std_device_types:
-    if '_ssh' in device_type or '_telnet' in device_type:
-        continue
     if SNMP_MAPPER_BASE.get(device_type):
         SNMP_MAPPER[device_type] = SNMP_MAPPER_BASE[device_type]
-    else:
-        SNMP_MAPPER[device_type] = None
-
-    alt_format1 = device_type + "_ssh"
-    alt_format2 = device_type + "_telnet"
-    for alt_format in (alt_format1, alt_format2):
-        if CLASS_MAPPER.get(alt_format):
-            SNMP_MAPPER[alt_format] = SNMP_MAPPER[device_type]
-
 print(SNMP_MAPPER)
-
-
-def available_type():
-    """
-    Find out which device type are supported for guessing.
-
-    Returns
-    -------
-    list
-        A list of device type that supports auto guessing.
-    """
-    return [name for name, value in SNMP_MAPPER.iteritems() if value]
 
 
 class Guesser(object):
@@ -85,8 +59,8 @@ class Guesser(object):
 
     Parameters
     ----------
-    device : str
-        The name or IP address of the device we want to guess the type
+    hostname: str
+        The name or IP address of the hostname we want to guess the type
     snmp_version : str, optional ('v1', 'v2c' or 'v3')
         The SNMP version that is running on the device (default: 'v2c')
     snmp_port : int, optional
@@ -106,7 +80,7 @@ class Guesser(object):
 
     Attributes
     ----------
-    device : str
+    hostname: str
         The name or IP address of the device we want to guess the type
     snmp_version : str
         The SNMP version that is running on the device
@@ -132,8 +106,8 @@ class Guesser(object):
         Try to guess the device type.
 
     """
-    def __init__(self, device, snmp_version="v2c", snmp_port=161, community=None, user="",
-                 auth_key="", encrypt_key="", auth_proto="sha", encrypt_proto="aes256"):
+    def __init__(self, hostname, snmp_version="v3", snmp_port=161, community=None, user="",
+                 auth_key="", encrypt_key="", auth_proto="sha", encrypt_proto="aes128"):
 
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == "v1" or snmp_version == "v2c":
@@ -147,8 +121,7 @@ class Guesser(object):
 
         # Check that the SNMPv3 auth & priv parameters match allowed types
         self._snmp_v3_authentication = {"sha": cmdgen.usmHMACSHAAuthProtocol,
-                                        "md5": cmdgen.usmHMACMD5AuthProtocol,
-                                        "none": cmdgen.usmNoAuthProtocol}
+                                        "md5": cmdgen.usmHMACMD5AuthProtocol}
         self._snmp_v3_encryption = {"des": cmdgen.usmDESPrivProtocol,
                                     "3des": cmdgen.usm3DESEDEPrivProtocol,
                                     "aes128": cmdgen.usmAesCfb128Protocol,
@@ -161,7 +134,7 @@ class Guesser(object):
             raise ValueError("SNMP V3 'encrypt_proto' argument must be one of the following: {}"
                              .format(self._snmp_v3_encryption.keys()))
 
-        self.device = device
+        self.hostname = hostname
         self.snmp_version = snmp_version
         self.snmp_port = snmp_port
         self.community = community
@@ -170,6 +143,7 @@ class Guesser(object):
         self.encrypt_key = encrypt_key
         self.auth_proto = self._snmp_v3_authentication[auth_proto]
         self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
+        self._response_cache = {}
 
     def _get_snmpv3(self, oid):
         """
@@ -185,7 +159,7 @@ class Guesser(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         """
-        snmp_target = (self.device, self.snmp_port)
+        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
@@ -193,13 +167,10 @@ class Guesser(object):
                                authProtocol=self.auth_proto,
                                privProtocol=self.encryp_proto),
             cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
-            oid,
-            lookupNames=True,
-            lookupValues=True)
+            oid, lookupNames=True, lookupValues=True)
 
         if not error_detected and snmp_data[0][1]:
             return str(snmp_data[0][1])
-
         return ""
 
     def _get_snmpv2c(self, oid):
@@ -216,24 +187,28 @@ class Guesser(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         """
-        snmp_target = (self.device, self.snmp_port)
+        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
             cmdgen.CommunityData(self.community),
             cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
-            oid,
-            lookupNames=True,
-            lookupValues=True)
+            oid, lookupNames=True, lookupValues=True)
 
         if not error_detected and snmp_data[0][1]:
             return str(snmp_data[0][1])
-
         return ""
+
+    def _get_snmp(self, oid):
+        """Wrapper for generic SNMP call."""
+        if self.snmp_version in ["v1", "v2c"]:
+            return self._get_snmpv2c(oid)
+        else:
+            return self._get_snmpv3(oid)
 
     def guess(self):
         """
-        Try to guess the device type using SNMP GET based on the SNMP_MAPPER dict. The type which
+        Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
         is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
         dict.
 
@@ -242,33 +217,30 @@ class Guesser(object):
         Returns
         -------
         potential_type : str
-            The name of the device type that must be running.
+            The name of the device_type that must be running.
         """
-        oids = {}  # Hold all OIDs that needs to be retrieved (many are duplicate of SysDescr)
-        for value in SNMP_MAPPER.values():
-            if value:
-                oids[value["oid"]] = None
+        # Convert SNMP_MAPPER to a list and sort by priority
+        snmp_mapper_list = []
+        for k, v in SNMP_MAPPER.items():
+            snmp_mapper_list.append({k: v})
+        snmp_mapper_list = sorted(snmp_mapper_list, key=lambda x: list(x.values())[0]['priority'])
+        snmp_mapper_list.reverse()
 
-        for oid in oids:
-            if self.snmp_version in ["v1", "v2c"]:
-                oids[oid] = self._get_snmpv2c(oid)
+        print(snmp_mapper_list)
+        for entry in snmp_mapper_list:
+            for device_type, v in entry.items():
+                oid = v['oid']
+                regex = v['expr']
+
+            # Used cache data if we already queryied this OID
+            if self._response_cache.get(oid):
+                snmp_response = self._response_cache.get(oid)
             else:
-                oids[oid] = self._get_snmpv3(oid)
+                snmp_response = self._get_snmp(oid)
+                self._response_cache[oid] = snmp_response
 
-        potential_type = "dummy"
-        # /!\ Only keep device_type that are defined
-        mapper = {k: v for k, v in SNMP_MAPPER.items() if v}
-        for name, value in mapper.items():
-            if (value["expr"].match(oids[value["oid"]]) and
-                    value["priority"] > mapper[potential_type]["priority"]):
-                # Update the potential type only if matching expr and priority is higher
-                potential_type = name
-                if value["priority"] == 99:
-                    break
-        return potential_type
+            # See if we had a match
+            if re.search(regex, snmp_response):
+                return device_type
 
-if __name__ == "__main__":
-    """
-    Testing purposes only
-    """
-    pass
+        return None
