@@ -1,6 +1,8 @@
 """
-The guesser module is used to Guess the type of a device in order to automatically create a Netmiko ConnectionClass.
-This will avoid to hard code the 'device_type' attribute when using the ConnectHandler function from Netmiko.
+The guesser module is used to Guess the type of a device in order to automatically create a
+Netmiko ConnectionClass.
+This will avoid to hard code the 'device_type' attribute when using the ConnectHandler function
+from Netmiko.
 
 This constant dict is matching a 'device type' with 3 defined objects:
 * The OID to GET
@@ -77,8 +79,9 @@ def available_type():
 
 class Guesser(object):
     """
-    The Guesser class tries to 'guess' the type of the device you are trying to SSH into using SNMP. Most of the time
-    the guesser is trying to find the device's type based on SNMP *SysDescr* and regular expression.
+    The Guesser class tries to 'guess' the type of the device you are trying to SSH into using
+    SNMP. Most of the time the guesser is trying to find the device's type based on SNMP *SysDescr*
+    and regular expression.
 
     Parameters
     ----------
@@ -129,32 +132,33 @@ class Guesser(object):
         Try to guess the device type.
 
     """
-    def __init__(self, device, snmp_version="v2c", snmp_port=161, community=None, user="", auth_key="", encrypt_key="",
-                 auth_proto="sha", encrypt_proto="aes256"):
-        """
-        Constructor of Guesser class
-        """
+    def __init__(self, device, snmp_version="v2c", snmp_port=161, community=None, user="",
+                 auth_key="", encrypt_key="", auth_proto="sha", encrypt_proto="aes256"):
+
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == "v1" or snmp_version == "v2c":
             if not community:
-                raise ValueError("When setting SNMP version 'v1' or 'v2c', the 'community' arguments must be set")
+                raise ValueError("SNMP version v1/v2c community must be set.")
         elif snmp_version == "v3":
             if not user:
-                raise ValueError("When setting SNMP version 'v3', the 'user' and 'password' arguments must be set")
+                raise ValueError("SNMP version v3 user and password must be set")
         else:
             raise ValueError("SNMP version must be set to 'v1', 'v2c' or 'v3'")
 
-        # Check that the SNMPv3 auth & priv parameters are matching predefined type or raise ValueError
-        self._snmp_v3_authentication = {"sha": cmdgen.usmHMACSHAAuthProtocol, "md5": cmdgen.usmHMACMD5AuthProtocol,
+        # Check that the SNMPv3 auth & priv parameters match allowed types
+        self._snmp_v3_authentication = {"sha": cmdgen.usmHMACSHAAuthProtocol,
+                                        "md5": cmdgen.usmHMACMD5AuthProtocol,
                                         "none": cmdgen.usmNoAuthProtocol}
-        self._snmp_v3_encryption = {"des": cmdgen.usmDESPrivProtocol, "3des": cmdgen.usm3DESEDEPrivProtocol,
-                                    "aes128": cmdgen.usmAesCfb128Protocol, "aes192": cmdgen.usmAesCfb192Protocol,
-                                    "aes256": cmdgen.usmAesCfb256Protocol, "none": cmdgen.usmNoPrivProtocol}
+        self._snmp_v3_encryption = {"des": cmdgen.usmDESPrivProtocol,
+                                    "3des": cmdgen.usm3DESEDEPrivProtocol,
+                                    "aes128": cmdgen.usmAesCfb128Protocol,
+                                    "aes192": cmdgen.usmAesCfb192Protocol,
+                                    "aes256": cmdgen.usmAesCfb256Protocol}
         if auth_proto not in self._snmp_v3_authentication.keys():
-            raise ValueError("SNMP V3 'auth_proto' argument must have the following values: {}"
+            raise ValueError("SNMP V3 'auth_proto' argument must be one of the following: {}"
                              .format(self._snmp_v3_authentication.keys()))
         if encrypt_proto not in self._snmp_v3_encryption.keys():
-            raise ValueError("SNMP V3 'encrypt_proto' argument must have the following values: {}"
+            raise ValueError("SNMP V3 'encrypt_proto' argument must be one of the following: {}"
                              .format(self._snmp_v3_encryption.keys()))
 
         self.device = device
@@ -229,8 +233,9 @@ class Guesser(object):
 
     def guess(self):
         """
-        Try to guess the device type using SNMP GET based on the SNMP_MAPPER dict. The type which is returned is
-        directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE* dict.
+        Try to guess the device type using SNMP GET based on the SNMP_MAPPER dict. The type which
+        is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
+        dict.
 
         Thus you can use this name to retrieve automatically the right ConnectionClass
 
@@ -251,15 +256,19 @@ class Guesser(object):
                 oids[oid] = self._get_snmpv3(oid)
 
         potential_type = "dummy"
-        mapper = {k: v for k, v in SNMP_MAPPER.items() if v}  # /!\ Only keep device_type that are defined
+        # /!\ Only keep device_type that are defined
+        mapper = {k: v for k, v in SNMP_MAPPER.items() if v}
         for name, value in mapper.items():
-            if value["expr"].match(oids[value["oid"]]) and value["priority"] > mapper[potential_type]["priority"]:
-                potential_type = name  # Update the potential type only if matching expr and priority is higher
+            if (value["expr"].match(oids[value["oid"]]) and
+                    value["priority"] > mapper[potential_type]["priority"]):
+                # Update the potential type only if matching expr and priority is higher
+                potential_type = name
                 if value["priority"] == 99:
-                    break  # Stop iterating over all device type if the priority is 99
+                    break
         return potential_type
 
 if __name__ == "__main__":
     """
     Testing purposes only
     """
+    pass
