@@ -1,14 +1,26 @@
 """
-The guesser module is used to Guess the type of a device in order to automatically create a
-Netmiko ConnectionClass.
-This will avoid to hard code the 'device_type' attribute when using the ConnectHandler function
+This module is used to auto-detect the type of a device in order to automatically create a
+Netmiko connection.
+
+The will avoid to hard coding the 'device_type' when using the ConnectHandler factory function
 from Netmiko.
 
-This constant dict is matching a 'device type' with 3 defined objects:
-* The OID to GET
-* The regular Expression to match for the OID value you retrieve
-* The priority of the type (the highest the priority is, the better match it will be)
+Example:
+------------------
+from netmiko.snmp_autodetect import SNMPDetect
+
+my_snmp = SNMPDetect(hostname='1.1.1.70', user='pysnmp', auth_key='key1', encrypt_key='key2')
+device_type = my_snmp.autodetect()
+------------------
+
+autodetect will return None if no match.
+
+SNMPDetect class defaults to SNMPv3
+
+Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
+netmiko requirements. So installation of pysnmp might be required.
 """
+from __future__ import unicode_literals
 
 import re
 try:
@@ -18,6 +30,7 @@ except ImportError:
 
 from netmiko.ssh_dispatcher import CLASS_MAPPER
 
+# Higher priority indicates a better match.
 SNMP_MAPPER_BASE = {
     'cisco_ios': {"oid": ".1.3.6.1.2.1.1.1.0",
                   "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
@@ -48,21 +61,20 @@ std_device_types = list(CLASS_MAPPER.keys())
 for device_type in std_device_types:
     if SNMP_MAPPER_BASE.get(device_type):
         SNMP_MAPPER[device_type] = SNMP_MAPPER_BASE[device_type]
-print(SNMP_MAPPER)
 
 
-class Guesser(object):
+class SNMPDetect(object):
     """
-    The Guesser class tries to 'guess' the type of the device you are trying to SSH into using
-    SNMP. Most of the time the guesser is trying to find the device's type based on SNMP *SysDescr*
-    and regular expression.
+    The SNMPDetect class tries to automatically determine the device type.
+
+    Typically this will use the MIB-2 SysDescr and regular expressions.
 
     Parameters
     ----------
     hostname: str
         The name or IP address of the hostname we want to guess the type
     snmp_version : str, optional ('v1', 'v2c' or 'v3')
-        The SNMP version that is running on the device (default: 'v2c')
+        The SNMP version that is running on the device (default: 'v3')
     snmp_port : int, optional
         The UDP port on which SNMP is listening (default: 161)
     community : str, optional
@@ -73,9 +85,9 @@ class Guesser(object):
         The SNMPv3 authentication key (default: '')
     encrypt_key : str, optional
         The SNMPv3 encryption key (default: '')
-    auth_proto : str, optional ('des', '3des', 'aes128', 'aes192', 'aes256', 'none')
-        The SNMPv3 authentication protocol (default: 'aes256')
-    encrypt_proto : str, optional ('sha', 'md5', 'none')
+    auth_proto : str, optional ('des', '3des', 'aes128', 'aes192', 'aes256')
+        The SNMPv3 authentication protocol (default: 'aes128')
+    encrypt_proto : str, optional ('sha', 'md5')
         The SNMPv3 encryption protocol (default: 'sha')
 
     Attributes
@@ -102,8 +114,8 @@ class Guesser(object):
 
     Methods
     -------
-    guess()
-        Try to guess the device type.
+    autodetect()
+        Try to determine the device type.
 
     """
     def __init__(self, hostname, snmp_version="v3", snmp_port=161, community=None, user="",
@@ -206,7 +218,7 @@ class Guesser(object):
         else:
             return self._get_snmpv3(oid)
 
-    def guess(self):
+    def autodetect(self):
         """
         Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
         is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
@@ -226,7 +238,6 @@ class Guesser(object):
         snmp_mapper_list = sorted(snmp_mapper_list, key=lambda x: list(x.values())[0]['priority'])
         snmp_mapper_list.reverse()
 
-        print(snmp_mapper_list)
         for entry in snmp_mapper_list:
             for device_type, v in entry.items():
                 oid = v['oid']
