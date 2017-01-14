@@ -17,7 +17,7 @@ from netmiko.ssh_exception import NetMikoAuthenticationException
 NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
 
-__version__ = '1.2.3'
+__version__ = '1.2.4'
 
 __all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTransfer',
            'NetMikoTimeoutException', 'NetMikoAuthenticationException',
@@ -25,6 +25,3 @@ __all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTran
 
 # Cisco cntl-shift-six sequence
 CNTL_SHIFT_6 = chr(30)
-
-# Test logging
-log.critical("Test Message")
