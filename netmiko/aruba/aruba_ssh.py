@@ -1,4 +1,5 @@
 """Aruba OS support"""
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -6,6 +7,8 @@ class ArubaSSH(CiscoSSHConnection):
     """Aruba OS support"""
     def session_preparation(self):
         """Aruba OS requires enable mode to disable paging."""
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        time.sleep(1 * delay_factor)
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="no paging")

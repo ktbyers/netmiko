@@ -13,6 +13,7 @@ from __future__ import unicode_literals
 import re
 import os
 import hashlib
+import time
 
 import paramiko
 import scp
@@ -162,8 +163,7 @@ class FileTransfer(object):
         else:
             return int(file_size)
 
-    @staticmethod
-    def file_md5(file_name):
+    def file_md5(self, file_name):
         """Compute MD5 hash of file."""
         with open(file_name, "rb") as f:
             file_contents = f.read()
@@ -255,3 +255,104 @@ class FileTransfer(object):
         elif not hasattr(cmd, '__iter__'):
             cmd = [cmd]
         self.ssh_ctl_chan.send_config_set(cmd)
+
+
+class InLineTransfer(FileTransfer):
+    """Use TCL on Cisco IOS to directly transfer file."""
+    @staticmethod
+    def _read_file(file_name):
+        with open(file_name, "rt") as f:
+            return f.read()
+
+    @staticmethod
+    def _tcl_newline_rationalize(tcl_string):
+        """
+        When using put inside a TCL {} section the newline is considered a new TCL
+        statement and causes a missing curly-brace message. Convert "\n" to "\r". TCL
+        will convert the "\r" to a "\n" i.e. you will see a "\n" inside the file on the
+        Cisco IOS device.
+        """
+        NEWLINE = r"\n"
+        CARRIAGE_RETURN = r"\r"
+        tmp_string = re.sub(NEWLINE, CARRIAGE_RETURN, tcl_string)
+        if re.search(r"[{}]", tmp_string):
+            msg = "Curly brace detected in string; TCL requires this be escaped."
+            raise ValueError(msg)
+        return tmp_string
+
+    def __enter__(self):
+        self._enter_tcl_mode()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        _ = self._exit_tcl_mode()  # noqa
+        if exc_type is not None:
+            raise exc_type(exc_value)
+
+    def _enter_tcl_mode(self):
+        TCL_ENTER = 'tclsh'
+        cmd_failed = ['Translating "tclsh"', '% Unknown command', '% Bad IP address']
+        output = self.ssh_ctl_chan.send_command_timing(TCL_ENTER, strip_prompt=False,
+                                                       strip_command=False)
+        for pattern in cmd_failed:
+            if pattern in output:
+                raise ValueError("Failed to enter tclsh mode on router: {}".format(output))
+        return output
+
+    def _exit_tcl_mode(self):
+        TCL_EXIT = 'tclquit'
+        self.ssh_ctl_chan.write_channel("\r")
+        time.sleep(1)
+        output = self.ssh_ctl_chan.read_channel()
+        if '(tcl)' in output:
+            output += self.ssh_ctl_chan.write_channel(TCL_EXIT + "\r")
+        return output
+
+    def establish_scp_conn(self):
+        raise NotImplementedError
+
+    def close_scp_chan(self):
+        raise NotImplementedError
+
+    def local_space_available(self):
+        raise NotImplementedError
+
+    def file_md5(self, file_name):
+        """Compute MD5 hash of file."""
+        file_contents = self._read_file(file_name)
+        file_contents = file_contents + '\n'    # Cisco IOS automatically adds this
+        file_contents = file_contents.encode('UTF-8')
+        return hashlib.md5(file_contents).hexdigest()
+
+    def put_file(self):
+        curlybrace = r'{'
+        TCL_FILECMD_ENTER = 'puts [open "{}{}" w+] {}'.format(self.file_system,
+                                                              self.dest_file, curlybrace)
+        TCL_FILECMD_EXIT = '}'
+
+        file_contents = self._read_file(self.source_file)
+        file_contents = self._tcl_newline_rationalize(file_contents)
+
+        self.ssh_ctl_chan.write_channel(TCL_FILECMD_ENTER)
+        self.ssh_ctl_chan.write_channel(file_contents)
+        self.ssh_ctl_chan.write_channel(TCL_FILECMD_EXIT + "\r")
+
+        time.sleep(1)
+        output = self.ssh_ctl_chan.read_channel()
+
+        # The file doesn't write until tclquit
+        TCL_EXIT = 'tclquit'
+        self.ssh_ctl_chan.write_channel(TCL_EXIT + "\r")
+
+        time.sleep(1)
+        output += self.ssh_ctl_chan.read_channel()
+        return output
+
+    def get_file(self):
+        raise NotImplementedError
+
+    def enable_scp(self, cmd=None):
+        raise NotImplementedError
+
+    def disable_scp(self, cmd=None):
+        raise NotImplementedError

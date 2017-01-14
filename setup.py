@@ -20,6 +20,7 @@ def find_version(*file_paths):
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
+
 setup(
     name='netmiko',
     version=find_version('netmiko', '__init__.py'),
@@ -32,10 +33,8 @@ setup(
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
@@ -53,6 +52,8 @@ setup(
               'netmiko/linux',
               'netmiko/enterasys',
               'netmiko/extreme',
+              'netmiko/eltex',
+              'netmiko/ubiquiti',
               'netmiko/alcatel',
               'netmiko/dell',
               'netmiko/avaya',
