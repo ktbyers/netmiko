@@ -454,24 +454,7 @@ class BaseConnection(object):
             self.telnet_login()
         elif self.protocol == 'ssh':
 
-            # Convert Paramiko connection parameters to a dictionary
-            ssh_connect_params = self._connect_params_dict()
-
-            # Check if using SSH 'config' file mainly for SSH proxy support
-            if self.ssh_config_file:
-                self._use_ssh_config(ssh_connect_params)
-
-            # Create instance of SSHClient object
-            self.remote_conn_pre = paramiko.SSHClient()
-
-            # Load host_keys for better SSH security
-            if self.system_host_keys:
-                self.remote_conn_pre.load_system_host_keys()
-            if self.alt_host_keys and path.isfile(self.alt_key_file):
-                self.remote_conn_pre.load_host_keys(self.alt_key_file)
-
-            # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-            self.remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+            self.remote_conn_pre, ssh_connect_params = self.build_ssh_client()
 
             # initiate SSH connection
             try:
@@ -522,6 +505,28 @@ class BaseConnection(object):
             return ""
         else:
             raise NetMikoTimeoutException("Timed out waiting for data")
+
+    def build_ssh_client(self):
+        # Convert Paramiko connection parameters to a dictionary
+        ssh_connect_params = self._connect_params_dict()
+
+        # Check if using SSH 'config' file mainly for SSH proxy support
+        if self.ssh_config_file:
+            self._use_ssh_config(ssh_connect_params)
+
+        # Create instance of SSHClient object
+        remote_conn = paramiko.SSHClient()
+
+        # Load host_keys for better SSH security
+        if self.system_host_keys:
+            remote_conn.load_system_host_keys()
+        if self.alt_host_keys and path.isfile(self.alt_key_file):
+            remote_conn.load_host_keys(self.alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        remote_conn.set_missing_host_key_policy(self.key_policy)
+
+        return remote_conn, ssh_connect_params
 
     def select_delay_factor(self, delay_factor):
         """Choose the greater of delay_factor or self.global_delay_factor."""
