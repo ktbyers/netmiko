@@ -305,7 +305,9 @@ class InLineTransfer(FileTransfer):
         time.sleep(1)
         output = self.ssh_ctl_chan.read_channel()
         if '(tcl)' in output:
-            output += self.ssh_ctl_chan.write_channel(TCL_EXIT + "\r")
+            self.ssh_ctl_chan.write_channel(TCL_EXIT + "\r")
+        time.sleep(1)
+        output += self.ssh_ctl_chan.read_channel()
         return output
 
     def establish_scp_conn(self):
