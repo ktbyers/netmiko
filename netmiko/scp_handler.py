@@ -339,8 +339,13 @@ class InLineTransfer(FileTransfer):
         self.ssh_ctl_chan.write_channel(file_contents)
         self.ssh_ctl_chan.write_channel(TCL_FILECMD_EXIT + "\r")
 
-        time.sleep(1)
-        output = self.ssh_ctl_chan.read_channel()
+        output = ''
+        while True:
+            time.sleep(1.5)
+            new_output = self.ssh_ctl_chan.read_channel()
+            if not new_output:
+                break
+            output += new_output
 
         # The file doesn't write until tclquit
         TCL_EXIT = 'tclquit'
