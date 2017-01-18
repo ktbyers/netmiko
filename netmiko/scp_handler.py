@@ -259,8 +259,8 @@ class FileTransfer(object):
 
 class InLineTransfer(FileTransfer):
     """Use TCL on Cisco IOS to directly transfer file."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put',
-                 source_config=''):
+    def __init__(self, ssh_conn, source_file=None, dest_file=None, file_system=None, direction='put',
+                 source_config=None):
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
             raise ValueError(msg)
@@ -270,9 +270,11 @@ class InLineTransfer(FileTransfer):
         self.ssh_ctl_chan = ssh_conn
         if source_file:
             self.source_file = source_file
+            self.source_config = None
             self.source_md5 = self.file_md5(source_file)
             self.file_size = os.stat(source_file).st_size
         elif source_config:
+            self.source_file = None
             self.source_config = source_config
             self.source_md5 = self.config_md5(source_config)
             self.file_size = len(source_config.encode('UTF-8'))
