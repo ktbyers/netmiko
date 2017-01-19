@@ -1,3 +1,5 @@
+from huawei_ssh import HuaweiSSH
+
 class HuaweiSSH_MT5600T(HuaweiSSH):
 
     def session_preparation(self):
