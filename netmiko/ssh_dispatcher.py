@@ -11,7 +11,7 @@ from netmiko.eltex import EltexSSH
 from netmiko.arista import AristaSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
 from netmiko.huawei import HuaweiSSH
-from netmiko.huawei import HuaweiSSH_MT5600T
+from netmiko.huawei import HuaweiSSH_MA5600T
 from netmiko.f5 import F5LtmSSH
 from netmiko.juniper import JuniperSSH
 from netmiko.brocade import BrocadeNosSSH
@@ -47,7 +47,7 @@ CLASS_MAPPER_BASE = {
     'hp_procurve': HPProcurveSSH,
     'hp_comware': HPComwareSSH,
     'huawei': HuaweiSSH,
-    'huawei_mt5600t': HuaweiSSH_MT5600T,
+    'huawei_mt5600t': HuaweiSSH_MA5600T,
     'f5_ltm': F5LtmSSH,
     'juniper': JuniperSSH,
     'juniper_junos': JuniperSSH,
