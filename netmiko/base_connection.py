@@ -576,7 +576,7 @@ class BaseConnection(object):
         return output
 
     def set_base_prompt(self, pri_prompt_terminator='#',
-                        alt_prompt_terminator='>', delay_factor=1):
+                        alt_prompt_terminator='>', delay_factor=10):
         """
         Sets self.base_prompt
 
