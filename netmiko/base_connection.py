@@ -491,13 +491,18 @@ class BaseConnection(object):
             if self.verbose:
                 print("Interactive SSH session established")
 
-        # make sure you can read the channel
+            # Make sure you can read the channel
+            return self._test_channel_read()
+
+    def _test_channel_read(self, count=40):
+        """Try to read the channel (generally post login) verify you receive data back."""
         i = 0
         delay_factor = self.select_delay_factor(delay_factor=0)
         main_delay = delay_factor * .1
-        time.sleep(main_delay)
-        while i <= 40:
-            new_data = self.read_channel()
+        time.sleep(main_delay * 10)
+        new_data = ""
+        while i <= count:
+            new_data = self._read_channel_timing()
             if new_data:
                 break
             else:
