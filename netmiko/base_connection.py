@@ -382,19 +382,19 @@ class BaseConnection(object):
         self.disable_paging()
         self.set_terminal_width()
 
-    def _use_ssh_config(self, connect_dict):
-        """
-        Update SSH connection parameters based on contents of SSH 'config' file
+    def _use_ssh_config(self, dict_arg):
+        """Update SSH connection parameters based on contents of SSH 'config' file."""
 
-        This method modifies the connect_dict dictionary, returns None
-        """
+        connect_dict = dict_arg.copy()
+
         # Use SSHConfig to generate source content.
         full_path = path.abspath(path.expanduser(self.ssh_config_file))
         if path.exists(full_path):
             ssh_config_instance = paramiko.SSHConfig()
             with open(full_path) as f:
                 ssh_config_instance.parse(f)
-                source = ssh_config_instance.lookup(self.host)
+                host_specifier = "{0}:{1}".format(self.host, self.port)
+                source = ssh_config_instance.lookup(host_specifier)
         else:
             source = {}
 
@@ -415,9 +415,11 @@ class BaseConnection(object):
             connect_dict['sock'] = proxy
         connect_dict['hostname'] = source.get('hostname', self.host)
 
+        return connect_dict
+
     def _connect_params_dict(self):
-        """Convert Paramiko connect params to a dictionary."""
-        return {
+        """Generate dictionary of Paramiko connection parameters."""
+        conn_dict = {
             'hostname': self.host,
             'port': self.port,
             'username': self.username,
@@ -427,6 +429,11 @@ class BaseConnection(object):
             'key_filename': self.key_file,
             'timeout': self.timeout,
         }
+
+        # Check if using SSH 'config' file mainly for SSH proxy support
+        if self.ssh_config_file:
+            conn_dict = self._use_ssh_config(conn_dict)
+        return conn_dict
 
     def _sanitize_output(self, output, strip_command=False, command_string=None,
                          strip_prompt=False):
@@ -453,8 +460,8 @@ class BaseConnection(object):
             self.remote_conn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             self.telnet_login()
         elif self.protocol == 'ssh':
-
-            self.remote_conn_pre, ssh_connect_params = self.build_ssh_client()
+            ssh_connect_params = self._connect_params_dict()
+            self.remote_conn_pre = self._build_ssh_client()
 
             # initiate SSH connection
             try:
@@ -506,27 +513,20 @@ class BaseConnection(object):
         else:
             raise NetMikoTimeoutException("Timed out waiting for data")
 
-    def build_ssh_client(self):
-        # Convert Paramiko connection parameters to a dictionary
-        ssh_connect_params = self._connect_params_dict()
-
-        # Check if using SSH 'config' file mainly for SSH proxy support
-        if self.ssh_config_file:
-            self._use_ssh_config(ssh_connect_params)
-
+    def _build_ssh_client(self):
+        """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
-        remote_conn = paramiko.SSHClient()
+        remote_conn_pre = paramiko.SSHClient()
 
         # Load host_keys for better SSH security
         if self.system_host_keys:
-            remote_conn.load_system_host_keys()
+            remote_conn_pre.load_system_host_keys()
         if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn.load_host_keys(self.alt_key_file)
+            remote_conn_pre.load_host_keys(self.alt_key_file)
 
         # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn.set_missing_host_key_policy(self.key_policy)
-
-        return remote_conn, ssh_connect_params
+        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+        return remote_conn_pre
 
     def select_delay_factor(self, delay_factor):
         """Choose the greater of delay_factor or self.global_delay_factor."""

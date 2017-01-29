@@ -15,7 +15,6 @@ import os
 import hashlib
 import time
 
-import paramiko
 import scp
 
 
@@ -31,7 +30,8 @@ class SCPConn(object):
 
     def establish_scp_conn(self):
         """Establish the secure copy connection."""
-        self.scp_conn, ssh_connect_params = self.ssh_ctl_chan.build_ssh_client()
+        self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
+        ssh_connect_params = self._connect_params_dict()
         self.scp_conn.connect(**ssh_connect_params)
         self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
 
