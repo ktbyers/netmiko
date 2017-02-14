@@ -71,7 +71,7 @@ CLASS_MAPPER_BASE = {
     'quanta_mesh': QuantaMeshSSH,
     'aruba_os': ArubaSSH,
     'ubiquiti_edge': UbiquitiEdgeSSH,
-    'cisco_tp':CiscoTpTcCeSSH,
+    'cisco_tp': CiscoTpTcCeSSH,
 }
 
 # Also support keys that end in _ssh
