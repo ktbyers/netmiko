@@ -7,4 +7,10 @@ from netmiko.cisco_base_connection import CiscoTelnetConnection
 
 
 class EdgeCoreTelnet(CiscoTelnetConnection):
-    pass
+
+    def session_preparation(self):
+        """Edge-Core requires enable mode to set terminal options."""
+        self.set_base_prompt()
+        self.disable_paging()
+        self.set_terminal_width(command='terminal width 80')
+
