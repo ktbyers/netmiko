@@ -73,4 +73,7 @@ class CiscoSSHConnection(CiscoBaseConnection):
 
 
 class CiscoTelnetConnection(CiscoBaseConnection):
-    pass
+
+    def __init__(self, **kwargs):
+        protocol = kwargs.pop('protocol', 'telnet')
+        super(CiscoTelnetConnection, self).__init__(protocol=protocol, **kwargs)

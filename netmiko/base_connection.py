@@ -31,7 +31,7 @@ class BaseConnection(object):
     Otherwise method left as a stub method.
     """
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
-                 device_type='', verbose=False, global_delay_factor=1, use_keys=False,
+                 device_type='', protocol='ssh', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
         """
@@ -56,6 +56,8 @@ class BaseConnection(object):
         :type port: int or None
         :param device_type: Class selection based on device type.
         :type device_type: str
+        :param protocol: Transport protocol: `ssh` by default, `telnet` option also supported.
+        :type protocol: str
         :param verbose: If `True` enables more verbose logging.
         :type verbose: bool
         :param global_delay_factor: Controls global delay factor value.
@@ -96,8 +98,9 @@ class BaseConnection(object):
             self.host = host
         if not ip and not host:
             raise ValueError("Either ip or host must be set")
+        self.protocol = protocol
         if port is None:
-            if 'telnet' in device_type:
+            if self.protocol == 'telnet':
                 self.port = 23
             else:
                 self.port = 22
@@ -117,14 +120,11 @@ class BaseConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
 
-        # determine if telnet or SSH
-        if '_telnet' in device_type:
-            self.protocol = 'telnet'
+        if self.protocol == 'telnet':
             self.establish_connection()
             self.session_preparation()
-        else:
-            self.protocol = 'ssh'
 
+        elif self.protocol == 'ssh':
             if not ssh_strict:
                 self.key_policy = paramiko.AutoAddPolicy()
             else:
@@ -143,6 +143,9 @@ class BaseConnection(object):
 
             self.establish_connection()
             self.session_preparation()
+
+        else:
+            raise ValueError("Unsupported protocol: {}".format(self.protocol))
 
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
@@ -285,70 +288,83 @@ class BaseConnection(object):
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
         TELNET_RETURN = '\r\n'
-        debug = False
+        debug = True
         if debug:
             print("In telnet_login():")
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
+        username_re = re.compile(r"Username", re.IGNORECASE | re.MULTILINE)
+        password_re = re.compile(r"Password", re.IGNORECASE | re.MULTILINE)
 
-        output = ''
         return_msg = ''
         i = 1
+
         while i <= max_loops:
             try:
                 output = self.read_channel()
                 return_msg += output
-                if debug:
-                    print(output)
-                if re.search(r"sername", output):
-                    self.write_channel(self.username + TELNET_RETURN)
+                if not output and i == 1:
+                    # some devices don't give output on the first time. Delay does not fix it, only re-read.
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
+                if output:
                     if debug:
-                        print("checkpoint1")
                         print(output)
-                if re.search(r"assword", output):
-                    self.write_channel(self.password + TELNET_RETURN)
-                    time.sleep(.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-                    if debug:
-                        print("checkpoint2")
-                        print(output)
-                    if pri_prompt_terminator in output or alt_prompt_terminator in output:
-                        if debug:
-                            print("checkpoint3")
-                        return return_msg
-
-                # Support direct telnet through terminal server
-                if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
-                    if debug:
-                        print("checkpoint4")
-                    self.write_channel("no" + TELNET_RETURN)
-                    time.sleep(.5 * delay_factor)
-                    count = 0
-                    while count < 15:
+                    if username_re.search(output):
+                        self.write_channel(self.username + TELNET_RETURN)
+                        time.sleep(1 * delay_factor)
                         output = self.read_channel()
                         return_msg += output
-                        if re.search(r"ress RETURN to get started", output):
-                            output = ""
-                            break
-                        time.sleep(2 * delay_factor)
-                        count += 1
-                if re.search(r"assword required, but none set", output):
+                        if debug:
+                            print("checkpoint1")
+                            print(output)
+                    if password_re.search(output):
+                        self.write_channel(self.password + TELNET_RETURN)
+                        time.sleep(.5 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+                        if debug:
+                            print("checkpoint2")
+                            print(output)
+                        if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                            if debug:
+                                print("checkpoint3")
+                            return return_msg
+
+                    # Support direct telnet through terminal server
+                    if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
+                        if debug:
+                            print("checkpoint4")
+                        self.write_channel("no" + TELNET_RETURN)
+                        time.sleep(.5 * delay_factor)
+                        count = 0
+                        while count < 15:
+                            output = self.read_channel()
+                            return_msg += output
+                            if re.search(r"ress RETURN to get started", output):
+                                output = ""
+                                break
+                            time.sleep(2 * delay_factor)
+                            count += 1
+                    if re.search(r"assword required, but none set", output):
+                        if debug:
+                            print("checkpoint5")
+                        msg = "Telnet login failed - Password required, but none set: {0}".format(
+                            self.host)
+                        raise NetMikoAuthenticationException(msg)
+                    if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                        if debug:
+                            print("checkpoint6")
+                        return return_msg
+                    time.sleep(.5 * delay_factor)
+                else:
                     if debug:
-                        print("checkpoint5")
-                    msg = "Telnet login failed - Password required, but none set: {0}".format(
-                        self.host)
-                    raise NetMikoAuthenticationException(msg)
-                if pri_prompt_terminator in output or alt_prompt_terminator in output:
-                    if debug:
-                        print("checkpoint6")
-                    return return_msg
-                self.write_channel(TELNET_RETURN)
-                time.sleep(.5 * delay_factor)
+                        print("checkpoint0")
+                    self.write_channel(TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
                 i += 1
+
             except EOFError:
                 msg = "Telnet login failed: {0}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
