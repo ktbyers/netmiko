@@ -831,9 +831,12 @@ class BaseConnection(object):
     def strip_ansi_escape_codes(string_buffer):
         """
         Remove any ANSI (VT100) ESC codes from the output
+
         http://en.wikipedia.org/wiki/ANSI_escape_code
+
         Note: this does not capture ALL possible ANSI Escape Codes only the ones
         I have encountered
+
         Current codes that are filtered:
         ESC = '\x1b' or chr(27)
         ESC = is the escape character [^ in hex ('\x1b')
