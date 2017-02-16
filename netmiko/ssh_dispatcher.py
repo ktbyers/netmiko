@@ -32,9 +32,10 @@ from netmiko.aruba import ArubaSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.cisco import CiscoTpTcCeSSH
+from netmiko.edgecore import EdgeCoreTelnet
 
 # The keys of this dictionary are the supported device_types
-CLASS_MAPPER_BASE = {
+CLASS_MAPPER_SSH = {
     'cisco_ios': CiscoIosSSH,
     'cisco_xe': CiscoIosSSH,
     'cisco_asa': CiscoAsaSSH,
@@ -75,19 +76,26 @@ CLASS_MAPPER_BASE = {
 }
 
 # Also support keys that end in _ssh
+# Note: Protocol selection no longer rely on device_type but defined in connection class (e.g. CiscoTelnetConnection)
 new_mapper = {}
-for k, v in CLASS_MAPPER_BASE.items():
+for k, v in CLASS_MAPPER_SSH.items():
     new_mapper[k] = v
     alt_key = k + u"_ssh"
     new_mapper[alt_key] = v
+
 CLASS_MAPPER = new_mapper
 
 # Add telnet drivers
-CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
+CLASS_MAPPER_TELNET = {
+    'cisco_ios_telnet': CiscoIosTelnet,
+    'edge_core_telnet': EdgeCoreTelnet,
+}
+
+CLASS_MAPPER.update(CLASS_MAPPER_TELNET)
 
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
-platforms_base = list(CLASS_MAPPER_BASE.keys())
+platforms_base = list(CLASS_MAPPER_SSH.keys()) + list(CLASS_MAPPER_TELNET.keys())
 platforms_base.sort()
 platforms_str = u"\n".join(platforms_base)
 platforms_str = u"\n" + platforms_str
