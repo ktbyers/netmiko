@@ -32,6 +32,8 @@ from netmiko.aruba import ArubaSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ciena import CienaSaosSSH
+from netmiko.cisco import CiscoTpTcCeSSH
+
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -72,6 +74,7 @@ CLASS_MAPPER_BASE = {
     'aruba_os': ArubaSSH,
     'ubiquiti_edge': UbiquitiEdgeSSH,
     'ciena_saos': CienaSaosSSH,
+    'cisco_tp': CiscoTpTcCeSSH,
 }
 
 # Also support keys that end in _ssh

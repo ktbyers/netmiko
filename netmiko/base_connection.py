@@ -391,7 +391,7 @@ class BaseConnection(object):
         full_path = path.abspath(path.expanduser(self.ssh_config_file))
         if path.exists(full_path):
             ssh_config_instance = paramiko.SSHConfig()
-            with open(full_path) as f:
+            with io.open(full_path, "rt", encoding='utf-8') as f:
                 ssh_config_instance.parse(f)
                 host_specifier = "{0}:{1}".format(self.host, self.port)
                 source = ssh_config_instance.lookup(host_specifier)
@@ -889,7 +889,7 @@ class BaseConnection(object):
 
         **kwargs are passed to send_config_set method.
         """
-        with io.open(config_file, encoding='utf-8') as cfg_file:
+        with io.open(config_file, "rt", encoding='utf-8') as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
