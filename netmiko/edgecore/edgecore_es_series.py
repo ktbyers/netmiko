@@ -14,3 +14,6 @@ class EdgeCoreTelnet(CiscoTelnetConnection):
         self.disable_paging()
         self.set_terminal_width(command='terminal width 80')
 
+    def config_mode(self, config_command='', pattern=''):
+        """Enter configuration mode."""
+        return super(EdgeCoreTelnet, self).config_mode(config_command='configure', pattern='')
