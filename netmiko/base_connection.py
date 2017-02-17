@@ -288,7 +288,7 @@ class BaseConnection(object):
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
         TELNET_RETURN = '\r\n'
-        debug = True
+        debug = False
         if debug:
             print("In telnet_login():")
         delay_factor = self.select_delay_factor(delay_factor)
@@ -838,7 +838,7 @@ class BaseConnection(object):
         output = self.read_until_prompt()
         if debug:
             print(output)
-        return check_string in output
+        return output.endswith(check_string)
 
     def enable(self, cmd='', pattern='password', re_flags=re.IGNORECASE):
         """Enter enable mode."""
@@ -871,7 +871,7 @@ class BaseConnection(object):
         output = self.read_until_pattern(pattern=pattern)
         if debug:
             print("check_config_mode: {}".format(repr(output)))
-        return check_string in output
+        return output.endswith(check_string)
 
     def config_mode(self, config_command='', pattern=''):
         """Enter into config_mode."""
