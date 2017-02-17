@@ -26,7 +26,7 @@ class JuniperSSH(BaseConnection):
         self.set_terminal_width(command='set cli screen-width 511')
 
     def enter_cli_mode(self):
-        """Check if at shell prompt root@.*% shell prompt and go into CLI."""
+        """Check if at shell prompt root@ and go into CLI."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         count = 0
         cur_prompt = ''
@@ -34,7 +34,7 @@ class JuniperSSH(BaseConnection):
             self.write_channel("\n")
             time.sleep(.1 * delay_factor)
             cur_prompt = self.read_channel()
-            if re.search(r'root@.*%', cur_prompt):
+            if re.search(r'root@', cur_prompt):
                 self.write_channel("cli\n")
                 time.sleep(.3 * delay_factor)
                 self.clear_buffer()

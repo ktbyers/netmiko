@@ -9,6 +9,7 @@ echo "Starting tests...good luck:" \
 \
 && echo "Cisco IOS SSH (including SCP)" \
 && py.test -v test_netmiko_scp.py --test_device cisco881 \
+&& py.test -v test_netmiko_tcl.py --test_device cisco881 \
 && py.test -v test_netmiko_show.py --test_device cisco881 \
 && py.test -v test_netmiko_config.py --test_device cisco881 \
 \
@@ -28,6 +29,10 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device hp_procurve \
 && py.test -v test_netmiko_config.py --test_device hp_procurve \
 \
+&& echo "HP Comware7" \
+&& py.test -v test_netmiko_show.py --test_device hp_comware \
+&& py.test -v test_netmiko_config.py --test_device hp_comware \
+\
 && echo "Juniper" \
 && py.test -v test_netmiko_show.py --test_device juniper_srx \
 && py.test -v test_netmiko_config.py --test_device juniper_srx \
@@ -46,8 +51,3 @@ echo "Starting tests...good luck:" \
 
 exit $RETURN_CODE
 
-
-#&& echo "HP Comware7" \
-#&& py.test -v test_netmiko_show.py --test_device hp_comware \
-#&& py.test -v test_netmiko_config.py --test_device hp_comware \
-#\

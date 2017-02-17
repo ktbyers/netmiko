@@ -38,6 +38,11 @@ def test_ssh_connect(net_connect, commands, expected_responses):
     show_version = net_connect.send_command_expect(commands["version"])
     assert expected_responses["version_banner"] in show_version
 
+def test_ssh_connect_cm(net_connect_cm, commands, expected_responses):
+    """Test the context manager."""
+    prompt_str = net_connect_cm
+    assert expected_responses['base_prompt'] in prompt_str
+
 def test_send_command_timing(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully."""
     time.sleep(1)
