@@ -968,7 +968,8 @@ class BaseConnection(object):
         code_erase_display = chr(27) + r'\[2J'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
-                    code_erase_start_line, code_form_feed, code_carriage_return, code_disable_line_wrapping,
+                    code_erase_start_line, code_form_feed, code_carriage_return,
+                    code_disable_line_wrapping, code_erase_line_end,
                     code_reset_mode_screen_options, code_erase_display]
 
         output = string_buffer
