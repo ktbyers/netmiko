@@ -77,3 +77,14 @@ ubiquiti_edge:
   multiple_line_output: "Current Configuration:"
   cmd_response_init: ""
   cmd_response_final: "logging persistent 4"
+
+edge_core_telnet:
+  base_prompt: Switch
+  router_prompt : Switch-0>
+  enable_prompt: Switch-0#
+  interface_ip: 10.10.6.112
+  version_banner: "Serial Number"
+  multiple_line_output: "Information of VLAN"
+  file_check_cmd: "Level debugging (7)"
+  cmd_response_init: 'Level notifications (5)'
+  cmd_response_final: 'Level debugging (7)'

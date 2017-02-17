@@ -1,0 +1,3 @@
+logging history ram 5
+no logging history ram
+logging history ram 7
