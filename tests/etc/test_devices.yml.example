@@ -76,3 +76,10 @@ ubiquiti_edge
   ip: 172.16.51.102
   username: admin
   password: password
+
+edge_core_telnet:
+  ip: 10.10.6.112
+  device_type: edge_core_telnet
+  username: admin
+  password: password
+  secret: secret

@@ -126,3 +126,13 @@ ubiquiti_edge:
     - "logging persistent 4"
   config_verification: "show running-config | include 'logging'"
 
+edge_core_telnet:
+  version: "show version"
+  basic: "show ip interface"
+  extended_output: "sh int status"      # requires paging to be disabled
+  config:
+    - "logging history ram 5"           # base command
+    - "no logging history ram"
+    - "logging history ram 7"           # something you can verify has changed
+  config_verification: "sh logging ram"
+  config_file: "edge_core_commands.txt"
