@@ -115,3 +115,16 @@ def ConnectHandler(*args, **kwargs):
 def ssh_dispatcher(device_type):
     """Select the class to be instantiated based on vendor/platform."""
     return CLASS_MAPPER[device_type]
+
+
+def redispatch(obj, device_type, session_prep=True):
+    """Dynamically change Netmiko object's class to proper class.
+
+    Generally used with terminal_server device_type when you need to redispatch after interacting
+    with terminal server.
+    """
+    new_class = ssh_dispatcher(device_type)
+    obj.device_type = device_type
+    obj.__class__ = new_class
+    if session_prep:
+        obj.session_preparation()
