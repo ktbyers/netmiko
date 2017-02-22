@@ -10,9 +10,9 @@ python setup.py sdist
 
 # Create a blank virtualenv to test
 cd ~/VENV
-virtualenv -p /usr/bin/python2.7 --no-site-packages netmiko_0_3_0_packaging
+virtualenv -p /usr/bin/python2.7 --no-site-packages netmiko_packaging
 deactivate
-source ~/VENV/netmiko_0_3_0_packaging/bin/activate
+source ~/VENV/netmiko_packaging/bin/activate
 
 # Test install
 cd ~/netmiko
@@ -36,10 +36,10 @@ twine upload dist/netmiko-0.3.0.tar.gz
 
 # Test clean install from pypi
 cd ~/VENV
-rm -r netmiko_0_3_0_packaging
-virtualenv -p /usr/bin/python2.7 --no-site-packages netmiko_0_3_0_packaging
+rm -r netmiko_packaging
+virtualenv -p /usr/bin/python2.7 --no-site-packages netmiko_packaging
 deactivate
-source ~/VENV/netmiko_0_3_0_packaging/bin/activate
+source ~/VENV/netmiko_packaging/bin/activate
 
 pip install netmiko
 
