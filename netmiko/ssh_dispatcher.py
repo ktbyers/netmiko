@@ -33,6 +33,8 @@ from netmiko.vyos import VyOSSSH
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoTpTcCeSSH
+from netmiko.terminal_server import TerminalServerSSH
+from netmiko.terminal_server import TerminalServerTelnet
 
 
 # The keys of this dictionary are the supported device_types
@@ -75,6 +77,7 @@ CLASS_MAPPER_BASE = {
     'ubiquiti_edge': UbiquitiEdgeSSH,
     'ciena_saos': CienaSaosSSH,
     'cisco_tp': CiscoTpTcCeSSH,
+    'generic_termserver': TerminalServerSSH,
 }
 
 # Also support keys that end in _ssh
@@ -87,6 +90,10 @@ CLASS_MAPPER = new_mapper
 
 # Add telnet drivers
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
+CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
+
+# Add general terminal_server driver
+CLASS_MAPPER['terminal_server'] = TerminalServerSSH
 
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()

@@ -88,7 +88,6 @@ class BaseConnection(object):
         :type timeout: float
 
         """
-
         if ip:
             self.host = ip
             self.ip = ip
