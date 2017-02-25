@@ -16,6 +16,20 @@ class FortinetSSH(CiscoSSHConnection):
         self.allow_disable_global = True
         self.vdoms = False
 
+        count = 1
+        new_output = output
+        while True:
+            if count >= 10:
+                new_output = self.send_command_timing("q")
+                output += new_output
+                break
+            elif "--More--" in new_output:
+                new_output = self.send_command_timing(" ")
+                output += new_output
+                count += 1
+            else:
+                break
+
         if "Virtual domain configuration: enable" in output:
             self.vdoms = True
             vdom_additional_command = "config global"
