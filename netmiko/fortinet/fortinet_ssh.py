@@ -33,8 +33,8 @@ class FortinetSSH(CiscoSSHConnection):
         if "Virtual domain configuration: enable" in output:
             self.vdoms = True
             vdom_additional_command = "config global"
-            output = self.send_command_timing(vdom_additional_command)
-            if output.find("Command fail"):
+            output = self.send_command_timing(vdom_additional_command, delay_factor=4)
+            if "Command fail" in output:
                 self.allow_disable_global = False
                 self.remote_conn.close()
                 self.establish_connection(width=100, height=1000)
