@@ -69,6 +69,6 @@ class SSHDetect(object):
             self.connection.disconnect()
             return None
 
-        best_match = sorted(self.potential_matches.items(), key=lambda t:t[0])
+        best_match = sorted(self.potential_matches.items(), key=lambda t:t[1], reverse=True)
         self.connection.disconnect()
         return best_match[0][0]
