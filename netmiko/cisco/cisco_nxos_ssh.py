@@ -6,6 +6,21 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
+    
+    @staticmethod
+    def autodetect(session):
+        """
+        """
+        matches = ["Cisco Nexus Operating System", "NX-OS"]
+        try:
+            response = session.send_command("show version | inc Cisco")
+            for m in matches:
+                if m in response:
+                    return 99
+        except:
+            return 0
+        return 0
+    
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
