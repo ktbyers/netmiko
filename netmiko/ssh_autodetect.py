@@ -9,7 +9,7 @@ from Netmiko.
 from netmiko.ssh_dispatcher import CLASS_MAPPER_BASE, ConnectHandler
 
 SSH_MAPPER_BASE = {}
-for k, v in CLASS_MAPPER_BASE.iteritems():
+for k, v in CLASS_MAPPER_BASE.items():
     if getattr(v, "autodetect", None):
         SSH_MAPPER_BASE[k] = v
 
