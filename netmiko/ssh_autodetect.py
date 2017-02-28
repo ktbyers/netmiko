@@ -9,7 +9,7 @@ from Netmiko.
 from netmiko.ssh_dispatcher import CLASS_MAPPER_BASE, ConnectHandler
 
 SSH_MAPPER_BASE = {}
-for k, v in CLASS_MAPPER_BASE.iteritems():
+for k, v in CLASS_MAPPER_BASE.items():
     if getattr(v, "autodetect", None):
         SSH_MAPPER_BASE[k] = v
 
@@ -69,6 +69,6 @@ class SSHDetect(object):
             self.connection.disconnect()
             return None
 
-        best_match = sorted(self.potential_matches.items(), key=lambda t:t[0])
+        best_match = sorted(self.potential_matches.items(), key=lambda t:t[1], reverse=True)
         self.connection.disconnect()
         return best_match[0][0]
