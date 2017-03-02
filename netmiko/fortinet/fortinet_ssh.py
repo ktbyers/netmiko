@@ -11,29 +11,15 @@ class FortinetSSH(CiscoSSHConnection):
 
     def disable_paging(self, delay_factor=1):
         """Disable paging is only available with specific roles so it may fail."""
-        check_command = "get system status\n"
+        check_command = "get system status | grep Virtual\n"
         output = self.send_command_timing(check_command)
         self.allow_disable_global = True
         self.vdoms = False
 
-        count = 1
-        new_output = output
-        while True:
-            if count >= 10:
-                new_output = self.send_command_timing("q")
-                output += new_output
-                break
-            elif "--More--" in new_output:
-                new_output = self.send_command_timing(" ")
-                output += new_output
-                count += 1
-            else:
-                break
-
         if "Virtual domain configuration: enable" in output:
             self.vdoms = True
             vdom_additional_command = "config global"
-            output = self.send_command_timing(vdom_additional_command, delay_factor=4)
+            output = self.send_command_timing(vdom_additional_command, delay_factor=2)
             if "Command fail" in output:
                 self.allow_disable_global = False
                 self.remote_conn.close()
@@ -41,8 +27,12 @@ class FortinetSSH(CiscoSSHConnection):
 
         new_output = ''
         if self.allow_disable_global:
-            disable_paging_commands = ["config system console", "set output standard", "end", "end"]
-            outputlist = [self.send_command_timing(command) for command in disable_paging_commands]
+            disable_paging_commands = ["config system console", "set output standard", "end"]
+            # There is an extra 'end' required if in multi-vdoms are enabled
+            if self.vdoms:
+                disable_paging_commands.append("end")
+            outputlist = [self.send_command_timing(command, delay_factor=2)
+                          for command in disable_paging_commands]
             # Should test output is valid
             new_output = "\n".join(outputlist)
 
