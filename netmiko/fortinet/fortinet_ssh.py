@@ -41,7 +41,7 @@ class FortinetSSH(CiscoSSHConnection):
 
         new_output = ''
         if self.allow_disable_global:
-            disable_paging_commands = ["config system console", "set output standard", "end"]
+            disable_paging_commands = ["config system console", "set output standard", "end", "end"]
             outputlist = [self.send_command_timing(command) for command in disable_paging_commands]
             # Should test output is valid
             new_output = "\n".join(outputlist)
