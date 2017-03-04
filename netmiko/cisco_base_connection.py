@@ -66,3 +66,7 @@ class CiscoBaseConnection(BaseConnection):
 
         raise ValueError("An error occurred in dynamically determining remote file "
                          "system: {} {}".format(cmd, output))
+
+
+class CiscoSSHConnection(CiscoBaseConnection):
+    pass

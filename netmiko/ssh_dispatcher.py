@@ -1,7 +1,6 @@
 """Controls selection of proper class based on the device type."""
 from __future__ import unicode_literals
-from netmiko.cisco import CiscoIosSSH
-from netmiko.cisco import CiscoIosTelnet
+from netmiko.cisco import CiscoIosBase
 from netmiko.cisco import CiscoAsaSSH
 from netmiko.cisco import CiscoNxosSSH
 from netmiko.cisco import CiscoXrSSH
@@ -39,8 +38,8 @@ from netmiko.terminal_server import TerminalServerTelnet
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
-    'cisco_ios': CiscoIosSSH,
-    'cisco_xe': CiscoIosSSH,
+    'cisco_ios': CiscoIosBase,
+    'cisco_xe': CiscoIosBase,
     'cisco_asa': CiscoAsaSSH,
     'cisco_nxos': CiscoNxosSSH,
     'cisco_xr': CiscoXrSSH,
@@ -89,7 +88,7 @@ for k, v in CLASS_MAPPER_BASE.items():
 CLASS_MAPPER = new_mapper
 
 # Add telnet drivers
-CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
+CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosBase
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 
 # Add general terminal_server driver

@@ -7,7 +7,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class HuaweiSSH(CiscoSSHConnection):
 
     @staticmethod
-    def _autodetect(self, session, *args, **kwargs):
+    def _autodetect(session, *args, **kwargs):
         cmd = "display version | inc Huawei"
         search_patterns = [
             "Huawei",

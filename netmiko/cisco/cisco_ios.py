@@ -12,7 +12,7 @@ class CiscoIosBase(CiscoBaseConnection):
         self.set_terminal_width(command='terminal width 511')
 
     @staticmethod
-    def _autodetect(self, session, *args, **kwargs):
+    def _autodetect(session, *args, **kwargs):
         cmd = "show version | inc Cisco"
         search_patterns = [
            "Cisco IOS Software",
