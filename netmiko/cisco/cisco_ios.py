@@ -1,37 +1,32 @@
 from __future__ import unicode_literals
 
-from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.cisco_base_connection import CiscoTelnetConnection
+from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
-class CiscoIosSSH(CiscoSSHConnection):
-    """Cisco IOS SSH driver."""
+class CiscoIosBase(CiscoBaseConnection):
+    """Common Methods for IOS (both SSH and telnet)."""
+    def session_preparation(self):
+        """Prepare the session after the connection has been established."""
+        self.set_base_prompt()
+        self.disable_paging()
+        self.set_terminal_width(command='terminal width 511')
 
     @staticmethod
-    def autodetect(session):
-        """
-        """
-        matches = ["Cisco IOS Software", "Cisco Internetwork Operating System Software"]
-        try:
-            response = session.send_command("show version | inc Cisco")
-            for m in matches:
-                if m in response:
-                    return 99
-        except:
-            return 0
-        return 0
-
-    def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        self.set_base_prompt()
-        self.disable_paging()
-        self.set_terminal_width(command='terminal width 511')
+    def _autodetect(self, session, *args, **kwargs):
+        cmd = "show version | inc Cisco"
+        search_patterns = [
+           "Cisco IOS Software",
+           "Cisco Internetwork Operating System Software"
+        ]
+        return super(CiscoIosBase, self)._autodetect(session, cmd=cmd,
+                                                     search_patterns=search_patterns)
 
 
-class CiscoIosTelnet(CiscoTelnetConnection):
+class CiscoIosSSH(CiscoBaseConnection):
+    """Cisco IOS SSH driver."""
+    pass
+
+
+class CiscoIosTelnet(CiscoBaseConnection):
     """Cisco IOS Telnet driver."""
-    def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        self.set_base_prompt()
-        self.disable_paging()
-        self.set_terminal_width(command='terminal width 511')
+    pass

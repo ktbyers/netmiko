@@ -6,21 +6,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
-    
-    @staticmethod
-    def autodetect(session):
-        """
-        """
-        matches = ["Cisco Nexus Operating System", "NX-OS"]
-        try:
-            response = session.send_command("show version | inc Cisco")
-            for m in matches:
-                if m in response:
-                    return 99
-        except:
-            return 0
-        return 0
-    
+
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
@@ -31,6 +17,16 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.clear_buffer()
         self.set_base_prompt()
         self.disable_paging()
+
+    @staticmethod
+    def _autodetect(self, session, *args, **kwargs):
+        cmd = "show version | inc Cisco"
+        search_patterns = [
+            "Cisco Nexus Operating System",
+            "NX-OS",
+        ]
+        return super(CiscoNxosSSH, self)._autodetect(session, cmd=cmd,
+                                                     search_patterns=search_patterns)
 
     @staticmethod
     def normalize_linefeeds(a_string):

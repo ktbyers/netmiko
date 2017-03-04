@@ -984,6 +984,26 @@ class BaseConnection(object):
 
         return output
 
+    @staticmethod
+    def _autodetect(session, cmd="", search_patterns=None, re_flags=re.I, default_priority=99):
+        """Dynamically determine the device type using search_patterns.
+
+        search_patterns is a list of regular expression patterns.
+
+        return 0 (if no match); else return default_priority.
+        """
+        if not cmd or not search_patterns:
+            return 0
+        try:
+            response = session.send_command(cmd)
+            for pattern in search_patterns:
+                match = re.search(pattern, response, flags=re.I)
+                if match:
+                    return default_priority
+        except Exception:
+            return 0
+        return 0
+
     def cleanup(self):
         """Any needed cleanup before closing connection."""
         pass

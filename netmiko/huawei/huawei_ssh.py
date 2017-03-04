@@ -7,16 +7,13 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class HuaweiSSH(CiscoSSHConnection):
 
     @staticmethod
-    def autodetect(session):
-        """
-        """
-        try:
-            response = session.send_command("display version | inc Huawei")
-            if 'Huawei' in response:
-                return 99
-        except:
-            return 0
-        return 0
+    def _autodetect(self, session, *args, **kwargs):
+        cmd = "display version | inc Huawei"
+        search_patterns = [
+            "Huawei",
+        ]
+        return super(HuaweiSSH, self)._autodetect(session, cmd=cmd,
+                                                  search_patterns=search_patterns)
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
