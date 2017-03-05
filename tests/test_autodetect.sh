@@ -15,14 +15,3 @@ echo "Starting tests...good luck:" \
 
 exit $RETURN_CODE
 
-#&& echo "Cisco SG300" \
-#&& py.test -v test_netmiko_show.py --test_device cisco_s300 \
-#&& py.test -v test_netmiko_config.py --test_device cisco_s300 \
-#&& echo "HP ProCurve" \
-#&& py.test -v test_netmiko_show.py --test_device hp_procurve \
-#&& py.test -v test_netmiko_config.py --test_device hp_procurve \
-#\
-#&& echo "HP Comware7" \
-#&& py.test -v test_netmiko_show.py --test_device hp_comware \
-#&& py.test -v test_netmiko_config.py --test_device hp_comware \
-
