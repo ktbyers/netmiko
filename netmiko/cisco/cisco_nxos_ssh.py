@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import re
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.base_connection import BaseConnection
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
@@ -18,16 +17,6 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.clear_buffer()
         self.set_base_prompt()
         self.disable_paging()
-
-    @staticmethod
-    def _autodetect(session, *args, **kwargs):
-        cmd = "show version | inc Cisco"
-        search_patterns = [
-            "Cisco Nexus Operating System",
-            "NX-OS",
-        ]
-        return super(CiscoNxosSSH, BaseConnection)._autodetect(session, cmd=cmd,
-                                                     search_patterns=search_patterns)
 
     @staticmethod
     def normalize_linefeeds(a_string):

@@ -11,16 +11,6 @@ class CiscoIosBase(CiscoBaseConnection):
         self.disable_paging()
         self.set_terminal_width(command='terminal width 511')
 
-    @staticmethod
-    def _autodetect(session, *args, **kwargs):
-        cmd = "show version | inc Cisco"
-        search_patterns = [
-           "Cisco IOS Software",
-           "Cisco Internetwork Operating System Software"
-        ]
-        return super(CiscoIosBase, self)._autodetect(session, cmd=cmd,
-                                                     search_patterns=search_patterns)
-
 
 class CiscoIosSSH(CiscoBaseConnection):
     """Cisco IOS SSH driver."""

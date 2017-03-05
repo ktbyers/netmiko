@@ -6,15 +6,6 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class HuaweiSSH(CiscoSSHConnection):
 
-    @staticmethod
-    def _autodetect(session, *args, **kwargs):
-        cmd = "display version | inc Huawei"
-        search_patterns = [
-            "Huawei",
-        ]
-        return super(HuaweiSSH, self)._autodetect(session, cmd=cmd,
-                                                  search_patterns=search_patterns)
-
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.set_base_prompt()

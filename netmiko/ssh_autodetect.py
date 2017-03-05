@@ -10,6 +10,8 @@ from __future__ import unicode_literals
 import re
 from netmiko.ssh_dispatcher import ConnectHandler
 
+# 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
+# remaining keys indicate kwargs that will be passed to dispatch method.
 SSH_MAPPER_BASE = {
     'cisco_ios': {
         "cmd": "show version | inc Cisco",
@@ -22,10 +24,13 @@ SSH_MAPPER_BASE = {
     },
     'cisco_nxos': {
         "cmd": "show version | inc Cisco",
-        "search_patterns": [
-            "Cisco Nexus Operating System",
-            "NX-OS",
-        ],
+        "search_patterns": ["Cisco Nexus Operating System", "NX-OS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'huawei': {
+        "cmd": "display version | inc Huawei",
+        "search_patterns": ["Huawei"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -48,7 +53,8 @@ class SSHDetect(object):
     connection : netmiko.terminal_server.TerminalServer
         A basic connection to the remote SSH end.
     potential_matches: dict
-        Dict of (device type, accuracy) that is populated trough a interaction with the remote end.
+        Dict of (device_type, accuracy) that is populated through an interaction with the
+        remote end.
 
     Methods
     -------
@@ -67,21 +73,17 @@ class SSHDetect(object):
 
     def autodetect(self):
         """
-        Try to guess the best 'device_type' based on each device_type autodetect method.
+        Try to guess the best 'device_type' based on patterns defined in SSH_MAPPER_BASE
 
         Returns
         -------
-        bast_match : str or None
+        best_match : str or None
             The device type that is currently the best to use to interact with the device
         """
         for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
-            print(device_type)
             call_method = autodetect_dict.pop("dispatch")
             autodetect_method = getattr(self, call_method)
-#            autodetect_method = getattr(SSHDetect, call_method)
             accuracy = autodetect_method(**autodetect_dict)
-
-            print("Test: {}".format(accuracy))
             self.potential_matches[device_type] = accuracy
 
         if not self.potential_matches:
@@ -89,7 +91,6 @@ class SSHDetect(object):
             return None
 
         best_match = sorted(self.potential_matches.items(), key=lambda t: t[1], reverse=True)
-        print(best_match)
         self.connection.disconnect()
         return best_match[0][0]
 
