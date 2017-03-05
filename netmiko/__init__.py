@@ -14,6 +14,7 @@ from netmiko.scp_handler import FileTransfer
 from netmiko.scp_handler import InLineTransfer
 from netmiko.ssh_exception import NetMikoTimeoutException
 from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko.ssh_autodetect import SSHDetect
 
 # Alternate naming
 NetmikoTimeoutError = NetMikoTimeoutException
@@ -23,7 +24,8 @@ __version__ = '1.2.8'
 
 __all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTransfer',
            'NetMikoTimeoutException', 'NetMikoAuthenticationException',
-           'NetmikoTimeoutError', 'NetmikoAuthError', 'InLineTransfer', 'redispatch')
+           'NetmikoTimeoutError', 'NetmikoAuthError', 'InLineTransfer', 'redispatch',
+           'SSHDetect')
 
 # Cisco cntl-shift-six sequence
 CNTL_SHIFT_6 = chr(30)
