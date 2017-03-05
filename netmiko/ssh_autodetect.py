@@ -13,6 +13,12 @@ from netmiko.ssh_dispatcher import ConnectHandler
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
 # remaining keys indicate kwargs that will be passed to dispatch method.
 SSH_MAPPER_BASE = {
+    'arista_eos': {
+        "cmd": "show version | inc Arista",
+        "search_patterns": ["Arista"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'cisco_ios': {
         "cmd": "show version | inc Cisco",
         "search_patterns": [
@@ -22,9 +28,21 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'cisco_asa': {
+        "cmd": "show version | inc Cisco",
+        "search_patterns": ["Cisco Adaptive Security Appliance", "Cisco ASA"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'cisco_nxos': {
         "cmd": "show version | inc Cisco",
         "search_patterns": ["Cisco Nexus Operating System", "NX-OS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'cisco_xr': {
+        "cmd": "show version | inc Cisco",
+        "search_patterns": ["Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -70,6 +88,7 @@ class SSHDetect(object):
             raise ValueError("The connection device_type must be of 'terminal_server'")
         self.connection = ConnectHandler(*args, **kwargs)
         self.potential_matches = {}
+        self._results_cache = {}
 
     def autodetect(self):
         """
@@ -94,11 +113,21 @@ class SSHDetect(object):
         self.connection.disconnect()
         return best_match[0][0]
 
+    def _send_command(self, cmd):
+        """Cache results for the same exact command."""
+        cached_results = self._results_cache.get(cmd)
+        if not cached_results:
+            response = self.connection.send_command(cmd)
+            self._results_cache[cmd] = response
+            return response
+        else:
+            return cached_results
+
     def _autodetect_std(self, cmd="", search_patterns=None, re_flags=re.I, priority=99):
         if not cmd or not search_patterns:
             return 0
         try:
-            response = self.connection.send_command(cmd)
+            response = self._send_command(cmd)
             for pattern in search_patterns:
                 match = re.search(pattern, response, flags=re.I)
                 if match:
