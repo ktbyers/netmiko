@@ -14,7 +14,7 @@ from netmiko.ssh_dispatcher import ConnectHandler
 # remaining keys indicate kwargs that will be passed to dispatch method.
 SSH_MAPPER_BASE = {
     'arista_eos': {
-        "cmd": "show version | inc Arista",
+        "cmd": "show version | inc rist",
         "search_patterns": ["Arista"],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -48,7 +48,13 @@ SSH_MAPPER_BASE = {
     },
     'huawei': {
         "cmd": "display version | inc Huawei",
-        "search_patterns": ["Huawei"],
+        "search_patterns": ["Huawei Technologies"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'juniper_junos': {
+        "cmd": "show version | inc JUNOS",
+        "search_patterns": ["JUNOS Software Release"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
