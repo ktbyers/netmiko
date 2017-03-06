@@ -94,6 +94,9 @@ CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 # Add general terminal_server driver
 CLASS_MAPPER['terminal_server'] = TerminalServerSSH
 
+# Add autodetect driver (mapped to TerminalServerSSH)
+CLASS_MAPPER['autodetect'] = TerminalServerSSH
+
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
 platforms_base = list(CLASS_MAPPER_BASE.keys())
