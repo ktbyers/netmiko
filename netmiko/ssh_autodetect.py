@@ -112,9 +112,10 @@ class SSHDetect(object):
             The device type that is currently the best to use to interact with the device
         """
         for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
-            call_method = autodetect_dict.pop("dispatch")
+            tmp_dict = autodetect_dict.copy()
+            call_method = tmp_dict.pop("dispatch")
             autodetect_method = getattr(self, call_method)
-            accuracy = autodetect_method(**autodetect_dict)
+            accuracy = autodetect_method(**tmp_dict)
             if accuracy:
                 self.potential_matches[device_type] = accuracy
 
