@@ -188,9 +188,8 @@ class SSHDetect(object):
             The confidence for each device_type between 0 and 99 after matching an output (default: 99).
         """
         invalid_responses = [
-            'Invalid input detected',
-            'syntax error, expecting',
-            'Error'
+            r'% Invalid input detected',
+            r'syntax error, expecting',
         ]
         if not cmd or not search_patterns:
             return 0
