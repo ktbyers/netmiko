@@ -150,8 +150,8 @@ class SSHDetect(object):
 
     def _send_command_wrapper(self, cmd):
         """
-        Send command to the remote device with a caching feature to avoid sending the same command twice based on the
-        SSH_MAPPER_BASE dict cmd key.
+        Send command to the remote device with a caching feature to avoid sending the same command
+        twice based on the SSH_MAPPER_BASE dict cmd key.
 
         Parameters
         ----------
@@ -173,20 +173,21 @@ class SSHDetect(object):
 
     def _autodetect_std(self, cmd="", search_patterns=None, re_flags=re.I, priority=99):
         """
-        Standard method to try to auto-detect the device type. This method will be called for each device_type present
-        in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a command and match some regular expression
-        from the ouput for each entry in SSH_MAPPER_BASE ('cmd' and 'search_pattern' keys).
+        Standard method to try to auto-detect the device type. This method will be called for each
+        device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
+        command and match some regular expression from the ouput for each entry in SSH_MAPPER_BASE
+        ('cmd' and 'search_pattern' keys).
 
         Parameters
         ----------
         cmd : str
             The command to send to the remote device after checking cache.
-        search_patterns : list, optional
-            A list of regular expression or string to look for in the command's output (default: None).
+        search_patterns : list
+            A list of regular expression to look for in the command's output (default: None).
         re_flags: re.flags, optional
-            Any flag from the python re module to modify the regular expression (default: re.I).
+            Any flags from the python re module to modify the regular expression (default: re.I).
         priority: int, optional
-            The confidence for each device_type between 0 and 99 after matching an output (default: 99).
+            The confidence the match is right between 0 and 99 (default: 99).
         """
         invalid_responses = [
             r'% Invalid input detected',
