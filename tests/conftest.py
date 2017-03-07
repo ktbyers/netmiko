@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from netmiko import ConnectHandler, FileTransfer
+from netmiko import ConnectHandler, FileTransfer, InLineTransfer
 from tests.test_utils import parse_yaml
 
 
@@ -30,6 +30,22 @@ def net_connect(request):
     device['verbose'] = False
     conn = ConnectHandler(**device)
     return conn
+
+
+@pytest.fixture(scope='module')
+def net_connect_cm(request):
+    """
+    Create the SSH connection to the remote device using a context manager 
+    retrieve the find_prompt() data and close the connection.
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    my_prompt = ""
+    with ConnectHandler(**device) as conn:
+        my_prompt = conn.find_prompt()
+    return my_prompt
 
 
 @pytest.fixture(scope='module')
@@ -152,3 +168,33 @@ def scp_fixture_get(request):
         os.remove(local_file)
 
     return (ssh_conn, scp_transfer)
+
+@pytest.fixture(scope='module')
+def tcl_fixture(request):
+    """
+    Create an InLineTransfer object.
+
+    Return a tuple (ssh_conn, tcl_handle)
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    ssh_conn = ConnectHandler(**device)
+
+    dest_file_system = 'flash:'
+    source_file = 'test9.txt'
+    dest_file = 'test9.txt'
+    local_file = 'testx.txt'
+    direction = 'put'
+
+    tcl_transfer = InLineTransfer(ssh_conn, source_file=source_file, dest_file=dest_file,
+                                  file_system=dest_file_system, direction=direction)
+
+    # Delete the test transfer files
+    if tcl_transfer.check_file_exists():
+        delete_file_ios(ssh_conn, dest_file_system, dest_file)
+    if os.path.exists(local_file):
+        os.remove(local_file)
+
+    return (ssh_conn, tcl_transfer)

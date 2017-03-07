@@ -1,9 +1,12 @@
+[![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
+  
+  
 Netmiko
 =======
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-Python 2.6, 2.7, 3.3, 3.4, 3.5  
+Python 2.7, 3.4, 3.5  
 
 <br>
 #### Requires:
@@ -44,11 +47,12 @@ Vyatta VyOS
 ###### Experimental
 A10  
 Alcatel-Lucent SR-OS  
+Ciena SAOS  
+Cisco Telepresence  
 Enterasys  
 Extreme  
 F5 LTM  
 Fortinet  
-
 
 <br>
 ## Tutorials:

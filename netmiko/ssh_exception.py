@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from paramiko.ssh_exception import SSHException
 from paramiko.ssh_exception import AuthenticationException
 

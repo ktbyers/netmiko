@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -15,8 +16,7 @@ class FortinetSSH(CiscoSSHConnection):
         self.allow_disable_global = True
         self.vdoms = False
 
-        # According with http://www.gossamer-threads.com/lists/rancid/users/6729
-        if output.find("Virtual domain configuration: enable"):
+        if "Virtual domain configuration: enable" in output:
             self.vdoms = True
             vdom_additional_command = "config global"
             output = self.send_command_timing(vdom_additional_command)

@@ -21,6 +21,7 @@ from os import path
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes
+from netmiko import log
 
 
 class BaseConnection(object):
@@ -33,6 +34,60 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
+        """
+        Initialize attributes for establishing connection to target device.
+
+        :param ip: IP address of target device. Not required if `host` is
+            provided.
+        :type ip: str
+        :param host: Hostname of target device. Not required if `ip` is
+                provided.
+        :type host: str
+        :param username: Username to authenticate against target device if
+                required.
+        :type username: str
+        :param password: Password to authenticate against target device if
+                required.
+        :type password: str
+        :param secret: The enable password if target device requires one.
+        :type secret: str
+        :param port: The destination port used to connect to the target
+                device.
+        :type port: int or None
+        :param device_type: Class selection based on device type.
+        :type device_type: str
+        :param verbose: If `True` enables more verbose logging.
+        :type verbose: bool
+        :param global_delay_factor: Controls global delay factor value.
+        :type global_delay_factor: int
+        :param use_keys: If true, Paramiko will attempt to connect to
+                target device using SSH keys.
+        :type use_keys: bool
+        :param key_file: Name of the SSH key file to use for Paramiko
+                SSH connection authentication.
+        :type key_file: str
+        :param allow_agent: Set to True to enable connect to the SSH agent
+        :type allow_agent: bool
+        :param ssh_strict: If `True` Paramiko will automatically reject
+                unknown hostname and keys. If 'False' Paramiko will
+                automatically add the hostname and new host key.
+        :type ssh_strict: bool
+        :param system_host_keys: If `True` Paramiko will load host keys
+                from the user's local 'known hosts' file.
+        :type system_host_keys: bool
+        :param alt_host_keys: If `True` host keys will be loaded from
+                a local host-key file.
+        :type alt_host_keys: bool
+        :param alt_key_file: If `alt_host_keys` is set to `True`, provide
+                the filename of the local host-key file to load.
+        :type alt_key_file: str
+        :param ssh_config_file: File name of a OpenSSH configuration file
+                to load SSH connection parameters from.
+        :type ssh_config_file: str
+        :param timeout: Set a timeout on blocking read/write operations.
+        :type timeout: float
+
+        """
 
         if ip:
             self.host = ip
@@ -93,6 +148,16 @@ class BaseConnection(object):
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    def __enter__(self):
+        """Enter runtime context"""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Gracefully close connection on context manager exit"""
+        self.disconnect()
+        if exc_type is not None:
+            raise exc_type(exc_value)
+
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
         if self.protocol == 'ssh':
@@ -101,6 +166,7 @@ class BaseConnection(object):
             self.remote_conn.write(write_bytes(out_data))
         else:
             raise ValueError("Invalid protocol specified")
+        log.debug("write_channel: {}".format(write_bytes(out_data)))
 
     def read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
@@ -110,9 +176,11 @@ class BaseConnection(object):
                 if self.remote_conn.recv_ready():
                     output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 else:
-                    return output
+                    break
         elif self.protocol == 'telnet':
-            return self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+            output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+        log.debug("read_channel: {}".format(output))
+        return output
 
     def _read_channel_expect(self, pattern='', re_flags=0):
         """
@@ -144,7 +212,9 @@ class BaseConnection(object):
             if self.protocol == 'ssh':
                 try:
                     # If no data available will wait timeout seconds trying to read
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    new_data = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    log.debug("_read_channel_expect read_data: {}".format(new_data))
+                    output += new_data
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
             elif self.protocol == 'telnet':
@@ -214,6 +284,7 @@ class BaseConnection(object):
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
+        TELNET_RETURN = '\r\n'
         debug = False
         if debug:
             print("In telnet_login():")
@@ -230,7 +301,7 @@ class BaseConnection(object):
                 if debug:
                     print(output)
                 if re.search(r"sername", output):
-                    self.write_channel(self.username + '\n')
+                    self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -238,7 +309,7 @@ class BaseConnection(object):
                         print("checkpoint1")
                         print(output)
                 if re.search(r"assword", output):
-                    self.write_channel(self.password + "\n")
+                    self.write_channel(self.password + TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -249,17 +320,33 @@ class BaseConnection(object):
                         if debug:
                             print("checkpoint3")
                         return return_msg
-                if re.search(r"assword required, but none set", output):
+
+                # Support direct telnet through terminal server
+                if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
                     if debug:
                         print("checkpoint4")
+                    self.write_channel("no" + TELNET_RETURN)
+                    time.sleep(.5 * delay_factor)
+                    count = 0
+                    while count < 15:
+                        output = self.read_channel()
+                        return_msg += output
+                        if re.search(r"ress RETURN to get started", output):
+                            output = ""
+                            break
+                        time.sleep(2 * delay_factor)
+                        count += 1
+                if re.search(r"assword required, but none set", output):
+                    if debug:
+                        print("checkpoint5")
                     msg = "Telnet login failed - Password required, but none set: {0}".format(
                         self.host)
                     raise NetMikoAuthenticationException(msg)
                 if pri_prompt_terminator in output or alt_prompt_terminator in output:
                     if debug:
-                        print("checkpoint5")
+                        print("checkpoint6")
                     return return_msg
-                self.write_channel("\n")
+                self.write_channel(TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
@@ -267,7 +354,7 @@ class BaseConnection(object):
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
-        self.write_channel("\n")
+        self.write_channel(TELNET_RETURN)
         time.sleep(.5 * delay_factor)
         output = self.read_channel()
         return_msg += output
@@ -295,17 +382,16 @@ class BaseConnection(object):
         self.disable_paging()
         self.set_terminal_width()
 
-    def _use_ssh_config(self, connect_dict):
-        """
-        Update SSH connection parameters based on contents of SSH 'config' file
+    def _use_ssh_config(self, dict_arg):
+        """Update SSH connection parameters based on contents of SSH 'config' file."""
 
-        This method modifies the connect_dict dictionary, returns None
-        """
+        connect_dict = dict_arg.copy()
+
         # Use SSHConfig to generate source content.
         full_path = path.abspath(path.expanduser(self.ssh_config_file))
         if path.exists(full_path):
             ssh_config_instance = paramiko.SSHConfig()
-            with open(full_path) as f:
+            with io.open(full_path, "rt", encoding='utf-8') as f:
                 ssh_config_instance.parse(f)
                 host_specifier = "{0}:{1}".format(self.host, self.port)
                 source = ssh_config_instance.lookup(host_specifier)
@@ -329,9 +415,11 @@ class BaseConnection(object):
             connect_dict['sock'] = proxy
         connect_dict['hostname'] = source.get('hostname', self.host)
 
+        return connect_dict
+
     def _connect_params_dict(self):
-        """Convert Paramiko connect params to a dictionary."""
-        return {
+        """Generate dictionary of Paramiko connection parameters."""
+        conn_dict = {
             'hostname': self.host,
             'port': self.port,
             'username': self.username,
@@ -341,6 +429,11 @@ class BaseConnection(object):
             'key_filename': self.key_file,
             'timeout': self.timeout,
         }
+
+        # Check if using SSH 'config' file mainly for SSH proxy support
+        if self.ssh_config_file:
+            conn_dict = self._use_ssh_config(conn_dict)
+        return conn_dict
 
     def _sanitize_output(self, output, strip_command=False, command_string=None,
                          strip_prompt=False):
@@ -367,25 +460,8 @@ class BaseConnection(object):
             self.remote_conn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             self.telnet_login()
         elif self.protocol == 'ssh':
-
-            # Convert Paramiko connection parameters to a dictionary
             ssh_connect_params = self._connect_params_dict()
-
-            # Check if using SSH 'config' file mainly for SSH proxy support
-            if self.ssh_config_file:
-                self._use_ssh_config(ssh_connect_params)
-
-            # Create instance of SSHClient object
-            self.remote_conn_pre = paramiko.SSHClient()
-
-            # Load host_keys for better SSH security
-            if self.system_host_keys:
-                self.remote_conn_pre.load_system_host_keys()
-            if self.alt_host_keys and path.isfile(self.alt_key_file):
-                self.remote_conn_pre.load_host_keys(self.alt_key_file)
-
-            # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-            self.remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+            self.remote_conn_pre = self._build_ssh_client()
 
             # initiate SSH connection
             try:
@@ -415,13 +491,18 @@ class BaseConnection(object):
             if self.verbose:
                 print("Interactive SSH session established")
 
-        # make sure you can read the channel
+            # Make sure you can read the channel
+            return self._test_channel_read()
+
+    def _test_channel_read(self, count=40):
+        """Try to read the channel (generally post login) verify you receive data back."""
         i = 0
         delay_factor = self.select_delay_factor(delay_factor=0)
         main_delay = delay_factor * .1
-        time.sleep(main_delay)
-        while i <= 40:
-            new_data = self.read_channel()
+        time.sleep(main_delay * 10)
+        new_data = ""
+        while i <= count:
+            new_data = self._read_channel_timing()
             if new_data:
                 break
             else:
@@ -436,6 +517,21 @@ class BaseConnection(object):
             return ""
         else:
             raise NetMikoTimeoutException("Timed out waiting for data")
+
+    def _build_ssh_client(self):
+        """Prepare for Paramiko SSH connection."""
+        # Create instance of SSHClient object
+        remote_conn_pre = paramiko.SSHClient()
+
+        # Load host_keys for better SSH security
+        if self.system_host_keys:
+            remote_conn_pre.load_system_host_keys()
+        if self.alt_host_keys and path.isfile(self.alt_key_file):
+            remote_conn_pre.load_host_keys(self.alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+        return remote_conn_pre
 
     def select_delay_factor(self, delay_factor):
         """Choose the greater of delay_factor or self.global_delay_factor."""
@@ -517,7 +613,7 @@ class BaseConnection(object):
         time.sleep(delay_factor * .1)
 
         # Initial attempt to get prompt
-        prompt = self.read_channel().strip()
+        prompt = self.read_channel()
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
 
@@ -793,7 +889,7 @@ class BaseConnection(object):
 
         **kwargs are passed to send_config_set method.
         """
-        with io.open(config_file, encoding='utf-8') as cfg_file:
+        with io.open(config_file, "rt", encoding='utf-8') as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
@@ -844,8 +940,12 @@ class BaseConnection(object):
         ESC[24;27H   Position cursor
         ESC[?25h     Show the cursor
         ESC[E        Next line (HP does ESC-E)
-        ESC[2K       Erase line
+        ESC[K        Erase line from cursor to the end of line
+        ESC[2K       Erase entire line
         ESC[1;24r    Enable scrolling from start to row end
+        ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
+        ESC[?7l      Disable line wrapping
+        ESC[2J       Code erase display
 
         HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
         """
@@ -857,12 +957,20 @@ class BaseConnection(object):
         code_position_cursor = chr(27) + r'\[\d+;\d+H'
         code_show_cursor = chr(27) + r'\[\?25h'
         code_next_line = chr(27) + r'E'
+        code_erase_line_end = chr(27) + r'\[K'
         code_erase_line = chr(27) + r'\[2K'
         code_erase_start_line = chr(27) + r'\[K'
         code_enable_scroll = chr(27) + r'\[\d+;\d+r'
+        code_form_feed = chr(27) + r'\[1L'
+        code_carriage_return = chr(27) + r'\[1M'
+        code_disable_line_wrapping = chr(27) + r'\[\?7l'
+        code_reset_mode_screen_options = chr(27) + r'\[\?\d+l'
+        code_erase_display = chr(27) + r'\[2J'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
-                    code_erase_start_line]
+                    code_erase_start_line, code_form_feed, code_carriage_return,
+                    code_disable_line_wrapping, code_erase_line_end,
+                    code_reset_mode_screen_options, code_erase_display]
 
         output = string_buffer
         for ansi_esc_code in code_set:
