@@ -210,6 +210,6 @@ def ssh_autodetect(request):
     device = test_devices[device_under_test]
     device['verbose'] = False
     my_device_type = device.pop('device_type')
-    device['device_type'] = 'terminal_server'
+    device['device_type'] = 'autodetect'
     conn = SSHDetect(**device)
     return (conn, my_device_type)
