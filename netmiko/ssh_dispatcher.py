@@ -81,7 +81,6 @@ CLASS_MAPPER_BASE = {
     'mellanox_ssh': MellanoxSSH,
 }
 
-
 # Also support keys that end in _ssh
 new_mapper = {}
 for k, v in CLASS_MAPPER_BASE.items():
