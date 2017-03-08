@@ -1,0 +1,13 @@
+---
+
+# Available device_type's are specified in the CLASS_MAPPER variable in
+# netmiko/netmiko/ssh_dispatcher.py
+
+mellanox_ssh:
+  device_type: mellanox_ssh
+  ip: 10.113.177.251
+  username: admin
+  password: admin
+  
+
+  

@@ -1,0 +1,89 @@
+---
+
+cisco_ios:
+  base_prompt: pynet-rtr1
+  router_prompt : pynet-rtr1>
+  enable_prompt: pynet-rtr1#
+  interface_ip: 10.220.88.20
+  version_banner: "Cisco IOS Software"
+  multiple_line_output: "Configuration register is"
+  file_check_cmd: "logging buffered 8880"
+
+juniper:
+  base_prompt: pyclass@pynet-jnpr-srx1
+  router_prompt: pyclass@pynet-jnpr-srx1>
+  enable_prompt: pyclass@pynet-jnpr-srx1#
+  interface_ip: 10.220.88.39
+  version_banner: 'JUNOS Software Release'
+  multiple_line_output: 'security-zone untrust'
+  cmd_response_init: 'archive size 110k files 3'
+  cmd_response_final: 'archive size 120k files 3'
+  commit_comment: 'Unit test on commit with comment'
+
+paloalto_panos:
+  base_prompt: ntc@pa1
+  router_prompt: ntc@pa1>
+  enable_prompt: ntc@pa1>
+  interface_ip: '10.0.0.90'
+  multiple_line_output: 'logdb-version: 7.0.9'
+  version_banner: 'sw-version: 7.0.1'
+  cmd_response_init: 'new_test'
+  cmd_response_final: 'another_test'
+
+brocade_fastiron:
+  base_prompt: SSH@ICX7250-24P Router
+  router_prompt : SSH@ICX7250-24P Router>
+  enable_prompt: SSH@ICX7250-24P Router#
+  interface_ip: 10.18.253.130
+  version_banner: "SW: Version"
+  multiple_line_output: "interface management 1"
+  file_check_cmd: "logging buffered 3000"
+
+brocade_netiron:
+  base_prompt: SSH@MLXe
+  router_prompt : SSH@MLXe>
+  enable_prompt: SSH@MLXe#
+  interface_ip: 10.254.4.128
+  version_banner: "IronWare : Version"
+  multiple_line_output: "All show version done"
+  file_check_cmd: "logging buffered 3000"
+
+brocade_nos:
+  base_prompt: Leaf1
+  router_prompt : Leaf1#
+  enable_prompt: Leaf1#
+  interface_ip: 10.254.4.117
+  version_banner: "Network Operating System Version:"
+  multiple_line_output: "TenGigabitEthernet 34/0/48"
+  cmd_response_init: 'logging raslog console WARNING'
+  cmd_response_final: 'logging raslog console INFO'
+
+aruba_os:
+  base_prompt: "(ARUBA-MASTER) " 
+  router_prompt: "(ARUBA-MASTER) >"
+  enable_prompt: "(ARUBA-MASTER) #"
+  interface_ip: 10.1.200.242
+  version_banner: "Aruba Operating System Software."
+  multiple_line_output: "Supervisor Card"
+  cmd_response_init: "location1"
+  cmd_response_final: "location2"
+
+ubiquiti_edge:
+  base_prompt: "(UBNT EdgeSwitch) " 
+  router_prompt: "(UBNT EdgeSwitch) >"
+  enable_prompt: "(UBNT EdgeSwitch) #"
+  interface_ip: 172.16.51.102
+  version_banner: "Software Version"
+  multiple_line_output: "Current Configuration:"
+  cmd_response_init: ""
+  cmd_response_final: "logging persistent 4"
+
+mellanox_ssh:
+  base_prompt: "ictm-dw-mlnx [standalone: master] " 
+  router_prompt: "ictm-dw-mlnx [standalone: master] >"
+  enable_prompt: "ictm-dw-mlnx [standalone: master] #"
+  interface_ip: 10.113.177.251
+  version_banner: "Product release:"
+  multiple_line_output: "virt_cpu"
+  cmd_response_init: "100 columns"
+  cmd_response_final: "134 columns"

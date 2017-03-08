@@ -1,0 +1,137 @@
+---
+
+cisco_ios:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"   # requires paging to be disabled
+  config: 
+    - "logging buffered 20000"      # base command
+    - "no logging console"
+    - "logging buffered 20010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: "cisco_ios_commands.txt"
+
+cisco_asa:
+  version: "show version"
+  basic: "show ip"
+  extended_output: "show version"   # requires paging to be disabled
+  config:
+    - 'logging buffered notifications'
+    - 'no logging console'
+    - 'logging buffered warnings'
+  config_verification: "show run | inc logging buffer"
+  config_file: "cisco_asa_commands.txt"
+
+arista_eos:
+  version: "show version"
+  basic: "show ip int brief"
+  extended_output: "show logging"   # requires paging to be disabled
+  config: 
+    - "logging buffered 20000"
+    - "no logging console"
+    - "logging buffered 20010"
+  config_verification: "show run | inc logging buffer"
+
+hp_procurve:
+  version: "show version"
+  basic: "show ip"
+  extended_output: "show logging"   # requires paging to be disabled
+  config: 
+    - 'time timezone -420'
+    - 'time daylight-time-rule Continental-US-and-Canada'
+    - 'time timezone -480'
+  config_verification: "show run" 
+
+juniper:
+  version: "show version"
+  basic: "show interfaces terse"
+  extended_output: "show configuration"   # requires paging to be disabled
+  config: 
+   - 'set system syslog archive size 110k files 3'
+   - 'set system time-zone America/New_York'
+   - 'set system syslog archive size 120k files 3'
+  config_verification: "run show configuration | match archive"
+  support_commit: True
+  rollback: 'rollback 0'
+  commit_verification: "run show system commit"
+
+fortinet:
+  version: "get system status"
+  basic: "get system interface physical"
+  extended_output: "get system status" 
+  config:
+    - 'config firewall service category'
+    - 'edit Database'
+    - 'set comment "Generated comment"'
+    - 'end'
+  config_verification: "show firewall service category Database | grep comment"
+
+paloalto_panos:
+  version: "show system info | match version"
+  basic: "show system info"
+  extended_output: "show system info"
+  config:
+    - 'set network vlan new_test'
+    - 'set network vlan another_test'
+  support_commit: True
+  config_verification: 'run show vlan all'
+
+brocade_fastiron:
+  version: "show version"
+  basic: "show ip interface"
+  extended_output: "show running-config"   # requires paging to be disabled
+  config: 
+    - "logging buffered 4000"      # base command
+    - "no logging console"
+    - "logging buffered 3000"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: "brocade_fastiron_commands.txt"
+
+brocade_netiron:
+  version: "show version"
+  basic: "show ip interface"
+  extended_output: "show version"   # requires paging to be disabled
+  config: 
+    - "logging buffered 4000"      # base command
+    - "no logging console"
+    - "logging buffered 3000"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: "brocade_netiron_commands.txt"
+
+brocade_nos:
+  version: "show version"
+  basic: "show interface Management"
+  extended_output: "show ip interface brief"   # requires paging to be disabled
+  config: 
+    - "logging raslog console WARNING"      # base command
+    - "logging raslog console INFO"
+  config_verification: "show run | inc raslog"
+
+aruba_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version" 
+  config:
+    - "location location1"
+    - "location location2"
+  config_verification: "show location"
+
+ubiquiti_edge:
+  version: "show version"
+  basic: "show network"
+  extended_output: "show running-config"
+  config:
+    - "logging persistent 3"
+    - "no logging persistent"
+    - "logging persistent 4"
+  config_verification: "show running-config | include 'logging'"
+
+mellanox_ssh:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show stats sample" # requires paging to be disabled
+  config:
+    - "terminal width 100"
+    - "terminal width 134"
+  config_verification: "show terminal | include width"
+
