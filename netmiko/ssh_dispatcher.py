@@ -81,6 +81,7 @@ CLASS_MAPPER_BASE = {
     'mellanox_ssh': MellanoxSSH,
 }
 
+
 # Also support keys that end in _ssh
 new_mapper = {}
 for k, v in CLASS_MAPPER_BASE.items():
@@ -95,6 +96,9 @@ CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 
 # Add general terminal_server driver
 CLASS_MAPPER['terminal_server'] = TerminalServerSSH
+
+# Add autodetect driver (mapped to TerminalServerSSH)
+CLASS_MAPPER['autodetect'] = TerminalServerSSH
 
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
@@ -120,7 +124,6 @@ def ssh_dispatcher(device_type):
 
 def redispatch(obj, device_type, session_prep=True):
     """Dynamically change Netmiko object's class to proper class.
-
     Generally used with terminal_server device_type when you need to redispatch after interacting
     with terminal server.
     """
