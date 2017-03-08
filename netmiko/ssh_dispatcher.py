@@ -34,6 +34,7 @@ from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
+from netmiko.mellanox import MellanoxSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -77,6 +78,7 @@ CLASS_MAPPER_BASE = {
     'ciena_saos': CienaSaosSSH,
     'cisco_tp': CiscoTpTcCeSSH,
     'generic_termserver': TerminalServerSSH,
+    'mellanox_ssh': MellanoxSSH,
 }
 
 # Also support keys that end in _ssh
@@ -93,9 +95,6 @@ CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 
 # Add general terminal_server driver
 CLASS_MAPPER['terminal_server'] = TerminalServerSSH
-
-# Add autodetect driver (mapped to TerminalServerSSH)
-CLASS_MAPPER['autodetect'] = TerminalServerSSH
 
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
