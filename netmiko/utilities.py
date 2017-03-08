@@ -50,9 +50,9 @@ def load_yaml_file(yaml_file):
         sys.exit("Unable to open YAML file: {0}".format(yaml_file))
 
 
-def load_devices():
+def load_devices(file_name=None):
     """Find and load .netmiko.yml file."""
-    yaml_devices_file = find_cfg_file()
+    yaml_devices_file = find_cfg_file(file_name)
     return load_yaml_file(yaml_devices_file)
 
 
