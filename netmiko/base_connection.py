@@ -281,12 +281,11 @@ class BaseConnection(object):
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
+                     username_pattern=r"sername", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
         TELNET_RETURN = '\r\n'
-        debug = False
-        if debug:
-            print("In telnet_login():")
+
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -297,54 +296,27 @@ class BaseConnection(object):
             try:
                 output = self.read_channel()
                 return_msg += output
-                if debug:
-                    print(output)
-                if re.search(r"sername", output):
+
+                # Search for username pattern / send username
+                if re.search(username_pattern, output):
                     self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if debug:
-                        print("checkpoint1")
-                        print(output)
-                if re.search(r"assword", output):
+
+                # Search for password pattern / send password
+                if re.search(pwd_pattern, output):
                     self.write_channel(self.password + TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if debug:
-                        print("checkpoint2")
-                        print(output)
                     if pri_prompt_terminator in output or alt_prompt_terminator in output:
-                        if debug:
-                            print("checkpoint3")
                         return return_msg
 
-                # Support direct telnet through terminal server
-                if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
-                    if debug:
-                        print("checkpoint4")
-                    self.write_channel("no" + TELNET_RETURN)
-                    time.sleep(.5 * delay_factor)
-                    count = 0
-                    while count < 15:
-                        output = self.read_channel()
-                        return_msg += output
-                        if re.search(r"ress RETURN to get started", output):
-                            output = ""
-                            break
-                        time.sleep(2 * delay_factor)
-                        count += 1
-                if re.search(r"assword required, but none set", output):
-                    if debug:
-                        print("checkpoint5")
-                    msg = "Telnet login failed - Password required, but none set: {0}".format(
-                        self.host)
-                    raise NetMikoAuthenticationException(msg)
+                # Check if proper data received
                 if pri_prompt_terminator in output or alt_prompt_terminator in output:
-                    if debug:
-                        print("checkpoint6")
                     return return_msg
+
                 self.write_channel(TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
@@ -358,8 +330,6 @@ class BaseConnection(object):
         output = self.read_channel()
         return_msg += output
         if pri_prompt_terminator in output or alt_prompt_terminator in output:
-            if debug:
-                print("checkpoint6")
             return return_msg
 
         msg = "Telnet login failed: {0}".format(self.host)
