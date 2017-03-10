@@ -25,6 +25,7 @@ from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.dell import DellForce10SSH
+from netmiko.dell import DellPowerConnectSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.aruba import ArubaSSH
@@ -70,6 +71,7 @@ CLASS_MAPPER_BASE = {
     'alcatel_sros': AlcatelSrosSSH,
     'fortinet': FortinetSSH,
     'dell_force10': DellForce10SSH,
+    'dell_powerconnect': DellPowerConnectSSH,
     'paloalto_panos': PaloAltoPanosSSH,
     'quanta_mesh': QuantaMeshSSH,
     'aruba_os': ArubaSSH,
