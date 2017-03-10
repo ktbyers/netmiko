@@ -30,7 +30,7 @@ Examples
                      'username': 'test',
                      'password': 'foo'}
 >>> guesser = SSHDetect(**remote_device)
->>> best_match = guess.autodetect()
+>>> best_match = guesser.autodetect()
 >>> print(best_match) # Name of the best device_type to use further
 >>> print(guesser.potential_matches) # Dictionary of the whole matching result
 
