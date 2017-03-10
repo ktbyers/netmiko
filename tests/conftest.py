@@ -88,7 +88,7 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     output = ssh_conn.send_command_timing(cmd)
     if debug:
         print(output)
-    if 'Delete filename' in output and dest_file in output:
+    if 'Delete' in output and dest_file in output:
         output += ssh_conn.send_command_timing("\n")
         if debug:
             print(output)
