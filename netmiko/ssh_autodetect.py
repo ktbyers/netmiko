@@ -1,9 +1,42 @@
 """
-This module is used to auto-detect the type of a device in order to automatically create a
-Netmiko connection.
+The ssh_autodetect module is used to auto-detect the netmiko device_type to use to further initiate
+a new SSH connection with a remote host. This auto-detection is based on a unique class called
+**SSHDetect**.
 
-The will avoid to hard coding the 'device_type' when using the ConnectHandler factory function
-from Netmiko.
+Notes
+-----
+
+The **SSHDetect** class is instantiated using the same parameters than a standard Netmiko
+connection (see the *netmiko.ssh_dispatacher.ConnectHandler* function). The only acceptable value
+for the 'device_type' argument is 'autodetect'.
+
+The auto-detection is solely based on the *SSH_MAPPER_BASE* dictionary. The keys are the name of
+the 'device_type' supported for auto-detection and the value is another dictionary describing how
+to handle the auto-detection.
+
+* "cmd" : The command to send to the remote device. **The command output must not require paging.**
+* "search_patterns" : A list of regex to compare with the output of the command
+* "priority" : An integer (0-99) which specifies the confidence of the match above
+* "dispatch" : The function to call to try the autodetection (per default SSHDetect._autodetect_std)
+
+Examples
+--------
+
+# Auto-detection section
+>>> from netmiko.ssh_autodetect import SSHDetect
+>>> from netmiko.ssh_dispatcher import ConnectHandler
+>>> remote_device = {'device_type': 'autodetect',
+                     'host': 'remote.host',
+                     'username': 'test',
+                     'password': 'foo'}
+>>> guesser = SSHDetect(**remote_device)
+>>> best_match = guess.autodetect()
+>>> print(best_match) # Name of the best device_type to use further
+>>> print(guesser.potential_matches) # Dictionary of the whole matching result
+
+# Netmiko connection creation section
+>>> remote_device['device_type'] = best_match
+>>> connection = ConnectHandler(**remote_device)
 """
 from __future__ import unicode_literals
 
@@ -26,7 +59,7 @@ SSH_MAPPER_BASE = {
         "cmd": "show version | inc Cisco",
         "search_patterns": [
            "Cisco IOS Software",
-           "Cisco Internetwork Operating System Software",
+           "Cisco Internetwork Operating System Software"
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -67,6 +100,8 @@ SSH_MAPPER_BASE = {
 class SSHDetect(object):
     """
     The SSHDetect class tries to automatically guess the device type running on the SSH remote end.
+    Be careful that the kwargs 'device_type' must be set to 'autodetect', otherwise it won't work at
+    all.
 
     Parameters
     ----------
@@ -93,7 +128,7 @@ class SSHDetect(object):
         """
         Constructor of the SSHDetect class
         """
-        if kwargs['device_type'] != "autodetect":
+        if kwargs["device_type"] != "autodetect":
             raise ValueError("The connection device_type must be 'autodetect'")
         self.connection = ConnectHandler(*args, **kwargs)
         # Call the _test_channel_read() in base to clear initial data
@@ -118,6 +153,11 @@ class SSHDetect(object):
             accuracy = autodetect_method(**tmp_dict)
             if accuracy:
                 self.potential_matches[device_type] = accuracy
+                if accuracy >= 99:  # Stop the loop as we are sure of our match
+                    best_match = sorted(self.potential_matches.items(), key=lambda t: t[1],
+                                        reverse=True)
+                    self.connection.disconnect()
+                    return best_match[0][0]
 
         if not self.potential_matches:
             self.connection.disconnect()
@@ -127,7 +167,7 @@ class SSHDetect(object):
         self.connection.disconnect()
         return best_match[0][0]
 
-    def _send_command(self, cmd=''):
+    def _send_command(self, cmd=""):
         """
         Handle reading/writing channel directly. It is also sanitizing the output received.
 
@@ -192,6 +232,8 @@ class SSHDetect(object):
         invalid_responses = [
             r'% Invalid input detected',
             r'syntax error, expecting',
+            r'Error: Unrecognized command',
+            r'%Error'
         ]
         if not cmd or not search_patterns:
             return 0
@@ -203,7 +245,7 @@ class SSHDetect(object):
                 if match:
                     return 0
             for pattern in search_patterns:
-                match = re.search(pattern, response, flags=re.I)
+                match = re.search(pattern, response, flags=re_flags)
                 if match:
                     return priority
         except Exception:
