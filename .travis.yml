@@ -4,11 +4,10 @@ python:
   - "2.7"
   - "3.4"
   - "3.5"
-before_install: 
-  - openssl aes-256-cbc -K $encrypted_25c51ccabb0e_key -iv $encrypted_25c51ccabb0e_iv -in travis_test_env.tar.enc -out travis_test_env.tar -d
-  - tar xvf travis_test_env.tar
+#before_install: 
+#  - openssl aes-256-cbc -K $encrypted_25c51ccabb0e_key -iv $encrypted_25c51ccabb0e_iv -in travis_test_env.tar.enc -out travis_test_env.tar -d
+#  - tar xvf travis_test_env.tar
 install: 
   - pip install -r requirements-dev.txt
 script: 
-  #- python travis_test.py
   - pylama .
