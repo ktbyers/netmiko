@@ -167,9 +167,11 @@ class BaseConnection(object):
             raise NetMikoTimeoutException(msg)
         return False
 
-    def _lock_netmiko_session(self, start):
+    def _lock_netmiko_session(self, start=None):
         """
         """
+        if not start:
+            start = time.time()
         while (not self.__session_locker.acquire(False)
                and not self._timeout_exceeded(start, 'The netmiko channel is not available!')):
                 # will wait here till the SSH channel is free again and ready to receive requests
@@ -195,6 +197,7 @@ class BaseConnection(object):
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
+        self._lock_netmiko_session()
         try:
             self._write_channel(out_data)
         finally:
@@ -219,6 +222,7 @@ class BaseConnection(object):
     def read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
         output = ""
+        self._lock_netmiko_session()
         try:
             output = self._read_channel()
         finally:
