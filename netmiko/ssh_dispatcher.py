@@ -35,6 +35,7 @@ from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
+from netmiko.pluribus import PluribusSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -79,6 +80,7 @@ CLASS_MAPPER_BASE = {
     'ciena_saos': CienaSaosSSH,
     'cisco_tp': CiscoTpTcCeSSH,
     'generic_termserver': TerminalServerSSH,
+    'pluribus': PluribusSSH
 }
 
 # Also support keys that end in _ssh
