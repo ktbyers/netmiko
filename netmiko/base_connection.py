@@ -117,6 +117,7 @@ class BaseConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
 
+        self.__session_locker = Lock()
         # determine if telnet or SSH
         if '_telnet' in device_type:
             self.protocol = 'telnet'
@@ -147,7 +148,6 @@ class BaseConnection(object):
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
-        self.__session_locker = Lock()
 
     def __enter__(self):
         """Enter runtime context"""
@@ -171,7 +171,7 @@ class BaseConnection(object):
         """
         """
         while (not self.__session_locker.acquire(False)
-               and not self._timeout_exceeded(start, 'Waiting to acquire the SSH session!')):
+               and not self._timeout_exceeded(start, 'The netmiko channel is not available!')):
                 # will wait here till the SSH channel is free again and ready to receive requests
                 # if stays too much, _timeout_exceeded will raise NetMikoTimeoutException
                 time.sleep(0.01)
@@ -183,7 +183,7 @@ class BaseConnection(object):
         if self.__session_locker.locked():
             self.__session_locker.release()
 
-    def write_channel(self, out_data):
+    def _write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
         if self.protocol == 'ssh':
             self.remote_conn.sendall(write_bytes(out_data))
@@ -193,7 +193,16 @@ class BaseConnection(object):
             raise ValueError("Invalid protocol specified")
         log.debug("write_channel: {}".format(write_bytes(out_data)))
 
-    def read_channel(self):
+    def write_channel(self, out_data):
+        """Generic handler that will write to both SSH and telnet channel."""
+        try:
+            self._write_channel(out_data)
+        finally:
+            # any exception will be still raised
+            # doing so we make sure we release the netmiko channel
+            self._unlock_netmiko_session()
+
+    def _read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
         if self.protocol == 'ssh':
             output = ""
@@ -205,6 +214,17 @@ class BaseConnection(object):
         elif self.protocol == 'telnet':
             output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
         log.debug("read_channel: {}".format(output))
+        return output
+
+    def read_channel(self):
+        """Generic handler that will read all the data from an SSH or telnet channel."""
+        output = ""
+        try:
+            output = self._read_channel()
+        finally:
+            # any exception will be still raised
+            # doing so we make sure we release the netmiko channel
+            self._unlock_netmiko_session()
         return output
 
     def _read_channel_expect(self, pattern='', re_flags=0):
