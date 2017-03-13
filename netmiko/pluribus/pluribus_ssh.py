@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from netmiko.base_connection import BaseConnection
 
+
 class PluribusSSH(BaseConnection):
     '''Common methods for Pluribus.'''
 
     def disable_paging(self):
-        '''Make sure pagins is disabled.'''
+        '''Make sure paging is disabled.'''
         return super(PluribusSSH, self).disable_paging('pager off')
 
     def session_preparation(self):
