@@ -17,6 +17,7 @@ import socket
 import re
 import io
 from os import path
+from threading import Lock
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -146,6 +147,7 @@ class BaseConnection(object):
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
+        self.__session_locker = Lock()
 
     def __enter__(self):
         """Enter runtime context"""
@@ -156,6 +158,30 @@ class BaseConnection(object):
         self.disconnect()
         if exc_type is not None:
             raise exc_type(exc_value)
+
+    def _timeout_exceeded(self, start, msg='Timeout exceeded!'):
+        if not start:
+            return False  # reference not specified, noth to compare => no error
+        if time.time() - start > self.timeout:
+            # it timeout exceeded, throw TimeoutError
+            raise NetMikoTimeoutException(msg)
+        return False
+
+    def _lock_netmiko_session(self, start):
+        """
+        """
+        while (not self.__session_locker.acquire(False)
+               and not self._timeout_exceeded(start, 'Waiting to acquire the SSH session!')):
+                # will wait here till the SSH channel is free again and ready to receive requests
+                # if stays too much, _timeout_exceeded will raise NetMikoTimeoutException
+                time.sleep(0.01)
+        return True  # ready to go now
+
+    def _unlock_netmiko_session(self):
+        """
+        """
+        if self.__session_locker.locked():
+            self.__session_locker.release()
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
