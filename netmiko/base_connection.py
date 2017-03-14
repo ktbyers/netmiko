@@ -176,7 +176,7 @@ class BaseConnection(object):
                and not self._timeout_exceeded(start, 'The netmiko channel is not available!')):
                 # will wait here till the SSH channel is free again and ready to receive requests
                 # if stays too much, _timeout_exceeded will raise NetMikoTimeoutException
-                time.sleep(0.01)
+                time.sleep(.1)
         return True  # ready to go now
 
     def _unlock_netmiko_session(self):
