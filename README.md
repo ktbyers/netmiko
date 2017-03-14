@@ -42,6 +42,7 @@ Cisco WLC
 Dell-Force10 DNOS9  
 Huawei  
 Palo Alto PAN-OS  
+Pluribus  
 Vyatta VyOS  
 
 ###### Experimental
