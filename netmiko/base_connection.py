@@ -123,7 +123,7 @@ class BaseConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
 
-        self.__session_locker = Lock()
+        self._session_locker = Lock()
         # determine if telnet or SSH
         if '_telnet' in device_type:
             self.protocol = 'telnet'
@@ -171,32 +171,32 @@ class BaseConnection(object):
         serving queue.
         """
         if not start:
-            return False  # reference not specified, noth to compare => no error
+            # Must provide a comparison time
+            return False
         if time.time() - start > self.session_timeout:
-            # it session_timeout exceeded, throw NetMikoTimeoutException
+            # session_timeout exceeded
             raise NetMikoTimeoutException(msg)
         return False
 
     def _lock_netmiko_session(self, start=None):
         """
-        Try acquiring the netmiko session. If not available,
-        wait in the queue till the channel is available again.
+        Try to acquire the Netmiko session lock. If not available, wait in the queue until
+        the channel is available again.
         """
         if not start:
             start = time.time()
-        while (not self.__session_locker.acquire(False)
-               and not self._timeout_exceeded(start, 'The netmiko channel is not available!')):
-                # will wait here till the SSH channel is free again and ready to receive requests
-                # if stays too much, _timeout_exceeded will raise NetMikoTimeoutException
+        # Wait here until the SSH channel lock is acquired or until session_timeout exceeded
+        while (not self._session_locker.acquire(False) and
+               not self._timeout_exceeded(start, 'The netmiko channel is not available!')):
                 time.sleep(.1)
-        return True  # ready to go now
+        return True
 
     def _unlock_netmiko_session(self):
         """
         Release the channel at the end of the task.
         """
-        if self.__session_locker.locked():
-            self.__session_locker.release()
+        if self._session_locker.locked():
+            self._session_locker.release()
 
     def _write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
@@ -214,8 +214,7 @@ class BaseConnection(object):
         try:
             self._write_channel(out_data)
         finally:
-            # any exception will be still raised
-            # doing so we make sure we release the netmiko channel
+            # Always unlock the SSH channel, even on exception.
             self._unlock_netmiko_session()
 
     def _read_channel(self):
@@ -239,8 +238,7 @@ class BaseConnection(object):
         try:
             output = self._read_channel()
         finally:
-            # any exception will be still raised
-            # doing so we make sure we release the netmiko channel
+            # Always unlock the SSH channel, even on exception.
             self._unlock_netmiko_session()
         return output
 
