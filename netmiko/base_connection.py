@@ -261,11 +261,14 @@ class BaseConnection(object):
             if self.protocol == 'ssh':
                 try:
                     # If no data available will wait timeout seconds trying to read
+                    self._lock_netmiko_session()
                     new_data = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+                finally:
+                    self._unlock_netmiko_session()
             elif self.protocol == 'telnet':
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
