@@ -126,7 +126,11 @@ class CiscoBaseConnection(BaseConnection):
 
     def cleanup(self):
         """Gracefully exit the SSH session."""
-        self.exit_config_mode()
+        try:
+            self.exit_config_mode()
+        except Exception:
+            # Always try to send 'exit' regardless of whether exit_config_mode works or not.
+            pass
         self.write_channel("exit\n")
 
     def _autodetect_fs(self, cmd='dir', pattern=r'Directory of (.*)/'):
