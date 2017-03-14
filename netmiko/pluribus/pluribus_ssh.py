@@ -30,10 +30,10 @@ class PluribusSSH(BaseConnection):
         '''
         No special actions to enter in config mode.
         '''
-        return True
+        return ''
 
     def exit_config_mode(self):
         '''
         No special actions to exit config mode.
         '''
-        return True
+        return ''
