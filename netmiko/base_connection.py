@@ -17,6 +17,7 @@ import socket
 import re
 import io
 from os import path
+from threading import Lock
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -33,7 +34,8 @@ class BaseConnection(object):
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
-                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
+                 session_timeout=60):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -86,7 +88,11 @@ class BaseConnection(object):
         :type ssh_config_file: str
         :param timeout: Set a timeout on blocking read/write operations.
         :type timeout: float
-
+        :param session_timeout: Set a timeout for parallel requests. When
+                the channel is busy serving other tasks and the queue is
+                very long, in case the wait time is higher than this value,
+                NetMikoTimeoutException will be raised.
+        :type session_timeout: float
         """
         if ip:
             self.host = ip
@@ -109,6 +115,7 @@ class BaseConnection(object):
         self.ansi_escape_codes = False
         self.verbose = verbose
         self.timeout = timeout
+        self.session_timeout = session_timeout
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -116,6 +123,7 @@ class BaseConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
 
+        self.__session_locker = Lock()
         # determine if telnet or SSH
         if '_telnet' in device_type:
             self.protocol = 'telnet'
@@ -157,7 +165,40 @@ class BaseConnection(object):
         if exc_type is not None:
             raise exc_type(exc_value)
 
-    def write_channel(self, out_data):
+    def _timeout_exceeded(self, start, msg='Timeout exceeded!'):
+        """
+        Raise NetMikoTimeoutException if waiting too much in the
+        serving queue.
+        """
+        if not start:
+            return False  # reference not specified, noth to compare => no error
+        if time.time() - start > self.session_timeout:
+            # it session_timeout exceeded, throw NetMikoTimeoutException
+            raise NetMikoTimeoutException(msg)
+        return False
+
+    def _lock_netmiko_session(self, start=None):
+        """
+        Try acquiring the netmiko session. If not available,
+        wait in the queue till the channel is available again.
+        """
+        if not start:
+            start = time.time()
+        while (not self.__session_locker.acquire(False)
+               and not self._timeout_exceeded(start, 'The netmiko channel is not available!')):
+                # will wait here till the SSH channel is free again and ready to receive requests
+                # if stays too much, _timeout_exceeded will raise NetMikoTimeoutException
+                time.sleep(.1)
+        return True  # ready to go now
+
+    def _unlock_netmiko_session(self):
+        """
+        Release the channel at the end of the task.
+        """
+        if self.__session_locker.locked():
+            self.__session_locker.release()
+
+    def _write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
         if self.protocol == 'ssh':
             self.remote_conn.sendall(write_bytes(out_data))
@@ -167,7 +208,17 @@ class BaseConnection(object):
             raise ValueError("Invalid protocol specified")
         log.debug("write_channel: {}".format(write_bytes(out_data)))
 
-    def read_channel(self):
+    def write_channel(self, out_data):
+        """Generic handler that will write to both SSH and telnet channel."""
+        self._lock_netmiko_session()
+        try:
+            self._write_channel(out_data)
+        finally:
+            # any exception will be still raised
+            # doing so we make sure we release the netmiko channel
+            self._unlock_netmiko_session()
+
+    def _read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
         if self.protocol == 'ssh':
             output = ""
@@ -179,6 +230,18 @@ class BaseConnection(object):
         elif self.protocol == 'telnet':
             output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
         log.debug("read_channel: {}".format(output))
+        return output
+
+    def read_channel(self):
+        """Generic handler that will read all the data from an SSH or telnet channel."""
+        output = ""
+        self._lock_netmiko_session()
+        try:
+            output = self._read_channel()
+        finally:
+            # any exception will be still raised
+            # doing so we make sure we release the netmiko channel
+            self._unlock_netmiko_session()
         return output
 
     def _read_channel_expect(self, pattern='', re_flags=0):
@@ -211,11 +274,14 @@ class BaseConnection(object):
             if self.protocol == 'ssh':
                 try:
                     # If no data available will wait timeout seconds trying to read
+                    self._lock_netmiko_session()
                     new_data = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+                finally:
+                    self._unlock_netmiko_session()
             elif self.protocol == 'telnet':
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
