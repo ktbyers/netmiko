@@ -82,3 +82,10 @@ dell_powerconnect:
   ip: 192.168.1.254
   username: admin
   password: admin
+
+pluribus:
+  device_type: pluribus_ssh
+  ip: 172.17.19.1
+  username: mircea
+  password: weakpass
+

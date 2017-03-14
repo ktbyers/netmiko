@@ -135,3 +135,13 @@ dell_powerconnect:
     - "no logging buffered"
     - "logging buffered 200"
   config_verification: "show running-config"
+
+pluribus_ssh:
+  version: "fabric-show parsable-delim ;"
+  basic: "user-show name mircea parsable-delim ;"
+  extended_output: "switch-info-show parsable-delim ;"
+  config:
+    - "role-create name dummy scope local"
+    - "role-delete name dummy"
+    - "role-create name dummy scope local access read-only"
+  config_verification: "running-config-show"

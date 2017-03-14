@@ -87,3 +87,11 @@ dell_powerconnect:
   multiple_line_output: "Gigabit Ethernet Ports"
   cmd_response_init: "logging buffered 400"
   cmd_response_final: "logging file warnings"
+
+pluribus:
+  base_prompt: "CLI (mircea@sw05.bjm01) "
+  router_prompt: "CLI (mircea@sw05.bjm01) "
+  enable_prompt: "CLI (mircea@sw05.bjm01) >"
+  interface_ip: ";mircea;fabric;70000;;cftac;"
+  multiple_line_output: "chassis-serial"
+  version_banner: "bjm;::;a0000bd:52b35878;0;;13068;"
