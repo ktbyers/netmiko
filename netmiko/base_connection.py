@@ -166,6 +166,10 @@ class BaseConnection(object):
             raise exc_type(exc_value)
 
     def _timeout_exceeded(self, start, msg='Timeout exceeded!'):
+        """
+        Raise NetMikoTimeoutException if waiting too much in the
+        serving queue.
+        """
         if not start:
             return False  # reference not specified, noth to compare => no error
         if time.time() - start > self.session_timeout:
@@ -175,6 +179,8 @@ class BaseConnection(object):
 
     def _lock_netmiko_session(self, start=None):
         """
+        Try acquiring the netmiko session. If not available,
+        wait in the queue till the channel is available again.
         """
         if not start:
             start = time.time()
@@ -187,6 +193,7 @@ class BaseConnection(object):
 
     def _unlock_netmiko_session(self):
         """
+        Release the channel at the end of the task.
         """
         if self.__session_locker.locked():
             self.__session_locker.release()
