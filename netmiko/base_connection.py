@@ -34,7 +34,8 @@ class BaseConnection(object):
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
-                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
+                 session_timeout=60):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -87,7 +88,11 @@ class BaseConnection(object):
         :type ssh_config_file: str
         :param timeout: Set a timeout on blocking read/write operations.
         :type timeout: float
-
+        :param session_timeout: Set a timeout for parallel requests. When
+                the channel is busy serving other tasks and the queue is
+                very long, in case the wait time is higher than this value,
+                NetMikoTimeoutException will be raised.
+        :type session_timeout: float
         """
         if ip:
             self.host = ip
@@ -110,6 +115,7 @@ class BaseConnection(object):
         self.ansi_escape_codes = False
         self.verbose = verbose
         self.timeout = timeout
+        self.session_timeout = session_timeout
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -162,8 +168,8 @@ class BaseConnection(object):
     def _timeout_exceeded(self, start, msg='Timeout exceeded!'):
         if not start:
             return False  # reference not specified, noth to compare => no error
-        if time.time() - start > self.timeout:
-            # it timeout exceeded, throw TimeoutError
+        if time.time() - start > self.session_timeout:
+            # it session_timeout exceeded, throw NetMikoTimeoutException
             raise NetMikoTimeoutException(msg)
         return False
 
