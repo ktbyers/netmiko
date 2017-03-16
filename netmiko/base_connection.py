@@ -259,8 +259,7 @@ class BaseConnection(object):
         debug = False
         output = ''
         if not pattern:
-            pattern = self.base_prompt
-        pattern = re.escape(pattern)
+            pattern = re.escape(self.base_prompt)
         if debug:
             print("Pattern is: {}".format(pattern))
 
@@ -332,8 +331,7 @@ class BaseConnection(object):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
         output = ''
         if not pattern:
-            pattern = self.base_prompt
-        pattern = re.escape(pattern)
+            pattern = re.escape(self.base_prompt)
         base_prompt_pattern = re.escape(self.base_prompt)
         while True:
             try:
