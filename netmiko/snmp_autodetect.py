@@ -23,6 +23,7 @@ netmiko requirements. So installation of pysnmp might be required.
 from __future__ import unicode_literals
 
 import re
+
 try:
     from pysnmp.entity.rfc3413.oneliner import cmdgen
 except ImportError:
@@ -36,8 +37,11 @@ SNMP_MAPPER_BASE = {
                   "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
                   "priority": 60},
     'arista_eos': {"oid": ".1.3.6.1.2.1.1.1.0",
-                  "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
-                  "priority": 60},
+                   "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
+                   "priority": 60},
+    'hp': {"oid": ".1.3.6.1.2.1.1.1.0",
+           "expr": re.compile(r".*Hewlett-Packard.*", re.IGNORECASE),
+           "priority": 99},
     'cisco_xe': {"oid": ".1.3.6.1.2.1.1.1.0",
                  "expr": re.compile(r".*IOS-XE Software,.*", re.IGNORECASE),
                  "priority": 99},
@@ -121,6 +125,7 @@ class SNMPDetect(object):
         Try to determine the device type.
 
     """
+
     def __init__(self, hostname, snmp_version="v3", snmp_port=161, community=None, user="",
                  auth_key="", encrypt_key="", auth_proto="sha", encrypt_proto="aes128"):
 
