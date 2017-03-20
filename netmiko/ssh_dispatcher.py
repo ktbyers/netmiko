@@ -25,6 +25,7 @@ from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.dell import DellForce10SSH
+from netmiko.dell import DellPowerConnectSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.aruba import ArubaSSH
@@ -35,6 +36,7 @@ from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.mellanox import MellanoxSSH
+from netmiko.pluribus import PluribusSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -71,6 +73,7 @@ CLASS_MAPPER_BASE = {
     'alcatel_sros': AlcatelSrosSSH,
     'fortinet': FortinetSSH,
     'dell_force10': DellForce10SSH,
+    'dell_powerconnect': DellPowerConnectSSH,
     'paloalto_panos': PaloAltoPanosSSH,
     'quanta_mesh': QuantaMeshSSH,
     'aruba_os': ArubaSSH,
@@ -79,6 +82,7 @@ CLASS_MAPPER_BASE = {
     'cisco_tp': CiscoTpTcCeSSH,
     'generic_termserver': TerminalServerSSH,
     'mellanox_ssh': MellanoxSSH,
+    'pluribus': PluribusSSH
 }
 
 # Also support keys that end in _ssh

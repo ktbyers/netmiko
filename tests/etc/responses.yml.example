@@ -59,7 +59,7 @@ brocade_nos:
   cmd_response_final: 'logging raslog console INFO'
 
 aruba_os:
-  base_prompt: "(ARUBA-MASTER) " 
+  base_prompt: "(ARUBA-MASTER) "
   router_prompt: "(ARUBA-MASTER) >"
   enable_prompt: "(ARUBA-MASTER) #"
   interface_ip: 10.1.200.242
@@ -69,7 +69,7 @@ aruba_os:
   cmd_response_final: "location2"
 
 ubiquiti_edge:
-  base_prompt: "(UBNT EdgeSwitch) " 
+  base_prompt: "(UBNT EdgeSwitch) "
   router_prompt: "(UBNT EdgeSwitch) >"
   enable_prompt: "(UBNT EdgeSwitch) #"
   interface_ip: 172.16.51.102
@@ -77,3 +77,21 @@ ubiquiti_edge:
   multiple_line_output: "Current Configuration:"
   cmd_response_init: ""
   cmd_response_final: "logging persistent 4"
+
+dell_powerconnect:
+  base_prompt: myswitch
+  router_prompt : myswitch#
+  enable_prompt: myswitch#
+  interface_ip: 192.168.1.254
+  version_banner: "SW version"
+  multiple_line_output: "Gigabit Ethernet Ports"
+  cmd_response_init: "logging buffered 400"
+  cmd_response_final: "logging file warnings"
+
+pluribus:
+  base_prompt: "CLI (mircea@sw05.bjm01) "
+  router_prompt: "CLI (mircea@sw05.bjm01) "
+  enable_prompt: "CLI (mircea@sw05.bjm01) >"
+  interface_ip: ";mircea;fabric;70000;;cftac;"
+  multiple_line_output: "chassis-serial"
+  version_banner: "bjm;::;a0000bd:52b35878;0;;13068;"

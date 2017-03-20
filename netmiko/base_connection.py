@@ -17,6 +17,7 @@ import socket
 import re
 import io
 from os import path
+from threading import Lock
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
@@ -33,7 +34,8 @@ class BaseConnection(object):
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
-                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8):
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
+                 session_timeout=60):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -86,7 +88,11 @@ class BaseConnection(object):
         :type ssh_config_file: str
         :param timeout: Set a timeout on blocking read/write operations.
         :type timeout: float
-
+        :param session_timeout: Set a timeout for parallel requests. When
+                the channel is busy serving other tasks and the queue is
+                very long, in case the wait time is higher than this value,
+                NetMikoTimeoutException will be raised.
+        :type session_timeout: float
         """
         if ip:
             self.host = ip
@@ -109,6 +115,7 @@ class BaseConnection(object):
         self.ansi_escape_codes = False
         self.verbose = verbose
         self.timeout = timeout
+        self.session_timeout = session_timeout
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -116,6 +123,7 @@ class BaseConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
 
+        self._session_locker = Lock()
         # determine if telnet or SSH
         if '_telnet' in device_type:
             self.protocol = 'telnet'
@@ -157,7 +165,40 @@ class BaseConnection(object):
         if exc_type is not None:
             raise exc_type(exc_value)
 
-    def write_channel(self, out_data):
+    def _timeout_exceeded(self, start, msg='Timeout exceeded!'):
+        """
+        Raise NetMikoTimeoutException if waiting too much in the
+        serving queue.
+        """
+        if not start:
+            # Must provide a comparison time
+            return False
+        if time.time() - start > self.session_timeout:
+            # session_timeout exceeded
+            raise NetMikoTimeoutException(msg)
+        return False
+
+    def _lock_netmiko_session(self, start=None):
+        """
+        Try to acquire the Netmiko session lock. If not available, wait in the queue until
+        the channel is available again.
+        """
+        if not start:
+            start = time.time()
+        # Wait here until the SSH channel lock is acquired or until session_timeout exceeded
+        while (not self._session_locker.acquire(False) and
+               not self._timeout_exceeded(start, 'The netmiko channel is not available!')):
+                time.sleep(.1)
+        return True
+
+    def _unlock_netmiko_session(self):
+        """
+        Release the channel at the end of the task.
+        """
+        if self._session_locker.locked():
+            self._session_locker.release()
+
+    def _write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
         if self.protocol == 'ssh':
             self.remote_conn.sendall(write_bytes(out_data))
@@ -167,7 +208,16 @@ class BaseConnection(object):
             raise ValueError("Invalid protocol specified")
         log.debug("write_channel: {}".format(write_bytes(out_data)))
 
-    def read_channel(self):
+    def write_channel(self, out_data):
+        """Generic handler that will write to both SSH and telnet channel."""
+        self._lock_netmiko_session()
+        try:
+            self._write_channel(out_data)
+        finally:
+            # Always unlock the SSH channel, even on exception.
+            self._unlock_netmiko_session()
+
+    def _read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
         if self.protocol == 'ssh':
             output = ""
@@ -179,6 +229,17 @@ class BaseConnection(object):
         elif self.protocol == 'telnet':
             output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
         log.debug("read_channel: {}".format(output))
+        return output
+
+    def read_channel(self):
+        """Generic handler that will read all the data from an SSH or telnet channel."""
+        output = ""
+        self._lock_netmiko_session()
+        try:
+            output = self._read_channel()
+        finally:
+            # Always unlock the SSH channel, even on exception.
+            self._unlock_netmiko_session()
         return output
 
     def _read_channel_expect(self, pattern='', re_flags=0):
@@ -198,8 +259,7 @@ class BaseConnection(object):
         debug = False
         output = ''
         if not pattern:
-            pattern = self.base_prompt
-        pattern = re.escape(pattern)
+            pattern = re.escape(self.base_prompt)
         if debug:
             print("Pattern is: {}".format(pattern))
 
@@ -211,11 +271,14 @@ class BaseConnection(object):
             if self.protocol == 'ssh':
                 try:
                     # If no data available will wait timeout seconds trying to read
+                    self._lock_netmiko_session()
                     new_data = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+                finally:
+                    self._unlock_netmiko_session()
             elif self.protocol == 'telnet':
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
@@ -268,8 +331,7 @@ class BaseConnection(object):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
         output = ''
         if not pattern:
-            pattern = self.base_prompt
-        pattern = re.escape(pattern)
+            pattern = re.escape(self.base_prompt)
         base_prompt_pattern = re.escape(self.base_prompt)
         while True:
             try:
@@ -281,12 +343,11 @@ class BaseConnection(object):
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
+                     username_pattern=r"sername", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
         TELNET_RETURN = '\r\n'
-        debug = False
-        if debug:
-            print("In telnet_login():")
+
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -297,54 +358,27 @@ class BaseConnection(object):
             try:
                 output = self.read_channel()
                 return_msg += output
-                if debug:
-                    print(output)
-                if re.search(r"sername", output):
+
+                # Search for username pattern / send username
+                if re.search(username_pattern, output):
                     self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if debug:
-                        print("checkpoint1")
-                        print(output)
-                if re.search(r"assword", output):
+
+                # Search for password pattern / send password
+                if re.search(pwd_pattern, output):
                     self.write_channel(self.password + TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if debug:
-                        print("checkpoint2")
-                        print(output)
                     if pri_prompt_terminator in output or alt_prompt_terminator in output:
-                        if debug:
-                            print("checkpoint3")
                         return return_msg
 
-                # Support direct telnet through terminal server
-                if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
-                    if debug:
-                        print("checkpoint4")
-                    self.write_channel("no" + TELNET_RETURN)
-                    time.sleep(.5 * delay_factor)
-                    count = 0
-                    while count < 15:
-                        output = self.read_channel()
-                        return_msg += output
-                        if re.search(r"ress RETURN to get started", output):
-                            output = ""
-                            break
-                        time.sleep(2 * delay_factor)
-                        count += 1
-                if re.search(r"assword required, but none set", output):
-                    if debug:
-                        print("checkpoint5")
-                    msg = "Telnet login failed - Password required, but none set: {0}".format(
-                        self.host)
-                    raise NetMikoAuthenticationException(msg)
+                # Check if proper data received
                 if pri_prompt_terminator in output or alt_prompt_terminator in output:
-                    if debug:
-                        print("checkpoint6")
                     return return_msg
+
                 self.write_channel(TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
@@ -358,8 +392,6 @@ class BaseConnection(object):
         output = self.read_channel()
         return_msg += output
         if pri_prompt_terminator in output or alt_prompt_terminator in output:
-            if debug:
-                print("checkpoint6")
             return return_msg
 
         msg = "Telnet login failed: {0}".format(self.host)

@@ -71,8 +71,21 @@ aruba_os:
   password: password
   secret: secret
 
-ubiquiti_edge
+ubiquiti_edge:
   device_type: ubiquiti_edge
   ip: 172.16.51.102
   username: admin
   password: password
+
+dell_powerconnect:
+  device_type: dell_powerconnect
+  ip: 192.168.1.254
+  username: admin
+  password: admin
+
+pluribus:
+  device_type: pluribus_ssh
+  ip: 172.17.19.1
+  username: mircea
+  password: weakpass
+

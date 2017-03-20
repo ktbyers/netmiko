@@ -42,6 +42,7 @@ Cisco WLC
 Dell-Force10 DNOS9  
 Huawei  
 Palo Alto PAN-OS  
+Pluribus  
 Vyatta VyOS  
 
 ###### Experimental
@@ -49,6 +50,7 @@ A10
 Alcatel-Lucent SR-OS  
 Ciena SAOS  
 Cisco Telepresence  
+Dell PowerConnect  
 Enterasys  
 Extreme  
 F5 LTM  

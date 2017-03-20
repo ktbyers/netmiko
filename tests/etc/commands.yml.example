@@ -4,7 +4,7 @@ cisco_ios:
   version: "show version"
   basic: "show ip interface brief"
   extended_output: "show version"   # requires paging to be disabled
-  config: 
+  config:
     - "logging buffered 20000"      # base command
     - "no logging console"
     - "logging buffered 20010"      # something you can verify has changed
@@ -26,7 +26,7 @@ arista_eos:
   version: "show version"
   basic: "show ip int brief"
   extended_output: "show logging"   # requires paging to be disabled
-  config: 
+  config:
     - "logging buffered 20000"
     - "no logging console"
     - "logging buffered 20010"
@@ -36,17 +36,17 @@ hp_procurve:
   version: "show version"
   basic: "show ip"
   extended_output: "show logging"   # requires paging to be disabled
-  config: 
+  config:
     - 'time timezone -420'
     - 'time daylight-time-rule Continental-US-and-Canada'
     - 'time timezone -480'
-  config_verification: "show run" 
+  config_verification: "show run"
 
 juniper:
   version: "show version"
   basic: "show interfaces terse"
   extended_output: "show configuration"   # requires paging to be disabled
-  config: 
+  config:
    - 'set system syslog archive size 110k files 3'
    - 'set system time-zone America/New_York'
    - 'set system syslog archive size 120k files 3'
@@ -58,7 +58,7 @@ juniper:
 fortinet:
   version: "get system status"
   basic: "get system interface physical"
-  extended_output: "get system status" 
+  extended_output: "get system status"
   config:
     - 'config firewall service category'
     - 'edit Database'
@@ -80,7 +80,7 @@ brocade_fastiron:
   version: "show version"
   basic: "show ip interface"
   extended_output: "show running-config"   # requires paging to be disabled
-  config: 
+  config:
     - "logging buffered 4000"      # base command
     - "no logging console"
     - "logging buffered 3000"      # something you can verify has changed
@@ -91,7 +91,7 @@ brocade_netiron:
   version: "show version"
   basic: "show ip interface"
   extended_output: "show version"   # requires paging to be disabled
-  config: 
+  config:
     - "logging buffered 4000"      # base command
     - "no logging console"
     - "logging buffered 3000"      # something you can verify has changed
@@ -102,7 +102,7 @@ brocade_nos:
   version: "show version"
   basic: "show interface Management"
   extended_output: "show ip interface brief"   # requires paging to be disabled
-  config: 
+  config:
     - "logging raslog console WARNING"      # base command
     - "logging raslog console INFO"
   config_verification: "show run | inc raslog"
@@ -110,7 +110,7 @@ brocade_nos:
 aruba_os:
   version: "show version"
   basic: "show ip interface brief"
-  extended_output: "show version" 
+  extended_output: "show version"
   config:
     - "location location1"
     - "location location2"
@@ -126,3 +126,22 @@ ubiquiti_edge:
     - "logging persistent 4"
   config_verification: "show running-config | include 'logging'"
 
+dell_powerconnect:
+  version: "show version"
+  basic: "show ip interface vlan 1"
+  extended_output: "show running-config"
+  config:
+    - "logging buffered 400"
+    - "no logging buffered"
+    - "logging buffered 200"
+  config_verification: "show running-config"
+
+pluribus_ssh:
+  version: "fabric-show parsable-delim ;"
+  basic: "user-show name mircea parsable-delim ;"
+  extended_output: "switch-info-show parsable-delim ;"
+  config:
+    - "role-create name dummy scope local"
+    - "role-delete name dummy"
+    - "role-create name dummy scope local access read-only"
+  config_verification: "running-config-show"
