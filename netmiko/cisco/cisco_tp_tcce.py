@@ -1,10 +1,10 @@
-""" 
-CiscoTpTcCeSSH Class
-Class to manage Cisco Telepresence Endpoint on TC/CE software release. Also working for Cisco Expressway/VCS
-2017-03-05 v0.2
-written by Ahmad BARRIN
 """
+CiscoTpTcCeSSH Class
+Class to manage Cisco Telepresence Endpoint on TC/CE software release. Also working for Cisco
+Expressway/VCS
 
+Written by Ahmad Barrin
+"""
 from __future__ import unicode_literals
 
 import re
