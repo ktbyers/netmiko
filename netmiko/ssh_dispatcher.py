@@ -35,6 +35,7 @@ from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
+from netmiko.mellanox import MellanoxSSH
 from netmiko.pluribus import PluribusSSH
 
 
@@ -80,6 +81,7 @@ CLASS_MAPPER_BASE = {
     'ciena_saos': CienaSaosSSH,
     'cisco_tp': CiscoTpTcCeSSH,
     'generic_termserver': TerminalServerSSH,
+    'mellanox_ssh': MellanoxSSH,
     'pluribus': PluribusSSH
 }
 
@@ -125,7 +127,6 @@ def ssh_dispatcher(device_type):
 
 def redispatch(obj, device_type, session_prep=True):
     """Dynamically change Netmiko object's class to proper class.
-
     Generally used with terminal_server device_type when you need to redispatch after interacting
     with terminal server.
     """
