@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
 import time
 
+
 class MellanoxSSH(CiscoSSHConnection):
 
     def config_mode(self, config_command='config term', pattern='#'):
@@ -17,7 +18,7 @@ class MellanoxSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string='(config)', pattern=r'[>|#]'):
         return super(MellanoxSSH, self).check_config_mode(check_string=check_string,
-                                                                  pattern=pattern)
+                                                          pattern=pattern)
 
     def disable_paging(self, command="terminal length 999", delay_factor=1):
         """Disable paging default to a Cisco CLI method."""
