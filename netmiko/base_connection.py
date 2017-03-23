@@ -35,7 +35,7 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
-                 session_timeout=60):
+                 session_timeout=60, debug_flag=False):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -122,6 +122,9 @@ class BaseConnection(object):
 
         # set in set_base_prompt method
         self.base_prompt = ''
+        
+        # enable debug flag
+        self.debug_flag = debug_flag
 
         self._session_locker = Lock()
         # determine if telnet or SSH
@@ -256,7 +259,7 @@ class BaseConnection(object):
         There are dependecies here like determining whether in config_mode that are actually
         depending on reading beyond pattern.
         """
-        debug = False
+        debug = self.debug_flag
         output = ''
         if not pattern:
             pattern = re.escape(self.base_prompt)
@@ -577,7 +580,7 @@ class BaseConnection(object):
 
     def disable_paging(self, command="terminal length 0", delay_factor=1):
         """Disable paging default to a Cisco CLI method."""
-        debug = False
+        debug = self.debug_flag
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * .1)
         self.clear_buffer()
@@ -603,7 +606,7 @@ class BaseConnection(object):
         """
         if not command:
             return ""
-        debug = False
+        debug = self.debug_flag
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
@@ -637,7 +640,7 @@ class BaseConnection(object):
 
     def find_prompt(self, delay_factor=1):
         """Finds the current network device prompt, last line only."""
-        debug = False
+        debug = self.debug_flag
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel("\n")
@@ -696,7 +699,7 @@ class BaseConnection(object):
 
         Returns the output of the command.
         '''
-        debug = False
+        debug = self.debug_flag
         if debug:
             print('In send_command_timing')
 
@@ -742,7 +745,7 @@ class BaseConnection(object):
         strip_prompt = strip the trailing prompt from the output
         strip_command = strip the leading command from the output
         '''
-        debug = False
+        debug = self.debug_flag
         delay_factor = self.select_delay_factor(delay_factor)
 
         # Find the current router prompt
@@ -848,7 +851,7 @@ class BaseConnection(object):
 
     def check_enable_mode(self, check_string=''):
         """Check if in enable mode. Return boolean."""
-        debug = False
+        debug = self.debug_flag
         self.write_channel('\n')
         output = self.read_until_prompt()
         if debug:
@@ -879,7 +882,7 @@ class BaseConnection(object):
 
     def check_config_mode(self, check_string='', pattern=''):
         """Checks if the device is in configuration mode or not."""
-        debug = False
+        debug = self.debug_flag
         if debug:
             print("pattern: {}".format(pattern))
         self.write_channel('\n')
@@ -900,7 +903,7 @@ class BaseConnection(object):
 
     def exit_config_mode(self, exit_config='', pattern=''):
         """Exit from configuration mode."""
-        debug = False
+        debug = self.debug_flag
         output = ''
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
@@ -933,7 +936,7 @@ class BaseConnection(object):
 
         Automatically exits/enters configuration mode.
         """
-        debug = False
+        debug = self.debug_flag
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ''
