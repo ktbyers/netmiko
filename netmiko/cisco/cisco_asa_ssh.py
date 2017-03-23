@@ -9,6 +9,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
     """Subclass specific to Cisco ASA."""
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
+        self._test_channel_read()
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="terminal pager 0\n")

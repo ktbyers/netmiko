@@ -20,6 +20,7 @@ class JuniperSSH(BaseConnection):
         Disable paging (the '--more--' prompts).
         Set the base prompt for interaction ('>').
         """
+        self._test_channel_read()
         self.enter_cli_mode()
         self.set_base_prompt()
         self.disable_paging(command="set cli screen-length 0\n")

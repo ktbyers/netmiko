@@ -14,13 +14,16 @@ class SSHClient_noauth(SSHClient):
 
 class DellPowerConnectSSH(CiscoSSHConnection):
     """Dell PowerConnect Driver.
-        To make it work, we have to override the SSHClient _auth method.
-        If we use login/password, the ssh server use the (none) auth mechanism.
+
+    To make it work, we have to override the SSHClient _auth method.
+    If we use login/password, the ssh server use the (none) auth mechanism.
     """
 
     def _build_ssh_client(self):
-        """Prepare for Paramiko SSH connection."""
-        """ See base_connection.py file for any updates."""
+        """Prepare for Paramiko SSH connection.
+
+        See base_connection.py file for any updates.
+        """
         # Create instance of SSHClient object
         # If user does not provide SSH key, we use noauth
         if not self.use_keys:
@@ -67,6 +70,7 @@ class DellPowerConnectSSH(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="terminal datadump")
 

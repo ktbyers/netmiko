@@ -11,6 +11,7 @@ class F5LtmSSH(BaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         delay_factor = self.select_delay_factor(delay_factor=0)
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="\nset length 0\n")
         time.sleep(1 * delay_factor)

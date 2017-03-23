@@ -30,6 +30,7 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_terminal_width()
         """
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()

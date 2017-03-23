@@ -9,5 +9,6 @@ class EltexSSH(CiscoSSHConnection):
         Prepare the session after the connection has been established
         """
         self.ansi_escape_codes = True
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command='terminal datadump')

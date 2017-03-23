@@ -15,6 +15,7 @@ class PluribusSSH(BaseConnection):
 
     def session_preparation(self):
         '''Prepare the netmiko session.'''
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
 

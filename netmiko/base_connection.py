@@ -401,14 +401,16 @@ class BaseConnection(object):
         """
         Prepare the session after the connection has been established
 
-        This method handles some of vagaries that occur between various devices
+        This method handles some differences that occur between various devices
         early on in the session.
 
         In general, it should include:
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
         """
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
@@ -521,28 +523,37 @@ class BaseConnection(object):
             self.special_login_handler()
             if self.verbose:
                 print("Interactive SSH session established")
+        return ""
 
-            # Make sure you can read the channel
-            return self._test_channel_read()
-
-    def _test_channel_read(self, count=40):
+    def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back."""
+
+        def _increment_delay(main_delay, increment=1.1, maximum=8):
+            """Increment sleep time to a maximum value."""
+            main_delay = main_delay * increment
+            if main_delay >= maximum:
+                main_delay = maximum
+            return main_delay
+
         i = 0
         delay_factor = self.select_delay_factor(delay_factor=0)
         main_delay = delay_factor * .1
         time.sleep(main_delay * 10)
         new_data = ""
         while i <= count:
-            new_data = self._read_channel_timing()
-            if new_data:
+            new_data += self._read_channel_timing()
+            if new_data and pattern:
+                if re.search(pattern, new_data):
+                    break
+            elif new_data:
                 break
             else:
                 self.write_channel('\n')
-                main_delay = main_delay * 1.1
-                if main_delay >= 8:
-                    main_delay = 8
-                time.sleep(main_delay)
-                i += 1
+
+            main_delay = _increment_delay(main_delay)
+            time.sleep(main_delay)
+            i += 1
+
         # check if data was ever present
         if new_data:
             return ""

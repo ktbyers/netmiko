@@ -10,6 +10,7 @@ class ArubaSSH(CiscoSSHConnection):
         """Aruba OS requires enable mode to disable paging."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(1 * delay_factor)
+        self._test_channel_read()
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="no paging")

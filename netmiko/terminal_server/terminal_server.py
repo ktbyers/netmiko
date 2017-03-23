@@ -13,10 +13,6 @@ class TerminalServer(BaseConnection):
         """Do nothing here; base_prompt is not set; paging is not disabled."""
         pass
 
-    def _test_channel_read(self, count=40):
-        """Don't try to read any data post login."""
-        pass
-
 
 class TerminalServerSSH(TerminalServer):
     """Generic Terminal Server driver SSH."""
