@@ -1,14 +1,17 @@
 """Dell Telnet Driver."""
 from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.ssh_exception import NetMikoAuthenticationException
 
-import time,re
+import time
+import re
+
 
 class DellPowerConnectTelnet(CiscoSSHConnection):
     def disable_paging(self, command="terminal length 0", delay_factor=1):
-        print ("MADE IT HERE:")
+        print("MADE IT HERE:")
         """Must be in enable mode to disable paging."""
-        self.enable()  
+        self.enable()
         debug = True
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * .1)
@@ -25,6 +28,7 @@ class DellPowerConnectTelnet(CiscoSSHConnection):
             print(output)
             print("Exiting disable_paging")
         return output
+
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
                      username_pattern=r"User:", pwd_pattern=r"assword",
