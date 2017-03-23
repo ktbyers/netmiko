@@ -39,7 +39,6 @@ class MellanoxSSH(CiscoSSHConnection):
             print("Exiting disable_paging")
         return output
 
-
     def exit_config_mode(self, exit_config='exit', pattern='#'):
         """Exit from configuration mode."""
         debug = False

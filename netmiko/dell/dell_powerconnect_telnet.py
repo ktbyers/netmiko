@@ -29,7 +29,6 @@ class DellPowerConnectTelnet(CiscoSSHConnection):
             print("Exiting disable_paging")
         return output
 
-
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
                      username_pattern=r"User:", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=60):
