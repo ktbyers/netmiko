@@ -116,9 +116,11 @@ class CiscoXr(CiscoBaseConnection):
         """Exit configuration mode."""
         output = ''
         if self.check_config_mode():
-            output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
+            output = self.send_command_expect(exit_config, strip_prompt=False,
+                        strip_command=False, auto_find_prompt=False,)
             if "Uncommitted changes found" in output:
-                output += self.send_command_timing('no\n', strip_prompt=False, strip_command=False)
+                output = self.send_command_expect(exit_config, strip_prompt=False,
+                            strip_command=False, auto_find_prompt=False,)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
