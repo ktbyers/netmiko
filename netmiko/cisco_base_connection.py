@@ -81,6 +81,12 @@ class CiscoBaseConnection(BaseConnection):
                     return_msg += output
                     if pri_prompt_terminator in output or alt_prompt_terminator in output:
                         return return_msg
+                
+                # Search for standby console pattern
+                standby_pattern=r"RP Node is not ready or active for login",
+                if re.search(standby_pattern,output):
+                    ''' Session is standby state '''
+                    return return_msg
 
                 # Support direct telnet through terminal server
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
