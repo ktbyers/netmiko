@@ -47,6 +47,10 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config.py --test_device cisco_xrv \
 && py.test -v test_netmiko_commit.py --test_device cisco_xrv \
 \
+&& echo "Cisco NXOS" \
+&& py.test -v test_netmiko_show.py --test_device nxos1 \
+&& py.test -v test_netmiko_config.py --test_device nxos1 \
+\
 && echo "Autodetect tests" \
 && py.test -s -v test_netmiko_autodetect.py --test_device cisco881 \
 && py.test -s -v test_netmiko_autodetect.py --test_device arista_sw4 \
