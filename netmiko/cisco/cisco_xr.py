@@ -20,6 +20,19 @@ class CiscoXr(CiscoBaseConnection):
         self.disable_paging()
         self.set_terminal_width(command='terminal width 511')
 
+    def config_mode(self, config_command='config term', pattern='', skip_check=True):
+        """
+        Enter into configuration mode on remote device.
+
+        Cisco IOSXR devices abbreviate the prompt at 20 chars in config mode
+        """
+        if not pattern:
+            pattern = self.base_prompt[:16]
+        pattern = pattern + ".*\(conf"
+        return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
+                                                            pattern=pattern,
+                                                            skip_check=skip_check)
+
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
         return super(CiscoXr, self).send_config_set(config_commands=config_commands,
@@ -93,7 +106,8 @@ class CiscoXr(CiscoBaseConnection):
             command_string = 'commit'
 
         # Enter config mode (if necessary)
-        output = self.config_mode()
+        #output = self.config_mode()
+        output = ''
         output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
                                            delay_factor=delay_factor)
         if error_marker in output:
@@ -106,15 +120,17 @@ class CiscoXr(CiscoBaseConnection):
 
         return output
 
-    def exit_config_mode(self, exit_config='end'):
+    def exit_config_mode(self, exit_config='end', skip_check=False):
         """Exit configuration mode."""
         output = ''
-        if self.check_config_mode():
+        if skip_check or self.check_config_mode():
             output = self.send_command_expect(exit_config, strip_prompt=False,
                         strip_command=False, auto_find_prompt=False,)
             if "Uncommitted changes found" in output:
                 output = self.send_command_expect(exit_config, strip_prompt=False,
                             strip_command=False, auto_find_prompt=False,)
+            if skip_check:
+                return output
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
