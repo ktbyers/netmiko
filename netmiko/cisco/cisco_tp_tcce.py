@@ -1,3 +1,10 @@
+"""
+CiscoTpTcCeSSH Class
+Class to manage Cisco Telepresence Endpoint on TC/CE software release. Also working for Cisco
+Expressway/VCS
+
+Written by Ahmad Barrin
+"""
 from __future__ import unicode_literals
 
 import re
@@ -23,6 +30,7 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_terminal_width()
         """
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
@@ -65,7 +73,8 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         else:
             expect_string = kwargs.get('expect_string')
             if expect_string is None:
-                expect_string = r'^(OK|ERROR|Command not recognized\.)$'
+                expect_string = r'\r\n(OK|ERROR|Command not recognized\.)\r\n'
+                kwargs.setdefault('expect_string', expect_string)
 
         output = super(CiscoSSHConnection, self).send_command(*args, **kwargs)
         return output

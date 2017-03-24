@@ -8,6 +8,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class AlcatelSrosSSH(CiscoSSHConnection):
     """Alcatel-Lucent SROS support."""
     def session_preparation(self):
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="environment no more\n")
 

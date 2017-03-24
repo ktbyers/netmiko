@@ -23,7 +23,9 @@ pytest (for unit tests)
 Arista vEOS  
 Cisco ASA  
 Cisco IOS  
+Cisco IOS-XE  
 Cisco IOS-XR  
+Cisco NX-OS  
 Cisco SG300  
 HP Comware7  
 HP ProCurve  
@@ -36,12 +38,13 @@ Avaya VSP
 Brocade VDX  
 Brocade ICX/FastIron  
 Brocade MLX/NetIron  
-Cisco IOS-XE  
-Cisco NX-OS  
 Cisco WLC  
 Dell-Force10 DNOS9  
+Dell PowerConnect  
 Huawei  
+Mellanox  
 Palo Alto PAN-OS  
+Pluribus  
 Vyatta VyOS  
 
 ###### Experimental

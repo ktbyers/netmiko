@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from netmiko import ConnectHandler, FileTransfer, InLineTransfer
+from netmiko import ConnectHandler, FileTransfer, InLineTransfer, SSHDetect
 from tests.test_utils import parse_yaml
 
 
@@ -32,7 +32,7 @@ def net_connect(request):
     return conn
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def net_connect_cm(request):
     """
     Create the SSH connection to the remote device using a context manager 
@@ -88,7 +88,7 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     output = ssh_conn.send_command_timing(cmd)
     if debug:
         print(output)
-    if 'Delete filename' in output and dest_file in output:
+    if 'Delete' in output and dest_file in output:
         output += ssh_conn.send_command_timing("\n")
         if debug:
             print(output)
@@ -198,3 +198,18 @@ def tcl_fixture(request):
         os.remove(local_file)
 
     return (ssh_conn, tcl_transfer)
+
+@pytest.fixture(scope='module')
+def ssh_autodetect(request):
+    """Create an SSH autodetect object. 
+
+    return (ssh_conn, real_device_type)
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    my_device_type = device.pop('device_type')
+    device['device_type'] = 'autodetect'
+    conn = SSHDetect(**device)
+    return (conn, my_device_type)

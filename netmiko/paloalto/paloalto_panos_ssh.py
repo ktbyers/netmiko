@@ -18,6 +18,7 @@ class PaloAltoPanosSSH(BaseConnection):
         Disable paging (the '--more--' prompts).
         Set the base prompt for interaction ('>').
         """
+        self._test_channel_read()
         self.set_base_prompt(delay_factor=20)
         self.disable_paging(command="set cli pager off\n")
 

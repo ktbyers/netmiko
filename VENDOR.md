@@ -85,5 +85,5 @@ See netmiko/tests/test_cisco_ios.py and netmiko/tests/test_cisco_ios_enable.py.
 
   
 
-Note, you will also need to update the 'packages' section of 'setup.py' file if you are adding a 
-completely new package.
+# Note, you will also need to update the 'packages' section of 'setup.py' file if you are adding a 
+# completely new package.

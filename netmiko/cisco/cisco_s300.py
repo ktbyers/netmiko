@@ -14,6 +14,7 @@ class CiscoS300SSH(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="terminal datadump\n")
         self.set_terminal_width(command='terminal width 511')

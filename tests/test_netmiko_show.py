@@ -29,7 +29,7 @@ def test_disable_paging(net_connect, commands, expected_responses):
     assert expected_responses["multiple_line_output"] in multiple_line_output
     if net_connect.device_type == 'arista_eos':
         # Arista output is slow and has router-name in output
-        time.sleep(2)
+        time.sleep(5)
         net_connect.clear_buffer()
         net_connect.send_command_expect('clear logging', expect_string='#') 
 

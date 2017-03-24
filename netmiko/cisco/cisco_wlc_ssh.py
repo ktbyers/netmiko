@@ -97,6 +97,7 @@ class CiscoWlcSSH(BaseConnection):
 
         Cisco WLC uses "config paging disable" to disable paging
         '''
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="config paging disable\n")
 
