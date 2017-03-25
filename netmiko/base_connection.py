@@ -156,7 +156,7 @@ class BaseConnection(object):
         self.clear_buffer()
 
     def __enter__(self):
-        """Enter runtime context"""
+        """Establish a session using a Context Manager."""
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
