@@ -62,36 +62,27 @@ class BaseConnection(object):
         :type verbose: bool
         :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
         :type global_delay_factor: int
-        :param use_keys: If true, Paramiko will attempt to connect to
-                target device using SSH keys.
+        :param use_keys: Connect to target device using SSH keys.
         :type use_keys: bool
-        :param key_file: Name of the SSH key file to use for Paramiko
-                SSH connection authentication.
+        :param key_file: Filename path of the SSH key file to use.
         :type key_file: str
-        :param allow_agent: Set to True to enable connect to the SSH agent
+        :param allow_agent: Enable use of SSH key-agent.
         :type allow_agent: bool
-        :param ssh_strict: If `True` Paramiko will automatically reject
-                unknown hostname and keys. If 'False' Paramiko will
-                automatically add the hostname and new host key.
+        :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
+                means unknown SSH host keys will be accepted).
         :type ssh_strict: bool
-        :param system_host_keys: If `True` Paramiko will load host keys
-                from the user's local 'known hosts' file.
+        :param system_host_keys: Load host keys from the user's 'known_hosts' file.
         :type system_host_keys: bool
-        :param alt_host_keys: If `True` host keys will be loaded from
-                a local host-key file.
+        :param alt_host_keys: If `True` host keys will be loaded from the file specified in 
+                'alt_key_file'.
         :type alt_host_keys: bool
-        :param alt_key_file: If `alt_host_keys` is set to `True`, provide
-                the filename of the local host-key file to load.
+        :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
         :type alt_key_file: str
-        :param ssh_config_file: File name of a OpenSSH configuration file
-                to load SSH connection parameters from.
+        :param ssh_config_file: File name of OpenSSH configuration file.
         :type ssh_config_file: str
-        :param timeout: Set a timeout on blocking read/write operations.
+        :param timeout: Connection timeout.
         :type timeout: float
-        :param session_timeout: Set a timeout for parallel requests. When
-                the channel is busy serving other tasks and the queue is
-                very long, in case the wait time is higher than this value,
-                NetMikoTimeoutException will be raised.
+        :param session_timeout: Set a timeout for parallel requests.
         :type session_timeout: float
         """
         if ip:
