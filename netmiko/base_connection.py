@@ -58,9 +58,9 @@ class BaseConnection(object):
         :type port: int or None
         :param device_type: Class selection based on device type.
         :type device_type: str
-        :param verbose: If `True` enables more verbose logging.
+        :param verbose: Enable additional messages to standard output.
         :type verbose: bool
-        :param global_delay_factor: Controls global delay factor value.
+        :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
         :type global_delay_factor: int
         :param use_keys: If true, Paramiko will attempt to connect to
                 target device using SSH keys.
@@ -160,7 +160,7 @@ class BaseConnection(object):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        """Gracefully close connection on context manager exit"""
+        """Gracefully close connection on Context Manager exit."""
         self.disconnect()
         if exc_type is not None:
             raise exc_type(exc_value)
