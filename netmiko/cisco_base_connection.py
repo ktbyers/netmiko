@@ -83,7 +83,7 @@ class CiscoBaseConnection(BaseConnection):
                         return return_msg
                 
                 # Search for standby console pattern
-                standby_pattern=r"RP Node is not ready or active for login",
+                standby_pattern=r"RP Node is not ready or active for login"
                 if re.search(standby_pattern,output):
                     ''' Session is standby state '''
                     return return_msg
