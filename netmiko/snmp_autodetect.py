@@ -23,6 +23,7 @@ netmiko requirements. So installation of pysnmp might be required.
 from __future__ import unicode_literals
 
 import re
+
 try:
     from pysnmp.entity.rfc3413.oneliner import cmdgen
 except ImportError:
@@ -124,6 +125,7 @@ class SNMPDetect(object):
         Try to determine the device type.
 
     """
+
     def __init__(self, hostname, snmp_version="v3", snmp_port=161, community=None, user="",
                  auth_key="", encrypt_key="", auth_proto="sha", encrypt_proto="aes128"):
 
