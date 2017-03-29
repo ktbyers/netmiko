@@ -38,7 +38,10 @@ class CiscoXr(CiscoBaseConnection):
         return super(CiscoXr, self).send_config_set(config_commands=config_commands,
                                                        exit_config_mode=False, **kwargs)
 
-    def commit(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=1):
+    def commit(self, confirm=False, confirm_delay=None, comment='', label='',
+               replace=False,
+               delay_factor=1,
+               max_timeout=30):
         """
         Commit the candidate configuration.
 
@@ -90,32 +93,39 @@ class CiscoXr(CiscoBaseConnection):
         error_marker = 'Failed to'
         alt_error_marker = 'One or more commits have occurred from other'
 
+        commit_str = 'commit '
+        if replace:
+            commit_str += 'replace '
         # Select proper command string based on arguments provided
         if label:
             if comment:
-                command_string = 'commit label {0} comment {1}'.format(label, comment)
+                command_string = 'label {0} comment {1}'.format(label, comment)
             elif confirm:
-                command_string = 'commit label {0} confirmed {1}'.format(label, str(confirm_delay))
+                command_string = 'label {0} confirmed {1}'.format(label, str(confirm_delay))
             else:
-                command_string = 'commit label {0}'.format(label)
+                command_string = 'label {0}commit_str + '.format(label)
         elif confirm:
-            command_string = 'commit confirmed {0}'.format(str(confirm_delay))
+            command_string = 'confirmed {0}commit_str + '.format(str(confirm_delay))
         elif comment:
-            command_string = 'commit comment {0}'.format(comment)
+            command_string = 'comment {0}commit_str + '.format(comment)
         else:
-            command_string = 'commit'
+            command_string = ''
+            
+        command_string = commit_str + command_string
 
         # Enter config mode (if necessary)
         #output = self.config_mode()
         output = ''
         output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
-                                           delay_factor=delay_factor)
+                                           delay_factor=delay_factor,
+                                           max_timeout=max_timeout)
         if error_marker in output:
             raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
             output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
-                                               delay_factor=delay_factor)
+                                               delay_factor=delay_factor,
+                                               max_timeout=max_timeout)
             raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
 
         return output
