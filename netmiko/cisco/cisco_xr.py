@@ -28,7 +28,8 @@ class CiscoXr(CiscoBaseConnection):
         """
         if not pattern:
             pattern = self.base_prompt[:16]
-        pattern = pattern + ".*\(conf"
+            pattern = self.current_prompt[:16]
+        pattern = pattern + ".*config"
         return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
                                                             pattern=pattern,
                                                             skip_check=skip_check)
@@ -135,10 +136,12 @@ class CiscoXr(CiscoBaseConnection):
         output = ''
         if skip_check or self.check_config_mode():
             output = self.send_command_expect(exit_config, strip_prompt=False,
-                        strip_command=False, auto_find_prompt=False,)
+                        strip_command=False, auto_find_prompt=False,
+                        expect_string=self.current_prompt)
             if "Uncommitted changes found" in output:
                 output = self.send_command_expect(exit_config, strip_prompt=False,
-                            strip_command=False, auto_find_prompt=False,)
+                            strip_command=False, auto_find_prompt=False,
+                            expect_string=self.current_prompt)
             if skip_check:
                 return output
             if self.check_config_mode():

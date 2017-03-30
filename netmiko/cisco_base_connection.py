@@ -39,6 +39,8 @@ class CiscoBaseConnection(BaseConnection):
         """
         if not pattern:
             pattern = self.base_prompt[:16]
+            pattern = self.current_prompt[:16]
+            
         return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
                                                             pattern=pattern)
 
@@ -46,6 +48,7 @@ class CiscoBaseConnection(BaseConnection):
         """Exit from configuration mode."""
         if not pattern:
             pattern = self.base_prompt[:16]
+            pattern = self.current_prompt[:16]
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
 

@@ -123,6 +123,9 @@ class BaseConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
         
+        # current prompt to operate on different context
+        self.current_prompt = ''
+        
         # enable debug flag
         self.debug_flag = debug_flag
         
