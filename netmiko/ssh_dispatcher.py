@@ -22,7 +22,9 @@ from netmiko.avaya import AvayaErsSSH
 from netmiko.linux import LinuxSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.enterasys import EnterasysSSH
-from netmiko.extreme import ExtremeSSH
+from netmiko.extreme import ExtremeEosSSH
+from netmiko.extreme import ExtremeWingSSH
+from netmiko.extreme import ExtremeWingTelnet
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.paloalto import PaloAltoPanosSSH
@@ -58,7 +60,9 @@ CLASS_MAPPER_BASE = {
     'linux': LinuxSSH,
     'ovs_linux': OvsLinuxSSH,
     'enterasys': EnterasysSSH,
-    'extreme': ExtremeSSH,
+    'extreme_eos': ExtremeEosSSH,
+    'extreme_wing': ExtremeWingSSH,
+    'extreme_wing_telnet': ExtremeWingTelnet,
     'alcatel_sros': AlcatelSrosSSH,
     'fortinet': FortinetSSH,
     'dell_force10': DellForce10SSH,

@@ -1,9 +1,10 @@
-"""Extreme support."""
+from __future__ import unicode_literals
+
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ExtremeSSH(CiscoSSHConnection):
-    """Extreme support."""
+class ExtremeEosSSH(CiscoSSHConnection):
+    """Extreme EOS support."""
     def session_preparation(self):
         """Extreme requires enable mode to disable paging."""
         self.enable()
