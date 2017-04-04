@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import re
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.json_connection import JsonConnection
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
@@ -22,3 +23,17 @@ class CiscoNxosSSH(CiscoSSHConnection):
         """Convert '\r\n' or '\r\r\n' to '\n, and remove extra '\r's in the text."""
         newline = re.compile(r'(\r\r\n|\r\n)')
         return newline.sub('\n', a_string).replace('\r', '')
+
+class CiscoNxosJson(JsonConnection):
+    """Cisco NX-API JSON RPC support."""
+    def construct_params(self):
+        self.set_url(url='http://{ip}:{port}/ins'.format(ip=self.host, port=self.port))
+        self.set_json_request(request={
+            'jsonrpc': '2.0',
+            'method': 'cli',
+            'params': {
+                'cmd': None,
+                'version': 1
+            },
+            'id': self.jsonrpc_id
+        })

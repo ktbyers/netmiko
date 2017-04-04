@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from netmiko.cisco import CiscoIosSSH
 from netmiko.cisco import CiscoIosTelnet
 from netmiko.cisco import CiscoAsaSSH
-from netmiko.cisco import CiscoNxosSSH
+from netmiko.cisco import CiscoNxosSSH, CiscoNxosJson
 from netmiko.cisco import CiscoXrSSH
 from netmiko.cisco import CiscoWlcSSH
 from netmiko.cisco import CiscoS300SSH
@@ -24,7 +24,7 @@ from netmiko.ovs import OvsLinuxSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeEosSSH
 from netmiko.extreme import ExtremeWingSSH
-from netmiko.extreme import ExtremeWingTelnet
+from netmiko.extreme import ExtremeExosJson
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.paloalto import PaloAltoPanosSSH
@@ -37,6 +37,7 @@ CLASS_MAPPER_BASE = {
     'cisco_xe': CiscoIosSSH,
     'cisco_asa': CiscoAsaSSH,
     'cisco_nxos': CiscoNxosSSH,
+    'cisco_nxos_json': CiscoNxosJson,
     'cisco_xr': CiscoXrSSH,
     'cisco_wlc': CiscoWlcSSH,
     'cisco_s300': CiscoS300SSH,
@@ -61,8 +62,8 @@ CLASS_MAPPER_BASE = {
     'ovs_linux': OvsLinuxSSH,
     'enterasys': EnterasysSSH,
     'extreme_eos': ExtremeEosSSH,
-    'extreme_wing': ExtremeWingSSH,
-    'extreme_wing_telnet': ExtremeWingTelnet,
+    'extreme_wing_ssh': ExtremeWingSSH,
+    'extreme_exos_json': ExtremeExosJson,
     'alcatel_sros': AlcatelSrosSSH,
     'fortinet': FortinetSSH,
     'dell_force10': DellForce10SSH,
