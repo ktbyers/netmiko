@@ -13,3 +13,4 @@ class ExtremeExosJson(JsonConnection):
             'params': None,
             'id': self.jsonrpc_id
         })
+        self.set_result_path(path=['result', 0, 'CLIoutput'])

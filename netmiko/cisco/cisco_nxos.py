@@ -37,3 +37,4 @@ class CiscoNxosJson(JsonConnection):
             },
             'id': self.jsonrpc_id
         })
+        self.set_result_path(path=['outputs', 'output', 'body'])

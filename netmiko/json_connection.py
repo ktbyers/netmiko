@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
-
+from functools import reduce
+import operator
 import requests
 import json
 
@@ -27,6 +28,7 @@ class JsonConnection(object):
         self.cookie = None
         self.json_request = {}
         self.url = None
+        self.result_path = []
 
         self.construct_params()
 
@@ -36,9 +38,13 @@ class JsonConnection(object):
     def set_json_request(self, request=None):
         self.json_request = request
 
+    def set_result_path(self, path=None):
+        self.result_path = path
+
     def construct_params(self):
-        self.url()
+        self.set_url()
         self.set_json_request()
+        self.set_result_path()
 
     def send_command(self, command_string):
         # in JSONRCP transactions to avoid re-authenticating for every transaction
@@ -80,14 +86,11 @@ class JsonConnection(object):
             except:
                 return None
             else:
-                # status = reduce(operator.getitem, self.result_path, jsonrpc_response)
                 try:
-                    result = jsonrpc_response['result']
+                    result = reduce(operator.getitem, self.result_path, jsonrpc_response)
                 except KeyError:
                     return 'Error return:{}\nrequest:{}'.format(jsonrpc_response, self.json_request)
                 else:
                     return result
         except requests.HTTPError as e:
             raise NetMikoRequestsHTTPException("Error at Requesting: {}".format(e))
-        # raise http exception
-        # response.raise_for_status()
