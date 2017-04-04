@@ -73,7 +73,7 @@ class BaseConnection(object):
         :type ssh_strict: bool
         :param system_host_keys: Load host keys from the user's 'known_hosts' file.
         :type system_host_keys: bool
-        :param alt_host_keys: If `True` host keys will be loaded from the file specified in 
+        :param alt_host_keys: If `True` host keys will be loaded from the file specified in
                 'alt_key_file'.
         :type alt_host_keys: bool
         :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -116,11 +116,12 @@ class BaseConnection(object):
 
         # Set key exchange for fortinet devices
         if self.device_type == 'fortinet':
-           paramiko.Transport._preferred_kex = ('diffie-hellman-group14-sha1',
-                                                'diffie-hellman-group-exchange-sha1',
-                                                'diffie-hellman-group-exchange-sha256',
-                                                'diffie-hellman-group1-sha1',
-                                                )
+            paramiko.Transport._preferred_kex = (
+                                            'diffie-hellman-group14-sha1',
+                                            'diffie-hellman-group-exchange-sha1',
+                                            'diffie-hellman-group-exchange-sha256',
+                                            'diffie-hellman-group1-sha1',
+                                            )
 
         self._session_locker = Lock()
         # determine if telnet or SSH
