@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
+
 import requests
 import json
+
+from netmiko.json_exception import NetMikoRequestsTimeoutException, NetMikoRequestsHTTPException
 
 
 class JsonConnection(object):
@@ -59,11 +62,15 @@ class JsonConnection(object):
                                      auth=(self.username, self.password),
                                      data=json.dumps(self.json_request),
                                      timeout=3)
-        except requests.RequestException as e:
-            return "error at json requesting: {}".format(e)
+        except requests.ConnectTimeout as e:
+        # except requests.RequestException as e:
+            # return "Error at json requesting: {}".format(e)
+            raise NetMikoRequestsTimeoutException("Error at json requesting: {}".format(e))
         # first check the HTTP error code to see if HTTP was successful
         # delivering the message
-        if response.status_code == requests.codes.ok:
+        # if response.status_code == requests.codes.ok:
+        try:
+            response.status_code == requests.codes.ok
             # if we have a cookie, store it so we can use it later
             self.cookie = response.cookies.get('session')
             try:
@@ -80,5 +87,7 @@ class JsonConnection(object):
                     return 'Error return:{}\nrequest:{}'.format(jsonrpc_response, self.json_request)
                 else:
                     return result
+        except requests.HTTPError as e:
+            raise NetMikoRequestsHTTPException("Error at Requesting: {}".format(e))
         # raise http exception
-        response.raise_for_status()
+        # response.raise_for_status()
