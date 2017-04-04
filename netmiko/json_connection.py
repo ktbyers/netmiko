@@ -53,10 +53,14 @@ class JsonConnection(object):
             self.json_request['params'] = [command_string]
 
         # send the JSONRPC message
-        response = requests.post(self.url,
-                                 headers=self.headers,
-                                 auth=(self.username, self.password),
-                                 data=json.dumps(self.json_request))
+        try:
+            response = requests.post(self.url,
+                                     headers=self.headers,
+                                     auth=(self.username, self.password),
+                                     data=json.dumps(self.json_request),
+                                     timeout=3)
+        except requests.RequestException as e:
+            return "error at json requesting: {}".format(e)
         # first check the HTTP error code to see if HTTP was successful
         # delivering the message
         if response.status_code == requests.codes.ok:
