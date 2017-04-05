@@ -774,7 +774,7 @@ class BaseConnection(object):
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True,
-                     max_timeout=0):
+                     max_timeout=0, verbose=False):
         '''
         Send command to network device retrieve output until router_prompt or expect_string
 
@@ -823,6 +823,8 @@ class BaseConnection(object):
         time.sleep(loop_delay)
         self.clear_buffer()
         self.write_channel(command_string)
+        if verbose:
+            print(command_string,end='')
 
         # Initial delay after sending command
         i = 1
@@ -830,6 +832,8 @@ class BaseConnection(object):
         output = ''
         while i <= max_loops:
             new_data = self.read_channel()
+            if verbose:
+                print(new_data,end='')
             if new_data:
                 output += new_data
                 if debug:
