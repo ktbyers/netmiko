@@ -119,7 +119,7 @@ class CiscoBaseConnection(BaseConnection):
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {0}".format(self.host)
+                msg = "EOFError Telnet login failed: {0}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -130,7 +130,7 @@ class CiscoBaseConnection(BaseConnection):
         if pri_prompt_terminator in output or alt_prompt_terminator in output:
             return return_msg
 
-        msg = "Telnet login failed: {0}".format(self.host)
+        msg = "LAST_TRY Telnet login failed: {0}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
     def cleanup(self):
