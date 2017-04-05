@@ -66,21 +66,21 @@ class CiscoBaseConnection(BaseConnection):
         i = 1
         while i <= max_loops:
             try:
-                output = self.read_channel()
+                output = self.read_channel(verbose=True)
                 return_msg += output
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output):
                     self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
-                    output = self.read_channel()
+                    output = self.read_channel(verbose=True)
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
                     self.write_channel(self.password + TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
-                    output = self.read_channel()
+                    output = self.read_channel(verbose=True)
                     return_msg += output
                     if pri_prompt_terminator in output or alt_prompt_terminator in output:
                         return return_msg
@@ -97,7 +97,7 @@ class CiscoBaseConnection(BaseConnection):
                     time.sleep(.5 * delay_factor)
                     count = 0
                     while count < 15:
-                        output = self.read_channel()
+                        output = self.read_channel(verbose=True)
                         return_msg += output
                         if re.search(r"ress RETURN to get started", output):
                             output = ""
@@ -125,7 +125,7 @@ class CiscoBaseConnection(BaseConnection):
         # Last try to see if we already logged in
         self.write_channel(TELNET_RETURN)
         time.sleep(.5 * delay_factor)
-        output = self.read_channel()
+        output = self.read_channel(verbose=True)
         return_msg += output
         if pri_prompt_terminator in output or alt_prompt_terminator in output:
             return return_msg
