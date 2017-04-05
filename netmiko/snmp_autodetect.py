@@ -30,6 +30,7 @@ except ImportError:
 
 from netmiko.ssh_dispatcher import CLASS_MAPPER
 
+
 # Higher priority indicates a better match.
 SNMP_MAPPER_BASE = {
     'arista_eos': {"oid": ".1.3.6.1.2.1.1.1.0",
