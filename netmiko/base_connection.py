@@ -848,6 +848,8 @@ class BaseConnection(object):
                     pass
                 if re.search(search_pattern, output):
                     break
+                # Need sleep irrespective of new_data - for timeout to take effect
+                time.sleep(loop_delay)
             else:
                 time.sleep(loop_delay)
             i += 1
