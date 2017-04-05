@@ -615,7 +615,7 @@ class BaseConnection(object):
         """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
         pass
 
-    def disable_paging(self, command="terminal length 0", delay_factor=1):
+    def disable_paging(self, command="terminal length 0", delay_factor=1, verbose=False):
         """Disable paging default to a Cisco CLI method."""
         debug = self.debug_flag
         self.sleep_timer(0.1, delay_factor)
@@ -631,9 +631,11 @@ class BaseConnection(object):
         if debug:
             print(output)
             print("Exiting disable_paging")
+        if verbose:
+            print(output)
         return output
 
-    def set_terminal_width(self, command="", delay_factor=1):
+    def set_terminal_width(self, command="", delay_factor=1, verbose=False):
         """
         CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
@@ -652,6 +654,8 @@ class BaseConnection(object):
         if debug:
             print(output)
             print("Exiting set_terminal_width")
+        if verbose:
+            print(output)
         return output
 
     def set_base_prompt(self, pri_prompt_terminator='#',

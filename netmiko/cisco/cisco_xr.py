@@ -170,8 +170,8 @@ class CiscoXrTelnet(CiscoXr):
         if 'RP Node is not ' in self.find_prompt():
             # Incase of standby - skip rest of section
             return
-        self.disable_paging()
-        self.set_terminal_width(command='terminal width 511')
+        self.disable_paging(verbose=True)
+        self.set_terminal_width(command='terminal width 511', verbose=True)
 
     def set_base_prompt(self, pri_prompt_terminator='#',
                         alt_prompt_terminator='>', delay_factor=1,
