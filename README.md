@@ -8,18 +8,17 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 
 Python 2.7, 3.4, 3.5  
 
-<br>
 #### Requires:
+
 Paramiko >= 1.13+  
 scp >= 0.10.0  
 pyyaml  
 pytest (for unit tests)   
 
-
-<br>
 #### Supports:
 
 ###### Regularly tested
+
 Arista vEOS  
 Cisco ASA  
 Cisco IOS  
@@ -33,6 +32,7 @@ Juniper Junos
 Linux  
   
 ###### Limited testing
+
 Avaya ERS  
 Avaya VSP  
 Brocade VDX  
@@ -48,6 +48,7 @@ Pluribus
 Vyatta VyOS  
 
 ###### Experimental
+
 A10  
 Alcatel-Lucent SR-OS  
 Ciena SAOS  
@@ -57,17 +58,16 @@ Extreme
 F5 LTM  
 Fortinet  
 
-<br>
 ## Tutorials:
 
 ##### Standard Tutorial:
+
 https://pynet.twb-tech.com/blog/automation/netmiko.html
 
 ##### SSH Proxy:
+
 https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html
 
-
-<br>
 ## Examples:
 
 #### Create a dictionary representing the device.
@@ -88,14 +88,14 @@ cisco_881 = {
 
 ```
 
-<br>
 #### Establish an SSH connection to the device by passing in the device dictionary.
+
 ```py
 net_connect = ConnectHandler(**cisco_881)
 ```
 
-<br>
 #### Execute show commands.
+
 ```py
 output = net_connect.send_command('show ip int brief')
 print(output)
@@ -110,27 +110,27 @@ FastEthernet4              10.10.10.10     YES manual up                    up
 Vlan1                      unassigned      YES unset  down                  down    
 ```
 
-<br>
 #### For long-running commands, use `send_command_expect()`
 
 `send_command_expect` waits for the trailing prompt (or for an optional pattern)
 ```py
 net_connect.send_command_expect('write memory')
 ```
+
 ```
 Building configuration...
 [OK]
 ```
 
-<br>
 #### Enter and exit enable mode.
+
 ```py
 net_connect.enable()
 net_connect.exit_enable_mode()
 ```
 
-<br>
 #### Execute configuration change commands (will automatically enter into config mode)
+
 ```py
 config_commands = [ 'logging buffered 20000',
                     'logging buffered 20010',
@@ -157,7 +157,6 @@ If you have questions or would like to discuss Netmiko, a Netmiko channel exists
 
 
 
-<br>
 ---    
 Kirk Byers  
 Python for Network Engineers  
