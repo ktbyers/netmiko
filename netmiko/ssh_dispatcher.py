@@ -75,7 +75,6 @@ CLASS_MAPPER_BASE = {
     'fortinet': FortinetSSH,
     'dell_force10': DellForce10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
-    'dell_powerconnect_telnet': DellPowerConnectTelnet,
     'paloalto_panos': PaloAltoPanosSSH,
     'quanta_mesh': QuantaMeshSSH,
     'aruba_os': ArubaSSH,
@@ -97,12 +96,11 @@ CLASS_MAPPER = new_mapper
 
 # Add telnet drivers
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosBase
+CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 
-# Add general terminal_server driver
+# Add general terminal_server driver and autodetect
 CLASS_MAPPER['terminal_server'] = TerminalServerSSH
-
-# Add autodetect driver (mapped to TerminalServerSSH)
 CLASS_MAPPER['autodetect'] = TerminalServerSSH
 
 platforms = list(CLASS_MAPPER.keys())
