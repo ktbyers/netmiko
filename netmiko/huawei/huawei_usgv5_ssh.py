@@ -55,26 +55,23 @@ class Huawei_usgv5_SSH(CiscoSSHConnection):
         # Check that ends with a valid terminator character
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError("Router prompt not found: {0}".format(prompt))
-		
-		
-       # Strip off leading and trailing terminator
-       
-       #The prompt will be different based on which mode the device is in (normal or high availability)
-       	
+
+        """
+        Strip off leading and trailing terminator
+        The prompt will be different based on which mode the device is in:
+        normal or high availability
+        """
         if re.match("(^<)", prompt):
-            prompt = prompt[1:-1]	   
+            prompt = prompt[1:-1]
             prompt = prompt.strip()
-            
+
         else:
             prompt = prompt[6:-1]
             prompt = prompt.strip()
-            
-            
+
         self.base_prompt = prompt
 
         if debug:
             print("prompt: {}".format(self.base_prompt))
 
         return self.base_prompt
-		
-	
