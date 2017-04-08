@@ -118,6 +118,7 @@ class BaseConnection(object):
         # determine if telnet or SSH
         if '_telnet' in device_type:
             self.protocol = 'telnet'
+            self._modify_connection_params()
             self.establish_connection()
             self.session_preparation()
         else:
@@ -139,6 +140,7 @@ class BaseConnection(object):
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
 
+            self._modify_connection_params()
             self.establish_connection()
             self.session_preparation()
 
@@ -155,6 +157,10 @@ class BaseConnection(object):
         self.disconnect()
         if exc_type is not None:
             raise exc_type(exc_value)
+
+    def _modify_connection_params(self):
+        """Modify connection parameters prior to SSH connection."""
+        pass
 
     def _timeout_exceeded(self, start, msg='Timeout exceeded!'):
         """

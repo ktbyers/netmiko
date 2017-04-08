@@ -1,8 +1,16 @@
 from __future__ import unicode_literals
+import paramiko
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class FortinetSSH(CiscoSSHConnection):
+
+    def _modify_connection_params(self):
+        """Modify connection parameters prior to SSH connection."""
+        paramiko.Transport._preferred_kex = ('diffie-hellman-group14-sha1',
+                                             'diffie-hellman-group-exchange-sha1',
+                                             'diffie-hellman-group-exchange-sha256',
+                                             'diffie-hellman-group1-sha1',)
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
