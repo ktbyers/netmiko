@@ -320,18 +320,10 @@ class BaseConnection(object):
 
     def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
-        output = ''
-        if not pattern:
-            pattern = re.escape(self.base_prompt)
-        base_prompt_pattern = re.escape(self.base_prompt)
-        while True:
-            try:
-                output += self.read_channel()
-                if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
-                                                                           output, flags=re_flags):
-                    return output
-            except socket.timeout:
-                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+        combined_pattern = re.escape(self.base_prompt)
+        if pattern:
+            combined_pattern += "|{}".format(pattern)
+        return self._read_channel_expect(combined_pattern, re_flags=re_flags)
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
                      username_pattern=r"sername", pwd_pattern=r"assword",
