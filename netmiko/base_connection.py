@@ -31,11 +31,29 @@ class BaseConnection(object):
 
     Otherwise method left as a stub method.
     """
-    def __init__(self, ip='', host='', username='', password='', secret='', port=None,
-                 device_type='', verbose=False, global_delay_factor=1, use_keys=False,
-                 key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
-                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
-                 session_timeout=60, debug_flag=False):
+
+    def __init__(
+            self,
+            ip='',
+            host='',
+            username='',
+            password='',
+            secret='',
+            port=None,
+            device_type='',
+            verbose=False,
+            global_delay_factor=1,
+            use_keys=False,
+            key_file=None,
+            allow_agent=False,
+            ssh_strict=False,
+            system_host_keys=False,
+            alt_host_keys=False,
+            alt_key_file='',
+            ssh_config_file=None,
+            timeout=8,
+            session_timeout=60,
+            debug_flag=False):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -108,18 +126,19 @@ class BaseConnection(object):
         self.timeout = timeout
         self.session_timeout = session_timeout
 
-        # Use the greater of global_delay_factor or delay_factor local to method
+        # Use the greater of global_delay_factor or delay_factor local to
+        # method
         self.global_delay_factor = global_delay_factor
 
         # set in set_base_prompt method
         self.base_prompt = ''
-        
+
         # current prompt to operate on different context
         self.current_prompt = ''
-        
+
         # enable debug flag
         self.debug_flag = debug_flag
-        
+
         # timers
         self._config_interval = 0.2
 
@@ -157,13 +176,13 @@ class BaseConnection(object):
         self.sleep_timer(0.3, self.global_delay_factor)
         self.clear_buffer()
 
-    def adjusted_loop_delay(self,loop_delay,delay_factor=1):
+    def adjusted_loop_delay(self, loop_delay, delay_factor=1):
         delay_factor = self.select_delay_factor(delay_factor)
         return loop_delay * delay_factor
-        
-    def sleep_timer(self,duration,delay_factor=1):
+
+    def sleep_timer(self, duration, delay_factor=1):
         time.sleep(self.adjusted_loop_delay(duration, delay_factor))
-        
+
     def __enter__(self):
         """Establish a session using a Context Manager."""
         return self
@@ -198,10 +217,13 @@ class BaseConnection(object):
         """
         if not start:
             start = time.time()
-        # Wait here until the SSH channel lock is acquired or until session_timeout exceeded
-        while (not self._session_locker.acquire(False) and
-               not self._timeout_exceeded(start, 'The netmiko channel is not available!')):
-                time.sleep(0.1)
+        # Wait here until the SSH channel lock is acquired or until
+        # session_timeout exceeded
+        while (
+            not self._session_locker.acquire(False) and not self._timeout_exceeded(
+                start,
+                'The netmiko channel is not available!')):
+            time.sleep(0.1)
         return True
 
     def _unlock_netmiko_session(self):
@@ -236,7 +258,8 @@ class BaseConnection(object):
             output = ""
             while True:
                 if self.remote_conn.recv_ready():
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    output += self.remote_conn.recv(
+                        MAX_BUFFER).decode('utf-8', 'ignore')
                 else:
                     break
         elif self.protocol == 'telnet':
@@ -280,23 +303,26 @@ class BaseConnection(object):
         if debug:
             print("Pattern is: {}".format(pattern))
 
-        # Will loop for self.timeout time (unless modified by global_delay_factor)
+        # Will loop for self.timeout time (unless modified by
+        # global_delay_factor)
         i = 1
-        loop_delay = 0.1 # for read_channel_expect
-        max_loops, max_timeout, loop_delay = self.loop_planner(loop_delay,
-                                                               delay_factor=delay_factor,
-                                                               max_timeout=max_timeout,
-                                                               max_loops=max_loops)
+        loop_delay = 0.1  # for read_channel_expect
+        max_loops, max_timeout, loop_delay = self.loop_planner(
+            loop_delay, delay_factor=delay_factor, max_timeout=max_timeout, max_loops=max_loops)
         while i < max_loops:
             if self.protocol == 'ssh':
                 try:
-                    # If no data available will wait timeout seconds trying to read
+                    # If no data available will wait timeout seconds trying to
+                    # read
                     self._lock_netmiko_session()
-                    new_data = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                    log.debug("_read_channel_expect read_data: {}".format(new_data))
+                    new_data = self.remote_conn.recv(
+                        MAX_BUFFER).decode('utf-8', 'ignore')
+                    log.debug(
+                        "_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
                 except socket.timeout:
-                    raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+                    raise NetMikoTimeoutException(
+                        "Timed-out reading channel, data not available.")
                 finally:
                     self._unlock_netmiko_session()
             elif self.protocol == 'telnet':
@@ -307,10 +333,14 @@ class BaseConnection(object):
                 return output
             time.sleep(loop_delay)
             i += 1
-        raise NetMikoTimeoutException("Timed-out reading channel, pattern not found in output: {}"
-                                      .format(pattern))
+        raise NetMikoTimeoutException(
+            "Timed-out reading channel, pattern not found in output: {}" .format(pattern))
 
-    def _read_channel_timing(self, delay_factor=1, max_loops=150, max_timeout=0):
+    def _read_channel_timing(
+            self,
+            delay_factor=1,
+            max_loops=150,
+            max_timeout=0):
         """
         Read data on the channel based on timing delays.
 
@@ -322,11 +352,9 @@ class BaseConnection(object):
         """
         channel_data = ""
         i = 1
-        loop_delay = 0.1 # for read_channel_timing
-        max_loops, max_timeout, loop_delay = self.loop_planner(loop_delay,
-                                                               delay_factor=delay_factor,
-                                                               max_timeout=max_timeout,
-                                                               max_loops=max_loops)
+        loop_delay = 0.1  # for read_channel_timing
+        max_loops, max_timeout, loop_delay = self.loop_planner(
+            loop_delay, delay_factor=delay_factor, max_timeout=max_timeout, max_loops=max_loops)
         while i <= max_loops:
             time.sleep(loop_delay)
             new_data = self.read_channel()
@@ -334,7 +362,8 @@ class BaseConnection(object):
                 channel_data += new_data
             else:
                 # Safeguard to make sure really done
-                safeguard_delay = self.adjusted_loop_delay(2, delay_factor) # for read_channel_timing
+                safeguard_delay = self.adjusted_loop_delay(
+                    2, delay_factor)  # for read_channel_timing
                 time.sleep(safeguard_delay)
                 new_data = self.read_channel()
                 if not new_data:
@@ -359,9 +388,14 @@ class BaseConnection(object):
             combined_pattern += "|{}".format(pattern)
         return self._read_channel_expect(combined_pattern, re_flags=re_flags)
 
-    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
-                     username_pattern=r"sername", pwd_pattern=r"assword",
-                     delay_factor=1, max_loops=60):
+    def telnet_login(
+            self,
+            pri_prompt_terminator='#',
+            alt_prompt_terminator='>',
+            username_pattern=r"sername",
+            pwd_pattern=r"assword",
+            delay_factor=1,
+            max_loops=60):
         """Telnet login. Can be username/password or just password."""
         TELNET_RETURN = '\r\n'
 
@@ -485,8 +519,12 @@ class BaseConnection(object):
             conn_dict = self._use_ssh_config(conn_dict)
         return conn_dict
 
-    def _sanitize_output(self, output, strip_command=False, command_string=None,
-                         strip_prompt=False):
+    def _sanitize_output(
+            self,
+            output,
+            strip_command=False,
+            command_string=None,
+            strip_prompt=False):
         """Sanitize the output."""
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
@@ -507,7 +545,8 @@ class BaseConnection(object):
         width and height are needed for Fortinet paging setting.
         """
         if self.protocol == 'telnet':
-            self.remote_conn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
+            self.remote_conn = telnetlib.Telnet(
+                self.host, port=self.port, timeout=self.timeout)
             self.telnet_login()
         elif self.protocol == 'ssh':
             ssh_connect_params = self._connect_params_dict()
@@ -527,12 +566,14 @@ class BaseConnection(object):
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
-                print("SSH connection established to {0}:{1}".format(self.host, self.port))
+                print(
+                    "SSH connection established to {0}:{1}".format(
+                        self.host, self.port))
 
             # Use invoke_shell to establish an 'interactive session'
             if width and height:
-                self.remote_conn = self.remote_conn_pre.invoke_shell(term='vt100', width=width,
-                                                                     height=height)
+                self.remote_conn = self.remote_conn_pre.invoke_shell(
+                    term='vt100', width=width, height=height)
             else:
                 self.remote_conn = self.remote_conn_pre.invoke_shell()
 
@@ -588,11 +629,17 @@ class BaseConnection(object):
         if self.alt_host_keys and path.isfile(self.alt_key_file):
             remote_conn_pre.load_host_keys(self.alt_key_file)
 
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        # Default is to automatically add untrusted hosts (make sure
+        # appropriate for your env)
         remote_conn_pre.set_missing_host_key_policy(self.key_policy)
         return remote_conn_pre
 
-    def loop_planner(self, loop_delay, delay_factor=1, max_timeout=0, max_loops=0):
+    def loop_planner(
+            self,
+            loop_delay,
+            delay_factor=1,
+            max_timeout=0,
+            max_loops=0):
         '''
         For backward compatability, max_timeout is defined as 0 for all
         so the max loops will be honored.
@@ -603,7 +650,7 @@ class BaseConnection(object):
         elif max_loops:
             max_timeout = max_loops * loop_delay
         return (max_loops, max_timeout, loop_delay)
-    
+
     def select_delay_factor(self, delay_factor):
         """Choose the greater of delay_factor or self.global_delay_factor."""
         if delay_factor >= self.global_delay_factor:
@@ -615,7 +662,11 @@ class BaseConnection(object):
         """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
         pass
 
-    def disable_paging(self, command="terminal length 0", delay_factor=1, verbose=False):
+    def disable_paging(
+            self,
+            command="terminal length 0",
+            delay_factor=1,
+            verbose=False):
         """Disable paging default to a Cisco CLI method."""
         debug = self.debug_flag
         self.sleep_timer(0.1, delay_factor)
@@ -727,8 +778,14 @@ class BaseConnection(object):
         """Read any data available in the channel."""
         self.read_channel()
 
-    def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
-                            strip_prompt=True, strip_command=True, max_timeout=0):
+    def send_command_timing(
+            self,
+            command_string,
+            delay_factor=1,
+            max_loops=150,
+            strip_prompt=True,
+            strip_command=True,
+            max_timeout=0):
         '''
         Execute command_string on the SSH channel.
 
@@ -752,12 +809,17 @@ class BaseConnection(object):
             print("Command is: {0}".format(command_string))
 
         self.write_channel(command_string)
-        output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops,
-                                           max_timeout=max_timeout)
+        output = self._read_channel_timing(
+            delay_factor=delay_factor,
+            max_loops=max_loops,
+            max_timeout=max_timeout)
         if debug:
             print("zzz: {}".format(output))
-        output = self._sanitize_output(output, strip_command=strip_command,
-                                       command_string=command_string, strip_prompt=strip_prompt)
+        output = self._sanitize_output(
+            output,
+            strip_command=strip_command,
+            command_string=command_string,
+            strip_prompt=strip_prompt)
         if debug:
             print(output)
         return output
@@ -787,17 +849,15 @@ class BaseConnection(object):
         max_loops = number of iterations before we give up and raise an exception
         strip_prompt = strip the trailing prompt from the output
         strip_command = strip the leading command from the output
-        
+
         max_timeout = maximum time to wait for expect_string
           # 500 * 0.2 * 1 = 100 seconds
           # max_loops * loop_delay * delay_factor
         '''
         debug = self.debug_flag
         loop_delay = 0.2
-        max_loops, max_timeout, loop_delay = self.loop_planner(loop_delay,
-                                                               delay_factor=delay_factor,
-                                                               max_timeout=max_timeout,
-                                                               max_loops=max_loops)
+        max_loops, max_timeout, loop_delay = self.loop_planner(
+            loop_delay, delay_factor=delay_factor, max_timeout=max_timeout, max_loops=max_loops)
         if debug:
             print('Max loops = {}'.format(max_loops))
         # Find the current router prompt
@@ -818,13 +878,14 @@ class BaseConnection(object):
         command_string = self.normalize_cmd(command_string)
         if debug:
             print("Command is: {0}".format(command_string))
-            print("Search to stop receiving data is: '{0}'".format(search_pattern))
+            print(
+                "Search to stop receiving data is: '{0}'".format(search_pattern))
 
         time.sleep(loop_delay)
         self.clear_buffer()
         self.write_channel(command_string)
         if verbose:
-            print(command_string,end='')
+            print(command_string, end='')
 
         # Initial delay after sending command
         i = 1
@@ -833,7 +894,7 @@ class BaseConnection(object):
         while i <= max_loops:
             new_data = self.read_channel()
             if verbose:
-                print(new_data,end='')
+                print(new_data, end='')
             if new_data:
                 output += new_data
                 if debug:
@@ -845,24 +906,29 @@ class BaseConnection(object):
                     # it gets repainted and needs filtered
                     if BACKSPACE_CHAR in first_line:
                         pattern = search_pattern + r'.*$'
-                        first_line = re.sub(pattern, repl='', string=first_line)
+                        first_line = re.sub(
+                            pattern, repl='', string=first_line)
                         lines[0] = first_line
                         output = "\n".join(lines)
                 except IndexError:
                     pass
                 if re.search(search_pattern, output):
                     break
-                # Need sleep irrespective of new_data - for timeout to take effect
+                # Need sleep irrespective of new_data - for timeout to take
+                # effect
                 time.sleep(loop_delay)
             else:
                 time.sleep(loop_delay)
             i += 1
         else:   # nobreak
-            raise IOError("Search pattern never detected in send_command_expect: {0}".format(
-                search_pattern))
+            raise IOError(
+                "Search pattern never detected in send_command_expect: {0}".format(search_pattern))
 
-        output = self._sanitize_output(output, strip_command=strip_command,
-                                       command_string=command_string, strip_prompt=strip_prompt)
+        output = self._sanitize_output(
+            output,
+            strip_command=strip_command,
+            command_string=command_string,
+            strip_prompt=strip_prompt)
         return output
 
     def send_command_expect(self, *args, **kwargs):
@@ -921,7 +987,8 @@ class BaseConnection(object):
         output = ""
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
-            output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
+            output += self.read_until_prompt_or_pattern(
+                pattern=pattern, re_flags=re_flags)
             self.write_channel(self.normalize_cmd(self.secret))
             output += self.read_until_prompt()
             if not self.check_enable_mode():
@@ -964,10 +1031,10 @@ class BaseConnection(object):
             # Already in config mode
             pass
             # Need NOT to check instead it will raise Error on Failure
-            #if not self.check_config_mode():
+            # if not self.check_config_mode():
             #    raise ValueError("Failed to enter configuration mode.")
         return output
-    
+
     def exit_config_mode(self, exit_config='', pattern=''):
         """Exit from configuration mode."""
         debug = self.debug_flag
@@ -993,9 +1060,15 @@ class BaseConnection(object):
         with io.open(config_file, "rt", encoding='utf-8') as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
-                        max_loops=150, strip_prompt=False, strip_command=False,
-                        max_timeout=0):
+    def send_config_set(
+            self,
+            config_commands=None,
+            exit_config_mode=True,
+            delay_factor=1,
+            max_loops=150,
+            strip_prompt=False,
+            strip_command=False,
+            max_timeout=0):
         """
         Send configuration commands down the SSH channel.
 
@@ -1003,7 +1076,7 @@ class BaseConnection(object):
         The commands will be executed one after the other.
 
         Automatically exits/enters configuration mode.
-        
+
         max_timeout is taken into account only for config reading
          - due to backward compatability
         config_mode - self.timeout
@@ -1015,7 +1088,6 @@ class BaseConnection(object):
             return ''
         if not hasattr(config_commands, '__iter__'):
             raise ValueError("Invalid argument passed into send_config_set")
-        #import pdb; pdb.set_trace()
         # Send config commands
         output = self.config_mode()
         for cmd in config_commands:
@@ -1076,10 +1148,18 @@ class BaseConnection(object):
         code_reset_mode_screen_options = chr(27) + r'\[\?\d+l'
         code_erase_display = chr(27) + r'\[2J'
 
-        code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
-                    code_erase_start_line, code_form_feed, code_carriage_return,
-                    code_disable_line_wrapping, code_erase_line_end,
-                    code_reset_mode_screen_options, code_erase_display]
+        code_set = [
+            code_position_cursor,
+            code_show_cursor,
+            code_erase_line,
+            code_enable_scroll,
+            code_erase_start_line,
+            code_form_feed,
+            code_carriage_return,
+            code_disable_line_wrapping,
+            code_erase_line_end,
+            code_reset_mode_screen_options,
+            code_erase_display]
 
         output = string_buffer
         for ansi_esc_code in code_set:
@@ -1108,7 +1188,8 @@ class BaseConnection(object):
 
     def commit(self):
         """Commit method for platforms that support this."""
-        raise AttributeError("Network device does not support 'commit()' method")
+        raise AttributeError(
+            "Network device does not support 'commit()' method")
 
 
 class TelnetConnection(BaseConnection):

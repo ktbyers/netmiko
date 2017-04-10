@@ -20,7 +20,11 @@ class CiscoXr(CiscoBaseConnection):
         self.disable_paging()
         self.set_terminal_width(command='terminal width 511')
 
-    def config_mode(self, config_command='config term', pattern='', skip_check=True):
+    def config_mode(
+            self,
+            config_command='config term',
+            pattern='',
+            skip_check=True):
         """
         Enter into configuration mode on remote device.
 
@@ -30,14 +34,25 @@ class CiscoXr(CiscoBaseConnection):
             pattern = self.base_prompt[:16]
             pattern = self.current_prompt[:16]
         pattern = pattern + ".*config"
-        return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
-                                                            pattern=pattern,
-                                                            skip_check=skip_check)
+        return super(
+            CiscoBaseConnection,
+            self).config_mode(
+            config_command=config_command,
+            pattern=pattern,
+            skip_check=skip_check)
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+    def send_config_set(
+            self,
+            config_commands=None,
+            exit_config_mode=True,
+            **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
-        return super(CiscoXr, self).send_config_set(config_commands=config_commands,
-                                                       exit_config_mode=False, **kwargs)
+        return super(
+            CiscoXr,
+            self).send_config_set(
+            config_commands=config_commands,
+            exit_config_mode=False,
+            **kwargs)
 
     def commit(self, confirm=False, confirm_delay=None, comment='', label='',
                replace=False,
@@ -102,32 +117,40 @@ class CiscoXr(CiscoBaseConnection):
             if comment:
                 command_string = 'label {0} comment {1}'.format(label, comment)
             elif confirm:
-                command_string = 'label {0} confirmed {1}'.format(label, str(confirm_delay))
+                command_string = 'label {0} confirmed {1}'.format(
+                    label, str(confirm_delay))
             else:
                 command_string = 'label {0}commit_str + '.format(label)
         elif confirm:
-            command_string = 'confirmed {0}commit_str + '.format(str(confirm_delay))
+            command_string = 'confirmed {0}commit_str + '.format(
+                str(confirm_delay))
         elif comment:
             command_string = 'comment {0}commit_str + '.format(comment)
         else:
             command_string = ''
-            
+
         command_string = commit_str + command_string
 
         # Enter config mode (if necessary)
-        #output = self.config_mode()
+        # output = self.config_mode()
         output = ''
-        output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
+        output += self.send_command_expect(command_string,
+                                           strip_prompt=False,
+                                           strip_command=False,
                                            delay_factor=delay_factor,
                                            max_timeout=max_timeout)
         if error_marker in output:
-            raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{0}".format(output))
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
-            output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
+            output += self.send_command_timing("no",
+                                               strip_prompt=False,
+                                               strip_command=False,
                                                delay_factor=delay_factor,
                                                max_timeout=max_timeout)
-            raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{0}".format(output))
 
         return output
 
@@ -135,13 +158,19 @@ class CiscoXr(CiscoBaseConnection):
         """Exit configuration mode."""
         output = ''
         if skip_check or self.check_config_mode():
-            output = self.send_command_expect(exit_config, strip_prompt=False,
-                        strip_command=False, auto_find_prompt=False,
-                        expect_string=self.current_prompt)
+            output = self.send_command_expect(
+                exit_config,
+                strip_prompt=False,
+                strip_command=False,
+                auto_find_prompt=False,
+                expect_string=self.current_prompt)
             if "Uncommitted changes found" in output:
-                output = self.send_command_expect(exit_config, strip_prompt=False,
-                            strip_command=False, auto_find_prompt=False,
-                            expect_string=self.current_prompt)
+                output = self.send_command_expect(
+                    exit_config,
+                    strip_prompt=False,
+                    strip_command=False,
+                    auto_find_prompt=False,
+                    expect_string=self.current_prompt)
             if skip_check:
                 return output
             if self.check_config_mode():
@@ -154,16 +183,19 @@ class CiscoXr(CiscoBaseConnection):
         newline = re.compile(r'(\r\r\n|\r\n|\n\r|\r)')
         return newline.sub('\n', a_string)
 
+
 class CiscoXrSSH(CiscoXr):
     '''
     CiscoXrSSH is based of CiscoXr -- CiscoBaseConnection
     '''
     pass
 
+
 class CiscoXrTelnet(CiscoXr):
     '''
     CiscoXrTelnet is based of CiscoXr -- CiscoBaseConnection
     '''
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.set_base_prompt()
@@ -176,7 +208,7 @@ class CiscoXrTelnet(CiscoXr):
     def set_base_prompt(self, pri_prompt_terminator='#',
                         alt_prompt_terminator='>', delay_factor=1,
                         standby_prompt='RP Node is not ',
-                       ):
+                        ):
         """
         Sets self.base_prompt
 
