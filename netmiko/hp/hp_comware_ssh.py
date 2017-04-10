@@ -1,8 +1,6 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import time
-
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -13,9 +11,7 @@ class HPComwareSSH(CiscoSSHConnection):
         Prepare the session after the connection has been established.
         Extra time to read HP banners.
         """
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        time.sleep(2 * delay_factor)
-        self.clear_buffer()
+        self._test_channel_read(pattern=r'[>\]]')
         self.set_base_prompt()
         self.disable_paging(command="\nscreen-length disable\n")
 

@@ -27,6 +27,7 @@ from netmiko.extreme import ExtremeSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellPowerConnectSSH
+from netmiko.dell import DellPowerConnectTelnet
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.aruba import ArubaSSH
@@ -97,12 +98,11 @@ CLASS_MAPPER = new_mapper
 
 # Add telnet drivers
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosBase
+CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 
-# Add general terminal_server driver
+# Add general terminal_server driver and autodetect
 CLASS_MAPPER['terminal_server'] = TerminalServerSSH
-
-# Add autodetect driver (mapped to TerminalServerSSH)
 CLASS_MAPPER['autodetect'] = TerminalServerSSH
 
 platforms = list(CLASS_MAPPER.keys())

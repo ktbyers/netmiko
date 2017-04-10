@@ -7,6 +7,7 @@ class BrocadeFastironSSH(CiscoSSHConnection):
     """Brocade FastIron aka ICX support."""
     def session_preparation(self):
         """FastIron requires to be enable mode to disable paging."""
+        self._test_channel_read()
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="skip-page-display")

@@ -8,6 +8,7 @@ class HuaweiSSH(CiscoSSHConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
+        self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary\n")
 

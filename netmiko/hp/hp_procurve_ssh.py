@@ -14,15 +14,24 @@ class HPProcurveSSH(CiscoSSHConnection):
         Procurve uses - 'Press any key to continue'
         """
         delay_factor = self.select_delay_factor(delay_factor=0)
-        time.sleep(2 * delay_factor)
+        output = ""
+        count = 1
+        while count <= 30:
+            output += self.read_channel()
+            if 'any key to continue' in output:
+                self.write_channel("\n")
+                break
+            else:
+                time.sleep(.33 * delay_factor)
+            count += 1
+
+        # Try one last time to past "Press any key to continue
         self.write_channel("\n")
-        time.sleep(2 * delay_factor)
-        self.write_channel("\n")
-        time.sleep(2 * delay_factor)
 
         # HP output contains VT100 escape codes
         self.ansi_escape_codes = True
 
+        self._test_channel_read(pattern=r'[>#]')
         self.set_base_prompt()
         self.disable_paging(command="\nno page\n")
         self.set_terminal_width(command='terminal width 511')
