@@ -14,6 +14,7 @@ SHOW_RUN_MAPPER = {
     'hp_comware': 'display current-configuration',
     'huawei': 'display current-configuration',
     'fortinet': 'show full-configuration',
+    'checkpoint': 'show configuration',
     'cisco_wlc': 'show run-config',
     'enterasys': 'show running-config',
     'dell_force10': 'show running-config',
