@@ -60,8 +60,8 @@ SNMP_MAPPER_BASE = {
                  "expr": re.compile(r"Forti.*", re.IGNORECASE),
                  "priority": 80},
     'checkpoint': {"oid": ".1.3.6.1.4.1.2620.1.6.16.9.0",
-                 "expr": re.compile(r"CheckPoint"),
-                 "priority": 79},
+                   "expr": re.compile(r"CheckPoint"),
+                   "priority": 79},
 }
 
 # Ensure all SNMP device types are supported by Netmiko

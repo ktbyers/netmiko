@@ -73,7 +73,7 @@ class BaseConnection(object):
         :type ssh_strict: bool
         :param system_host_keys: Load host keys from the user's 'known_hosts' file.
         :type system_host_keys: bool
-        :param alt_host_keys: If `True` host keys will be loaded from the file specified in 
+        :param alt_host_keys: If `True` host keys will be loaded from the file specified in
                 'alt_key_file'.
         :type alt_host_keys: bool
         :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
