@@ -154,8 +154,12 @@ class CiscoXr(CiscoBaseConnection):
 
         return output
 
-    def exit_config_mode(self, exit_config='end', skip_check=False):
-        """Exit configuration mode."""
+    def exit_config_mode(self, exit_config='end', 
+                         skip_check=False, prompt_response="no"):
+        """Exit configuration mode.
+        When config/commit fails, exit may ask for commit the config 
+        Say 'no' to handle the config failure
+        """
         output = ''
         if skip_check or self.check_config_mode():
             output = self.send_command_expect(
@@ -166,7 +170,7 @@ class CiscoXr(CiscoBaseConnection):
                 expect_string=self.current_prompt)
             if "Uncommitted changes found" in output:
                 output = self.send_command_expect(
-                    exit_config,
+                    prompt_response,
                     strip_prompt=False,
                     strip_command=False,
                     auto_find_prompt=False,
