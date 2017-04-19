@@ -120,7 +120,7 @@ class BaseConnection(object):
         Note: this currently reads beyond pattern. In the case of SSH it reads MAX_BUFFER.
         In the case of telnet it reads all non-blocking data.
 
-        There are dependecies here like determining whether in config_mode that are actually
+        There are dependencies here like determining whether in config_mode that are actually
         depending on reading beyond pattern.
         """
         debug = False
