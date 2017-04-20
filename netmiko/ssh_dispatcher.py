@@ -16,6 +16,7 @@ from netmiko.brocade import BrocadeNosSSH
 from netmiko.brocade import BrocadeNetironSSH
 from netmiko.brocade import BrocadeFastironSSH
 from netmiko.fortinet import FortinetSSH
+from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.a10 import A10SSH
 from netmiko.avaya import AvayaVspSSH
 from netmiko.avaya import AvayaErsSSH
@@ -73,6 +74,7 @@ CLASS_MAPPER_BASE = {
     'extreme': ExtremeSSH,
     'alcatel_sros': AlcatelSrosSSH,
     'fortinet': FortinetSSH,
+    'checkpoint': CheckPointGaiaSSH,
     'dell_force10': DellForce10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
     'paloalto_panos': PaloAltoPanosSSH,
