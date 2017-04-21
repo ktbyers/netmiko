@@ -22,6 +22,7 @@ from threading import Lock
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes
+from netmiko.py23_compat import string_types
 from netmiko import log
 
 
@@ -937,6 +938,9 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ''
+        elif isinstance(config_commands, string_types):
+            config_commands = (config_commands,)
+
         if not hasattr(config_commands, '__iter__'):
             raise ValueError("Invalid argument passed into send_config_set")
 

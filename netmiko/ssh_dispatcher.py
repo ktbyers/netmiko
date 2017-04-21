@@ -74,7 +74,7 @@ CLASS_MAPPER_BASE = {
     'extreme': ExtremeSSH,
     'alcatel_sros': AlcatelSrosSSH,
     'fortinet': FortinetSSH,
-    'checkpoint': CheckPointGaiaSSH,
+    'checkpoint_gaia': CheckPointGaiaSSH,
     'dell_force10': DellForce10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
     'paloalto_panos': PaloAltoPanosSSH,
