@@ -2,6 +2,7 @@
 
 from __future__ import unicode_literals
 import re
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -11,7 +12,10 @@ class CiscoAsaSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
-        self.enable()
+        if self.secret:
+            self.enable()
+        else:
+            self.asa_login()
         self.disable_paging(command="terminal pager 0\n")
         self.set_terminal_width(command="terminal width 511\n")
 
@@ -69,3 +73,29 @@ class CiscoAsaSSH(CiscoSSHConnection):
             # strip off (conf.* from base_prompt
             self.base_prompt = match.group(1)
             return self.base_prompt
+
+    def asa_login(self):
+        """
+        Handle ASA reaching privilege level 15 using login
+
+        twb-dc-fw1> login
+        Username: admin
+        Password: ************
+        """
+        delay_factor = self.select_delay_factor(0)
+
+        i = 1
+        max_attempts = 50
+        self.write_channel("login\n")
+        while i <= max_attempts:
+            time.sleep(.5 * delay_factor)
+            output = self.read_channel()
+            if 'sername' in output:
+                self.write_channel(self.username + '\n')
+            elif 'ssword' in output:
+                self.write_channel(self.password + '\n')
+            elif '#' in output:
+                break
+            else:
+                self.write_channel("login\n")
+            i += 1
