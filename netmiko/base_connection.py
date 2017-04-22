@@ -416,8 +416,8 @@ class BaseConnection(object):
             ssh_config_instance = paramiko.SSHConfig()
             with io.open(full_path, "rt", encoding='utf-8') as f:
                 ssh_config_instance.parse(f)
-                host_specifier = "{0}:{1}".format(self.host, self.port)
-                source = ssh_config_instance.lookup(host_specifier)
+                # host_specifier = "{0}:{1}".format(self.host, self.port)
+                source = ssh_config_instance.lookup(self.host)
         else:
             source = {}
 
