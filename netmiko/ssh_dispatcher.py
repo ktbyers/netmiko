@@ -4,6 +4,7 @@ from netmiko.cisco import CiscoIosBase
 from netmiko.cisco import CiscoAsaSSH
 from netmiko.cisco import CiscoNxosSSH
 from netmiko.cisco import CiscoXrSSH
+from netmiko.cisco import CiscoXrTelnet
 from netmiko.cisco import CiscoWlcSSH
 from netmiko.cisco import CiscoS300SSH
 from netmiko.eltex import EltexSSH
@@ -48,6 +49,7 @@ CLASS_MAPPER_BASE = {
     'cisco_asa': CiscoAsaSSH,
     'cisco_nxos': CiscoNxosSSH,
     'cisco_xr': CiscoXrSSH,
+    'cisco_xr_telnet': CiscoXrTelnet,
     'cisco_wlc': CiscoWlcSSH,
     'cisco_s300': CiscoS300SSH,
     'eltex': EltexSSH,

@@ -1,3 +1,7 @@
+'''
+CiscoXrSSH is part of cisco_xr.py
+# Below code is OBSOLETE
+'''
 from __future__ import print_function
 from __future__ import unicode_literals
 
@@ -6,7 +10,7 @@ import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class CiscoXrSSH(CiscoSSHConnection):
+class ObsoleteCiscoXrSSH(CiscoSSHConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -15,12 +19,26 @@ class CiscoXrSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_terminal_width(command='terminal width 511')
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+    def send_config_set(
+            self,
+            config_commands=None,
+            exit_config_mode=True,
+            **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
-        return super(CiscoXrSSH, self).send_config_set(config_commands=config_commands,
-                                                       exit_config_mode=False, **kwargs)
+        return super(
+            ObsoleteCiscoXrSSH,
+            self).send_config_set(
+            config_commands=config_commands,
+            exit_config_mode=False,
+            **kwargs)
 
-    def commit(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=1):
+    def commit(
+            self,
+            confirm=False,
+            confirm_delay=None,
+            comment='',
+            label='',
+            delay_factor=1):
         """
         Commit the candidate configuration.
 
@@ -75,9 +93,11 @@ class CiscoXrSSH(CiscoSSHConnection):
         # Select proper command string based on arguments provided
         if label:
             if comment:
-                command_string = 'commit label {0} comment {1}'.format(label, comment)
+                command_string = 'commit label {0} comment {1}'.format(
+                    label, comment)
             elif confirm:
-                command_string = 'commit label {0} confirmed {1}'.format(label, str(confirm_delay))
+                command_string = 'commit label {0} confirmed {1}'.format(
+                    label, str(confirm_delay))
             else:
                 command_string = 'commit label {0}'.format(label)
         elif confirm:
@@ -89,15 +109,21 @@ class CiscoXrSSH(CiscoSSHConnection):
 
         # Enter config mode (if necessary)
         output = self.config_mode()
-        output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
+        output += self.send_command_expect(command_string,
+                                           strip_prompt=False,
+                                           strip_command=False,
                                            delay_factor=delay_factor)
         if error_marker in output:
-            raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{0}".format(output))
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
-            output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
+            output += self.send_command_timing("no",
+                                               strip_prompt=False,
+                                               strip_command=False,
                                                delay_factor=delay_factor)
-            raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{0}".format(output))
 
         return output
 
@@ -105,9 +131,11 @@ class CiscoXrSSH(CiscoSSHConnection):
         """Exit configuration mode."""
         output = ''
         if self.check_config_mode():
-            output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
+            output = self.send_command_timing(
+                exit_config, strip_prompt=False, strip_command=False)
             if "Uncommitted changes found" in output:
-                output += self.send_command_timing('no\n', strip_prompt=False, strip_command=False)
+                output += self.send_command_timing(
+                    'no\n', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
