@@ -1,3 +1,7 @@
+'''
+CiscoXrSSH is part of cisco_xr.py
+# Below code is OBSOLETE
+'''
 from __future__ import print_function
 from __future__ import unicode_literals
 
@@ -6,7 +10,7 @@ import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class CiscoXrSSH(CiscoSSHConnection):
+class ObsoleteCiscoXrSSH(CiscoSSHConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""

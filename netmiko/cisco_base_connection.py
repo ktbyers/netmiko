@@ -39,6 +39,8 @@ class CiscoBaseConnection(BaseConnection):
         """
         if not pattern:
             pattern = self.base_prompt[:16]
+            pattern = self.current_prompt[:16]
+            
         return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
                                                             pattern=pattern)
 
@@ -46,6 +48,7 @@ class CiscoBaseConnection(BaseConnection):
         """Exit from configuration mode."""
         if not pattern:
             pattern = self.base_prompt[:16]
+            pattern = self.current_prompt[:16]
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
 
@@ -63,24 +66,30 @@ class CiscoBaseConnection(BaseConnection):
         i = 1
         while i <= max_loops:
             try:
-                output = self.read_channel()
+                output = self.read_channel(verbose=True)
                 return_msg += output
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output):
                     self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
-                    output = self.read_channel()
+                    output = self.read_channel(verbose=True)
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
                     self.write_channel(self.password + TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
-                    output = self.read_channel()
+                    output = self.read_channel(verbose=True)
                     return_msg += output
                     if pri_prompt_terminator in output or alt_prompt_terminator in output:
                         return return_msg
+                
+                # Search for standby console pattern
+                standby_pattern=r"RP Node is not ready or active for login"
+                if re.search(standby_pattern,output):
+                    ''' Session is standby state '''
+                    return return_msg
 
                 # Support direct telnet through terminal server
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
@@ -88,7 +97,7 @@ class CiscoBaseConnection(BaseConnection):
                     time.sleep(.5 * delay_factor)
                     count = 0
                     while count < 15:
-                        output = self.read_channel()
+                        output = self.read_channel(verbose=True)
                         return_msg += output
                         if re.search(r"ress RETURN to get started", output):
                             output = ""
@@ -110,18 +119,18 @@ class CiscoBaseConnection(BaseConnection):
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {0}".format(self.host)
+                msg = "EOFError Telnet login failed: {0}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
         self.write_channel(TELNET_RETURN)
         time.sleep(.5 * delay_factor)
-        output = self.read_channel()
+        output = self.read_channel(verbose=True)
         return_msg += output
         if pri_prompt_terminator in output or alt_prompt_terminator in output:
             return return_msg
 
-        msg = "Telnet login failed: {0}".format(self.host)
+        msg = "LAST_TRY Telnet login failed: {0}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
     def cleanup(self):
