@@ -381,7 +381,8 @@ class InLineTransfer(FileTransfer):
         self.ssh_ctl_chan.write_channel(TCL_EXIT + "\r")
 
         time.sleep(1)
-        output += self.ssh_ctl_chan.read_channel()
+        # Read all data remaining from the TCLSH session
+        output += self.ssh_ctl_chan._read_channel_expect()
         return output
 
     def get_file(self):
