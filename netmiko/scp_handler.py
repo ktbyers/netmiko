@@ -371,15 +371,21 @@ class InLineTransfer(FileTransfer):
         time.sleep(.25)
         self.ssh_ctl_chan.write_channel(file_contents)
         self.ssh_ctl_chan.write_channel(TCL_FILECMD_EXIT + "\r")
-        time.sleep(2)
 
-        # This operation can be slow (depending on the size of the file)
-        # File paste and TCL_FILECMD_exit should be indicated by "router(tcl)#"
+        # This operation can be slow (depends on the size of the file)
         max_loops = 400
+        sleep_time = 4
         if self.file_size >= 2500:
-            max_loops = 800
-        elif self.file_size >= 7500:
             max_loops = 1500
+            sleep_time = 12
+        elif self.file_size >= 7500:
+            max_loops = 3000
+            sleep_time = 25
+
+        # Initial delay
+        time.sleep(sleep_time)
+
+        # File paste and TCL_FILECMD_exit should be indicated by "router(tcl)#"
         output = self.ssh_ctl_chan._read_channel_expect(pattern=r"\(tcl\)", max_loops=max_loops)
 
         # The file doesn't write until tclquit
