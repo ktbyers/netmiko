@@ -240,7 +240,7 @@ class BaseConnection(object):
             self._unlock_netmiko_session()
         return output
 
-    def _read_channel_expect(self, pattern='', re_flags=0):
+    def _read_channel_expect(self, pattern='', re_flags=0, max_loops=None):
         """
         Function that reads channel until pattern is detected.
 
@@ -261,10 +261,11 @@ class BaseConnection(object):
         if debug:
             print("Pattern is: {}".format(pattern))
 
-        # Will loop for self.timeout time (unless modified by global_delay_factor)
+        # Will loop for self.timeout time (override with max_loops argument)
         i = 1
         loop_delay = .1
-        max_loops = self.timeout / loop_delay
+        if not max_loops:
+            max_loops = self.timeout / loop_delay
         while i < max_loops:
             if self.protocol == 'ssh':
                 try:

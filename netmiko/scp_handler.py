@@ -312,8 +312,8 @@ class InLineTransfer(FileTransfer):
     def _enter_tcl_mode(self):
         TCL_ENTER = 'tclsh'
         cmd_failed = ['Translating "tclsh"', '% Unknown command', '% Bad IP address']
-        output = self.ssh_ctl_chan.send_command_timing(TCL_ENTER, strip_prompt=False,
-                                                       strip_command=False)
+        output = self.ssh_ctl_chan.send_command(TCL_ENTER, expect_string=r"\(tcl\)#",
+                                                strip_prompt=False, strip_command=False)
         for pattern in cmd_failed:
             if pattern in output:
                 raise ValueError("Failed to enter tclsh mode on router: {}".format(output))
@@ -364,17 +364,23 @@ class InLineTransfer(FileTransfer):
             file_contents = self.source_config
         file_contents = self._tcl_newline_rationalize(file_contents)
 
+        # Try to remove any existing data
+        self.ssh_ctl_chan.clear_buffer()
+
         self.ssh_ctl_chan.write_channel(TCL_FILECMD_ENTER)
+        time.sleep(.25)
         self.ssh_ctl_chan.write_channel(file_contents)
         self.ssh_ctl_chan.write_channel(TCL_FILECMD_EXIT + "\r")
+        time.sleep(2)
 
-        output = ''
-        while True:
-            time.sleep(1.5)
-            new_output = self.ssh_ctl_chan.read_channel()
-            if not new_output:
-                break
-            output += new_output
+        # This operation can be slow (depending on the size of the file)
+        # File paste and TCL_FILECMD_exit should be indicated by "router(tcl)#"
+        max_loops = 400
+        if self.file_size >= 2500:
+            max_loops = 800
+        elif self.file_size >= 7500:
+            max_loops = 1500
+        output = self.ssh_ctl_chan._read_channel_expect(pattern=r"\(tcl\)", max_loops=max_loops)
 
         # The file doesn't write until tclquit
         TCL_EXIT = 'tclquit'
@@ -382,7 +388,7 @@ class InLineTransfer(FileTransfer):
 
         time.sleep(1)
         # Read all data remaining from the TCLSH session
-        output += self.ssh_ctl_chan._read_channel_expect()
+        output += self.ssh_ctl_chan._read_channel_expect(max_loops=max_loops)
         return output
 
     def get_file(self):
