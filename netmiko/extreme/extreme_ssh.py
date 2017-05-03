@@ -45,7 +45,8 @@ class ExtremeSSH(CiscoSSHConnection):
         """Extreme needs special handler here due to the prompt changes."""
 
         # Change send_command behavior to use self.base_prompt
-        kwargs.setdefault({'auto_find_prompt': False})
+        kwargs.setdefault('auto_find_prompt', False)
+
         # refresh self.base_prompt
         self.set_base_prompt()
         return super(ExtremeSSH, self).send_command(*args, **kwargs)
