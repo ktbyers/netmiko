@@ -90,7 +90,7 @@ SSH_MAPPER_BASE = {
     },
     'juniper_junos': {
         "cmd": "show version | match JUNOS",
-        "search_patterns": ["JUNOS Software Release"],
+        "search_patterns": ["JUNOS Software Release", "JUNOS .+ Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },

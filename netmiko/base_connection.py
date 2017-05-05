@@ -22,6 +22,7 @@ from threading import Lock
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes
+from netmiko.py23_compat import string_types
 from netmiko import log
 
 
@@ -58,40 +59,31 @@ class BaseConnection(object):
         :type port: int or None
         :param device_type: Class selection based on device type.
         :type device_type: str
-        :param verbose: If `True` enables more verbose logging.
+        :param verbose: Enable additional messages to standard output.
         :type verbose: bool
-        :param global_delay_factor: Controls global delay factor value.
+        :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
         :type global_delay_factor: int
-        :param use_keys: If true, Paramiko will attempt to connect to
-                target device using SSH keys.
+        :param use_keys: Connect to target device using SSH keys.
         :type use_keys: bool
-        :param key_file: Name of the SSH key file to use for Paramiko
-                SSH connection authentication.
+        :param key_file: Filename path of the SSH key file to use.
         :type key_file: str
-        :param allow_agent: Set to True to enable connect to the SSH agent
+        :param allow_agent: Enable use of SSH key-agent.
         :type allow_agent: bool
-        :param ssh_strict: If `True` Paramiko will automatically reject
-                unknown hostname and keys. If 'False' Paramiko will
-                automatically add the hostname and new host key.
+        :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
+                means unknown SSH host keys will be accepted).
         :type ssh_strict: bool
-        :param system_host_keys: If `True` Paramiko will load host keys
-                from the user's local 'known hosts' file.
+        :param system_host_keys: Load host keys from the user's 'known_hosts' file.
         :type system_host_keys: bool
-        :param alt_host_keys: If `True` host keys will be loaded from
-                a local host-key file.
+        :param alt_host_keys: If `True` host keys will be loaded from the file specified in
+                'alt_key_file'.
         :type alt_host_keys: bool
-        :param alt_key_file: If `alt_host_keys` is set to `True`, provide
-                the filename of the local host-key file to load.
+        :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
         :type alt_key_file: str
-        :param ssh_config_file: File name of a OpenSSH configuration file
-                to load SSH connection parameters from.
+        :param ssh_config_file: File name of OpenSSH configuration file.
         :type ssh_config_file: str
-        :param timeout: Set a timeout on blocking read/write operations.
+        :param timeout: Connection timeout.
         :type timeout: float
-        :param session_timeout: Set a timeout for parallel requests. When
-                the channel is busy serving other tasks and the queue is
-                very long, in case the wait time is higher than this value,
-                NetMikoTimeoutException will be raised.
+        :param session_timeout: Set a timeout for parallel requests.
         :type session_timeout: float
         """
         if ip:
@@ -127,6 +119,7 @@ class BaseConnection(object):
         # determine if telnet or SSH
         if '_telnet' in device_type:
             self.protocol = 'telnet'
+            self._modify_connection_params()
             self.establish_connection()
             self.session_preparation()
         else:
@@ -148,6 +141,7 @@ class BaseConnection(object):
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
 
+            self._modify_connection_params()
             self.establish_connection()
             self.session_preparation()
 
@@ -156,14 +150,18 @@ class BaseConnection(object):
         self.clear_buffer()
 
     def __enter__(self):
-        """Enter runtime context"""
+        """Establish a session using a Context Manager."""
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        """Gracefully close connection on context manager exit"""
+        """Gracefully close connection on Context Manager exit."""
         self.disconnect()
         if exc_type is not None:
             raise exc_type(exc_value)
+
+    def _modify_connection_params(self):
+        """Modify connection parameters prior to SSH connection."""
+        pass
 
     def _timeout_exceeded(self, start, msg='Timeout exceeded!'):
         """
@@ -242,7 +240,7 @@ class BaseConnection(object):
             self._unlock_netmiko_session()
         return output
 
-    def _read_channel_expect(self, pattern='', re_flags=0):
+    def _read_channel_expect(self, pattern='', re_flags=0, max_loops=None):
         """
         Function that reads channel until pattern is detected.
 
@@ -263,10 +261,11 @@ class BaseConnection(object):
         if debug:
             print("Pattern is: {}".format(pattern))
 
-        # Will loop for self.timeout time (unless modified by global_delay_factor)
+        # Will loop for self.timeout time (override with max_loops argument)
         i = 1
         loop_delay = .1
-        max_loops = self.timeout / loop_delay
+        if not max_loops:
+            max_loops = self.timeout / loop_delay
         while i < max_loops:
             if self.protocol == 'ssh':
                 try:
@@ -329,18 +328,10 @@ class BaseConnection(object):
 
     def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
-        output = ''
-        if not pattern:
-            pattern = re.escape(self.base_prompt)
-        base_prompt_pattern = re.escape(self.base_prompt)
-        while True:
-            try:
-                output += self.read_channel()
-                if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
-                                                                           output, flags=re_flags):
-                    return output
-            except socket.timeout:
-                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+        combined_pattern = re.escape(self.base_prompt)
+        if pattern:
+            combined_pattern += "|{}".format(pattern)
+        return self._read_channel_expect(combined_pattern, re_flags=re_flags)
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
                      username_pattern=r"sername", pwd_pattern=r"assword",
@@ -426,8 +417,7 @@ class BaseConnection(object):
             ssh_config_instance = paramiko.SSHConfig()
             with io.open(full_path, "rt", encoding='utf-8') as f:
                 ssh_config_instance.parse(f)
-                host_specifier = "{0}:{1}".format(self.host, self.port)
-                source = ssh_config_instance.lookup(host_specifier)
+                source = ssh_config_instance.lookup(self.host)
         else:
             source = {}
 
@@ -948,6 +938,9 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ''
+        elif isinstance(config_commands, string_types):
+            config_commands = (config_commands,)
+
         if not hasattr(config_commands, '__iter__'):
             raise ValueError("Invalid argument passed into send_config_set")
 

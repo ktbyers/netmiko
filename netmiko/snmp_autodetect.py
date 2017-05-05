@@ -30,10 +30,11 @@ except ImportError:
 
 from netmiko.ssh_dispatcher import CLASS_MAPPER
 
+
 # Higher priority indicates a better match.
 SNMP_MAPPER_BASE = {
     'arista_eos': {"oid": ".1.3.6.1.2.1.1.1.0",
-                   "expr": re.compile(r".Arista Networks EOS.", re.IGNORECASE),
+                   "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
                    "priority": 99},
     'hp_comware': {"oid": ".1.3.6.1.2.1.1.1.0",
                    "expr": re.compile(r".*HP Comware.*", re.IGNORECASE),
@@ -59,6 +60,9 @@ SNMP_MAPPER_BASE = {
     'fortinet': {"oid": ".1.3.6.1.2.1.1.1.0",
                  "expr": re.compile(r"Forti.*", re.IGNORECASE),
                  "priority": 80},
+    'checkpoint': {"oid": ".1.3.6.1.4.1.2620.1.6.16.9.0",
+                   "expr": re.compile(r"CheckPoint"),
+                   "priority": 79},
 }
 
 # Ensure all SNMP device types are supported by Netmiko

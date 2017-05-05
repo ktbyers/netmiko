@@ -16,6 +16,7 @@ from netmiko.brocade import BrocadeNosSSH
 from netmiko.brocade import BrocadeNetironSSH
 from netmiko.brocade import BrocadeFastironSSH
 from netmiko.fortinet import FortinetSSH
+from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.a10 import A10SSH
 from netmiko.avaya import AvayaVspSSH
 from netmiko.avaya import AvayaErsSSH
@@ -26,6 +27,7 @@ from netmiko.extreme import ExtremeSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellPowerConnectSSH
+from netmiko.dell import DellPowerConnectTelnet
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.aruba import ArubaSSH
@@ -72,6 +74,7 @@ CLASS_MAPPER_BASE = {
     'extreme': ExtremeSSH,
     'alcatel_sros': AlcatelSrosSSH,
     'fortinet': FortinetSSH,
+    'checkpoint_gaia': CheckPointGaiaSSH,
     'dell_force10': DellForce10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
     'paloalto_panos': PaloAltoPanosSSH,
@@ -95,12 +98,11 @@ CLASS_MAPPER = new_mapper
 
 # Add telnet drivers
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosBase
+CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 
-# Add general terminal_server driver
+# Add general terminal_server driver and autodetect
 CLASS_MAPPER['terminal_server'] = TerminalServerSSH
-
-# Add autodetect driver (mapped to TerminalServerSSH)
 CLASS_MAPPER['autodetect'] = TerminalServerSSH
 
 platforms = list(CLASS_MAPPER.keys())

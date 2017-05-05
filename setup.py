@@ -53,6 +53,7 @@ setup(
               'netmiko/extreme',
               'netmiko/f5',
               'netmiko/fortinet',
+              'netmiko/checkpoint',
               'netmiko/hp',
               'netmiko/huawei',
               'netmiko/juniper',

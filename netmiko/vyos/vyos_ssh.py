@@ -28,11 +28,11 @@ class VyOSSSH(CiscoSSHConnection):
         """Checks if the device is in configuration mode"""
         return super(VyOSSSH, self).check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command='configure', pattern='[edit]'):
+    def config_mode(self, config_command='configure', pattern=r'[edit]'):
         """Enter configuration mode."""
         return super(VyOSSSH, self).config_mode(config_command=config_command, pattern=pattern)
 
-    def exit_config_mode(self, exit_config='exit', pattern='exit'):
+    def exit_config_mode(self, exit_config='exit', pattern=r'exit'):
         """Exit configuration mode"""
         output = ""
         if self.check_config_mode():

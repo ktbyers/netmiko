@@ -4,6 +4,8 @@ RETURN_CODE=0
 
 # Exit on the first test failure and set RETURN_CODE = 1
 echo "Starting tests...good luck:" \
+&& py.test -v test_netmiko_show.py --test_device cisco_asa_login \
+&& py.test -v test_netmiko_config.py --test_device cisco_asa_login \
 && py.test -v test_netmiko_show.py --test_device cisco_asa \
 && py.test -v test_netmiko_config.py --test_device cisco_asa \
 || RETURN_CODE=1
