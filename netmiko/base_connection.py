@@ -36,7 +36,7 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
-                 session_timeout=60, keepalive=60):
+                 session_timeout=60, keepalive=0):
         """
         Initialize attributes for establishing connection to target device.
 
