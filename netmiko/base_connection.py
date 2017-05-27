@@ -228,7 +228,7 @@ class BaseConnection(object):
                 if self.remote_conn.recv_ready():
                     outbuf = self.remote_conn.recv(MAX_BUFFER)
                     if len(outbuf) == 0:
-                        raise EOFError
+                        raise EOFError("Channel stream closed by remote device.")
                     output += outbuf.decode('utf-8', 'ignore')
                 else:
                     break
@@ -281,7 +281,7 @@ class BaseConnection(object):
                     self._lock_netmiko_session()
                     new_data = self.remote_conn.recv(MAX_BUFFER)
                     if len(new_data) == 0:
-                        raise EOFError
+                        raise EOFError("Channel stream closed by remote device.")
                     new_data = new_data.decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
