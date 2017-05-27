@@ -226,7 +226,10 @@ class BaseConnection(object):
             output = ""
             while True:
                 if self.remote_conn.recv_ready():
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    outbuf = self.remote_conn.recv(MAX_BUFFER)
+                    if len(outbuf) == 0:
+                        raise EOFError
+                    output += outbuf.decode('utf-8', 'ignore')
                 else:
                     break
         elif self.protocol == 'telnet':
@@ -276,7 +279,10 @@ class BaseConnection(object):
                 try:
                     # If no data available will wait timeout seconds trying to read
                     self._lock_netmiko_session()
-                    new_data = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    new_data = self.remote_conn.recv(MAX_BUFFER)
+                    if len(new_data) == 0:
+                        raise EOFError
+                    new_data = new_data.decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
                 except socket.timeout:
