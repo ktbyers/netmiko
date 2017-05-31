@@ -1,6 +1,7 @@
 """Aruba OS support"""
 from __future__ import unicode_literals
 import time
+import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -22,6 +23,6 @@ class ArubaSSH(CiscoSSHConnection):
         Aruba uses "(<controller name>) (config) #" as config prompt
         """
         if not pattern:
-            pattern = self.base_prompt[:16]
+            pattern = re.escape(self.base_prompt[:16])
         return super(ArubaSSH, self).check_config_mode(check_string=check_string,
                                                        pattern=pattern)
