@@ -21,7 +21,7 @@ from netmiko.base_connection import BaseConnection
 NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
 
-__version__ = '1.4.0'
+__version__ = '1.4.1'
 
 __all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTransfer',
            'NetMikoTimeoutException', 'NetMikoAuthenticationException',
