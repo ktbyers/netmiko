@@ -1,3 +1,6 @@
+
+###### This is obsolete -- see _release.sh ######
+
 # Use pynetcio machine
 
 # Make sure you have rolled the version in __init__.py
