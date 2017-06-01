@@ -3,7 +3,6 @@
 cd /home/gituser/netmiko/
 echo
 
-#VERSION=`cat netmiko/__init__.py | grep version | sed 's/^__version__ = //'`
 VERSION=`cat netmiko/__init__.py | grep version | sed "s/^__version__ = '//"`
 VERSION=`echo $VERSION | sed "s/'$//"`
 PACKAGE=`echo 'netmiko-'$VERSION'.tar.gz'`
@@ -51,8 +50,9 @@ echo
 echo "Testing in new virtual environment"
 if [ -d "/home/gituser/VENV" ]; then
     cd /home/gituser/VENV
-    ### FIX: Need to add
-    #rm -r netmiko_packaging
+    if [ -d "netmiko_packaging" ]; then
+        rm -r netmiko_packaging
+    fi
 fi
 if [ -d "netmiko_packaging" ]; then
     echo "Directory exists"
@@ -93,7 +93,7 @@ deactivate
 source /home/gituser/VENV/py27_netmiko/bin/activate
 echo `which python`
 cd /home/gituser/netmiko
-### NEED TO UNCOMMENT
+### FIX: NEED TO UNCOMMENT
 # python setup.py register -r pypitest
 # twine upload -r pypitest $DIR_PACKAGE
 
@@ -110,17 +110,20 @@ done
 
 echo
 
-### NEED TO ADD
+### FIX: NEED TO ADD
 # Register to pypi
 # python setup.py register
-# Use Twine to upload to pypi
-# twine upload dist/netmiko-1.4.1.tar.gz
+# twine upload $DIR_PACKAGE
 
 
+sleep 1
+echo
 echo "Test clean install from pypi"
 if [ -d "/home/gituser/VENV" ]; then
     cd /home/gituser/VENV
-    rm -r netmiko_packaging
+    if [ -d "netmiko_packaging" ]; then
+        rm -r netmiko_packaging
+    fi
 fi
 sleep 1
 
