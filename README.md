@@ -55,7 +55,8 @@ Ciena SAOS
 Cisco Telepresence  
 CheckPoint Gaia  
 Enterasys  
-Extreme  
+Extreme EXOS  
+Extreme Wing  
 F5 LTM  
 Fortinet  
 

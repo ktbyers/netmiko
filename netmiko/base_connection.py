@@ -36,7 +36,7 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
-                 session_timeout=60):
+                 session_timeout=60, keepalive=0):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -85,6 +85,10 @@ class BaseConnection(object):
         :type timeout: float
         :param session_timeout: Set a timeout for parallel requests.
         :type session_timeout: float
+        :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
+                Currently defaults to 0, for backwards compatibility (it will not attempt
+                to keep the connection alive).
+        :type keepalive: int
         """
         if ip:
             self.host = ip
@@ -108,6 +112,7 @@ class BaseConnection(object):
         self.verbose = verbose
         self.timeout = timeout
         self.session_timeout = session_timeout
+        self.keepalive = keepalive
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -221,7 +226,10 @@ class BaseConnection(object):
             output = ""
             while True:
                 if self.remote_conn.recv_ready():
-                    output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    outbuf = self.remote_conn.recv(MAX_BUFFER)
+                    if len(outbuf) == 0:
+                        raise EOFError("Channel stream closed by remote device.")
+                    output += outbuf.decode('utf-8', 'ignore')
                 else:
                     break
         elif self.protocol == 'telnet':
@@ -251,7 +259,7 @@ class BaseConnection(object):
         Note: this currently reads beyond pattern. In the case of SSH it reads MAX_BUFFER.
         In the case of telnet it reads all non-blocking data.
 
-        There are dependecies here like determining whether in config_mode that are actually
+        There are dependencies here like determining whether in config_mode that are actually
         depending on reading beyond pattern.
         """
         debug = False
@@ -271,7 +279,10 @@ class BaseConnection(object):
                 try:
                     # If no data available will wait timeout seconds trying to read
                     self._lock_netmiko_session()
-                    new_data = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    new_data = self.remote_conn.recv(MAX_BUFFER)
+                    if len(new_data) == 0:
+                        raise EOFError("Channel stream closed by remote device.")
+                    new_data = new_data.decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
                 except socket.timeout:
@@ -510,6 +521,8 @@ class BaseConnection(object):
                 self.remote_conn = self.remote_conn_pre.invoke_shell()
 
             self.remote_conn.settimeout(self.timeout)
+            if self.keepalive:
+                self.remote_conn.transport.set_keepalive(self.keepalive)
             self.special_login_handler()
             if self.verbose:
                 print("Interactive SSH session established")

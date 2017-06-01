@@ -11,6 +11,7 @@ SHOW_RUN_MAPPER = {
     'juniper': 'show configuration',
     'juniper_junos': 'show configuration',
     'extreme': 'show configuration',
+    'extreme_wing': 'show running-config',
     'hp_comware': 'display current-configuration',
     'huawei': 'display current-configuration',
     'fortinet': 'show full-configuration',

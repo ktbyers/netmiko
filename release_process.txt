@@ -1,5 +1,7 @@
 # Use pynetcio machine
 
+# Make sure you have rolled the version in __init__.py
+
 # pylama code (from ./netmiko)
 pylama
 
