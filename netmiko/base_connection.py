@@ -742,7 +742,7 @@ class BaseConnection(object):
 
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
-                     strip_prompt=True, strip_command=True):
+                     strip_prompt=True, strip_command=True, answer=None):
         '''
         Send command to network device retrieve output until router_prompt or expect_string
 
@@ -756,7 +756,7 @@ class BaseConnection(object):
         strip_prompt = strip the trailing prompt from the output
         strip_command = strip the leading command from the output
         '''
-        debug = False
+        debug = True
         delay_factor = self.select_delay_factor(delay_factor)
 
         # Find the current router prompt
@@ -806,6 +806,16 @@ class BaseConnection(object):
                 except IndexError:
                     pass
                 if re.search(search_pattern, output):
+                    break
+
+                # There might also be questions/answers
+                question_prompt = r'\[(y|n)\].*$'
+                if re.search(question_prompt, output):
+                    if answer is None:
+                        # reply default: just press enter
+                        self.write_channel('\n')
+                    else:
+                        self.write_channel(answer+'\n')
                     break
             else:
                 time.sleep(delay_factor * .2)
