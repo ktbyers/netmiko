@@ -94,14 +94,20 @@ def main():
         # start the work process
         p.start()
 
+   
+    
+    # retrieve all the data from the queue as it becomes available
+    results = []
+    while 1:
+        running = any(p.is_alive() for p in processes)
+        while not mp_queue.empty():
+            results.append(mp_queue.get())
+        if not running:
+            break  
+        
     # wait until the child processes have completed
     for p in processes:
         p.join()
-
-    # retrieve all the data from the queue
-    results = []
-    for p in processes:
-        results.append(mp_queue.get())
 
     print_output(results)
 
