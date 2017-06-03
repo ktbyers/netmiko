@@ -120,6 +120,15 @@ class BaseConnection(object):
         # set in set_base_prompt method
         self.base_prompt = ''
 
+        # Set key exchange for fortinet devices
+        if self.device_type == 'fortinet':
+            paramiko.Transport._preferred_kex = (
+                                            'diffie-hellman-group14-sha1',
+                                            'diffie-hellman-group-exchange-sha1',
+                                            'diffie-hellman-group-exchange-sha256',
+                                            'diffie-hellman-group1-sha1',
+                                            )
+
         self._session_locker = Lock()
         # determine if telnet or SSH
         if '_telnet' in device_type:
