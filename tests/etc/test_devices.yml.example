@@ -89,3 +89,8 @@ pluribus:
   username: mircea
   password: weakpass
 
+alcatel_aos:
+  device_type: alcatel_aos
+  ip: 192.168.1.154
+  username: admin
+  password: switch

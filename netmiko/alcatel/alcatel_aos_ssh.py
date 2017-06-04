@@ -7,32 +7,37 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class AlcatelAosSSH(CiscoSSHConnection):
     """Alcatel-Lucent Enterprise AOS support."""
+    def __init__(self, *args, **kwargs):
+        super(AlcatelAosSSH, self).__init__(*args, **kwargs)
+        self._config_mode = False
+
     def session_preparation(self):
         # Prompt can be anything, but best practice is to end with > or #
         self._test_channel_read(pattern=r'[>#]')
         self.set_base_prompt()
 
-    def check_enable_mode(self, check_string='#'):
+    def check_enable_mode(self, *args, **kwargs):
         """No enable mode on AOS"""
         pass
 
-    def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE):
+    def enable(self, *args, **kwargs):
         """No enable mode on AOS"""
         pass
 
-    def exit_enable_mode(self, exit_command='disable'):
+    def exit_enable_mode(self, *args, **kwargs):
         """No enable mode on AOS"""
         pass
 
-    def check_config_mode(self, check_string=')#', pattern=''):
+    def check_config_mode(self, *args, **kwargs):
         """No config mode on AOS"""
-        pass
+        return self._config_mode
 
-    def config_mode(self, config_command='config term', pattern=''):
+    def config_mode(self, *args, **kwargs):
         """No config mode on AOS"""
-        pass
+        self._config_mode = True
+        return ''
 
-    def exit_config_mode(self, exit_config='end', pattern=''):
+    def exit_config_mode(self, *args, **kwargs):
         """No config mode on AOS"""
-        pass
-
+        self._config_mode = False
+        return ''
