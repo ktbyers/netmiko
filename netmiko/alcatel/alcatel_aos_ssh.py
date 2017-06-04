@@ -1,7 +1,6 @@
 """Alcatel-Lucent Enterprise AOS support."""
 from __future__ import print_function
 from __future__ import unicode_literals
-import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
