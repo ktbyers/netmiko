@@ -742,7 +742,7 @@ class BaseConnection(object):
 
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
-                     strip_prompt=True, strip_command=True):
+                     strip_prompt=True, strip_command=True, normalize_command=True):
         '''
         Send command to network device retrieve output until router_prompt or expect_string
 
@@ -774,7 +774,9 @@ class BaseConnection(object):
         else:
             search_pattern = expect_string
 
-        command_string = self.normalize_cmd(command_string)
+        if normalize_command:
+            command_string = self.normalize_cmd(command_string)
+
         if debug:
             print("Command is: {0}".format(command_string))
             print("Search to stop receiving data is: '{0}'".format(search_pattern))
