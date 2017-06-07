@@ -747,7 +747,7 @@ class BaseConnection(object):
         :param command_string: The command to be executed on the remote device.
         :type command_string: str
         :param expect_string: Regular expression pattern to use for determining end of output.
-        If left blank will default to being based on router prompt.
+            If left blank will default to being based on router prompt.
         :type expect_str: str
         :param delay_factor: Multiplying factor used to adjust delays (default: 1).
         :type delay_factor: int
