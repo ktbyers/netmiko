@@ -699,7 +699,7 @@ class BaseConnection(object):
 
     def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
                             strip_prompt=True, strip_command=True, normalize=True):
-        """Execute command_string on the SSH channel using a delay-based mechanism. Generally 
+        """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
         :param command_string: The command to be executed on the remote device.
@@ -739,7 +739,7 @@ class BaseConnection(object):
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True, normalize=True):
-        """Execute command_string on the SSH channel using a pattern-based mechanism. Generally 
+        """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
         automatically.
