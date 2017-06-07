@@ -845,7 +845,7 @@ class BaseConnection(object):
 
     @staticmethod
     def normalize_linefeeds(a_string):
-        """Convert '\r\r\n','\r\n', '\n\r' to '\n."""
+        """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`"""
         newline = re.compile(r'(\r\r\r\n|\r\r\n|\r\n|\n\r)')
         return newline.sub('\n', a_string)
 
