@@ -698,37 +698,33 @@ class BaseConnection(object):
         self.read_channel()
 
     def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
-                            strip_prompt=True, strip_command=True):
-        '''
-        Execute command_string on the SSH channel.
+                            strip_prompt=True, strip_command=True, normalize=True):
+        """Execute command_string on the SSH channel using a delay-based mechanism. Generally 
+        used for show commands.
 
-        Use delay based mechanism to obtain output.  Strips echoed characters and router prompt.
-
-        delay_factor can be used to increase the delays.
-
-        max_loops can be used to increase the number of times it reads the data buffer
-
-        Returns the output of the command.
-        '''
-        debug = False
-        if debug:
-            print('In send_command_timing')
-
-        delay_factor = self.select_delay_factor(delay_factor)
+        :param command_string: The command to be executed on the remote device.
+        :type command_string: str
+        :param delay_factor: Multiplying factor used to adjust delays (default: 1).
+        :type delay_factor: int
+        :param max_loops: Controls wait time in conjunction with delay_factor (default: 150).
+        :type max_loops: int
+        :param strip_prompt: Remove the trailing router prompt from the output (default: True).
+        :type strip_prompt: bool
+        :param strip_command: Remove the echo of the command from the output (default: True).
+        :type strip_command: bool
+        :param normalize: Ensure the proper enter is sent at end of command (default: True).
+        :type normalize: bool
+        """
         output = ''
+        delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        command_string = self.normalize_cmd(command_string)
-        if debug:
-            print("Command is: {0}".format(command_string))
+        if normalize:
+            command_string = self.normalize_cmd(command_string)
 
         self.write_channel(command_string)
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
-        if debug:
-            print("zzz: {}".format(output))
         output = self._sanitize_output(output, strip_command=strip_command,
                                        command_string=command_string, strip_prompt=strip_prompt)
-        if debug:
-            print(output)
         return output
 
     def strip_prompt(self, a_string):
@@ -742,21 +738,28 @@ class BaseConnection(object):
 
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
-                     strip_prompt=True, strip_command=True, normalize_command=True):
-        '''
-        Send command to network device retrieve output until router_prompt or expect_string
+                     strip_prompt=True, strip_command=True, normalize=True):
+        """Execute command_string on the SSH channel using a pattern-based mechanism. Generally 
+        used for show commands. By default this method will keep waiting to receive data until the
+        network device prompt is detected. The current network device prompt will be determined
+        automatically.
 
-        By default this method will keep waiting to receive data until the network device prompt is
-        detected. The current network device prompt will be determined automatically.
-
-        command_string = command to execute
-        expect_string = pattern to search for uses re.search (use raw strings)
-        delay_factor = decrease the initial delay before we start looking for data
-        max_loops = number of iterations before we give up and raise an exception
-        strip_prompt = strip the trailing prompt from the output
-        strip_command = strip the leading command from the output
-        '''
-        debug = False
+        :param command_string: The command to be executed on the remote device.
+        :type command_string: str
+        :param expect_string: Regular expression pattern to use for determining end of output.
+        If left blank will default to being based on router prompt.
+        :type expect_str: str
+        :param delay_factor: Multiplying factor used to adjust delays (default: 1).
+        :type delay_factor: int
+        :param max_loops: Controls wait time in conjunction with delay_factor (default: 150).
+        :type max_loops: int
+        :param strip_prompt: Remove the trailing router prompt from the output (default: True).
+        :type strip_prompt: bool
+        :param strip_command: Remove the echo of the command from the output (default: True).
+        :type strip_command: bool
+        :param normalize: Ensure the proper enter is sent at end of command (default: True).
+        :type normalize: bool
+        """
         delay_factor = self.select_delay_factor(delay_factor)
 
         # Find the current router prompt
@@ -766,35 +769,26 @@ class BaseConnection(object):
                     prompt = self.find_prompt(delay_factor=delay_factor)
                 except ValueError:
                     prompt = self.base_prompt
-                if debug:
-                    print("Found prompt: {}".format(prompt))
             else:
                 prompt = self.base_prompt
             search_pattern = re.escape(prompt.strip())
         else:
             search_pattern = expect_string
 
-        if normalize_command:
+        if normalize:
             command_string = self.normalize_cmd(command_string)
-
-        if debug:
-            print("Command is: {0}".format(command_string))
-            print("Search to stop receiving data is: '{0}'".format(search_pattern))
 
         time.sleep(delay_factor * .2)
         self.clear_buffer()
         self.write_channel(command_string)
 
-        # Initial delay after sending command
-        i = 1
         # Keep reading data until search_pattern is found (or max_loops)
+        i = 1
         output = ''
         while i <= max_loops:
             new_data = self.read_channel()
             if new_data:
                 output += new_data
-                if debug:
-                    print("{}:{}".format(i, output))
                 try:
                     lines = output.split("\n")
                     first_line = lines[0]
