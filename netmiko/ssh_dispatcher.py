@@ -26,6 +26,7 @@ from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.alcatel import AlcatelSrosSSH
+from netmiko.alcatel import AlcatelAosSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
@@ -75,6 +76,7 @@ CLASS_MAPPER_BASE = {
     'extreme': ExtremeSSH,
     'extreme_wing': ExtremeWingSSH,
     'alcatel_sros': AlcatelSrosSSH,
+    'alcatel_aos': AlcatelAosSSH,
     'fortinet': FortinetSSH,
     'checkpoint_gaia': CheckPointGaiaSSH,
     'dell_force10': DellForce10SSH,

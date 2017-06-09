@@ -145,3 +145,12 @@ pluribus_ssh:
     - "role-delete name dummy"
     - "role-create name dummy scope local access read-only"
   config_verification: "running-config-show"
+
+alcatel_aos:
+  version: "show system"
+  basic: "show configuration snapshot ip"
+  extended_output: "show interfaces status"
+  config:
+    - 'VLAN 666'
+  config_verification: "show vlan"
+

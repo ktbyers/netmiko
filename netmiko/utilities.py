@@ -25,6 +25,7 @@ SHOW_RUN_MAPPER = {
     'brocade_nos': 'show running-config',
     'brocade_fastiron': 'show running-config',
     'brocade_netiron': 'show running-config',
+    'alcatel_aos': 'show configuration snapshot',
 }
 
 # Expand SHOW_RUN_MAPPER to include '_ssh' key
