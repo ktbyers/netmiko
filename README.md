@@ -33,6 +33,7 @@ Linux
   
 ###### Limited testing
 
+Alcatel AOS6/AOS8  
 Avaya ERS  
 Avaya VSP  
 Brocade VDX  

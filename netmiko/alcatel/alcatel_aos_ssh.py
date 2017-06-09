@@ -1,15 +1,11 @@
-"""Alcatel-Lucent Enterprise AOS support."""
+"""Alcatel-Lucent Enterprise AOS support (AOS6 and AOS8)."""
 from __future__ import print_function
 from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class AlcatelAosSSH(CiscoSSHConnection):
-    """Alcatel-Lucent Enterprise AOS support."""
-    def __init__(self, *args, **kwargs):
-        super(AlcatelAosSSH, self).__init__(*args, **kwargs)
-        self._config_mode = False
-
+    """Alcatel-Lucent Enterprise AOS support (AOS6 and AOS8)."""
     def session_preparation(self):
         # Prompt can be anything, but best practice is to end with > or #
         self._test_channel_read(pattern=r'[>#]')
@@ -29,14 +25,12 @@ class AlcatelAosSSH(CiscoSSHConnection):
 
     def check_config_mode(self, *args, **kwargs):
         """No config mode on AOS"""
-        return self._config_mode
+        pass
 
     def config_mode(self, *args, **kwargs):
         """No config mode on AOS"""
-        self._config_mode = True
         return ''
 
     def exit_config_mode(self, *args, **kwargs):
         """No config mode on AOS"""
-        self._config_mode = False
         return ''
