@@ -6,6 +6,7 @@ from netmiko.cisco import CiscoNxosSSH
 from netmiko.cisco import CiscoXrSSH
 from netmiko.cisco import CiscoWlcSSH
 from netmiko.cisco import CiscoS300SSH
+from netmiko.cisco import CiscoFmcSSH
 from netmiko.eltex import EltexSSH
 from netmiko.arista import AristaSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
@@ -87,7 +88,8 @@ CLASS_MAPPER_BASE = {
     'cisco_tp': CiscoTpTcCeSSH,
     'generic_termserver': TerminalServerSSH,
     'mellanox_ssh': MellanoxSSH,
-    'pluribus': PluribusSSH
+    'pluribus': PluribusSSH,
+    'cisco_fmc_ssh': CiscoFmcSSH
 }
 
 # Also support keys that end in _ssh

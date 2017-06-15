@@ -6,6 +6,7 @@ from netmiko.cisco.cisco_xr_ssh import CiscoXrSSH
 from netmiko.cisco.cisco_wlc_ssh import CiscoWlcSSH
 from netmiko.cisco.cisco_s300 import CiscoS300SSH
 from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH
+from netmiko.cisco.cisco_fmc_ssh import CiscoFmcSSH
 
 __all__ = ['CiscoIosSSH', 'CiscoIosTelnet', 'CiscoAsaSSH', 'CiscoNxosSSH', 'CiscoXrSSH',
-           'CiscoWlcSSH', 'CiscoS300SSH', 'CiscoTpTcCeSSH', 'CiscoIosBase']
+           'CiscoWlcSSH', 'CiscoS300SSH', 'CiscoTpTcCeSSH', 'CiscoIosBase', 'CiscoFmcSSH']
