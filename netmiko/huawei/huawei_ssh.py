@@ -24,6 +24,18 @@ class HuaweiSSH(CiscoSSHConnection):
         """Checks whether in configuration mode. Returns a boolean."""
         return super(HuaweiSSH, self).check_config_mode(check_string=check_string)
 
+    def check_enable_mode(self, *args, **kwargs):
+        """Huawei has no enable mode."""
+        pass
+
+    def enable(self, *args, **kwargs):
+        """Huawei has no enable mode."""
+        return ''
+
+    def exit_enable_mode(self, *args, **kwargs):
+        """Huawei has no enable mode."""
+        return ''
+
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',
                         delay_factor=1):
         '''
