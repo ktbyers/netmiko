@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko import log
 
 
 class AristaSSH(CiscoSSHConnection):
@@ -19,15 +20,11 @@ class AristaSSH(CiscoSSHConnection):
 
         Can also be (s2)
         """
-        debug = False
-        if debug:
-            print("pattern: {}".format(pattern))
+        log.debug("pattern: {0}".format(pattern))
         self.write_channel('\n')
         output = self.read_until_pattern(pattern=pattern)
-        if debug:
-            print("check_config_mode: {}".format(repr(output)))
+        log.debug("check_config_mode: {0}".format(repr(output)))
         output = output.replace("(s1)", "")
         output = output.replace("(s2)", "")
-        if debug:
-            print("check_config_mode: {}".format(repr(output)))
+        log.debug("check_config_mode: {0}".format(repr(output)))
         return check_string in output
