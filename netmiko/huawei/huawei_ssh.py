@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko import log
 
 
 class HuaweiSSH(CiscoSSHConnection):
@@ -48,9 +49,7 @@ class HuaweiSSH(CiscoSSHConnection):
 
         This will be set on logging in, but not when entering system-view
         '''
-        debug = False
-        if debug:
-            print("In set_base_prompt")
+        log.debug("In set_base_prompt")
 
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -74,7 +73,6 @@ class HuaweiSSH(CiscoSSHConnection):
 
         self.base_prompt = prompt
 
-        if debug:
-            print("prompt: {}".format(self.base_prompt))
+        log.debug("prompt: {0}".format(self.base_prompt))
 
         return self.base_prompt

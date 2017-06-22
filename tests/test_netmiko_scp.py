@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 from getpass import getpass
 from netmiko import ConnectHandler, FileTransfer
+from netmiko import log
 
 def test_enable_scp(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
@@ -67,11 +68,9 @@ def test_md5_methods(scp_fixture):
 
 def test_scp_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
-    debug = False
 
     if scp_transfer.check_file_exists():
-        if debug:
-            print("File already exists")
+        log.debug("File already exists")
         # File should not already exist
         assert False
     else:
