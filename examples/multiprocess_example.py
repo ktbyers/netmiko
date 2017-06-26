@@ -16,6 +16,7 @@ with warnings.catch_warnings(record=True) as w:
     import paramiko
 
 import multiprocessing
+import time
 from datetime import datetime
 
 import netmiko
