@@ -41,7 +41,7 @@ from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.mellanox import MellanoxSSH
 from netmiko.pluribus import PluribusSSH
-
+from netmiko.huawei import Huawei_usgv5_SSH
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -89,7 +89,8 @@ CLASS_MAPPER_BASE = {
     'cisco_tp': CiscoTpTcCeSSH,
     'generic_termserver': TerminalServerSSH,
     'mellanox_ssh': MellanoxSSH,
-    'pluribus': PluribusSSH
+    'pluribus': PluribusSSH,
+    'huawei_usgv5': Huawei_usgv5_SSH,
 }
 
 # Also support keys that end in _ssh
