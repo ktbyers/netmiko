@@ -10,6 +10,7 @@ echo "Starting tests...good luck:" \
 && py.test -s -v test_netmiko_autodetect.py --test_device juniper_srx \
 && py.test -s -v test_netmiko_autodetect.py --test_device cisco_asa \
 && py.test -s -v test_netmiko_autodetect.py --test_device cisco_xrv \
+&& py.test -s -v test_netmiko_autodetect.py --test_device alcatel_aos \
 \
 || RETURN_CODE=1
 
