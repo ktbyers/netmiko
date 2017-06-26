@@ -1,46 +1,48 @@
 """Controls selection of proper class based on the device type."""
 from __future__ import unicode_literals
-from netmiko.cisco import CiscoIosBase
-from netmiko.cisco import CiscoAsaSSH
-from netmiko.cisco import CiscoNxosSSH
-from netmiko.cisco import CiscoXrSSH
-from netmiko.cisco import CiscoWlcSSH
-from netmiko.cisco import CiscoS300SSH
-from netmiko.eltex import EltexSSH
-from netmiko.arista import AristaSSH
-from netmiko.hp import HPProcurveSSH, HPComwareSSH
-from netmiko.huawei import HuaweiSSH
-from netmiko.f5 import F5LtmSSH
-from netmiko.juniper import JuniperSSH
-from netmiko.brocade import BrocadeNosSSH
-from netmiko.brocade import BrocadeNetironSSH
-from netmiko.brocade import BrocadeFastironSSH
-from netmiko.fortinet import FortinetSSH
-from netmiko.checkpoint import CheckPointGaiaSSH
+
 from netmiko.a10 import A10SSH
-from netmiko.avaya import AvayaVspSSH
-from netmiko.avaya import AvayaErsSSH
-from netmiko.linux import LinuxSSH
-from netmiko.ovs import OvsLinuxSSH
-from netmiko.enterasys import EnterasysSSH
-from netmiko.extreme import ExtremeSSH
-from netmiko.extreme import ExtremeWingSSH
-from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.alcatel import AlcatelAosSSH
+from netmiko.alcatel import AlcatelSrosSSH
+from netmiko.arista import AristaSSH
+from netmiko.aruba import ArubaSSH
+from netmiko.avaya import AvayaErsSSH
+from netmiko.avaya import AvayaVspSSH
+from netmiko.brocade import BrocadeFastironSSH
+from netmiko.brocade import BrocadeNetironSSH
+from netmiko.brocade import BrocadeNosSSH
+from netmiko.checkpoint import CheckPointGaiaSSH
+from netmiko.ciena import CienaSaosSSH
+from netmiko.cisco import CiscoAsaSSH
+from netmiko.cisco import CiscoIosBase
+from netmiko.cisco import CiscoNxosSSH
+from netmiko.cisco import CiscoS300SSH
+from netmiko.cisco import CiscoTpTcCeSSH
+from netmiko.cisco import CiscoWlcSSH
+from netmiko.cisco import CiscoXrSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
+from netmiko.eltex import EltexSSH
+from netmiko.enterasys import EnterasysSSH
+from netmiko.extreme import ExtremeSSH
+from netmiko.extreme import ExtremeWingSSH
+from netmiko.f5 import F5LtmSSH
+from netmiko.fortinet import FortinetSSH
+from netmiko.hp import HPProcurveSSH, HPComwareSSH
+from netmiko.huawei import HuaweiSSH
+from netmiko.juniper import JuniperSSH
+from netmiko.linux import LinuxSSH
+from netmiko.mellanox import MellanoxSSH
+from netmiko.mrv import MrvSSH
+from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
+from netmiko.pluribus import PluribusSSH
 from netmiko.quanta import QuantaMeshSSH
-from netmiko.aruba import ArubaSSH
-from netmiko.vyos import VyOSSSH
-from netmiko.ubiquiti import UbiquitiEdgeSSH
-from netmiko.ciena import CienaSaosSSH
-from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
-from netmiko.mellanox import MellanoxSSH
-from netmiko.pluribus import PluribusSSH
+from netmiko.ubiquiti import UbiquitiEdgeSSH
+from netmiko.vyos import VyOSSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -89,7 +91,8 @@ CLASS_MAPPER_BASE = {
     'cisco_tp': CiscoTpTcCeSSH,
     'generic_termserver': TerminalServerSSH,
     'mellanox_ssh': MellanoxSSH,
-    'pluribus': PluribusSSH
+    'pluribus': PluribusSSH,
+    'mrv': MrvSSH,
 }
 
 # Also support keys that end in _ssh
