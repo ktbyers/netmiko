@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
+
 class AccedianSSH(CiscoSSHConnection):
     def session_preparation(self):
         self._test_channel_read()
@@ -30,7 +31,7 @@ class AccedianSSH(CiscoSSHConnection):
     def set_base_prompt(self, pri_prompt_terminator=':', alt_prompt_terminator='#',
                         delay_factor=1):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        prompt = super(AccedianSSH, self).set_base_prompt(pri_prompt_terminator=pri_prompt_terminator,
-                                                      alt_prompt_terminator=alt_prompt_terminator,
-                                                      delay_factor=delay_factor)
+        super(AccedianSSH, self).set_base_prompt(pri_prompt_terminator=pri_prompt_terminator,
+                                                 alt_prompt_terminator=alt_prompt_terminator,
+                                                 delay_factor=delay_factor)
         return self.base_prompt
