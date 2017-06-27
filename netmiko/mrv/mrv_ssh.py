@@ -1,12 +1,12 @@
-"""MRV Communications Driver (primarily tested against optiswitch)."""
+"""MRV Communications Driver (OptiSwitch)."""
 from __future__ import unicode_literals
 import re
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class MrvOptiSSH(CiscoSSHConnection):
-    """MRV Communications Driver."""
+class MrvOptiswitchSSH(CiscoSSHConnection):
+    """MRV Communications Driver (OptiSwitch)."""
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r'[>#]')

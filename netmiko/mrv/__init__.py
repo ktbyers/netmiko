@@ -1,4 +1,4 @@
 from __future__ import unicode_literals
-from netmiko.mrv.mrv_ssh import MrvOptiSSH
+from netmiko.mrv.mrv_ssh import MrvOptiswitchSSH
 
-__all__ = ['MrvOptiSSH']
+__all__ = ['MrvOptiswitchSSH']
