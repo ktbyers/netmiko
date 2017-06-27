@@ -60,7 +60,7 @@ Extreme EXOS
 Extreme Wing  
 F5 LTM  
 Fortinet  
-MRV Communications  
+MRV Communications OptiSwitch  
 
 ## Tutorials:
 
