@@ -59,6 +59,7 @@ setup(
               'netmiko/juniper',
               'netmiko/linux',
               'netmiko/mellanox',
+              'netmiko/mrv',
               'netmiko/ovs',
               'netmiko/paloalto',
               'netmiko/pluribus',
