@@ -9,24 +9,22 @@ class AccedianSSH(CiscoSSHConnection):
         self.set_base_prompt()
 
     def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on Accedian."""
-        pass
+        raise AttributeError("Accedian devices do not support enable mode!")
 
     def enable(self, *args, **kwargs):
-        """No enable mode on Accedian."""
-        pass
+        raise AttributeError("Accedian devices do not support enable mode!")
 
     def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Accedian."""
-        pass
+        raise AttributeError("Accedian devices do not support enable mode!")
+
+    def check_config_mode(self):
+        raise AttributeError("Accedian devices do not support config mode!")
 
     def config_mode(self):
-        """No config mode on Accedian."""
-        pass
+        raise AttributeError("Accedian devices do not support config mode!")
 
     def exit_config_mode(self):
-        """No config mode on Accedian."""
-        pass
+        raise AttributeError("Accedian devices do not support config mode!")
 
     def set_base_prompt(self, pri_prompt_terminator=':', alt_prompt_terminator='#',
                         delay_factor=2):
