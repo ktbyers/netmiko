@@ -35,7 +35,7 @@ from netmiko.huawei import HuaweiSSH
 from netmiko.juniper import JuniperSSH
 from netmiko.linux import LinuxSSH
 from netmiko.mellanox import MellanoxSSH
-from netmiko.mrv import MrvSSH
+from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.pluribus import PluribusSSH
@@ -93,7 +93,7 @@ CLASS_MAPPER_BASE = {
     'generic_termserver': TerminalServerSSH,
     'mellanox_ssh': MellanoxSSH,
     'pluribus': PluribusSSH,
-    'mrv': MrvSSH,
+    'mrv_optiswitch': MrvOptiswitchSSH,
     'accedian': AccedianSSH
 }
 
