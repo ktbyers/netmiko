@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from netmiko.a10 import A10SSH
+from netmiko.accedian import AccedianSSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.arista import AristaSSH
@@ -93,6 +94,7 @@ CLASS_MAPPER_BASE = {
     'mellanox_ssh': MellanoxSSH,
     'pluribus': PluribusSSH,
     'mrv_optiswitch': MrvOptiswitchSSH,
+    'accedian': AccedianSSH
 }
 
 # Also support keys that end in _ssh

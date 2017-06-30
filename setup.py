@@ -40,6 +40,7 @@ setup(
     ],
     packages=['netmiko',
               'netmiko/a10',
+              'netmiko/accedian',
               'netmiko/alcatel',
               'netmiko/arista',
               'netmiko/aruba',
