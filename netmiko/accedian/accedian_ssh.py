@@ -18,13 +18,16 @@ class AccedianSSH(CiscoSSHConnection):
         raise AttributeError("Accedian devices do not support enable mode!")
 
     def check_config_mode(self):
-        raise AttributeError("Accedian devices do not support config mode!")
+        """Accedian devices do not have a config mode."""
+        return False
 
     def config_mode(self):
-        raise AttributeError("Accedian devices do not support config mode!")
+        """Accedian devices do not have a config mode."""
+        return ''
 
     def exit_config_mode(self):
-        raise AttributeError("Accedian devices do not support config mode!")
+        """Accedian devices do not have a config mode."""
+        return ''
 
     def set_base_prompt(self, pri_prompt_terminator=':', alt_prompt_terminator='#',
                         delay_factor=2):
