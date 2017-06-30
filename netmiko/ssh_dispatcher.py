@@ -49,7 +49,7 @@ from netmiko.vyos import VyOSSSH
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
     'a10': A10SSH,
-    'accedian': AccedianSSH
+    'accedian': AccedianSSH,
     'alcatel_aos': AlcatelAosSSH,
     'alcatel_sros': AlcatelSrosSSH,
     'arista_eos': AristaSSH,
