@@ -32,10 +32,9 @@ class BrocadeFastironTelnet(CiscoBaseConnection):
                 delay_factor=delay_factor,
                 max_loops=max_loops)
 
-    
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back."""
-        
+
         def _increment_delay(main_delay, increment=1.1, maximum=8):
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
@@ -68,7 +67,7 @@ class BrocadeFastironTelnet(CiscoBaseConnection):
             return ""
         else:
             raise NetMikoTimeoutException("Timed out waiting for data")
-    
+
     def find_prompt(self, delay_factor=1):
         """Finds the current network device prompt, last line only."""
         debug = False
@@ -114,7 +113,7 @@ class BrocadeFastironTelnet(CiscoBaseConnection):
         time.sleep(delay_factor * .1)
         self.clear_buffer()
         return prompt
-    
+
     @staticmethod
     def normalize_cmd(command):
         """Normalize CLI commands to have a single trailing newline."""
@@ -132,17 +131,7 @@ class BrocadeFastironTelnet(CiscoBaseConnection):
         if debug:
             print(output)
         return check_string in output
-    
-    def check_enable_mode(self, check_string=''):
-        """Check if in enable mode. Return boolean."""
-        debug = False
-        """Must send \r\n for CER"""
-        self.write_channel('\r\n')
-        output = self.read_until_prompt()
-        if debug:
-            print(output)
-        return check_string in output
-    
+
     def check_config_mode(self, check_string=')#', pattern=''):
         """Checks if the device is in configuration mode or not."""
         debug = False
