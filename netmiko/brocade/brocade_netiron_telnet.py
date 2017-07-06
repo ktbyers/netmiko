@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import re
 import time
 from netmiko.cisco_base_connection import CiscoBaseConnection
+from netmiko.ssh_exception import NetMikoTimeoutException
 
 
 class BrocadeNetironTelnet(CiscoBaseConnection):
