@@ -158,4 +158,3 @@ class BrocadeNetironTelnet(CiscoBaseConnection):
             pattern = re.escape(self.base_prompt)
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
-    
