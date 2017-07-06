@@ -4,6 +4,7 @@ import time
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.ssh_exception import NetMikoTimeoutException
 
+
 class BrocadeFastironTelnet(CiscoBaseConnection):
     """Brocade FastIron aka ICX support."""
     def session_preparation(self):
