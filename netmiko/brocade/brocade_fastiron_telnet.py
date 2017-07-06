@@ -145,7 +145,7 @@ class BrocadeFastironTelnet(CiscoBaseConnection):
     
     def check_config_mode(self, check_string=')#', pattern=''):
         """Checks if the device is in configuration mode or not."""
-        debug = True
+        debug = False
         if not pattern:
             pattern = re.escape(self.base_prompt)
         if debug:
