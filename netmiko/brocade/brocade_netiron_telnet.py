@@ -32,10 +32,9 @@ class BrocadeNetironTelnet(CiscoBaseConnection):
                 delay_factor=delay_factor,
                 max_loops=max_loops)
 
-    
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back."""
-        
+
         def _increment_delay(main_delay, increment=1.1, maximum=8):
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
@@ -68,7 +67,7 @@ class BrocadeNetironTelnet(CiscoBaseConnection):
             return ""
         else:
             raise NetMikoTimeoutException("Timed out waiting for data")
-    
+
     def find_prompt(self, delay_factor=1):
         """Finds the current network device prompt, last line only."""
         debug = False
@@ -114,7 +113,7 @@ class BrocadeNetironTelnet(CiscoBaseConnection):
         time.sleep(delay_factor * .1)
         self.clear_buffer()
         return prompt
-    
+
     @staticmethod
     def normalize_cmd(command):
         """Normalize CLI commands to have a single trailing newline."""
@@ -132,7 +131,7 @@ class BrocadeNetironTelnet(CiscoBaseConnection):
         if debug:
             print(output)
         return check_string in output
-    
+
     def check_config_mode(self, check_string=')#', pattern=''):
         """Checks if the device is in configuration mode or not."""
         debug = False
@@ -146,7 +145,7 @@ class BrocadeNetironTelnet(CiscoBaseConnection):
         if debug:
             print("check_config_mode: {}".format(repr(output)))
         return check_string in output
-    
+
     def config_mode(self, config_command='config term', pattern=''):
         if not pattern:
             pattern = re.escape(self.base_prompt)
@@ -159,3 +158,4 @@ class BrocadeNetironTelnet(CiscoBaseConnection):
             pattern = re.escape(self.base_prompt)
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
+    
