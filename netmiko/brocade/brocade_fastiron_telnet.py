@@ -145,7 +145,7 @@ class BrocadeFastironTelnet(CiscoBaseConnection):
         if debug:
             print("check_config_mode: {}".format(repr(output)))
         return check_string in output
-    
+
     def config_mode(self, config_command='config term', pattern=''):
         if not pattern:
             pattern = re.escape(self.base_prompt)
