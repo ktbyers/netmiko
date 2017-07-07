@@ -1,93 +1,100 @@
 """Controls selection of proper class based on the device type."""
 from __future__ import unicode_literals
-from netmiko.cisco import CiscoIosBase
-from netmiko.cisco import CiscoAsaSSH
-from netmiko.cisco import CiscoNxosSSH
-from netmiko.cisco import CiscoXrSSH
-from netmiko.cisco import CiscoWlcSSH
-from netmiko.cisco import CiscoS300SSH
-from netmiko.eltex import EltexSSH
-from netmiko.arista import AristaSSH
-from netmiko.hp import HPProcurveSSH, HPComwareSSH
-from netmiko.huawei import HuaweiSSH
-from netmiko.f5 import F5LtmSSH
-from netmiko.juniper import JuniperSSH
-from netmiko.brocade import BrocadeNosSSH
-from netmiko.brocade import BrocadeNetironSSH
-from netmiko.brocade import BrocadeFastironSSH
-from netmiko.fortinet import FortinetSSH
-from netmiko.checkpoint import CheckPointGaiaSSH
+
 from netmiko.a10 import A10SSH
-from netmiko.avaya import AvayaVspSSH
-from netmiko.avaya import AvayaErsSSH
-from netmiko.linux import LinuxSSH
-from netmiko.ovs import OvsLinuxSSH
-from netmiko.enterasys import EnterasysSSH
-from netmiko.extreme import ExtremeSSH
-from netmiko.extreme import ExtremeWingSSH
+from netmiko.accedian import AccedianSSH
+from netmiko.alcatel import AlcatelAosSSH
 from netmiko.alcatel import AlcatelSrosSSH
+from netmiko.arista import AristaSSH
+from netmiko.aruba import ArubaSSH
+from netmiko.avaya import AvayaErsSSH
+from netmiko.avaya import AvayaVspSSH
+from netmiko.brocade import BrocadeFastironSSH
+from netmiko.brocade import BrocadeNetironSSH
+from netmiko.brocade import BrocadeNosSSH
+from netmiko.checkpoint import CheckPointGaiaSSH
+from netmiko.ciena import CienaSaosSSH
+from netmiko.cisco import CiscoAsaSSH
+from netmiko.cisco import CiscoIosBase
+from netmiko.cisco import CiscoNxosSSH
+from netmiko.cisco import CiscoS300SSH
+from netmiko.cisco import CiscoTpTcCeSSH
+from netmiko.cisco import CiscoWlcSSH
+from netmiko.cisco import CiscoXrSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
+from netmiko.eltex import EltexSSH
+from netmiko.enterasys import EnterasysSSH
+from netmiko.extreme import ExtremeSSH
+from netmiko.extreme import ExtremeWingSSH
+from netmiko.f5 import F5LtmSSH
+from netmiko.fortinet import FortinetSSH
+from netmiko.hp import HPProcurveSSH, HPComwareSSH
+from netmiko.huawei import HuaweiSSH
+from netmiko.juniper import JuniperSSH
+from netmiko.linux import LinuxSSH
+from netmiko.mellanox import MellanoxSSH
+from netmiko.mrv import MrvOptiswitchSSH
+from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
+from netmiko.pluribus import PluribusSSH
 from netmiko.quanta import QuantaMeshSSH
-from netmiko.aruba import ArubaSSH
-from netmiko.vyos import VyOSSSH
-from netmiko.ubiquiti import UbiquitiEdgeSSH
-from netmiko.ciena import CienaSaosSSH
-from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
-from netmiko.mellanox import MellanoxSSH
-from netmiko.pluribus import PluribusSSH
+from netmiko.ubiquiti import UbiquitiEdgeSSH
+from netmiko.vyos import VyOSSSH
 
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
-    'cisco_ios': CiscoIosBase,
-    'cisco_xe': CiscoIosBase,
-    'cisco_asa': CiscoAsaSSH,
-    'cisco_nxos': CiscoNxosSSH,
-    'cisco_xr': CiscoXrSSH,
-    'cisco_wlc': CiscoWlcSSH,
-    'cisco_s300': CiscoS300SSH,
-    'eltex': EltexSSH,
+    'a10': A10SSH,
+    'accedian': AccedianSSH,
+    'alcatel_aos': AlcatelAosSSH,
+    'alcatel_sros': AlcatelSrosSSH,
     'arista_eos': AristaSSH,
-    'hp_procurve': HPProcurveSSH,
-    'hp_comware': HPComwareSSH,
-    'huawei': HuaweiSSH,
-    'f5_ltm': F5LtmSSH,
-    'juniper': JuniperSSH,
-    'juniper_junos': JuniperSSH,
-    'brocade_vdx': BrocadeNosSSH,
-    'brocade_nos': BrocadeNosSSH,
+    'aruba_os': ArubaSSH,
+    'avaya_ers': AvayaErsSSH,
+    'avaya_vsp': AvayaVspSSH,
     'brocade_fastiron': BrocadeFastironSSH,
     'brocade_netiron': BrocadeNetironSSH,
-    'vyos': VyOSSSH,
+    'brocade_nos': BrocadeNosSSH,
+    'brocade_vdx': BrocadeNosSSH,
     'brocade_vyos': VyOSSSH,
-    'vyatta_vyos': VyOSSSH,
-    'a10': A10SSH,
-    'avaya_vsp': AvayaVspSSH,
-    'avaya_ers': AvayaErsSSH,
-    'linux': LinuxSSH,
-    'ovs_linux': OvsLinuxSSH,
+    'checkpoint_gaia': CheckPointGaiaSSH,
+    'ciena_saos': CienaSaosSSH,
+    'cisco_asa': CiscoAsaSSH,
+    'cisco_ios': CiscoIosBase,
+    'cisco_nxos': CiscoNxosSSH,
+    'cisco_s300': CiscoS300SSH,
+    'cisco_tp': CiscoTpTcCeSSH,
+    'cisco_wlc': CiscoWlcSSH,
+    'cisco_xe': CiscoIosBase,
+    'cisco_xr': CiscoXrSSH,
+    'dell_force10': DellForce10SSH,
+    'dell_powerconnect': DellPowerConnectSSH,
+    'eltex': EltexSSH,
     'enterasys': EnterasysSSH,
     'extreme': ExtremeSSH,
     'extreme_wing': ExtremeWingSSH,
-    'alcatel_sros': AlcatelSrosSSH,
+    'f5_ltm': F5LtmSSH,
     'fortinet': FortinetSSH,
-    'checkpoint_gaia': CheckPointGaiaSSH,
-    'dell_force10': DellForce10SSH,
-    'dell_powerconnect': DellPowerConnectSSH,
-    'paloalto_panos': PaloAltoPanosSSH,
-    'quanta_mesh': QuantaMeshSSH,
-    'aruba_os': ArubaSSH,
-    'ubiquiti_edge': UbiquitiEdgeSSH,
-    'ciena_saos': CienaSaosSSH,
-    'cisco_tp': CiscoTpTcCeSSH,
     'generic_termserver': TerminalServerSSH,
+    'hp_comware': HPComwareSSH,
+    'hp_procurve': HPProcurveSSH,
+    'huawei': HuaweiSSH,
+    'juniper': JuniperSSH,
+    'juniper_junos': JuniperSSH,
+    'linux': LinuxSSH,
     'mellanox_ssh': MellanoxSSH,
-    'pluribus': PluribusSSH
+    'mrv_optiswitch': MrvOptiswitchSSH,
+    'ovs_linux': OvsLinuxSSH,
+    'paloalto_panos': PaloAltoPanosSSH,
+    'pluribus': PluribusSSH,
+    'quanta_mesh': QuantaMeshSSH,
+    'ubiquiti_edge': UbiquitiEdgeSSH,
+    'vyatta_vyos': VyOSSSH,
+    'vyos': VyOSSSH,
 }
 
 # Also support keys that end in _ssh

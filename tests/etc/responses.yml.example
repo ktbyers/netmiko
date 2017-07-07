@@ -95,3 +95,11 @@ pluribus:
   interface_ip: ";mircea;fabric;70000;;cftac;"
   multiple_line_output: "chassis-serial"
   version_banner: "bjm;::;a0000bd:52b35878;0;;13068;"
+
+alcatel_aos:
+  base_prompt: "ale-lab-3"
+  router_prompt : "ale-lab-3>"
+  enable_prompt: "ale-lab-3>"
+  interface_ip: 192.168.1.154
+  version_banner: "Alcatel-Lucent OS6250-24 6.7.1.108.R04 Service Release, January 04, 2017"
+  multiple_line_output: "FC - ForcedCopper PC - PreferredCopper C - Copper"

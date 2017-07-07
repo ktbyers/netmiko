@@ -33,6 +33,7 @@ Linux
   
 ###### Limited testing
 
+Alcatel AOS6/AOS8  
 Avaya ERS  
 Avaya VSP  
 Brocade VDX  
@@ -50,6 +51,7 @@ Vyatta VyOS
 ###### Experimental
 
 A10  
+Accedian  
 Alcatel-Lucent SR-OS  
 Ciena SAOS  
 Cisco Telepresence  
@@ -59,6 +61,7 @@ Extreme EXOS
 Extreme Wing  
 F5 LTM  
 Fortinet  
+MRV Communications OptiSwitch  
 
 ## Tutorials:
 
