@@ -53,6 +53,7 @@ Vyatta VyOS
 A10  
 Accedian  
 Alcatel-Lucent SR-OS  
+Aruba  
 Ciena SAOS  
 Cisco Telepresence  
 CheckPoint Gaia  
