@@ -235,6 +235,6 @@ class BrocadeFastironTelnet(CiscoBaseConnection):
             raise IOError("Search pattern never detected in send_command_expect: {0}".format(
                 search_pattern))
         output = self._sanitize_output(output, strip_command=strip_command,
-                                       command_string=command_string[:-1], strip_prompt=strip_prompt)
+                                       command_string=command_string[:-1], 
+                                       strip_prompt=strip_prompt)
         return output
-
