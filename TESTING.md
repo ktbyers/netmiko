@@ -42,5 +42,5 @@ py.test -v test_netmiko_config.py --test_device cisco881
 There are three tests available:  
 * test_netmiko_show.py  
 * test_netmiko_config.py  
-* test_netmiko_commit.py      # currently only for Juniper  
+* test_netmiko_commit.py      # currently only for Juniper and IOS-XR  
 
