@@ -3,6 +3,7 @@ import re
 import time
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.ssh_exception import NetMikoTimeoutException
+from netmiko.netmiko_globals import BACKSPACE_CHAR
 
 
 class BrocadeNetironTelnet(CiscoBaseConnection):
@@ -159,3 +160,80 @@ class BrocadeNetironTelnet(CiscoBaseConnection):
             pattern = re.escape(self.base_prompt)
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
+
+    def send_command(self, command_string, expect_string=None,
+                     delay_factor=1, max_loops=500, auto_find_prompt=True,
+                     strip_prompt=True, strip_command=True, normalize=True):
+        """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
+        used for show commands. By default this method will keep waiting to receive data until the
+        network device prompt is detected. The current network device prompt will be determined
+        automatically.
+
+        :param command_string: The command to be executed on the remote device.
+        :type command_string: str
+        :param expect_string: Regular expression pattern to use for determining end of output.
+            If left blank will default to being based on router prompt.
+        :type expect_str: str
+        :param delay_factor: Multiplying factor used to adjust delays (default: 1).
+        :type delay_factor: int
+        :param max_loops: Controls wait time in conjunction with delay_factor (default: 150).
+        :type max_loops: int
+        :param strip_prompt: Remove the trailing router prompt from the output (default: True).
+        :type strip_prompt: bool
+        :param strip_command: Remove the echo of the command from the output (default: True).
+        :type strip_command: bool
+        :param normalize: Ensure the proper enter is sent at end of command (default: True).
+        :type normalize: bool
+        """
+        delay_factor = self.select_delay_factor(delay_factor)
+
+        # Find the current router prompt
+        if expect_string is None:
+            if auto_find_prompt:
+                try:
+                    prompt = self.find_prompt(delay_factor=delay_factor)
+                except ValueError:
+                    prompt = self.base_prompt
+            else:
+                prompt = self.base_prompt
+            search_pattern = re.escape(prompt.strip())
+        else:
+            search_pattern = expect_string
+
+        if normalize:
+            command_string = self.normalize_cmd(command_string)
+
+        time.sleep(delay_factor * .2)
+        self.clear_buffer()
+        self.write_channel(command_string)
+
+        # Keep reading data until search_pattern is found (or max_loops)
+        i = 1
+        output = ''
+        while i <= max_loops:
+            new_data = self.read_channel()
+            if new_data:
+                output += new_data
+                try:
+                    lines = output.split("\n")
+                    first_line = lines[0]
+                    # First line is the echo line containing the command. In certain situations
+                    # it gets repainted and needs filtered
+                    if BACKSPACE_CHAR in first_line:
+                        pattern = search_pattern + r'.*$'
+                        first_line = re.sub(pattern, repl='', string=first_line)
+                        lines[0] = first_line
+                        output = "\n".join(lines)
+                except IndexError:
+                    pass
+                if re.search(search_pattern, output):
+                    break
+            else:
+                time.sleep(delay_factor * .2)
+            i += 1
+        else:   # nobreak
+            raise IOError("Search pattern never detected in send_command_expect: {0}".format(
+                search_pattern))
+        output = self._sanitize_output(output, strip_command=strip_command,
+                                       command_string=command_string[:-1], strip_prompt=strip_prompt)
+        return output
