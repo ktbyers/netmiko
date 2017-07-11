@@ -8,9 +8,10 @@ import time
 
 class CiscoBaseConnection(BaseConnection):
     """Base Class for cisco-like behavior."""
-    def check_enable_mode(self, check_string='#'):
+    def check_enable_mode(self, check_string='#', newline_format='\n'):
         """Check if in enable mode. Return boolean."""
-        return super(CiscoBaseConnection, self).check_enable_mode(check_string=check_string)
+        return super(CiscoBaseConnection, self).check_enable_mode(check_string=check_string,
+                                                                  newline_format=newline_format)
 
     def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE):
         """Enter enable mode."""
@@ -20,7 +21,7 @@ class CiscoBaseConnection(BaseConnection):
         """Exits enable (privileged exec) mode."""
         return super(CiscoBaseConnection, self).exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string=')#', pattern=''):
+    def check_config_mode(self, check_string=')#', pattern='', newline_format='\n'):
         """
         Checks if the device is in configuration mode or not.
 
@@ -29,7 +30,8 @@ class CiscoBaseConnection(BaseConnection):
         if not pattern:
             pattern = re.escape(self.base_prompt[:16])
         return super(CiscoBaseConnection, self).check_config_mode(check_string=check_string,
-                                                                  pattern=pattern)
+                                                                  pattern=pattern,
+                                                                  newline_format=newline_format)
 
     def config_mode(self, config_command='config term', pattern=''):
         """
