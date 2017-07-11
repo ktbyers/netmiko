@@ -528,7 +528,7 @@ class BaseConnection(object):
                 print("Interactive SSH session established")
         return ""
 
-    def _test_channel_read(self, count=40, pattern=""):
+    def _test_channel_read(self, count=40, pattern="", newline_format='\n'):
         """Try to read the channel (generally post login) verify you receive data back."""
 
         def _increment_delay(main_delay, increment=1.1, maximum=8):
@@ -551,7 +551,7 @@ class BaseConnection(object):
             elif new_data:
                 break
             else:
-                self.write_channel('\n')
+                self.write_channel(newline_format)
 
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
@@ -649,12 +649,12 @@ class BaseConnection(object):
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(self, delay_factor=1):
+    def find_prompt(self, delay_factor=1, newline_format='\n'):
         """Finds the current network device prompt, last line only."""
         debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        self.write_channel("\n")
+        self.write_channel(newline_format)
         time.sleep(delay_factor * .1)
 
         # Initial attempt to get prompt
@@ -677,7 +677,7 @@ class BaseConnection(object):
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
-                self.write_channel("\n")
+                self.write_channel(newline_format)
                 time.sleep(delay_factor * .1)
             count += 1
 
@@ -850,16 +850,16 @@ class BaseConnection(object):
         return newline.sub('\n', a_string)
 
     @staticmethod
-    def normalize_cmd(command):
+    def normalize_cmd(command, newline_format='\n'):
         """Normalize CLI commands to have a single trailing newline."""
         command = command.rstrip("\n")
-        command += '\n'
+        command += newline_format
         return command
 
-    def check_enable_mode(self, check_string=''):
+    def check_enable_mode(self, check_string='', newline_format='\n'):
         """Check if in enable mode. Return boolean."""
         debug = False
-        self.write_channel('\n')
+        self.write_channel(newline_format)
         output = self.read_until_prompt()
         if debug:
             print(output)
@@ -887,12 +887,12 @@ class BaseConnection(object):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def check_config_mode(self, check_string='', pattern=''):
+    def check_config_mode(self, check_string='', pattern='', newline_format='\n'):
         """Checks if the device is in configuration mode or not."""
         debug = False
         if debug:
             print("pattern: {}".format(pattern))
-        self.write_channel('\n')
+        self.write_channel(newline_format)
         output = self.read_until_pattern(pattern=pattern)
         if debug:
             print("check_config_mode: {}".format(repr(output)))
