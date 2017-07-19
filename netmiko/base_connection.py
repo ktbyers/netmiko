@@ -344,9 +344,9 @@ class BaseConnection(object):
             combined_pattern += "|{}".format(pattern)
         return self._read_channel_expect(combined_pattern, re_flags=re_flags)
 
-    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
+    def telnet_login(self, prompt_pattern=r">[\s]*$|#[\s]*$",
                      username_pattern=r"sername", pwd_pattern=r"assword",
-                     delay_factor=1, max_loops=60):
+                     delay_factor=1, max_loops=10):
         """Telnet login. Can be username/password or just password."""
         TELNET_RETURN = '\r\n'
 
@@ -374,11 +374,11 @@ class BaseConnection(object):
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                    if re.search(prompt_pattern, output):
                         return return_msg
 
                 # Check if proper data received
-                if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                if re.search(prompt_pattern, output):
                     return return_msg
 
                 self.write_channel(TELNET_RETURN)
@@ -393,7 +393,7 @@ class BaseConnection(object):
         time.sleep(.5 * delay_factor)
         output = self.read_channel()
         return_msg += output
-        if pri_prompt_terminator in output or alt_prompt_terminator in output:
+        if re.search(prompt_pattern, output):
             return return_msg
 
         msg = "Telnet login failed: {0}".format(self.host)
