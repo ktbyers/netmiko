@@ -99,7 +99,8 @@ SSH_MAPPER_BASE = {
         "search_patterns": ["JUNOS Software Release", "JUNOS .+ Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
-
+    },
+}
 
 class SSHDetect(object):
     """
