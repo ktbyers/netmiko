@@ -38,6 +38,7 @@ from netmiko.juniper import JuniperSSH
 from netmiko.linux import LinuxSSH
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
+from netmiko.netapp import NetAppcDotSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.pluribus import PluribusSSH
@@ -90,6 +91,7 @@ CLASS_MAPPER_BASE = {
     'linux': LinuxSSH,
     'mellanox_ssh': MellanoxSSH,
     'mrv_optiswitch': MrvOptiswitchSSH,
+    'netapp_cdot': NetAppcDotSSH,
     'ovs_linux': OvsLinuxSSH,
     'paloalto_panos': PaloAltoPanosSSH,
     'pluribus': PluribusSSH,
