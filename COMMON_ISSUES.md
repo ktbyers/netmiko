@@ -20,3 +20,13 @@ if 'Destination filename' in output:
     output += net_connect.send_command_timing("\n")
 print(output)
 ```
+
+### Enable Netmiko logging of all reads and writes of the communications channel
+
+This will create a file named 'test.log' in the current working directory.
+
+```python
+import logging
+logging.basicConfig(filename='test.log', level=logging.DEBUG)
+logger = logging.getLogger("netmiko")
+```
