@@ -49,6 +49,12 @@ from netmiko.base_connection import BaseConnection
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
 # remaining keys indicate kwargs that will be passed to dispatch method.
 SSH_MAPPER_BASE = {
+    'alcatel_sros': {
+        "cmd": "show version | match ALCATEL",
+        "search_patterns": ["TiMOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'arista_eos': {
         "cmd": "show version | inc rist",
         "search_patterns": ["Arista"],
@@ -93,8 +99,6 @@ SSH_MAPPER_BASE = {
         "search_patterns": ["JUNOS Software Release", "JUNOS .+ Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
-    },
-}
 
 
 class SSHDetect(object):
