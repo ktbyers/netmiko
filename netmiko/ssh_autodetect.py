@@ -49,9 +49,9 @@ from netmiko.base_connection import BaseConnection
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
 # remaining keys indicate kwargs that will be passed to dispatch method.
 SSH_MAPPER_BASE = {
-    'alcatel_sros': {
-        "cmd": "show version | match ALCATEL",
-        "search_patterns": ["TiMOS"],
+    'alcatel_aos': {
+        "cmd": "show system",
+        "search_patterns": ["Alcatel-Lucent"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
