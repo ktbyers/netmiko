@@ -102,6 +102,7 @@ SSH_MAPPER_BASE = {
     },
 }
 
+
 class SSHDetect(object):
     """
     The SSHDetect class tries to automatically guess the device type running on the SSH remote end.
