@@ -42,14 +42,10 @@ class PaloAltoPanosSSH(BaseConnection):
         """Enter configuration mode."""
         return super(PaloAltoPanosSSH, self).config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config='exit'):
+    def exit_config_mode(self, exit_config='exit', pattern=r'>'):
         """Exit configuration mode."""
-        output = ""
-        if self.check_config_mode():
-            output = self.send_command(exit_config, strip_prompt=False, strip_command=False)
-            if self.check_config_mode():
-                raise ValueError("Failed to exit configuration mode")
-        return output
+        return super(PaloAltoPanosSSH, self).exit_config_mode(exit_config=exit_config,
+                                                              pattern=pattern)
 
     def commit(self, force=False, partial=False, device_and_network=False,
                policy_and_objects=False, vsys='', no_vsys=False, delay_factor=.1):
