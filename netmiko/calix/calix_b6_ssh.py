@@ -1,11 +1,8 @@
 """Calix B6 SSH Driver for Netmiko"""
 from __future__ import unicode_literals
-
 import time
 from os import path
-
 from paramiko import SSHClient
-
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -77,11 +74,11 @@ class CalixB6SSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_terminal_width(command="terminal width 511")
 
-    def check_config_mode(self, check_string=')#'):
+    def check_config_mode(self, check_string=')#', pattern=''):
         """Checks if the device is in configuration mode"""
         return super(CalixB6SSH, self).check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command='config t'):
+    def config_mode(self, config_command='config t', pattern=''):
         """Enter configuration mode."""
         return super(CalixB6SSH, self).config_mode(config_command=config_command)
 
