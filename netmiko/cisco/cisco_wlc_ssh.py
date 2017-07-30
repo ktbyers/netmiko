@@ -6,6 +6,7 @@ import re
 
 from netmiko.base_connection import BaseConnection
 from netmiko.py23_compat import string_types
+from netmiko import log
 
 
 class CiscoWlcSSH(BaseConnection):
@@ -135,7 +136,6 @@ class CiscoWlcSSH(BaseConnection):
 
         Does not automatically exit/enter configuration mode.
         """
-        debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ''
@@ -153,6 +153,5 @@ class CiscoWlcSSH(BaseConnection):
         # Gather output
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         output = self._sanitize_output(output)
-        if debug:
-            print(output)
+        log.debug("{0}".format(output))
         return output
