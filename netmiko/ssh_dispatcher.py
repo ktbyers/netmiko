@@ -12,6 +12,7 @@ from netmiko.avaya import AvayaVspSSH
 from netmiko.brocade import BrocadeFastironSSH
 from netmiko.brocade import BrocadeNetironSSH
 from netmiko.brocade import BrocadeNosSSH
+from netmiko.calix import CalixB6SSH
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoAsaSSH
@@ -62,6 +63,7 @@ CLASS_MAPPER_BASE = {
     'brocade_vdx': BrocadeNosSSH,
     'brocade_vyos': VyOSSSH,
     'checkpoint_gaia': CheckPointGaiaSSH,
+    'calix_b6': CalixB6SSH,
     'ciena_saos': CienaSaosSSH,
     'cisco_asa': CiscoAsaSSH,
     'cisco_ios': CiscoIosBase,
