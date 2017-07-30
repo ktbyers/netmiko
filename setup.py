@@ -46,6 +46,7 @@ setup(
               'netmiko/aruba',
               'netmiko/avaya',
               'netmiko/brocade',
+              'netmiko/calix',
               'netmiko/ciena',
               'netmiko/cisco',
               'netmiko/dell',
