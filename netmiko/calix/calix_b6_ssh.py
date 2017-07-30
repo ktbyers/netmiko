@@ -73,3 +73,16 @@ class CalixB6SSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width(command="terminal width 511")
+
+    def check_config_mode(self, check_string=')#'):
+        """Checks if the device is in configuration mode"""
+        return super(CalixB6SSH, self).check_config_mode(check_string=check_string)
+
+    def config_mode(self, config_command='config t'):
+        """Enter configuration mode."""
+        return super(CalixB6SSH, self).config_mode(config_command=config_command)
+
+    def exit_config_mode(self, exit_config='exit', pattern=''):
+        """Exit from configuration mode."""
+        return super(CalixB6SSH, self).exit_config_mode(exit_config=exit_config,
+                                                                 pattern=pattern)
