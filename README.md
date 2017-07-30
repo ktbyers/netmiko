@@ -46,6 +46,7 @@ Huawei
 Mellanox  
 Palo Alto PAN-OS  
 Pluribus  
+Ubiquiti EdgeOS  
 Vyatta VyOS  
 
 ###### Experimental
