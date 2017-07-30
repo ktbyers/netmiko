@@ -82,7 +82,7 @@ class CalixB6SSH(CiscoSSHConnection):
         """Enter configuration mode."""
         return super(CalixB6SSH, self).config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config='exit', pattern=''):
+    def exit_config_mode(self, exit_config='exit\r\r\nend', pattern=''):
         """Exit from configuration mode."""
         return super(CalixB6SSH, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
