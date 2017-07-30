@@ -1,9 +1,12 @@
 """Calix B6 SSH Driver for Netmiko"""
 from __future__ import unicode_literals
-from netmiko.cisco_base_connection import CiscoSSHConnection
-from paramiko import SSHClient
-from os import path
+
 import time
+from os import path
+
+from paramiko import SSHClient
+
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class SSHClient_noauth(SSHClient):
@@ -32,9 +35,9 @@ class CalixB6SSH(CiscoSSHConnection):
 
         # Load host_keys for better SSH security
         if self.system_host_keys:
-                        remote_conn_pre.load_system_host_keys()
+            remote_conn_pre.load_system_host_keys()
         if self.alt_host_keys and path.isfile(self.alt_key_file):
-                        remote_conn_pre.load_host_keys(self.alt_key_file)
+            remote_conn_pre.load_host_keys(self.alt_key_file)
 
         # Default is to automatically add untrusted hosts (make sure appropriate for your env)
         remote_conn_pre.set_missing_host_key_policy(self.key_policy)
@@ -84,5 +87,4 @@ class CalixB6SSH(CiscoSSHConnection):
 
     def exit_config_mode(self, exit_config='exit\r\r\nend', pattern=''):
         """Exit from configuration mode."""
-        return super(CalixB6SSH, self).exit_config_mode(exit_config=exit_config,
-                                                                 pattern=pattern)
+        return super(CalixB6SSH, self).exit_config_mode(exit_config=exit_config, pattern=pattern)
