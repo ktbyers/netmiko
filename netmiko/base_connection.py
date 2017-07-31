@@ -262,12 +262,10 @@ class BaseConnection(object):
         There are dependencies here like determining whether in config_mode that are actually
         depending on reading beyond pattern.
         """
-        debug = False
         output = ''
         if not pattern:
             pattern = re.escape(self.base_prompt)
-        if debug:
-            print("Pattern is: {}".format(pattern))
+        log.debug("Pattern is: {0}".format(pattern))
 
         # Will loop for self.timeout time (override with max_loops argument)
         i = 1
@@ -283,7 +281,7 @@ class BaseConnection(object):
                     if len(new_data) == 0:
                         raise EOFError("Channel stream closed by remote device.")
                     new_data = new_data.decode('utf-8', 'ignore')
-                    log.debug("_read_channel_expect read_data: {}".format(new_data))
+                    log.debug("_read_channel_expect read_data: {0}".format(new_data))
                     output += new_data
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
@@ -292,8 +290,7 @@ class BaseConnection(object):
             elif self.protocol == 'telnet':
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
-                if debug:
-                    print("Pattern found: {} {}".format(pattern, output))
+                log.debug("Pattern found: {0} {1}".format(pattern, output))
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
             i += 1
@@ -591,21 +588,18 @@ class BaseConnection(object):
 
     def disable_paging(self, command="terminal length 0", delay_factor=1):
         """Disable paging default to a Cisco CLI method."""
-        debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * .1)
         self.clear_buffer()
         command = self.normalize_cmd(command)
-        if debug:
-            print("In disable_paging")
-            print("Command: {}".format(command))
+        log.debug("In disable_paging")
+        log.debug("Command: {0}".format(command))
         self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        if debug:
-            print(output)
-            print("Exiting disable_paging")
+        log.debug("{0}".format(output))
+        log.debug("Exiting disable_paging")
         return output
 
     def set_terminal_width(self, command="", delay_factor=1):
@@ -617,16 +611,14 @@ class BaseConnection(object):
         """
         if not command:
             return ""
-        debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        if debug:
-            print(output)
-            print("Exiting set_terminal_width")
+        log.debug("{0}".format(output))
+        log.debug("Exiting set_terminal_width")
         return output
 
     def set_base_prompt(self, pri_prompt_terminator='#',
@@ -651,7 +643,6 @@ class BaseConnection(object):
 
     def find_prompt(self, delay_factor=1, newline_format='\n'):
         """Finds the current network device prompt, last line only."""
-        debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(newline_format)
@@ -662,8 +653,7 @@ class BaseConnection(object):
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
 
-        if debug:
-            print("prompt1: {}".format(prompt))
+        log.debug("prompt1: {0}".format(prompt))
 
         # Check if the only thing you received was a newline
         count = 0
@@ -671,9 +661,8 @@ class BaseConnection(object):
         while count <= 10 and not prompt:
             prompt = self.read_channel().strip()
             if prompt:
-                if debug:
-                    print("prompt2a: {}".format(repr(prompt)))
-                    print("prompt2b: {}".format(prompt))
+                log.debug("prompt2a repr: {0}".format(repr(prompt)))
+                log.debug("prompt2b: {0}".format(prompt))
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
@@ -681,8 +670,7 @@ class BaseConnection(object):
                 time.sleep(delay_factor * .1)
             count += 1
 
-        if debug:
-            print("prompt3: {}".format(prompt))
+        log.debug("prompt3: {0}".format(prompt))
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split('\n')[-1]
@@ -858,11 +846,9 @@ class BaseConnection(object):
 
     def check_enable_mode(self, check_string='', newline_format='\n'):
         """Check if in enable mode. Return boolean."""
-        debug = False
         self.write_channel(newline_format)
         output = self.read_until_prompt()
-        if debug:
-            print(output)
+        log.debug("{0}".format(output))
         return check_string in output
 
     def enable(self, cmd='', pattern='password', re_flags=re.IGNORECASE):
@@ -889,13 +875,10 @@ class BaseConnection(object):
 
     def check_config_mode(self, check_string='', pattern='', newline_format='\n'):
         """Checks if the device is in configuration mode or not."""
-        debug = False
-        if debug:
-            print("pattern: {}".format(pattern))
+        log.debug("pattern: {0}".format(pattern))
         self.write_channel(newline_format)
         output = self.read_until_pattern(pattern=pattern)
-        if debug:
-            print("check_config_mode: {}".format(repr(output)))
+        log.debug("check_config_mode: {0}".format(repr(output)))
         return check_string in output
 
     def config_mode(self, config_command='', pattern=''):
@@ -910,15 +893,13 @@ class BaseConnection(object):
 
     def exit_config_mode(self, exit_config='', pattern=''):
         """Exit from configuration mode."""
-        debug = False
         output = ''
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-        if debug:
-            print("exit_config_mode: {}".format(output))
+        log.debug("exit_config_mode: {0}".format(output))
         return output
 
     def send_config_from_file(self, config_file=None, **kwargs):
@@ -943,7 +924,6 @@ class BaseConnection(object):
 
         Automatically exits/enters configuration mode.
         """
-        debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ''
@@ -964,8 +944,7 @@ class BaseConnection(object):
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
-        if debug:
-            print(output)
+        log.debug("{0}".format(output))
         return output
 
     @staticmethod
@@ -993,10 +972,8 @@ class BaseConnection(object):
 
         HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
         """
-        debug = False
-        if debug:
-            print("In strip_ansi_escape_codes")
-            print("repr = %s" % repr(string_buffer))
+        log.debug("In strip_ansi_escape_codes")
+        log.debug("repr = {0}".format(repr(string_buffer)))
 
         code_position_cursor = chr(27) + r'\[\d+;\d+H'
         code_show_cursor = chr(27) + r'\[\?25h'
@@ -1023,9 +1000,8 @@ class BaseConnection(object):
         # CODE_NEXT_LINE must substitute with '\n'
         output = re.sub(code_next_line, '\n', output)
 
-        if debug:
-            print("new_output = %s" % output)
-            print("repr = %s" % repr(output))
+        log.debug("new_output = {0}".format(output))
+        log.debug("repr = {0}".format(repr(output)))
 
         return output
 

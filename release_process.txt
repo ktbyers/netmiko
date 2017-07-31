@@ -3,6 +3,8 @@
 
 # Make sure you have rolled the version in __init__.py
 
+# Merge into master / checkout master
+
 # Check FIX issues in _release.sh
 
 # Run ./_release.sh

@@ -74,7 +74,6 @@ def commands(request):
 
 def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     """Delete a remote file for a Cisco IOS device."""
-    debug = False
 
     if not dest_file_system:
         raise ValueError("Invalid file system specified")
@@ -86,15 +85,9 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
 
     cmd = "delete {0}".format(full_file_name)
     output = ssh_conn.send_command_timing(cmd)
-    if debug:
-        print(output)
     if 'Delete' in output and dest_file in output:
         output += ssh_conn.send_command_timing("\n")
-        if debug:
-            print(output)
         if 'Delete' in output and full_file_name in output and 'confirm' in output:
-            if debug:
-                print("Deleting file.")
             output += ssh_conn.send_command_timing("y")
             return output
         else:

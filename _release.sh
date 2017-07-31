@@ -64,7 +64,7 @@ else
     source /home/gituser/VENV/netmiko_packaging/bin/activate
     which python
     cd /home/gituser/netmiko
-    pip install dist/netmiko-1.4.1.tar.gz
+    pip install dist/$PACKAGE
     echo
     echo
     echo "Netmiko Installed Version"
@@ -93,9 +93,8 @@ deactivate
 source /home/gituser/VENV/py27_netmiko/bin/activate
 echo `which python`
 cd /home/gituser/netmiko
-### FIX: NEED TO UNCOMMENT
-# python setup.py register -r pypitest
-# twine upload -r pypitest $DIR_PACKAGE
+### FIX: Uncomment
+#twine upload -r pypitest $DIR_PACKAGE
 
 echo
 echo
@@ -111,8 +110,6 @@ done
 echo
 
 ### FIX: NEED TO ADD
-# Register to pypi
-# python setup.py register
 # twine upload $DIR_PACKAGE
 
 

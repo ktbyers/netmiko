@@ -46,6 +46,7 @@ Huawei
 Mellanox  
 Palo Alto PAN-OS  
 Pluribus  
+Ubiquiti EdgeOS  
 Vyatta VyOS  
 
 ###### Experimental
@@ -53,6 +54,7 @@ Vyatta VyOS
 A10  
 Accedian  
 Alcatel-Lucent SR-OS  
+Aruba  
 Ciena SAOS  
 Cisco Telepresence  
 CheckPoint Gaia  

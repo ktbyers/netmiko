@@ -1,6 +1,7 @@
 
 from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko import log
 import time
 
 
@@ -22,32 +23,27 @@ class MellanoxSSH(CiscoSSHConnection):
 
     def disable_paging(self, command="terminal length 999", delay_factor=1):
         """Disable paging default to a Cisco CLI method."""
-        debug = False
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * .1)
         self.clear_buffer()
         command = self.normalize_cmd(command)
-        if debug:
-            print("In disable_paging")
-            print("Command: {}".format(command))
+        log.debug("In disable_paging")
+        log.debug("Command: {0}".format(command))
         self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        if debug:
-            print(output)
-            print("Exiting disable_paging")
+        log.debug("{0}".format(output))
+        log.debug("Exiting disable_paging")
         return output
 
     def exit_config_mode(self, exit_config='exit', pattern='#'):
         """Exit from configuration mode."""
-        debug = False
         output = ''
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-        if debug:
-            print("exit_config_mode: {}".format(output))
+        log.debug("exit_config_mode: {0}".format(output))
         return output

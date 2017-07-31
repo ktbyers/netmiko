@@ -4,6 +4,7 @@ import re
 import time
 import socket
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko import log
 
 
 class HPProcurveSSH(CiscoSSHConnection):
@@ -39,14 +40,12 @@ class HPProcurveSSH(CiscoSSHConnection):
     def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE,
                default_username='manager'):
         """Enter enable mode"""
-        debug = False
         output = self.send_command_timing(cmd)
         if 'username' in output.lower():
             output += self.send_command_timing(default_username)
         if 'password' in output.lower():
             output += self.send_command_timing(self.secret)
-        if debug:
-            print(output)
+        log.debug("{0}".format(output))
         self.clear_buffer()
         return output
 

@@ -3,28 +3,26 @@ from __future__ import unicode_literals
 
 import time
 from netmiko.cisco_base_connection import CiscoBaseConnection
+from netmiko import log
 
 
 class DellPowerConnectTelnet(CiscoBaseConnection):
     def disable_paging(self, command="terminal length 0", delay_factor=1):
         """Must be in enable mode to disable paging."""
-        debug = False
 
         self.enable()
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * .1)
         self.clear_buffer()
         command = self.normalize_cmd(command)
-        if debug:
-            print("In disable_paging")
-            print("Command: {}".format(command))
+        log.debug("In disable_paging")
+        log.debug("Command: {0}".format(command))
         self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        if debug:
-            print(output)
-            print("Exiting disable_paging")
+        log.debug("{0}".format(output))
+        log.debug("Exiting disable_paging")
         return output
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
