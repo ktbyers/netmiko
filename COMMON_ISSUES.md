@@ -31,7 +31,7 @@ logging.basicConfig(filename='test.log', level=logging.DEBUG)
 logger = logging.getLogger("netmiko")
 ```
 
-### Does Netmiko connecting via a terminal server
+### Does Netmiko support connecting via a terminal server
 
 There is a 'terminal_server' device_type that basically does nothing post SSH connect. This means you have to manually handle the interaction with the terminal server to connect to the end device. After you are fully connected to the end network device, you can then 'redispatch' and Netmiko will behave normally
 
