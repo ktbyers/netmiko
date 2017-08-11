@@ -82,14 +82,12 @@ def worker_show_version(a_device, mp_queue):
 
 
 def main():
-
     mp_queue = multiprocessing.Queue()
     processes = []
 
     print "\nStart time: " + str(datetime.now())
 
     for a_device in all_devices:
-
         p = multiprocessing.Process(target=worker_show_version, args=(a_device, mp_queue))
         processes.append(p)
         # start the work process
@@ -98,7 +96,7 @@ def main():
     # retrieve all the data from the queue
     results = []
     while any(p.is_alive() for p in processes):
-        time.sleep(0.5)
+        time.sleep(0.1)
         while not mp_queue.empty():
             results.append(mp_queue.get())
             
@@ -110,5 +108,4 @@ def main():
 
     
 if __name__ == '__main__':
-
     main()
