@@ -61,7 +61,7 @@ print(output)                             # Should hopefully see the terminal se
 net_connect.write_channel("connect 1\r\n")
 time.sleep(1)
 
-
+# Manually handle the Username and Password
 max_loops = 10
 i = 1
 while i <= max_loops:
