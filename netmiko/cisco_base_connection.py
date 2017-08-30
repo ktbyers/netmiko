@@ -28,7 +28,8 @@ class CiscoBaseConnection(BaseConnection):
         Cisco IOS devices abbreviate the prompt at 20 chars in config mode
         """
         if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
+            #pattern = self.base_prompt[:16]
+            pattern = self.base_prompt[:14]
         return super(CiscoBaseConnection, self).check_config_mode(check_string=check_string,
                                                                   pattern=pattern,
                                                                   newline_format=newline_format)
@@ -40,14 +41,20 @@ class CiscoBaseConnection(BaseConnection):
         Cisco IOS devices abbreviate the prompt at 20 chars in config mode
         """
         if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
+            #pattern = self.base_prompt[:16]
+            #pattern = self.current_prompt[:16]
+            pattern = self.base_prompt[:14]
+            pattern = self.current_prompt[:14]
         return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
                                                             pattern=pattern)
 
     def exit_config_mode(self, exit_config='end', pattern=''):
         """Exit from configuration mode."""
         if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
+            #pattern = re.escape(self.base_prompt[:16])
+            #pattern = self.current_prompt[:16]
+            pattern = self.base_prompt[:14]
+            pattern = self.current_prompt[:14]
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
 
@@ -65,24 +72,67 @@ class CiscoBaseConnection(BaseConnection):
         i = 1
         while i <= max_loops:
             try:
-                output = self.read_channel()
+                output = self.read_channel(verbose=True)
+                #This below if block is addeed because when the telnet console starts with UserName,
+                #self.read_channel which internally calls telnetlib.read_ver_eager() returns empty string
+                #So, assign it to self.find_prompt()
+                if output == '':
+                    output=self.find_prompt()
                 return_msg += output
+                # Search for linux host prompt pattern [xr:~]
+                linux_prompt_pattern = "[xr:~]$"
+                switch_to_xr_command = 'xr'
+                if self.find_prompt() == linux_prompt_pattern:
+                    self.write_channel(TELNET_RETURN + "xr" + TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
 
-                # Search for username pattern / send username
+                # If previously from xr prompt, if bash was executed to go to linux host prompt,
+                # then inorder to go back to xr prompt, no need of xrlogin and password,
+                # just do "exit" cmd
+                xr_no_login_pattern = "Exec cannot be started from within an existing exec session"
+                if re.search(xr_no_login_pattern, output):
+                    self.write_channel(TELNET_RETURN + "exit" + TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+                    if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                        return return_msg
+                #import pdb; pdb.set_trace()
+
+                # Search for username pattern / send username OR
+                # If the prompt shows "xr login:", the you can directly login to xr using xr username
+                # and password or you can login to linux host, using linux host's username password
                 if re.search(username_pattern, output):
                     self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
-                    output = self.read_channel()
+                    output = self.read_channel(verbose=True)
                     return_msg += output
+
+                else:
+                    xr_or_host_login_pattern = "xr login:"
+                    if re.search(xr_or_host_login_pattern, output):
+                        self.write_channel(self.username + TELNET_RETURN)
+                        time.sleep(1 * delay_factor)
+                        output = self.read_channel(verbose=True)
+                        return_msg += output
+
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
                     self.write_channel(self.password + TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
-                    output = self.read_channel()
+                    output = self.read_channel(verbose=True)
                     return_msg += output
                     if pri_prompt_terminator in output or alt_prompt_terminator in output:
                         return return_msg
+
+                # Search for standby console pattern
+                standby_pattern=r"RP Node is not ready or active for login"
+                if re.search(standby_pattern,output):
+                    ''' Session is standby state '''
+                    return return_msg
 
                 # Support direct telnet through terminal server
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
@@ -90,7 +140,7 @@ class CiscoBaseConnection(BaseConnection):
                     time.sleep(.5 * delay_factor)
                     count = 0
                     while count < 15:
-                        output = self.read_channel()
+                        output = self.read_channel(verbose=True)
                         return_msg += output
                         if re.search(r"ress RETURN to get started", output):
                             output = ""
@@ -112,18 +162,18 @@ class CiscoBaseConnection(BaseConnection):
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {0}".format(self.host)
+                msg = "EOFError Telnet login failed: {0}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
         self.write_channel(TELNET_RETURN)
         time.sleep(.5 * delay_factor)
-        output = self.read_channel()
+        output = self.read_channel(verbose=True)
         return_msg += output
         if pri_prompt_terminator in output or alt_prompt_terminator in output:
             return return_msg
 
-        msg = "Telnet login failed: {0}".format(self.host)
+        msg = "LAST_TRY Telnet login failed: {0}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
     def cleanup(self):
