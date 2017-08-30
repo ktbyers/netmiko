@@ -21,6 +21,7 @@ from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.cisco import CiscoWlcSSH
 from netmiko.cisco import CiscoXrSSH
+from netmiko.cisco import CiscoXrTelnet
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
@@ -71,6 +72,7 @@ CLASS_MAPPER_BASE = {
     'cisco_wlc': CiscoWlcSSH,
     'cisco_xe': CiscoIosBase,
     'cisco_xr': CiscoXrSSH,
+    'cisco_xr_telnet': CiscoXrTelnet,
     'dell_force10': DellForce10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
     'eltex': EltexSSH,
