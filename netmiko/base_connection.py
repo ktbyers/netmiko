@@ -279,7 +279,6 @@ class BaseConnection(object):
         output = ''
         if not pattern:
             pattern = re.escape(self.base_prompt)
-            print ("###############pattern = ", pattern)
         if debug:
             print("Pattern is: {}".format(pattern))
         # Will loop for self.timeout time (unless modified by global_delay_factor)
@@ -303,9 +302,6 @@ class BaseConnection(object):
                     self._unlock_netmiko_session()
             elif self.protocol == 'telnet':
                 output += self.read_channel()
-            print ("###############output = ", output)
-            print ("########################____________________________")
-            print ("###############pattern = ", pattern)
             if re.search(pattern, output, flags=re_flags):
                 if debug:
                     print("Pattern found: {} {}".format(pattern, output))
