@@ -224,7 +224,7 @@ class BaseConnection(object):
         try:
             log.debug("write_channel: {}".format(write_bytes(out_data)))
         except UnicodeDecodeError:
-            # Don't log non-ASCII characters; this is null characters and telnet IAC
+            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
             pass
 
     def write_channel(self, out_data):
