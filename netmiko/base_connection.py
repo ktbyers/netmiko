@@ -132,6 +132,8 @@ class BaseConnection(object):
 
         # timers
         self._config_interval = 0.2
+        self._read_interval = 0.2
+        self._write_interval = 0.2
 
         self._session_locker = Lock()
         # determine if telnet or SSH
