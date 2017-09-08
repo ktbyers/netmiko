@@ -84,7 +84,7 @@ class CiscoBaseConnection(BaseConnection):
                 # Search for linux host prompt pattern [xr:~]
                 linux_prompt_pattern = "[xr:~]$"
                 switch_to_xr_command = 'xr'
-                if self.find_prompt() == linux_prompt_pattern:
+                if output == linux_prompt_pattern:
                     self.write_channel(TELNET_RETURN + "xr" + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel(verbose=True)
