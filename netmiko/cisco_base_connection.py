@@ -49,7 +49,7 @@ class CiscoBaseConnection(BaseConnection):
     def exit_config_mode(self, exit_config='end', pattern=''):
         """Exit from configuration mode."""
         if not pattern:
-            #pattern = re.escape(self.base_prompt[:16])
+            #pattern = self.base_prompt[:16]
             #pattern = self.current_prompt[:16]
             pattern = self.base_prompt[:14]
             pattern = self.current_prompt[:14]
@@ -60,7 +60,7 @@ class CiscoBaseConnection(BaseConnection):
                      username_pattern=r"sername", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
-        TELNET_RETURN = '\r\n'
+        TELNET_RETURN = '\n'
 
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
@@ -68,6 +68,7 @@ class CiscoBaseConnection(BaseConnection):
         output = ''
         return_msg = ''
         i = 1
+        #import pdb; pdb.set_trace()
         while i <= max_loops:
             try:
                 output = self.read_channel(verbose=True)
@@ -77,6 +78,7 @@ class CiscoBaseConnection(BaseConnection):
                 if output == '':
                     output=self.find_prompt()
                 return_msg += output
+
                 # Search for linux host prompt pattern [xr:~]
                 linux_prompt_pattern = "[xr:~]$"
                 switch_to_xr_command = 'xr'
@@ -103,6 +105,7 @@ class CiscoBaseConnection(BaseConnection):
                 # If the prompt shows "xr login:", the you can directly login to xr using xr username
                 # and password or you can login to linux host, using linux host's username password
                 if re.search(username_pattern, output):
+                    
                     self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel(verbose=True)
@@ -114,6 +117,7 @@ class CiscoBaseConnection(BaseConnection):
                         self.write_channel(self.username + TELNET_RETURN)
                         time.sleep(1 * delay_factor)
                         output = self.read_channel(verbose=True)
+                        print ('output after passing username = ', output)
                         return_msg += output
 
 
@@ -131,6 +135,16 @@ class CiscoBaseConnection(BaseConnection):
                 if re.search(standby_pattern,output):
                     ''' Session is standby state '''
                     return return_msg
+                
+                   
+                #Search for "VR0 con0/RP0/CPU0 is now available Press RETURN to get started" pattern
+                #on Sunstone devices
+                sunstone_pattern = r'Press RETURN to get started\.$'
+                if re.search(sunstone_pattern,output):
+                    print("*****Sunstone pattern detected")
+                    self.write_channel(TELNET_RETURN)
+                    output = self.read_channel(verbose=True)
+                
 
                 # Support direct telnet through terminal server
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
