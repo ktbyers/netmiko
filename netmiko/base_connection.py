@@ -682,28 +682,28 @@ class BaseConnection(object):
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(self, delay_factor=1):
+    def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', verbose=False):
         """Finds the current network device prompt, last line only."""
         debug = self.debug_flag
         self.clear_buffer()
         self.write_channel("\n")
         # sleep for brief 100ms (default) - adjust by delay_factor
-        sleep_interval = 0.1
+        sleep_interval = self._read_interval
         self.sleep_timer(sleep_interval, delay_factor)
-
-        # Initial attempt to get prompt
-        prompt = self.read_channel()
-        if self.ansi_escape_codes:
-            prompt = self.strip_ansi_escape_codes(prompt)
-
-        if debug:
-            print("prompt1: {}".format(prompt))
+        num_of_attempts = 30
 
         # Check if the only thing you received was a newline
         count = 0
-        prompt = prompt.strip()
-        while count <= 10 and not prompt:
-            prompt = self.read_channel().strip()
+        prompt = None  # initial
+        while count <= num_of_attempts and not prompt:
+            prompt = self.read_channel(verbose=verbose).strip()
+            if re.search(pattern, prompt, re.IGNORECASE):
+                # if last char is NOT special char,
+                # then it is NOT potentially a prompt
+                # so, retry
+                if 'RP Node is not ready' in prompt:
+                    return self.strip_ansi_escape_codes(prompt).strip()
+                prompt = None
             if prompt:
                 if debug:
                     print("prompt2a: {}".format(repr(prompt)))
@@ -725,6 +725,7 @@ class BaseConnection(object):
             raise ValueError("Unable to find prompt: {}".format(prompt))
         self.sleep_timer(sleep_interval, delay_factor)
         self.clear_buffer()
+        self.current_prompt = prompt
         return prompt
 
     def clear_buffer(self):
