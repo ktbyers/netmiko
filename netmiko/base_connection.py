@@ -314,7 +314,7 @@ class BaseConnection(object):
         raise NetMikoTimeoutException("Timed-out reading channel, pattern not found in output: {}"
                                       .format(pattern))
 
-    def _read_channel_timing(self, delay_factor=1, max_loops=150, max_timeout=0):
+    def _read_channel_timing(self, delay_factor=1, max_loops=150, max_timeout=0, verbose=False):
         """
         Read data on the channel based on timing delays.
 
@@ -341,7 +341,7 @@ class BaseConnection(object):
                 # Safeguard to make sure really done
                 safeguard_delay = self.adjusted_loop_delay(2, delay_factor) # for read_channel_timing
                 time.sleep(safeguard_delay)
-                new_data = self.read_channel()
+                new_data = self.read_channel(verbose=verbose)
                 if not new_data:
                     break
                 else:
@@ -736,7 +736,7 @@ class BaseConnection(object):
         self.read_channel()
 
     def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
-                            strip_prompt=True, strip_command=True, max_timeout=0):
+                            strip_prompt=True, strip_command=True, max_timeout=0, verbose=False):
         '''
         Execute command_string on the SSH channel.
 
@@ -761,7 +761,7 @@ class BaseConnection(object):
 
         self.write_channel(command_string)
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops,
-                                           max_timeout=max_timeout)
+                                           max_timeout=max_timeout, verbose=False)
         if debug:
             print("zzz: {}".format(output))
         output = self._sanitize_output(output, strip_command=strip_command,
