@@ -334,6 +334,7 @@ class BaseConnection(object):
         while i <= max_loops:
             time.sleep(loop_delay)
             new_data = self.read_channel()
+            print(new_data, end="")
             if new_data:
                 channel_data += new_data
             else:
