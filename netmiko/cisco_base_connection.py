@@ -57,7 +57,7 @@ class CiscoBaseConnection(BaseConnection):
                                                                  pattern=pattern)
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
-                     username_pattern=r"sername", pwd_pattern=r"assword",
+                     username_pattern=r"(sername)|(ogin)", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
         TELNET_RETURN = '\n'
