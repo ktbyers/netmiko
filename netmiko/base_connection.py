@@ -939,7 +939,7 @@ class BaseConnection(object):
         output = self.read_until_prompt()
         return check_string in output
 
-    def enable(self, cmd='', pattern='password', re_flags=re.IGNORECASE):
+    def enable(self, cmd='', pattern='ssword', re_flags=re.IGNORECASE):
         """Enter enable mode."""
         output = ""
         if not self.check_enable_mode():
