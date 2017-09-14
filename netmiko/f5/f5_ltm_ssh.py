@@ -15,7 +15,7 @@ class F5LtmSSH(BaseConnection):
         self.set_base_prompt()
         # Send disable paging cmd depends on F5 cli version
         cmd = self.dis_paging_cmd()
-        self.disable_paging(command = cmd)
+        self.disable_paging(command=cmd)
         time.sleep(1 * delay_factor)
 
     def dis_paging_cmd(self):
@@ -23,7 +23,7 @@ class F5LtmSSH(BaseConnection):
         try:
             cli_cmd = 'show sys version | grep  -i version\n'
             version_res = self.send_command(str(cli_cmd))
-            version = re.search(r'^\s+[Vv]ersion\s+(\d+).(\d+).(\d)',version_res,re.I|re.M)
+            version = re.search(r'^\s+[Vv]ersion\s+(\d+).(\d+).(\d)', version_res, re.I | re.M)
             if version.group(1) in ['11', '12', '13']:
                 return str("modify cli preference pager disabled\n")
             else: # version smaller then 10 send old cmd
