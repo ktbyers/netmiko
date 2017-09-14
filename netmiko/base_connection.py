@@ -209,7 +209,11 @@ class BaseConnection(object):
             self.remote_conn.write(write_bytes(out_data))
         else:
             raise ValueError("Invalid protocol specified")
-        log.debug("write_channel: {}".format(write_bytes(out_data)))
+        try:
+            log.debug("write_channel: {}".format(write_bytes(out_data)))
+        except UnicodeDecodeError:
+            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
+            pass
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel."""
