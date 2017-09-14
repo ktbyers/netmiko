@@ -12,7 +12,7 @@ class CiscoBaseConnection(BaseConnection):
         """Check if in enable mode. Return boolean."""
         return super(CiscoBaseConnection, self).check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE):
+    def enable(self, cmd='enable', pattern='ssword', re_flags=re.IGNORECASE):
         """Enter enable mode."""
         return super(CiscoBaseConnection, self).enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 

@@ -342,7 +342,7 @@ class BaseConnection(object):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
         combined_pattern = re.escape(self.base_prompt)
         if pattern:
-            combined_pattern += "|{}".format(pattern)
+            combined_pattern = r"({}|{})".format(combined_pattern, pattern)
         return self._read_channel_expect(combined_pattern, re_flags=re_flags)
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
@@ -855,7 +855,7 @@ class BaseConnection(object):
         log.debug("{0}".format(output))
         return check_string in output
 
-    def enable(self, cmd='', pattern='password', re_flags=re.IGNORECASE):
+    def enable(self, cmd='', pattern='ssword', re_flags=re.IGNORECASE):
         """Enter enable mode."""
         output = ""
         if not self.check_enable_mode():
