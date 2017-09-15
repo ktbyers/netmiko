@@ -224,6 +224,34 @@ class BaseConnection(object):
             # Always unlock the SSH channel, even on exception.
             self._unlock_netmiko_session()
 
+    def is_alive(self):
+        """Returns a boolean flag with the state of the connection."""
+        null = chr(0)
+        if self.remote_conn is None:
+            log.error("Connection is not initialised, is_alive returns False")
+            return False
+        if self.protocol == 'telnet':
+            try:
+                # Try sending IAC + NOP (IAC is telnet way of sending command
+                # IAC = Interpret as Command (it comes before the NOP)
+                log.debug("Sending IAC + NOP")
+                self.device.write_channel(telnetlib.IAC + telnetlib.NOP)
+                return True
+            except AttributeError:
+                return False
+        else:
+            # SSH
+            try:
+                # Try sending ASCII null byte to maintain the connection alive
+                log.debug("Sending the NULL byte")
+                self.write_channel(null)
+                return self.remote_conn.transport.is_active()
+            except (socket.error, EOFError):
+                log.error("Unable to send", exc_info=True)
+                # If unable to send, we can tell for sure that the connection is unusable
+                return False
+        return False
+
     def _read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
         if self.protocol == 'ssh':
@@ -973,7 +1001,7 @@ class BaseConnection(object):
         ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
         ESC[?7l      Disable line wrapping
         ESC[2J       Code erase display
-        ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is 
+        ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
 
         HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
