@@ -739,18 +739,12 @@ class BaseConnection(object):
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
 
-        if debug:
-            print("prompt1: {}".format(prompt))
-
         # Check if the only thing you received was a newline
         count = 0
         prompt = prompt.strip()
         while count <= 10 and not prompt:
             prompt = self.read_channel().strip()
             if prompt:
-                if debug:
-                    print("prompt2a: {}".format(repr(prompt)))
-                    print("prompt2b: {}".format(prompt))
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
@@ -758,8 +752,6 @@ class BaseConnection(object):
                 self.sleep_timer(sleep_interval, delay_factor)
             count += 1
 
-        if debug:
-            print("prompt3: {}".format(prompt))
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split('\n')[-1]
@@ -947,9 +939,11 @@ class BaseConnection(object):
 
     @staticmethod
     def normalize_linefeeds(a_string):
-        """Convert '\r\r\n','\r\n', '\n\r' to '\n."""
-        newline = re.compile(r'(\r\r\r\n|\r\r\n|\r\n|\n\r)')
-        return newline.sub('\n', a_string)
+        """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`"""
+        newline = re.compile('(\r\r\r\n|\r\r\n|\r\n|\n\r)')
+        a_string = newline.sub('\n', a_string)
+        # Convert any remaining \r to \n
+        return re.sub('\r', '\n', a_string)
 
     @staticmethod
     def normalize_cmd(command, newline_format='\n'):
