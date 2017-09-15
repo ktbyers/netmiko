@@ -9,6 +9,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r'[>#]')
+        self.ansi_escape_codes = True
         self.set_base_prompt()
         self.disable_paging()
 
