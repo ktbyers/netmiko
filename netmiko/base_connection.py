@@ -90,6 +90,7 @@ class BaseConnection(object):
                 to keep the connection alive).
         :type keepalive: int
         """
+        self.remote_conn = None
         if ip:
             self.host = ip
             self.ip = ip
@@ -1050,6 +1051,7 @@ class BaseConnection(object):
             self.remote_conn_pre.close()
         elif self.protocol == 'telnet':
             self.remote_conn.close()
+        self.remote_conn = None
 
     def commit(self):
         """Commit method for platforms that support this."""
