@@ -640,7 +640,7 @@ class BaseConnection(object):
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(prompt))
+            raise ValueError("Router prompt not found: {0}".format(repr(prompt)))
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
         return self.base_prompt
@@ -973,6 +973,8 @@ class BaseConnection(object):
         ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
         ESC[?7l      Disable line wrapping
         ESC[2J       Code erase display
+        ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is 
+                     ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
 
         HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
         """
@@ -991,11 +993,14 @@ class BaseConnection(object):
         code_disable_line_wrapping = chr(27) + r'\[\?7l'
         code_reset_mode_screen_options = chr(27) + r'\[\?\d+l'
         code_erase_display = chr(27) + r'\[2J'
+        code_graphics_mode = chr(27) + r'\[\d\d;\d\dm'
+        code_graphics_mode2 = chr(27) + r'\[\d\d;\d\d;\d\dm'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
                     code_erase_start_line, code_form_feed, code_carriage_return,
                     code_disable_line_wrapping, code_erase_line_end,
-                    code_reset_mode_screen_options, code_erase_display]
+                    code_reset_mode_screen_options, code_erase_display,
+                    code_graphics_mode, code_graphics_mode2]
 
         output = string_buffer
         for ansi_esc_code in code_set:
