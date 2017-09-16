@@ -53,8 +53,6 @@ class CiscoBaseConnection(BaseConnection):
                      username_pattern=r"sername", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
-        TELNET_RETURN = '\r\n'
-
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -68,14 +66,14 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output):
-                    self.write_channel(self.username + TELNET_RETURN)
+                    self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
-                    self.write_channel(self.password + TELNET_RETURN)
+                    self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -84,7 +82,7 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Support direct telnet through terminal server
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
-                    self.write_channel("no" + TELNET_RETURN)
+                    self.write_channel("no" + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     count = 0
                     while count < 15:
@@ -106,7 +104,7 @@ class CiscoBaseConnection(BaseConnection):
                 if pri_prompt_terminator in output or alt_prompt_terminator in output:
                     return return_msg
 
-                self.write_channel(TELNET_RETURN)
+                self.write_channel(self.TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
@@ -114,7 +112,7 @@ class CiscoBaseConnection(BaseConnection):
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
-        self.write_channel(TELNET_RETURN)
+        self.write_channel(self.TELNET_RETURN)
         time.sleep(.5 * delay_factor)
         output = self.read_channel()
         return_msg += output

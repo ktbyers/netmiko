@@ -112,8 +112,7 @@ class CiscoXrSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit configuration mode")
         return output
 
-    @staticmethod
-    def normalize_linefeeds(a_string):
-        """Convert '\r\n','\r\r\n', '\n\r', or '\r' to '\n."""
-        newline = re.compile(r'(\r\r\n|\r\n|\n\r|\r)')
-        return newline.sub('\n', a_string)
+    def normalize_linefeeds(self, a_string):
+        """Convert '\r\n','\r\r\n', '\n\r', or '\r' to '\n'."""
+        newline = re.compile('(\r\r\n|\r\n|\n\r|\r)')
+        return newline.sub(self.RESPONSE_RETURN, a_string)

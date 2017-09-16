@@ -13,11 +13,10 @@ class BrocadeFastironSSH(CiscoSSHConnection):
         self.enable()
         self.disable_paging(command="skip-page-display")
 
-    @staticmethod
-    def normalize_linefeeds(a_string):
+    def normalize_linefeeds(self, a_string):
         """Convert '\r\n\r\n', '\r\r\n','\r\n', '\n\r' to '\n."""
-        newline = re.compile(r'(\r\n\r\n|\r\r\n|\r\n|\n\r|\r)')
-        return newline.sub('\n', a_string)
+        newline = re.compile('(\r\n\r\n|\r\r\n|\r\n|\n\r|\r)')
+        return newline.sub(self.RESPONSE_RETURN, a_string)
 
     def enable(self, cmd='enable', pattern=r'(ssword|User Name)', re_flags=re.IGNORECASE):
         """Enter enable mode.

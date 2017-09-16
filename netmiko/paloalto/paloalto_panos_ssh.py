@@ -99,17 +99,14 @@ class PaloAltoPanosSSH(BaseConnection):
                              .format(output))
         return output
 
-    def strip_command(self, command_string, output):
-        """
-        Strip command_string from output string
-        """
+    @staticmethod
+    def strip_command(command_string, output, default_return='\n'):
+        """Strip command_string from output string."""
         output_list = output.split(command_string)
-        return '\n'.join(output_list)
+        return default_return.join(output_list)
 
     def strip_prompt(self, a_string):
-        '''
-        Strip the trailing router prompt from the output
-        '''
+        """Strip the trailing router prompt from the output."""
         response_list = a_string.split('\n')
         new_response_list = []
         for line in response_list:
