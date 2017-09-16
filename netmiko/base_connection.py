@@ -97,6 +97,10 @@ class BaseConnection(object):
         :type session_timeout: float
         """
         self.remote_conn = None
+        self.RETURN = '\n'
+        self.TELNET_RETURN = '\r\n'
+        # Line Separator in response lines
+        self.RESPONSE_RETURN = '\n'
         if ip:
             self.host = ip
             self.ip = ip
@@ -409,8 +413,6 @@ class BaseConnection(object):
                      username_pattern=r"ser:|sername|ogin", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
-        TELNET_RETURN = '\r\n'
-
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -424,14 +426,14 @@ class BaseConnection(object):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output):
-                    self.write_channel(self.username + TELNET_RETURN)
+                    self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel(verbose=True)
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
-                    self.write_channel(self.password + TELNET_RETURN)
+                    self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel(verbose=True)
                     return_msg += output
@@ -442,7 +444,7 @@ class BaseConnection(object):
                 if pri_prompt_terminator in output or alt_prompt_terminator in output:
                     return return_msg
 
-                self.write_channel(TELNET_RETURN)
+                self.write_channel(self.TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
@@ -450,7 +452,7 @@ class BaseConnection(object):
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
-        self.write_channel(TELNET_RETURN)
+        self.write_channel(self.TELNET_RETURN)
         time.sleep(.5 * delay_factor)
         output = self.read_channel()
         return_msg += output
@@ -537,7 +539,7 @@ class BaseConnection(object):
             output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
         if strip_command and command_string:
-            output = self.strip_command(command_string, output)
+            output = self.strip_command(command_string, output, default_return=self.RETURN)
         if strip_prompt:
             output = self.strip_prompt(output)
         return output
@@ -568,7 +570,7 @@ class BaseConnection(object):
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
-                msg += '\n' + str(auth_err)
+                msg += self.RETURN + str(auth_err)
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
@@ -731,10 +733,8 @@ class BaseConnection(object):
         """Finds the current network device prompt, last line only."""
         debug = self.debug_flag
         self.clear_buffer()
-        self.write_channel("\n")
-        # sleep for brief 100ms (default) - adjust by delay_factor
-        sleep_interval = 0.1
-        self.sleep_timer(sleep_interval, delay_factor)
+        self.write_channel(self.RETURN)
+        time.sleep(delay_factor * .1)
         # Initial attempt to get prompt
         prompt = self.read_channel()
         if self.ansi_escape_codes:
@@ -749,13 +749,13 @@ class BaseConnection(object):
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
-                self.write_channel("\n")
-                self.sleep_timer(sleep_interval, delay_factor)
+                self.write_channel(self.RETURN)
+                time.sleep(delay_factor * .1)
             count += 1
 
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
-        prompt = prompt.split('\n')[-1]
+        prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
         if not prompt:
             raise ValueError("Unable to find prompt: {}".format(prompt))
@@ -804,10 +804,10 @@ class BaseConnection(object):
         
     def strip_prompt(self, a_string):
         """Strip the trailing router prompt from the output."""
-        response_list = a_string.split('\n')
+        response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
         if self.base_prompt in last_line:
-            return '\n'.join(response_list[:-1])
+            return self.RESPONSE_RETURN.join(response_list[:-1])
         else:
             return a_string
 
@@ -882,7 +882,7 @@ class BaseConnection(object):
                 if debug:
                     print("{}:{}".format(i, output))
                 try:
-                    lines = output.split("\n")
+                    lines = output.split(self.RETURN)
                     first_line = lines[0]
                     # First line is the echo line containing the command. In certain situations
                     # it gets repainted and needs filtered
@@ -890,7 +890,7 @@ class BaseConnection(object):
                         pattern = search_pattern + r'.*$'
                         first_line = re.sub(pattern, repl='', string=first_line)
                         lines[0] = first_line
-                        output = "\n".join(lines)
+                        output = self.RETURN.join(lines)
                 except IndexError:
                     pass
                 if re.search(search_pattern, output):
@@ -920,7 +920,7 @@ class BaseConnection(object):
         return output.replace(backspace_char, '')
 
     @staticmethod
-    def strip_command(command_string, output):
+    def strip_command(command_string, output, default_return='\n'):
         """
         Strip command_string from output string
 
@@ -931,33 +931,29 @@ class BaseConnection(object):
         # Check for line wrap (remove backspaces)
         if backspace_char in output:
             output = output.replace(backspace_char, '')
-            output_lines = output.split("\n")
+            output_lines = output.split(default_return)
             new_output = output_lines[1:]
-            return "\n".join(new_output)
+            return default_return.join(new_output)
         else:
             command_length = len(command_string)
             return output[command_length:]
 
-    @staticmethod
-    def normalize_linefeeds(a_string):
+    def normalize_linefeeds(self, a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`"""
         newline = re.compile('(\r\r\r\n|\r\r\n|\r\n|\n\r)')
-        a_string = newline.sub('\n', a_string)
-        # Convert any remaining \r to \n
-        return re.sub('\r', '\n', a_string)
+        a_string = newline.sub(self.RESPONSE_RETURN, a_string)
+        if self.RESPONSE_RETURN == '\n':
+            # Convert any remaining \r to \n
+            return re.sub('\r', self.RESPONSE_RETURN, a_string)
 
-    @staticmethod
-    def normalize_cmd(command, newline_format='\n'):
+    def normalize_cmd(self, command):
         """Normalize CLI commands to have a single trailing newline."""
-        command = command.rstrip("\n")
-        command += newline_format
+        command = command.rstrip()
+        command += self.RETURN
         return command
 
     def check_enable_mode(self, check_string=''):
-        """Check if in enable mode. Return boolean.
-        :param check_string: Identification of privilege mode from device
-        :type check_string: str
-        """
+        """Check if in enable mode. Return boolean."""
         self.write_channel(self.RETURN)
         output = self.read_until_prompt()
         return check_string in output
@@ -993,12 +989,10 @@ class BaseConnection(object):
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
         """
+        log.debug("pattern: {0}".format(pattern))
         self.write_channel(self.RETURN)
-        # You can encounter an issue here (on router name changes) prefer delay-based solution
-        if not pattern:
-            output = self._read_channel_timing()
-        else:
-            output = self.read_until_pattern(pattern=pattern)
+        output = self.read_until_pattern(pattern=pattern)
+        log.debug("check_config_mode: {0}".format(repr(output)))
         return check_string in output
 
     def config_mode(self, config_command='', pattern='', max_timeout=8,
@@ -1084,8 +1078,7 @@ class BaseConnection(object):
             print(output)
         return output
 
-    @staticmethod
-    def strip_ansi_escape_codes(string_buffer):
+    def strip_ansi_escape_codes(self, string_buffer):
         """
         Remove any ANSI (VT100) ESC codes from the output
 
@@ -1142,7 +1135,7 @@ class BaseConnection(object):
             output = re.sub(ansi_esc_code, '', output)
 
         # CODE_NEXT_LINE must substitute with '\n'
-        output = re.sub(code_next_line, '\n', output)
+        output = re.sub(code_next_line, self.RETURN, output)
 
         if debug:
             print("new_output = %s" % output)
