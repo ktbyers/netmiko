@@ -21,5 +21,7 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
             self.write_channel(self.normalize_cmd(cmd))
             output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
             if not self.check_enable_mode():
-                raise ValueError("Failed to enter enable mode.")
+                msg = "Failed to enter enable mode. Please ensure you pass " \
+                      "the 'secret' argument to ConnectHandler."
+                raise ValueError(msg)
         return output

@@ -49,4 +49,6 @@ class BrocadeFastironSSH(CiscoSSHConnection):
                 i += 1
 
         if not self.check_enable_mode():
-            raise ValueError("Failed to enter enable mode.")
+            msg = "Failed to enter enable mode. Please ensure you pass " \
+                  "the 'secret' argument to ConnectHandler."
+            raise ValueError(msg)
