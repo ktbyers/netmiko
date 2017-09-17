@@ -23,7 +23,7 @@ class JuniperSSH(BaseConnection):
         self._test_channel_read()
         self.enter_cli_mode()
         self.set_base_prompt()
-        self.disable_paging(command="set cli screen-length 0\n")
+        self.disable_paging(command="set cli screen-length 0")
         self.set_terminal_width(command='set cli screen-width 511')
 
     def enter_cli_mode(self):
@@ -32,11 +32,11 @@ class JuniperSSH(BaseConnection):
         count = 0
         cur_prompt = ''
         while count < 50:
-            self.write_channel("\n")
+            self.write_channel(self.RETURN)
             time.sleep(.1 * delay_factor)
             cur_prompt = self.read_channel()
             if re.search(r'root@', cur_prompt):
-                self.write_channel("cli\n")
+                self.write_channel("cli" + self.RETURN)
                 time.sleep(.3 * delay_factor)
                 self.clear_buffer()
                 break
@@ -153,8 +153,7 @@ class JuniperSSH(BaseConnection):
         a_string = super(JuniperSSH, self).strip_prompt(*args, **kwargs)
         return self.strip_context_items(a_string)
 
-    @staticmethod
-    def strip_context_items(a_string):
+    def strip_context_items(self, a_string):
         """Strip Juniper-specific output.
 
         Juniper will also put a configuration context:
@@ -174,11 +173,10 @@ class JuniperSSH(BaseConnection):
             r'\{secondary.*\}',
         ]
 
-        response_list = a_string.split('\n')
+        response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
 
         for pattern in strings_to_strip:
             if re.search(pattern, last_line):
-                return "\n".join(response_list[:-1])
-
+                return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string

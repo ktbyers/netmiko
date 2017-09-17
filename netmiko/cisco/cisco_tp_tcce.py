@@ -30,6 +30,7 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_terminal_width()
         """
+        self.RETURN = '\r\n'
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
@@ -47,10 +48,10 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
     def strip_prompt(self, a_string):
         """Strip the trailing router prompt from the output."""
         expect_string = r'^(OK|ERROR|Command not recognized\.)$'
-        response_list = a_string.split('\n')
+        response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
         if re.search(expect_string, last_line):
-            return '\n'.join(response_list[:-1])
+            return self.RESPONSE_RETURN.join(response_list[:-1])
         else:
             return a_string
 
@@ -73,7 +74,8 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         else:
             expect_string = kwargs.get('expect_string')
             if expect_string is None:
-                expect_string = r'\r\n(OK|ERROR|Command not recognized\.)\r\n'
+                expect_string = r'(OK|ERROR|Command not recognized\.)'
+                expect_string = self.RETURN + expect_string + self.RETURN
                 kwargs.setdefault('expect_string', expect_string)
 
         output = super(CiscoSSHConnection, self).send_command(*args, **kwargs)

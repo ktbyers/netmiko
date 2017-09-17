@@ -16,8 +16,8 @@ class CiscoAsaSSH(CiscoSSHConnection):
             self.enable()
         else:
             self.asa_login()
-        self.disable_paging(command="terminal pager 0\n")
-        self.set_terminal_width(command="terminal width 511\n")
+        self.disable_paging(command="terminal pager 0")
+        self.set_terminal_width(command="terminal width 511")
 
     def send_command_timing(self, *args, **kwargs):
         """
@@ -86,16 +86,16 @@ class CiscoAsaSSH(CiscoSSHConnection):
 
         i = 1
         max_attempts = 50
-        self.write_channel("login\n")
+        self.write_channel("login" + self.RETURN)
         while i <= max_attempts:
             time.sleep(.5 * delay_factor)
             output = self.read_channel()
             if 'sername' in output:
-                self.write_channel(self.username + '\n')
+                self.write_channel(self.username + self.RETURN)
             elif 'ssword' in output:
-                self.write_channel(self.password + '\n')
+                self.write_channel(self.password + self.RETURN)
             elif '#' in output:
                 break
             else:
-                self.write_channel("login\n")
+                self.write_channel("login" + self.RETURN)
             i += 1

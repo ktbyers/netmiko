@@ -12,7 +12,7 @@ class HuaweiSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="screen-length 0 temporary\n")
+        self.disable_paging(command="screen-length 0 temporary")
 
     def config_mode(self, config_command='system-view'):
         """Enter configuration mode."""
@@ -53,14 +53,14 @@ class HuaweiSSH(CiscoSSHConnection):
         log.debug("In set_base_prompt")
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        self.write_channel("\n")
+        self.write_channel(self.RETURN)
         time.sleep(.5 * delay_factor)
 
         prompt = self.read_channel()
         prompt = self.normalize_linefeeds(prompt)
 
         # If multiple lines in the output take the last line
-        prompt = prompt.split('\n')[-1]
+        prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
 
         # Check that ends with a valid terminator character

@@ -16,5 +16,5 @@ class CiscoS300SSH(CiscoSSHConnection):
         self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="terminal datadump\n")
+        self.disable_paging(command="terminal datadump")
         self.set_terminal_width(command='terminal width 511')

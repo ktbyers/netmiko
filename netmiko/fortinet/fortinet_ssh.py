@@ -20,7 +20,7 @@ class FortinetSSH(CiscoSSHConnection):
 
     def disable_paging(self, delay_factor=1):
         """Disable paging is only available with specific roles so it may fail."""
-        check_command = "get system status | grep Virtual\n"
+        check_command = "get system status | grep Virtual"
         output = self.send_command_timing(check_command)
         self.allow_disable_global = True
         self.vdoms = False
@@ -43,7 +43,7 @@ class FortinetSSH(CiscoSSHConnection):
             outputlist = [self.send_command_timing(command, delay_factor=2)
                           for command in disable_paging_commands]
             # Should test output is valid
-            new_output = "\n".join(outputlist)
+            new_output = self.RETURN.join(outputlist)
 
         return output + new_output
 

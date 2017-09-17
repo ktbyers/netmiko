@@ -9,4 +9,4 @@ class EnterasysSSH(CiscoSSHConnection):
         """Enterasys requires enable mode to disable paging."""
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="set length 0\n")
+        self.disable_paging(command="set length 0")

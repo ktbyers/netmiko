@@ -15,7 +15,7 @@ class CheckPointGaiaSSH(BaseConnection):
         """
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="set clienv rows 0\n")
+        self.disable_paging(command="set clienv rows 0")
 
     def config_mode(self, config_command=''):
         """No config mode for Check Point devices."""

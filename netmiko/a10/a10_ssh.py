@@ -10,7 +10,7 @@ class A10SSH(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt()
         self.enable()
-        self.disable_paging(command="terminal length 0\n")
+        self.disable_paging(command="terminal length 0")
 
         # Will not do anything without A10 specific command
         self.set_terminal_width()

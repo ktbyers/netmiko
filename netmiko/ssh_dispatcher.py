@@ -118,8 +118,8 @@ platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
 platforms_base = list(CLASS_MAPPER_BASE.keys())
 platforms_base.sort()
-platforms_str = u"\n".join(platforms_base)
-platforms_str = u"\n" + platforms_str
+platforms_str = "\n".join(platforms_base)
+platforms_str = "\n" + platforms_str
 
 
 def ConnectHandler(*args, **kwargs):
