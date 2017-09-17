@@ -57,13 +57,13 @@ class DellPowerConnectSSH(CiscoSSHConnection):
             output = self.read_channel()
             if output:
                 if 'User Name:' in output:
-                    self.write_channel(self.username + '\n')
+                    self.write_channel(self.username + self.RETURN)
                 elif 'Password:' in output:
-                    self.write_channel(self.password + '\n')
+                    self.write_channel(self.password + self.RETURN)
                     break
                 time.sleep(delay_factor * 1)
             else:
-                self.write_channel('\n')
+                self.write_channel(self.RETURN)
                 time.sleep(delay_factor * 1.5)
             i += 1
 

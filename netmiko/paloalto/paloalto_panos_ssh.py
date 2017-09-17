@@ -20,7 +20,7 @@ class PaloAltoPanosSSH(BaseConnection):
         """
         self._test_channel_read()
         self.set_base_prompt(delay_factor=20)
-        self.disable_paging(command="set cli pager off\n")
+        self.disable_paging(command="set cli pager off")
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on PaloAlto."""
@@ -99,25 +99,23 @@ class PaloAltoPanosSSH(BaseConnection):
                              .format(output))
         return output
 
-    @staticmethod
-    def strip_command(command_string, output, default_return='\n'):
+    def strip_command(self, command_string, output):
         """Strip command_string from output string."""
         output_list = output.split(command_string)
-        return default_return.join(output_list)
+        return self.RESPONSE_RETURN.join(output_list)
 
     def strip_prompt(self, a_string):
         """Strip the trailing router prompt from the output."""
-        response_list = a_string.split('\n')
+        response_list = a_string.split(self.RESPONSE_RETURN)
         new_response_list = []
         for line in response_list:
             if self.base_prompt not in line:
                 new_response_list.append(line)
 
-        output = '\n'.join(new_response_list)
+        output = self.RESPONSE_RETURN.join(new_response_list)
         return self.strip_context_items(output)
 
-    @staticmethod
-    def strip_context_items(a_string):
+    def strip_context_items(self, a_string):
         """Strip PaloAlto-specific output.
 
         PaloAlto will also put a configuration context:
@@ -129,12 +127,12 @@ class PaloAltoPanosSSH(BaseConnection):
             r'\[edit.*\]',
         ]
 
-        response_list = a_string.split('\n')
+        response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
 
         for pattern in strings_to_strip:
             if re.search(pattern, last_line):
-                return "\n".join(response_list[:-1])
+                return self.RESPONSE_RETURN.join(response_list[:-1])
 
         return a_string
 

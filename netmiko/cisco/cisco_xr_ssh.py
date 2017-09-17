@@ -107,7 +107,7 @@ class CiscoXrSSH(CiscoSSHConnection):
         if self.check_config_mode():
             output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
             if "Uncommitted changes found" in output:
-                output += self.send_command_timing('no\n', strip_prompt=False, strip_command=False)
+                output += self.send_command_timing('no', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output

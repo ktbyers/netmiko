@@ -10,7 +10,7 @@ class AlcatelSrosSSH(CiscoSSHConnection):
     def session_preparation(self):
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="environment no more\n")
+        self.disable_paging(command="environment no more")
 
     def set_base_prompt(self, *args, **kwargs):
         """Remove the > when navigating into the different config level."""

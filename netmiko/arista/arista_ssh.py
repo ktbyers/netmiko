@@ -21,7 +21,7 @@ class AristaSSH(CiscoSSHConnection):
         Can also be (s2)
         """
         log.debug("pattern: {0}".format(pattern))
-        self.write_channel('\n')
+        self.write_channel(self.RETURN)
         output = self.read_until_pattern(pattern=pattern)
         log.debug("check_config_mode: {0}".format(repr(output)))
         output = output.replace("(s1)", "")

@@ -10,7 +10,7 @@ class VyOSSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="set terminal length 0\n")
+        self.disable_paging(command="set terminal length 0")
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on VyOS."""

@@ -13,7 +13,7 @@ class ExtremeSSH(CiscoSSHConnection):
     def session_preparation(self):
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="disable clipaging\n")
+        self.disable_paging(command="disable clipaging")
 
     def set_base_prompt(self, *args, **kwargs):
         """

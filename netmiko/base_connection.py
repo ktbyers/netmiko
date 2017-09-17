@@ -539,7 +539,7 @@ class BaseConnection(object):
             output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
         if strip_command and command_string:
-            output = self.strip_command(command_string, output, default_return=self.RETURN)
+            output = self.strip_command(command_string, output)
         if strip_prompt:
             output = self.strip_prompt(output)
         return output
@@ -919,8 +919,7 @@ class BaseConnection(object):
         backspace_char = '\x08'
         return output.replace(backspace_char, '')
 
-    @staticmethod
-    def strip_command(command_string, output, default_return='\n'):
+    def strip_command(self, command_string, output):
         """
         Strip command_string from output string
 
@@ -931,9 +930,9 @@ class BaseConnection(object):
         # Check for line wrap (remove backspaces)
         if backspace_char in output:
             output = output.replace(backspace_char, '')
-            output_lines = output.split(default_return)
+            output_lines = output.split(self.RESPONSE_RETURN)
             new_output = output_lines[1:]
-            return default_return.join(new_output)
+            return self.RESPONSE_RETURN.join(new_output)
         else:
             command_length = len(command_string)
             return output[command_length:]
@@ -1134,7 +1133,7 @@ class BaseConnection(object):
         for ansi_esc_code in code_set:
             output = re.sub(ansi_esc_code, '', output)
 
-        # CODE_NEXT_LINE must substitute with '\n'
+        # CODE_NEXT_LINE must substitute with return
         output = re.sub(code_next_line, self.RETURN, output)
 
         if debug:

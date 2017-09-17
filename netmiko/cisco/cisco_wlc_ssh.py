@@ -13,8 +13,7 @@ class CiscoWlcSSH(BaseConnection):
     """Netmiko Cisco WLC support."""
 
     def special_login_handler(self, delay_factor=1):
-        '''
-        WLC presents with the following on login (in certain OS versions)
+        """WLC presents with the following on login (in certain OS versions)
 
         login as: user
 
@@ -23,7 +22,7 @@ class CiscoWlcSSH(BaseConnection):
         User: user
 
         Password:****
-        '''
+        """
         delay_factor = self.select_delay_factor(delay_factor)
         i = 0
         time.sleep(delay_factor * .5)
@@ -32,13 +31,13 @@ class CiscoWlcSSH(BaseConnection):
             output = self.read_channel()
             if output:
                 if 'login as' in output or 'User' in output:
-                    self.write_channel(self.username + '\n')
+                    self.write_channel(self.username + self.RETURN)
                 elif 'Password' in output:
-                    self.write_channel(self.password + '\n')
+                    self.write_channel(self.password + self.RETURN)
                     break
                 time.sleep(delay_factor * 1)
             else:
-                self.write_channel('\n')
+                self.write_channel(self.RETURN)
                 time.sleep(delay_factor * 1.5)
             i += 1
 
@@ -61,9 +60,9 @@ class CiscoWlcSSH(BaseConnection):
         if 'Press Enter to' in output:
             new_args = list(args)
             if len(args) == 1:
-                new_args[0] = '\n'
+                new_args[0] = self.RETURN
             else:
-                kwargs['command_string'] = '\n'
+                kwargs['command_string'] = self.RETURN
             if not kwargs.get('max_loops'):
                 kwargs['max_loops'] = 150
 
@@ -102,11 +101,11 @@ class CiscoWlcSSH(BaseConnection):
         '''
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="config paging disable\n")
+        self.disable_paging(command="config paging disable")
 
     def cleanup(self):
         """Reset WLC back to normal paging."""
-        self.send_command("config paging enable\n")
+        self.send_command("config paging enable")
 
     def check_config_mode(self, check_string='config', pattern=''):
         """Checks if the device is in configuration mode or not."""
