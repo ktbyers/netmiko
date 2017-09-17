@@ -562,7 +562,6 @@ class BaseConnection(object):
 
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back."""
-
         def _increment_delay(main_delay, increment=1.1, maximum=8):
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
@@ -584,7 +583,6 @@ class BaseConnection(object):
                 break
             else:
                 self.write_channel(self.RETURN)
-
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
             i += 1
@@ -876,7 +874,6 @@ class BaseConnection(object):
         """Check if in enable mode. Return boolean."""
         self.write_channel(self.RETURN)
         output = self.read_until_prompt()
-        log.debug("{0}".format(output))
         return check_string in output
 
     def enable(self, cmd='', pattern='ssword', re_flags=re.IGNORECASE):
@@ -905,10 +902,8 @@ class BaseConnection(object):
 
     def check_config_mode(self, check_string='', pattern=''):
         """Checks if the device is in configuration mode or not."""
-        log.debug("pattern: {0}".format(pattern))
         self.write_channel(self.RETURN)
         output = self.read_until_pattern(pattern=pattern)
-        log.debug("check_config_mode: {0}".format(repr(output)))
         return check_string in output
 
     def config_mode(self, config_command='', pattern=''):
