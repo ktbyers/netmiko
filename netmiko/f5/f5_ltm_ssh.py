@@ -15,6 +15,9 @@ class F5LtmSSH(BaseConnection):
         time.sleep(1 * delay_factor)
         self.tmsh_mode()
         self.set_base_prompt()
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def tmsh_mode(self, delay_factor=1):
         """tmsh command is equivalent to config command on F5."""

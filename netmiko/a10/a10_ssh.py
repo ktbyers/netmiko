@@ -14,3 +14,7 @@ class A10SSH(CiscoSSHConnection):
 
         # Will not do anything without A10 specific command
         self.set_terminal_width()
+
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()

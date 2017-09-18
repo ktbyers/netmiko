@@ -17,6 +17,9 @@ class FortinetSSH(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt(alt_prompt_terminator='$')
         self.disable_paging()
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def disable_paging(self, delay_factor=1):
         """Disable paging is only available with specific roles so it may fail."""

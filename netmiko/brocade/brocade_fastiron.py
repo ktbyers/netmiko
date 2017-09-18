@@ -12,6 +12,9 @@ class BrocadeFastironBase(CiscoSSHConnection):
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="skip-page-display")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def enable(self, cmd='enable', pattern=r'(ssword|User Name)', re_flags=re.IGNORECASE):
         """Enter enable mode.

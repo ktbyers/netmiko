@@ -15,6 +15,9 @@ class HPComwareSSH(CiscoSSHConnection):
         self.set_base_prompt()
         command = self.RETURN + "screen-length disable"
         self.disable_paging(command=command)
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def config_mode(self, config_command='system-view'):
         """Enter configuration mode."""

@@ -18,7 +18,6 @@ class DellPowerConnectSSH(CiscoSSHConnection):
     To make it work, we have to override the SSHClient _auth method.
     If we use login/password, the ssh server use the (none) auth mechanism.
     """
-
     def _build_ssh_client(self):
         """Prepare for Paramiko SSH connection.
 
@@ -73,6 +72,9 @@ class DellPowerConnectSSH(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="terminal datadump")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator='#',
                         delay_factor=1):

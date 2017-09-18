@@ -12,6 +12,9 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.ansi_escape_codes = True
         self.set_base_prompt()
         self.disable_paging()
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def normalize_linefeeds(self, a_string):
         """Convert '\r\n' or '\r\r\n' to '\n, and remove extra '\r's in the text."""

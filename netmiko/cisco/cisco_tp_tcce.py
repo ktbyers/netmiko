@@ -35,6 +35,9 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def set_base_prompt(self, *args, **kwargs):
         """Use 'OK' as base_prompt."""
