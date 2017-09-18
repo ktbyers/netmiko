@@ -409,9 +409,9 @@ class BaseConnection(object):
             except socket.timeout:
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
-    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
+    def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
                      username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
-                     delay_factor=1, max_loops=60):
+                     delay_factor=1, max_loops=20):
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
@@ -437,18 +437,20 @@ class BaseConnection(object):
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel(verbose=True)
                     return_msg += output
-                    if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                    if (re.search(pri_prompt_terminator, output, flags=re.M)
+                            or re.search(alt_prompt_terminator, output, flags=re.M)):
                         return return_msg
 
                 # Check if proper data received
-                if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                if (re.search(pri_prompt_terminator, output, flags=re.M)
+                        or re.search(alt_prompt_terminator, output, flags=re.M)):
                     return return_msg
 
                 self.write_channel(self.TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {0}".format(self.host)
+                msg = "Telnet login failed: {}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -456,10 +458,11 @@ class BaseConnection(object):
         time.sleep(.5 * delay_factor)
         output = self.read_channel()
         return_msg += output
-        if pri_prompt_terminator in output or alt_prompt_terminator in output:
+        if (re.search(pri_prompt_terminator, output, flags=re.M)
+                or re.search(alt_prompt_terminator, output, flags=re.M)):
             return return_msg
 
-        msg = "Telnet login failed: {0}".format(self.host)
+        msg = "Telnet login failed: {}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
     def session_preparation(self):

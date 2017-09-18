@@ -49,3 +49,12 @@ class BrocadeFastironSSH(CiscoSSHConnection):
             msg = "Failed to enter enable mode. Please ensure you pass " \
                   "the 'secret' argument to ConnectHandler."
             raise ValueError(msg)
+
+class BrocadeFastironTelnet(BrocadeFastironBase):
+    def __init__(self, *args, **kwargs):
+        super(BrocadeFastironTelnet, self).__init__(*args, **kwargs)
+        self.RETURN = '\r\n'
+
+
+class BrocadeFastironSSH(BrocadeFastironBase):
+    pass
