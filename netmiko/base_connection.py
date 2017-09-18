@@ -410,7 +410,7 @@ class BaseConnection(object):
                 raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
 
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
-                     username_pattern=r"ser:|sername|ogin", pwd_pattern=r"assword",
+                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=60):
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
