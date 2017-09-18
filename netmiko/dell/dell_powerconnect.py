@@ -111,15 +111,3 @@ class DellPowerConnectTelnet(DellPowerConnectBase):
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
-
-    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
-                     username_pattern=r"User:", pwd_pattern=r"assword",
-                     delay_factor=1, max_loops=60):
-        """Telnet login. Can be username/password or just password."""
-        super(DellPowerConnectTelnet, self).telnet_login(
-                pri_prompt_terminator=pri_prompt_terminator,
-                alt_prompt_terminator=alt_prompt_terminator,
-                username_pattern=username_pattern,
-                pwd_pattern=pwd_pattern,
-                delay_factor=delay_factor,
-                max_loops=max_loops)
