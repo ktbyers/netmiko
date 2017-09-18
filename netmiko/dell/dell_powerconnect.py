@@ -1,9 +1,9 @@
 """Dell PowerConnect Driver."""
 from __future__ import unicode_literals
-from netmiko.cisco_base_connection import CiscoSSHConnection
 from paramiko import SSHClient
 import time
 from os import path
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class SSHClient_noauth(SSHClient):
@@ -12,7 +12,39 @@ class SSHClient_noauth(SSHClient):
         return
 
 
-class DellPowerConnectSSH(CiscoSSHConnection):
+class DellPowerConnectBase(CiscoSSHConnection):
+    """Dell PowerConnect Driver."""
+    def session_preparation(self):
+        """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
+        self._test_channel_read()
+        self.set_base_prompt()
+        self.disable_paging(command="terminal datadump")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
+
+    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator='#',
+                        delay_factor=1):
+        """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
+        prompt = super(DellPowerConnectSSH, self).set_base_prompt(
+                                                      pri_prompt_terminator=pri_prompt_terminator,
+                                                      alt_prompt_terminator=alt_prompt_terminator,
+                                                      delay_factor=delay_factor)
+        prompt = prompt.strip()
+        self.base_prompt = prompt
+        return self.base_prompt
+
+    def check_config_mode(self, check_string='(config)#'):
+        """Checks if the device is in configuration mode"""
+        return super(DellPowerConnectSSH, self).check_config_mode(check_string=check_string)
+
+    def config_mode(self, config_command='config'):
+        """Enter configuration mode."""
+        return super(DellPowerConnectSSH, self).config_mode(config_command=config_command)
+
+
+class DellPowerConnectSSH(DellPowerConnectBase):
     """Dell PowerConnect Driver.
 
     To make it work, we have to override the SSHClient _auth method.
@@ -66,31 +98,28 @@ class DellPowerConnectSSH(CiscoSSHConnection):
                 time.sleep(delay_factor * 1.5)
             i += 1
 
+
+class DellPowerConnectTelnet(DellPowerConnectBase):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="terminal datadump")
+        self.enable()
+        self.disable_paging(command="terminal length 0")
+        self.set_terminal_width()
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator='#',
-                        delay_factor=1):
-        """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        prompt = super(DellPowerConnectSSH, self).set_base_prompt(
-                                                      pri_prompt_terminator=pri_prompt_terminator,
-                                                      alt_prompt_terminator=alt_prompt_terminator,
-                                                      delay_factor=delay_factor)
-        prompt = prompt.strip()
-        self.base_prompt = prompt
-        return self.base_prompt
-
-    def check_config_mode(self, check_string='(config)#'):
-        """Checks if the device is in configuration mode"""
-        return super(DellPowerConnectSSH, self).check_config_mode(check_string=check_string)
-
-    def config_mode(self, config_command='config'):
-        """Enter configuration mode."""
-        return super(DellPowerConnectSSH, self).config_mode(config_command=config_command)
+    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
+                     username_pattern=r"User:", pwd_pattern=r"assword",
+                     delay_factor=1, max_loops=60):
+        """Telnet login. Can be username/password or just password."""
+        super(DellPowerConnectTelnet, self).telnet_login(
+                pri_prompt_terminator=pri_prompt_terminator,
+                alt_prompt_terminator=alt_prompt_terminator,
+                username_pattern=username_pattern,
+                pwd_pattern=pwd_pattern,
+                delay_factor=delay_factor,
+                max_loops=max_loops)

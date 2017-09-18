@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
+import time
 import re
-
 from netmiko.base_connection import BaseConnection
 
 
