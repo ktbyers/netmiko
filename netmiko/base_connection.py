@@ -36,8 +36,8 @@ class BaseConnection(object):
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
-                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
-                 session_timeout=60, debug_flag=False):
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None,
+                 session_timeout=60, debug_flag=False, **kwargs):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -116,7 +116,7 @@ class BaseConnection(object):
         self.device_type = device_type
         self.ansi_escape_codes = False
         self.verbose = verbose
-        self.timeout = timeout
+        self.timeout = kwargs.get('timeout', 8)
         self.session_timeout = session_timeout
 
         # Use the greater of global_delay_factor or delay_factor local to method
