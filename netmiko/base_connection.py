@@ -101,7 +101,7 @@ class BaseConnection(object):
         :type keepalive: int
         :param default_enter: Character(s) to send to correspond to enter key (default: '\n').
         :type default_enter: str
-        :param response_return: Character(s) to use in normalized return data to represent 
+        :param response_return: Character(s) to use in normalized return data to represent
                 enter key (default: '\n')
         :type response_return: str
         """
@@ -109,7 +109,7 @@ class BaseConnection(object):
         self.RETURN = '\n' if default_enter is None else default_enter
         self.TELNET_RETURN = '\r\n'
         # Line Separator in response lines
-        self.RESPONSE_RETURN = '\n' if response_return is None else response_return 
+        self.RESPONSE_RETURN = '\n' if response_return is None else response_return
         if ip:
             self.host = ip
             self.ip = ip
