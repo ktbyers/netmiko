@@ -17,6 +17,17 @@ class CalixB6SSH(CiscoSSHConnection):
 
     These devices use SSH auth type (none) for cli user. Override SSH _auth method.
     """
+    def session_preparation(self):
+        """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
+        self._test_channel_read()
+        self.set_base_prompt()
+        self.disable_paging()
+        self.set_terminal_width(command="terminal width 511")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
+
 
     def _build_ssh_client(self):
         """Prepare for Paramiko SSH connection.
@@ -55,24 +66,15 @@ class CalixB6SSH(CiscoSSHConnection):
             output = self.read_channel()
             if output:
                 if 'login as:' in output:
-                    self.write_channel(self.username + '\n')
+                    self.write_channel(self.username + self.RETURN)
                 elif 'Password:' in output:
-                    self.write_channel(self.password + '\n')
+                    self.write_channel(self.password + self.RETURN)
                     break
                 time.sleep(delay_factor * 0.5)
             else:
-                self.write_channel('\n')
+                self.write_channel(self.RETURN)
                 time.sleep(delay_factor * 1)
             i += 1
-
-    def session_preparation(self):
-        """Prepare the session after the connection has been established.
-        Just need to override set_terminal_width"""
-        self.ansi_escape_codes = True
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.disable_paging()
-        self.set_terminal_width(command="terminal width 511")
 
     def check_config_mode(self, check_string=')#', pattern=''):
         """Checks if the device is in configuration mode"""
