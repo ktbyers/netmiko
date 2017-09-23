@@ -37,7 +37,7 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None,
-                 session_timeout=60, debug_flag=False, **kwargs):
+                 session_timeout=60, debug_flag=False, timeout=8, keep_alive=0, default_enter=None, response_return=None,**kwargs):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -95,12 +95,21 @@ class BaseConnection(object):
                 very long, in case the wait time is higher than this value,
                 NetMikoTimeoutException will be raised.
         :type session_timeout: float
+        :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
+                Currently defaults to 0, for backwards compatibility (it will not attempt
+                to keep the connection alive).
+        :type keepalive: int
+        :param default_enter: Character(s) to send to correspond to enter key (default: '\n').
+        :type default_enter: str
+        :param response_return: Character(s) to use in normalized return data to represent 
+                enter key (default: '\n')
+        :type response_return: str
         """
         self.remote_conn = None
-        self.RETURN = '\n'
+        self.RETURN = '\n' if default_enter is None else default_enter
         self.TELNET_RETURN = '\r\n'
         # Line Separator in response lines
-        self.RESPONSE_RETURN = '\n'
+        self.RESPONSE_RETURN = '\n' if response_return is None else response_return 
         if ip:
             self.host = ip
             self.ip = ip

@@ -12,6 +12,10 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class CiscoTpTcCeSSH(CiscoSSHConnection):
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get('default_enter')
+        kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
+        super(CiscoTpTcCeSSH, self).__init__(*args, **kwargs)
 
     def disable_paging(self, *args, **kwargs):
         """Paging is disabled by default."""
@@ -29,7 +33,6 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_terminal_width()
         """
-        self.RETURN = '\r\n'
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
