@@ -36,7 +36,7 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
-                 session_timeout=60, keepalive=0):
+                 session_timeout=60, keepalive=0, default_enter=None, response_return=None):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -89,12 +89,17 @@ class BaseConnection(object):
                 Currently defaults to 0, for backwards compatibility (it will not attempt
                 to keep the connection alive).
         :type keepalive: int
+        :param default_enter: Character(s) to send to correspond to enter key (default: '\n').
+        :type default_enter: str
+        :param response_return: Character(s) to use in normalized return data to represent 
+                enter key (default: '\n')
+        :type response_return: str
         """
         self.remote_conn = None
-        self.RETURN = '\n'
+        self.RETURN = '\n' if default_enter is None else default_enter
         self.TELNET_RETURN = '\r\n'
         # Line Separator in response lines
-        self.RESPONSE_RETURN = '\n'
+        self.RESPONSE_RETURN = '\n' if response_return is None else response_return 
         if ip:
             self.host = ip
             self.ip = ip
