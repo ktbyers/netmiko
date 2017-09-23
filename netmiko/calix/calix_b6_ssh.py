@@ -17,6 +17,11 @@ class CalixB6SSH(CiscoSSHConnection):
 
     These devices use SSH auth type (none) for cli user. Override SSH _auth method.
     """
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get('default_enter')
+        kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
+        super(CalixB6SSH, self).__init__(*args, **kwargs)
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -27,7 +32,6 @@ class CalixB6SSH(CiscoSSHConnection):
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
-
 
     def _build_ssh_client(self):
         """Prepare for Paramiko SSH connection.
@@ -84,6 +88,7 @@ class CalixB6SSH(CiscoSSHConnection):
         """Enter configuration mode."""
         return super(CalixB6SSH, self).config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config='exit\r\r\nend', pattern=''):
+    def exit_config_mode(self, exit_config='exit{}{}end'.format(self.RETURN, self.RETURN),
+                         pattern=''):
         """Exit from configuration mode."""
         return super(CalixB6SSH, self).exit_config_mode(exit_config=exit_config, pattern=pattern)
