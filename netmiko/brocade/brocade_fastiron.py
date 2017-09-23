@@ -4,7 +4,7 @@ import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class BrocadeFastironSSH(CiscoSSHConnection):
+class BrocadeFastironBase(CiscoSSHConnection):
     """Brocade FastIron aka ICX support."""
     def session_preparation(self):
         """FastIron requires to be enable mode to disable paging."""
@@ -12,12 +12,9 @@ class BrocadeFastironSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="skip-page-display")
-
-    @staticmethod
-    def normalize_linefeeds(a_string):
-        """Convert '\r\n\r\n', '\r\r\n','\r\n', '\n\r' to '\n."""
-        newline = re.compile(r'(\r\n\r\n|\r\r\n|\r\n|\n\r|\r)')
-        return newline.sub('\n', a_string)
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def enable(self, cmd='enable', pattern=r'(ssword|User Name)', re_flags=re.IGNORECASE):
         """Enter enable mode.
@@ -52,3 +49,13 @@ class BrocadeFastironSSH(CiscoSSHConnection):
             msg = "Failed to enter enable mode. Please ensure you pass " \
                   "the 'secret' argument to ConnectHandler."
             raise ValueError(msg)
+
+
+class BrocadeFastironTelnet(BrocadeFastironBase):
+    def __init__(self, *args, **kwargs):
+        super(BrocadeFastironTelnet, self).__init__(*args, **kwargs)
+        self.RETURN = '\r\n'
+
+
+class BrocadeFastironSSH(BrocadeFastironBase):
+    pass

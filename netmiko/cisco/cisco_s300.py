@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -16,5 +17,8 @@ class CiscoS300SSH(CiscoSSHConnection):
         self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="terminal datadump\n")
+        self.disable_paging(command="terminal datadump")
         self.set_terminal_width(command='terminal width 511')
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()

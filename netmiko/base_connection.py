@@ -91,6 +91,10 @@ class BaseConnection(object):
         :type keepalive: int
         """
         self.remote_conn = None
+        self.RETURN = '\n'
+        self.TELNET_RETURN = '\r\n'
+        # Line Separator in response lines
+        self.RESPONSE_RETURN = '\n'
         if ip:
             self.host = ip
             self.ip = ip
@@ -150,10 +154,6 @@ class BaseConnection(object):
             self._modify_connection_params()
             self.establish_connection()
             self.session_preparation()
-
-        # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def __enter__(self):
         """Establish a session using a Context Manager."""
@@ -374,12 +374,10 @@ class BaseConnection(object):
             combined_pattern = r"({}|{})".format(combined_pattern, pattern)
         return self._read_channel_expect(combined_pattern, re_flags=re_flags)
 
-    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
-                     username_pattern=r"sername", pwd_pattern=r"assword",
-                     delay_factor=1, max_loops=60):
+    def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
+                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
+                     delay_factor=1, max_loops=20):
         """Telnet login. Can be username/password or just password."""
-        TELNET_RETURN = '\r\n'
-
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -393,40 +391,43 @@ class BaseConnection(object):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output):
-                    self.write_channel(self.username + TELNET_RETURN)
+                    self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
-                    self.write_channel(self.password + TELNET_RETURN)
+                    self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                    if (re.search(pri_prompt_terminator, output, flags=re.M)
+                            or re.search(alt_prompt_terminator, output, flags=re.M)):
                         return return_msg
 
                 # Check if proper data received
-                if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                if (re.search(pri_prompt_terminator, output, flags=re.M)
+                        or re.search(alt_prompt_terminator, output, flags=re.M)):
                     return return_msg
 
-                self.write_channel(TELNET_RETURN)
+                self.write_channel(self.TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {0}".format(self.host)
+                msg = "Telnet login failed: {}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
-        self.write_channel(TELNET_RETURN)
+        self.write_channel(self.TELNET_RETURN)
         time.sleep(.5 * delay_factor)
         output = self.read_channel()
         return_msg += output
-        if pri_prompt_terminator in output or alt_prompt_terminator in output:
+        if (re.search(pri_prompt_terminator, output, flags=re.M)
+                or re.search(alt_prompt_terminator, output, flags=re.M)):
             return return_msg
 
-        msg = "Telnet login failed: {0}".format(self.host)
+        msg = "Telnet login failed: {}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
     def session_preparation(self):
@@ -441,11 +442,16 @@ class BaseConnection(object):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
+        self.clear_buffer()
         """
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
+
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def _use_ssh_config(self, dict_arg):
         """Update SSH connection parameters based on contents of SSH 'config' file."""
@@ -537,7 +543,7 @@ class BaseConnection(object):
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
-                msg += '\n' + str(auth_err)
+                msg += self.RETURN + str(auth_err)
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
@@ -560,7 +566,6 @@ class BaseConnection(object):
 
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back."""
-
         def _increment_delay(main_delay, increment=1.1, maximum=8):
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
@@ -581,8 +586,7 @@ class BaseConnection(object):
             elif new_data:
                 break
             else:
-                self.write_channel('\n')
-
+                self.write_channel(self.RETURN)
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
             i += 1
@@ -650,8 +654,6 @@ class BaseConnection(object):
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        log.debug("{0}".format(output))
-        log.debug("Exiting set_terminal_width")
         return output
 
     def set_base_prompt(self, pri_prompt_terminator='#',
@@ -678,7 +680,7 @@ class BaseConnection(object):
         """Finds the current network device prompt, last line only."""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        self.write_channel("\n")
+        self.write_channel(self.RETURN)
         time.sleep(delay_factor * .1)
 
         # Initial attempt to get prompt
@@ -695,13 +697,13 @@ class BaseConnection(object):
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
-                self.write_channel("\n")
+                self.write_channel(self.RETURN)
                 time.sleep(delay_factor * .1)
             count += 1
 
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
-        prompt = prompt.split('\n')[-1]
+        prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
         if not prompt:
             raise ValueError("Unable to find prompt: {}".format(prompt))
@@ -745,10 +747,10 @@ class BaseConnection(object):
 
     def strip_prompt(self, a_string):
         """Strip the trailing router prompt from the output."""
-        response_list = a_string.split('\n')
+        response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
         if self.base_prompt in last_line:
-            return '\n'.join(response_list[:-1])
+            return self.RESPONSE_RETURN.join(response_list[:-1])
         else:
             return a_string
 
@@ -806,7 +808,7 @@ class BaseConnection(object):
             if new_data:
                 output += new_data
                 try:
-                    lines = output.split("\n")
+                    lines = output.split(self.RETURN)
                     first_line = lines[0]
                     # First line is the echo line containing the command. In certain situations
                     # it gets repainted and needs filtered
@@ -814,7 +816,7 @@ class BaseConnection(object):
                         pattern = search_pattern + r'.*$'
                         first_line = re.sub(pattern, repl='', string=first_line)
                         lines[0] = first_line
-                        output = "\n".join(lines)
+                        output = self.RETURN.join(lines)
                 except IndexError:
                     pass
                 if re.search(search_pattern, output):
@@ -840,8 +842,7 @@ class BaseConnection(object):
         backspace_char = '\x08'
         return output.replace(backspace_char, '')
 
-    @staticmethod
-    def strip_command(command_string, output):
+    def strip_command(self, command_string, output):
         """
         Strip command_string from output string
 
@@ -852,33 +853,31 @@ class BaseConnection(object):
         # Check for line wrap (remove backspaces)
         if backspace_char in output:
             output = output.replace(backspace_char, '')
-            output_lines = output.split("\n")
+            output_lines = output.split(self.RESPONSE_RETURN)
             new_output = output_lines[1:]
-            return "\n".join(new_output)
+            return self.RESPONSE_RETURN.join(new_output)
         else:
             command_length = len(command_string)
             return output[command_length:]
 
-    @staticmethod
-    def normalize_linefeeds(a_string):
+    def normalize_linefeeds(self, a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`"""
         newline = re.compile('(\r\r\r\n|\r\r\n|\r\n|\n\r)')
-        a_string = newline.sub('\n', a_string)
-        # Convert any remaining \r to \n
-        return re.sub('\r', '\n', a_string)
+        a_string = newline.sub(self.RESPONSE_RETURN, a_string)
+        if self.RESPONSE_RETURN == '\n':
+            # Convert any remaining \r to \n
+            return re.sub('\r', self.RESPONSE_RETURN, a_string)
 
-    @staticmethod
-    def normalize_cmd(command):
+    def normalize_cmd(self, command):
         """Normalize CLI commands to have a single trailing newline."""
-        command = command.rstrip("\n")
-        command += '\n'
+        command = command.rstrip()
+        command += self.RETURN
         return command
 
     def check_enable_mode(self, check_string=''):
         """Check if in enable mode. Return boolean."""
-        self.write_channel('\n')
+        self.write_channel(self.RETURN)
         output = self.read_until_prompt()
-        log.debug("{0}".format(output))
         return check_string in output
 
     def enable(self, cmd='', pattern='ssword', re_flags=re.IGNORECASE):
@@ -907,10 +906,8 @@ class BaseConnection(object):
 
     def check_config_mode(self, check_string='', pattern=''):
         """Checks if the device is in configuration mode or not."""
-        log.debug("pattern: {0}".format(pattern))
-        self.write_channel('\n')
+        self.write_channel(self.RETURN)
         output = self.read_until_pattern(pattern=pattern)
-        log.debug("check_config_mode: {0}".format(repr(output)))
         return check_string in output
 
     def config_mode(self, config_command='', pattern=''):
@@ -979,8 +976,7 @@ class BaseConnection(object):
         log.debug("{0}".format(output))
         return output
 
-    @staticmethod
-    def strip_ansi_escape_codes(string_buffer):
+    def strip_ansi_escape_codes(self, string_buffer):
         """
         Remove any ANSI (VT100) ESC codes from the output
 
@@ -1034,8 +1030,8 @@ class BaseConnection(object):
         for ansi_esc_code in code_set:
             output = re.sub(ansi_esc_code, '', output)
 
-        # CODE_NEXT_LINE must substitute with '\n'
-        output = re.sub(code_next_line, '\n', output)
+        # CODE_NEXT_LINE must substitute with return
+        output = re.sub(code_next_line, self.RETURN, output)
 
         log.debug("new_output = {0}".format(output))
         log.debug("repr = {0}".format(repr(output)))

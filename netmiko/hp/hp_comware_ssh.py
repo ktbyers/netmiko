@@ -1,6 +1,6 @@
 from __future__ import print_function
 from __future__ import unicode_literals
-
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -13,7 +13,11 @@ class HPComwareSSH(CiscoSSHConnection):
         """
         self._test_channel_read(pattern=r'[>\]]')
         self.set_base_prompt()
-        self.disable_paging(command="\nscreen-length disable\n")
+        command = self.RETURN + "screen-length disable"
+        self.disable_paging(command=command)
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def config_mode(self, config_command='system-view'):
         """Enter configuration mode."""

@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
 
@@ -10,6 +11,9 @@ class AristaSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width(command='terminal width 511')
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def check_config_mode(self, check_string=')#', pattern=''):
         """
@@ -21,7 +25,7 @@ class AristaSSH(CiscoSSHConnection):
         Can also be (s2)
         """
         log.debug("pattern: {0}".format(pattern))
-        self.write_channel('\n')
+        self.write_channel(self.RETURN)
         output = self.read_until_pattern(pattern=pattern)
         log.debug("check_config_mode: {0}".format(repr(output)))
         output = output.replace("(s1)", "")

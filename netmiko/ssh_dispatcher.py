@@ -10,7 +10,9 @@ from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
 from netmiko.avaya import AvayaVspSSH
 from netmiko.brocade import BrocadeFastironSSH
+from netmiko.brocade import BrocadeFastironTelnet
 from netmiko.brocade import BrocadeNetironSSH
+from netmiko.brocade import BrocadeNetironTelnet
 from netmiko.brocade import BrocadeNosSSH
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
@@ -106,6 +108,8 @@ for k, v in CLASS_MAPPER_BASE.items():
 CLASS_MAPPER = new_mapper
 
 # Add telnet drivers
+CLASS_MAPPER['brocade_fastiron_telnet'] = BrocadeFastironTelnet
+CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosBase
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
@@ -118,8 +122,8 @@ platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
 platforms_base = list(CLASS_MAPPER_BASE.keys())
 platforms_base.sort()
-platforms_str = u"\n".join(platforms_base)
-platforms_str = u"\n" + platforms_str
+platforms_str = "\n".join(platforms_base)
+platforms_str = "\n" + platforms_str
 
 
 def ConnectHandler(*args, **kwargs):
