@@ -8,4 +8,4 @@ from netmiko.cisco.cisco_s300 import CiscoS300SSH
 from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH
 
 __all__ = ['CiscoIosSSH', 'CiscoIosTelnet', 'CiscoAsaSSH', 'CiscoNxosSSH', 'CiscoXrSSH',
-           'CiscoWlcSSH', 'CiscoS300SSH', 'CiscoTpTcCeSSH', 'CiscoIosBase']
+           'CiscoWlcSSH', 'CiscoS300SSH', 'CiscoTpTcCeSSH', 'CiscoIosBase', 'CiscoIosSerial']
