@@ -22,9 +22,10 @@ from threading import Lock
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import (NetMikoTimeoutException,
                                    NetMikoAuthenticationException, PatternNotFoundException)
-from netmiko.utilities import write_bytes
+from netmiko.utilities import write_bytes, check_serial_port
 from netmiko.py23_compat import string_types
 from netmiko import log
+import serial
 
 
 class BaseConnection(object):
@@ -115,7 +116,7 @@ class BaseConnection(object):
             self.ip = ip
         elif host:
             self.host = host
-        if not ip and not host:
+        if not ip and not host and not 'serial' in device_type:
             raise ValueError("Either ip or host must be set")
         if port is None:
             if 'telnet' in device_type:
@@ -123,7 +124,11 @@ class BaseConnection(object):
             else:
                 self.port = 22
         else:
-            self.port = int(port)
+            if 'serial' in device_type:
+                self.port=check_serial_port(port)
+                self.host='serial'
+            else:
+                self.port = int(port)
         self.username = username
         self.password = password
         self.secret = secret
@@ -155,6 +160,12 @@ class BaseConnection(object):
             self.protocol = 'telnet'
             self.establish_connection()
             self.session_preparation()
+        if '_serial' in device_type:
+            self.protocol = 'serial'
+            self._modify_connection_params()
+            self.establish_connection()
+            self.session_preparation()
+            
         else:
             self.protocol = 'ssh'
 
@@ -236,6 +247,9 @@ class BaseConnection(object):
             self.remote_conn.sendall(write_bytes(out_data))
         elif self.protocol == 'telnet':
             self.remote_conn.write(write_bytes(out_data))
+        elif self.protocol == 'serial':
+            self.remote_conn.write(write_bytes(out_data))
+            time.sleep(0.5)
         else:
             raise ValueError("Invalid protocol specified")
         try:
@@ -292,6 +306,10 @@ class BaseConnection(object):
                     break
         elif self.protocol == 'telnet':
             output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+        elif self.protocol == 'serial':
+            output=""
+            while (self.remote_conn.inWaiting()>0):
+                output+=self.remote_conn.read(self.remote_conn.inWaiting())
         log.debug("read_channel: {}".format(output))
         return output
 
@@ -349,7 +367,7 @@ class BaseConnection(object):
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
                 finally:
                     self._unlock_netmiko_session()
-            elif self.protocol == 'telnet':
+            elif self.protocol == 'telnet' or 'serial':
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
                 if debug:
@@ -405,18 +423,16 @@ class BaseConnection(object):
 
     def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
         """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
-        output = ''
-        if not pattern:
-            pattern = re.escape(self.base_prompt)
-        base_prompt_pattern = re.escape(self.base_prompt)
-        while True:
-            try:
-                output += self.read_channel()
-                if re.search(pattern, output, flags=re_flags) or re.search(base_prompt_pattern,
-                                                                           output, flags=re_flags):
-                    return output
-            except socket.timeout:
-                raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
+        combined_pattern = re.escape(self.base_prompt)
+        if pattern:
+            combined_pattern = r"({}|{})".format(combined_pattern, pattern)
+        return self._read_channel_expect(combined_pattern, re_flags=re_flags)
+    
+    def serial_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
+                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
+                     delay_factor=1, max_loops=20):
+        self.telnet_login(pri_prompt_terminator, alt_prompt_terminator, username_pattern, pwd_pattern, delay_factor, max_loops)
+        
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
                      username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
@@ -573,6 +589,16 @@ class BaseConnection(object):
         if self.protocol == 'telnet':
             self.remote_conn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             self.telnet_login()
+        elif self.protocol == 'serial':
+            self.remote_conn = serial.Serial()
+            self.remote_conn.port = str(self.port).split(" ")[0]
+            self.remote_conn.baudrate = 9600                # found after exhaustive testing, FUCK
+            self.remote_conn.bytesize = serial.EIGHTBITS     #number of bits per bytes
+            self.remote_conn.parity = serial.PARITY_NONE     #set parity check: no parity
+            self.remote_conn.stopbits = serial.STOPBITS_ONE
+            #self.remote_conn.timeout=1
+            self.remote_conn.open()
+            self.serial_login()
         elif self.protocol == 'ssh':
             ssh_connect_params = self._connect_params_dict()
             self.remote_conn_pre = self._build_ssh_client()
@@ -1173,7 +1199,7 @@ class BaseConnection(object):
         self.cleanup()
         if self.protocol == 'ssh':
             self.remote_conn_pre.close()
-        elif self.protocol == 'telnet':
+        elif self.protocol == 'telnet' or 'serial':
             self.remote_conn.close()
         self.remote_conn = None
 
