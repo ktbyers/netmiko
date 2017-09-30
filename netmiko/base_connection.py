@@ -571,7 +571,6 @@ class BaseConnection(object):
                 serial_defaults[k]=self.serial_settings[k]
             self.serial_settings=serial_defaults
             self.remote_conn = serial.Serial(**self.serial_settings)
-            self.remote_conn.open()
             self.serial_login()
         elif self.protocol == 'ssh':
             ssh_connect_params = self._connect_params_dict()
