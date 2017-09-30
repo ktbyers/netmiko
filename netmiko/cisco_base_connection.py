@@ -73,7 +73,6 @@ class CiscoBaseConnection(BaseConnection):
         while i <= max_loops:
             try:
                 output = self.read_channel()
-                print (output)
                 return_msg += output
 
                 # Search for username pattern / send username
