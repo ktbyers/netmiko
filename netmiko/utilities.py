@@ -169,9 +169,9 @@ def check_serial_port(name):
         cdc = next(serial.tools.list_ports.grep(name))
         return cdc
     except StopIteration:
-        msg = "device {0} not found".format(name)
-        msg += "available devices are"
+        msg = "device {0} not found. ".format(name)
+        msg += "available devices are: "
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
-            msg += p
+            msg += "{0},".format(str(p))
         raise ValueError(msg)
