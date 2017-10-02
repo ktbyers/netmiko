@@ -162,14 +162,16 @@ def write_bytes(out_data):
     msg = "Invalid value for out_data neither unicode nor byte string: {0}".format(out_data)
     raise ValueError(msg)
 
+
 def check_serial_port(name):
+    """returns valid COM Port"""
     try:
         cdc = next(serial.tools.list_ports.grep(name))
         return cdc
     except StopIteration:
-        msg= "device {0} not found".format(name)
-        msg+= "available devices are"
+        msg = "device {0} not found".format(name)
+        msg += "available devices are"
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
-            msg+=p
+            msg += p
         raise ValueError(msg)
