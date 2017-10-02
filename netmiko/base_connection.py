@@ -38,7 +38,7 @@ class BaseConnection(object):
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
                  session_timeout=60, keepalive=0, default_enter=None, response_return=None,
-                 serial_settings={}):
+                 serial_settings=None):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -129,6 +129,8 @@ class BaseConnection(object):
         self.timeout = timeout
         self.session_timeout = session_timeout
         self.keepalive = keepalive
+        if serial_settings is None:
+            serial_settings = {}
         self.serial_settings = serial_settings
         self.serial_defaults = {
                 'baudrate': 9600,
