@@ -129,6 +129,13 @@ class BaseConnection(object):
         self.session_timeout = session_timeout
         self.keepalive = keepalive
         self.serial_settings=serial_settings
+        self.serial_defaults = {
+                'baudrate': 9600,
+                'bytesize': serial.EIGHTBITS,
+                'parity': serial.PARITY_NONE,
+                'stopbits': serial.STOPBITS_ONE
+            }
+
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -472,7 +479,7 @@ class BaseConnection(object):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
-        self.clear_buffer()
+        self.clear_buffer()f
         """
         self._test_channel_read()
         self.set_base_prompt()
@@ -561,15 +568,9 @@ class BaseConnection(object):
             self.telnet_login()
         elif self.protocol == 'serial':
             self.serial_settings["port"]=str(self.port).split(" ")[0]
-            serial_defaults = {
-                'baudrate': 9600,
-                'bytesize': serial.EIGHTBITS,
-                'parity': serial.PARITY_NONE,
-                'stopbits': serial.STOPBITS_ONE
-            }
             for k in self.serial_settings:
-                serial_defaults[k]=self.serial_settings[k]
-            self.serial_settings=serial_defaults
+                self.serial_defaults[k]=self.serial_settings[k]
+            self.serial_settings=self.serial_defaults
             self.remote_conn = serial.Serial(**self.serial_settings)
             self.serial_login()
         elif self.protocol == 'ssh':
