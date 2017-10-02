@@ -67,7 +67,7 @@ class CiscoBaseConnection(BaseConnection):
                 or re.search(alt_prompt_terminator, output, flags=re.M)):
             return output
         else:
-            return self.telnet_login(pri_prompt_terminator, alt_prompt_terminator, 
+            return self.telnet_login(pri_prompt_terminator, alt_prompt_terminator,
                                      username_pattern, pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',

@@ -439,7 +439,7 @@ class BaseConnection(object):
     def serial_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
                      username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=20):
-        self.telnet_login(pri_prompt_terminator, alt_prompt_terminator, username_pattern, 
+        self.telnet_login(pri_prompt_terminator, alt_prompt_terminator, username_pattern,
                           pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
@@ -601,7 +601,7 @@ class BaseConnection(object):
             self.serial_settings["port"] = str(self.port).split(" ")[0]
             for k in self.serial_settings:
                 self.serial_defaults[k] = self.serial_settings[k]
-            self.serial_settings=self.serial_defaults
+            self.serial_settings = self.serial_defaults
             self.remote_conn = serial.Serial(**self.serial_settings)
             self.serial_login()
         elif self.protocol == 'ssh':
