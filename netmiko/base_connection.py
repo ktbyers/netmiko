@@ -37,7 +37,8 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
-                 session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings={}):
+                 session_timeout=60, keepalive=0, default_enter=None, response_return=None, 
+                 serial_settings={}):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -106,7 +107,7 @@ class BaseConnection(object):
             self.ip = ip
         elif host:
             self.host = host
-        if not ip and not host and not 'serial' in device_type:
+        if not ip and not host and 'serial' not in device_type:
             raise ValueError("Either ip or host must be set")
         if port is None:
             if 'telnet' in device_type:
@@ -115,8 +116,8 @@ class BaseConnection(object):
                 self.port = 22
         else:
             if 'serial' in device_type:
-                self.port=check_serial_port(port)
-                self.host='serial'
+                self.port = check_serial_port(port)
+                self.host = 'serial'
             else:
                 self.port = int(port)
         self.username = username
@@ -128,14 +129,13 @@ class BaseConnection(object):
         self.timeout = timeout
         self.session_timeout = session_timeout
         self.keepalive = keepalive
-        self.serial_settings=serial_settings
+        self.serial_settings = serial_settings
         self.serial_defaults = {
                 'baudrate': 9600,
                 'bytesize': serial.EIGHTBITS,
                 'parity': serial.PARITY_NONE,
                 'stopbits': serial.STOPBITS_ONE
             }
-
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -155,7 +155,6 @@ class BaseConnection(object):
             self._modify_connection_params()
             self.establish_connection()
             self.session_preparation()
-            
         else:
             self.protocol = 'ssh'
 
@@ -295,9 +294,9 @@ class BaseConnection(object):
         elif self.protocol == 'telnet':
             output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
         elif self.protocol == 'serial':
-            output=""
+            output = ""
             while (self.remote_conn.in_waiting > 0):
-                output+=self.remote_conn.read(self.remote_conn.inWaiting())
+                output += self.remote_conn.read(self.remote_conn.inWaiting())
         log.debug("read_channel: {}".format(output))
         return output
 
@@ -404,12 +403,12 @@ class BaseConnection(object):
         if pattern:
             combined_pattern = r"({}|{})".format(combined_pattern, pattern)
         return self._read_channel_expect(combined_pattern, re_flags=re_flags)
-    
+
     def serial_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
                      username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=20):
-        self.telnet_login(pri_prompt_terminator, alt_prompt_terminator, username_pattern, pwd_pattern, delay_factor, max_loops)
-        
+        self.telnet_login(pri_prompt_terminator, alt_prompt_terminator, username_pattern, 
+                          pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
                      username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
@@ -567,9 +566,9 @@ class BaseConnection(object):
             self.remote_conn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             self.telnet_login()
         elif self.protocol == 'serial':
-            self.serial_settings["port"]=str(self.port).split(" ")[0]
+            self.serial_settings["port"] = str(self.port).split(" ")[0]
             for k in self.serial_settings:
-                self.serial_defaults[k]=self.serial_settings[k]
+                self.serial_defaults[k] = self.serial_settings[k]
             self.serial_settings=self.serial_defaults
             self.remote_conn = serial.Serial(**self.serial_settings)
             self.serial_login()

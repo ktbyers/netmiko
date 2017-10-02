@@ -25,6 +25,7 @@ class CiscoIosTelnet(CiscoBaseConnection):
     """Cisco IOS Telnet driver."""
     pass
 
+
 class CiscoIosSerial(CiscoBaseConnection):
     """Cisco IOS Serial driver."""
     pass
