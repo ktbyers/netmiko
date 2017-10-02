@@ -512,7 +512,7 @@ class BaseConnection(object):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
-        self.clear_buffer()f
+        self.clear_buffer()
         """
         #self._test_channel_read()
         self.set_base_prompt()
