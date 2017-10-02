@@ -6,6 +6,7 @@ serial cable must be attached to the device
 
 from __future__ import print_function
 from netmiko import ConnectHandler
+import serial
 
 def main():
     '''
@@ -18,7 +19,14 @@ def main():
                               # serial.tools.list_ports.comports() 
         'username':'<username>',
         'password':'<password>',
-        'secret':'<secret>'}
+        'secret':'<secret>',
+        'serial_settings':{ # this are the default values
+                'baudrate': 9600,
+                'bytesize': serial.EIGHTBITS,
+                'parity': serial.PARITY_NONE,
+                'stopbits': serial.STOPBITS_ONE
+            }
+        }
     net_connect = ConnectHandler(**serialhandle)
     net_connect.enable()
     output = net_connect.send_command('show run')
