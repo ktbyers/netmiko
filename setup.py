@@ -62,6 +62,7 @@ setup(
               'netmiko/linux',
               'netmiko/mellanox',
               'netmiko/mrv',
+              'netmiko/netapp',
               'netmiko/ovs',
               'netmiko/paloalto',
               'netmiko/pluribus',
