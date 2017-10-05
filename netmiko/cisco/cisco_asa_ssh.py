@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 import re
 import time
-from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 
 
 class CiscoAsaSSH(CiscoSSHConnection):
@@ -102,3 +102,8 @@ class CiscoAsaSSH(CiscoSSHConnection):
             else:
                 self.write_channel("login" + self.RETURN)
             i += 1
+
+
+class CiscoAsaFileTransfer(CiscoFileTransfer):
+    """Cisco ASA SCP File Transfer driver."""
+    pass
