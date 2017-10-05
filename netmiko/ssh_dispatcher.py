@@ -37,7 +37,7 @@ from netmiko.f5 import F5LtmSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
 from netmiko.huawei import HuaweiSSH
-from netmiko.juniper import JuniperSSH
+from netmiko.juniper import JuniperSSH, JuniperFileTransfer
 from netmiko.linux import LinuxSSH
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
@@ -110,6 +110,7 @@ CLASS_MAPPER_BASE = {
 FILE_TRANSFER_MAP = {
     'cisco_ios': CiscoIosFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
+    'juniper_junos': JuniperFileTransfer,
     # 'cisco_nxos': CiscoNxosFileTransfer,
 }
 

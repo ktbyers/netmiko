@@ -230,75 +230,19 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def remote_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
         """Return space available on remote device."""
-        pass
-#        remote_cmd = "dir {0}".format(self.file_system)
-#        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
-#        match = re.search(search_pattern, remote_output)
-#        return int(match.group(1))
-
-#    def local_space_available(self):
-#        """Return space available on local filesystem."""
-#        destination_stats = os.statvfs(".")
-#        return destination_stats.f_bsize * destination_stats.f_bavail
+        raise NotImplementedError
 
     def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
         """Verify sufficient space is available on destination file system (return boolean)."""
-        pass
-#        if self.direction == 'put':
-#            space_avail = self.remote_space_available(search_pattern=search_pattern)
-#        elif self.direction == 'get':
-#            space_avail = self.local_space_available()
-#        if space_avail > self.file_size:
-#            return True
-#        return False
+        raise NotImplementedError
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        pass
-#        if self.direction == 'put':
-#            if not remote_cmd:
-#                remote_cmd = "dir {0}/{1}".format(self.file_system, self.dest_file)
-#            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
-#            search_string = r"Directory of .*{0}".format(self.dest_file)
-#            if 'Error opening' in remote_out:
-#                return False
-#            elif re.search(search_string, remote_out):
-#                return True
-#            else:
-#                raise ValueError("Unexpected output from check_file_exists")
-#        elif self.direction == 'get':
-#            return os.path.exists(self.dest_file)
+        raise NotImplementedError
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
-        pass
-#        if remote_file is None:
-#            remote_file = self.dest_file
-#        if not remote_cmd:
-#            remote_cmd = "dir {0}/{1}".format(self.file_system, remote_file)
-#        remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
-        # Strip out "Directory of flash:/filename line
-#        remote_out = re.split(r"Directory of .*", remote_out)
-#        remote_out = "".join(remote_out)
-        # Match line containing file name
-#        escape_file_name = re.escape(remote_file)
-#        pattern = r".*({0}).*".format(escape_file_name)
-#        match = re.search(pattern, remote_out)
-#        if match:
-#            line = match.group(0)
-#            # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
-#            file_size = line.split()[2]
-#        if 'Error opening' in remote_out:
-#            raise IOError("Unable to find file on remote system")
-#        else:
-#            return int(file_size)
-
-#    def file_md5(self, file_name):
-#        """Compute MD5 hash of file."""
-#        with open(file_name, "rb") as f:
-#            file_contents = f.read()
-#            file_hash = hashlib.md5(file_contents).hexdigest()
-#        return file_hash
+        raise NotImplementedError
 
     @staticmethod
     def process_md5(md5_output, pattern=r"= (.*)"):
@@ -309,36 +253,14 @@ class JuniperFileTransfer(BaseFileTransfer):
         .MD5 of flash:file_name Done!
         verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
         """
-        pass
-#        match = re.search(pattern, md5_output)
-#        if match:
-#            return match.group(1)
-#        else:
-#            raise ValueError("Invalid output from MD5 command: {0}".format(md5_output))
+        raise NotImplementedError
 
     def compare_md5(self, base_cmd='verify /md5'):
         """Compare md5 of file on network device to md5 of local file"""
-        pass
-#        if self.direction == 'put':
-#            remote_md5 = self.remote_md5(base_cmd=base_cmd)
-#            return self.source_md5 == remote_md5
-#        elif self.direction == 'get':
-#            local_md5 = self.file_md5(self.dest_file)
-#            return self.source_md5 == local_md5
+        raise NotImplementedError
 
     def remote_md5(self, base_cmd='verify /md5', remote_file=None):
-        pass
-#        """
-#        Calculate remote MD5 and return the checksum.
-#
-#        This command can be CPU intensive on the remote device.
-#        """
-#        if remote_file is None:
-#            remote_file = self.dest_file
-#        remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, remote_file)
-#        dest_md5 = self.ssh_ctl_chan.send_command_expect(remote_md5_cmd, delay_factor=3.0)
-#        dest_md5 = self.process_md5(dest_md5)
-#        return dest_md5
+        raise NotImplementedError
 
     def transfer_file(self):
         """SCP transfer file."""
@@ -354,41 +276,20 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
-        destination = "{}/{}".format("/var/tmp", "test1.txt")
-#        destination = "{}{}".format(self.file_system, self.dest_file)
-#        if ':' not in destination:
-#            raise ValueError("Invalid destination file system specified")
+        destination = "{}/{}".format("/var/tmp", self.dest_file)
+        # destination = "{}{}".format(self.file_system, self.dest_file)
+        # if ':' not in destination:
+        #     raise ValueError("Invalid destination file system specified")
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()
 
     def verify_file(self):
         """Verify the file has been transferred correctly."""
-        pass
-#        return self.compare_md5()
+        raise NotImplementedError
 
     def enable_scp(self, cmd=None):
-        pass
-#        """
-#        Enable SCP on remote device.
-#
-#        Defaults to Cisco IOS command
-#        """
-#        if cmd is None:
-#            cmd = ['ip scp server enable']
-#        elif not hasattr(cmd, '__iter__'):
-#            cmd = [cmd]
-#        self.ssh_ctl_chan.send_config_set(cmd)
+        raise NotImplementedError
 
     def disable_scp(self, cmd=None):
-        pass
-#        """
-#        Disable SCP on remote device.
-#
-#        Defaults to Cisco IOS command
-#        """
-#        if cmd is None:
-#            cmd = ['no ip scp server enable']
-#        elif not hasattr(cmd, '__iter__'):
-#            cmd = [cmd]
-#        self.ssh_ctl_chan.send_config_set(cmd)
+        raise NotImplementedError
