@@ -18,7 +18,7 @@ from netmiko.calix import CalixB6SSH
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoAsaSSH
-from netmiko.cisco import CiscoIosBase
+from netmiko.cisco import CiscoIosBase, CiscoIosFileTransfer
 from netmiko.cisco import CiscoNxosSSH
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
@@ -107,6 +107,11 @@ CLASS_MAPPER_BASE = {
     'vyos': VyOSSSH,
 }
 
+FILE_TRANSFER_MAP = {
+    'cisco_ios': CiscoIosFileTransfer,
+    # 'cisco_nxos': CiscoNxosFileTransfer,
+}
+
 # Also support keys that end in _ssh
 new_mapper = {}
 for k, v in CLASS_MAPPER_BASE.items():
@@ -114,6 +119,13 @@ for k, v in CLASS_MAPPER_BASE.items():
     alt_key = k + u"_ssh"
     new_mapper[alt_key] = v
 CLASS_MAPPER = new_mapper
+
+new_mapper = {}
+for k, v in FILE_TRANSFER_MAP.items():
+    new_mapper[k] = v
+    alt_key = k + u"_ssh"
+    new_mapper[alt_key] = v
+FILE_TRANSFER_MAP = new_mapper
 
 # Add telnet drivers
 CLASS_MAPPER['brocade_fastiron_telnet'] = BrocadeFastironTelnet
@@ -136,12 +148,17 @@ platforms_base.sort()
 platforms_str = "\n".join(platforms_base)
 platforms_str = "\n" + platforms_str
 
+scp_platforms = list(FILE_TRANSFER_MAP.keys())
+scp_platforms.sort()
+scp_platforms_str = "\n".join(platforms_base)
+scp_platforms_str = "\n" + platforms_str
+
 
 def ConnectHandler(*args, **kwargs):
     """Factory function selects the proper class and creates object based on device_type."""
     if kwargs['device_type'] not in platforms:
         raise ValueError('Unsupported device_type: '
-                         'currently supported platforms are: {0}'.format(platforms_str))
+                         'currently supported platforms are: {}'.format(platforms_str))
     ConnectionClass = ssh_dispatcher(kwargs['device_type'])
     return ConnectionClass(*args, **kwargs)
 
@@ -162,3 +179,16 @@ def redispatch(obj, device_type, session_prep=True):
     obj.__class__ = new_class
     if session_prep:
         obj.session_preparation()
+
+
+def FileTransfer(*args, **kwargs):
+    """Factory function selects the proper SCP class and creates object based on device_type."""
+    if len(args) >= 1:
+        device_type = args[0].device_type
+    else:
+        device_type = kwargs['ssh_conn'].device_type
+    if device_type not in scp_platforms:
+        raise ValueError('Unsupported SCP device_type: '
+                         'currently supported platforms are: {}'.format(scp_platforms_str))
+    FileTransferClass = FILE_TRANSFER_MAP[device_type]
+    return FileTransferClass(*args, **kwargs)
