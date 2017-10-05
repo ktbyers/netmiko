@@ -17,7 +17,7 @@ from netmiko.brocade import BrocadeNosSSH
 from netmiko.calix import CalixB6SSH
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
-from netmiko.cisco import CiscoAsaSSH
+from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
 from netmiko.cisco import CiscoIosBase, CiscoIosFileTransfer
 from netmiko.cisco import CiscoNxosSSH
 from netmiko.cisco import CiscoS300SSH
@@ -105,6 +105,7 @@ CLASS_MAPPER_BASE = {
 
 FILE_TRANSFER_MAP = {
     'cisco_ios': CiscoIosFileTransfer,
+    'cisco_asa': CiscoAsaFileTransfer,
     # 'cisco_nxos': CiscoNxosFileTransfer,
 }
 
