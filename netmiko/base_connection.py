@@ -214,8 +214,6 @@ class BaseConnection(object):
     def __exit__(self, exc_type, exc_value, traceback):
         """Gracefully close connection on context manager exit"""
         self.disconnect()
-        if exc_type is not None:
-            raise exc_type(exc_value)
 
     def _timeout_exceeded(self, start, msg='Timeout exceeded!'):
         """
