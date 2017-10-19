@@ -123,6 +123,7 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Search for linux host prompt pattern [xr:~] or x86 prompt pattern
                 linux_prompt_pattern = r"\[xr:~]\$"
+                test_str = "[xr:~]$"
                 switch_to_xr_command = 'xr'
                 x86_prompt_pattern = r"root@xr:~#"
                 if re.search(linux_prompt_pattern, output) or re.search(x86_prompt_pattern, output):
@@ -195,6 +196,8 @@ class CiscoBaseConnection(BaseConnection):
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel(verbose=True)
                     return_msg += output
+                    if (pri_prompt_terminator in output or alt_prompt_terminator in output) and not re.search(x86_prompt_pattern, output):
+                        return return_msg
                     if re.search(pwd_pattern, output):
                         self.write_channel(my_password + TELNET_RETURN)
                         time.sleep(.5 * delay_factor)
