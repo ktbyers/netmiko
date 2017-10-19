@@ -72,15 +72,20 @@ class CiscoBaseConnection(BaseConnection):
                                      username_pattern, pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
-                     delay_factor=1, max_loops=60):
+                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"(assword)|(ecret)",
+                     delay_factor=1, delay_factor2=30, max_loops=60):
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
+        delay_factor2 = self.select_delay_factor(delay_factor2)
+
         output = ''
         return_msg = ''
         i = 1
+
+        is_spitfire = False
+
         #import pdb; pdb.set_trace()
         while i <= max_loops:
             try:
@@ -93,10 +98,34 @@ class CiscoBaseConnection(BaseConnection):
                 print (output)
                 return_msg += output
 
-                # Search for linux host prompt pattern [xr:~]
-                linux_prompt_pattern = "[xr:~]$"
+                #is at spitfire xr prompt
+                if re.search('xr#', output):
+                    return return_msg
+
+                #At Rebooted BMC prompt
+                # reboot_bmc_to_bmc_cmd = 'boot'
+                rebooted_bmc_prompt_pattern = r"cisco-bmc#"
+                if re.search(rebooted_bmc_prompt_pattern, output):
+                    self.write_channel(TELNET_RETURN + "boot" + TELNET_RETURN)
+                    time.sleep(2 * delay_factor2)
+                    self.write_channel(TELNET_RETURN)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+
+                #At BMC prompt
+                bmc_prompt_pattern = r"root@spitfire-arm:~#"
+                if re.search(bmc_prompt_pattern, output):
+                    self.write_channel(TELNET_RETURN + "\x17" + TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+
+
+                # Search for linux host prompt pattern [xr:~] or x86 prompt pattern
+                linux_prompt_pattern = r"\[xr:~]\$"
                 switch_to_xr_command = 'xr'
-                if output == linux_prompt_pattern:
+                x86_prompt_pattern = r"root@xr:~#"
+                if re.search(linux_prompt_pattern, output) or re.search(x86_prompt_pattern, output):
                     self.write_channel(TELNET_RETURN + "xr" + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel(verbose=True)
@@ -115,10 +144,27 @@ class CiscoBaseConnection(BaseConnection):
                         return return_msg
                 #import pdb; pdb.set_trace()
 
+                # If previously from xr prompt, XR not started, must restart XR
+                xr_not_started = r"(error while loading shared libraries)|(cannot open shared object)"
+                if re.search(xr_not_started, output):
+                    self.write_channel("initctl start ios-xr.routing.start" + TELNET_RETURN)
+                    time.sleep(2 * delay_factor2)
+                    self.write_channel(TELNET_RETURN)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+
+
+                my_password = self.password
                 # Search for username pattern / send username OR
                 # If the prompt shows "xr login:", the you can directly login to xr using xr username
                 # and password or you can login to linux host, using linux host's username password
                 if re.search(username_pattern, output):
+                    bmc_login_pattern = "spitfire-arm login:"
+                    if re.search(bmc_login_pattern, output):
+                        my_password = '0penBmc'
+                    else:
+                        my_password = self.password
+
                     self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel(verbose=True)
@@ -136,6 +182,7 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
+<<<<<<< HEAD
                     self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel(verbose=True)
@@ -143,14 +190,25 @@ class CiscoBaseConnection(BaseConnection):
                     if (re.search(pri_prompt_terminator, output, flags=re.M)
                             or re.search(alt_prompt_terminator, output, flags=re.M)):
                         return return_msg
+=======
+                    self.write_channel(my_password + TELNET_RETURN)
+                    time.sleep(.5 * delay_factor)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+                    if re.search(pwd_pattern, output):
+                        self.write_channel(my_password + TELNET_RETURN)
+                        time.sleep(.5 * delay_factor)
+                        output = self.read_channel(verbose=True)
+                        return_msg += output
+>>>>>>> spitfire prompt handling added
 
                 # Search for standby console pattern
                 standby_pattern=r"RP Node is not ready or active for login"
                 if re.search(standby_pattern,output):
                     ''' Session is standby state '''
                     return return_msg
-                
-                   
+
+
                 #Search for "VR0 con0/RP0/CPU0 is now available Press RETURN to get started" pattern
                 #on Sunstone devices
                 sunstone_pattern = r'Press RETURN to get started\.$'
@@ -158,7 +216,7 @@ class CiscoBaseConnection(BaseConnection):
                     print("*****Sunstone pattern detected")
                     self.write_channel(TELNET_RETURN)
                     output = self.read_channel(verbose=True)
-                
+
 
                 # Support direct telnet through terminal server
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
@@ -180,9 +238,17 @@ class CiscoBaseConnection(BaseConnection):
                         self.host)
                     raise NetMikoAuthenticationException(msg)
 
+
+                if re.search(rebooted_bmc_prompt_pattern, output) or re.search(bmc_prompt_pattern, output) or re.search(test_prompt_pattern, output):
+                    is_spitfire = True
+
                 # Check if proper data received
+<<<<<<< HEAD
                 if (re.search(pri_prompt_terminator, output, flags=re.M)
                         or re.search(alt_prompt_terminator, output, flags=re.M)):
+=======
+                if (pri_prompt_terminator in output or alt_prompt_terminator in output) and is_spitfire == False:
+>>>>>>> spitfire prompt handling added
                     return return_msg
 
                 self.write_channel(self.TELNET_RETURN)
