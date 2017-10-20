@@ -143,7 +143,6 @@ class BaseConnection(object):
             self.session_preparation()
         else:
             self.protocol = 'ssh'
-
             if not ssh_strict:
                 self.key_policy = paramiko.AutoAddPolicy()
             else:
@@ -610,7 +609,7 @@ class BaseConnection(object):
         elif max_loops:
             max_timeout = max_loops * loop_delay
         return (max_loops, max_timeout, loop_delay)
-        
+
     def select_delay_factor(self, delay_factor):
         """Choose the greater of delay_factor or self.global_delay_factor."""
         if delay_factor >= self.global_delay_factor:
@@ -769,7 +768,7 @@ class BaseConnection(object):
         if debug:
             print(output)
         return output
-        
+
     def strip_prompt(self, a_string):
         """Strip the trailing router prompt from the output."""
         response_list = a_string.split('\n')
@@ -997,7 +996,7 @@ class BaseConnection(object):
         if debug:
             print("exit_config_mode: {}".format(output))
         return output
-        
+
     def send_config_from_file(self, config_file=None, **kwargs):
         """
         Send configuration commands down the SSH channel from a file.
