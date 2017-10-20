@@ -36,8 +36,8 @@ class BaseConnection(object):
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
-                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
-                 session_timeout=60, debug_flag=False):
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None,
+                 session_timeout=60, debug_flag=False, **kwargs):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -116,7 +116,7 @@ class BaseConnection(object):
         self.device_type = device_type
         self.ansi_escape_codes = False
         self.verbose = verbose
-        self.timeout = timeout
+        self.timeout = kwargs.get('timeout', 8)
         self.session_timeout = session_timeout
 
         # Use the greater of global_delay_factor or delay_factor local to method
@@ -735,7 +735,7 @@ class BaseConnection(object):
         self.read_channel()
 
     def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
-                            strip_prompt=True, strip_command=True, max_timeout=0, verbose=False):
+                            strip_prompt=True, strip_command=True, max_timeout=0, verbose=False, **kwargs):
         '''
         Execute command_string on the SSH channel.
 
@@ -781,7 +781,7 @@ class BaseConnection(object):
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True,
-                     max_timeout=0, verbose=False):
+                     max_timeout=0, verbose=False, **kwargs):
         '''
         Send command to network device retrieve output until router_prompt or expect_string
 
@@ -807,7 +807,12 @@ class BaseConnection(object):
                                                                max_loops=max_loops)
         if debug:
             print('Max loops = {}'.format(max_loops))
+            
+            
         # Find the current router prompt
+        new_prompt = kwargs.get('new_prompt', '')
+        if new_prompt:
+            expect_string = new_prompt
         if expect_string is None:
             if auto_find_prompt:
                 try:
