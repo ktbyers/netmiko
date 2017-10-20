@@ -109,7 +109,6 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Search for linux host prompt pattern [xr:~] or x86 prompt pattern
                 linux_prompt_pattern = r"\[xr:~]\$"
-                test_str = "[xr:~]$"
                 switch_to_xr_command = 'xr'
                 x86_prompt_pattern = r"root@xr:~#"
                 if re.search(linux_prompt_pattern, output) or re.search(x86_prompt_pattern, output):
@@ -219,7 +218,7 @@ class CiscoBaseConnection(BaseConnection):
                     raise NetMikoAuthenticationException(msg)
 
 
-                if re.search(rebooted_bmc_prompt_pattern, output) or re.search(bmc_prompt_pattern, output) or re.search(test_prompt_pattern, output):
+                if re.search(rebooted_bmc_prompt_pattern, output) or re.search(bmc_prompt_pattern, output) or re.search(x86_prompt_pattern, output):
                     is_spitfire = True
 
                 # Check if proper data received
