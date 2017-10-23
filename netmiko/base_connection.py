@@ -167,8 +167,6 @@ class BaseConnection(object):
     def __exit__(self, exc_type, exc_value, traceback):
         """Gracefully close connection on Context Manager exit."""
         self.disconnect()
-        if exc_type is not None:
-            raise exc_type(exc_value)
 
     def _modify_connection_params(self):
         """Modify connection parameters prior to SSH connection."""
