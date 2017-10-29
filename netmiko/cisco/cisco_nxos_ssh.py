@@ -47,9 +47,11 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
 #        else:
 #            raise ValueError("Invalid direction specified")
 
-    def remote_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
+    def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Return space available on remote device."""
-        raise NotImplementedError
+        return super(CiscoNxosFileTransfer, self).remote_space_available(
+            search_pattern=search_pattern
+        )
 
     def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
         """Verify sufficient space is available on destination file system (return boolean)."""

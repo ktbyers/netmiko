@@ -93,7 +93,7 @@ class BaseFileTransfer(object):
 
     def remote_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
         """Return space available on remote device."""
-        remote_cmd = "dir {0}".format(self.file_system)
+        remote_cmd = "dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
         return int(match.group(1))
