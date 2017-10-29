@@ -102,7 +102,12 @@ CLASS_MAPPER_BASE = {
     'paloalto_panos': PaloAltoPanosSSH,
     'pluribus': PluribusSSH,
     'quanta_mesh': QuantaMeshSSH,
+    # At some point 'ubiquiti_edge' should be removed as it is ambiguous and
+    # possibly confusing to users. 'ubiquiti_edge' is for EdgeSwitch devices
+    # but there are also EdgeRouter devices which 'ubiquiti_edge' does not
+    # support.
     'ubiquiti_edge': UbiquitiEdgeSSH,
+    'ubiquiti_edgeswitch': UbiquitiEdgeSSH,
     'vyatta_vyos': VyOSSSH,
     'vyos': VyOSSSH,
 }
