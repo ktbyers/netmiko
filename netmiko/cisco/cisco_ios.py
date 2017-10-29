@@ -93,8 +93,6 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     def __exit__(self, exc_type, exc_value, traceback):
         _ = self._exit_tcl_mode()  # noqa
-        if exc_type is not None:
-            raise exc_type(exc_value)
 
     def _enter_tcl_mode(self):
         TCL_ENTER = 'tclsh'

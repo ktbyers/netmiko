@@ -216,8 +216,6 @@ class JuniperFileTransfer(BaseFileTransfer):
     def __exit__(self, exc_type, exc_value, traceback):
         """Context manager cleanup."""
         self.close_scp_chan()
-        if exc_type is not None:
-            raise exc_type(exc_value)
 
     def establish_scp_conn(self):
         """Establish SCP connection."""
