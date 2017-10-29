@@ -253,7 +253,7 @@ class JuniperFileTransfer(BaseFileTransfer):
         """
         raise NotImplementedError
 
-    def compare_md5(self, base_cmd='verify /md5'):
+    def compare_md5(self):
         """Compare md5 of file on network device to md5 of local file"""
         raise NotImplementedError
 

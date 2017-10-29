@@ -2,9 +2,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import re
 import time
+import os
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
-from netmiko.scp_handler import SCPConn
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
@@ -38,14 +38,14 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         else:
             raise ValueError("Destination file system must be specified for NX-OS")
 
-#        if direction == 'put':
-#            self.source_md5 = self.file_md5(source_file)
-#            self.file_size = os.stat(source_file).st_size
-#        elif direction == 'get':
-#            self.source_md5 = self.remote_md5(remote_file=source_file)
-#            self.file_size = self.remote_file_size(remote_file=source_file)
-#        else:
-#            raise ValueError("Invalid direction specified")
+        if direction == 'put':
+            self.source_md5 = self.file_md5(source_file)
+            self.file_size = os.stat(source_file).st_size
+        elif direction == 'get':
+            self.source_md5 = self.remote_md5(remote_file=source_file)
+            self.file_size = self.remote_file_size(remote_file=source_file)
+        else:
+            raise ValueError("Invalid direction specified")
 
     def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Return space available on remote device."""
@@ -53,9 +53,11 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             search_pattern=search_pattern
         )
 
-    def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
+    def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
-        raise NotImplementedError
+        return super(CiscoNxosFileTransfer, self).verify_space_available(
+            search_pattern=search_pattern
+        )
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
@@ -63,36 +65,42 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
-        raise NotImplementedError
+        if remote_file is None:
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
+
+        if not remote_cmd:
+            remote_cmd = "dir {}/{}".format(self.file_system, remote_file)
+
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        # Match line containing file name
+        escape_file_name = re.escape(remote_file)
+        pattern = r".*({}).*".format(escape_file_name)
+        match = re.search(pattern, remote_out)
+        if match:
+            file_size = match.group(0)
+            file_size = file_size.split()[0]
+
+        if 'No such file or directory' in remote_out:
+            raise IOError("Unable to find file on remote system")
+        else:
+            return int(file_size)
 
     @staticmethod
     def process_md5(md5_output, pattern=r"= (.*)"):
-        """
-        Process the string to retrieve the MD5 hash
-
-        Output from Cisco IOS (ASA is similar)
-        .MD5 of flash:file_name Done!
-        verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
-        """
+        """Not needed on NX-OS."""
         raise NotImplementedError
 
-    def compare_md5(self, base_cmd='verify /md5'):
-        """Compare md5 of file on network device to md5 of local file"""
-        raise NotImplementedError
-
-    def remote_md5(self, base_cmd='verify /md5', remote_file=None):
-        raise NotImplementedError
-
-    def transfer_file(self):
-        """SCP transfer file."""
-        if self.direction == 'put':
-            self.put_file()
-        elif self.direction == 'get':
-            self.get_file()
-
-    def verify_file(self):
-        """Verify the file has been transferred correctly."""
-        raise NotImplementedError
+    def remote_md5(self, base_cmd='show file', remote_file=None):
+        if remote_file is None:
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
+        remote_md5_cmd = "{} {}{} md5sum".format(base_cmd, self.file_system, remote_file)
+        return self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError
