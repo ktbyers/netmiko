@@ -132,16 +132,19 @@ class BaseFileTransfer(object):
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
         if remote_file is None:
-            remote_file = self.dest_file
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
         if not remote_cmd:
-            remote_cmd = "dir {0}/{1}".format(self.file_system, remote_file)
-        remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            remote_cmd = "dir {}/{}".format(self.file_system, remote_file)
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
         # Strip out "Directory of flash:/filename line
         remote_out = re.split(r"Directory of .*", remote_out)
         remote_out = "".join(remote_out)
         # Match line containing file name
         escape_file_name = re.escape(remote_file)
-        pattern = r".*({0}).*".format(escape_file_name)
+        pattern = r".*({}).*".format(escape_file_name)
         match = re.search(pattern, remote_out)
         if match:
             line = match.group(0)
@@ -174,25 +177,27 @@ class BaseFileTransfer(object):
         else:
             raise ValueError("Invalid output from MD5 command: {0}".format(md5_output))
 
-    def compare_md5(self, base_cmd='verify /md5'):
-        """Compare md5 of file on network device to md5 of local file"""
+    def compare_md5(self):
+        """Compare md5 of file on network device to md5 of local file."""
         if self.direction == 'put':
-            remote_md5 = self.remote_md5(base_cmd=base_cmd)
+            remote_md5 = self.remote_md5()
             return self.source_md5 == remote_md5
         elif self.direction == 'get':
             local_md5 = self.file_md5(self.dest_file)
             return self.source_md5 == local_md5
 
     def remote_md5(self, base_cmd='verify /md5', remote_file=None):
-        """
-        Calculate remote MD5 and return the checksum.
+        """Calculate remote MD5 and returns the hash.
 
         This command can be CPU intensive on the remote device.
         """
         if remote_file is None:
-            remote_file = self.dest_file
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
         remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, remote_file)
-        dest_md5 = self.ssh_ctl_chan.send_command_expect(remote_md5_cmd, delay_factor=3.0)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
