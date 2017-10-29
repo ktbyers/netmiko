@@ -77,6 +77,12 @@ ubiquiti_edge:
   username: admin
   password: password
 
+ubiquiti_edgeswitch:
+  device_type: ubiquiti_edgeswitch
+  ip: 172.16.51.102
+  username: admin
+  password: password
+
 dell_powerconnect:
   device_type: dell_powerconnect
   ip: 192.168.1.254
