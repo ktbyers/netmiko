@@ -19,7 +19,7 @@ from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
 from netmiko.cisco import CiscoIosBase, CiscoIosFileTransfer
-from netmiko.cisco import CiscoNxosSSH
+from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.cisco import CiscoWlcSSH
@@ -106,8 +106,8 @@ CLASS_MAPPER_BASE = {
 FILE_TRANSFER_MAP = {
     'cisco_ios': CiscoIosFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
+    'cisco_nxos': CiscoNxosFileTransfer,
     'juniper_junos': JuniperFileTransfer,
-    # 'cisco_nxos': CiscoNxosFileTransfer,
 }
 
 # Also support keys that end in _ssh

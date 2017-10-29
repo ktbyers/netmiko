@@ -81,8 +81,6 @@ class BaseFileTransfer(object):
     def __exit__(self, exc_type, exc_value, traceback):
         """Context manager cleanup."""
         self.close_scp_chan()
-        if exc_type is not None:
-            raise exc_type(exc_value)
 
     def establish_scp_conn(self):
         """Establish SCP connection."""
@@ -212,7 +210,7 @@ class BaseFileTransfer(object):
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
-        destination = "{0}{1}".format(self.file_system, self.dest_file)
+        destination = "{}{}".format(self.file_system, self.dest_file)
         if ':' not in destination:
             raise ValueError("Invalid destination file system specified")
         self.scp_conn.scp_transfer_file(self.source_file, destination)
