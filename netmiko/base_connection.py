@@ -806,6 +806,8 @@ class BaseConnection(object):
         # Keep reading data until search_pattern is found (or max_loops)
         i = 1
         output = ''
+        count_repeated_output = 0
+        last_len = 0
         while i <= max_loops:
             new_data = self.read_channel()
             if new_data:
@@ -826,6 +828,16 @@ class BaseConnection(object):
                     break
             else:
                 time.sleep(delay_factor * .2)
+
+            if last_len == len(output):
+                count_repeated_output += 1
+            else:
+                count_repeated_output = 0
+            
+            if count_repeated_output == 20:
+                break
+
+            last_len = len(output)
             i += 1
         else:   # nobreak
             raise IOError("Search pattern never detected in send_command_expect: {0}".format(
