@@ -75,6 +75,10 @@ https://pynet.twb-tech.com/blog/automation/netmiko.html
 
 https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html
 
+##### Documentation (Stable)
+
+http://netmiko.readthedocs.io/en/stable/index.html
+
 ## Examples:
 
 #### Create a dictionary representing the device.
