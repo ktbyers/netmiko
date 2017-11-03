@@ -947,38 +947,46 @@ class BaseConnection(object):
         with io.open(config_file, "rt", encoding='utf-8') as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
-                        max_loops=150, strip_prompt=False, strip_command=False):
+    def send_command_set(self, commands=None, exit_config_mode=True, delay_factor=1,
+                         max_loops=150, strip_prompt=False, strip_command=False, config_only=False):
         """
-        Send configuration commands down the SSH channel.
-
-        config_commands is an iterable containing all of the configuration commands.
+        Send a set of commands down the SSH channel.
+        commands must be an iterable containing all of the commands.
         The commands will be executed one after the other.
-
-        Automatically exits/enters configuration mode.
+        This method can automatically enter/exit configuration mode if config_only is specified
+        otherwise users must specify commands that enter and exit configuration mode automatically.
         """
         delay_factor = self.select_delay_factor(delay_factor)
-        if config_commands is None:
+        if commands is None:
             return ''
-        elif isinstance(config_commands, string_types):
-            config_commands = (config_commands,)
+        elif isinstance(commands, string_types):
+            commands = (commands,)
 
-        if not hasattr(config_commands, '__iter__'):
+        if not hasattr(commands, '__iter__'):
             raise ValueError("Invalid argument passed into send_config_set")
 
-        # Send config commands
-        output = self.config_mode()
-        for cmd in config_commands:
+        # Send commands
+        output = self.config_mode() if config_only else []
+        for cmd in commands:
             self.write_channel(self.normalize_cmd(cmd))
             time.sleep(delay_factor * .5)
 
         # Gather output
         output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
-        if exit_config_mode:
+        if config_only and exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
         log.debug("{0}".format(output))
         return output
+
+    def send_config_set(self, **kwargs):
+        """
+        Send configuration commands down the SSH channel.
+        config_commands is an iterable containing all of the configuration commands.
+        The commands will be executed one after the other.
+        Automatically exits/enters configuration mode.
+        """
+        return self.send_command_set(config_only=True, **kwargs)
 
     def strip_ansi_escape_codes(self, string_buffer):
         """
