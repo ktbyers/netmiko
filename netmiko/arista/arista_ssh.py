@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import time
+import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 from netmiko import log
@@ -36,7 +37,7 @@ class AristaSSH(CiscoSSHConnection):
 
 
 class AristaFileTransfer(CiscoFileTransfer):
-    """Cisco NXOS SCP File Transfer driver."""
+    """Arista SCP File Transfer driver."""
     def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put'):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
@@ -66,13 +67,13 @@ class AristaFileTransfer(CiscoFileTransfer):
 
     def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Return space available on remote device."""
-        return super(CiscoNxosFileTransfer, self).remote_space_available(
+        return super(AristaFileTransfer, self).remote_space_available(
             search_pattern=search_pattern
         )
 
     def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
-        return super(CiscoNxosFileTransfer, self).verify_space_available(
+        return super(AristaFileTransfer, self).verify_space_available(
             search_pattern=search_pattern
         )
 
