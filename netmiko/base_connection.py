@@ -861,7 +861,7 @@ class BaseConnection(object):
             new_output = output_lines[1:]
             return self.RESPONSE_RETURN.join(new_output)
         else:
-            command_length = len(command_string)
+            command_length = len(command_string)-1
             return output[command_length:]
 
     def normalize_linefeeds(self, a_string):
