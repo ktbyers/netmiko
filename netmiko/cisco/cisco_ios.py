@@ -22,12 +22,12 @@ class CiscoIosBase(CiscoBaseConnection):
         self.clear_buffer()
 
 
-class CiscoIosSSH(CiscoBaseConnection):
+class CiscoIosSSH(CiscoIosBase):
     """Cisco IOS SSH driver."""
     pass
 
 
-class CiscoIosTelnet(CiscoBaseConnection):
+class CiscoIosTelnet(CiscoIosBase):
     """Cisco IOS Telnet driver."""
     pass
 
