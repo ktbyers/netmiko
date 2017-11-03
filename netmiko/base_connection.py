@@ -965,8 +965,7 @@ class BaseConnection(object):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Send commands
-        if config_only:
-            output = self.config_mode()
+        output = self.config_mode() if config_only else []
         for cmd in commands:
             self.write_channel(self.normalize_cmd(cmd))
             time.sleep(delay_factor * .5)
