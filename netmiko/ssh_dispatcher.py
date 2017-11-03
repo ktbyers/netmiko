@@ -5,7 +5,7 @@ from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.alcatel import AlcatelSrosSSH
-from netmiko.arista import AristaSSH
+from netmiko.arista import AristaSSH, AristaFileTransfer
 from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
 from netmiko.avaya import AvayaVspSSH
@@ -104,8 +104,9 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
-    'cisco_ios': CiscoIosFileTransfer,
+    'arista_eos': AristaFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
+    'cisco_ios': CiscoIosFileTransfer,
     'cisco_nxos': CiscoNxosFileTransfer,
     'juniper_junos': JuniperFileTransfer,
 }
