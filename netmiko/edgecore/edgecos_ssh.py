@@ -3,16 +3,6 @@ from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class EdgecosSSH(CiscoSSHConnection):
-    pass
-
-
-
-
-
-
-
-
-class A10SSH(CiscoSSHConnection):
     def session_preparation(self):
         self._test_channel_read()
         self.set_base_prompt()
