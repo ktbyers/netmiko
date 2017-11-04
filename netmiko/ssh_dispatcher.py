@@ -28,6 +28,7 @@ from netmiko.coriant import CoriantSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
+from netmiko.edgecore import EdgecosSSH
 from netmiko.eltex import EltexSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
@@ -80,6 +81,7 @@ CLASS_MAPPER_BASE = {
     'coriant': CoriantSSH,
     'dell_force10': DellForce10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
+    'edgecos': EdgecosSSH,
     'eltex': EltexSSH,
     'enterasys': EnterasysSSH,
     'extreme': ExtremeSSH,
