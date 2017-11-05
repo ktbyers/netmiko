@@ -233,24 +233,29 @@ class JuniperFileTransfer(BaseFileTransfer):
         remote_cmd = "/bin/df {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
 
-        # Try to ensure parsing is correct
+        # Try to ensure parsing is correct:
         # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
         # /dev/bo0s3f    1264808 16376 1147248     1%    /cf/var
         remote_output = remote_output.strip()
-        header_line, space_available_line = remote_output.splitlines()
-        if 'Filesystem' not in header_line or 'Avail' not in header_line.split(3):
+        fields = remote_output.splitlines()
+
+        # First line is the header; second is the actual file system info
+        header_line = fields[0]
+        filesystem_line = fields[1]
+
+        if 'Filesystem' not in header_line or 'Avail' not in header_line.split()[3]:
             # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
             msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
                                                                          remote_output)
             raise ValueError(msg)
-            
-        space_available = space_available_fields[3]
+
+        space_available = filesystem_line.split()[3]
         if not re.search(r"^\d+$", space_available):
             msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
                                                                          remote_output)
             raise ValueError(msg)
 
-        print(space_available)
+        return int(space_available)
 
     def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
         """Verify sufficient space is available on destination file system (return boolean)."""
