@@ -255,6 +255,8 @@ class JuniperFileTransfer(BaseFileTransfer):
                                                                          remote_output)
             raise ValueError(msg)
 
+        # Ensure back at CLI prompt
+        self.ssh_ctl_chan.send_command('cli', expect_string=r">")
         return int(space_available)
 
     def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
