@@ -188,16 +188,16 @@ class JuniperSSH(BaseConnection):
 
 class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put'):
+    def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put'):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
 
-#        if not file_system:
-#            self.file_system = self.ssh_ctl_chan._autodetect_fs()
-#        else:
-#            self.file_system = file_system
+#       if not file_system:
+#           self.file_system = self.ssh_ctl_chan._autodetect_fs()
+#       else:
+        self.file_system = file_system
 
 #        if direction == 'put':
 #            self.source_md5 = self.file_md5(source_file)
@@ -226,9 +226,31 @@ class JuniperFileTransfer(BaseFileTransfer):
         self.scp_conn.close()
         self.scp_conn = None
 
-    def remote_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
+    def remote_space_available(self, search_pattern=""):
         """Return space available on remote device."""
-        raise NotImplementedError
+        # Ensure at BSD prompt
+        self.ssh_ctl_chan.send_command('start shell sh', expect_string=r"[\$#]")
+        remote_cmd = "/bin/df {}".format(self.file_system)
+        remote_output = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+
+        # Try to ensure parsing is correct
+        # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
+        # /dev/bo0s3f    1264808 16376 1147248     1%    /cf/var
+        remote_output = remote_output.strip()
+        header_line, space_available_line = remote_output.splitlines()
+        if 'Filesystem' not in header_line or 'Avail' not in header_line.split(3):
+            # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
+            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
+                                                                         remote_output)
+            raise ValueError(msg)
+            
+        space_available = space_available_fields[3]
+        if not re.search(r"^\d+$", space_available):
+            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
+                                                                         remote_output)
+            raise ValueError(msg)
+
+        print(space_available)
 
     def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
         """Verify sufficient space is available on destination file system (return boolean)."""
@@ -269,15 +291,13 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def get_file(self):
         """SCP copy the file from the remote device to local system."""
-        self.scp_conn.scp_get_file(self.source_file, self.dest_file)
+        source = "{}/{}".format(self.file_system, self.source_file)
+        self.scp_conn.scp_get_file(source, self.dest_file)
         self.scp_conn.close()
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
-        destination = "{}/{}".format("/var/tmp", self.dest_file)
-        # destination = "{}{}".format(self.file_system, self.dest_file)
-        # if ':' not in destination:
-        #     raise ValueError("Invalid destination file system specified")
+        destination = "{}/{}".format(self.file_system, self.dest_file)
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()
