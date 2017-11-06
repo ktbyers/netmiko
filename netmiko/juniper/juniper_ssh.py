@@ -260,7 +260,17 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        raise NotImplementedError
+        if self.direction == 'put':
+            self.ssh_ctl_chan.send_command('start shell sh', expect_string=r"[\$#]")
+            remote_cmd = "ls {}/{}".format(self.file_system, self.dest_file)
+            remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+
+            # Ensure back at CLI prompt
+            self.ssh_ctl_chan.send_command('cli', expect_string=r">")
+            return self.dest_file in remote_out
+
+        elif self.direction == 'get':
+            return os.path.exists(self.dest_file)
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
@@ -303,18 +313,6 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def remote_md5(self, base_cmd='verify /md5', remote_file=None):
         raise NotImplementedError
-
-    def transfer_file(self):
-        """SCP transfer file."""
-        if self.direction == 'put':
-            self.put_file()
-        elif self.direction == 'get':
-            self.get_file()
-
-    def get_file(self):
-        """SCP copy the file from the remote device to local system."""
-        self.scp_conn.scp_get_file(self.source_file, self.dest_file)
-        self.scp_conn.close()
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
