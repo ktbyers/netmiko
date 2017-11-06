@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import re
 import time
+import os
 
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer, SCPConn
@@ -190,23 +191,21 @@ class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
     def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put'):
         self.ssh_ctl_chan = ssh_conn
-        self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
 
-#       if not file_system:
-#           self.file_system = self.ssh_ctl_chan._autodetect_fs()
-#       else:
         self.file_system = file_system
 
-#        if direction == 'put':
+        if direction == 'put':
+            self.source_file = source_file
 #            self.source_md5 = self.file_md5(source_file)
-#            self.file_size = os.stat(source_file).st_size
-#        elif direction == 'get':
+            self.file_size = os.stat(self.source_file).st_size
+        elif direction == 'get':
+            self.source_file = "{}/{}".format(file_system, source_file)
 #            self.source_md5 = self.remote_md5(remote_file=source_file)
-#            self.file_size = self.remote_file_size(remote_file=source_file)
-#        else:
-#            raise ValueError("Invalid direction specified")
+            self.file_size = self.remote_file_size(remote_file=self.source_file)
+        else:
+            raise ValueError("Invalid direction specified")
 
     def __enter__(self):
         """Context manager setup"""
@@ -230,7 +229,7 @@ class JuniperFileTransfer(BaseFileTransfer):
         """Return space available on remote device."""
         # Ensure at BSD prompt
         self.ssh_ctl_chan.send_command('start shell sh', expect_string=r"[\$#]")
-        remote_cmd = "/bin/df {}".format(self.file_system)
+        remote_cmd = "/bin/df -k {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
 
         # Try to ensure parsing is correct:
@@ -257,11 +256,7 @@ class JuniperFileTransfer(BaseFileTransfer):
 
         # Ensure back at CLI prompt
         self.ssh_ctl_chan.send_command('cli', expect_string=r">")
-        return int(space_available)
-
-    def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
-        """Verify sufficient space is available on destination file system (return boolean)."""
-        raise NotImplementedError
+        return int(space_available) * 1024
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
@@ -269,7 +264,27 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
-        raise NotImplementedError
+        if remote_file is None:
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
+        if not remote_cmd:
+            remote_cmd = "ls -l {}".format(remote_file)
+        # Ensure at BSD prompt
+        self.ssh_ctl_chan.send_command('start shell sh', expect_string=r"[\$#]")
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+        escape_file_name = re.escape(remote_file)
+        pattern = r".*({}).*".format(escape_file_name)
+        match = re.search(pattern, remote_out)
+        if match:
+            # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
+            line = match.group(0)
+            file_size = line.split()[4]
+
+        # Ensure back at CLI prompt
+        self.ssh_ctl_chan.send_command('cli', expect_string=r">")
+        return int(file_size)
 
     @staticmethod
     def process_md5(md5_output, pattern=r"= (.*)"):
@@ -298,8 +313,7 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def get_file(self):
         """SCP copy the file from the remote device to local system."""
-        source = "{}/{}".format(self.file_system, self.source_file)
-        self.scp_conn.scp_get_file(source, self.dest_file)
+        self.scp_conn.scp_get_file(self.source_file, self.dest_file)
         self.scp_conn.close()
 
     def put_file(self):
