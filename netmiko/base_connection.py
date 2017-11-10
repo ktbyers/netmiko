@@ -1050,7 +1050,12 @@ class BaseConnection(object):
         """Gracefully close the SSH connection."""
         self.cleanup()
         if self.protocol == 'ssh':
-            self.remote_conn_pre.close()
+            try:
+                self.remote_conn_pre.close()
+            except OSError:
+                # There can be timing issues with 'exit' from the CLI and whether remote_conn_pre
+                # can be closed cleanly.
+                pass
         elif self.protocol == 'telnet':
             self.remote_conn.close()
         self.remote_conn = None
