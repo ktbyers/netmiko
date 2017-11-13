@@ -164,14 +164,14 @@ def write_bytes(out_data):
 
 
 def check_serial_port(name):
-    """returns valid COM Port"""
+    """returns valid COM Port."""
     try:
         cdc = next(serial.tools.list_ports.grep(name))
-        return cdc
+        return cdc.split()[0]
     except StopIteration:
-        msg = "device {0} not found. ".format(name)
+        msg = "device {} not found. ".format(name)
         msg += "available devices are: "
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
-            msg += "{0},".format(str(p))
+            msg += "{},".format(str(p))
         raise ValueError(msg)

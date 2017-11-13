@@ -124,12 +124,8 @@ class BaseConnection(object):
                 self.port = 23
             else:
                 self.port = 22
-        else:
-            if 'serial' in device_type:
-                self.port = check_serial_port(port)
-                self.host = 'serial'
-            else:
-                self.port = int(port)
+        self.port = int(port)
+
         self.username = username
         self.password = password
         self.secret = secret
@@ -139,15 +135,25 @@ class BaseConnection(object):
         self.timeout = kwargs.get('timeout', 8)
         self.session_timeout = session_timeout
         self.keepalive = keepalive
+
+        # Default values
+        self.serial_settings = {
+            'port': 'COM1',
+            'baudrate': 9600,
+            'bytesize': serial.EIGHTBITS,
+            'parity': serial.PARITY_NONE,
+            'stopbits': serial.STOPBITS_ONE
+        }
         if serial_settings is None:
             serial_settings = {}
-        self.serial_settings = serial_settings
-        self.serial_defaults = {
-                'baudrate': 9600,
-                'bytesize': serial.EIGHTBITS,
-                'parity': serial.PARITY_NONE,
-                'stopbits': serial.STOPBITS_ONE
-            }
+        self.serial_settings.update(serial_settings)
+
+        if 'serial' in device_type:
+            self.host = 'serial'
+            comm_port = self.serial_settings.pop('port')
+            # Get the proper comm port reference if a name was enterred
+            comm_port = check_serial_port(comm_port)
+            self.serial_settings.update({'port': comm_port})
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -316,7 +322,7 @@ class BaseConnection(object):
         elif self.protocol == 'serial':
             output = ""
             while (self.remote_conn.in_waiting > 0):
-                output += self.remote_conn.read(self.remote_conn.inWaiting())
+                output += self.remote_conn.read(self.remote_conn.in_waiting)
         log.debug("read_channel: {}".format(output))
         return output
 
@@ -598,10 +604,6 @@ class BaseConnection(object):
             self.remote_conn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             self.telnet_login()
         elif self.protocol == 'serial':
-            self.serial_settings["port"] = str(self.port).split(" ")[0]
-            for k in self.serial_settings:
-                self.serial_defaults[k] = self.serial_settings[k]
-            self.serial_settings = self.serial_defaults
             self.remote_conn = serial.Serial(**self.serial_settings)
             self.serial_login()
         elif self.protocol == 'ssh':
