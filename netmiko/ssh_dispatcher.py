@@ -139,6 +139,9 @@ CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 CLASS_MAPPER['terminal_server'] = TerminalServerSSH
 CLASS_MAPPER['autodetect'] = TerminalServerSSH
 
+# Add serial drivers
+CLASS_MAPPER['cisco_ios_serial'] = CiscoIosBase
+
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
 platforms_base = list(CLASS_MAPPER_BASE.keys())

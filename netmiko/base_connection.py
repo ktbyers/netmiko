@@ -21,9 +21,10 @@ from threading import Lock
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
-from netmiko.utilities import write_bytes
+from netmiko.utilities import write_bytes, check_serial_port
 from netmiko.py23_compat import string_types
 from netmiko import log
+import serial
 
 
 class BaseConnection(object):
@@ -36,7 +37,8 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=8,
-                 session_timeout=60, keepalive=0, default_enter=None, response_return=None):
+                 session_timeout=60, keepalive=0, default_enter=None, response_return=None,
+                 serial_settings=None):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -105,7 +107,7 @@ class BaseConnection(object):
             self.ip = ip
         elif host:
             self.host = host
-        if not ip and not host:
+        if not ip and not host and 'serial' not in device_type:
             raise ValueError("Either ip or host must be set")
         if port is None:
             if 'telnet' in device_type:
@@ -113,7 +115,11 @@ class BaseConnection(object):
             else:
                 self.port = 22
         else:
-            self.port = int(port)
+            if 'serial' in device_type:
+                self.port = check_serial_port(port)
+                self.host = 'serial'
+            else:
+                self.port = int(port)
         self.username = username
         self.password = password
         self.secret = secret
@@ -123,6 +129,15 @@ class BaseConnection(object):
         self.timeout = timeout
         self.session_timeout = session_timeout
         self.keepalive = keepalive
+        if serial_settings is None:
+            serial_settings = {}
+        self.serial_settings = serial_settings
+        self.serial_defaults = {
+                'baudrate': 9600,
+                'bytesize': serial.EIGHTBITS,
+                'parity': serial.PARITY_NONE,
+                'stopbits': serial.STOPBITS_ONE
+            }
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -134,6 +149,11 @@ class BaseConnection(object):
         # determine if telnet or SSH
         if '_telnet' in device_type:
             self.protocol = 'telnet'
+            self._modify_connection_params()
+            self.establish_connection()
+            self.session_preparation()
+        if '_serial' in device_type:
+            self.protocol = 'serial'
             self._modify_connection_params()
             self.establish_connection()
             self.session_preparation()
@@ -211,6 +231,9 @@ class BaseConnection(object):
             self.remote_conn.sendall(write_bytes(out_data))
         elif self.protocol == 'telnet':
             self.remote_conn.write(write_bytes(out_data))
+        elif self.protocol == 'serial':
+            self.remote_conn.write(write_bytes(out_data))
+            self.remote_conn.flush()
         else:
             raise ValueError("Invalid protocol specified")
         try:
@@ -270,6 +293,10 @@ class BaseConnection(object):
                     break
         elif self.protocol == 'telnet':
             output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
+        elif self.protocol == 'serial':
+            output = ""
+            while (self.remote_conn.in_waiting > 0):
+                output += self.remote_conn.read(self.remote_conn.inWaiting())
         log.debug("read_channel: {}".format(output))
         return output
 
@@ -323,7 +350,7 @@ class BaseConnection(object):
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
                 finally:
                     self._unlock_netmiko_session()
-            elif self.protocol == 'telnet':
+            elif self.protocol == 'telnet' or 'serial':
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
                 log.debug("Pattern found: {0} {1}".format(pattern, output))
@@ -376,6 +403,12 @@ class BaseConnection(object):
         if pattern:
             combined_pattern = r"({}|{})".format(combined_pattern, pattern)
         return self._read_channel_expect(combined_pattern, re_flags=re_flags)
+
+    def serial_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
+                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
+                     delay_factor=1, max_loops=20):
+        self.telnet_login(pri_prompt_terminator, alt_prompt_terminator, username_pattern,
+                          pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
                      username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
@@ -533,6 +566,13 @@ class BaseConnection(object):
         if self.protocol == 'telnet':
             self.remote_conn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             self.telnet_login()
+        elif self.protocol == 'serial':
+            self.serial_settings["port"] = str(self.port).split(" ")[0]
+            for k in self.serial_settings:
+                self.serial_defaults[k] = self.serial_settings[k]
+            self.serial_settings = self.serial_defaults
+            self.remote_conn = serial.Serial(**self.serial_settings)
+            self.serial_login()
         elif self.protocol == 'ssh':
             ssh_connect_params = self._connect_params_dict()
             self.remote_conn_pre = self._build_ssh_client()
@@ -1056,7 +1096,7 @@ class BaseConnection(object):
                 # There can be timing issues with 'exit' from the CLI and whether remote_conn_pre
                 # can be closed cleanly.
                 pass
-        elif self.protocol == 'telnet':
+        elif self.protocol == 'telnet' or 'serial':
             self.remote_conn.close()
         self.remote_conn = None
 

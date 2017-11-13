@@ -11,4 +11,4 @@ from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH
 __all__ = ['CiscoIosSSH', 'CiscoIosTelnet', 'CiscoAsaSSH', 'CiscoNxosSSH', 'CiscoXrSSH',
            'CiscoWlcSSH', 'CiscoS300SSH', 'CiscoTpTcCeSSH', 'CiscoIosBase',
            'CiscoIosFileTransfer', 'InLineTransfer', 'CiscoAsaFileTransfer',
-           'CiscoNxosFileTransfer']
+           'CiscoNxosFileTransfer', 'CiscoIosSerial']

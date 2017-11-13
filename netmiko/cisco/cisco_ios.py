@@ -32,6 +32,11 @@ class CiscoIosTelnet(CiscoIosBase):
     pass
 
 
+class CiscoIosSerial(CiscoIosBase):
+    """Cisco IOS Serial driver."""
+    pass
+
+
 class CiscoIosFileTransfer(CiscoFileTransfer):
     """Cisco IOS SCP File Transfer driver."""
     pass
