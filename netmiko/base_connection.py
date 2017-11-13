@@ -519,7 +519,7 @@ class BaseConnection(object):
             output = self.strip_command(command_string, output)
         elif strip_command and command_set:
             command_set = [self.normalize_linefeeds(command) for command in command_set]
-            output = self.strip_commands(command_string, output)
+            output = self.strip_commands(command_set, output)
         if strip_prompt:
             output = self.strip_prompt(output)
         return output
