@@ -146,8 +146,6 @@ class CiscoBaseConnection(BaseConnection):
             # Always try to send 'exit' regardless of whether exit_config_mode works or not.
             pass
         self.write_channel("exit" + self.RETURN)
-        if self.device_type in 'serial':
-            self.remote_conn.close()
 
     def _autodetect_fs(self, cmd='dir', pattern=r'Directory of (.*)/'):
         """Autodetect the file system on the remote device. Used by SCP operations."""
