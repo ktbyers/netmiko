@@ -877,7 +877,7 @@ class BaseConnection(object):
             command_set = [self.normalize_cmd(command) for command in command_set]
 
         for cmd in command_set:
-            self.write_channel(self.normalize_cmd(cmd))
+            self.write_channel(cmd)
             time.sleep(delay_factor * .5)
 
         # Gather output
