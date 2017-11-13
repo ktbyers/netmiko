@@ -18,7 +18,7 @@ from netmiko.calix import CalixB6SSH
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
-from netmiko.cisco import CiscoIosBase, CiscoIosFileTransfer
+from netmiko.cisco import CiscoIosSSH, CiscoIosFileTransfer, CiscoIosTelnet, CiscoIosSerial
 from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
@@ -70,12 +70,12 @@ CLASS_MAPPER_BASE = {
     'calix_b6': CalixB6SSH,
     'ciena_saos': CienaSaosSSH,
     'cisco_asa': CiscoAsaSSH,
-    'cisco_ios': CiscoIosBase,
+    'cisco_ios': CiscoIosSSH,
     'cisco_nxos': CiscoNxosSSH,
     'cisco_s300': CiscoS300SSH,
     'cisco_tp': CiscoTpTcCeSSH,
     'cisco_wlc': CiscoWlcSSH,
-    'cisco_xe': CiscoIosBase,
+    'cisco_xe': CiscoIosSSH,
     'cisco_xr': CiscoXrSSH,
     'coriant': CoriantSSH,
     'dell_force10': DellForce10SSH,
@@ -131,9 +131,12 @@ FILE_TRANSFER_MAP = new_mapper
 # Add telnet drivers
 CLASS_MAPPER['brocade_fastiron_telnet'] = BrocadeFastironTelnet
 CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
-CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosBase
+CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
+
+# Add serial drivers
+CLASS_MAPPER['cisco_ios_serial'] = CiscoIosSerial
 
 # Add general terminal_server driver and autodetect
 CLASS_MAPPER['terminal_server'] = TerminalServerSSH

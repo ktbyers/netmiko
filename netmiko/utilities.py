@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import sys
 import io
 import os
+import serial.tools.list_ports
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -160,3 +161,17 @@ def write_bytes(out_data):
             return out_data
     msg = "Invalid value for out_data neither unicode nor byte string: {0}".format(out_data)
     raise ValueError(msg)
+
+
+def check_serial_port(name):
+    """returns valid COM Port."""
+    try:
+        cdc = next(serial.tools.list_ports.grep(name))
+        return cdc.split()[0]
+    except StopIteration:
+        msg = "device {} not found. ".format(name)
+        msg += "available devices are: "
+        ports = list(serial.tools.list_ports.comports())
+        for p in ports:
+            msg += "{},".format(str(p))
+        raise ValueError(msg)

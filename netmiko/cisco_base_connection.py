@@ -50,6 +50,18 @@ class CiscoBaseConnection(BaseConnection):
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
 
+    def serial_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
+                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
+                     delay_factor=1, max_loops=20):
+        self.write_channel(self.TELNET_RETURN)
+        output = self.read_channel()
+        if (re.search(pri_prompt_terminator, output, flags=re.M)
+                or re.search(alt_prompt_terminator, output, flags=re.M)):
+            return output
+        else:
+            return self.telnet_login(pri_prompt_terminator, alt_prompt_terminator,
+                                     username_pattern, pwd_pattern, delay_factor, max_loops)
+
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
                      username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=20):
