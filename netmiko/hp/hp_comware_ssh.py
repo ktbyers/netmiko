@@ -1,8 +1,8 @@
 from __future__ import print_function
 from __future__ import unicode_literals
-import time
-from netmiko.cisco_base_connection import CiscoSSHConnection
 
+from netmiko.cisco_base_connection import CiscoSSHConnection
+import re
 
 class HPComwareSSH(CiscoSSHConnection):
 
@@ -13,11 +13,30 @@ class HPComwareSSH(CiscoSSHConnection):
         """
         self._test_channel_read(pattern=r'[>\]]')
         self.set_base_prompt()
-        command = self.RETURN + "screen-length disable"
-        self.disable_paging(command=command)
-        # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.priv_escalation()
+        self.disable_paging(command="\nscreen-length disable\n")
+
+    def priv_escalation(self):
+        """ Privilege Escalation before entering config mode """
+        try:
+            pass
+            out_version = self.send_command_timing("display version")
+            match_v = re.search(r'Comware\s+Software,\s+Version\s+(.*),\sRelease\s+',out_version, re.I | re.M)
+            # send 'e' in case of "---- More ----" returned by "display version"
+            self.send_command_timing('e') 
+            # Comware version 5.xx
+            if match_v and match_v.group(1).startswith('5'):
+                priv_escalation_cmd = 'super'
+                self.send_command(priv_escalation_cmd, expect_string='Password:', auto_find_prompt=False) 
+                self.send_command(self.secret, expect_string='>', auto_find_prompt=False) 
+            # Comware version 7.xx
+            elif match_v and match_v.group(1).startswith('7'):
+                priv_escalation_cmd = 'super level-15'
+                self.send_command(priv_escalation_cmd, expect_string='Username:', auto_find_prompt=False) 
+                self.send_command(self.username, expect_string='Password:', auto_find_prompt=False) 
+                self.send_command(self.secret, expect_string='>', auto_find_prompt=False) 
+        except Exception as e:
+            raise e
 
     def config_mode(self, config_command='system-view'):
         """Enter configuration mode."""
