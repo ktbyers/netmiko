@@ -162,23 +162,36 @@ class CiscoXr(CiscoBaseConnection):
         # Enter config mode (if necessary)
         #output = self.config_mode()
         output = ''
-        output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
-                                           delay_factor=delay_factor,
-                                           max_timeout=max_timeout, **kwargs)
-        if error_marker in output:
-            raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
-        if alt_error_marker in output:
-            # Other commits occurred, don't proceed with commit
-            output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
+        if replace:
+            output += self.send_command_timing(commit_str, strip_prompt=False, strip_command=False,
                                                delay_factor=delay_factor,
                                                max_timeout=max_timeout)
-            raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+            commit_replace_marker = "This commit will replace or remove the entire running configuration"
+            if commit_replace_marker in output:
+                output += self.send_command_timing("yes", strip_prompt=False, strip_command=False,
+                                                   delay_factor=delay_factor,
+                                                   max_timeout=max_timeout)
+                return output
+                                   
+        else:                                       
+            output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
+                                               delay_factor=delay_factor,
+                                               max_timeout=max_timeout, **kwargs)
+            if error_marker in output:
+                raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+            if alt_error_marker in output:
+                # Other commits occurred, don't proceed with commit
+                output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
+                                                   delay_factor=delay_factor,
+                                                   max_timeout=max_timeout)
+                raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
 
-        return output
+            return output
 
     def exit_config_mode(self, exit_config='end', skip_check=False):
         """Exit configuration mode."""
         output = ''
+        
         if skip_check or self.check_config_mode():
             output = self.send_command_timing(exit_config, strip_prompt=False,
                         strip_command=False)
