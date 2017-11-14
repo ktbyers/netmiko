@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
 import re
 
+
 class HPComwareSSH(CiscoSSHConnection):
 
     def session_preparation(self):
@@ -19,22 +20,24 @@ class HPComwareSSH(CiscoSSHConnection):
     def priv_escalation(self):
         """ Privilege Escalation before entering config mode """
         try:
-            pass
             out_version = self.send_command_timing("display version")
-            match_v = re.search(r'Comware\s+Software,\s+Version\s+(.*),\sRelease\s+',out_version, re.I | re.M)
-            # send 'e' in case of "---- More ----" returned by "display version"
-            self.send_command_timing('e') 
+            # regex_v = re.compile(r"""Comware\s+Software,\s+Version\s+(.*),
+            # \sRelease\s+""", out_version, re.I | re.M | re.X)
+            # match_v = regex_v.search(out_version)
+            match_v = re.search(r'Comware\s+Software,\s+Version\s+(.*),\sRelease\s+', out_version, re.I | re.M)
+            self.send_command_timing('e')
+
             # Comware version 5.xx
             if match_v and match_v.group(1).startswith('5'):
                 priv_escalation_cmd = 'super'
-                self.send_command(priv_escalation_cmd, expect_string='Password:', auto_find_prompt=False) 
-                self.send_command(self.secret, expect_string='>', auto_find_prompt=False) 
+                self.send_command(priv_escalation_cmd, expect_string='Password:', auto_find_prompt=False)
+                self.send_command(self.secret, expect_string='>', auto_find_prompt=False)
             # Comware version 7.xx
             elif match_v and match_v.group(1).startswith('7'):
                 priv_escalation_cmd = 'super level-15'
-                self.send_command(priv_escalation_cmd, expect_string='Username:', auto_find_prompt=False) 
-                self.send_command(self.username, expect_string='Password:', auto_find_prompt=False) 
-                self.send_command(self.secret, expect_string='>', auto_find_prompt=False) 
+                self.send_command(priv_escalation_cmd, expect_string='Username:', auto_find_prompt=False)
+                self.send_command(self.username, expect_string='Password:', auto_find_prompt=False)
+                self.send_command(self.secret, expect_string='>', auto_find_prompt=False)
         except Exception as e:
             raise e
 
