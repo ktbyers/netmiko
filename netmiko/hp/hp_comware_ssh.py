@@ -21,29 +21,38 @@ class HPComwareSSH(CiscoSSHConnection):
         """ Privilege Escalation before entering config mode """
         try:
             out_version = self.send_command_timing("display version")
-            # regex_v = re.compile(r"""Comware\s+Software,\s+Version\s+(.*),
-            # \sRelease\s+""", out_version, re.I | re.M | re.X)
-            # match_v = regex_v.search(out_version)
-            match_v = re.search(r'Comware\s+Software,\s+Version\s+(.*),\sRelease\s+', out_version, re.I | re.M)
+            regex_v = re.compile(r"""Comware\s+Software,\s+Version\s+(.*),
+            \sRelease\s+""", re.X)
+            match_v = regex_v.search(out_version, re.I | re.M)
             self.send_command_timing('e')
 
             # Comware version 5.xx
             if match_v and match_v.group(1).startswith('5'):
                 priv_escalation_cmd = 'super'
-                self.send_command(priv_escalation_cmd, expect_string='Password:', auto_find_prompt=False)
-                self.send_command(self.secret, expect_string='>', auto_find_prompt=False)
+                self.send_command(
+                        priv_escalation_cmd,
+                        expect_string='Password:', auto_find_prompt=False)
+                self.send_command(
+                        self.secret,
+                        expect_string='>', auto_find_prompt=False)
             # Comware version 7.xx
             elif match_v and match_v.group(1).startswith('7'):
                 priv_escalation_cmd = 'super level-15'
-                self.send_command(priv_escalation_cmd, expect_string='Username:', auto_find_prompt=False)
-                self.send_command(self.username, expect_string='Password:', auto_find_prompt=False)
-                self.send_command(self.secret, expect_string='>', auto_find_prompt=False)
+                self.send_command(
+                        priv_escalation_cmd,
+                        expect_string='Username:', auto_find_prompt=False)
+                self.send_command(
+                        self.username,
+                        expect_string='Password:', auto_find_prompt=False)
+                self.send_command(
+                        self.secret, expect_string='>', auto_find_prompt=False)
         except Exception as e:
             raise e
 
     def config_mode(self, config_command='system-view'):
         """Enter configuration mode."""
-        return super(HPComwareSSH, self).config_mode(config_command=config_command)
+        return super(
+                HPComwareSSH, self).config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config='return'):
         """Exit config mode."""
@@ -60,8 +69,9 @@ class HPComwareSSH(CiscoSSHConnection):
 
         Used as delimiter for stripping of trailing prompt in output.
 
-        Should be set to something that is general and applies in multiple contexts. For Comware
-        this will be the router prompt with < > or [ ] stripped off.
+        Should be set to something that is general and applies in multiple
+        contexts. For Comware this will be the router prompt with < > or [ ]
+        stripped off.
 
         This will be set on logging in, but not when entering system-view
         """
