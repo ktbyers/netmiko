@@ -95,7 +95,7 @@ CLASS_MAPPER_BASE = {
     'juniper': JuniperSSH,
     'juniper_junos': JuniperSSH,
     'linux': LinuxSSH,
-    'mellanox_ssh': MellanoxSSH,
+    'mellanox': MellanoxSSH,
     'mrv_optiswitch': MrvOptiswitchSSH,
     'netapp_cdot': NetAppcDotSSH,
     'ovs_linux': OvsLinuxSSH,
