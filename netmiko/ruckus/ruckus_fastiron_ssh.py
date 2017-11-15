@@ -5,7 +5,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class RuckusFastironBase(CiscoSSHConnection):
-    """Brocade FastIron aka ICX support."""
+    """Ruckus FastIron aka ICX support."""
     def session_preparation(self):
         """FastIron requires to be enable mode to disable paging."""
         self._test_channel_read()
@@ -53,7 +53,7 @@ class RuckusFastironTelnet(RuckusFastironBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get('default_enter')
         kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
-        super(BrocadeFastironTelnet, self).__init__(*args, **kwargs)
+        super(RuckusFastironTelnet, self).__init__(*args, **kwargs)
 
 
 class RuckusFastironSSH(RuckusFastironBase):
