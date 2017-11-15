@@ -58,6 +58,9 @@ class CiscoWlcSSH(BaseConnection):
         output = self.send_command(*args, **kwargs)
 
         if 'Press Enter to' in output:
+            # Expect 'Cisco Controller', default prompt
+            kwargs['auto_find_prompt'] = False
+
             new_args = list(args)
             if len(args) == 1:
                 new_args[0] = self.RETURN
