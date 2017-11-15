@@ -46,6 +46,7 @@ from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.pluribus import PluribusSSH
 from netmiko.quanta import QuantaMeshSSH
+from netmiko.ruckus import RuckusFastironSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
@@ -102,10 +103,7 @@ CLASS_MAPPER_BASE = {
     'paloalto_panos': PaloAltoPanosSSH,
     'pluribus': PluribusSSH,
     'quanta_mesh': QuantaMeshSSH,
-    # At some point 'ubiquiti_edge' should be removed as it is ambiguous and
-    # possibly confusing to users. 'ubiquiti_edge' is for EdgeSwitch devices
-    # but there are also EdgeRouter devices which 'ubiquiti_edge' does not
-    # support.
+    'ruckus_fastiron':RuckusFastironSSH,
     'ubiquiti_edge': UbiquitiEdgeSSH,
     'ubiquiti_edgeswitch': UbiquitiEdgeSSH,
     'vyatta_vyos': VyOSSSH,
