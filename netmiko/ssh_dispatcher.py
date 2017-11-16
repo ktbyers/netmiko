@@ -33,6 +33,7 @@ from netmiko.eltex import EltexSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
 from netmiko.extreme import ExtremeWingSSH
+from netmiko.extreme import ExtremeTelnet
 from netmiko.f5 import F5LtmSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
@@ -139,6 +140,7 @@ CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
+CLASS_MAPPER['extreme_telnet'] = ExtremeTelnet
 
 # Add serial drivers
 CLASS_MAPPER['cisco_ios_serial'] = CiscoIosSerial
