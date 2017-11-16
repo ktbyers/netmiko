@@ -74,21 +74,26 @@ class CiscoBaseConnection(BaseConnection):
         i = 1
         while i <= max_loops:
             try:
-                output = self.read_channel()
+                # No error checking on first read, in case login banner looks like an error message
+                if i == 1:
+                    output = self.read_channel()
+                else:
+                    output = self._read_channel_login()
+
                 return_msg += output
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output):
                     self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
-                    output = self.read_channel()
+                    output = self._read_channel_login()
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
                     self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
-                    output = self.read_channel()
+                    output = self._read_channel_login()
                     return_msg += output
                     if (re.search(pri_prompt_terminator, output, flags=re.M)
                             or re.search(alt_prompt_terminator, output, flags=re.M)):
@@ -100,19 +105,13 @@ class CiscoBaseConnection(BaseConnection):
                     time.sleep(.5 * delay_factor)
                     count = 0
                     while count < 15:
-                        output = self.read_channel()
+                        output = self._read_channel_login()
                         return_msg += output
                         if re.search(r"ress RETURN to get started", output):
                             output = ""
                             break
                         time.sleep(2 * delay_factor)
                         count += 1
-
-                # Check for device with no password configured
-                if re.search(r"assword required, but none set", output):
-                    msg = "Telnet login failed - Password required, but none set: {}".format(
-                        self.host)
-                    raise NetMikoAuthenticationException(msg)
 
                 # Check if proper data received
                 if (re.search(pri_prompt_terminator, output, flags=re.M)
@@ -129,7 +128,7 @@ class CiscoBaseConnection(BaseConnection):
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
         time.sleep(.5 * delay_factor)
-        output = self.read_channel()
+        output = self._read_channel_login()
         return_msg += output
         if (re.search(pri_prompt_terminator, output, flags=re.M)
                 or re.search(alt_prompt_terminator, output, flags=re.M)):
@@ -161,6 +160,19 @@ class CiscoBaseConnection(BaseConnection):
 
         raise ValueError("An error occurred in dynamically determining remote file "
                          "system: {} {}".format(cmd, output))
+
+    def _read_channel_login(self, error_pattern=r"^% (\w[\w, ]+)", error_re_flags=re.M):
+        """
+        Wrapper around read_channel() to raise exception for errors during login.
+        Any line matching the error_pattern is considered an error.
+        """
+        output = self.read_channel()
+        error_match = re.search(error_pattern, output, flags=error_re_flags)
+        if error_match:
+            error_string = ' '.join((x.strip() for x in error_match.groups()))
+            msg = 'Telnet login failed - {0}: {1}'.format(error_string, self.host)
+            raise NetMikoAuthenticationException(msg)
+        return output
 
 
 class CiscoSSHConnection(CiscoBaseConnection):
