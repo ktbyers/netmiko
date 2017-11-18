@@ -121,9 +121,9 @@ class BaseConnection(object):
             raise ValueError("Either ip or host must be set")
         if port is None:
             if 'telnet' in device_type:
-                self.port = 23
+                port = 23
             else:
-                self.port = 22
+                port = 22
         self.port = int(port)
 
         self.username = username
@@ -172,12 +172,13 @@ class BaseConnection(object):
         self._write_interval = 0.2
 
         self._session_locker = Lock()
+
         # determine if telnet or SSH
         if '_telnet' in device_type:
             self.protocol = 'telnet'
             self.establish_connection()
             self.session_preparation()
-        if '_serial' in device_type:
+        elif '_serial' in device_type:
             self.protocol = 'serial'
             self._modify_connection_params()
             self.establish_connection()
