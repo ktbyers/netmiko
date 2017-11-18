@@ -173,6 +173,12 @@ class BaseConnection(object):
         """
         Raise NetMikoTimeoutException if waiting too much in the
         serving queue.
+
+        :param start: time hack to determine timeout
+        :type start: float
+
+        :param msg: Exception message if timeout was exceeded
+        :type msg: str
         """
         if not start:
             # Must provide a comparison time
@@ -186,6 +192,9 @@ class BaseConnection(object):
         """
         Try to acquire the Netmiko session lock. If not available, wait in the queue until
         the channel is available again.
+
+        :param start: initial time hack to measure the session timeout
+        :type start: float
         """
         if not start:
             start = time.time()
@@ -203,7 +212,11 @@ class BaseConnection(object):
             self._session_locker.release()
 
     def _write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel."""
+        """Generic handler that will write to both SSH and telnet channel.
+
+        :param out_data: data to be written to the channel
+        :type out_data: bytes
+        """
         if self.protocol == 'ssh':
             self.remote_conn.sendall(write_bytes(out_data))
         elif self.protocol == 'telnet':
@@ -217,7 +230,11 @@ class BaseConnection(object):
             pass
 
     def write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel."""
+        """Generic handler that will write to both SSH and telnet channel.
+
+        :param out_data: data to be written to the channel
+        :type out_data: bytes
+        """
         self._lock_netmiko_session()
         try:
             self._write_channel(out_data)
@@ -294,6 +311,17 @@ class BaseConnection(object):
 
         There are dependencies here like determining whether in config_mode that are actually
         depending on reading beyond pattern.
+
+        :param pattern: the pattern used to identify device prompt
+        :type pattern: str
+
+        :param re_flags: regex flags used in conjunction with pattern to search for prompt
+        :type re_flags: re module flags
+
+        :param max_loops: max number of iterations to read the channel before raising exception
+        :type max_loops: int
+
+
         """
         output = ''
         if not pattern:
@@ -339,6 +367,12 @@ class BaseConnection(object):
 
         Once data is encountered read channel for another two seconds (2 * delay_factor) to make
         sure reading of channel is complete.
+
+        :param delay_factor: factor to adjust delay when reading channel
+        :type delay_factor: int
+
+        :param max_loops: maximum number of loops to iterate through before returning channel data
+        :type max_loops: int
         """
         delay_factor = self.select_delay_factor(delay_factor)
         channel_data = ""
@@ -368,7 +402,15 @@ class BaseConnection(object):
         return self._read_channel_expect(*args, **kwargs)
 
     def read_until_prompt_or_pattern(self, pattern='', re_flags=0):
-        """Read until either self.base_prompt or pattern is detected. Return ALL data available."""
+        """Read until either self.base_prompt or pattern is detected. Return ALL data available.
+
+        :param pattern: the pattern used to identify device prompt
+        :type pattern: str
+
+        :param re_flags: regex flags used in conjunction with pattern to search for prompt
+        :type re_flags: re module flags
+
+        """
         combined_pattern = re.escape(self.base_prompt)
         if pattern:
             combined_pattern = r"({}|{})".format(combined_pattern, pattern)
@@ -448,7 +490,11 @@ class BaseConnection(object):
         self.set_terminal_width()
 
     def _use_ssh_config(self, dict_arg):
-        """Update SSH connection parameters based on contents of SSH 'config' file."""
+        """Update SSH connection parameters based on contents of SSH 'config' file.
+
+        :param dict_arg:
+        :type dict_arg: dict
+        """
 
         connect_dict = dict_arg.copy()
 
@@ -501,7 +547,14 @@ class BaseConnection(object):
 
     def _sanitize_output(self, output, strip_command=False, command_string=None,
                          strip_prompt=False):
-        """Sanitize the output."""
+        """Sanitize the output.
+
+        :param output: The output of a command execution on the SSH channel
+        :type output:
+
+        :param strip_command:
+        :type strip_command:
+        """
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
@@ -762,17 +815,23 @@ class BaseConnection(object):
 
         :param command_string: The command to be executed on the remote device.
         :type command_string: str
+
         :param expect_string: Regular expression pattern to use for determining end of output.
             If left blank will default to being based on router prompt.
-        :type expect_str: str
+        :type expect_string: str
+
         :param delay_factor: Multiplying factor used to adjust delays (default: 1).
         :type delay_factor: int
+
         :param max_loops: Controls wait time in conjunction with delay_factor (default: 150).
         :type max_loops: int
+
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
         :type strip_prompt: bool
+
         :param strip_command: Remove the echo of the command from the output (default: True).
         :type strip_command: bool
+
         :param normalize: Ensure the proper enter is sent at end of command (default: True).
         :type normalize: bool
         """
@@ -831,12 +890,23 @@ class BaseConnection(object):
         return output
 
     def send_command_expect(self, *args, **kwargs):
-        """Support previous name of send_command method."""
+        """Support previous name of send_command method.
+
+        :param args: arguments to send to send_command()
+        :type args: list
+
+        :param kwargs: keyword arguments to send to send_command()
+        :type kwargs: Dict
+        """
         return self.send_command(*args, **kwargs)
 
     @staticmethod
     def strip_backspaces(output):
-        """Strip any backspace characters out of the output."""
+        """Strip any backspace characters out of the output.
+
+        :param output: output returned from device that will have x08 replaced with ''
+        :type output: str
+        """
         backspace_char = '\x08'
         return output.replace(backspace_char, '')
 
