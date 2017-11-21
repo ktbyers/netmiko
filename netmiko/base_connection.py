@@ -548,7 +548,7 @@ class BaseConnection(object):
         return conn_dict
 
     def _sanitize_output(self, output, strip_command=False, command_string=None,
-                         strip_prompt=False):
+                         command_set=None, strip_prompt=False):
         """Sanitize the output."""
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
@@ -556,6 +556,9 @@ class BaseConnection(object):
         if strip_command and command_string:
             command_string = self.normalize_linefeeds(command_string)
             output = self.strip_command(command_string, output)
+        elif strip_command and command_set:
+            command_set = [self.normalize_linefeeds(command) for command in command_set]
+            output = self.strip_commands(command_set, output)
         if strip_prompt:
             output = self.strip_prompt(output)
         return output
@@ -882,6 +885,50 @@ class BaseConnection(object):
         """Support previous name of send_command method."""
         return self.send_command(*args, **kwargs)
 
+    def send_command_set(self, command_set=None, delay_factor=1, max_loops=150,
+                         strip_prompt=True, strip_command=True, normalize=True):
+        """
+        Send commands down the SSH channel.
+
+        command_set is an iterable containing all of the commands.
+        The commands will be executed one after the other.
+
+        :param command_set: The set of commands to be executed on the remote device.
+        :type command_set: list
+        :param delay_factor: Multiplying factor used to adjust delays (default: 1).
+        :type delay_factor: int
+        :param max_loops: Controls wait time in conjunction with delay_factor (default: 150).
+        :type max_loops: int
+        :param strip_prompt: Remove the trailing router prompt from the output (default: True).
+        :type strip_prompt: bool
+        :param strip_command: Remove the echo of the command from the output (default: True).
+        :type strip_command: bool
+        :param normalize: Ensure the proper enter is sent at end of command (default: True).
+        :type normalize: bool
+        """
+        delay_factor = self.select_delay_factor(delay_factor)
+        if command_set is None:
+            return ''
+        elif isinstance(command_set, string_types):
+            command_set = (command_set,)
+
+        if not hasattr(command_set, '__iter__'):
+            raise ValueError("Invalid argument passed into send_command_set")
+
+        if normalize:
+            command_set = [self.normalize_cmd(command) for command in command_set]
+
+        for cmd in command_set:
+            self.write_channel(cmd)
+            time.sleep(delay_factor * .5)
+
+        # Gather output
+        output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
+        output = self._sanitize_output(output, strip_command=strip_command,
+                                       strip_prompt=strip_prompt, command_set=command_set)
+        log.debug("{0}".format(output))
+        return output
+
     @staticmethod
     def strip_backspaces(output):
         """Strip any backspace characters out of the output."""
@@ -905,6 +952,23 @@ class BaseConnection(object):
         else:
             command_length = len(command_string)
             return output[command_length:]
+
+    def strip_commands(self, command_set, output):
+        """
+        Strip multiple commands in command_set from output string
+
+        Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
+        """
+        backspace_char = '\x08'
+
+        # Check for line wrap (remove backspaces)
+        if backspace_char in output:
+            output = output.replace(backspace_char, '')
+        new_output = []
+        for output_line in output.split(self.RESPONSE_RETURN):
+            if not any([command in output_line for command in command_set]):
+                new_output.append(output_line)
+        return self.RESPONSE_RETURN.join(new_output)
 
     def normalize_linefeeds(self, a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`"""
