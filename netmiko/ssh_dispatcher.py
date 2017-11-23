@@ -9,8 +9,6 @@ from netmiko.arista import AristaSSH, AristaFileTransfer
 from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
 from netmiko.avaya import AvayaVspSSH
-from netmiko.brocade import BrocadeFastironSSH
-from netmiko.brocade import BrocadeFastironTelnet
 from netmiko.brocade import BrocadeNetironSSH
 from netmiko.brocade import BrocadeNetironTelnet
 from netmiko.brocade import BrocadeNosSSH
@@ -48,6 +46,7 @@ from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.pluribus import PluribusSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.ruckus import RuckusFastironSSH
+from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
@@ -64,7 +63,7 @@ CLASS_MAPPER_BASE = {
     'aruba_os': ArubaSSH,
     'avaya_ers': AvayaErsSSH,
     'avaya_vsp': AvayaVspSSH,
-    'brocade_fastiron': BrocadeFastironSSH,
+    'brocade_fastiron': RuckusFastironSSH,
     'brocade_netiron': BrocadeNetironSSH,
     'brocade_nos': BrocadeNosSSH,
     'brocade_vdx': BrocadeNosSSH,
@@ -135,12 +134,13 @@ for k, v in FILE_TRANSFER_MAP.items():
 FILE_TRANSFER_MAP = new_mapper
 
 # Add telnet drivers
-CLASS_MAPPER['brocade_fastiron_telnet'] = BrocadeFastironTelnet
+CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
 CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 CLASS_MAPPER['extreme_telnet'] = ExtremeTelnet
+CLASS_MAPPER['ruckus_fastiron_telnet'] = RuckusFastironTelnet
 
 # Add serial drivers
 CLASS_MAPPER['cisco_ios_serial'] = CiscoIosSerial

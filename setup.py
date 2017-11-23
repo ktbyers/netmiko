@@ -67,6 +67,7 @@ setup(
               'netmiko/paloalto',
               'netmiko/pluribus',
               'netmiko/quanta',
+              'netmiko/ruckus',
               'netmiko/terminal_server',
               'netmiko/ubiquiti',
               'netmiko/vyos'],
