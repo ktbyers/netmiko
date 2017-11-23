@@ -45,6 +45,7 @@ from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.pluribus import PluribusSSH
 from netmiko.quanta import QuantaMeshSSH
+from netmiko.ruckus import RuckusFastironSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
@@ -100,6 +101,7 @@ CLASS_MAPPER_BASE = {
     'paloalto_panos': PaloAltoPanosSSH,
     'pluribus': PluribusSSH,
     'quanta_mesh': QuantaMeshSSH,
+    'ruckus_fastiron': RuckusFastironSSH,
     'ubiquiti_edge': UbiquitiEdgeSSH,
     'vyatta_vyos': VyOSSSH,
     'vyos': VyOSSSH,
