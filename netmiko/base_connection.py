@@ -39,7 +39,7 @@ class BaseConnection(object):
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None,
                  session_timeout=60, debug_flag=False, timeout=8, keep_alive=0, default_enter=None, 
-                 response_return=None, serial_settings=None, **kwargs):
+                 response_return=None, serial_settings=None, session_timeout=90, blocking_timeout=8, **kwargs):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -134,6 +134,7 @@ class BaseConnection(object):
         self.verbose = verbose
         self.timeout = kwargs.get('timeout', 8)
         self.session_timeout = session_timeout
+        self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
 
         # Default values
@@ -354,10 +355,8 @@ class BaseConnection(object):
             print(output)
         return output
 
-    def _read_channel_expect(self, pattern='', re_flags=0, max_loops=80,
-                             max_timeout=0, delay_factor=1):
-        """
-        Function that reads channel until pattern is detected.
+    def _read_channel_expect(self, pattern='', re_flags=0, max_loops=150):
+        """Function that reads channel until pattern is detected.
 
         pattern takes a regular expression.
 
@@ -378,7 +377,8 @@ class BaseConnection(object):
         (defaults to no flags)
         :type re_flags: re module flags
 
-        :param max_loops: max number of iterations to read the channel before raising exception
+        :param max_loops: max number of iterations to read the channel before raising exception.
+            Will default to be based upon self.timeout.
         :type max_loops: int
 
         """
@@ -386,21 +386,22 @@ class BaseConnection(object):
         output = ''
         if not pattern:
             pattern = re.escape(self.base_prompt)
-        if debug:
-            print("Pattern is: {}".format(pattern))
-        # Will loop for self.timeout time (unless modified by global_delay_factor)
+        log.debug("Pattern is: {}".format(pattern))
+
         i = 1
-        loop_delay = 0.1 # for read_channel_expect
-        max_loops, max_timeout, loop_delay = self.loop_planner(loop_delay,
-                                                               delay_factor=delay_factor,
-                                                               max_timeout=max_timeout,
-                                                               max_loops=max_loops)
+        loop_delay = .1
+        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
+        # argument for backwards compatibility).
+        if max_loops != 150:
+            max_loops = self.timeout / loop_delay
         while i < max_loops:
             if self.protocol == 'ssh':
                 try:
                     # If no data available will wait timeout seconds trying to read
                     self._lock_netmiko_session()
-                    new_data = self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                    if len(new_data) == 0:
+                        raise EOFError("Channel stream closed by remote device.")
+                    new_data = new_data.decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
                 except socket.timeout:
@@ -410,8 +411,7 @@ class BaseConnection(object):
             elif self.protocol == 'telnet' or 'serial':
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
-                if debug:
-                    print("Pattern found: {} {}".format(pattern, output))
+                log.debug("Pattern found: {} {}".format(pattern, output))
                 return output
             time.sleep(loop_delay)
             i += 1
@@ -428,11 +428,12 @@ class BaseConnection(object):
         Once data is encountered read channel for another two seconds (2 * delay_factor) to make
         sure reading of channel is complete.
 
-        :param delay_factor: multiplicative factor to adjust delay when reading channel (delays \
-        get multiplied by this factor)
+        :param delay_factor: multiplicative factor to adjust delay when reading channel (delays
+            get multiplied by this factor)
         :type delay_factor: int or float
 
-        :param max_loops: maximum number of loops to iterate through before returning channel data
+        :param max_loops: maximum number of loops to iterate through before returning channel data.
+            Will default to be based upon self.timeout.
         :type max_loops: int
         """
         channel_data = ""
@@ -443,7 +444,7 @@ class BaseConnection(object):
                                                                max_timeout=max_timeout,
                                                                max_loops=max_loops)
         while i <= max_loops:
-            time.sleep(loop_delay)
+            time.sleep(loop_delay * delay_factor)
             new_data = self.read_channel()
             print(new_data, end="")
             if new_data:
@@ -688,7 +689,9 @@ class BaseConnection(object):
             else:
                 self.remote_conn = self.remote_conn_pre.invoke_shell()
 
-            self.remote_conn.settimeout(self.timeout)
+            self.remote_conn.settimeout(self.blocking_timeout)
+            if self.keepalive:
+                self.remote_conn.transport.set_keepalive(self.keepalive)
             self.special_login_handler()
             if self.verbose:
                 print("Interactive SSH session established")
@@ -893,7 +896,8 @@ class BaseConnection(object):
         :type command_string: str
         :param delay_factor: Multiplying factor used to adjust delays (default: 1).
         :type delay_factor: int or float
-        :param max_loops: Controls wait time in conjunction with delay_factor (default: 150).
+        :param max_loops: Controls wait time in conjunction with delay_factor. Will default to be
+            based upon self.timeout.
         :type max_loops: int
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
         :type strip_prompt: bool
@@ -950,7 +954,8 @@ class BaseConnection(object):
         :param delay_factor: Multiplying factor used to adjust delays (default: 1).
         :type delay_factor: int
 
-        :param max_loops: Controls wait time in conjunction with delay_factor (default: 150).
+        :param max_loops: Controls wait time in conjunction with delay_factor. Will default to be
+            based upon self.timeout.
         :type max_loops: int
 
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
@@ -962,7 +967,15 @@ class BaseConnection(object):
         :param normalize: Ensure the proper enter is sent at end of command (default: True).
         :type normalize: bool
         """
+        # Time to delay in each read loop
+        loop_delay = .2
+
+        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
+        # and delay_factor arguments for backwards compatibility).
         delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor == 1 and max_loops is 500:
+            # Default arguments are being used; use self.timeout instead
+            max_loops = int(self.timeout / loop_delay)
 
         max_timeout = maximum time to wait for expect_string
           # 500 * 0.2 * 1 = 100 seconds
@@ -999,16 +1012,16 @@ class BaseConnection(object):
             print("Command is: {0}".format(command_string))
             print("Search to stop receiving data is: '{0}'".format(search_pattern))
 
-        time.sleep(loop_delay)
+        time.sleep(delay_factor * loop_delay)
         self.clear_buffer()
         self.write_channel(command_string)
         if verbose:
             print(command_string,end='')
 
-        # Initial delay after sending command
         i = 1
         # Keep reading data until search_pattern is found (or max_loops)
         output = ''
+        # Keep reading data until search_pattern is found or until max_loops is reached.
         while i <= max_loops:
             new_data = self.read_channel()
             if verbose:
@@ -1037,12 +1050,11 @@ class BaseConnection(object):
                 # Need sleep irrespective of new_data - for timeout to take effect
                 time.sleep(loop_delay)
             else:
-                time.sleep(loop_delay)
+                time.sleep(delay_factor * loop_delay)
             i += 1
         else:   # nobreak
-            msg = ("Search pattern never detected in send_command_expect: {0}"
-                   .format(search_pattern))
-            raise PatternNotFoundException(msg, output=output)
+            raise IOError("Search pattern never detected in send_command_expect: {}".format(
+                search_pattern))
 
         output = self._sanitize_output(output, strip_command=strip_command,
                                        command_string=command_string, strip_prompt=strip_prompt)
@@ -1223,8 +1235,7 @@ class BaseConnection(object):
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
-        if debug:
-            print(output)
+        log.debug("{}".format(output))
         return output
 
     def strip_ansi_escape_codes(self, string_buffer):
@@ -1250,6 +1261,7 @@ class BaseConnection(object):
         ESC[2J       Code erase display
         ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
+        ESC[6n       Get cursor position
 
         HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
         """
@@ -1272,12 +1284,13 @@ class BaseConnection(object):
         code_erase_display = chr(27) + r'\[2J'
         code_graphics_mode = chr(27) + r'\[\d\d;\d\dm'
         code_graphics_mode2 = chr(27) + r'\[\d\d;\d\d;\d\dm'
+        code_get_cursor_position = chr(27) + r'\[6n'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
                     code_erase_start_line, code_form_feed, code_carriage_return,
                     code_disable_line_wrapping, code_erase_line_end,
                     code_reset_mode_screen_options, code_erase_display,
-                    code_graphics_mode, code_graphics_mode2]
+                    code_graphics_mode, code_graphics_mode2, code_get_cursor_position]
 
         output = string_buffer
         for ansi_esc_code in code_set:
