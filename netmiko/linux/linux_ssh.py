@@ -81,3 +81,7 @@ class LinuxSSH(CiscoSSHConnection):
                       "the 'secret' argument to ConnectHandler."
                 raise ValueError(msg)
         return output
+
+    def session_preparation(self):
+        """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
