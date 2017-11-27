@@ -130,6 +130,7 @@ class CiscoXr(CiscoBaseConnection):
             raise ValueError("Invalid arguments supplied to XR commit")
 
         # wrap the comment in quotes
+        # wrap the comment in quotes
         if comment:
             if '"' in comment:
                 raise ValueError("Invalid comment contains double quote")
@@ -139,31 +140,26 @@ class CiscoXr(CiscoBaseConnection):
         error_marker = 'Failed to'
         alt_error_marker = 'One or more commits have occurred from other'
 
-        commit_str = 'commit '
-        if replace:
-            commit_str += 'replace '
         # Select proper command string based on arguments provided
         if label:
             if comment:
-                command_string = 'label {0} comment {1}'.format(label, comment)
+                command_string = 'commit label {0} comment {1}'.format(label, comment)
             elif confirm:
-                command_string = 'label {0} confirmed {1}'.format(label, str(confirm_delay))
+                command_string = 'commit label {0} confirmed {1}'.format(label, str(confirm_delay))
             else:
-                command_string = 'label {0}commit_str + '.format(label)
+                command_string = 'commit label {0}'.format(label)
         elif confirm:
-            command_string = 'confirmed {0}commit_str + '.format(str(confirm_delay))
+            command_string = 'commit confirmed {0}'.format(str(confirm_delay))
         elif comment:
-            command_string = 'comment {0}commit_str + '.format(comment)
+            command_string = 'commit comment {0}'.format(comment)
         else:
-            command_string = ''
-
-        command_string = commit_str + command_string
+            command_string = 'commit'
 
         # Enter config mode (if necessary)
         #output = self.config_mode()
         output = ''
         if replace:
-            output += self.send_command_timing(commit_str, strip_prompt=False, strip_command=False,
+            output += self.send_command_timing('commit replace', strip_prompt=False, strip_command=False,
                                                delay_factor=delay_factor,
                                                max_timeout=max_timeout)
             commit_replace_marker = "This commit will replace or remove the entire running configuration"
@@ -188,6 +184,21 @@ class CiscoXr(CiscoBaseConnection):
 
             return output
 
+
+    def check_config_mode(self, check_string=')#', pattern=r"[#\$]"):
+        """Checks if the device is in configuration mode or not.
+
+        IOS-cXR, unfortunately, does this:
+        RP/0/RSP0/CPU0:BNG(admin)#
+        """
+        self.write_channel('\n')
+        output = self.read_until_pattern(pattern=pattern)
+        # Strip out (admin) so we don't get a false positive with (admin)#
+        # (admin-config)# would still match.
+        output = output.replace("(admin)", "")
+        return check_string in output
+
+    
     def exit_config_mode(self, exit_config='end', skip_check=False):
         """Exit configuration mode."""
         output = ''
