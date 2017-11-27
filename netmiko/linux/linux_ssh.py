@@ -81,3 +81,7 @@ class LinuxSSH(CiscoSSHConnection):
                       "the 'secret' argument to ConnectHandler."
                 raise ValueError(msg)
         return output
+
+    def cleanup(self):
+        """Try to Gracefully exit the SSH session."""
+        self.write_channel("exit" + self.RETURN)

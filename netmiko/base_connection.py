@@ -1184,18 +1184,18 @@ class BaseConnection(object):
         pass
 
     def disconnect(self):
-        """Gracefully close the SSH connection."""
-        self.cleanup()
-        if self.protocol == 'ssh':
-            try:
+        """Try to gracefully close the SSH connection."""
+        try:
+            self.cleanup()
+            if self.protocol == 'ssh':
                 self.remote_conn_pre.close()
-            except OSError:
-                # There can be timing issues with 'exit' from the CLI and whether remote_conn_pre
-                # can be closed cleanly.
-                pass
-        elif self.protocol == 'telnet' or 'serial':
-            self.remote_conn.close()
-        self.remote_conn = None
+            elif self.protocol == 'telnet' or 'serial':
+                self.remote_conn.close()
+        except Exception:
+            # There have been race conditions observed on disconnect.
+            pass
+        finally:
+            self.remote_conn = None
 
     def commit(self):
         """Commit method for platforms that support this."""
