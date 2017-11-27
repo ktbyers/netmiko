@@ -49,6 +49,7 @@ setup(
               'netmiko/calix',
               'netmiko/ciena',
               'netmiko/cisco',
+              'netmiko/coriant',
               'netmiko/dell',
               'netmiko/eltex',
               'netmiko/enterasys',
