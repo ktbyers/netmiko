@@ -60,6 +60,9 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device nxos1 \
 && py.test -v test_netmiko_config.py --test_device nxos1 \
 \
+&& echo "Linux SSH (using keys)" \
+&& py.test -s -v test_netmiko_show.py --test_device linux_srv1 \
+\
 && echo "Autodetect tests" \
 && py.test -s -v test_netmiko_autodetect.py --test_device cisco881 \
 && py.test -s -v test_netmiko_autodetect.py --test_device arista_sw4 \
@@ -70,7 +73,3 @@ echo "Starting tests...good luck:" \
 || RETURN_CODE=1
 
 exit $RETURN_CODE
-
-#&& echo "Linux SSH (using keys)" \
-#&& py.test -s -v test_netmiko_show.py --test_device linux_srv1 \
-#\
