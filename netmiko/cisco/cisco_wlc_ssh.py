@@ -47,7 +47,7 @@ class CiscoWlcSSH(BaseConnection):
         Even though pagination is disabled
         show run-config also has excessive delays in the output which requires special
         handling.
-        Arguments are the same as send_command() method
+        Arguments are the same as send_command_timing() method
         '''
         if len(args) > 1:
             raise ValueError("Must pass in delay_factor as keyword argument")
@@ -55,7 +55,7 @@ class CiscoWlcSSH(BaseConnection):
         # If no delay_factor use 1 for default value
         delay_factor = kwargs.get('delay_factor', 1)
         kwargs['delay_factor'] = self.select_delay_factor(delay_factor)
-        output = self.send_command(*args, **kwargs)
+        output = self.send_command_timing(*args, **kwargs)
 
         if 'Press Enter to' in output:
             new_args = list(args)
@@ -67,7 +67,7 @@ class CiscoWlcSSH(BaseConnection):
                 kwargs['max_loops'] = 150
 
             # Send an 'enter'
-            output = self.send_command(*new_args, **kwargs)
+            output = self.send_command_timing(*new_args, **kwargs)
 
             # WLC has excessive delay after this appears on screen
             if '802.11b Advanced Configuration' in output:
@@ -108,7 +108,7 @@ class CiscoWlcSSH(BaseConnection):
 
     def cleanup(self):
         """Reset WLC back to normal paging."""
-        self.send_command("config paging enable")
+        self.send_command_timing("config paging enable")
 
     def check_config_mode(self, check_string='config', pattern=''):
         """Checks if the device is in configuration mode or not."""
