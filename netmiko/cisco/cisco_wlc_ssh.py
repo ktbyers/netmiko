@@ -129,7 +129,8 @@ class CiscoWlcSSH(BaseConnection):
         return super(CiscoWlcSSH, self).exit_config_mode(exit_config, pattern)
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
-                        max_loops=150, strip_prompt=False, strip_command=False):
+                        max_loops=150, strip_prompt=False, strip_command=False,
+                        config_mode_command=None):
         """
         Send configuration commands down the SSH channel.
 
@@ -155,5 +156,5 @@ class CiscoWlcSSH(BaseConnection):
         # Gather output
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         output = self._sanitize_output(output)
-        log.debug("{0}".format(output))
+        log.debug("{}".format(output))
         return output
