@@ -102,6 +102,7 @@ CLASS_MAPPER_BASE = {
     'quanta_mesh': QuantaMeshSSH,
     'ruckus_fastiron': RuckusFastironSSH,
     'ubiquiti_edge': UbiquitiEdgeSSH,
+    'ubiquiti_edgeswitch': UbiquitiEdgeSSH,
     'vyatta_vyos': VyOSSSH,
     'vyos': VyOSSSH,
 }
