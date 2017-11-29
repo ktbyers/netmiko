@@ -1084,7 +1084,7 @@ class BaseConnection(object):
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
                         max_loops=150, strip_prompt=False, strip_command=False,
-                        config_mode_cmd=None):
+                        config_mode_command=None):
         """
         Send configuration commands down the SSH channel.
 
@@ -1103,7 +1103,8 @@ class BaseConnection(object):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Send config commands
-        output = self.config_mode(config_mode_cmd) if config_mode_cmd else self.config_mode()
+        cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
+        output = self.config_mode(*cfg_mode_args)
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
             time.sleep(delay_factor * .5)
