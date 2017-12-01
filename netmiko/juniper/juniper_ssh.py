@@ -198,11 +198,11 @@ class JuniperFileTransfer(BaseFileTransfer):
 
         if direction == 'put':
             self.source_file = source_file
-#            self.source_md5 = self.file_md5(source_file)
+            self.source_md5 = self.file_md5(source_file)
             self.file_size = os.stat(self.source_file).st_size
         elif direction == 'get':
             self.source_file = "{}/{}".format(file_system, source_file)
-#            self.source_md5 = self.remote_md5(remote_file=source_file)
+            self.source_md5 = self.remote_md5(remote_file=source_file)
             self.file_size = self.remote_file_size(remote_file=self.source_file)
         else:
             raise ValueError("Invalid direction specified")
@@ -301,18 +301,34 @@ class JuniperFileTransfer(BaseFileTransfer):
         """
         Process the string to retrieve the MD5 hash
 
-        Output from Cisco IOS (ASA is similar)
-        .MD5 of flash:file_name Done!
-        verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
+        Output from JUNOS
+        MD5 (file_name) = 3a608f654faf9afa0d8368984de1a5ce
         """
-        raise NotImplementedError
+        match = re.search(pattern, md5_output)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError("Invalid output from MD5 command: {0}".format(md5_output))
 
     def compare_md5(self):
         """Compare md5 of file on network device to md5 of local file"""
-        raise NotImplementedError
+        if self.direction == 'put':
+            remote_md5 = self.remote_md5()
+            return self.source_md5 == remote_md5
+        elif self.direction == 'get':
+            local_md5 = self.file_md5(self.dest_file)
+            return self.source_md5 == local_md5
 
-    def remote_md5(self, base_cmd='verify /md5', remote_file=None):
-        raise NotImplementedError
+    def remote_md5(self, base_cmd='file checksum md5', remote_file=None):
+        if remote_file is None:
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
+            remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, remote_file)
+            dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+            dest_md5 = self.process_md5(dest_md5)
+            return dest_md5
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
@@ -323,7 +339,7 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def verify_file(self):
         """Verify the file has been transferred correctly."""
-        raise NotImplementedError
+        return self.compare_md5()
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError
