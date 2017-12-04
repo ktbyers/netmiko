@@ -1122,14 +1122,17 @@ class BaseConnection(object):
     def enable(self, cmd='', pattern='ssword', re_flags=re.IGNORECASE):
         """Enter enable mode."""
         output = ""
+        msg = "Failed to enter enable mode. Please ensure you pass " \
+              "the 'secret' argument to ConnectHandler."
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
-            output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
-            self.write_channel(self.normalize_cmd(self.secret))
-            output += self.read_until_prompt()
+            try:
+                output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
+                self.write_channel(self.normalize_cmd(self.secret))
+                output += self.read_until_prompt()
+            except NetMikoTimeoutException:
+                raise ValueError(msg)
             if not self.check_enable_mode():
-                msg = "Failed to enter enable mode. Please ensure you pass " \
-                      "the 'secret' argument to ConnectHandler."
                 raise ValueError(msg)
         return output
 
