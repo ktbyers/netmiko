@@ -722,13 +722,27 @@ class BaseConnection(object):
 
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back.
+
         :param count: the number of times to check the channel for data
         :type count: int
-        :param pattern: Regular expression pattern used to determine end of channel read
-        :type pattern: str
+
+        :param pattern: the pattern to search for signifying the device prompt has returned and to break out of the loop
+        :type: str
         """
+
         def _increment_delay(main_delay, increment=1.1, maximum=8):
-            """Increment sleep time to a maximum value."""
+            """Increment sleep time to a maximum value.
+
+            :param main_delay: Pri factor for calculating the sleep time while for data to return from the channel
+            :type int
+
+            :param increment: Secondary factor for calculating sleep time while waiting for data to return from channel
+            :type increment: float
+
+            :param maximum: The maximum amount of delay to sleep when waiting for data to return from the channel
+            :type int
+            :
+            """
             main_delay = main_delay * increment
             if main_delay >= maximum:
                 main_delay = maximum
@@ -885,11 +899,6 @@ class BaseConnection(object):
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-<<<<<<< HEAD
-    def find_prompt(self, delay_factor=1, newline_format='\n'):
-        """Finds the current network device prompt, last line only."""
-        debug = self.debug_flag
-=======
     def find_prompt(self, delay_factor=1):
         """Finds the current network device prompt, last line only.
 
@@ -897,7 +906,6 @@ class BaseConnection(object):
         :type delay_factor: int
         """
         delay_factor = self.select_delay_factor(delay_factor)
->>>>>>> Update docstrings
         self.clear_buffer()
         self.write_channel(self.RETURN)
         time.sleep(delay_factor * .1)
@@ -954,15 +962,9 @@ class BaseConnection(object):
         :type command_string: str
 
         :param delay_factor: Multiplying factor used to adjust delays (default: 1).
-<<<<<<< HEAD
-        :type delay_factor: int or float
-        :param max_loops: Controls wait time in conjunction with delay_factor. Will default to be
-            based upon self.timeout.
-=======
         :type delay_factor: int
 
         :param max_loops: Controls wait time in conjunction with delay_factor (default: 150).
->>>>>>> Update docstrings
         :type max_loops: int
 
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
@@ -994,17 +996,12 @@ class BaseConnection(object):
         return output
 
     def strip_prompt(self, a_string):
-<<<<<<< HEAD
-        """Strip the trailing router prompt from the output."""
-        response_list = a_string.split(self.RESPONSE_RETURN)
-=======
         """Strip the trailing router prompt from the output.
 
         :param a_string: Returned output from device
         :type a_string: str
         """
         response_list = a_string.split('\n')
->>>>>>> Update docstrings
         last_line = response_list[-1]
         if self.base_prompt in last_line:
             return self.RESPONSE_RETURN.join(response_list[:-1])
@@ -1140,19 +1137,11 @@ class BaseConnection(object):
     def send_command_expect(self, *args, **kwargs):
         """Support previous name of send_command method.
 
-<<<<<<< HEAD
-        :param args: Positional arguments to send to send_command()
-        :type args: list
-
-        :param kwargs: Keyword arguments to send to send_command()
-        :type kwargs: Dict
-=======
         :param args: Arguments to send to send_command()
         :type args: list
 
         :param kwargs: Keyword arguments to send to send_command()
         :type kwargs: dict
->>>>>>> Update docstrings
         """
         return self.send_command(*args, **kwargs)
 
@@ -1160,11 +1149,7 @@ class BaseConnection(object):
     def strip_backspaces(output):
         """Strip any backspace characters out of the output.
 
-<<<<<<< HEAD
-        :param output: Output obtained from a remote network device.
-=======
         :param output: Output returned from device that will have x08 replaced with ''
->>>>>>> Update docstrings
         :type output: str
         """
         backspace_char = '\x08'
@@ -1194,10 +1179,6 @@ class BaseConnection(object):
             command_length = len(command_string)
             return output[command_length:]
 
-<<<<<<< HEAD
-    def normalize_linefeeds(self, a_string):
-        """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`"""
-=======
     @staticmethod
     def normalize_linefeeds(a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
@@ -1206,24 +1187,12 @@ class BaseConnection(object):
             i.e. output returned from device, or a device prompt
         :type a_string: str
         """
->>>>>>> Update docstrings
         newline = re.compile('(\r\r\r\n|\r\r\n|\r\n|\n\r)')
         a_string = newline.sub(self.RESPONSE_RETURN, a_string)
         if self.RESPONSE_RETURN == '\n':
             # Convert any remaining \r to \n
             return re.sub('\r', self.RESPONSE_RETURN, a_string)
 
-<<<<<<< HEAD
-    def normalize_cmd(self, command):
-        """Normalize CLI commands to have a single trailing newline."""
-        command = command.rstrip()
-        command += self.RETURN
-        return command
-
-    def check_enable_mode(self, check_string=''):
-        """Check if in enable mode. Return boolean."""
-        self.write_channel(self.RETURN)
-=======
     @staticmethod
     def normalize_cmd(command):
         """Normalize CLI commands to have a single trailing newline.
@@ -1243,7 +1212,6 @@ class BaseConnection(object):
         :type check_string: str
         """
         self.write_channel('\n')
->>>>>>> Update docstrings
         output = self.read_until_prompt()
         return check_string in output
 
@@ -1280,17 +1248,10 @@ class BaseConnection(object):
 
     def check_config_mode(self, check_string='', pattern=''):
         """Checks if the device is in configuration mode or not.
-<<<<<<< HEAD
-        :param check_string: Identification of configuration mode from the device
-        :type check_string: str
-        :param pattern: Pattern to terminate reading of channel
-=======
-
         :param check_string: Identification of configuration mode from the device
         :type check_string: str
 
         :param pattern: The pattern to identify the device prompt
->>>>>>> Update docstrings
         :type pattern: str
         """
         log.debug("pattern: {0}".format(pattern))
@@ -1299,12 +1260,8 @@ class BaseConnection(object):
         log.debug("check_config_mode: {0}".format(repr(output)))
         return check_string in output
 
-<<<<<<< HEAD
     def config_mode(self, config_command='', pattern='', max_timeout=8,
                     skip_check=False):
-        """Enter into config_mode."""
-=======
-    def config_mode(self, config_command='', pattern=''):
         """Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
@@ -1313,7 +1270,6 @@ class BaseConnection(object):
         :param pattern: The pattern to identify the device prompt, signifying the config command completed
         :type pattern: str
         """
->>>>>>> Update docstrings
         output = ''
         bool_check = True
         if not skip_check:
@@ -1331,10 +1287,6 @@ class BaseConnection(object):
         return output
 
     def exit_config_mode(self, exit_config='', pattern=''):
-<<<<<<< HEAD
-        """Exit from configuration mode."""
-        debug = self.debug_flag
-=======
         """Exit from configuration mode.
 
         :param exit_config: Command to exit configuration mode
@@ -1343,15 +1295,12 @@ class BaseConnection(object):
         :param pattern: The pattern to identify the device prompt, signifying the exit config mode command completed
         :type pattern: str
         """
->>>>>>> Update docstrings
         output = ''
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-        if debug:
-            print("exit_config_mode: {}".format(output))
         return output
 
     def send_config_from_file(self, config_file=None, **kwargs):
@@ -1379,14 +1328,6 @@ class BaseConnection(object):
         The commands will be executed one after the other.
 
         Automatically exits/enters configuration mode.
-<<<<<<< HEAD
-        max_timeout is taken into account only for config reading
-         - due to backward compatability
-        config_mode - self.timeout
-        config_write - aggressive to be sub second
-        read_channel - uses max timeout
-=======
-
         :param config_commands: Multiple commands to be sent to the device
         :type config_commands: iterable of strings
 
@@ -1404,7 +1345,6 @@ class BaseConnection(object):
 
         :param strip_command:
         :type strip_command: bool
->>>>>>> Update docstrings
         """
         debug = self.debug_flag
         if config_commands is None:
