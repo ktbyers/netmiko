@@ -666,10 +666,28 @@ class BaseConnection(object):
         return ""
 
     def _test_channel_read(self, count=40, pattern=""):
-        """Try to read the channel (generally post login) verify you receive data back."""
+        """Try to read the channel (generally post login) verify you receive data back.
+
+        :param count: the number of times to check the channel for data
+        :type count: int
+
+        :param pattern: the pattern to search for signifying the device prompt has returned and to break out of the loop
+        :type: str
+        """
 
         def _increment_delay(main_delay, increment=1.1, maximum=8):
-            """Increment sleep time to a maximum value."""
+            """Increment sleep time to a maximum value.
+
+            :param main_delay: Pri factor for calculating the sleep time while for data to return from the channel
+            :type int
+
+            :param increment: Secondary factor for calculating sleep time while waiting for data to return from channel
+            :type increment: float
+
+            :param maximum: The maximum amount of delay to sleep when waiting for data to return from the channel
+            :type int
+            :
+            """
             main_delay = main_delay * increment
             if main_delay >= maximum:
                 main_delay = maximum
