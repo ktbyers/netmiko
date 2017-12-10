@@ -671,20 +671,20 @@ class BaseConnection(object):
         :param count: the number of times to check the channel for data
         :type count: int
 
-        :param pattern: Pattern signifying the device prompt has returned and to break out of the loop
+        :param pattern: Signifying the device prompt has returned and to break out of the loop
         :type: str
         """
 
         def _increment_delay(main_delay, increment=1.1, maximum=8):
             """Increment sleep time to a maximum value.
 
-            :param main_delay: Pri factor for sleep time while for data to return from the channel
+            :param main_delay: Pri sleep factor for data to return from the channel
             :type int
 
-            :param increment: Sec factor for sleep time while waiting for data to return from channel
+            :param increment: Sec sleep factor for waiting for data to return from channel
             :type increment: float
 
-            :param maximum: The max delay to sleep when waiting for data to return from the channel
+            :param maximum: Max delay to sleep when waiting for data to return from the channel
             :type int
             :
             """
