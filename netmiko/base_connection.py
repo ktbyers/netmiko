@@ -645,7 +645,7 @@ class BaseConnection(object):
         :param output: The output of a command execution on the SSH channel
         :type output: str
 
-        :param strip_command: specifies that the initial command needs to be stripped from the output
+        :param strip_command: specifies that the initial command to be stripped from the output
         :type strip_command: bool
 
         :param command_string: the command string sent to the device
@@ -726,20 +726,20 @@ class BaseConnection(object):
         :param count: the number of times to check the channel for data
         :type count: int
 
-        :param pattern: the pattern to search for signifying the device prompt has returned and to break out of the loop
+        :param pattern: Pattern signifying the device prompt has returned and to break out of the loop
         :type: str
         """
 
         def _increment_delay(main_delay, increment=1.1, maximum=8):
             """Increment sleep time to a maximum value.
 
-            :param main_delay: Pri factor for calculating the sleep time while for data to return from the channel
+            :param main_delay: Pri factor for sleep time while for data to return from the channel
             :type int
 
-            :param increment: Secondary factor for calculating sleep time while waiting for data to return from channel
+            :param increment: Sec factor for sleep time while waiting for data to return from channel
             :type increment: float
 
-            :param maximum: The maximum amount of delay to sleep when waiting for data to return from the channel
+            :param maximum: The max delay to sleep when waiting for data to return from the channel
             :type int
             :
             """
@@ -1197,7 +1197,7 @@ class BaseConnection(object):
     def normalize_cmd(command):
         """Normalize CLI commands to have a single trailing newline.
 
-        :param command: Command to be sent to the channel that may require line feed to be normalized
+        :param command: Command that may require line feed to be normalized
             (No Default set)
         :type command: str
         """
@@ -1235,7 +1235,7 @@ class BaseConnection(object):
     def exit_enable_mode(self, exit_command=''):
         """Exit enable mode.
 
-        :param exit_command: Command to send to the device that exits the session from privileged mode
+        :param exit_command: Command that exits the session from privileged mode
         :type exit_command: str
         """
         output = ""
@@ -1251,7 +1251,7 @@ class BaseConnection(object):
         :param check_string: Identification of configuration mode from the device
         :type check_string: str
 
-        :param pattern: The pattern to identify the device prompt
+        :param pattern: Pattern to identify the device prompt
         :type pattern: str
         """
         log.debug("pattern: {0}".format(pattern))
@@ -1267,7 +1267,7 @@ class BaseConnection(object):
         :param config_command: Configuration command to send to the device
         :type config_command: str
 
-        :param pattern: The pattern to identify the device prompt, signifying the config command completed
+        :param pattern: The pattern signifying the config command completed
         :type pattern: str
         """
         output = ''
@@ -1292,7 +1292,7 @@ class BaseConnection(object):
         :param exit_config: Command to exit configuration mode
         :type exit_config: str
 
-        :param pattern: The pattern to identify the device prompt, signifying the exit config mode command completed
+        :param pattern: The pattern signifying the exit config mode command completed
         :type pattern: str
         """
         output = ''
@@ -1331,7 +1331,7 @@ class BaseConnection(object):
         :param config_commands: Multiple commands to be sent to the device
         :type config_commands: iterable of strings
 
-        :param exit_config_mode: Determines whether or not to exit config mode after all commands have been sent
+        :param exit_config_mode: Determines exit config mode after all commands have been sent
         :type exit_config_mode: bool
 
         :param delay_factor: Factor to adjust delay when reading the channel
