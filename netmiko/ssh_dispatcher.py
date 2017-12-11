@@ -90,6 +90,7 @@ CLASS_MAPPER_BASE = {
     'hp_comware': HPComwareSSH,
     'hp_procurve': HPProcurveSSH,
     'huawei': HuaweiSSH,
+    'huawei_vrpv8': HuaweiSSH,
     'juniper': JuniperSSH,
     'juniper_junos': JuniperSSH,
     'linux': LinuxSSH,
