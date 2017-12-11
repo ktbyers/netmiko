@@ -80,3 +80,34 @@ class HuaweiSSH(CiscoSSHConnection):
         log.debug("prompt: {0}".format(self.base_prompt))
 
         return self.base_prompt
+
+
+class HuaweiVrpv8SSH(HuaweiSSH):
+
+    def commit(self, comment='', delay_factor=1):
+        """
+        Commit the candidate configuration.
+
+        Commit the entered configuration. Raise an error and return the failure
+        if the commit fails.
+
+        default:
+           command_string = commit
+        comment:
+           command_string = commit comment <comment>
+
+        """
+        delay_factor = self.select_delay_factor(delay_factor)
+        error_marker = 'Failed to generate committed config'
+        command_string = 'commit'
+
+        if comment:
+            command_string += ' comment "{}"'.format(comment)
+
+        output = self.config_mode()
+        output += self.send_command_expect(command_string, strip_prompt=False,
+                                           strip_command=False, delay_factor=delay_factor)
+
+        if error_marker in output:
+            raise ValueError('Commit failed with following errors:\n\n{}'.format(output))
+        return output
