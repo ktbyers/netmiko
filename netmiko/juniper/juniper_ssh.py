@@ -40,7 +40,7 @@ class JuniperSSH(BaseConnection):
             self.write_channel(self.RETURN)
             time.sleep(.1 * delay_factor)
             cur_prompt = self.read_channel()
-            if re.search(r'root@', cur_prompt):
+            if re.search(r'root@', cur_prompt) or re.search(r"^%$", cur_prompt.strip()):
                 self.write_channel("cli" + self.RETURN)
                 time.sleep(.3 * delay_factor)
                 self.clear_buffer()
