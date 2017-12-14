@@ -942,21 +942,10 @@ class BaseConnection(object):
         self.read_channel()
 
     def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
-                            strip_prompt=True, strip_command=True, max_timeout=0, verbose=False, **kwargs):
-        '''
-        Execute command_string on the SSH channel.
-
-        Use delay based mechanism to obtain output.  Strips echoed characters and router prompt.
-
-        delay_factor can be used to increase the delays.
-
-        max_loops can be used to increase the number of times it reads the data buffer
-
-        Returns the output of the command.
-        '''
-        debug = self.debug_flag
-        if debug:
-            print('In send_command_timing')
+                            strip_prompt=True, strip_command=True, normalize=True,
+                            use_textfsm=False):
+        """Execute command_string on the SSH channel using a delay-based mechanism. Generally
+        used for show commands.
 
         :param command_string: The command to be executed on the remote device.
         :type command_string: str
@@ -975,6 +964,8 @@ class BaseConnection(object):
 
         :param normalize: Ensure the proper enter is sent at end of command (default: True).
         :type normalize: bool
+        :param use_textfsm: Process command output through TextFSM template (default: False).
+        :type normalize: bool
         """
         output = ''
         delay_factor = self.select_delay_factor(delay_factor)
@@ -991,8 +982,9 @@ class BaseConnection(object):
             print("zzz: {}".format(output))
         output = self._sanitize_output(output, strip_command=strip_command,
                                        command_string=command_string, strip_prompt=strip_prompt)
-        if debug:
-            print(output)
+        if use_textfsm:
+            output = get_structured_data(output, platform=self.device_type,
+                                         command=command_string.strip())
         return output
 
     def strip_prompt(self, a_string):
@@ -1010,14 +1002,8 @@ class BaseConnection(object):
 
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
-<<<<<<< HEAD
                      strip_prompt=True, strip_command=True,normalize=True,
-                     max_timeout=0, verbose=False, **kwargs):
-            
-=======
-                     strip_prompt=True, strip_command=True, normalize=True,
-                     use_textfsm=False):
->>>>>>> Integrating textfsm support directly into Netmiko
+                     max_timeout=0, verbose=False, use_textfsm=False, **kwargs):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
