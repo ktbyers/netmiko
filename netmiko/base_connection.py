@@ -419,7 +419,7 @@ class BaseConnection(object):
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # and delay_factor arguments for backwards compatibility).
         delay_factor = self.select_delay_factor(delay_factor)
-        if delay_factor == 1 and max_loops is 150:
+        if delay_factor == 1 and max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
 
         channel_data = ""
@@ -914,7 +914,7 @@ class BaseConnection(object):
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # and delay_factor arguments for backwards compatibility).
         delay_factor = self.select_delay_factor(delay_factor)
-        if delay_factor == 1 and max_loops is 500:
+        if delay_factor == 1 and max_loops == 500:
             # Default arguments are being used; use self.timeout instead
             max_loops = int(self.timeout / loop_delay)
 
