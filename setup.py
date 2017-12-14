@@ -40,7 +40,7 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     packages=find_packages(exclude=("test*", )),
-    install_requires=['paramiko>=2.0.0', 'scp>=0.10.0', 'pyyaml', 'pyserial'],
+    install_requires=['paramiko>=2.0.0', 'scp>=0.10.0', 'pyyaml', 'pyserial', 'textfsm'],
     extras_require={
         'test': ['pytest>=3.2.5', ]
     },

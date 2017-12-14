@@ -21,7 +21,7 @@ from threading import Lock
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
-from netmiko.utilities import write_bytes, check_serial_port
+from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
 from netmiko.py23_compat import string_types
 from netmiko import log
 import serial
@@ -869,7 +869,8 @@ class BaseConnection(object):
 
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
-                     strip_prompt=True, strip_command=True, normalize=True):
+                     strip_prompt=True, strip_command=True, normalize=True,
+                     use_textfsm=False):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
@@ -896,6 +897,9 @@ class BaseConnection(object):
         :type strip_command: bool
 
         :param normalize: Ensure the proper enter is sent at end of command (default: True).
+        :type normalize: bool
+
+        :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
         """
         # Time to delay in each read loop
@@ -958,6 +962,9 @@ class BaseConnection(object):
 
         output = self._sanitize_output(output, strip_command=strip_command,
                                        command_string=command_string, strip_prompt=strip_prompt)
+        if use_textfsm:
+            output = get_structured_data(output, platform=self.device_type,
+                                         command=command_string.strip())
         return output
 
     def send_command_expect(self, *args, **kwargs):
