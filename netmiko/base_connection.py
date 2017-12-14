@@ -828,7 +828,8 @@ class BaseConnection(object):
         self.read_channel()
 
     def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
-                            strip_prompt=True, strip_command=True, normalize=True):
+                            strip_prompt=True, strip_command=True, normalize=True,
+                            use_textfsm=False):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
@@ -845,6 +846,8 @@ class BaseConnection(object):
         :type strip_command: bool
         :param normalize: Ensure the proper enter is sent at end of command (default: True).
         :type normalize: bool
+        :param use_textfsm: Process command output through TextFSM template (default: False).
+        :type normalize: bool
         """
         output = ''
         delay_factor = self.select_delay_factor(delay_factor)
@@ -856,6 +859,9 @@ class BaseConnection(object):
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         output = self._sanitize_output(output, strip_command=strip_command,
                                        command_string=command_string, strip_prompt=strip_prompt)
+        if use_textfsm:
+            output = get_structured_data(output, platform=self.device_type,
+                                         command=command_string.strip())
         return output
 
     def strip_prompt(self, a_string):
