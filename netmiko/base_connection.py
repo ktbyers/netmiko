@@ -451,6 +451,16 @@ class BaseConnection(object):
         :param max_loops: Controls wait time in conjunction with delay_factor (default: 150)
         :type max_loops: int
         """
+        # Time to delay in each read loop
+        loop_delay = .1
+        final_delay = 2
+
+        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
+        # and delay_factor arguments for backwards compatibility).
+        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor == 1 and max_loops == 150:
+            max_loops = int(self.timeout / loop_delay)
+
         channel_data = ""
         i = 1
         loop_delay = 0.1 # for read_channel_timing
@@ -1041,7 +1051,7 @@ class BaseConnection(object):
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # and delay_factor arguments for backwards compatibility).
         delay_factor = self.select_delay_factor(delay_factor)
-        if delay_factor == 1 and max_loops is 500:
+        if delay_factor == 1 and max_loops == 500:
             # Default arguments are being used; use self.timeout instead
             max_loops = int(self.timeout / loop_delay)
 
