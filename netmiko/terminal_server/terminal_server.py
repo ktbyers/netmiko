@@ -21,4 +21,9 @@ class TerminalServerSSH(TerminalServer):
 
 class TerminalServerTelnet(TerminalServer):
     """Generic Terminal Server driver telnet."""
-    pass
+    def telnet_login(self, *args, **kwargs):
+        # Disable automatic handling of username and password when using terminal server driver
+        pass
+
+    def std_login(self, *args, **kwargs):
+        return super(TerminalServerTelnet, self).telnet_login(*args, **kwargs)

@@ -46,7 +46,7 @@ Huawei
 Mellanox  
 Palo Alto PAN-OS  
 Pluribus  
-Ubiquiti EdgeOS  
+Ubiquiti EdgeSwitch
 Vyatta VyOS  
 
 ###### Experimental
@@ -74,6 +74,10 @@ https://pynet.twb-tech.com/blog/automation/netmiko.html
 ##### SSH Proxy:
 
 https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html
+
+##### Documentation (Stable)
+
+http://netmiko.readthedocs.io/en/stable/index.html
 
 ## Examples:
 

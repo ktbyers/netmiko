@@ -1,6 +1,6 @@
 """Extreme support."""
 from __future__ import unicode_literals
-
+import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -13,7 +13,10 @@ class ExtremeSSH(CiscoSSHConnection):
     def session_preparation(self):
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="disable clipaging\n")
+        self.disable_paging(command="disable clipaging")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def set_base_prompt(self, *args, **kwargs):
         """
