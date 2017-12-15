@@ -190,6 +190,8 @@ class JuniperSSH(BaseConnection):
 class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
     def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put'):
+        msg = "Juniper SCP Driver is under development and not fully implemented"
+        raise NotImplementedError(msg)
         self.ssh_ctl_chan = ssh_conn
         self.dest_file = dest_file
         self.direction = direction
@@ -198,11 +200,11 @@ class JuniperFileTransfer(BaseFileTransfer):
 
         if direction == 'put':
             self.source_file = source_file
-#            self.source_md5 = self.file_md5(source_file)
+            # self.source_md5 = self.file_md5(source_file)
             self.file_size = os.stat(self.source_file).st_size
         elif direction == 'get':
             self.source_file = "{}/{}".format(file_system, source_file)
-#            self.source_md5 = self.remote_md5(remote_file=source_file)
+            # self.source_md5 = self.remote_md5(remote_file=source_file)
             self.file_size = self.remote_file_size(remote_file=self.source_file)
         else:
             raise ValueError("Invalid direction specified")
