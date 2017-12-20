@@ -114,6 +114,7 @@ FILE_TRANSFER_MAP = {
     'arista_eos': AristaFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
     'cisco_ios': CiscoIosFileTransfer,
+    'cisco_xe': CiscoIosFileTransfer,
     'cisco_nxos': CiscoNxosFileTransfer,
     'juniper_junos': JuniperFileTransfer,
 }
