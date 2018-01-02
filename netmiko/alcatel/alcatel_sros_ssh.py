@@ -25,8 +25,13 @@ class AlcatelSrosSSH(CiscoSSHConnection):
             self.base_prompt = match.group(1)
             return self.base_prompt
 
-    def enable(self, *args, **kwargs):
-        pass
+    def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE):
+        """Enter enable mode."""
+        return super(AlcatelSrosSSH, self).enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+
+    def exit_enable_mode(self, exit_command='disable'):
+        """Exits enable (privileged exec) mode."""
+        return super(AlcatelSrosSSH, self).exit_enable_mode(exit_command=exit_command)
 
     def config_mode(self, config_command='configure', pattern='#'):
         """ Enter into configuration mode on SROS device."""
