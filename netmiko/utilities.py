@@ -6,8 +6,12 @@ import sys
 import io
 import os
 import serial.tools.list_ports
-import clitable
-from clitable import CliTableError
+try:
+    import clitable
+    from clitable import CliTableError
+except ModuleNotFoundError:
+    import warnings
+    warnings.warn('textfsm-netmiko not available on windows')
 
 
 # Dictionary mapping 'show run' for vendors with different command
