@@ -342,7 +342,7 @@ class TextTable(object):
     return self.table
 
   def __incr__(self, incr=1):
-    self._SetRowIndex(self._row_index +incr)
+    self._SetRowIndex(self._row_index + incr)
 
   def __contains__(self, name):
     """Whether the given column header name exists."""
@@ -401,9 +401,9 @@ class TextTable(object):
     Raises:
       TableError: When an invalid row entry is Append()'d
     """
-    flat = lambda x: x if isinstance(x, str) else ''.join([flat(y) for y in x])
+    flat = lambda x: x if isinstance(x, str) else ''.join([flat(y) for y in x])   # noqa
     if function is None:
-      function = lambda row: bool(flat(row.values))
+      function = lambda row: bool(flat(row.values))     # noqa
 
     new_table = self.__class__()
     # pylint: disable=protected-access
@@ -788,8 +788,7 @@ class TextTable(object):
         for key in multi_word:
           # If we scale past the desired width for this particular column,
           # then give it its desired width and remove it from the wrapped list.
-          if (largest[key] <=
-              round((largest[key] / float(desired_width)) * spare_width)):
+          if (largest[key] <= round((largest[key] / float(desired_width)) * spare_width)):
             smallest[key] = largest[key]
             multi_word.remove(key)
             spare_width -= smallest[key]
@@ -875,10 +874,10 @@ class TextTable(object):
       if color and row.color is not None:
         # Don't care about colors
         body_list.append(''.join(row_list))
-        #body_list.append(
+        # body_list.append(
         #    terminal.AnsiText(''.join(row_list)[:-1],
         #                      command_list=row.color))
-        #body_list.append('\n')
+        # body_list.append('\n')
       else:
         body_list.append(''.join(row_list))
 
@@ -926,7 +925,7 @@ class TextTable(object):
 
     body = []
     for row in self:
-    # Some of the row values are pulled into the label, stored in label_prefix.
+      # Some of the row values are pulled into the label, stored in label_prefix.
       label_prefix = []
       value_list = []
       for key, value in row.items():
