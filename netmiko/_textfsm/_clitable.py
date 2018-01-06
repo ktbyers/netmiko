@@ -137,8 +137,7 @@ class IndexTable(object):
         for key in attributes:
           # Silently skip attributes not present in the index file.
           # pylint: disable=E1103
-          if (key in row.header and row[key] and
-              not row[key].match(attributes[key])):
+          if key in row.header and row[key] and not row[key].match(attributes[key]):
             # This line does not match, so break and try next row.
             raise StopIteration()
         return row.row
@@ -217,14 +216,13 @@ class CliTable(texttable.TextTable):
 
   def _TemplateNamesToFiles(self, template_str):
     """Parses a string of templates into a list of file handles."""
-
     template_list = template_str.split(':')
     template_files = []
     try:
       for tmplt in template_list:
         template_files.append(
             open(os.path.join(self.template_dir, tmplt), 'r'))
-    except:
+    except:         # noqa
       for tmplt in template_files:
         tmplt.close()
       raise
