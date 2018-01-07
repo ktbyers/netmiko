@@ -6,8 +6,8 @@ import sys
 import io
 import os
 import serial.tools.list_ports
-import clitable
-from clitable import CliTableError
+from netmiko._textfsm import _clitable as clitable
+from netmiko._textfsm._clitable import CliTableError
 
 
 # Dictionary mapping 'show run' for vendors with different command
