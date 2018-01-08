@@ -111,6 +111,7 @@ FILE_TRANSFER_MAP = {
     'arista_eos': AristaFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
     'cisco_ios': CiscoIosFileTransfer,
+    'cisco_xe': CiscoIosFileTransfer,
     'cisco_nxos': CiscoNxosFileTransfer,
     'juniper_junos': JuniperFileTransfer,
 }
@@ -154,8 +155,8 @@ platforms_str = "\n" + platforms_str
 
 scp_platforms = list(FILE_TRANSFER_MAP.keys())
 scp_platforms.sort()
-scp_platforms_str = "\n".join(platforms_base)
-scp_platforms_str = "\n" + platforms_str
+scp_platforms_str = "\n".join(scp_platforms)
+scp_platforms_str = "\n" + scp_platforms_str
 
 
 def ConnectHandler(*args, **kwargs):
