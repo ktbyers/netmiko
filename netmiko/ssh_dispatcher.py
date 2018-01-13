@@ -33,7 +33,7 @@ from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5LtmSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
-from netmiko.huawei import HuaweiSSH
+from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH
 from netmiko.juniper import JuniperSSH, JuniperFileTransfer
 from netmiko.linux import LinuxSSH
 from netmiko.mellanox import MellanoxSSH
@@ -90,6 +90,7 @@ CLASS_MAPPER_BASE = {
     'hp_comware': HPComwareSSH,
     'hp_procurve': HPProcurveSSH,
     'huawei': HuaweiSSH,
+    'huawei_vrpv8': HuaweiVrpv8SSH,
     'juniper': JuniperSSH,
     'juniper_junos': JuniperSSH,
     'linux': LinuxSSH,
