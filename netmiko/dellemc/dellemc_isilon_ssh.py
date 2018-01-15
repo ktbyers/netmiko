@@ -80,7 +80,8 @@ class DellEmcIsilonSSH(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor=1)
         output = ""
         if not self.check_config_mode():
-            output += self.send_command_timing(config_command, strip_prompt=False, strip_command=False)
+            output += self.send_command_timing(config_command, strip_prompt=False,
+                                               strip_command=False)
             if 'Password:' in output:
                 output = self.write_channel(self.normalize_cmd(self.secret))
             self.set_prompt(prompt_terminator="#")
