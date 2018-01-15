@@ -33,42 +33,54 @@ from netmiko.ssh_dispatcher import CLASS_MAPPER
 
 # Higher priority indicates a better match.
 SNMP_MAPPER_BASE = {
-    'arista_eos': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
-            "priority": 99},
-    'hp_comware': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r".*HP Comware.*", re.IGNORECASE),
-            "priority": 99},
-    'cisco_ios': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
-            "priority": 60},
-    'cisco_xe': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r".*IOS-XE Software,.*", re.IGNORECASE),
-            "priority": 99},
-    'cisco_xr': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r".*Cisco IOS XR Software.*", re.IGNORECASE),
-            "priority": 99},
-    'cisco_asa': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r".*Cisco Adaptive Security Appliance.*", re.IGNORECASE),
-            "priority": 99},
-    'cisco_nxos': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r".*Cisco NX-OS.*", re.IGNORECASE),
-            "priority": 99},
-    'cisco_wlc': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r".*Cisco Controller.*", re.IGNORECASE),
-            "priority": 99},
-    'f5_ltm': {"oid": ".1.3.6.1.4.1.3375.2.1.4.1.0",
-            "expr": re.compile(r".*BIG-IP.*", re.IGNORECASE),
-            "priority": 99},
-    'fortinet': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r"Forti.*", re.IGNORECASE),
-            "priority": 80},
-    'checkpoint': {"oid": ".1.3.6.1.4.1.2620.1.6.16.9.0",
-            "expr": re.compile(r"CheckPoint"),
-            "priority": 79},
-    'juniper_junos': {"oid": ".1.3.6.1.2.1.1.1.0",
-            "expr": re.compile(r".*JUNOS.*", re.IGNORECASE),
-            "priority": 99},
+    'arista_eos': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
+        "priority": 99},
+    'hp_comware': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*HP Comware.*", re.IGNORECASE),
+        "priority": 99},
+    'cisco_ios': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
+        "priority": 60},
+    'cisco_xe': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*IOS-XE Software,.*", re.IGNORECASE),
+        "priority": 99},
+    'cisco_xr': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco IOS XR Software.*", re.IGNORECASE),
+        "priority": 99},
+    'cisco_asa': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco Adaptive Security Appliance.*", re.IGNORECASE),
+        "priority": 99},
+    'cisco_nxos': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco NX-OS.*", re.IGNORECASE),
+        "priority": 99},
+    'cisco_wlc': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco Controller.*", re.IGNORECASE),
+        "priority": 99},
+    'f5_ltm': {
+        "oid": ".1.3.6.1.4.1.3375.2.1.4.1.0",
+        "expr": re.compile(r".*BIG-IP.*", re.IGNORECASE),
+        "priority": 99},
+    'fortinet': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r"Forti.*", re.IGNORECASE),
+        "priority": 80},
+    'checkpoint': {
+        "oid": ".1.3.6.1.4.1.2620.1.6.16.9.0",
+        "expr": re.compile(r"CheckPoint"),
+        "priority": 79},
+    'juniper_junos': {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*JUNOS.*", re.IGNORECASE),
+        "priority": 99},
 
 }
 
