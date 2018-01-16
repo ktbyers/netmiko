@@ -100,6 +100,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'dell_force10': {
+        "cmd": "show version | grep Type",
+        "search_patterns": ["S4048-ON"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 
