@@ -123,5 +123,14 @@ class CiscoXrSSH(CiscoSSHConnection):
             if "Uncommitted changes found" in output:
                 output += self.send_command_timing('no', strip_prompt=False, strip_command=False)
             if self.check_config_mode():
-                raise ValueError("Failed to exit configuration mode")
+                raise ValueErrr("Failed to exit configuration mode")
         return output
+
+    def save_config(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=1):
+        """Saves current config, calls self.commit() if it exists"""
+        try:
+            self.commit(self, confirm, confirm_delay, comment, label, delay_factor)
+        except AttributeError:
+            # commit method doesn't exist run alternative logic instead
+            print("Missing the commit method in ", self)
+            raise
