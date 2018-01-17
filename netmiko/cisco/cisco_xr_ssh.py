@@ -128,9 +128,4 @@ class CiscoXrSSH(CiscoSSHConnection):
 
     def save_config(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=1):
         """Saves current config, calls self.commit() if it exists"""
-        try:
-            self.commit(self, confirm, confirm_delay, comment, label, delay_factor)
-        except AttributeError:
-            # commit method doesn't exist run alternative logic instead
-            print("Missing the commit method in ", self)
-            raise
+        self.commit(self, confirm, confirm_delay, comment, label, delay_factor)
