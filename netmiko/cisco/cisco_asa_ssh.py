@@ -110,6 +110,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         self.send_command(command_string='write memory')
         self.send_command_timing(command_string='\r\n')
 
+
 class CiscoAsaFileTransfer(CiscoFileTransfer):
     """Cisco ASA SCP File Transfer driver."""
     pass
