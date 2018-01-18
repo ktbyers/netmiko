@@ -20,12 +20,13 @@ class CiscoIosBase(CiscoBaseConnection):
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
-    
+
     def save_config(self):
         """Saves Config Using Copy Run Start"""
         self.enable()
         self.send_command(command_string='copy running-config startup-config')
-        self.send_command_timing(command_string='\r\n') # enter to confirm
+        self.send_command_timing(command_string='\r\n')  # enter to confirm
+
 
 class CiscoIosSSH(CiscoIosBase):
     """Cisco IOS SSH driver."""
