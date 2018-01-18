@@ -102,7 +102,12 @@ class CiscoAsaSSH(CiscoSSHConnection):
             else:
                 self.write_channel("login" + self.RETURN)
             i += 1
-
+    def save_config(self):
+        """Saves Config Using Copy Run Start"""
+        self.enable()
+        self.config_mode()
+        self.send_command(command_string='write memory')
+        self.send_command_timing(command_string='\r\n')
 
 class CiscoAsaFileTransfer(CiscoFileTransfer):
     """Cisco ASA SCP File Transfer driver."""
