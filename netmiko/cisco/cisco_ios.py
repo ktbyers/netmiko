@@ -25,7 +25,7 @@ class CiscoIosBase(CiscoBaseConnection):
         """Saves Config Using Copy Run Start"""
         self.enable()
         self.send_command(command_string='copy running-config startup-config')
-        self.send_command_timing() # enter to confirm filename
+        self.send_command_timing(command_string='\r\n') # enter to confirm
 
 class CiscoIosSSH(CiscoIosBase):
     """Cisco IOS SSH driver."""
