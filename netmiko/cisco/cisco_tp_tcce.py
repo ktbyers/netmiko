@@ -85,6 +85,6 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
 
         output = super(CiscoSSHConnection, self).send_command(*args, **kwargs)
         return output
-    
+
     def save_config(self):
         raise NotImplementedError
