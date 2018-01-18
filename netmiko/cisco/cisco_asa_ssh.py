@@ -102,6 +102,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
             else:
                 self.write_channel("login" + self.RETURN)
             i += 1
+
     def save_config(self):
         """Saves Config Using Copy Run Start"""
         self.enable()
