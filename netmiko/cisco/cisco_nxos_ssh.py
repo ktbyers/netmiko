@@ -30,6 +30,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.send_command('copy running-config startup-config')
         self.send_command_timing(self.RESPONSE_RETURN)  # enter to confirm
 
+
 class CiscoNxosFileTransfer(CiscoFileTransfer):
     """Cisco NXOS SCP File Transfer driver."""
     def __init__(self, ssh_conn, source_file, dest_file, file_system='bootflash:', direction='put'):
