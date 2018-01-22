@@ -188,8 +188,6 @@ class JuniperSSH(BaseConnection):
 
     def save_config(self):
         """Saves Config in Automatic or Manual Mode"""
-        if not self.check_enable_mode():
-            self.enable()
         self.send_command('write memory')
         self.send_command(self.RESPONSE_RETURN)
 
