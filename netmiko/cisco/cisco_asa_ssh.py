@@ -108,7 +108,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         self.enable()
         self.config_mode()
         self.send_command(command_string='write memory')
-        self.send_command_timing(command_string='\r\n')
+        self.send_command_timing(command_string=self.RESPONSE_RETURN)
 
 
 class CiscoAsaFileTransfer(CiscoFileTransfer):
