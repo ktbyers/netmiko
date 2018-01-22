@@ -35,6 +35,11 @@ class AristaSSH(CiscoSSHConnection):
         log.debug("check_config_mode: {0}".format(repr(output)))
         return check_string in output
 
+    def save_config(self):
+        self.enable()
+        self.send_command('copy running-config startup-config')
+        self.sennd_command(self.RESPONSE_RETURN)
+
 
 class AristaFileTransfer(CiscoFileTransfer):
     """Arista SCP File Transfer driver."""
