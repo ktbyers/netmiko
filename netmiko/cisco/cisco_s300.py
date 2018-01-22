@@ -26,4 +26,4 @@ class CiscoS300SSH(CiscoSSHConnection):
         """ Saves config """
         self.enable()
         self.send_command(command_string='write', expect_string='[Yes')
-        self.send_command(command_string='Yes')
+        self.send_command('Yes')
