@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from netmiko.cisco.cisco_ios import CiscoIosBase, CiscoIosSSH, CiscoIosTelnet, CiscoIosFileTransfer
+from netmiko.cisco.cisco_ios import CiscoIosBase, CiscoIosSSH, CiscoIosTelnet, CiscoIosFileTransfer, CiscoIosSerial
 from netmiko.cisco.cisco_ios import InLineTransfer
 from netmiko.cisco.cisco_asa_ssh import CiscoAsaSSH, CiscoAsaFileTransfer
 from netmiko.cisco.cisco_nxos_ssh import CiscoNxosSSH, CiscoNxosFileTransfer
