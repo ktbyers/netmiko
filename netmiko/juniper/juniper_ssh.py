@@ -186,6 +186,10 @@ class JuniperSSH(BaseConnection):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
 
+    def save_config(self, confirm=False, confirm_delay=None, check=False, comment='',
+                    and_quit=False, delay_factor=1):
+        """Wrapper around commit() for API consistency"""
+        self.commit(self, confirm, confirm_delay, check, comment, and_quit, delay_factor)
 
 class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
