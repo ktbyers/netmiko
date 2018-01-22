@@ -36,9 +36,12 @@ class AristaSSH(CiscoSSHConnection):
         return check_string in output
 
     def save_config(self):
+        """
+        Saves Running Config using default file name.
+        """
         self.enable()
         self.send_command('copy running-config startup-config')
-        self.sennd_command(self.RESPONSE_RETURN)
+        self.send_command(self.RESPONSE_RETURN)
 
 
 class AristaFileTransfer(CiscoFileTransfer):
