@@ -76,3 +76,10 @@ class HPComwareSSH(CiscoSSHConnection):
     def check_enable_mode(self, check_string=']'):
         """enable mode on Comware is system-view."""
         return self.check_config_mode(check_string=check_string)
+
+    def save_config(self):
+        """Save Config using write memory."""
+        if not self.check_enable_mode():
+            self.enable()
+        self.send_command('save', '[Y/N]')
+        self.send_command('y')
