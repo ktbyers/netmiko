@@ -4,8 +4,8 @@ import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class BrocadeFastironBase(CiscoSSHConnection):
-    """Brocade FastIron aka ICX support."""
+class RuckusFastironBase(CiscoSSHConnection):
+    """Ruckus FastIron aka ICX support."""
     def session_preparation(self):
         """FastIron requires to be enable mode to disable paging."""
         self._test_channel_read()
@@ -18,9 +18,7 @@ class BrocadeFastironBase(CiscoSSHConnection):
 
     def enable(self, cmd='enable', pattern=r'(ssword|User Name)', re_flags=re.IGNORECASE):
         """Enter enable mode.
-
         With RADIUS can prompt for User Name
-
         SSH@Lab-ICX7250>en
         User Name:service_netmiko
         Password:
@@ -51,12 +49,12 @@ class BrocadeFastironBase(CiscoSSHConnection):
             raise ValueError(msg)
 
 
-class BrocadeFastironTelnet(BrocadeFastironBase):
+class RuckusFastironTelnet(RuckusFastironBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get('default_enter')
         kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
-        super(BrocadeFastironTelnet, self).__init__(*args, **kwargs)
+        super(RuckusFastironTelnet, self).__init__(*args, **kwargs)
 
 
-class BrocadeFastironSSH(BrocadeFastironBase):
+class RuckusFastironSSH(RuckusFastironBase):
     pass

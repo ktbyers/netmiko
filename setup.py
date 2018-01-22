@@ -1,4 +1,5 @@
 from setuptools import setup
+from setuptools import find_packages
 import os
 import re
 
@@ -35,43 +36,12 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
-    packages=['netmiko',
-              'netmiko/a10',
-              'netmiko/accedian',
-              'netmiko/alcatel',
-              'netmiko/arista',
-              'netmiko/aruba',
-              'netmiko/avaya',
-              'netmiko/brocade',
-              'netmiko/calix',
-              'netmiko/ciena',
-              'netmiko/cisco',
-              'netmiko/dell',
-              'netmiko/eltex',
-              'netmiko/enterasys',
-              'netmiko/extreme',
-              'netmiko/f5',
-              'netmiko/fortinet',
-              'netmiko/checkpoint',
-              'netmiko/hp',
-              'netmiko/huawei',
-              'netmiko/juniper',
-              'netmiko/linux',
-              'netmiko/mellanox',
-              'netmiko/mrv',
-              'netmiko/netapp',
-              'netmiko/ovs',
-              'netmiko/paloalto',
-              'netmiko/pluribus',
-              'netmiko/quanta',
-              'netmiko/terminal_server',
-              'netmiko/ubiquiti',
-              'netmiko/vyos'],
-    install_requires=['paramiko>=1.13.0', 'scp>=0.10.0', 'pyyaml'],
+    packages=find_packages(exclude=("test*", )),
+    install_requires=['paramiko>=2.0.0', 'scp>=0.10.0', 'pyyaml', 'pyserial', 'textfsm'],
     extras_require={
-        'test': ['pytest>=2.6.0', ]
+        'test': ['pytest>=3.2.5', ]
     },
 )
