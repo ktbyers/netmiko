@@ -111,6 +111,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         output += self.send_command_timing(command_string=self.RESPONSE_RETURN)
         return output
 
+
 class CiscoAsaFileTransfer(CiscoFileTransfer):
     """Cisco ASA SCP File Transfer driver."""
     pass
