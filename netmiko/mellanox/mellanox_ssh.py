@@ -52,5 +52,5 @@ class MellanoxSSH(CiscoSSHConnection):
         """Save Config on Mellanox devices Enters and Leaves Config Mode"""
         if not self.check_config_mode():
             self.config_mode()
-        self.send_command('configuration write')
-        self.exit_config_mode()
+        output = self.send_command('configuration write')
+        output += self.exit_config_mode()

@@ -188,8 +188,9 @@ class JuniperSSH(BaseConnection):
 
     def save_config(self):
         """Saves Config in Automatic or Manual Mode"""
-        self.send_command('write memory')
-        self.send_command(self.RESPONSE_RETURN)
+        output = self.send_command('write memory')
+        output += self.send_command(self.RESPONSE_RETURN)
+        return output
 
 
 class JuniperFileTransfer(BaseFileTransfer):

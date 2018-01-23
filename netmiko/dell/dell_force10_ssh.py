@@ -8,4 +8,4 @@ class DellForce10SSH(CiscoSSHConnection):
 
     def save_config(self):
         """Save Config on DellForce10SSH"""
-        self.send_command('copy running-configuration startup-configuration')
+        return self.send_command('copy running-configuration startup-configuration')

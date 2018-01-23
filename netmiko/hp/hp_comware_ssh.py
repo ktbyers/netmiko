@@ -81,5 +81,6 @@ class HPComwareSSH(CiscoSSHConnection):
         """Save Config using write memory."""
         if not self.check_enable_mode():
             self.enable()
-        self.send_command('save', '[Y/N]')
-        self.send_command('y')
+        output = self.send_command('save', '[Y/N]')
+        output += self.send_command('y')
+        return output

@@ -87,4 +87,5 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         return output
 
     def save_config(self):
+        """Not Implemented"""
         raise NotImplementedError
