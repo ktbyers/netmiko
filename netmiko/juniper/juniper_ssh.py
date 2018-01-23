@@ -191,6 +191,7 @@ class JuniperSSH(BaseConnection):
         self.send_command('write memory')
         self.send_command(self.RESPONSE_RETURN)
 
+
 class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
     def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put'):
