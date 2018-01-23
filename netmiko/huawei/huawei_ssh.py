@@ -81,6 +81,10 @@ class HuaweiSSH(CiscoSSHConnection):
 
         return self.base_prompt
 
+    def save_config(self):
+        """ Save Config for HuaweiSSH"""
+        self.send_command('save')
+
 
 class HuaweiVrpv8SSH(HuaweiSSH):
 
