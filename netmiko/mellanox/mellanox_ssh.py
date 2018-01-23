@@ -47,3 +47,10 @@ class MellanoxSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit configuration mode")
         log.debug("exit_config_mode: {0}".format(output))
         return output
+
+    def save_config(self):
+        """Save Config on Mellanox devices Enters and Leaves Config Mode"""
+        if not self.check_config_mode():
+            self.config_mode()
+        self.send_command('configuration write')
+        self.exit_config_mode()
