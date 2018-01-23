@@ -128,4 +128,4 @@ class CiscoXrSSH(CiscoSSHConnection):
 
     def save_config(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=1):
         """Saves current config, calls self.commit() if it exists"""
-        self.commit(self, confirm, confirm_delay, comment, label, delay_factor)
+        return self.commit(self, confirm, confirm_delay, comment, label, delay_factor)

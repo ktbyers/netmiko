@@ -27,8 +27,9 @@ class CiscoNxosSSH(CiscoSSHConnection):
     def save_config(self):
         """Saves Config Using Copy Run Start"""
         self.enable()
-        self.send_command('copy running-config startup-config')
-        self.send_command_timing(self.RESPONSE_RETURN)  # enter to confirm
+        output = self.send_command('copy running-config startup-config')
+        output += self.send_command_timing(self.RESPONSE_RETURN)  # enter to confirm
+        return output
 
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):

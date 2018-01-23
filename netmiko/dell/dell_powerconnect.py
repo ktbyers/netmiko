@@ -45,7 +45,7 @@ class DellPowerConnectBase(CiscoSSHConnection):
 
     def save_config(self):
         """Save Config on DellPowerConnectBase"""
-        self.send_command('copy running-config startup-config')
+        return self.send_command('copy running-config startup-config')
 
 
 class DellPowerConnectSSH(DellPowerConnectBase):

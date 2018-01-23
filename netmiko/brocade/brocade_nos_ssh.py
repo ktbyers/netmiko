@@ -22,5 +22,6 @@ class BrocadeNosSSH(CiscoSSHConnection):
 
     def save_config(self):
         """Save Config for Brocade VDX."""
-        self.send_command('copy running-config startup-config', '[Y/N]')
-        self.send_command('y')
+        output = self.send_command('copy running-config startup-config', '[Y/N]')
+        output += self.send_command('y')
+        return output
