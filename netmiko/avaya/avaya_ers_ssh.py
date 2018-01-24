@@ -21,15 +21,17 @@ class AvayaErsSSH(CiscoSSHConnection):
         # Handle 'Enter Ctrl-Y to begin'
         output = ""
         i = 0
-        while i <= 12:
+        while i <= 6:
             output = self.read_channel()
             if output:
                 if 'Ctrl-Y' in output:
                     self.write_channel(CTRL_Y)
                 if 'sername' in output:
                     self.write_channel(self.username + self.RETURN)
-                elif 'ssword' in output:
+                if 'ssword' in output:
                     self.write_channel(self.password + self.RETURN)
+                if "Menu" in output:
+                    self.write_channel('c')
                     break
                 time.sleep(.5 * delay_factor)
             else:
