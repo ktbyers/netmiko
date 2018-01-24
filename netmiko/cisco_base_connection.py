@@ -165,7 +165,8 @@ class CiscoBaseConnection(BaseConnection):
                     else:
                         my_password = self.password
 
-                    self.write_channel(self.username + self.TELNET_RETURN)
+                    time.sleep(1)
+                    self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel(verbose=True)
                     return_msg += output
@@ -182,15 +183,6 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
-<<<<<<< HEAD
-                    self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(.5 * delay_factor)
-                    output = self.read_channel(verbose=True)
-                    return_msg += output
-                    if (re.search(pri_prompt_terminator, output, flags=re.M)
-                            or re.search(alt_prompt_terminator, output, flags=re.M)):
-                        return return_msg
-=======
                     self.write_channel(my_password + TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel(verbose=True)
@@ -202,8 +194,6 @@ class CiscoBaseConnection(BaseConnection):
                         time.sleep(.5 * delay_factor)
                         output = self.read_channel(verbose=True)
                         return_msg += output
->>>>>>> spitfire prompt handling added
-
                 # Search for standby console pattern
                 standby_pattern=r"RP Node is not ready or active for login"
                 if re.search(standby_pattern,output):
@@ -245,12 +235,7 @@ class CiscoBaseConnection(BaseConnection):
                     is_spitfire = True
 
                 # Check if proper data received
-<<<<<<< HEAD
-                if (re.search(pri_prompt_terminator, output, flags=re.M)
-                        or re.search(alt_prompt_terminator, output, flags=re.M)):
-=======
                 if (pri_prompt_terminator in output or alt_prompt_terminator in output) and is_spitfire == False:
->>>>>>> spitfire prompt handling added
                     return return_msg
 
                 self.write_channel(self.TELNET_RETURN)
