@@ -5,7 +5,7 @@ import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ExtremeSSH(CiscoSSHConnection):
+class ExtremeBase(CiscoSSHConnection):
     """Extreme support.
 
     Designed for EXOS >= 15.0
@@ -65,7 +65,11 @@ class ExtremeSSH(CiscoSSHConnection):
         return ''
 
 
-class ExtremeTelnet(ExtremeSSH):
+class ExtremeSSH(ExtremeBase):
+    pass
+
+
+class ExtremeTelnet(ExtremeBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get('default_enter')
         kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
