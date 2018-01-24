@@ -63,3 +63,10 @@ class ExtremeSSH(CiscoSSHConnection):
     def exit_config_mode(self, exit_config=''):
         """No configuration mode on Extreme."""
         return ''
+
+
+class ExtremeTelnet(ExtremeSSH):
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get('default_enter')
+        kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
+        super(ExtremeTelnet, self).__init__(*args, **kwargs)
