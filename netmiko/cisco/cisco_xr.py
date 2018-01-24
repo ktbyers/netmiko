@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 import re
 import time
+from logger.cafylog import CafyLog
+log = CafyLog()
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
@@ -13,6 +15,7 @@ class CiscoXr(CiscoBaseConnection):
         """Prepare the session after the connection has been established.
         When router in 'run' (linux $) prompt, switch back to XR prompt
         """
+
         username_pattern=r"(sername)|(ogin)"
         pwd_pattern=r"assword"
         self.set_base_prompt(alt_prompt_terminator='$')
@@ -22,7 +25,7 @@ class CiscoXr(CiscoBaseConnection):
                 self.send_command(switch_to_xr_command, expect_string='#')
                 self.base_prompt = self.find_prompt()
         #The below block is added to address getting username/login prompt When
-        #the box is reloaded 
+        #the box is reloaded
         elif username_pattern in self.find_prompt():
             elf.send_command(self.username, expect_string=pwd_pattern)
             #time.sleep(1 * delay_factor)
@@ -31,7 +34,7 @@ class CiscoXr(CiscoBaseConnection):
             self.base_prompt = self.find_prompt()
             if pri_prompt_terminator in self.base_prompt:
                 raise ValueError("Could not go to $prompt")
-        
+
         self.disable_paging()
         self.set_terminal_width(command='terminal width 511')
 
@@ -62,6 +65,7 @@ class CiscoXr(CiscoBaseConnection):
                     return True
         else:
             return False
+
 
     def config_mode(self, config_command='config term', pattern='', skip_check=True):
         """
@@ -208,7 +212,7 @@ class CiscoXr(CiscoBaseConnection):
                         strip_command=False)
             if "Uncommitted changes found" in output:
                 output += self.send_command_timing('no\n', strip_prompt=False, strip_command=False)
-                            
+
             if skip_check:
                 return output
             if self.check_config_mode():
@@ -234,6 +238,7 @@ class CiscoXrTelnet(CiscoXr):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.set_base_prompt()
+
         if 'RP Node is not ' in self.find_prompt():
             # Incase of standby - skip rest of section
             return
