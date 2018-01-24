@@ -146,13 +146,12 @@ class CiscoBaseConnection(BaseConnection):
                 # If the prompt shows "xr login:", the you can directly login to xr using xr username
                 # and password or you can login to linux host, using linux host's username password
                 if re.search(username_pattern, output):
-
+                    time.sleep(1)
                     bmc_login_pattern = "spitfire-arm login:"
                     if re.search(bmc_login_pattern, output):
                         my_password = '0penBmc'
                     else:
                         my_password = self.password
-
                     self.write_channel(self.username + TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel(verbose=True)
