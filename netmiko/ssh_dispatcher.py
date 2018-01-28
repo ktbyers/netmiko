@@ -112,12 +112,12 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
-    'arista_eos': AristaFileTransfer,
+#    'arista_eos': AristaFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
     'cisco_ios': CiscoIosFileTransfer,
     'cisco_xe': CiscoIosFileTransfer,
     'cisco_nxos': CiscoNxosFileTransfer,
-    'juniper_junos': JuniperFileTransfer,
+#    'juniper_junos': JuniperFileTransfer,
 }
 
 # Also support keys that end in _ssh
