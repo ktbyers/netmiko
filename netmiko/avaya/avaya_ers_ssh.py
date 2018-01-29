@@ -37,8 +37,6 @@ class AvayaErsSSH(CiscoSSHConnection):
                 time.sleep(1 * delay_factor)
             i += 1
 
-    def save_config(self):
+    def save_config(self, cmd='save config', confirm=False):
         """Save Config"""
-        if not self.check_enable_mode():
-            self.enable()
-        self.send_command('save config')
+        return super(AvayaErsSSH, self).save_config(cmd=cmd, confirm=confirm)

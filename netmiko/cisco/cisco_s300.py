@@ -22,9 +22,5 @@ class CiscoS300SSH(CiscoSSHConnection):
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
 
-    def save_config(self):
-        """ Saves config """
-        self.enable()
-        output = self.send_command(command_string='write', expect_string='[Yes')
-        output += self.send_command('Yes')
-        return output
+    def save_config(self, cmd='write memory', confirm=True, confirm_response='Y'):
+        return super(CiscoS300SSH, self).save_config(cmd=cmd, confirm=confirm)

@@ -16,8 +16,6 @@ class AvayaVspSSH(CiscoSSHConnection):
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self):
+    def save_config(self, cmd='save config', confirm=False):
         """Save Config"""
-        if not self.check_enable_mode():
-            self.enable()
-        self.send_command('save config')
+        return super(AvayaVspSSH, self).save_config(cmd=cmd, confirm=confirm)

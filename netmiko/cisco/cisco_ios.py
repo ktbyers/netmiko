@@ -21,12 +21,9 @@ class CiscoIosBase(CiscoBaseConnection):
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self):
+    def save_config(self, cmd='write mem', confirm=False):
         """Saves Config Using Copy Run Start"""
-        self.enable()
-        output = self.send_command(command_string='copy running-config startup-config')
-        output += self.send_command_timing(self.RESPONSE_RETURN)  # enter to confirm
-        return output
+        return super(CiscoIosBase, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class CiscoIosSSH(CiscoIosBase):
