@@ -103,13 +103,9 @@ class CiscoAsaSSH(CiscoSSHConnection):
                 self.write_channel("login" + self.RETURN)
             i += 1
 
-    def save_config(self):
-        """Saves Config Using Copy Run Start"""
-        self.enable()
-        self.config_mode()
-        output = self.send_command(command_string='write memory')
-        output += self.send_command_timing(command_string=self.RESPONSE_RETURN)
-        return output
+    def save_config(self, cmd='write mem', confirm=False):
+        """Saves Config"""
+        return super(CiscoAsaSSH, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class CiscoAsaFileTransfer(CiscoFileTransfer):

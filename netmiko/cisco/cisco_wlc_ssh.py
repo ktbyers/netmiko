@@ -160,8 +160,5 @@ class CiscoWlcSSH(BaseConnection):
         return output
 
     def save_config(self):
-        """ Saves config """
-        self.exit_config_mode()  # need to be in root prompt to save config on WLC
-        output = self.send_command(command_string='save config', expect_string='(y/n)')
-        output += self.send_command('y')
-        return output
+        """Not Implemented"""
+        raise NotImplementedError

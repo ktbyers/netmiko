@@ -20,8 +20,8 @@ class BrocadeNosSSH(CiscoSSHConnection):
         self.write_channel(self.RETURN)
         time.sleep(1 * delay_factor)
 
-    def save_config(self):
+    def save_config(self, cmd='copy running-config startup-config', confirm=True,
+                    confirm_response='y'):
         """Save Config for Brocade VDX."""
-        output = self.send_command('copy running-config startup-config', '[Y/N]')
-        output += self.send_command('y')
-        return output
+        return super(BrocadeNosSSH, self).save_config(cmd=cmd, confirm=confirm,
+                                                      confirm_response=confirm_response)

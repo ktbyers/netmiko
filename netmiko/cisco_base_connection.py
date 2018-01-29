@@ -162,6 +162,22 @@ class CiscoBaseConnection(BaseConnection):
         raise ValueError("An error occurred in dynamically determining remote file "
                          "system: {} {}".format(cmd, output))
 
+    def save_config(self, cmd='copy running-config startup-config', confirm=False,
+                    confirm_response=''):
+        """Saves Config."""
+        self.enable()
+        if confirm:
+            output = self.send_command_timing(command_string=cmd)
+            if confirm_response:
+                output += self.send_command_timing(confirm_response)
+            else:
+                # Send enter by default
+                output += self.send_command_timing(self.RETURN)
+        else:
+            # Some devices are slow so match on trailing-prompt if you can
+            output = self.send_command(command_string=cmd)
+        return output
+
 
 class CiscoSSHConnection(CiscoBaseConnection):
     pass
