@@ -43,6 +43,10 @@ class DellPowerConnectBase(CiscoSSHConnection):
         """Enter configuration mode."""
         return super(DellPowerConnectSSH, self).config_mode(config_command=config_command)
 
+    def save_config(self):
+        """Save Config on DellPowerConnectBase"""
+        return self.send_command('copy running-config startup-config')
+
 
 class DellPowerConnectSSH(DellPowerConnectBase):
     """Dell PowerConnect Driver.

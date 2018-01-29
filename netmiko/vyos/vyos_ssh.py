@@ -96,3 +96,7 @@ class VyOSSSH(CiscoSSHConnection):
                                                     strip_prompt=strip_prompt,
                                                     strip_command=strip_command,
                                                     config_mode_command=config_mode_command)
+
+    def save_config(self, comment='', delay_factor=.1):
+        """Save Config Wrapper for VyOS"""
+        return self.commit(self, comment, delay_factor)

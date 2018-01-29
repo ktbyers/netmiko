@@ -24,6 +24,13 @@ class CiscoNxosSSH(CiscoSSHConnection):
         newline = re.compile(r'(\r\r\n|\r\n)')
         return newline.sub(self.RESPONSE_RETURN, a_string).replace('\r', '')
 
+    def save_config(self):
+        """Saves Config Using Copy Run Start"""
+        self.enable()
+        output = self.send_command('copy running-config startup-config')
+        output += self.send_command_timing(self.RESPONSE_RETURN)  # enter to confirm
+        return output
+
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):
     """Cisco NXOS SCP File Transfer driver."""
