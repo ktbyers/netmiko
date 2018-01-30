@@ -33,7 +33,7 @@ class ExtremeBase(CiscoSSHConnection):
             * testhost.4 #
             * testhost.5 #
         """
-        cur_base_prompt = super(ExtremeSSH, self).set_base_prompt(*args, **kwargs)
+        cur_base_prompt = super(ExtremeBase, self).set_base_prompt(*args, **kwargs)
         # Strip off any leading * or whitespace chars; strip off trailing period and digits
         match = re.search(r'[\*\s]*(.*)\.\d+', cur_base_prompt)
         if match:
@@ -50,7 +50,7 @@ class ExtremeBase(CiscoSSHConnection):
 
         # refresh self.base_prompt
         self.set_base_prompt()
-        return super(ExtremeSSH, self).send_command(*args, **kwargs)
+        return super(ExtremeBase, self).send_command(*args, **kwargs)
 
     def config_mode(self, config_command=''):
         """No configuration mode on Extreme."""
@@ -58,7 +58,7 @@ class ExtremeBase(CiscoSSHConnection):
 
     def check_config_mode(self, check_string='#'):
         """Checks whether in configuration mode. Returns a boolean."""
-        return super(ExtremeSSH, self).check_config_mode(check_string=check_string)
+        return super(ExtremeBase, self).check_config_mode(check_string=check_string)
 
     def exit_config_mode(self, exit_config=''):
         """No configuration mode on Extreme."""
