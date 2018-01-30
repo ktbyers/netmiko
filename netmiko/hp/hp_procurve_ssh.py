@@ -73,9 +73,6 @@ class HPProcurveSSH(CiscoSSHConnection):
                 break
             count += 1
 
-    def save_config(self):
-        """Save Config using write memory."""
-        if self.check_config_mode():
-            return self.send_command('write memory')
-        else:
-            return self.send_config_set(['write memory'])
+    def save_config(self, cmd='write memory', confirm=False):
+        """Save Config."""
+        return super(HPProcurveSSH, self).save_config(cmd=cmd, confirm=confirm)
