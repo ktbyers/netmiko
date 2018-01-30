@@ -8,6 +8,7 @@ from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.arista import AristaSSH, AristaFileTransfer
 from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
+from netmiko.avaya import AvayaErsTelnet
 from netmiko.avaya import AvayaVspSSH
 from netmiko.brocade import BrocadeNetironSSH
 from netmiko.brocade import BrocadeNetironTelnet
@@ -133,6 +134,7 @@ for k, v in FILE_TRANSFER_MAP.items():
 FILE_TRANSFER_MAP = new_mapper
 
 # Add telnet drivers
+CLASS_MAPPER['avaya_ers_telnet'] = AvayaErsTelnet
 CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
 CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet

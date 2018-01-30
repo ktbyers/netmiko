@@ -27,9 +27,11 @@ class AvayaErsBase(CiscoSSHConnection):
         """
         if not pattern:
             pattern = re.escape(self.base_prompt)
+        if self.protocol == 'telnet':
+            config_command = 'config term' + self.TELNET_RETURN            
         return super(AvayaErsBase, self).config_mode(config_command=config_command,
                                                             pattern=pattern)    
-    def check_config_mode(self, check_string='#', pattern=''):
+    def check_config_mode(self, check_string='(config)#', pattern=''):
             """
 
             Checks if the device is in configuration mode or not.
@@ -49,9 +51,9 @@ class AvayaErsBase(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
-
+        """We need echo on to process data from a telnet enabled ERS"""
         self.sock = self.remote_conn.sock
-        self.remote_conn.set_option_negotiation_callback(self._negotiate_echo_on)            
+        self.remote_conn.set_option_negotiation_callback(self._set_telnet_opts)            
 
         output = ''
         return_msg = ''
@@ -64,14 +66,14 @@ class AvayaErsBase(CiscoSSHConnection):
                 # Handle 'Enter Ctrl-Y to begin / send Ctrl-Y'
                 if re.search('Ctrl-Y', output):
                     self.write_channel(CTRL_Y)
-                    time.sleep(1 * delay_factor)
+                    time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
                 
                 # Search for username pattern / send username
                 if re.search('Enter Username: ', output):
                     self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
+                    time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
@@ -97,7 +99,6 @@ class AvayaErsBase(CiscoSSHConnection):
                         or re.search(alt_prompt_terminator, output, flags=re.M)):
                     return return_msg
 
-                #self.write_channel(self.TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
@@ -132,36 +133,40 @@ class AvayaErsBase(CiscoSSHConnection):
         while i <= 6:
             output = self.read_channel()
             if output:
-                if 'Ctrl-Y' in output:
+                if re.search('Ctrl-Y', output):
                     self.write_channel(CTRL_Y)
-                if 'sername' in output:
+                    time.sleep(.5 * delay_factor)                    
+                    output = self.read_channel()
+                if re.search('sername', output):
                     self.write_channel(self.username + self.RETURN)
-                if 'ssword' in output:
+                    time.sleep(.5 * delay_factor)
+                    output = self.read_channel()                    
+                if re.search('ssword', output):
                     self.write_channel(self.password + self.RETURN)
-                if "Menu" in output:
+                    time.sleep(.5 * delay_factor)
+                    output = self.read_channel()                    
+                if re.search("Menu", output):
                     self.write_channel('c')
+                    time.sleep(.5 * delay_factor)
+                    output = self.read_channel()                    
                     break
-                time.sleep(.5 * delay_factor)
+                else (re.search('#\s*$', output, flags=re.M) 
+                        or re.search('>\s*$', output, flags=re.M)):
+                    self.write_channel(self.RETURN)
             else:
                 self.write_channel(self.RETURN)
                 time.sleep(1 * delay_factor)
             i += 1
 
-    def _negotiate_echo_on(self, sock, cmd, opt):
-        # This is supposed to turn server side echoing on and turn other options off.
+    def _set_telnet_opts(self, sock, cmd, opt):
+        """ Process telnet options. Specifically tell the server to DO ECHO """
         if opt == telnetlib.ECHO and cmd in (telnetlib.WILL, telnetlib.WONT):
             self.sock.sendall(telnetlib.IAC + telnetlib.DO + opt)
-        elif opt != telnetlib.NOOPT:
-            if cmd in (telnetlib.DO, telnetlib.DONT):
-                self.sock.sendall(telnetlib.IAC + telnetlib.WONT + opt)
-            elif cmd in (telnetlib.WILL, telnetlib.WONT):
-                self.sock.sendall(telnetlib.IAC + telnetlib.DONT + opt)            
 
 class AvayaErsSSH(AvayaErsBase):
     pass
 
 class AvayaErsTelnet(AvayaErsBase):
     pass
-
 
 
