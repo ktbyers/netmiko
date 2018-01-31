@@ -27,21 +27,21 @@ class DellPowerConnectBase(CiscoSSHConnection):
     def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator='#',
                         delay_factor=1):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        prompt = super(DellPowerConnectSSH, self).set_base_prompt(
-                                                      pri_prompt_terminator=pri_prompt_terminator,
-                                                      alt_prompt_terminator=alt_prompt_terminator,
-                                                      delay_factor=delay_factor)
+        prompt = super(DellPowerConnectBase, self).set_base_prompt(
+                pri_prompt_terminator=pri_prompt_terminator,
+                alt_prompt_terminator=alt_prompt_terminator,
+                delay_factor=delay_factor)
         prompt = prompt.strip()
         self.base_prompt = prompt
         return self.base_prompt
 
     def check_config_mode(self, check_string='(config)#'):
         """Checks if the device is in configuration mode"""
-        return super(DellPowerConnectSSH, self).check_config_mode(check_string=check_string)
+        return super(DellPowerConnectBase, self).check_config_mode(check_string=check_string)
 
     def config_mode(self, config_command='config'):
         """Enter configuration mode."""
-        return super(DellPowerConnectSSH, self).config_mode(config_command=config_command)
+        return super(DellPowerConnectBase, self).config_mode(config_command=config_command)
 
 
 class DellPowerConnectSSH(DellPowerConnectBase):
