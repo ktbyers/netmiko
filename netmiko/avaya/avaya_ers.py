@@ -45,6 +45,13 @@ class AvayaErsBase(CiscoSSHConnection):
             return super(AvayaErsBase, self).check_config_mode(check_string=check_string,
                                                                       pattern=pattern)
 
+    def exit_config_mode(self, exit_config='end', pattern=''):
+        """Exit from configuration mode."""
+        if not pattern:
+            pattern = re.escape(self.base_prompt)
+        return super(AvayaErsBase, self).exit_config_mode(exit_config=exit_config,
+                                                                 pattern=pattern)    
+
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
                      username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=20):
@@ -135,7 +142,7 @@ class AvayaErsBase(CiscoSSHConnection):
         while i <= 6:
             output = self.read_channel()
             if output:
-                # Search for 'Ctrl-Y' and send \x19 if found
+                # Search for 'Ctrl-Y' and send \xl19 if found
                 if re.search('Ctrl-Y', output):
                     self.write_channel(CTRL_Y)
                     time.sleep(.5 * delay_factor)                    
