@@ -30,7 +30,8 @@ class AvayaErsBase(CiscoSSHConnection):
         if self.protocol == 'telnet':
             config_command = 'config term' + self.TELNET_RETURN            
         return super(AvayaErsBase, self).config_mode(config_command=config_command,
-                                                            pattern=pattern)    
+                                                            pattern=pattern) 
+
     def check_config_mode(self, check_string='(config)#', pattern=''):
             """
 
@@ -51,8 +52,9 @@ class AvayaErsBase(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
-        """We need echo on to process data from a telnet enabled ERS"""
-        self.sock = self.remote_conn.sock
+        """ We need echo on to process data from a telnet enabled ERS
+            Set callback function to negotiate telnet options           
+        """
         self.remote_conn.set_option_negotiation_callback(self._set_telnet_opts)            
 
         output = ''
@@ -133,26 +135,21 @@ class AvayaErsBase(CiscoSSHConnection):
         while i <= 6:
             output = self.read_channel()
             if output:
+                # Search for 'Ctrl-Y' and send \x19 if found
                 if re.search('Ctrl-Y', output):
                     self.write_channel(CTRL_Y)
                     time.sleep(.5 * delay_factor)                    
                     output = self.read_channel()
-                if re.search('sername', output):
-                    self.write_channel(self.username + self.RETURN)
-                    time.sleep(.5 * delay_factor)
-                    output = self.read_channel()                    
-                if re.search('ssword', output):
-                    self.write_channel(self.password + self.RETURN)
-                    time.sleep(.5 * delay_factor)
-                    output = self.read_channel()                    
+                # Determine if switch is presenting config menu / send 'c' to enter cli
                 if re.search("Menu", output):
                     self.write_channel('c')
                     time.sleep(.5 * delay_factor)
-                    output = self.read_channel()                    
-                    break
-                else (re.search('#\s*$', output, flags=re.M) 
+                    output = self.read_channel()
+                #Check for prompt and continue if found                    
+                elif (re.search('#\s*$', output, flags=re.M) 
                         or re.search('>\s*$', output, flags=re.M)):
                     self.write_channel(self.RETURN)
+                    break
             else:
                 self.write_channel(self.RETURN)
                 time.sleep(1 * delay_factor)
@@ -161,10 +158,12 @@ class AvayaErsBase(CiscoSSHConnection):
     def _set_telnet_opts(self, sock, cmd, opt):
         """ Process telnet options. Specifically tell the server to DO ECHO """
         if opt == telnetlib.ECHO and cmd in (telnetlib.WILL, telnetlib.WONT):
-            self.sock.sendall(telnetlib.IAC + telnetlib.DO + opt)
+            sock.sendall(telnetlib.IAC + telnetlib.DO + opt)
+
 
 class AvayaErsSSH(AvayaErsBase):
     pass
+
 
 class AvayaErsTelnet(AvayaErsBase):
     pass
