@@ -8,7 +8,6 @@ import telnetlib
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.ssh_exception import NetMikoAuthenticationException
-from netmiko import log
 
 # Avaya presents Enter Ctrl-Y to begin.
 CTRL_Y = "\x19"
@@ -16,7 +15,7 @@ CTRL_Y = "\x19"
 
 class AvayaErsBase(CiscoSSHConnection):
     """Netmiko support for Avaya Ethernet Routing Switch."""
-  
+
     def config_mode(self, config_command='config term', pattern=''):
         """
 
@@ -28,29 +27,29 @@ class AvayaErsBase(CiscoSSHConnection):
         if not pattern:
             pattern = re.escape(self.base_prompt)
         if self.protocol == 'telnet':
-            config_command = 'config term' + self.TELNET_RETURN            
+            config_command = 'config term' + self.TELNET_RETURN
         return super(AvayaErsBase, self).config_mode(config_command=config_command,
-                                                            pattern=pattern) 
+                                                     pattern=pattern)
 
     def check_config_mode(self, check_string='(config)#', pattern=''):
             """
 
             Checks if the device is in configuration mode or not.
-            
+
             Avaya ERS devices can have a prompt longer than 20 characters in
             config mode.
             """
             if not pattern:
                 pattern = re.escape(self.base_prompt)
             return super(AvayaErsBase, self).check_config_mode(check_string=check_string,
-                                                                      pattern=pattern)
+                                                               pattern=pattern)
 
     def exit_config_mode(self, exit_config='end', pattern=''):
         """Exit from configuration mode."""
         if not pattern:
             pattern = re.escape(self.base_prompt)
         return super(AvayaErsBase, self).exit_config_mode(exit_config=exit_config,
-                                                                 pattern=pattern)    
+                                                          pattern=pattern)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
                      username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
@@ -59,10 +58,11 @@ class AvayaErsBase(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
-        """ We need echo on to process data from a telnet enabled ERS
-            Set callback function to negotiate telnet options           
         """
-        self.remote_conn.set_option_negotiation_callback(self._set_telnet_opts)            
+            We need echo on to process data from a telnet enabled ERS
+            Set callback function to negotiate telnet options
+        """
+        self.remote_conn.set_option_negotiation_callback(self._set_telnet_opts)
 
         output = ''
         return_msg = ''
@@ -78,7 +78,7 @@ class AvayaErsBase(CiscoSSHConnection):
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                
+
                 # Search for username pattern / send username
                 if re.search('Enter Username: ', output):
                     self.write_channel(self.username + self.TELNET_RETURN)
@@ -101,8 +101,8 @@ class AvayaErsBase(CiscoSSHConnection):
                     return_msg += output
                     if (re.search(pri_prompt_terminator, output, flags=re.M)
                             or re.search(alt_prompt_terminator, output, flags=re.M)):
-                        return return_msg                        
-                
+                        return return_msg
+
                 # Check if proper data received
                 if (re.search(pri_prompt_terminator, output, flags=re.M)
                         or re.search(alt_prompt_terminator, output, flags=re.M)):
@@ -124,7 +124,7 @@ class AvayaErsBase(CiscoSSHConnection):
             return return_msg
 
         msg = "Telnet login failed: {}".format(self.host)
-        raise NetMikoAuthenticationException(msg) 
+        raise NetMikoAuthenticationException(msg)
 
     def special_login_handler(self, delay_factor=1):
         """
@@ -142,18 +142,18 @@ class AvayaErsBase(CiscoSSHConnection):
         while i <= 6:
             output = self.read_channel()
             if output:
-                # Search for 'Ctrl-Y' and send \xl19 if found
+                # Search for 'Ctrl-Y' and send \x19 if found
                 if re.search('Ctrl-Y', output):
                     self.write_channel(CTRL_Y)
-                    time.sleep(.5 * delay_factor)                    
+                    time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                 # Determine if switch is presenting config menu / send 'c' to enter cli
                 if re.search("Menu", output):
                     self.write_channel('c')
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
-                #Check for prompt and continue if found                    
-                elif (re.search('#\s*$', output, flags=re.M) 
+                # Check for prompt and continue if found
+                elif (re.search('#\s*$', output, flags=re.M)
                         or re.search('>\s*$', output, flags=re.M)):
                     self.write_channel(self.RETURN)
                     break
@@ -174,5 +174,3 @@ class AvayaErsSSH(AvayaErsBase):
 
 class AvayaErsTelnet(AvayaErsBase):
     pass
-
-
