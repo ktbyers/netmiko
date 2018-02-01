@@ -56,7 +56,7 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'alcatel_sros': {
-        "cmd": "show version | match ALCATEL",
+        "cmd": "show version | match TiMOS",
         "search_patterns": ["TiMOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
