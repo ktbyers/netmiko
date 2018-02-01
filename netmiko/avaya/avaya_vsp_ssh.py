@@ -15,3 +15,9 @@ class AvayaVspSSH(CiscoSSHConnection):
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
+
+    def save_config(self):
+        """Save Config"""
+        if not self.check_enable_mode():
+            self.enable()
+        self.send_command('save config')
