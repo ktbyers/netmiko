@@ -186,11 +186,10 @@ class JuniperSSH(BaseConnection):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
 
-    def save_config(self):
-        """Saves Config in Automatic or Manual Mode"""
-        output = self.send_command('write memory')
-        output += self.send_command(self.RESPONSE_RETURN)
-        return output
+     def save_config(self, cmd='', confirm=True, confirm_response=''):
+         """Not Implemented"""
+         raise NotImplementedError
+
 
 
 class JuniperFileTransfer(BaseFileTransfer):
