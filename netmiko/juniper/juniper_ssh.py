@@ -186,10 +186,9 @@ class JuniperSSH(BaseConnection):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
 
-     def save_config(self, cmd='', confirm=True, confirm_response=''):
-         """Not Implemented"""
-         raise NotImplementedError
-
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError
 
 
 class JuniperFileTransfer(BaseFileTransfer):
