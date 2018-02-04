@@ -147,7 +147,3 @@ class PaloAltoPanosSSH(BaseConnection):
         """Palo Alto requires an extra delay"""
         kwargs['delay_factor'] = kwargs.get('delay_factor', 2.5)
         return super(PaloAltoPanosSSH, self).send_command(*args, **kwargs)
-
-    def save_config(self, cmd='', confirm=True, confirm_response=''):
-        """Not Implemented"""
-        raise NotImplementedError

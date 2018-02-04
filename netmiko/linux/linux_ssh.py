@@ -85,3 +85,7 @@ class LinuxSSH(CiscoSSHConnection):
     def cleanup(self):
         """Try to Gracefully exit the SSH session."""
         self.write_channel("exit" + self.RETURN)
+
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError
