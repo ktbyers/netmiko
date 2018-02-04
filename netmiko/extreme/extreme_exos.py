@@ -67,7 +67,7 @@ class ExtremeBase(CiscoSSHConnection):
 
     def save_config(self, cmd='save configuration primary', confirm=False):
         """Saves configuration."""
-        return super(CiscoIosBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(ExtremeBase, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class ExtremeSSH(ExtremeBase):
