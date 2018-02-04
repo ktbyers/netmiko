@@ -29,4 +29,3 @@ class UbiquitiEdgeSSH(CiscoSSHConnection):
     def save_config(self, cmd='write memory', confirm=False):
         """Saves configuration."""
         return super(UbiquitiEdgeSSH, self).save_config(cmd=cmd, confirm=confirm)
-
