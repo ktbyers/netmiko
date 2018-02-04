@@ -29,3 +29,7 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
                       "the 'secret' argument to ConnectHandler."
                 raise ValueError(msg)
         return output
+
+    def save_config(self, cmd='save config flash', confirm=False):
+        """Saves configuration."""
+        return super(MrvOptiswitchSSH, self).save_config(cmd=cmd, confirm=confirm)

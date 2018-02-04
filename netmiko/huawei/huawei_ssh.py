@@ -80,9 +80,9 @@ class HuaweiSSH(CiscoSSHConnection):
         log.debug("prompt: {0}".format(self.base_prompt))
         return self.base_prompt
 
-    def save_config(self):
+    def save_config(self, cmd='save', confirm=False, confirm_response=''):
         """ Save Config for HuaweiSSH"""
-        return self.send_command('save')
+        return super(HuaweiSSH, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
@@ -115,3 +115,7 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         if error_marker in output:
             raise ValueError('Commit failed with following errors:\n\n{}'.format(output))
         return output
+
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError

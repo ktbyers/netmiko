@@ -43,6 +43,6 @@ class AlcatelSrosSSH(CiscoSSHConnection):
         return super(AlcatelSrosSSH, self).check_config_mode(check_string=check_string,
                                                              pattern=pattern)
 
-    def save_config(self):
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
         """Not Implemented"""
         raise NotImplementedError

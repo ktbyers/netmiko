@@ -48,6 +48,10 @@ class RuckusFastironBase(CiscoSSHConnection):
                   "the 'secret' argument to ConnectHandler."
             raise ValueError(msg)
 
+    def save_config(self, cmd='write mem', confirm=False):
+        """Saves configuration."""
+        return super(RuckusFastironBase, self).save_config(cmd=cmd, confirm=confirm)
+
 
 class RuckusFastironTelnet(RuckusFastironBase):
     def __init__(self, *args, **kwargs):

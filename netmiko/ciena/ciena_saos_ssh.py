@@ -17,3 +17,7 @@ class CienaSaosSSH(CiscoSSHConnection):
 
     def enable(self, *args, **kwargs):
         pass
+
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError
