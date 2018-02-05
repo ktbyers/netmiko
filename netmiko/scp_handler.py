@@ -91,7 +91,7 @@ class BaseFileTransfer(object):
         self.scp_conn.close()
         self.scp_conn = None
 
-    def remote_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
+    def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Return space available on remote device."""
         remote_cmd = "dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
@@ -103,7 +103,7 @@ class BaseFileTransfer(object):
         destination_stats = os.statvfs(".")
         return destination_stats.f_bsize * destination_stats.f_bavail
 
-    def verify_space_available(self, search_pattern=r"bytes total \((.*) bytes free\)"):
+    def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
         if self.direction == 'put':
             space_avail = self.remote_space_available(search_pattern=search_pattern)
