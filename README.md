@@ -37,15 +37,17 @@ Alcatel AOS6/AOS8
 Avaya ERS  
 Avaya VSP  
 Brocade VDX  
-Brocade ICX/FastIron  
 Brocade MLX/NetIron  
+Calix B6  
 Cisco WLC  
-Dell-Force10 DNOS9  
+Dell-Force10  
 Dell PowerConnect  
 Huawei  
 Mellanox  
+NetApp cDOT  
 Palo Alto PAN-OS  
 Pluribus  
+Ruckus ICX/FastIron  
 Ubiquiti EdgeSwitch
 Vyatta VyOS  
 
@@ -53,17 +55,20 @@ Vyatta VyOS
 
 A10  
 Accedian  
-Alcatel-Lucent SR-OS  
 Aruba  
 Ciena SAOS  
 Cisco Telepresence  
-CheckPoint Gaia  
+Check Point GAiA  
+Coriant  
+Eltex  
 Enterasys  
 Extreme EXOS  
 Extreme Wing  
 F5 LTM  
 Fortinet  
 MRV Communications OptiSwitch  
+Nokia/Alcatel SR-OS  
+QuantaMesh  
 
 ## Tutorials:
 
