@@ -49,7 +49,7 @@ NetApp cDOT
 Palo Alto PAN-OS  
 Pluribus  
 Ruckus ICX/FastIron  
-Ubiquiti EdgeSwitch
+Ubiquiti EdgeSwitch  
 Vyatta VyOS  
 
 ###### Experimental
