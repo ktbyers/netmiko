@@ -61,7 +61,7 @@ class BaseFileTransfer(object):
         self.direction = direction
 
         if not ssh_conn.check_enable_mode():
-            raise NetMikoAuthenticationException('Must be in eanble mode')
+            raise NetMikoAuthenticationException('Must be in enable mode')
 
         if not file_system:
             self.file_system = self.ssh_ctl_chan._autodetect_fs()
