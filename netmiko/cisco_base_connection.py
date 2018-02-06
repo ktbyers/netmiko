@@ -160,6 +160,9 @@ class CiscoBaseConnection(BaseConnection):
             if '% Invalid' not in output:
                 return file_system
 
+        if not self.check_enable_mode():
+            raise NetMikoAuthenticationException('Must be in eanble mode')
+
         raise ValueError("An error occurred in dynamically determining remote file "
                          "system: {} {}".format(cmd, output))
 
