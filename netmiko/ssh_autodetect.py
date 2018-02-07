@@ -55,14 +55,20 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'alcatel_sros': {
+        "cmd": "show version",
+        "search_patterns": ["TiMOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'arista_eos': {
-        "cmd": "show version | inc rist",
+        "cmd": "show version",
         "search_patterns": ["Arista"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_ios': {
-        "cmd": "show version | inc Cisco",
+        "cmd": "show version",
         "search_patterns": [
            "Cisco IOS Software",
            "Cisco Internetwork Operating System Software"
@@ -71,37 +77,37 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'cisco_asa': {
-        "cmd": "show version | inc Cisco",
+        "cmd": "show version",
         "search_patterns": ["Cisco Adaptive Security Appliance", "Cisco ASA"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_nxos': {
-        "cmd": "show version | inc Cisco",
+        "cmd": "show version",
         "search_patterns": ["Cisco Nexus Operating System", "NX-OS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_xr': {
-        "cmd": "show version | inc Cisco",
+        "cmd": "show version",
         "search_patterns": ["Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'huawei': {
-        "cmd": "display version | inc Huawei",
+        "cmd": "display version",
         "search_patterns": ["Huawei Technologies", "Huawei Versatile Routing Platform Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'juniper_junos': {
-        "cmd": "show version | match JUNOS",
+        "cmd": "show version",
         "search_patterns": ["JUNOS Software Release", "JUNOS .+ Software", "JUNOS OS Kernel"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'dell_force10': {
-        "cmd": "show version | grep Type",
+        "cmd": "show version",
         "search_patterns": ["S4048-ON"],
         "priority": 99,
         "dispatch": "_autodetect_std",

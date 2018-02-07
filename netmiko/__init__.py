@@ -20,6 +20,7 @@ from netmiko.base_connection import BaseConnection
 # Alternate naming
 NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
+Netmiko = ConnectHandler
 
 __version__ = "2.3.1"
 __all__ = (
