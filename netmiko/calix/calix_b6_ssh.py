@@ -88,3 +88,7 @@ class CalixB6SSH(CiscoSSHConnection):
         if exit_config is None:
             exit_config = 'exit' + self.RETURN + 'end'
         return super(CalixB6SSH, self).exit_config_mode(exit_config=exit_config, pattern=pattern)
+
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError

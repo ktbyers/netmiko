@@ -14,6 +14,7 @@ class ExtremeBase(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="disable clipaging")
+        self.send_command_timing("disable cli prompting")
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -63,6 +64,10 @@ class ExtremeBase(CiscoSSHConnection):
     def exit_config_mode(self, exit_config=''):
         """No configuration mode on Extreme."""
         return ''
+
+    def save_config(self, cmd='save configuration primary', confirm=False):
+        """Saves configuration."""
+        return super(ExtremeBase, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class ExtremeSSH(ExtremeBase):

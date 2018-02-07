@@ -3,7 +3,9 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class BrocadeNetironBase(CiscoSSHConnection):
-    pass
+    def save_config(self, cmd='write memory', confirm=False):
+        """Save Config"""
+        return super(BrocadeNetironBase, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class BrocadeNetironSSH(BrocadeNetironBase):

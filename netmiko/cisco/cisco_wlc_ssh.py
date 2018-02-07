@@ -158,3 +158,7 @@ class CiscoWlcSSH(BaseConnection):
         output = self._sanitize_output(output)
         log.debug("{}".format(output))
         return output
+
+    def save_config(self, cmd='save config', confirm=True, confirm_response='y'):
+        return super(CiscoWlcSSH, self).save_config(cmd=cmd, confirm=confirm,
+                                                    confirm_response=confirm_response)

@@ -39,3 +39,7 @@ class AccedianSSH(CiscoSSHConnection):
                                                  alt_prompt_terminator=alt_prompt_terminator,
                                                  delay_factor=delay_factor)
         return self.base_prompt
+
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError
