@@ -48,6 +48,7 @@ from netmiko.base_connection import BaseConnection
 
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
 # remaining keys indicate kwargs that will be passed to dispatch method.
+# Note, the 'cmd' needs to avoid output paging.
 SSH_MAPPER_BASE = {
     'alcatel_aos': {
         "cmd": "show system",
@@ -56,19 +57,22 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'alcatel_sros': {
-        "cmd": "show version",
-        "search_patterns": ["TiMOS"],
+        "cmd": "show version | match TiMOS",
+        "search_patterns": [
+            "Nokia",
+            "Alcatel",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'arista_eos': {
-        "cmd": "show version",
+        "cmd": "show version | inc rist",
         "search_patterns": ["Arista"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_ios': {
-        "cmd": "show version",
+        "cmd": "show version | inc Cisco",
         "search_patterns": [
            "Cisco IOS Software",
            "Cisco Internetwork Operating System Software"
@@ -77,37 +81,44 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'cisco_asa': {
-        "cmd": "show version",
+        "cmd": "show version | inc Cisco",
         "search_patterns": ["Cisco Adaptive Security Appliance", "Cisco ASA"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_nxos': {
-        "cmd": "show version",
+        "cmd": "show version | inc Cisco",
         "search_patterns": ["Cisco Nexus Operating System", "NX-OS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_xr': {
-        "cmd": "show version",
+        "cmd": "show version | inc Cisco",
         "search_patterns": ["Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'huawei': {
-        "cmd": "display version",
-        "search_patterns": ["Huawei Technologies", "Huawei Versatile Routing Platform Software"],
+        "cmd": "display version | inc Huawei",
+        "search_patterns": [
+            "Huawei Technologies", 
+            "Huawei Versatile Routing Platform Software"
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'juniper_junos': {
-        "cmd": "show version",
-        "search_patterns": ["JUNOS Software Release", "JUNOS .+ Software", "JUNOS OS Kernel"],
+        "cmd": "show version | match JUNOS",
+        "search_patterns": [
+            "JUNOS Software Release", 
+            "JUNOS .+ Software", 
+            "JUNOS OS Kernel",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'dell_force10': {
-        "cmd": "show version",
+        "cmd": "show version | grep Type",
         "search_patterns": ["S4048-ON"],
         "priority": 99,
         "dispatch": "_autodetect_std",
