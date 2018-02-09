@@ -72,3 +72,7 @@ class HPProcurveSSH(CiscoSSHConnection):
             except socket.error:
                 break
             count += 1
+
+    def save_config(self, cmd='write memory', confirm=False):
+        """Save Config."""
+        return super(HPProcurveSSH, self).save_config(cmd=cmd, confirm=confirm)

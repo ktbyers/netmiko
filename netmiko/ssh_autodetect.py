@@ -48,6 +48,7 @@ from netmiko.base_connection import BaseConnection
 
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
 # remaining keys indicate kwargs that will be passed to dispatch method.
+# Note, the 'cmd' needs to avoid output paging.
 SSH_MAPPER_BASE = {
     'alcatel_aos': {
         "cmd": "show system",
@@ -56,8 +57,11 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'alcatel_sros': {
-        "cmd": "show version | match ALCATEL",
-        "search_patterns": ["TiMOS"],
+        "cmd": "show version | match TiMOS",
+        "search_patterns": [
+            "Nokia",
+            "Alcatel",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -96,13 +100,26 @@ SSH_MAPPER_BASE = {
     },
     'huawei': {
         "cmd": "display version | inc Huawei",
-        "search_patterns": ["Huawei Technologies", "Huawei Versatile Routing Platform Software"],
+        "search_patterns": [
+            "Huawei Technologies",
+            "Huawei Versatile Routing Platform Software"
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'juniper_junos': {
         "cmd": "show version | match JUNOS",
-        "search_patterns": ["JUNOS Software Release", "JUNOS .+ Software"],
+        "search_patterns": [
+            "JUNOS Software Release",
+            "JUNOS .+ Software",
+            "JUNOS OS Kernel",
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'dell_force10': {
+        "cmd": "show version | grep Type",
+        "search_patterns": ["S4048-ON"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },

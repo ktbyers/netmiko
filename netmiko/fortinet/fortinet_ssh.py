@@ -68,3 +68,7 @@ class FortinetSSH(CiscoSSHConnection):
     def exit_config_mode(self, exit_config=''):
         """No config mode for Fortinet devices."""
         return ''
+
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError

@@ -6,14 +6,15 @@ Netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-Python 2.7, 3.4, 3.5  
+Python 2.7, 3.5, 3.6  
 
 #### Requires:
 
-Paramiko >= 1.13+  
+Paramiko >= 2  
 scp >= 0.10.0  
 pyyaml  
-pytest (for unit tests)   
+pyserial  
+textfsm  
 
 #### Supports:
 
@@ -37,33 +38,38 @@ Alcatel AOS6/AOS8
 Avaya ERS  
 Avaya VSP  
 Brocade VDX  
-Brocade ICX/FastIron  
 Brocade MLX/NetIron  
+Calix B6  
 Cisco WLC  
-Dell-Force10 DNOS9  
+Dell-Force10  
 Dell PowerConnect  
 Huawei  
 Mellanox  
+NetApp cDOT  
 Palo Alto PAN-OS  
 Pluribus  
-Ubiquiti EdgeSwitch
+Ruckus ICX/FastIron  
+Ubiquiti EdgeSwitch  
 Vyatta VyOS  
 
 ###### Experimental
 
 A10  
 Accedian  
-Alcatel-Lucent SR-OS  
 Aruba  
 Ciena SAOS  
 Cisco Telepresence  
-CheckPoint Gaia  
+Check Point GAiA  
+Coriant  
+Eltex  
 Enterasys  
 Extreme EXOS  
 Extreme Wing  
 F5 LTM  
 Fortinet  
 MRV Communications OptiSwitch  
+Nokia/Alcatel SR-OS  
+QuantaMesh  
 
 ## Tutorials:
 

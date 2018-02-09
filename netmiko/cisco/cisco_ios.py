@@ -21,6 +21,10 @@ class CiscoIosBase(CiscoBaseConnection):
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    def save_config(self, cmd='write mem', confirm=False):
+        """Saves Config Using Copy Run Start"""
+        return super(CiscoIosBase, self).save_config(cmd=cmd, confirm=confirm)
+
 
 class CiscoIosSSH(CiscoIosBase):
     """Cisco IOS SSH driver."""

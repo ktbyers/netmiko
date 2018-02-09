@@ -5,7 +5,7 @@ import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ExtremeSSH(CiscoSSHConnection):
+class ExtremeBase(CiscoSSHConnection):
     """Extreme support.
 
     Designed for EXOS >= 15.0
@@ -14,6 +14,7 @@ class ExtremeSSH(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="disable clipaging")
+        self.send_command_timing("disable cli prompting")
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -33,7 +34,7 @@ class ExtremeSSH(CiscoSSHConnection):
             * testhost.4 #
             * testhost.5 #
         """
-        cur_base_prompt = super(ExtremeSSH, self).set_base_prompt(*args, **kwargs)
+        cur_base_prompt = super(ExtremeBase, self).set_base_prompt(*args, **kwargs)
         # Strip off any leading * or whitespace chars; strip off trailing period and digits
         match = re.search(r'[\*\s]*(.*)\.\d+', cur_base_prompt)
         if match:
@@ -50,7 +51,7 @@ class ExtremeSSH(CiscoSSHConnection):
 
         # refresh self.base_prompt
         self.set_base_prompt()
-        return super(ExtremeSSH, self).send_command(*args, **kwargs)
+        return super(ExtremeBase, self).send_command(*args, **kwargs)
 
     def config_mode(self, config_command=''):
         """No configuration mode on Extreme."""
@@ -58,8 +59,23 @@ class ExtremeSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string='#'):
         """Checks whether in configuration mode. Returns a boolean."""
-        return super(ExtremeSSH, self).check_config_mode(check_string=check_string)
+        return super(ExtremeBase, self).check_config_mode(check_string=check_string)
 
     def exit_config_mode(self, exit_config=''):
         """No configuration mode on Extreme."""
         return ''
+
+    def save_config(self, cmd='save configuration primary', confirm=False):
+        """Saves configuration."""
+        return super(ExtremeBase, self).save_config(cmd=cmd, confirm=confirm)
+
+
+class ExtremeSSH(ExtremeBase):
+    pass
+
+
+class ExtremeTelnet(ExtremeBase):
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get('default_enter')
+        kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
+        super(ExtremeTelnet, self).__init__(*args, **kwargs)

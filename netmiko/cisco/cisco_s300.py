@@ -21,4 +21,6 @@ class CiscoS300SSH(CiscoSSHConnection):
         self.set_terminal_width(command='terminal width 511')
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
-        self.clear_buffer()
+
+    def save_config(self, cmd='write memory', confirm=True, confirm_response='Y'):
+        return super(CiscoS300SSH, self).save_config(cmd=cmd, confirm=confirm)
