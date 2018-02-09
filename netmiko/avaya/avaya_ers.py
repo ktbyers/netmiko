@@ -164,7 +164,7 @@ class AvayaErsBase(CiscoSSHConnection):
 
     def save_config(self, cmd='save config', confirm=False):
         """Save Config"""
-        return super(AvayaErsSSH, self).save_config(cmd=cmd, confirm=confirm)            
+        return super(AvayaErsBase, self).save_config(cmd=cmd, confirm=confirm)
 
     def _set_telnet_opts(self, sock, cmd, opt):
         """ Process telnet options. Specifically tell the server to DO ECHO """
