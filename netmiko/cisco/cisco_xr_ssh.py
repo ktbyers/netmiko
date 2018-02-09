@@ -125,3 +125,7 @@ class CiscoXrSSH(CiscoSSHConnection):
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
+
+    def save_config(self):
+        """Not Implemented (use commit() method)"""
+        raise NotImplementedError

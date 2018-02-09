@@ -38,3 +38,7 @@ class AlcatelAosSSH(CiscoSSHConnection):
     def exit_config_mode(self, *args, **kwargs):
         """No config mode on AOS"""
         return ''
+
+    def save_config(self, cmd='write memory flash-synchro', confirm=False):
+        """Save Config"""
+        return super(AlcatelAosSSH, self).save_config(cmd=cmd, confirm=confirm)
