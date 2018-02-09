@@ -101,7 +101,7 @@ SSH_MAPPER_BASE = {
     'huawei': {
         "cmd": "display version | inc Huawei",
         "search_patterns": [
-            "Huawei Technologies", 
+            "Huawei Technologies",
             "Huawei Versatile Routing Platform Software"
         ],
         "priority": 99,
@@ -110,8 +110,8 @@ SSH_MAPPER_BASE = {
     'juniper_junos': {
         "cmd": "show version | match JUNOS",
         "search_patterns": [
-            "JUNOS Software Release", 
-            "JUNOS .+ Software", 
+            "JUNOS Software Release",
+            "JUNOS .+ Software",
             "JUNOS OS Kernel",
         ],
         "priority": 99,
