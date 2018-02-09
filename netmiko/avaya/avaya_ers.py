@@ -162,6 +162,10 @@ class AvayaErsBase(CiscoSSHConnection):
                 time.sleep(1 * delay_factor)
             i += 1
 
+    def save_config(self, cmd='save config', confirm=False):
+        """Save Config"""
+        return super(AvayaErsSSH, self).save_config(cmd=cmd, confirm=confirm)            
+
     def _set_telnet_opts(self, sock, cmd, opt):
         """ Process telnet options. Specifically tell the server to DO ECHO """
         if opt == telnetlib.ECHO and cmd in (telnetlib.WILL, telnetlib.WONT):
