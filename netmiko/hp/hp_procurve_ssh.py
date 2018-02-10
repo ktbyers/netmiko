@@ -41,9 +41,15 @@ class HPProcurveSSH(CiscoSSHConnection):
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    def check_enable_mode(self, check_string='#'):
+        """Check Enable Mode for HPProcurve"""
+        return super(HPProcurveSSH, self).check_enable_mode(check_string=check_string)
+
     def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE,
                default_username='manager'):
         """Enter enable mode"""
+        if self.check_enable_mode():
+            return ''
         output = self.send_command_timing(cmd)
         if 'username' in output.lower() or 'login name' in output.lower() or \
                 'user name' in output.lower():
