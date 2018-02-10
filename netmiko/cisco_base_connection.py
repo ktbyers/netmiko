@@ -72,8 +72,7 @@ class CiscoBaseConnection(BaseConnection):
 
         output = ''
         return_msg = ''
-        i = 1
-        while i <= max_loops:
+        for _ in range(max_loops):
             try:
                 output = self.read_channel()
                 return_msg += output
@@ -99,15 +98,13 @@ class CiscoBaseConnection(BaseConnection):
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
                     self.write_channel("no" + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
-                    count = 0
-                    while count < 15:
+                    for _ in range(15):
                         output = self.read_channel()
                         return_msg += output
                         if re.search(r"ress RETURN to get started", output):
                             output = ""
                             break
                         time.sleep(2 * delay_factor)
-                        count += 1
 
                 # Check for device with no password configured
                 if re.search(r"assword required, but none set", output):
@@ -122,7 +119,6 @@ class CiscoBaseConnection(BaseConnection):
 
                 self.write_channel(self.TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
-                i += 1
             except EOFError:
                 msg = "Telnet login failed: {}".format(self.host)
                 raise NetMikoAuthenticationException(msg)

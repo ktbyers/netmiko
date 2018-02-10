@@ -12,13 +12,11 @@ class HPComwareSSH(CiscoSSHConnection):
         Extra time to read HP banners.
         """
         delay_factor = self.select_delay_factor(delay_factor=0)
-        i = 1
-        while i <= 4:
+        for _ in range(4):
             # Comware can have a banner that prompts you to continue
             # 'Press Y or ENTER to continue, N to exit.'
             time.sleep(.5 * delay_factor)
             self.write_channel("\n")
-            i += 1
 
         time.sleep(.3 * delay_factor)
         self.clear_buffer()

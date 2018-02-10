@@ -87,10 +87,9 @@ class CiscoAsaSSH(CiscoSSHConnection):
         """
         delay_factor = self.select_delay_factor(0)
 
-        i = 1
         max_attempts = 50
         self.write_channel("login" + self.RETURN)
-        while i <= max_attempts:
+        for _ in range(max_attempts):
             time.sleep(.5 * delay_factor)
             output = self.read_channel()
             if 'sername' in output:
@@ -101,7 +100,6 @@ class CiscoAsaSSH(CiscoSSHConnection):
                 break
             else:
                 self.write_channel("login" + self.RETURN)
-            i += 1
 
     def save_config(self, cmd='write mem', confirm=False):
         """Saves Config"""

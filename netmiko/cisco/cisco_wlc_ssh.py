@@ -24,10 +24,8 @@ class CiscoWlcSSH(BaseConnection):
         Password:****
         """
         delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
         time.sleep(delay_factor * .5)
-        output = ""
-        while i <= 12:
+        for _ in range(12):
             output = self.read_channel()
             if output:
                 if 'login as' in output or 'User' in output:
@@ -39,7 +37,6 @@ class CiscoWlcSSH(BaseConnection):
             else:
                 self.write_channel(self.RETURN)
                 time.sleep(delay_factor * 1.5)
-            i += 1
 
     def send_command_w_enter(self, *args, **kwargs):
         '''

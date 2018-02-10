@@ -19,9 +19,7 @@ class AvayaErsSSH(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor)
 
         # Handle 'Enter Ctrl-Y to begin'
-        output = ""
-        i = 0
-        while i <= 12:
+        for _ in range(12):
             output = self.read_channel()
             if output:
                 if 'Ctrl-Y' in output:
@@ -35,7 +33,6 @@ class AvayaErsSSH(CiscoSSHConnection):
             else:
                 self.write_channel(self.RETURN)
                 time.sleep(1 * delay_factor)
-            i += 1
 
     def save_config(self, cmd='save config', confirm=False):
         """Save Config"""

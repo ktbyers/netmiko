@@ -20,7 +20,7 @@ import string
 
 def gen_random(N=6):
     return "".join([random.choice(string.ascii_lowercase + string.ascii_uppercase
-                   + string.digits) for x in range(N) ])
+                   + string.digits) for _ in range(N) ])
 
 def retrieve_commands(commands):
     """
