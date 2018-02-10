@@ -346,7 +346,7 @@ class BaseConnection(object):
         :type pattern: str
 
         :param re_flags: Regex flags used in conjunction with pattern to search for prompt
-        :type re_flags: re module flags
+        :type re_flags: int
 
         :param max_loops: Max number of iterations to read the channel before raising exception
         :type max_loops: int
@@ -436,7 +436,7 @@ class BaseConnection(object):
         :type pattern: str
 
         :param re_flags: Regex flags used in conjunction with pattern to search for prompt
-        :type re_flags: re module flags
+        :type re_flags: int
         """
         combined_pattern = re.escape(self.base_prompt)
         if pattern:
@@ -623,7 +623,7 @@ class BaseConnection(object):
         width and height are needed for Fortinet paging setting.
 
         :param width: Specified width of the terminal window for VT100
-        :type width int
+        :type width: int
 
         :
         """
@@ -672,21 +672,21 @@ class BaseConnection(object):
         :type count: int
 
         :param pattern: Signifying the device prompt has returned and to break out of the loop
-        :type: str
+        :type: pattern: str
         """
 
         def _increment_delay(main_delay, increment=1.1, maximum=8):
             """Increment sleep time to a maximum value.
 
             :param main_delay: Pri sleep factor for data to return from the channel
-            :type int
+            :type main_delay: int
 
             :param increment: Sec sleep factor for waiting for data to return from channel
             :type increment: float
 
             :param maximum: Max delay to sleep when waiting for data to return from the channel
-            :type int
-            :
+            :type maximum: int
+
             """
             main_delay = main_delay * increment
             if main_delay >= maximum:
@@ -1173,8 +1173,8 @@ class BaseConnection(object):
         The file is processed line-by-line and each command is sent down the
         SSH channel.
 
-        :param config_file: Configuration file to be sent do the device
-        :type:
+        :param config_file: Path to configuration file to be sent do the device
+        :type config_file: str
 
         **kwargs are passed to send_config_set method.
         """
@@ -1192,7 +1192,7 @@ class BaseConnection(object):
         Automatically exits/enters configuration mode.
 
         :param config_commands: Multiple commands to be sent to the device
-        :type config_commands: iterable of strings
+        :type config_commands: list of strings
 
         :param exit_config_mode: Determines exit config mode after all commands have been sent
         :type exit_config_mode: bool
