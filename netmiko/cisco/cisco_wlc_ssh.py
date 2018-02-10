@@ -156,7 +156,7 @@ class CiscoWlcSSH(BaseConnection):
         # Gather output
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         output = self._sanitize_output(output)
-        log.debug("{}".format(output))
+        log.debug(output)
         return output
 
     def save_config(self, cmd='save config', confirm=True, confirm_response='y'):
