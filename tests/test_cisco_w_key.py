@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-from netmiko import ConnectHandler
+
 from os import path
 
-def main():
+from netmiko import ConnectHandler
+from netmiko.py23_compat import raw_input
 
-    try: 
-        hostname = raw_input("Enter remote host to test: ")
-    except NameError:
-        hostname = input("Enter remote host to test: ")
-    
+
+def main():
+    hostname = raw_input("Enter remote host to test: ")
+
     home_dir = (path.expanduser('~'))
     key_file = "{}/.ssh/cisco_rsa".format(home_dir)
 

@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from netmiko import ConnectHandler
+
 from getpass import getpass
 
-#ip_addr = raw_input("Enter IP Address: ")
+from netmiko import ConnectHandler
+from netmiko.py23_compat import raw_input
+
+ip_addr = raw_input("Enter IP Address: ")
 pwd = getpass()
-ip_addr = 'sw05.bjm01'
 
 pluribus_ssh_device = {
     'device_type': 'pluribus',
