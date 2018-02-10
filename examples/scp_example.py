@@ -20,25 +20,25 @@ def main():
     s_file = 'cisco_logging.txt'
     d_file = 'cisco_logging.txt'
 
-    print "\n\n"
+    print("\n\n")
 
     scp_conn.scp_transfer_file(s_file, d_file)
     scp_conn.close()
 
     output = ssh_conn.send_command("show flash: | inc cisco_logging")
-    print ">> " + output + '\n'
+    print(">> " + output + '\n')
 
     # Disable file copy confirmation
     output = ssh_conn.send_config_set(["file prompt quiet"])
 
     # Execute config merge
-    print "Performing config merge\n"
+    print("Performing config merge\n")
     output = ssh_conn.send_command("copy flash:cisco_logging.txt running-config")
 
     # Verify change
-    print "Verifying logging buffer change"
+    print("Verifying logging buffer change")
     output = ssh_conn.send_command("show run | inc logging buffer")
-    print ">> " + output + '\n'
+    print(">> " + output + '\n')
 
     # Restore copy confirmation
     output = ssh_conn.send_config_set(["file prompt alert"])

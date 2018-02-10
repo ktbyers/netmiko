@@ -124,14 +124,14 @@ FILE_TRANSFER_MAP = {
 new_mapper = {}
 for k, v in CLASS_MAPPER_BASE.items():
     new_mapper[k] = v
-    alt_key = k + u"_ssh"
+    alt_key = k + "_ssh"
     new_mapper[alt_key] = v
 CLASS_MAPPER = new_mapper
 
 new_mapper = {}
 for k, v in FILE_TRANSFER_MAP.items():
     new_mapper[k] = v
-    alt_key = k + u"_ssh"
+    alt_key = k + "_ssh"
     new_mapper[alt_key] = v
 FILE_TRANSFER_MAP = new_mapper
 

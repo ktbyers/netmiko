@@ -153,12 +153,12 @@ def find_netmiko_dir():
 def write_bytes(out_data):
     """Write Python2 and Python3 compatible byte stream."""
     if sys.version_info[0] >= 3:
-        if isinstance(out_data, type(u'')):
+        if isinstance(out_data, type('')):
             return out_data.encode('ascii', 'ignore')
         elif isinstance(out_data, type(b'')):
             return out_data
     else:
-        if isinstance(out_data, type(u'')):
+        if isinstance(out_data, type('')):
             return out_data.encode('ascii', 'ignore')
         elif isinstance(out_data, type(str(''))):
             return out_data

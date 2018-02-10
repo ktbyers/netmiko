@@ -7,9 +7,17 @@ import sys
 PY2 = sys.version_info.major == 2
 PY3 = sys.version_info.major == 3
 
-if sys.version_info.major == 3:
+if PY3:
     string_types = (str,)
     text_type = str
+    raw_input = input
+
+    def iteritems(dct):
+        return dct.iter()
 else:
     string_types = (basestring,)  # noqa
     text_type = unicode  # noqa
+    raw_input = raw_input  # noqa
+
+    def iteritems(dct):
+        return dct.iteritems()  # noqa

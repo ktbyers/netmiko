@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+
 from netmiko import ConnectHandler
+from netmiko.py23_compat import raw_input
+
 
 def main():
+    hostname = raw_input("Enter remote host to test: ")
+    username = raw_input("Enter remote username: ")
 
-    try: 
-        hostname = raw_input("Enter remote host to test: ")
-        username = raw_input("Enter remote username: ")
-    except NameError:
-        hostname = input("Enter remote host to test: ")
-        username = input("Enter remote username: ")
-    
     linux_test = {
         'username': username, 
         'use_keys': True, 
