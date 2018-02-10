@@ -254,7 +254,7 @@ class BaseConnection(object):
         else:
             raise ValueError("Invalid protocol specified")
         try:
-            log.debug("write_channel: {}".format(write_bytes(out_data)))
+            log.debug("write_channel: %s", write_bytes(out_data))
         except UnicodeDecodeError:
             # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
             pass
@@ -318,7 +318,7 @@ class BaseConnection(object):
             output = ""
             while (self.remote_conn.in_waiting > 0):
                 output += self.remote_conn.read(self.remote_conn.in_waiting)
-        log.debug("read_channel: {}".format(output))
+        log.debug("read_channel: %s", output)
         return output
 
     def read_channel(self):
@@ -361,7 +361,7 @@ class BaseConnection(object):
         output = ''
         if not pattern:
             pattern = re.escape(self.base_prompt)
-        log.debug("Pattern is: {}".format(pattern))
+        log.debug("Pattern is: %s", pattern)
 
         i = 1
         loop_delay = .1
@@ -378,7 +378,7 @@ class BaseConnection(object):
                     if len(new_data) == 0:
                         raise EOFError("Channel stream closed by remote device.")
                     new_data = new_data.decode('utf-8', 'ignore')
-                    log.debug("_read_channel_expect read_data: {}".format(new_data))
+                    log.debug("_read_channel_expect read_data: %s", new_data)
                     output += new_data
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
@@ -387,7 +387,7 @@ class BaseConnection(object):
             elif self.protocol == 'telnet' or 'serial':
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
-                log.debug("Pattern found: {} {}".format(pattern, output))
+                log.debug("Pattern found: %s %s", pattern, output)
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
             i += 1
@@ -742,12 +742,12 @@ class BaseConnection(object):
         self.clear_buffer()
         command = self.normalize_cmd(command)
         log.debug("In disable_paging")
-        log.debug("Command: {0}".format(command))
+        log.debug("Command: %s", command)
         self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        log.debug("{0}".format(output))
+        log.debug(output)
         log.debug("Exiting disable_paging")
         return output
 
@@ -1083,7 +1083,7 @@ class BaseConnection(object):
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-        log.debug("exit_config_mode: {0}".format(output))
+        log.debug("exit_config_mode: %s", output)
         return output
 
     def send_config_from_file(self, config_file=None, **kwargs):
@@ -1130,7 +1130,7 @@ class BaseConnection(object):
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
-        log.debug("{}".format(output))
+        log.debug(output)
         return output
 
     def strip_ansi_escape_codes(self, string_buffer):
@@ -1161,7 +1161,7 @@ class BaseConnection(object):
         HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
         """
         log.debug("In strip_ansi_escape_codes")
-        log.debug("repr = {0}".format(repr(string_buffer)))
+        log.debug("repr = %r", string_buffer)
 
         code_position_cursor = chr(27) + r'\[\d+;\d+H'
         code_show_cursor = chr(27) + r'\[\?25h'
@@ -1192,8 +1192,8 @@ class BaseConnection(object):
         # CODE_NEXT_LINE must substitute with return
         output = re.sub(code_next_line, self.RETURN, output)
 
-        log.debug("new_output = {0}".format(output))
-        log.debug("repr = {0}".format(repr(output)))
+        log.debug("new_output = %s", output)
+        log.debug("repr = %r", output)
 
         return output
 

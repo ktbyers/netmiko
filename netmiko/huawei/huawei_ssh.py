@@ -77,7 +77,7 @@ class HuaweiSSH(CiscoSSHConnection):
         prompt = prompt[1:-1]
         prompt = prompt.strip()
         self.base_prompt = prompt
-        log.debug("prompt: {0}".format(self.base_prompt))
+        log.debug("prompt: %s", self.base_prompt)
 
         return self.base_prompt
 

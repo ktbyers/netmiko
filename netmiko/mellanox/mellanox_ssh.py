@@ -28,12 +28,12 @@ class MellanoxSSH(CiscoSSHConnection):
         self.clear_buffer()
         command = self.normalize_cmd(command)
         log.debug("In disable_paging")
-        log.debug("Command: {0}".format(command))
+        log.debug("Command: %s", command)
         self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        log.debug("{0}".format(output))
+        log.debug(output)
         log.debug("Exiting disable_paging")
         return output
 
@@ -45,7 +45,7 @@ class MellanoxSSH(CiscoSSHConnection):
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-        log.debug("exit_config_mode: {0}".format(output))
+        log.debug("exit_config_mode: %s", output)
         return output
 
     def save_config(self, cmd='configuration write', confirm=False,
