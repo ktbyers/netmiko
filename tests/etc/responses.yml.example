@@ -8,6 +8,7 @@ cisco_ios:
   version_banner: "Cisco IOS Software"
   multiple_line_output: "Configuration register is"
   file_check_cmd: "logging buffered 8880"
+  save_config: 'OK'
 
 juniper:
   base_prompt: pyclass@pynet-jnpr-srx1
