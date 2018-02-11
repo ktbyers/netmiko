@@ -10,7 +10,12 @@ test_config_mode: verify enter config mode
 test_exit_config_mode: verify exit config mode
 test_command_set: verify sending a set of config commands
 test_commands_from_file: verify sending a set of config commands from a file
-test_save_config: verify save config with default values
+test_save_base: verify save config with default values
+test_save_confirm: verify save config with confirm
+test_save_response: verify save config with response
+test_save_cmd: verify save config with cmd
+test_save_confirm_response: verify save config with confirm and confirm response
+test_save_all: verify save config with all options
 test_disconnect: cleanly disconnect the SSH session
 
 """
