@@ -569,10 +569,10 @@ class BaseConnection(object):
         else:
             source = {}
 
-        if source.get('proxycommand'):
+        if "proxycommand" in source:
             proxy = paramiko.ProxyCommand(source['proxycommand'])
-        elif source.get('ProxyCommand'):
-            proxy = paramiko.ProxyCommand(source['proxycommand'])
+        elif "ProxyCommand" in source:
+            proxy = paramiko.ProxyCommand(source['ProxyCommand'])
         else:
             proxy = None
 
