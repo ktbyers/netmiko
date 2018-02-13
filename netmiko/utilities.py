@@ -5,6 +5,10 @@ from __future__ import unicode_literals
 import sys
 import io
 import os
+import serial.tools.list_ports
+from netmiko._textfsm import _clitable as clitable
+from netmiko._textfsm._clitable import CliTableError
+
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -160,3 +164,67 @@ def write_bytes(out_data):
             return out_data
     msg = "Invalid value for out_data neither unicode nor byte string: {0}".format(out_data)
     raise ValueError(msg)
+
+
+def check_serial_port(name):
+    """returns valid COM Port."""
+    try:
+        cdc = next(serial.tools.list_ports.grep(name))
+        return cdc.split()[0]
+    except StopIteration:
+        msg = "device {} not found. ".format(name)
+        msg += "available devices are: "
+        ports = list(serial.tools.list_ports.comports())
+        for p in ports:
+            msg += "{},".format(str(p))
+        raise ValueError(msg)
+
+
+def get_template_dir():
+    """Find and return the ntc-templates/templates dir."""
+    try:
+        template_dir = os.environ['NET_TEXTFSM']
+        index = os.path.join(template_dir, 'index')
+        if not os.path.isfile(index):
+            # Assume only base ./ntc-templates specified
+            template_dir = os.path.join(template_dir, 'templates')
+    except KeyError:
+        # Construct path ~/ntc-templates/templates
+        home_dir = os.path.expanduser("~")
+        template_dir = os.path.join(home_dir, 'ntc-templates', 'templates')
+
+    index = os.path.join(template_dir, 'index')
+    if not os.path.isdir(template_dir) or not os.path.isfile(index):
+        msg = """
+Valid ntc-templates not found, please install https://github.com/networktocode/ntc-templates
+and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
+directory."""
+        raise ValueError(msg)
+    return template_dir
+
+
+def clitable_to_dict(cli_table):
+    """Converts TextFSM cli_table object to list of dictionaries."""
+    objs = []
+    for row in cli_table:
+        temp_dict = {}
+        for index, element in enumerate(row):
+            temp_dict[cli_table.header[index].lower()] = element
+        objs.append(temp_dict)
+    return objs
+
+
+def get_structured_data(raw_output, platform, command):
+    """Convert raw CLI output to structured data using TextFSM template."""
+    template_dir = get_template_dir()
+    index_file = os.path.join(template_dir, 'index')
+    textfsm_obj = clitable.CliTable(index_file, template_dir)
+    attrs = {'Command': command, 'Platform': platform}
+    try:
+        # Parse output through template
+        textfsm_obj.ParseCmd(raw_output, attrs)
+        structured_data = clitable_to_dict(textfsm_obj)
+        output = raw_output if structured_data == [] else structured_data
+        return output
+    except CliTableError:
+        return raw_output

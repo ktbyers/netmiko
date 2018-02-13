@@ -2,6 +2,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 import re
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -10,7 +11,10 @@ class AlcatelSrosSSH(CiscoSSHConnection):
     def session_preparation(self):
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="environment no more\n")
+        self.disable_paging(command="environment no more")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def set_base_prompt(self, *args, **kwargs):
         """Remove the > when navigating into the different config level."""
@@ -38,3 +42,7 @@ class AlcatelSrosSSH(CiscoSSHConnection):
         """ Checks if the device is in configuration mode or not. """
         return super(AlcatelSrosSSH, self).check_config_mode(check_string=check_string,
                                                              pattern=pattern)
+
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError

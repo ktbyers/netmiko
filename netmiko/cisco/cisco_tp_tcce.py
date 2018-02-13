@@ -6,13 +6,16 @@ Expressway/VCS
 Written by Ahmad Barrin
 """
 from __future__ import unicode_literals
-
+import time
 import re
-
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class CiscoTpTcCeSSH(CiscoSSHConnection):
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get('default_enter')
+        kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
+        super(CiscoTpTcCeSSH, self).__init__(*args, **kwargs)
 
     def disable_paging(self, *args, **kwargs):
         """Paging is disabled by default."""
@@ -34,6 +37,9 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def set_base_prompt(self, *args, **kwargs):
         """Use 'OK' as base_prompt."""
@@ -47,10 +53,10 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
     def strip_prompt(self, a_string):
         """Strip the trailing router prompt from the output."""
         expect_string = r'^(OK|ERROR|Command not recognized\.)$'
-        response_list = a_string.split('\n')
+        response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
         if re.search(expect_string, last_line):
-            return '\n'.join(response_list[:-1])
+            return self.RESPONSE_RETURN.join(response_list[:-1])
         else:
             return a_string
 
@@ -73,8 +79,13 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         else:
             expect_string = kwargs.get('expect_string')
             if expect_string is None:
-                expect_string = r'\r\n(OK|ERROR|Command not recognized\.)\r\n'
+                expect_string = r'(OK|ERROR|Command not recognized\.)'
+                expect_string = self.RETURN + expect_string + self.RETURN
                 kwargs.setdefault('expect_string', expect_string)
 
         output = super(CiscoSSHConnection, self).send_command(*args, **kwargs)
         return output
+
+    def save_config(self):
+        """Not Implemented"""
+        raise NotImplementedError

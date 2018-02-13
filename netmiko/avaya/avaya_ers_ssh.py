@@ -27,12 +27,16 @@ class AvayaErsSSH(CiscoSSHConnection):
                 if 'Ctrl-Y' in output:
                     self.write_channel(CTRL_Y)
                 if 'sername' in output:
-                    self.write_channel(self.username + '\n')
+                    self.write_channel(self.username + self.RETURN)
                 elif 'ssword' in output:
-                    self.write_channel(self.password + '\n')
+                    self.write_channel(self.password + self.RETURN)
                     break
                 time.sleep(.5 * delay_factor)
             else:
-                self.write_channel('\n')
+                self.write_channel(self.RETURN)
                 time.sleep(1 * delay_factor)
             i += 1
+
+    def save_config(self, cmd='save config', confirm=False):
+        """Save Config"""
+        return super(AvayaErsSSH, self).save_config(cmd=cmd, confirm=confirm)

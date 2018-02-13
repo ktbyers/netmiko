@@ -15,6 +15,9 @@ class ArubaSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="no paging")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def check_config_mode(self, check_string='(config) #', pattern=''):
         """

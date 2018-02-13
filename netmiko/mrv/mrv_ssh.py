@@ -1,5 +1,6 @@
 """MRV Communications Driver (OptiSwitch)."""
 from __future__ import unicode_literals
+import time
 import re
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -13,6 +14,9 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
         self.enable()
         self.set_base_prompt()
         self.disable_paging(command="no cli-paging")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def enable(self, cmd='enable', pattern=r'#', re_flags=re.IGNORECASE):
         """Enable mode on MRV uses no password."""
@@ -25,3 +29,7 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
                       "the 'secret' argument to ConnectHandler."
                 raise ValueError(msg)
         return output
+
+    def save_config(self, cmd='save config flash', confirm=False):
+        """Saves configuration."""
+        return super(MrvOptiswitchSSH, self).save_config(cmd=cmd, confirm=confirm)

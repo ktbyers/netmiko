@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import paramiko
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -17,10 +18,13 @@ class FortinetSSH(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt(alt_prompt_terminator='$')
         self.disable_paging()
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def disable_paging(self, delay_factor=1):
         """Disable paging is only available with specific roles so it may fail."""
-        check_command = "get system status | grep Virtual\n"
+        check_command = "get system status | grep Virtual"
         output = self.send_command_timing(check_command)
         self.allow_disable_global = True
         self.vdoms = False
@@ -43,7 +47,7 @@ class FortinetSSH(CiscoSSHConnection):
             outputlist = [self.send_command_timing(command, delay_factor=2)
                           for command in disable_paging_commands]
             # Should test output is valid
-            new_output = "\n".join(outputlist)
+            new_output = self.RETURN.join(outputlist)
 
         return output + new_output
 
@@ -64,3 +68,7 @@ class FortinetSSH(CiscoSSHConnection):
     def exit_config_mode(self, exit_config=''):
         """No config mode for Fortinet devices."""
         return ''
+
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError

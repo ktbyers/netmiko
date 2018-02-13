@@ -1,6 +1,6 @@
 from __future__ import print_function
 from __future__ import unicode_literals
-
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -11,9 +11,24 @@ class HPComwareSSH(CiscoSSHConnection):
         Prepare the session after the connection has been established.
         Extra time to read HP banners.
         """
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        i = 1
+        while i <= 4:
+            # Comware can have a banner that prompts you to continue
+            # 'Press Y or ENTER to continue, N to exit.'
+            time.sleep(.5 * delay_factor)
+            self.write_channel("\n")
+            i += 1
+
+        time.sleep(.3 * delay_factor)
+        self.clear_buffer()
         self._test_channel_read(pattern=r'[>\]]')
         self.set_base_prompt()
-        self.disable_paging(command="\nscreen-length disable\n")
+        command = self.RETURN + "screen-length disable"
+        self.disable_paging(command=command)
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def config_mode(self, config_command='system-view'):
         """Enter configuration mode."""
@@ -61,3 +76,7 @@ class HPComwareSSH(CiscoSSHConnection):
     def check_enable_mode(self, check_string=']'):
         """enable mode on Comware is system-view."""
         return self.check_config_mode(check_string=check_string)
+
+    def save_config(self, cmd='save force', confirm=False):
+        """Save Config."""
+        return super(HPComwareSSH, self).save_config(cmd=cmd, confirm=confirm)

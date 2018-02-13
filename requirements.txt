@@ -1,3 +1,5 @@
-paramiko>=1.13.0
+paramiko>=2.0.0
 scp>=0.10.0
 pyyaml
+pyserial
+textfsm

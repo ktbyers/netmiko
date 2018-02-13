@@ -10,6 +10,11 @@ from netmiko.ssh_exception import NetMikoTimeoutException
 
 class LinuxSSH(CiscoSSHConnection):
 
+    def session_preparation(self):
+        """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
+        return super(LinuxSSH, self).session_preparation()
+
     def disable_paging(self, *args, **kwargs):
         """Linux doesn't have paging by default."""
         return ""
@@ -17,7 +22,7 @@ class LinuxSSH(CiscoSSHConnection):
     def set_base_prompt(self, pri_prompt_terminator='$',
                         alt_prompt_terminator='#', delay_factor=1):
         """Determine base prompt."""
-        return super(CiscoSSHConnection, self).set_base_prompt(
+        return super(LinuxSSH, self).set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor)
@@ -26,9 +31,9 @@ class LinuxSSH(CiscoSSHConnection):
         """Can't exit from root (if root)"""
         if self.username == "root":
             exit_config_mode = False
-        return super(CiscoSSHConnection, self).send_config_set(config_commands=config_commands,
-                                                               exit_config_mode=exit_config_mode,
-                                                               **kwargs)
+        return super(LinuxSSH, self).send_config_set(config_commands=config_commands,
+                                                     exit_config_mode=exit_config_mode,
+                                                     **kwargs)
 
     def check_config_mode(self, check_string='#'):
         """Verify root"""
@@ -43,7 +48,7 @@ class LinuxSSH(CiscoSSHConnection):
 
     def check_enable_mode(self, check_string='#'):
         """Verify root"""
-        return super(CiscoSSHConnection, self).check_enable_mode(check_string=check_string)
+        return super(LinuxSSH, self).check_enable_mode(check_string=check_string)
 
     def exit_enable_mode(self, exit_command='exit'):
         """Exit enable mode."""
@@ -76,3 +81,11 @@ class LinuxSSH(CiscoSSHConnection):
                       "the 'secret' argument to ConnectHandler."
                 raise ValueError(msg)
         return output
+
+    def cleanup(self):
+        """Try to Gracefully exit the SSH session."""
+        self.write_channel("exit" + self.RETURN)
+
+    def save_config(self, cmd='', confirm=True, confirm_response=''):
+        """Not Implemented"""
+        raise NotImplementedError

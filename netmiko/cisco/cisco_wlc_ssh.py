@@ -13,8 +13,7 @@ class CiscoWlcSSH(BaseConnection):
     """Netmiko Cisco WLC support."""
 
     def special_login_handler(self, delay_factor=1):
-        '''
-        WLC presents with the following on login (in certain OS versions)
+        """WLC presents with the following on login (in certain OS versions)
 
         login as: user
 
@@ -23,7 +22,7 @@ class CiscoWlcSSH(BaseConnection):
         User: user
 
         Password:****
-        '''
+        """
         delay_factor = self.select_delay_factor(delay_factor)
         i = 0
         time.sleep(delay_factor * .5)
@@ -32,13 +31,13 @@ class CiscoWlcSSH(BaseConnection):
             output = self.read_channel()
             if output:
                 if 'login as' in output or 'User' in output:
-                    self.write_channel(self.username + '\n')
+                    self.write_channel(self.username + self.RETURN)
                 elif 'Password' in output:
-                    self.write_channel(self.password + '\n')
+                    self.write_channel(self.password + self.RETURN)
                     break
                 time.sleep(delay_factor * 1)
             else:
-                self.write_channel('\n')
+                self.write_channel(self.RETURN)
                 time.sleep(delay_factor * 1.5)
             i += 1
 
@@ -48,7 +47,7 @@ class CiscoWlcSSH(BaseConnection):
         Even though pagination is disabled
         show run-config also has excessive delays in the output which requires special
         handling.
-        Arguments are the same as send_command() method
+        Arguments are the same as send_command_timing() method
         '''
         if len(args) > 1:
             raise ValueError("Must pass in delay_factor as keyword argument")
@@ -56,19 +55,19 @@ class CiscoWlcSSH(BaseConnection):
         # If no delay_factor use 1 for default value
         delay_factor = kwargs.get('delay_factor', 1)
         kwargs['delay_factor'] = self.select_delay_factor(delay_factor)
-        output = self.send_command(*args, **kwargs)
+        output = self.send_command_timing(*args, **kwargs)
 
         if 'Press Enter to' in output:
             new_args = list(args)
             if len(args) == 1:
-                new_args[0] = '\n'
+                new_args[0] = self.RETURN
             else:
-                kwargs['command_string'] = '\n'
+                kwargs['command_string'] = self.RETURN
             if not kwargs.get('max_loops'):
                 kwargs['max_loops'] = 150
 
             # Send an 'enter'
-            output = self.send_command(*new_args, **kwargs)
+            output = self.send_command_timing(*new_args, **kwargs)
 
             # WLC has excessive delay after this appears on screen
             if '802.11b Advanced Configuration' in output:
@@ -102,11 +101,14 @@ class CiscoWlcSSH(BaseConnection):
         '''
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="config paging disable\n")
+        self.disable_paging(command="config paging disable")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def cleanup(self):
         """Reset WLC back to normal paging."""
-        self.send_command("config paging enable\n")
+        self.send_command_timing("config paging enable")
 
     def check_config_mode(self, check_string='config', pattern=''):
         """Checks if the device is in configuration mode or not."""
@@ -127,7 +129,8 @@ class CiscoWlcSSH(BaseConnection):
         return super(CiscoWlcSSH, self).exit_config_mode(exit_config, pattern)
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
-                        max_loops=150, strip_prompt=False, strip_command=False):
+                        max_loops=150, strip_prompt=False, strip_command=False,
+                        config_mode_command=None):
         """
         Send configuration commands down the SSH channel.
 
@@ -153,5 +156,9 @@ class CiscoWlcSSH(BaseConnection):
         # Gather output
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         output = self._sanitize_output(output)
-        log.debug("{0}".format(output))
+        log.debug("{}".format(output))
         return output
+
+    def save_config(self, cmd='save config', confirm=True, confirm_response='y'):
+        return super(CiscoWlcSSH, self).save_config(cmd=cmd, confirm=confirm,
+                                                    confirm_response=confirm_response)
