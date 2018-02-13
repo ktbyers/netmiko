@@ -36,9 +36,10 @@ class CiscoIosTelnet(CiscoIosBase):
     pass
 
 
-class CiscoIosSerial(CiscoBaseConnection):
+class CiscoIosSerial(CiscoIosBase):
     """Cisco IOS Serial driver."""
     pass
+
 
 class CiscoIosFileTransfer(CiscoFileTransfer):
     """Cisco IOS SCP File Transfer driver."""
@@ -198,4 +199,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     def disable_scp(self, cmd=None):
         raise NotImplementedError
+<<<<<<< HEAD
 >>>>>>> Restructure SCP code to support class hierarchy
+=======
+>>>>>>> rebase

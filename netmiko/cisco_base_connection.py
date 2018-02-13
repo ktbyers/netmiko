@@ -72,7 +72,7 @@ class CiscoBaseConnection(BaseConnection):
                                      username_pattern, pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"(assword)|(ecret)",
+                     username_pattern=r"(?:[Uu]ser:|sername|ogin|User Name)", pwd_pattern=r"(assword)|(ecret)",
                      delay_factor=1, delay_factor2=30, max_loops=60):
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -159,6 +159,7 @@ class CiscoBaseConnection(BaseConnection):
                 # If the prompt shows "xr login:", the you can directly login to xr using xr username
                 # and password or you can login to linux host, using linux host's username password
                 if re.search(username_pattern, output):
+<<<<<<< HEAD
                     bmc_login_pattern = "spitfire-arm login:"
                     if re.search(bmc_login_pattern, output):
                         my_password = '0penBmc'
@@ -167,6 +168,9 @@ class CiscoBaseConnection(BaseConnection):
 
                     time.sleep(1)
                     self.write_channel(self.username + TELNET_RETURN)
+=======
+                    self.write_channel(self.username + self.TELNET_RETURN)
+>>>>>>> rebase
                     time.sleep(1 * delay_factor)
                     output = self.read_channel(verbose=True)
                     return_msg += output
@@ -183,11 +187,20 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
+<<<<<<< HEAD
                     self.write_channel(my_password + TELNET_RETURN)
+=======
+                    self.write_channel(self.password + self.TELNET_RETURN)
+>>>>>>> rebase
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel(verbose=True)
                     return_msg += output
+<<<<<<< HEAD
                     if (pri_prompt_terminator in output or alt_prompt_terminator in output) and not re.search(x86_prompt_pattern, output):
+=======
+                    if (re.search(pri_prompt_terminator, output, flags=re.M)
+                            or re.search(alt_prompt_terminator, output, flags=re.M)):
+>>>>>>> rebase
                         return return_msg
                     if re.search(pwd_pattern, output):
                         self.write_channel(my_password + TELNET_RETURN)
@@ -235,7 +248,12 @@ class CiscoBaseConnection(BaseConnection):
                     is_spitfire = True
 
                 # Check if proper data received
+<<<<<<< HEAD
                 if (pri_prompt_terminator in output or alt_prompt_terminator in output) and is_spitfire == False:
+=======
+                if (re.search(pri_prompt_terminator, output, flags=re.M)
+                        or re.search(alt_prompt_terminator, output, flags=re.M)):
+>>>>>>> rebase
                     return return_msg
 
                 self.write_channel(self.TELNET_RETURN)

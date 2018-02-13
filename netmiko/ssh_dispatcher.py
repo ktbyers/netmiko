@@ -81,7 +81,10 @@ CLASS_MAPPER_BASE = {
     'cisco_wlc': CiscoWlcSSH,
     'cisco_xe': CiscoIosSSH,
     'cisco_xr': CiscoXrSSH,
+<<<<<<< HEAD
     'cisco_xr_telnet': CiscoXrTelnet,
+=======
+>>>>>>> rebase
     'coriant': CoriantSSH,
     'dell_force10': DellForce10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
