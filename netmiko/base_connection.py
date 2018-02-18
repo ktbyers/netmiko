@@ -788,7 +788,7 @@ class BaseConnection(object):
             """Increment sleep time to a maximum value.
 
             :param main_delay: Pri sleep factor for data to return from the channel
-            :type int
+            :type main_delay: int
 
             :param increment: Sec sleep factor for waiting for data to return from the channel
             :type increment: float
