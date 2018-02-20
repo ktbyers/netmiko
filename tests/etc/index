@@ -1,0 +1,2 @@
+Template, Hostname, Platform, Command
+cisco_ios_show_version.template, .*, cisco_ios, sh[[ow]] ver[[sion]]
