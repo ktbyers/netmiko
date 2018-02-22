@@ -9,6 +9,7 @@ Currently only supports Cisco IOS and Cisco ASA.
 """
 from __future__ import print_function
 from __future__ import unicode_literals
+from netmiko.ssh_exception import NetMikoAuthenticationException
 
 import re
 import os
@@ -58,6 +59,9 @@ class BaseFileTransfer(object):
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+
+        if not ssh_conn.check_enable_mode():
+            raise NetMikoAuthenticationException('Must be in enable mode')
 
         if not file_system:
             self.file_system = self.ssh_ctl_chan._autodetect_fs()
