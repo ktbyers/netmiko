@@ -1374,7 +1374,11 @@ class BaseConnection(object):
 =======
 >>>>>>> Fix PR conflicts for docstring updates
         self.write_channel(self.RETURN)
-        output = self.read_until_pattern(pattern=pattern)
+        # You can encounter an issue here (on router name changes) prefer delay-based solution
+        if not pattern:
+            output = self._read_channel_timing()
+        else:
+            output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
 <<<<<<< HEAD
