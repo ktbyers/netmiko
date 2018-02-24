@@ -37,7 +37,7 @@ from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH
 from netmiko.juniper import JuniperSSH
-# from netmiko.juniper import JuniperFileTransfer
+from netmiko.juniper import JuniperFileTransfer
 from netmiko.linux import LinuxSSH
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
@@ -117,7 +117,7 @@ FILE_TRANSFER_MAP = {
     'cisco_ios': CiscoIosFileTransfer,
     'cisco_xe': CiscoIosFileTransfer,
     'cisco_nxos': CiscoNxosFileTransfer,
-    # 'juniper_junos': JuniperFileTransfer,
+    'juniper_junos': JuniperFileTransfer,
 }
 
 # Also support keys that end in _ssh

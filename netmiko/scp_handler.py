@@ -216,8 +216,6 @@ class BaseFileTransfer(object):
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
         destination = "{}/{}".format(self.file_system, self.dest_file)
-        if ':' not in destination:
-            raise ValueError("Invalid destination file system specified")
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()

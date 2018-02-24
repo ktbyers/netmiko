@@ -199,7 +199,7 @@ class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
     def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put'):
         msg = "Juniper SCP Driver is under development and not fully implemented"
-        raise NotImplementedError(msg)
+        # raise NotImplementedError(msg)
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
@@ -257,11 +257,10 @@ class JuniperFileTransfer(BaseFileTransfer):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == 'put':
             self.ssh_ctl_chan._enter_shell()
-            remote_cmd = "ls {}/{}".format(self.file_system, self.dest_file)
+            remote_cmd = "ls {}".format(self.file_system)
             remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
             self.ssh_ctl_chan._return_cli()
             return self.dest_file in remote_out
-
         elif self.direction == 'get':
             return os.path.exists(self.dest_file)
 
@@ -278,8 +277,8 @@ class JuniperFileTransfer(BaseFileTransfer):
         self.ssh_ctl_chan._enter_shell()
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
         escape_file_name = re.escape(remote_file)
-        pattern = r"\s+({}).*".format(escape_file_name)
-        match = re.search(pattern, remote_out)
+        pattern = r"^.* ({}).*$".format(escape_file_name)
+        match = re.search(pattern, remote_out, flags=re.M)
         if match:
             # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
             line = match.group(0)
