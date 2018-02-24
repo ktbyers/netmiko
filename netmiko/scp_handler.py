@@ -117,7 +117,7 @@ class BaseFileTransfer(object):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == 'put':
             if not remote_cmd:
-                remote_cmd = "dir {0}/{1}".format(self.file_system, self.dest_file)
+                remote_cmd = "dir {}/{}".format(self.file_system, self.dest_file)
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"Directory of .*{0}".format(self.dest_file)
             if 'Error opening' in remote_out:
@@ -163,7 +163,7 @@ class BaseFileTransfer(object):
         return file_hash
 
     @staticmethod
-    def process_md5(md5_output, pattern=r"= (.*)"):
+    def process_md5(md5_output, pattern=r"=\s+(\S+)"):
         """
         Process the string to retrieve the MD5 hash
 
@@ -175,7 +175,7 @@ class BaseFileTransfer(object):
         if match:
             return match.group(1)
         else:
-            raise ValueError("Invalid output from MD5 command: {0}".format(md5_output))
+            raise ValueError("Invalid output from MD5 command: {}".format(md5_output))
 
     def compare_md5(self):
         """Compare md5 of file on network device to md5 of local file."""
@@ -196,7 +196,7 @@ class BaseFileTransfer(object):
                 remote_file = self.dest_file
             elif self.direction == 'get':
                 remote_file = self.source_file
-        remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
@@ -215,7 +215,7 @@ class BaseFileTransfer(object):
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
-        destination = "{}{}".format(self.file_system, self.dest_file)
+        destination = "{}/{}".format(self.file_system, self.dest_file)
         if ':' not in destination:
             raise ValueError("Invalid destination file system specified")
         self.scp_conn.scp_transfer_file(self.source_file, destination)
