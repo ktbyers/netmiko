@@ -74,13 +74,11 @@ def commands(request):
 
 def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     """Delete a remote file for a Cisco IOS device."""
-
     if not dest_file_system:
         raise ValueError("Invalid file system specified")
     if not dest_file:
         raise ValueError("Invalid dest file specified")
 
-    # Check if the dest_file already exists
     full_file_name = "{0}/{1}".format(dest_file_system, dest_file)
 
     cmd = "delete {0}".format(full_file_name)
@@ -99,6 +97,16 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     raise ValueError("An error happened deleting file on Cisco IOS")
 
 
+def delete_file_junos(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for a Junos device."""
+    full_file_name = "{}/{}".format(dest_file_system, dest_file)
+    cmd = "rm {}".format(full_file_name)
+    output = ssh_conn._enter_shell()
+    output += ssh_conn.send_command_timing(cmd, strip_command=False, strip_prompt=False)
+    output += ssh_conn._return_cli()
+    return output
+
+
 @pytest.fixture(scope='module')
 def scp_fixture(request):
     """
@@ -106,13 +114,27 @@ def scp_fixture(request):
 
     Return a tuple (ssh_conn, scp_handle)
     """
+    platform_args = {
+        'cisco_ios': {
+            'file_system': 'flash:',
+            'enable_scp': True,
+            'delete_file': delete_file_ios,
+        },
+        'juniper_junos': {
+            'file_system': '/var/tmp', 
+            'enable_scp': False,
+            'delete_file': delete_file_junos,
+        },
+    }
+
     device_under_test = request.config.getoption('test_device')
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device['verbose'] = False
     ssh_conn = ConnectHandler(**device)
 
-    dest_file_system = 'flash:'
+    platform = device['device_type']
+    dest_file_system = platform_args[platform]['file_system']
     source_file = 'test9.txt'
     dest_file = 'test9.txt'
     local_file = 'testx.txt'
@@ -123,14 +145,15 @@ def scp_fixture(request):
     scp_transfer.establish_scp_conn()
 
     # Make sure SCP is enabled
-    scp_transfer.enable_scp()
+    if platform_args[platform]['enable_scp']:
+        scp_transfer.enable_scp()
 
     # Delete the test transfer files
     if scp_transfer.check_file_exists():
-        delete_file_ios(ssh_conn, dest_file_system, dest_file)
+        func = platform_args[platform]['delete_file']
+        func(ssh_conn, dest_file_system, dest_file)
     if os.path.exists(local_file):
         os.remove(local_file)
-
     return (ssh_conn, scp_transfer)
 
 @pytest.fixture(scope='module')
@@ -140,13 +163,27 @@ def scp_fixture_get(request):
 
     Return a tuple (ssh_conn, scp_handle)
     """
+    platform_args = {
+        'cisco_ios': {
+            'file_system': 'flash:',
+            'enable_scp': True,
+            'delete_file': delete_file_ios,
+        },
+        'juniper_junos': {
+            'file_system': '/var/tmp', 
+            'enable_scp': False,
+            'delete_file': delete_file_junos,
+        },
+    }
+
     device_under_test = request.config.getoption('test_device')
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device['verbose'] = False
     ssh_conn = ConnectHandler(**device)
 
-    dest_file_system = 'flash:'
+    platform = device['device_type']
+    dest_file_system = platform_args[platform]['file_system']
     source_file = 'test9.txt'
     local_file = 'testx.txt'
     dest_file = local_file
@@ -157,12 +194,12 @@ def scp_fixture_get(request):
     scp_transfer.establish_scp_conn()
 
     # Make sure SCP is enabled
-    scp_transfer.enable_scp()
+    if platform_args[platform]['enable_scp']:
+        scp_transfer.enable_scp()
 
     # Delete the test transfer files
     if os.path.exists(local_file):
         os.remove(local_file)
-
     return (ssh_conn, scp_transfer)
 
 @pytest.fixture(scope='module')

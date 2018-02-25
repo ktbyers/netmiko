@@ -210,7 +210,8 @@ class BaseFileTransfer(object):
 
     def get_file(self):
         """SCP copy the file from the remote device to local system."""
-        self.scp_conn.scp_get_file(self.source_file, self.dest_file)
+        source_file = "{}/{}".format(self.file_system, self.source_file)
+        self.scp_conn.scp_get_file(source_file, self.dest_file)
         self.scp_conn.close()
 
     def put_file(self):
