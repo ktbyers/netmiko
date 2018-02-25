@@ -97,7 +97,7 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     raise ValueError("An error happened deleting file on Cisco IOS")
 
 
-def delete_file_junos(ssh_conn, dest_file_system, dest_file):
+def delete_file_generic(ssh_conn, dest_file_system, dest_file):
     """Delete a remote file for a Junos device."""
     full_file_name = "{}/{}".format(dest_file_system, dest_file)
     cmd = "rm {}".format(full_file_name)
@@ -123,7 +123,12 @@ def scp_fixture(request):
         'juniper_junos': {
             'file_system': '/var/tmp', 
             'enable_scp': False,
-            'delete_file': delete_file_junos,
+            'delete_file': delete_file_generic,
+        },
+        'arista_eos': {
+            'file_system': '/mnt/flash', 
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
         },
     }
 
