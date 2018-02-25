@@ -59,8 +59,12 @@ class BaseFileTransfer(object):
         self.dest_file = dest_file
         self.direction = direction
 
+        ios_flag = 'cisco_ios' in ssh_conn.device_type or 'cisco_xe' in ssh_conn.device_type
         if not file_system:
-            self.file_system = self.ssh_ctl_chan._autodetect_fs()
+            if ios_flag:
+                self.file_system = self.ssh_ctl_chan._autodetect_fs()
+            else:
+                raise ValueError("Destination file system not specified")
         else:
             self.file_system = file_system
 
@@ -154,6 +158,30 @@ class BaseFileTransfer(object):
             raise IOError("Unable to find file on remote system")
         else:
             return int(file_size)
+
+    def _remote_file_size_unix(self, remote_cmd="", remote_file=None):
+        """Get the file size of the remote file."""
+        if remote_file is None:
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
+        remote_file = "{}/{}".format(self.file_system, remote_file)
+        if not remote_cmd:
+            remote_cmd = "ls -l {}".format(remote_file)
+
+        self.ssh_ctl_chan._enter_shell()
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+        escape_file_name = re.escape(remote_file)
+        pattern = r"^.* ({}).*$".format(escape_file_name)
+        match = re.search(pattern, remote_out, flags=re.M)
+        if match:
+            # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
+            line = match.group(0)
+            file_size = line.split()[4]
+
+        self.ssh_ctl_chan._return_cli()
+        return int(file_size)
 
     def file_md5(self, file_name):
         """Compute MD5 hash of file."""

@@ -275,28 +275,7 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
-        if remote_file is None:
-            if self.direction == 'put':
-                remote_file = self.dest_file
-            elif self.direction == 'get':
-                remote_file = self.source_file
-        remote_file = "{}/{}".format(self.file_system, remote_file)
-        if not remote_cmd:
-            remote_cmd = "ls -l {}".format(remote_file)
-        # Ensure at BSD prompt
-        self.ssh_ctl_chan.send_command('start shell sh', expect_string=r"[\$#]")
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
-        escape_file_name = re.escape(remote_file)
-        pattern = r"^.* ({}).*$".format(escape_file_name)
-        match = re.search(pattern, remote_out, flags=re.M)
-        if match:
-            # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
-            line = match.group(0)
-            file_size = line.split()[4]
-
-        # Ensure back at CLI prompt
-        self.ssh_ctl_chan.send_command('cli', expect_string=r">")
-        return int(file_size)
+        self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
 
     @staticmethod
     def process_md5(md5_output, pattern=r"= (.*)"):

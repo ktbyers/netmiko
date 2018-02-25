@@ -35,30 +35,54 @@ class AristaSSH(CiscoSSHConnection):
         log.debug("check_config_mode: {0}".format(repr(output)))
         return check_string in output
 
+    def _enter_shell(self):
+        """Enter the Bourne Shell."""
+        return self.send_command('bash', expect_string=r"[\$#]")
+
+    def _return_cli(self):
+        """Return to the CLI."""
+        return self.send_command('exit', expect_string=r"[#>]")
+
 
 class AristaFileTransfer(CiscoFileTransfer):
     """Arista SCP File Transfer driver."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put'):
-        msg = "Arista SCP Driver is under development and not fully implemented"
-        raise NotImplementedError(msg)
-        self.ssh_ctl_chan = ssh_conn
-        self.source_file = source_file
-        self.dest_file = dest_file
-        self.direction = direction
+    def __init__(self, ssh_conn, source_file, dest_file, file_system="/mnt/flash", direction='put'):
+        return super(AristaFileTransfer, self).__init__(ssh_conn=ssh_conn,
+                                                        source_file=source_file,
+                                                        dest_file=dest_file,
+                                                        file_system=file_system,
+                                                        direction=direction)
 
-        if file_system:
-            self.file_system = file_system
-        else:
-            raise ValueError("Destination file system must be specified for Arista")
+    def remote_space_available(self, search_pattern=""):
+        """Return space available on remote device."""
+        self.ssh_ctl_chan._enter_shell()
+        remote_cmd = "/bin/df -k {}".format(self.file_system)
+        remote_output = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
 
-        # if direction == 'put':
-        #    self.source_md5 = self.file_md5(source_file)
-        #    self.file_size = os.stat(source_file).st_size
-        # elif direction == 'get':
-        #    self.source_md5 = self.remote_md5(remote_file=source_file)
-        #    self.file_size = self.remote_file_size(remote_file=source_file)
-        # else:
-        #    raise ValueError("Invalid direction specified")
+        # Try to ensure parsing is correct:
+        # Filesystem           1K-blocks      Used Available Use% Mounted on
+        # /dev/sda1              3933548    510808   3422740  13% /mnt/flash
+        remote_output = remote_output.strip()
+        output_lines = remote_output.splitlines()
+
+        # First line is the header; second is the actual file system info
+        header_line = output_lines[0]
+        filesystem_line = output_lines[1]
+
+        if 'Filesystem' not in header_line or 'Avail' not in header_line.split()[3]:
+            # Filesystem           1K-blocks      Used Available Use% Mounted on
+            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
+                                                                         remote_output)
+            raise ValueError(msg)
+
+        space_available = filesystem_line.split()[3]
+        if not re.search(r"^\d+$", space_available):
+            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
+                                                                         remote_output)
+            raise ValueError(msg)
+
+        self.ssh_ctl_chan._return_cli()
+        return int(space_available) * 1024
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
@@ -66,12 +90,6 @@ class AristaFileTransfer(CiscoFileTransfer):
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()
-
-    def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
-        """Return space available on remote device."""
-        return super(AristaFileTransfer, self).remote_space_available(
-            search_pattern=search_pattern
-        )
 
     def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
@@ -81,7 +99,14 @@ class AristaFileTransfer(CiscoFileTransfer):
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        raise NotImplementedError
+        if self.direction == 'put':
+            self.ssh_ctl_chan._enter_shell()
+            remote_cmd = "ls {}".format(self.file_system)
+            remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+            self.ssh_ctl_chan._return_cli()
+            return self.dest_file in remote_out
+        elif self.direction == 'get':
+            return os.path.exists(self.dest_file)
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
