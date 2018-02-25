@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 import re
 import time
-import os
 
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
@@ -198,68 +197,23 @@ class JuniperSSH(BaseConnection):
 class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
     def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put'):
-        self.ssh_ctl_chan = ssh_conn
-        self.source_file = source_file
-        self.dest_file = dest_file
-        self.direction = direction
-
-        self.file_system = file_system
-
-        if direction == 'put':
-            self.source_md5 = self.file_md5(source_file)
-            self.file_size = os.stat(self.source_file).st_size
-        elif direction == 'get':
-            self.source_file = source_file
-            self.source_md5 = self.remote_md5(remote_file=source_file)
-            self.file_size = self.remote_file_size(remote_file=self.source_file)
-        else:
-            raise ValueError("Invalid direction specified")
+        return super(JuniperFileTransfer, self).__init__(ssh_conn=ssh_conn,
+                                                         source_file=source_file,
+                                                         dest_file=dest_file,
+                                                         file_system=file_system,
+                                                         direction=direction)
 
     def remote_space_available(self, search_pattern=""):
         """Return space available on remote device."""
-        self.ssh_ctl_chan._enter_shell()
-        remote_cmd = "/bin/df -k {}".format(self.file_system)
-        remote_output = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
-
-        # Try to ensure parsing is correct:
-        # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
-        # /dev/bo0s3f    1264808 16376 1147248     1%    /cf/var
-        remote_output = remote_output.strip()
-        output_lines = remote_output.splitlines()
-
-        # First line is the header; second is the actual file system info
-        header_line = output_lines[0]
-        filesystem_line = output_lines[1]
-
-        if 'Filesystem' not in header_line or 'Avail' not in header_line.split()[3]:
-            # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
-            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
-                                                                         remote_output)
-            raise ValueError(msg)
-
-        space_available = filesystem_line.split()[3]
-        if not re.search(r"^\d+$", space_available):
-            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
-                                                                         remote_output)
-            raise ValueError(msg)
-
-        self.ssh_ctl_chan._return_cli()
-        return int(space_available) * 1024
+        return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        if self.direction == 'put':
-            self.ssh_ctl_chan._enter_shell()
-            remote_cmd = "ls {}".format(self.file_system)
-            remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
-            self.ssh_ctl_chan._return_cli()
-            return self.dest_file in remote_out
-        elif self.direction == 'get':
-            return os.path.exists(self.dest_file)
+        return self._check_file_exists_unix(remote_cmd=remote_cmd)
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
-        self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
+        return self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
 
     def remote_md5(self, base_cmd='file checksum md5', remote_file=None):
         return super(JuniperFileTransfer, self).remote_md5(base_cmd=base_cmd,
