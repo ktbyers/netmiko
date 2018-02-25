@@ -29,6 +29,7 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config.py --test_device cisco_s300 \
 \
 && echo "Arista" \
+&& py.test -v test_netmiko_scp.py --test_device arista_sw4 \
 && py.test -v test_netmiko_show.py --test_device arista_sw4 \
 && py.test -v test_netmiko_config.py --test_device arista_sw4 \
 \
