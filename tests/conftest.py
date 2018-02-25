@@ -177,7 +177,12 @@ def scp_fixture_get(request):
         'juniper_junos': {
             'file_system': '/var/tmp', 
             'enable_scp': False,
-            'delete_file': delete_file_junos,
+            'delete_file': delete_file_generic,
+        },
+        'arista_eos': {
+            'file_system': '/mnt/flash', 
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
         },
     }
 

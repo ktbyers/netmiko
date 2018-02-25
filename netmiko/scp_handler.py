@@ -102,6 +102,37 @@ class BaseFileTransfer(object):
         match = re.search(search_pattern, remote_output)
         return int(match.group(1))
 
+    def _remote_space_available_unix(self, search_pattern=""):
+        """Return space available on *nix system (BSD/Linux)."""
+        self.ssh_ctl_chan._enter_shell()
+        remote_cmd = "/bin/df -k {}".format(self.file_system)
+        remote_output = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+
+        # Try to ensure parsing is correct:
+        # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
+        # /dev/bo0s3f    1264808 16376 1147248     1%    /cf/var
+        remote_output = remote_output.strip()
+        output_lines = remote_output.splitlines()
+
+        # First line is the header; second is the actual file system info
+        header_line = output_lines[0]
+        filesystem_line = output_lines[1]
+
+        if 'Filesystem' not in header_line or 'Avail' not in header_line.split()[3]:
+            # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
+            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
+                                                                         remote_output)
+            raise ValueError(msg)
+
+        space_available = filesystem_line.split()[3]
+        if not re.search(r"^\d+$", space_available):
+            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
+                                                                         remote_output)
+            raise ValueError(msg)
+
+        self.ssh_ctl_chan._return_cli()
+        return int(space_available) * 1024
+
     def local_space_available(self):
         """Return space available on local filesystem."""
         destination_stats = os.statvfs(".")
@@ -130,6 +161,17 @@ class BaseFileTransfer(object):
                 return True
             else:
                 raise ValueError("Unexpected output from check_file_exists")
+        elif self.direction == 'get':
+            return os.path.exists(self.dest_file)
+
+    def _check_file_exists_unix(self, remote_cmd=""):
+        """Check if the dest_file already exists on the file system (return boolean)."""
+        if self.direction == 'put':
+            self.ssh_ctl_chan._enter_shell()
+            remote_cmd = "ls {}".format(self.file_system)
+            remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+            self.ssh_ctl_chan._return_cli()
+            return self.dest_file in remote_out
         elif self.direction == 'get':
             return os.path.exists(self.dest_file)
 
