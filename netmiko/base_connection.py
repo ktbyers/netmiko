@@ -473,60 +473,110 @@ class BaseConnection(object):
                           pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
-                     delay_factor=1, max_loops=20):
-        """Telnet login. Can be username/password or just password."""
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(1 * delay_factor)
+                     username_pattern=r"(?:[Uu]ser:|sername|ogin)",
+                     pwd_pattern=r"assword",
+                     additional_responses_dict=None,
+                     error_pattern=r"(?i)(invalid login|login failed)",
+                     delay_factor=1, max_loops=25):
+        """
+        Telnet login. Can be none, just a password, or username/password.
 
-        output = ''
+        :param pri_prompt_terminator: the pattern used to detect command prompt.
+        :type pri_prompt_terminator: regular expression string
+        :param sec_prompt_terminator: the pattern used to detect command prompt (alt).
+        :type sec_prompt_terminator: regular expression string
+        :param username_pattern: the pattern used to identify when username is requested.
+        :type username_pattern: regular expression string
+        :param pwd_pattern: the pattern used to identify when password is requested.
+        :type pwd_pattern: regular expression string
+        :param error_pattern: the pattern used to identify login errors.
+        :type error_pattern: regular expression string
+        :param additional_responses_dict: an optional dict containing additional prompts \
+        which may be encountered during login, and the respective response to send.
+        :type additional_responses_dict: dict containing { r'pattern': 'response', .. }
+        """
+        delay_factor = self.select_delay_factor(delay_factor)
+
         return_msg = ''
-        i = 1
+        login_errors = []
+        password_sent = False
+        username_sent = False
+        login_complete = False
+        i = 0
         while i <= max_loops:
+            time.sleep(1 * delay_factor)
             try:
                 output = self.read_channel()
-                return_msg += output
-
-                # Search for username pattern / send username
-                if re.search(username_pattern, output):
-                    self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-
-                # Search for password pattern / send password
-                if re.search(pwd_pattern, output):
-                    self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-                    if (re.search(pri_prompt_terminator, output, flags=re.M)
-                            or re.search(alt_prompt_terminator, output, flags=re.M)):
-                        return return_msg
-
-                # Check if proper data received
-                if (re.search(pri_prompt_terminator, output, flags=re.M)
-                        or re.search(alt_prompt_terminator, output, flags=re.M)):
-                    return return_msg
-
-                self.write_channel(self.TELNET_RETURN)
-                time.sleep(.5 * delay_factor)
-                i += 1
             except EOFError:
-                msg = "Telnet login failed: {}".format(self.host)
+                msg = "Telnet connection closed unexpectedly: {}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
-        # Last try to see if we already logged in
-        self.write_channel(self.TELNET_RETURN)
-        time.sleep(.5 * delay_factor)
-        output = self.read_channel()
-        return_msg += output
-        if (re.search(pri_prompt_terminator, output, flags=re.M)
-                or re.search(alt_prompt_terminator, output, flags=re.M)):
-            return return_msg
+            return_msg += output
 
-        msg = "Telnet login failed: {}".format(self.host)
-        raise NetMikoAuthenticationException(msg)
+            # Errors can occur anywhere in the output buffer
+            errors_found = re.findall(error_pattern, output, flags=re.M)
+
+            # Search for a prompt we can respond to, must be on the last line of output
+            last_line = output.split(self.RESPONSE_RETURN)[-1]
+            command_prompt = (re.search(pri_prompt_terminator, last_line)
+                              or re.search(alt_prompt_terminator, last_line))
+            username_prompt = re.search(username_pattern, last_line)
+            password_prompt = re.search(pwd_pattern, last_line)
+
+            additional_response_match = None
+            if additional_responses_dict:
+                for pattern in additional_responses_dict.keys():
+                    if re.search(pattern, last_line):
+                        additional_response_match = pattern
+
+            # Determine what (if anything) to do in response
+            write_data = None
+
+            if additional_response_match:
+                write_data = additional_responses_dict[additional_response_match]
+
+            elif command_prompt:
+                login_complete = True
+
+            elif errors_found and (username_sent or password_sent):
+                # only after sending something that could cause an error
+                login_errors.extend(errors_found)
+
+            elif username_prompt and not username_sent:
+                if password_sent:
+                    msg = "Host {} requested 'username' AFTER 'password'".format(self.host)
+                    raise NetMikoAuthenticationException(msg)
+                write_data = self.username + self.TELNET_RETURN
+                username_sent = True
+
+            elif password_prompt and not password_sent:
+                write_data = self.password + self.TELNET_RETURN
+                password_sent = True
+
+            elif i % 4 == 0:
+                # send a 'return' once in a while to wake things up if nothing happening
+                write_data = self.TELNET_RETURN
+
+            # final loop control & writing of data
+            if login_complete or login_errors:
+                break
+            elif write_data is not None:
+                try:
+                    self.write_channel(write_data)
+                except EOFError:
+                    msg = "Telnet connection closed unexpectedly: {}".format(self.host)
+                    raise NetMikoAuthenticationException(msg)
+                time.sleep(.5 * delay_factor)
+
+            i += 1
+
+        if login_complete:
+            return return_msg
+        else:
+            msg = "Telnet login failed: {}".format(self.host)
+            for error in login_errors:
+                msg += '; ' + error
+            raise NetMikoAuthenticationException(msg)
 
     def session_preparation(self):
         """
