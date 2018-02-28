@@ -84,6 +84,7 @@ CLASS_MAPPER_BASE = {
     'cisco_xr': CiscoXrSSH,
     'coriant': CoriantSSH,
     'dell_dnos6': DellDNOS6SSH,
+    'dell_dnos9': DellForce10SSH,
     'dell_force10': DellForce10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
     'eltex': EltexSSH,
