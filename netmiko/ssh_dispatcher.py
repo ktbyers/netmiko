@@ -5,7 +5,7 @@ from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.alcatel import AlcatelSrosSSH
-from netmiko.arista import AristaSSH
+from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
@@ -139,6 +139,7 @@ FILE_TRANSFER_MAP = new_mapper
 CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
 CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
+CLASS_MAPPER['arista_eos_telnet'] = AristaTelnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 CLASS_MAPPER['extreme_telnet'] = ExtremeTelnet
