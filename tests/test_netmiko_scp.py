@@ -64,7 +64,6 @@ def test_disconnect(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
     ssh_conn.disconnect()
 
-
 def test_verify_space_available_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
     assert scp_transfer.verify_space_available() == True
