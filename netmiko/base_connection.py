@@ -363,13 +363,12 @@ class BaseConnection(object):
             pattern = re.escape(self.base_prompt)
         log.debug("Pattern is: {}".format(pattern))
 
-        i = 1
         loop_delay = .1
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # argument for backwards compatibility).
         if max_loops != 150:
             max_loops = self.timeout / loop_delay
-        while i < max_loops:
+        for _ in range(max_loops):
             if self.protocol == 'ssh':
                 try:
                     # If no data available will wait timeout seconds trying to read
@@ -390,7 +389,6 @@ class BaseConnection(object):
                 log.debug("Pattern found: {} {}".format(pattern, output))
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
-            i += 1
         raise NetMikoTimeoutException("Timed-out reading channel, pattern not found in output: {}"
                                       .format(pattern))
 
@@ -423,8 +421,7 @@ class BaseConnection(object):
             max_loops = int(self.timeout / loop_delay)
 
         channel_data = ""
-        i = 0
-        while i <= max_loops:
+        for _ in range(max_loops):
             time.sleep(loop_delay * delay_factor)
             new_data = self.read_channel()
             if new_data:
@@ -437,7 +434,7 @@ class BaseConnection(object):
                     break
                 else:
                     channel_data += new_data
-            i += 1
+
         return channel_data
 
     def read_until_prompt(self, *args, **kwargs):
@@ -481,8 +478,7 @@ class BaseConnection(object):
 
         output = ''
         return_msg = ''
-        i = 1
-        while i <= max_loops:
+        for _ in range(max_loops):
             try:
                 output = self.read_channel()
                 return_msg += output
@@ -511,7 +507,6 @@ class BaseConnection(object):
 
                 self.write_channel(self.TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
-                i += 1
             except EOFError:
                 msg = "Telnet login failed: {}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
@@ -685,12 +680,11 @@ class BaseConnection(object):
                 main_delay = maximum
             return main_delay
 
-        i = 0
         delay_factor = self.select_delay_factor(delay_factor=0)
         main_delay = delay_factor * .1
         time.sleep(main_delay * 10)
         new_data = ""
-        while i <= count:
+        for _ in range(count):
             new_data += self._read_channel_timing()
             if new_data and pattern:
                 if re.search(pattern, new_data):
@@ -701,7 +695,6 @@ class BaseConnection(object):
                 self.write_channel(self.RETURN)
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
-            i += 1
 
         # check if data was ever present
         if new_data:
@@ -938,10 +931,9 @@ class BaseConnection(object):
         self.clear_buffer()
         self.write_channel(command_string)
 
-        i = 1
         output = ''
         # Keep reading data until search_pattern is found or until max_loops is reached.
-        while i <= max_loops:
+        for _ in range(max_loops):
             new_data = self.read_channel()
             if new_data:
                 output += new_data
@@ -961,7 +953,6 @@ class BaseConnection(object):
                     break
             else:
                 time.sleep(delay_factor * loop_delay)
-            i += 1
         else:   # nobreak
             raise IOError("Search pattern never detected in send_command_expect: {}".format(
                 search_pattern))

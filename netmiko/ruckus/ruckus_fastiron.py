@@ -27,8 +27,7 @@ class RuckusFastironBase(CiscoSSHConnection):
         output = ""
         if not self.check_enable_mode():
             count = 4
-            i = 1
-            while i < count:
+            for _ in range(count):
                 self.write_channel(self.normalize_cmd(cmd))
                 new_data = self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
                 output += new_data
@@ -41,7 +40,6 @@ class RuckusFastironBase(CiscoSSHConnection):
                     output += self.read_until_prompt()
                     return output
                 time.sleep(1)
-                i += 1
 
         if not self.check_enable_mode():
             msg = "Failed to enter enable mode. Please ensure you pass " \

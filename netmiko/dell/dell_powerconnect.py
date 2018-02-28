@@ -81,10 +81,8 @@ class DellPowerConnectSSH(DellPowerConnectBase):
         Password: ****
         """
         delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
         time.sleep(delay_factor * .5)
-        output = ""
-        while i <= 12:
+        for _ in range(12):
             output = self.read_channel()
             if output:
                 if 'User Name:' in output:
@@ -96,7 +94,6 @@ class DellPowerConnectSSH(DellPowerConnectBase):
             else:
                 self.write_channel(self.RETURN)
                 time.sleep(delay_factor * 1.5)
-            i += 1
 
 
 class DellPowerConnectTelnet(DellPowerConnectBase):

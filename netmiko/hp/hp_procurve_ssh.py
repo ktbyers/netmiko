@@ -16,15 +16,13 @@ class HPProcurveSSH(CiscoSSHConnection):
         """
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
-        count = 1
-        while count <= 30:
+        for _ in range(30):
             output += self.read_channel()
             if 'any key to continue' in output:
                 self.write_channel(self.RETURN)
                 break
             else:
                 time.sleep(.33 * delay_factor)
-            count += 1
 
         # Try one last time to past "Press any key to continue
         self.write_channel(self.RETURN)
@@ -58,8 +56,7 @@ class HPProcurveSSH(CiscoSSHConnection):
         """Gracefully exit the SSH session."""
         self.exit_config_mode()
         self.write_channel("logout" + self.RETURN)
-        count = 0
-        while count <= 5:
+        for _ in range(5):
             time.sleep(.5)
             output = self.read_channel()
             if 'Do you want to log out' in output:
@@ -71,7 +68,6 @@ class HPProcurveSSH(CiscoSSHConnection):
                 self.write_channel(self.RETURN)
             except socket.error:
                 break
-            count += 1
 
     def save_config(self, cmd='write memory', confirm=False):
         """Save Config."""

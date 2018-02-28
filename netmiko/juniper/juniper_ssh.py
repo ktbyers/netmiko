@@ -41,9 +41,7 @@ class JuniperSSH(BaseConnection):
     def enter_cli_mode(self):
         """Check if at shell prompt root@ and go into CLI."""
         delay_factor = self.select_delay_factor(delay_factor=0)
-        count = 0
-        cur_prompt = ''
-        while count < 50:
+        for _ in range(50):
             self.write_channel(self.RETURN)
             time.sleep(.1 * delay_factor)
             cur_prompt = self.read_channel()
@@ -54,7 +52,6 @@ class JuniperSSH(BaseConnection):
                 break
             elif '>' in cur_prompt or '#' in cur_prompt:
                 break
-            count += 1
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on Juniper."""
