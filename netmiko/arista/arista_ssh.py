@@ -5,7 +5,7 @@ from netmiko.cisco_base_connection import CiscoFileTransfer
 from netmiko import log
 
 
-class AristaSSH(CiscoSSHConnection):
+class AristaBase(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r'[>#]')
@@ -42,6 +42,14 @@ class AristaSSH(CiscoSSHConnection):
         """Return to the CLI."""
         return self.send_command('exit', expect_string=r"[#>]")
 
+class AristaSSH(AristaBase):
+    pass
+
+class AristaTelnet(AristaBase):
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get('default_enter')
+        kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
+        super(AristaTelnet, self).__init__(*args, **kwargs)
 
 class AristaFileTransfer(CiscoFileTransfer):
     """Arista SCP File Transfer driver."""
