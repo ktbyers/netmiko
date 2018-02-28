@@ -7,7 +7,7 @@ from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class JuniperSSH(BaseConnection):
+class JuniperBase(BaseConnection):
     """
     Implement methods for interacting with Juniper Networks devices.
 
@@ -70,11 +70,11 @@ class JuniperSSH(BaseConnection):
 
     def check_config_mode(self, check_string=']'):
         """Checks if the device is in configuration mode or not."""
-        return super(JuniperSSH, self).check_config_mode(check_string=check_string)
+        return super(JuniperBase, self).check_config_mode(check_string=check_string)
 
     def config_mode(self, config_command='configure'):
         """Enter configuration mode."""
-        return super(JuniperSSH, self).config_mode(config_command=config_command)
+        return super(JuniperBase, self).config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config='exit configuration-mode'):
         """Exit configuration mode."""
@@ -162,7 +162,7 @@ class JuniperSSH(BaseConnection):
 
     def strip_prompt(self, *args, **kwargs):
         """Strip the trailing router prompt from the output."""
-        a_string = super(JuniperSSH, self).strip_prompt(*args, **kwargs)
+        a_string = super(JuniperBase, self).strip_prompt(*args, **kwargs)
         return self.strip_context_items(a_string)
 
     def strip_context_items(self, a_string):
@@ -193,6 +193,14 @@ class JuniperSSH(BaseConnection):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
 
+class JuniperSSH(JuniperBase):
+    pass
+
+class JuniperTelnet(JuniperBase):
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get('default_enter')
+        kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
+        super(JuniperTelnet, self).__init__(*args, **kwargs)
 
 class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
