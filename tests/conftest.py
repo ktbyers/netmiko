@@ -71,6 +71,26 @@ def commands(request):
     commands_yml = parse_yaml(PWD + "/etc/commands.yml")
     return commands_yml[test_platform]
 
+def delete_file_nxos(ssh_conn, dest_file_system, dest_file):
+    """
+    nxos1# delete bootflash:test2.txt
+    Do you want to delete "/test2.txt" ? (yes/no/abort)   [y] y
+    """
+    if not dest_file_system:
+        raise ValueError("Invalid file system specified")
+    if not dest_file:
+        raise ValueError("Invalid dest file specified")
+
+    full_file_name = "{}{}".format(dest_file_system, dest_file)
+
+    cmd = "delete {}".format(full_file_name)
+    output = ssh_conn.send_command_timing(cmd)
+    if 'yes/no/abort' in output and dest_file in output:
+        output += ssh_conn.send_command_timing("y", strip_command=False, strip_prompt=False)
+        return output
+    else:
+        output += ssh_conn.send_command_timing("abort")
+    raise ValueError("An error happened deleting file on Cisco NX-OS")
 
 def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     """Delete a remote file for a Cisco IOS device."""
@@ -130,6 +150,11 @@ def scp_fixture(request):
             'enable_scp': False,
             'delete_file': delete_file_generic,
         },
+        'cisco_nxos': {
+            'file_system': 'bootflash:', 
+            'enable_scp': False,
+            'delete_file': delete_file_nxos,
+        },
     }
 
     device_under_test = request.config.getoption('test_device')
@@ -183,6 +208,11 @@ def scp_fixture_get(request):
             'file_system': '/mnt/flash', 
             'enable_scp': False,
             'delete_file': delete_file_generic,
+        },
+        'cisco_nxos': {
+            'file_system': 'bootflash:', 
+            'enable_scp': False,
+            'delete_file': delete_file_nxos,
         },
     }
 
