@@ -63,7 +63,7 @@ class CiscoBaseConnection(BaseConnection):
                      pwd_pattern=r"assword",
                      additional_responses_dict={
                         r'initial configuration dialog\? \[yes/no\]: ': 'no'},
-                     error_pattern=r"^\s*%\s*(.*)$",
+                     error_pattern=r"^%\s*(?i)(.*(?:failed|invalid|rejected).*)$",
                      delay_factor=1, max_loops=20):
         """Telnet login. Default parameter vaules differ from parent class implementation."""
         return super(CiscoBaseConnection, self).telnet_login(
