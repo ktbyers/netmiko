@@ -499,8 +499,7 @@ class BaseConnection(object):
 
         return_msg = ''
         login_errors = []
-        password_sent = False
-        username_sent = False
+        data_sent = False
         login_complete = False
         i = 0
         while i <= max_loops:
@@ -538,20 +537,17 @@ class BaseConnection(object):
             elif command_prompt:
                 login_complete = True
 
-            elif errors_found and (username_sent or password_sent):
-                # only after sending something that could cause an error
+            elif errors_found and data_sent:
+                # only after sending something that could cause an error to be raised
                 login_errors.extend(errors_found)
 
-            elif username_prompt and not username_sent:
-                if password_sent:
-                    msg = "Host {} requested 'username' AFTER 'password'".format(self.host)
-                    raise NetMikoAuthenticationException(msg)
+            elif username_prompt:
                 write_data = self.username + self.TELNET_RETURN
-                username_sent = True
+                data_sent = True
 
-            elif password_prompt and not password_sent:
+            elif password_prompt:
                 write_data = self.password + self.TELNET_RETURN
-                password_sent = True
+                data_sent = True
 
             elif i % 4 == 0:
                 # send a 'return' once in a while to wake things up if nothing happening
