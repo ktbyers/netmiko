@@ -1,18 +1,15 @@
 from __future__ import unicode_literals
-<<<<<<< HEAD
-from netmiko.cisco.cisco_ios import CiscoIosBase, CiscoIosSSH, CiscoIosTelnet, CiscoIosFileTransfer, CiscoIosSerial
-from netmiko.cisco.cisco_ios import InLineTransfer
-from netmiko.cisco.cisco_asa_ssh import CiscoAsaSSH, CiscoAsaFileTransfer
-from netmiko.cisco.cisco_nxos_ssh import CiscoNxosSSH, CiscoNxosFileTransfer
-from netmiko.cisco.cisco_xr_ssh import CiscoXrSSH, CiscoXrFileTransfer
-=======
 from netmiko.cisco.cisco_ios import CiscoIosBase, CiscoIosSSH, CiscoIosTelnet, CiscoIosSerial
 from netmiko.cisco.cisco_ios import CiscoIosFileTransfer
 from netmiko.cisco.cisco_ios import InLineTransfer
 from netmiko.cisco.cisco_asa_ssh import CiscoAsaSSH, CiscoAsaFileTransfer
 from netmiko.cisco.cisco_nxos_ssh import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco.cisco_xr_ssh import CiscoXrSSH
->>>>>>> rebase
+from netmiko.cisco.cisco_ios import CiscoIosBase, CiscoIosSSH, CiscoIosTelnet
+from netmiko.cisco.cisco_asa_ssh import CiscoAsaSSH
+from netmiko.cisco.cisco_nxos_ssh import CiscoNxosSSH
+from netmiko.cisco.cisco_xr import CiscoXrSSH, CiscoXrTelnet, CiscoCxrHa
+>>>>>>> implemented class to handle cxr ha console connections
 from netmiko.cisco.cisco_wlc_ssh import CiscoWlcSSH
 from netmiko.cisco.cisco_s300 import CiscoS300SSH
 from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH

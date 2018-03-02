@@ -154,6 +154,12 @@ class CiscoBaseConnection(BaseConnection):
                     return_msg += output
 
 
+                # Search for standby console pattern
+                standby_pattern=r"RP Node is not ready or active for login"
+                if re.search(standby_pattern,output):
+                    ''' Session is standby state '''
+                    return return_msg
+
                 my_password = self.password
                 # Search for username pattern / send username OR
                 # If the prompt shows "xr login:", the you can directly login to xr using xr username
@@ -180,7 +186,6 @@ class CiscoBaseConnection(BaseConnection):
                         print ('output after passing username = ', output)
                         return_msg += output
 
-
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
                     self.write_channel(self.password + self.TELNET_RETURN)
@@ -199,7 +204,6 @@ class CiscoBaseConnection(BaseConnection):
                 if re.search(standby_pattern,output):
                     ''' Session is standby state '''
                     return return_msg
-
 
                 #Search for "VR0 con0/RP0/CPU0 is now available Press RETURN to get started" pattern
                 #on Sunstone devices

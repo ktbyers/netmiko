@@ -172,7 +172,6 @@ class BaseConnection(object):
 
         # set in set_base_prompt method
         self.base_prompt = ''
-<<<<<<< HEAD
         # current prompt to operate on different context
         self.current_prompt = ''
 
@@ -183,9 +182,6 @@ class BaseConnection(object):
         self._config_interval = 0.2
         self._read_interval = 0.2
         self._write_interval = 0.2
-
-=======
->>>>>>> rebase
         self._session_locker = Lock()
 
         # determine if telnet or SSH
@@ -971,6 +967,7 @@ class BaseConnection(object):
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
+<<<<<<< HEAD
     def find_prompt(self, delay_factor=1):
         """Finds the current network device prompt, last line only.
 
@@ -985,6 +982,17 @@ class BaseConnection(object):
         prompt = self.read_channel()
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
+=======
+    def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', verbose=False, telnet_return='\n'):
+        """Finds the current network device prompt, last line only."""
+        debug = self.debug_flag
+        self.clear_buffer()
+        self.write_channel(telnet_return)
+        # sleep for brief 100ms (default) - adjust by delay_factor
+        sleep_interval = self._read_interval
+        self.sleep_timer(sleep_interval, delay_factor)
+        num_of_attempts = 30
+>>>>>>> implemented class to handle cxr ha console connections
 
         # Check if the only thing you received was a newline
         count = 0
@@ -995,8 +1003,13 @@ class BaseConnection(object):
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
+<<<<<<< HEAD
                 self.write_channel(self.RETURN)
                 time.sleep(delay_factor * .1)
+=======
+                self.write_channel(telnet_return)
+                self.sleep_timer(sleep_interval, delay_factor)
+>>>>>>> implemented class to handle cxr ha console connections
             count += 1
 
         # If multiple lines in the output take the last line
