@@ -272,3 +272,7 @@ class CiscoXrTelnet(CiscoXr):
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
         return self.base_prompt
+
+class CiscoCxrHa(CiscoXrTelnet):
+    def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', verbose=False, telnet_return='\n'):
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern, verbose=verbose, telnet_return='\r\n')
