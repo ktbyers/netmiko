@@ -193,14 +193,17 @@ class JuniperBase(BaseConnection):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
 
+
 class JuniperSSH(JuniperBase):
     pass
+
 
 class JuniperTelnet(JuniperBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get('default_enter')
         kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
         super(JuniperTelnet, self).__init__(*args, **kwargs)
+
 
 class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
