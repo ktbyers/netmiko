@@ -65,35 +65,3 @@ def test_disconnect(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
     ssh_conn.disconnect()
 
-def test_verify_space_available_get(scp_fixture_get):
-    ssh_conn, scp_transfer = scp_fixture_get
-    assert scp_transfer.verify_space_available() == True
-    # intentional make there not be enough space available
-    scp_transfer.file_size = 100000000000
-    assert scp_transfer.verify_space_available() == False
-
-def test_scp_get(scp_fixture_get):
-    ssh_conn, scp_transfer = scp_fixture_get
-
-    if scp_transfer.check_file_exists():
-        log.debug("File already exists")
-        # File should not already exist
-        assert False
-    else:
-        scp_transfer.get_file()
-        if scp_transfer.check_file_exists():
-            assert True
-        else:
-            assert False
-
-def test_md5_methods_get(scp_fixture_get):
-    ssh_conn, scp_transfer = scp_fixture_get
-    md5_value = 'd8df36973ff832b564ad84642d07a261'
-    local_md5 = scp_transfer.file_md5("test9.txt")
-    assert local_md5 == md5_value
-    assert scp_transfer.compare_md5() == True
-
-def test_disconnect_get(scp_fixture_get):
-    """Terminate the SSH session."""
-    ssh_conn, scp_transfer = scp_fixture_get
-    ssh_conn.disconnect()
