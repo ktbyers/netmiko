@@ -152,6 +152,12 @@ def scp_fixture(request):
             'enable_scp': False,
             'delete_file': delete_file_nxos,
         },
+        'cisco_xr': {
+            'file_system': 'disk0:',
+            'enable_scp': False,
+            # Delete pattern is the same on IOS-XR
+            'delete_file': delete_file_ios,
+        },
     }
 
     device_under_test = request.config.getoption('test_device')
@@ -210,6 +216,11 @@ def scp_fixture_get(request):
             'file_system': 'bootflash:', 
             'enable_scp': False,
             'delete_file': delete_file_nxos,
+        },
+        'cisco_xr': {
+            'file_system': 'disk0:',
+            'enable_scp': False,
+            'delete_file': delete_file_ios,
         },
     }
 

@@ -1,7 +1,8 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 import time
-from netmiko.cisco_base_connection import CiscoSSHConnection
+import re
+from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 
 
 class CiscoXrSSH(CiscoSSHConnection):
@@ -133,7 +134,7 @@ class CiscoXrSSH(CiscoSSHConnection):
 
 class CiscoXrFileTransfer(CiscoFileTransfer):
     """Cisco IOS-XR SCP File Transfer driver."""
-    def process_md5(md5_output, pattern=r"^([a-fA-F0-9]+)$"):
+    def process_md5(self, md5_output, pattern=r"^([a-fA-F0-9]+)$"):
         """
         IOS-XR defaults with timestamps enabled
 
@@ -141,7 +142,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         Sat Mar  3 17:49:03.596 UTC
         c84843f0030efd44b01343fdb8c2e801
         """
-        match = re.search(pattern, md5_output)
+        match = re.search(pattern, md5_output, flags=re.M)
         if match:
             return match.group(1)
         else:
@@ -158,10 +159,11 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == 'get':
                 remote_file = self.source_file
-        remote_md5_cmd = "{} /{}{}".format(base_cmd, self.file_system, remote_file)
-        print(remote_md5_cmd)
-#       dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
-        #dest_md5 = self.process_md5(dest_md5)
+        # IOS-XR requires both the leading slash and the slash between file-system and file here
+        remote_md5_cmd = "{} /{}/{}".format(base_cmd, self.file_system, remote_file)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+        dest_md5 = self.process_md5(dest_md5)
+        print(dest_md5)
         return dest_md5
 
     def enable_scp(self, cmd=None):

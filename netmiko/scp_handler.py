@@ -61,7 +61,7 @@ class BaseFileTransfer(object):
 
         auto_flag = 'cisco_ios' in ssh_conn.device_type or \
                     'cisco_xe' in ssh_conn.device_type or \
-                    'cisco_xr' in ssh_conn.device_type: 
+                    'cisco_xr' in ssh_conn.device_type
         if not file_system:
             if auto_flag:
                 self.file_system = self.ssh_ctl_chan._autodetect_fs()
@@ -157,9 +157,9 @@ class BaseFileTransfer(object):
                 remote_cmd = "dir {}/{}".format(self.file_system, self.dest_file)
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"Directory of .*{0}".format(self.dest_file)
-            if 'Error opening' in remote_out:
+            if 'Error opening' in remote_out or 'No such file or directory' in remote_out:
                 return False
-            elif re.search(search_string, remote_out):
+            elif re.search(search_string, remote_out, flags=re.DOTALL):
                 return True
             else:
                 raise ValueError("Unexpected output from check_file_exists")

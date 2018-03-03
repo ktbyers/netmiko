@@ -54,6 +54,7 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config.py --test_device cisco_asa_login \
 \
 && echo "Cisco IOS-XR" \
+&& py.test -v test_netmiko_scp.py --test_device cisco_xrv \
 && py.test -v test_netmiko_show.py --test_device cisco_xrv \
 && py.test -v test_netmiko_config.py --test_device cisco_xrv \
 && py.test -v test_netmiko_commit.py --test_device cisco_xrv \
