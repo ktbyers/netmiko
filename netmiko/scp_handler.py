@@ -59,9 +59,11 @@ class BaseFileTransfer(object):
         self.dest_file = dest_file
         self.direction = direction
 
-        ios_flag = 'cisco_ios' in ssh_conn.device_type or 'cisco_xe' in ssh_conn.device_type
+        auto_flag = 'cisco_ios' in ssh_conn.device_type or \
+                    'cisco_xe' in ssh_conn.device_type or \
+                    'cisco_xr' in ssh_conn.device_type: 
         if not file_system:
-            if ios_flag:
+            if auto_flag:
                 self.file_system = self.ssh_ctl_chan._autodetect_fs()
             else:
                 raise ValueError("Destination file system not specified")
@@ -196,7 +198,7 @@ class BaseFileTransfer(object):
             line = match.group(0)
             # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
             file_size = line.split()[2]
-        if 'Error opening' in remote_out:
+        if 'Error opening' in remote_out or 'No such file or directory' in remote_out:
             raise IOError("Unable to find file on remote system")
         else:
             return int(file_size)

@@ -22,7 +22,7 @@ from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.cisco import CiscoWlcSSH
-from netmiko.cisco import CiscoXrSSH
+from netmiko.cisco import CiscoXrSSH, CiscoXrFileTransfer
 from netmiko.coriant import CoriantSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellPowerConnectSSH
@@ -115,8 +115,9 @@ FILE_TRANSFER_MAP = {
     'arista_eos': AristaFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
     'cisco_ios': CiscoIosFileTransfer,
-    'cisco_xe': CiscoIosFileTransfer,
     'cisco_nxos': CiscoNxosFileTransfer,
+    'cisco_xe': CiscoIosFileTransfer,
+    'cisco_xr': CiscoXrFileTransfer,
     'juniper_junos': JuniperFileTransfer,
 }
 

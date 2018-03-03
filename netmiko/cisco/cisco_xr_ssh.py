@@ -129,3 +129,43 @@ class CiscoXrSSH(CiscoSSHConnection):
     def save_config(self):
         """Not Implemented (use commit() method)"""
         raise NotImplementedError
+
+
+class CiscoXrFileTransfer(CiscoFileTransfer):
+    """Cisco IOS-XR SCP File Transfer driver."""
+    def process_md5(md5_output, pattern=r"^([a-fA-F0-9]+)$"):
+        """
+        IOS-XR defaults with timestamps enabled
+
+        # show md5 file /bootflash:/boot/grub/grub.cfg
+        Sat Mar  3 17:49:03.596 UTC
+        c84843f0030efd44b01343fdb8c2e801
+        """
+        match = re.search(pattern, md5_output)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError("Invalid output from MD5 command: {}".format(md5_output))
+
+    def remote_md5(self, base_cmd='show md5 file', remote_file=None):
+        """
+        IOS-XR for MD5 requires this extra leading /
+
+        show md5 file /bootflash:/boot/grub/grub.cfg
+        """
+        if remote_file is None:
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
+        remote_md5_cmd = "{} /{}{}".format(base_cmd, self.file_system, remote_file)
+        print(remote_md5_cmd)
+#       dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+        #dest_md5 = self.process_md5(dest_md5)
+        return dest_md5
+
+    def enable_scp(self, cmd=None):
+        raise NotImplementedError
+
+    def disable_scp(self, cmd=None):
+        raise NotImplementedError
