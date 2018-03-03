@@ -9,7 +9,8 @@ from netmiko.cisco.cisco_ios import CiscoIosBase, CiscoIosSSH, CiscoIosTelnet
 from netmiko.cisco.cisco_asa_ssh import CiscoAsaSSH
 from netmiko.cisco.cisco_nxos_ssh import CiscoNxosSSH
 from netmiko.cisco.cisco_xr import CiscoXrSSH, CiscoXrTelnet, CiscoCxrHa
->>>>>>> implemented class to handle cxr ha console connections
+from netmiko.cisco.cisco_xr_ssh import CiscoXrSSH, CiscoXrFileTransfer
+>>>>>>> Initial implementation of IOS-XR file transfer SCP
 from netmiko.cisco.cisco_wlc_ssh import CiscoWlcSSH
 from netmiko.cisco.cisco_s300 import CiscoS300SSH
 from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH
@@ -17,4 +18,4 @@ from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH
 __all__ = ['CiscoIosSSH', 'CiscoIosTelnet', 'CiscoAsaSSH', 'CiscoNxosSSH', 'CiscoXrSSH',
            'CiscoWlcSSH', 'CiscoS300SSH', 'CiscoTpTcCeSSH', 'CiscoIosBase',
            'CiscoIosFileTransfer', 'InLineTransfer', 'CiscoAsaFileTransfer',
-           'CiscoNxosFileTransfer', 'CiscoIosSerial']
+           'CiscoNxosFileTransfer', 'CiscoIosSerial', 'CiscoXrFileTransfer']
