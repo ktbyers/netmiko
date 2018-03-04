@@ -220,6 +220,7 @@ def scp_fixture_get(request):
         'cisco_xr': {
             'file_system': 'disk0:',
             'enable_scp': False,
+            # Delete pattern is the same on IOS-XR
             'delete_file': delete_file_ios,
         },
     }
@@ -294,3 +295,78 @@ def ssh_autodetect(request):
     device['device_type'] = 'autodetect'
     conn = SSHDetect(**device)
     return (conn, my_device_type)
+
+@pytest.fixture(scope='module')
+def scp_file_transfer(request):
+    """
+    Testing reliable_file_transfer
+
+    Return the netmiko connection object
+    """
+    platform_args = {
+        'cisco_ios': {
+            'file_system': 'flash:',
+            'enable_scp': True,
+            'delete_file': delete_file_ios,
+        },
+        'juniper_junos': {
+            'file_system': '/var/tmp', 
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
+        },
+        'arista_eos': {
+            'file_system': '/mnt/flash', 
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
+        },
+        'cisco_nxos': {
+            'file_system': 'bootflash:', 
+            'enable_scp': False,
+            'delete_file': delete_file_nxos,
+        },
+        'cisco_xr': {
+            'file_system': 'disk0:',
+            'enable_scp': False,
+            # Delete pattern is the same on IOS-XR
+            'delete_file': delete_file_ios,
+        },
+    }
+
+    # Create the files
+    with open("test9.txt", "w") as f:
+        # Not important what it is in the file
+        f.write("no logging console")
+
+    with open("test2_src.txt", "w") as f:
+        # Not important what it is in the file
+        f.write("no logging console")
+        f.write("logging buffered 10000")
+
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    ssh_conn = ConnectHandler(**device)
+
+    platform = device['device_type']
+    file_system = platform_args[platform]['file_system']
+    source_file = 'test9.txt'
+    dest_file = 'test9.txt'
+    local_file = 'testx.txt'
+    alt_file = 'test2.txt'
+    direction = 'put'
+
+    scp_transfer = FileTransfer(ssh_conn, source_file=source_file, dest_file=dest_file,
+                                file_system=file_system, direction=direction)
+    scp_transfer.establish_scp_conn()
+
+    # Delete the test transfer files
+    if scp_transfer.check_file_exists():
+        func = platform_args[platform]['delete_file']
+        func(ssh_conn, file_system, dest_file)
+    if os.path.exists(local_file):
+        os.remove(local_file)
+    if os.path.exists(alt_file):
+        os.remove(alt_file)
+
+    return (ssh_conn, file_system)

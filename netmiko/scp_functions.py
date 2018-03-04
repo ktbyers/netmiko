@@ -78,9 +78,8 @@ def reliable_file_transfer(ssh_conn, source_file, dest_file, file_system=None, d
                 if not disable_md5:
                     if scp_transfer.compare_md5():
                         return nottransferred_but_verified
-                    else:
-                        msg = "File already exists and overwrite_file is disabled"
-                        raise ValueError(msg)
+                msg = "File already exists and overwrite_file is disabled"
+                raise ValueError(msg)
         else:
             verifyspace_and_transferfile(scp_transfer)
             # File doesn't exist
