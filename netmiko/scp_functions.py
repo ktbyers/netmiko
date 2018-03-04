@@ -20,8 +20,8 @@ def verifyspace_and_transferfile(scp_transfer):
     scp_transfer.transfer_file()
 
 
-def reliable_file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction='put',
-                           disable_md5=False, inline_transfer=False, overwrite_file=False):
+def file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction='put',
+                  disable_md5=False, inline_transfer=False, overwrite_file=False):
     """Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
     return {

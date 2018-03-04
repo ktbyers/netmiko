@@ -8,7 +8,7 @@ import pytest
 from datetime import datetime
 from getpass import getpass
 from netmiko import ConnectHandler, FileTransfer
-from netmiko import reliable_file_transfer
+from netmiko import file_transfer
 
 ###def test_enable_scp(scp_fixture):
 ###    ssh_conn, scp_transfer = scp_fixture
@@ -100,14 +100,14 @@ def test_disconnect_get(scp_fixture_get):
 
 
 def test_file_transfer(scp_file_transfer):
-    """Test Netmiko reliable file transfer function."""
+    """Test Netmiko file_transfer function."""
     ssh_conn, file_system = scp_file_transfer
     source_file = 'test9.txt'
     dest_file = 'test9.txt'
     direction = 'put'
     print(file_system)
 
-    transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                            dest_file=dest_file,
                                            file_system=file_system, direction=direction,
                                            overwrite_file=True)
@@ -116,7 +116,7 @@ def test_file_transfer(scp_file_transfer):
     assert transfer_dict['file_exists'] and transfer_dict['file_transferred'] and transfer_dict['file_verified']
 
     # File exists on device at this point
-    transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                            dest_file=dest_file,
                                            file_system=file_system, direction=direction,
                                            overwrite_file=True)
@@ -125,7 +125,7 @@ def test_file_transfer(scp_file_transfer):
     # Don't allow a file overwrite (switch the source file, but same dest file name)
     source_file = 'test2_src.txt'
     with pytest.raises(Exception):
-        transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+        transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                                dest_file=dest_file,
                                                file_system=file_system, direction=direction,
                                                overwrite_file=False)
@@ -133,13 +133,13 @@ def test_file_transfer(scp_file_transfer):
     # Don't allow MD5 and file overwrite not allowed
     source_file = 'test9.txt'
     with pytest.raises(Exception):
-        transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+        transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                                dest_file=dest_file, disable_md5=True,
                                                file_system=file_system, direction=direction,
                                                overwrite_file=False)
 
     # Don't allow MD5 (this will force a re-transfer)
-    transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                            dest_file=dest_file, disable_md5=True,
                                            file_system=file_system, direction=direction,
                                            overwrite_file=True)
@@ -148,7 +148,7 @@ def test_file_transfer(scp_file_transfer):
     # Transfer 'test2.txt' in preparation for get operations
     source_file = 'test2_src.txt'
     dest_file = 'test2.txt'
-    transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                            dest_file=dest_file,
                                            file_system=file_system, direction=direction,
                                            overwrite_file=True)
@@ -158,7 +158,7 @@ def test_file_transfer(scp_file_transfer):
     direction = 'get'
     source_file = 'test9.txt'
     dest_file = 'testx.txt'
-    transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                            dest_file=dest_file, disable_md5=False,
                                            file_system=file_system, direction=direction,
                                            overwrite_file=True)
@@ -166,7 +166,7 @@ def test_file_transfer(scp_file_transfer):
     assert transfer_dict['file_exists'] and transfer_dict['file_transferred'] and transfer_dict['file_verified']
 
     # File should exist now
-    transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                            dest_file=dest_file, disable_md5=False,
                                            file_system=file_system, direction=direction,
                                            overwrite_file=True)
@@ -176,7 +176,7 @@ def test_file_transfer(scp_file_transfer):
     source_file = 'test2.txt'
     dest_file = 'testx.txt'
     with pytest.raises(Exception):
-        transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+        transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                                dest_file=dest_file,
                                                file_system=file_system, direction=direction,
                                                overwrite_file=False)
@@ -185,13 +185,13 @@ def test_file_transfer(scp_file_transfer):
     source_file = 'test9.txt'
     dest_file = 'testx.txt'
     with pytest.raises(Exception):
-        transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+        transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                                dest_file=dest_file, disable_md5=True,
                                                file_system=file_system, direction=direction,
                                                overwrite_file=False)
 
     # Don't allow MD5 (this will force a re-transfer)
-    transfer_dict = reliable_file_transfer(ssh_conn, source_file=source_file,
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
                                            dest_file=dest_file, disable_md5=True,
                                            file_system=file_system, direction=direction,
                                            overwrite_file=True)

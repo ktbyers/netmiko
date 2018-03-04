@@ -299,7 +299,7 @@ def ssh_autodetect(request):
 @pytest.fixture(scope='module')
 def scp_file_transfer(request):
     """
-    Testing reliable_file_transfer
+    Testing file_transfer
 
     Return the netmiko connection object
     """
