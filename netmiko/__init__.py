@@ -16,7 +16,7 @@ from netmiko.ssh_exception import NetMikoTimeoutException
 from netmiko.ssh_exception import NetMikoAuthenticationException
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
-from netmiko.scp_functions import reliable_file_transfer
+from netmiko.scp_functions import file_transfer
 
 # Alternate naming
 NetmikoTimeoutError = NetMikoTimeoutException
