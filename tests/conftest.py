@@ -268,6 +268,11 @@ def tcl_fixture(request):
 
     Return a tuple (ssh_conn, tcl_handle)
     """
+    # Create the files
+    with open("test9.txt", "w") as f:
+        # Not important what it is in the file
+        f.write("no logging console\n")
+
     device_under_test = request.config.getoption('test_device')
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
