@@ -100,7 +100,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             elif self.direction == 'get':
                 remote_file = self.source_file
         remote_md5_cmd = "{} {}{} md5sum".format(base_cmd, self.file_system, remote_file)
-        return self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+        return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError

@@ -268,8 +268,8 @@ class BaseFileTransfer(object):
                 remote_file = self.dest_file
             elif self.direction == 'get':
                 remote_file = self.source_file
-        remote_md5_cmd = "{0} {1}{2}".format(base_cmd, self.file_system, remote_file)
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
