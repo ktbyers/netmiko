@@ -24,6 +24,8 @@ def file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction=
                   disable_md5=False, inline_transfer=False, overwrite_file=False):
     """Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
+    inline_transfer ONLY SUPPORTS TEXT FILES and will not support binary file transfers.
+
     return {
         'file_exists': boolean,
         'file_transferred': boolean,
