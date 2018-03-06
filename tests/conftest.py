@@ -160,6 +160,16 @@ def scp_fixture(request):
         },
     }
 
+    # Create the files
+    with open("test9.txt", "w") as f:
+        # Not important what it is in the file
+        f.write("no logging console\n")
+
+    with open("test2_src.txt", "w") as f:
+        # Not important what it is in the file
+        f.write("no logging console\n")
+        f.write("logging buffered 10000\n")
+
     device_under_test = request.config.getoption('test_device')
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
