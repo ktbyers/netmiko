@@ -40,11 +40,11 @@ def test_remote_file_size(scp_fixture):
     if not scp_transfer.check_file_exists():
         scp_transfer.put_file()
     remote_file_size = scp_transfer.remote_file_size()
-    assert remote_file_size == 18
+    assert remote_file_size == 19
 
 def test_md5_methods(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
-    md5_value = '679a22fcceef1b6bd3da4944519086b5'
+    md5_value = 'd8df36973ff832b564ad84642d07a261'
 
     remote_md5 = scp_transfer.remote_md5()
     assert remote_md5 == md5_value
@@ -77,7 +77,7 @@ def test_scp_get(scp_fixture_get):
 
 def test_md5_methods_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
-    md5_value = '679a22fcceef1b6bd3da4944519086b5'
+    md5_value = 'd8df36973ff832b564ad84642d07a261'
     local_md5 = scp_transfer.file_md5("test9.txt")
     assert local_md5 == md5_value
     assert scp_transfer.compare_md5() == True
