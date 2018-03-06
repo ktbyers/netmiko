@@ -161,7 +161,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
                 remote_file = self.source_file
         # IOS-XR requires both the leading slash and the slash between file-system and file here
         remote_md5_cmd = "{} /{}/{}".format(base_cmd, self.file_system, remote_file)
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
