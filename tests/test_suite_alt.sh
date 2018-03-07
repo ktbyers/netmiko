@@ -29,6 +29,7 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config.py --test_device cisco_s300 \
 \
 && echo "Arista" \
+&& py.test -v test_netmiko_scp.py --test_device arista_sw4 \
 && py.test -v test_netmiko_show.py --test_device arista_sw4 \
 && py.test -v test_netmiko_config.py --test_device arista_sw4 \
 \
@@ -41,6 +42,7 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config.py --test_device hp_comware \
 \
 && echo "Juniper" \
+&& py.test -v test_netmiko_scp.py --test_device juniper_srx \
 && py.test -v test_netmiko_show.py --test_device juniper_srx \
 && py.test -v test_netmiko_config.py --test_device juniper_srx \
 && py.test -v test_netmiko_commit.py --test_device juniper_srx \
@@ -52,11 +54,13 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config.py --test_device cisco_asa_login \
 \
 && echo "Cisco IOS-XR" \
+&& py.test -v test_netmiko_scp.py --test_device cisco_xrv \
 && py.test -v test_netmiko_show.py --test_device cisco_xrv \
 && py.test -v test_netmiko_config.py --test_device cisco_xrv \
 && py.test -v test_netmiko_commit.py --test_device cisco_xrv \
 \
 && echo "Cisco NXOS" \
+&& py.test -v test_netmiko_scp.py --test_device nxos1 \
 && py.test -v test_netmiko_show.py --test_device nxos1 \
 && py.test -v test_netmiko_config.py --test_device nxos1 \
 \

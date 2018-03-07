@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import time
-import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 from netmiko import log
@@ -35,43 +34,27 @@ class AristaSSH(CiscoSSHConnection):
         log.debug("check_config_mode: {0}".format(repr(output)))
         return check_string in output
 
+    def _enter_shell(self):
+        """Enter the Bourne Shell."""
+        return self.send_command('bash', expect_string=r"[\$#]")
+
+    def _return_cli(self):
+        """Return to the CLI."""
+        return self.send_command('exit', expect_string=r"[#>]")
+
 
 class AristaFileTransfer(CiscoFileTransfer):
     """Arista SCP File Transfer driver."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put'):
-        msg = "Arista SCP Driver is under development and not fully implemented"
-        raise NotImplementedError(msg)
-        self.ssh_ctl_chan = ssh_conn
-        self.source_file = source_file
-        self.dest_file = dest_file
-        self.direction = direction
+    def __init__(self, ssh_conn, source_file, dest_file, file_system="/mnt/flash", direction='put'):
+        return super(AristaFileTransfer, self).__init__(ssh_conn=ssh_conn,
+                                                        source_file=source_file,
+                                                        dest_file=dest_file,
+                                                        file_system=file_system,
+                                                        direction=direction)
 
-        if file_system:
-            self.file_system = file_system
-        else:
-            raise ValueError("Destination file system must be specified for Arista")
-
-        # if direction == 'put':
-        #    self.source_md5 = self.file_md5(source_file)
-        #    self.file_size = os.stat(source_file).st_size
-        # elif direction == 'get':
-        #    self.source_md5 = self.remote_md5(remote_file=source_file)
-        #    self.file_size = self.remote_file_size(remote_file=source_file)
-        # else:
-        #    raise ValueError("Invalid direction specified")
-
-    def put_file(self):
-        """SCP copy the file from the local system to the remote device."""
-        destination = "{}/{}".format(self.file_system, self.dest_file)
-        self.scp_conn.scp_transfer_file(self.source_file, destination)
-        # Must close the SCP connection to get the file written (flush)
-        self.scp_conn.close()
-
-    def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
+    def remote_space_available(self, search_pattern=""):
         """Return space available on remote device."""
-        return super(AristaFileTransfer, self).remote_space_available(
-            search_pattern=search_pattern
-        )
+        return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
@@ -81,45 +64,22 @@ class AristaFileTransfer(CiscoFileTransfer):
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        raise NotImplementedError
+        return self._check_file_exists_unix(remote_cmd=remote_cmd)
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
+        return self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
+
+    def remote_md5(self, base_cmd='verify /md5', remote_file=None):
         if remote_file is None:
             if self.direction == 'put':
                 remote_file = self.dest_file
             elif self.direction == 'get':
                 remote_file = self.source_file
-
-        if not remote_cmd:
-            remote_cmd = "dir {}/{}".format(self.file_system, remote_file)
-
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
-        # Match line containing file name
-        escape_file_name = re.escape(remote_file)
-        pattern = r".*({}).*".format(escape_file_name)
-        match = re.search(pattern, remote_out)
-        if match:
-            file_size = match.group(0)
-            file_size = file_size.split()[0]
-
-        if 'No such file or directory' in remote_out:
-            raise IOError("Unable to find file on remote system")
-        else:
-            return int(file_size)
-
-    @staticmethod
-    def process_md5(md5_output, pattern=r"= (.*)"):
-        raise NotImplementedError
-
-    def remote_md5(self, base_cmd='show file', remote_file=None):
-        if remote_file is None:
-            if self.direction == 'put':
-                remote_file = self.dest_file
-            elif self.direction == 'get':
-                remote_file = self.source_file
-        remote_md5_cmd = "{} {}{} md5sum".format(base_cmd, self.file_system, remote_file)
-        return self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+        remote_md5_cmd = "{} file:{}/{}".format(base_cmd, self.file_system, remote_file)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=750, delay_factor=2)
+        dest_md5 = self.process_md5(dest_md5)
+        return dest_md5
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError

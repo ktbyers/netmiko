@@ -6,7 +6,7 @@ from netmiko.accedian import AccedianSSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.arista import AristaSSH
-# from netmiko.arista import AristaFileTransfer
+from netmiko.arista import AristaFileTransfer
 from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
 from netmiko.avaya import AvayaVspSSH
@@ -22,7 +22,7 @@ from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.cisco import CiscoWlcSSH
-from netmiko.cisco import CiscoXrSSH
+from netmiko.cisco import CiscoXrSSH, CiscoXrFileTransfer
 from netmiko.coriant import CoriantSSH
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellPowerConnectSSH
@@ -37,7 +37,7 @@ from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPComwareSSH
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH
 from netmiko.juniper import JuniperSSH
-# from netmiko.juniper import JuniperFileTransfer
+from netmiko.juniper import JuniperFileTransfer
 from netmiko.linux import LinuxSSH
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
@@ -112,12 +112,13 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
-    # 'arista_eos': AristaFileTransfer,
+    'arista_eos': AristaFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
     'cisco_ios': CiscoIosFileTransfer,
-    'cisco_xe': CiscoIosFileTransfer,
     'cisco_nxos': CiscoNxosFileTransfer,
-    # 'juniper_junos': JuniperFileTransfer,
+    'cisco_xe': CiscoIosFileTransfer,
+    'cisco_xr': CiscoXrFileTransfer,
+    'juniper_junos': JuniperFileTransfer,
 }
 
 # Also support keys that end in _ssh

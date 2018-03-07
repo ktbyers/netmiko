@@ -49,7 +49,19 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        raise NotImplementedError
+        if self.direction == 'put':
+            if not remote_cmd:
+                remote_cmd = "dir {}{}".format(self.file_system, self.dest_file)
+            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            search_string = r"{}.*Usage for".format(self.dest_file)
+            if 'No such file or directory' in remote_out:
+                return False
+            elif re.search(search_string, remote_out, flags=re.DOTALL):
+                return True
+            else:
+                raise ValueError("Unexpected output from check_file_exists")
+        elif self.direction == 'get':
+            return os.path.exists(self.dest_file)
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
@@ -88,7 +100,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             elif self.direction == 'get':
                 remote_file = self.source_file
         remote_md5_cmd = "{} {}{} md5sum".format(base_cmd, self.file_system, remote_file)
-        return self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+        return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError
