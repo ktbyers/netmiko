@@ -65,6 +65,7 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config.py --test_device nxos1 \
 \
 && echo "Linux SSH (using keys)" \
+&& py.test -v test_netmiko_scp.py --test_device linux_srv1 \
 && py.test -s -v test_netmiko_show.py --test_device linux_srv1 \
 \
 && echo "Autodetect tests" \
