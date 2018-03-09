@@ -111,7 +111,7 @@ class BaseFileTransfer(object):
         remote_output = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
 
         # Try to ensure parsing is correct:
-        # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
+        # Filesystem   1K-blocks  Used   Avail Capacity  Mounted on
         # /dev/bo0s3f    1264808 16376 1147248     1%    /cf/var
         remote_output = remote_output.strip()
         output_lines = remote_output.splitlines()
@@ -121,7 +121,7 @@ class BaseFileTransfer(object):
         filesystem_line = output_lines[1]
 
         if 'Filesystem' not in header_line or 'Avail' not in header_line.split()[3]:
-            # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
+            # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
             msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
                                                                          remote_output)
             raise ValueError(msg)
