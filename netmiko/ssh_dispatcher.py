@@ -38,7 +38,7 @@ from netmiko.hp import HPProcurveSSH, HPComwareSSH
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH
 from netmiko.juniper import JuniperSSH
 from netmiko.juniper import JuniperFileTransfer
-from netmiko.linux import LinuxSSH
+from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
@@ -119,6 +119,7 @@ FILE_TRANSFER_MAP = {
     'cisco_xe': CiscoIosFileTransfer,
     'cisco_xr': CiscoXrFileTransfer,
     'juniper_junos': JuniperFileTransfer,
+    'linux': LinuxFileTransfer,
 }
 
 # Also support keys that end in _ssh
