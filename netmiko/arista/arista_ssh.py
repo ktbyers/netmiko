@@ -67,12 +67,6 @@ class AristaFileTransfer(CiscoFileTransfer):
         """Return space available on remote device."""
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
-    def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
-        """Verify sufficient space is available on destination file system (return boolean)."""
-        return super(AristaFileTransfer, self).verify_space_available(
-            search_pattern=search_pattern
-        )
-
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
         return self._check_file_exists_unix(remote_cmd=remote_cmd)

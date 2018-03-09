@@ -161,6 +161,11 @@ def scp_fixture(request):
             # Delete pattern is the same on IOS-XR
             'delete_file': delete_file_ios,
         },
+        'linux': {
+            'file_system': '/var/tmp',
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
+        },
     }
 
     # Create the files
@@ -235,6 +240,11 @@ def scp_fixture_get(request):
             'enable_scp': False,
             # Delete pattern is the same on IOS-XR
             'delete_file': delete_file_ios,
+        },
+        'linux': {
+            'file_system': '/var/tmp',
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
         },
     }
 
@@ -347,6 +357,11 @@ def scp_file_transfer(request):
             'enable_scp': False,
             # Delete pattern is the same on IOS-XR
             'delete_file': delete_file_ios,
+        },
+        'linux': {
+            'file_system': '/var/tmp',
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
         },
     }
 
