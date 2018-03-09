@@ -134,39 +134,7 @@ def scp_fixture(request):
 
     Return a tuple (ssh_conn, scp_handle)
     """
-    platform_args = {
-        'cisco_ios': {
-            'file_system': 'flash:',
-            'enable_scp': True,
-            'delete_file': delete_file_ios,
-        },
-        'juniper_junos': {
-            'file_system': '/var/tmp', 
-            'enable_scp': False,
-            'delete_file': delete_file_generic,
-        },
-        'arista_eos': {
-            'file_system': '/mnt/flash', 
-            'enable_scp': False,
-            'delete_file': delete_file_generic,
-        },
-        'cisco_nxos': {
-            'file_system': 'bootflash:', 
-            'enable_scp': False,
-            'delete_file': delete_file_nxos,
-        },
-        'cisco_xr': {
-            'file_system': 'disk0:',
-            'enable_scp': False,
-            # Delete pattern is the same on IOS-XR
-            'delete_file': delete_file_ios,
-        },
-        'linux': {
-            'file_system': '/var/tmp',
-            'enable_scp': False,
-            'delete_file': delete_file_generic,
-        },
-    }
+    platform_args = get_platform_args()
 
     # Create the files
     with open("test9.txt", "w") as f:
@@ -214,40 +182,7 @@ def scp_fixture_get(request):
 
     Return a tuple (ssh_conn, scp_handle)
     """
-    platform_args = {
-        'cisco_ios': {
-            'file_system': 'flash:',
-            'enable_scp': True,
-            'delete_file': delete_file_ios,
-        },
-        'juniper_junos': {
-            'file_system': '/var/tmp', 
-            'enable_scp': False,
-            'delete_file': delete_file_generic,
-        },
-        'arista_eos': {
-            'file_system': '/mnt/flash', 
-            'enable_scp': False,
-            'delete_file': delete_file_generic,
-        },
-        'cisco_nxos': {
-            'file_system': 'bootflash:', 
-            'enable_scp': False,
-            'delete_file': delete_file_nxos,
-        },
-        'cisco_xr': {
-            'file_system': 'disk0:',
-            'enable_scp': False,
-            # Delete pattern is the same on IOS-XR
-            'delete_file': delete_file_ios,
-        },
-        'linux': {
-            'file_system': '/var/tmp',
-            'enable_scp': False,
-            'delete_file': delete_file_generic,
-        },
-    }
-
+    platform_args = get_platform_args()
     device_under_test = request.config.getoption('test_device')
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
@@ -331,39 +266,7 @@ def scp_file_transfer(request):
 
     Return the netmiko connection object
     """
-    platform_args = {
-        'cisco_ios': {
-            'file_system': 'flash:',
-            'enable_scp': True,
-            'delete_file': delete_file_ios,
-        },
-        'juniper_junos': {
-            'file_system': '/var/tmp', 
-            'enable_scp': False,
-            'delete_file': delete_file_generic,
-        },
-        'arista_eos': {
-            'file_system': '/mnt/flash', 
-            'enable_scp': False,
-            'delete_file': delete_file_generic,
-        },
-        'cisco_nxos': {
-            'file_system': 'bootflash:', 
-            'enable_scp': False,
-            'delete_file': delete_file_nxos,
-        },
-        'cisco_xr': {
-            'file_system': 'disk0:',
-            'enable_scp': False,
-            # Delete pattern is the same on IOS-XR
-            'delete_file': delete_file_ios,
-        },
-        'linux': {
-            'file_system': '/var/tmp',
-            'enable_scp': False,
-            'delete_file': delete_file_generic,
-        },
-    }
+    platform_args = get_platform_args()
 
     # Create the files
     with open("test9.txt", "w") as f:
@@ -403,3 +306,39 @@ def scp_file_transfer(request):
         os.remove(alt_file)
 
     return (ssh_conn, file_system)
+
+def get_platform_args():
+    return {
+        'cisco_ios': {
+            'file_system': 'flash:',
+            'enable_scp': True,
+            'delete_file': delete_file_ios,
+        },
+        'juniper_junos': {
+            'file_system': '/var/tmp', 
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
+        },
+        'arista_eos': {
+            'file_system': '/mnt/flash', 
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
+        },
+        'cisco_nxos': {
+            'file_system': 'bootflash:', 
+            'enable_scp': False,
+            'delete_file': delete_file_nxos,
+        },
+        'cisco_xr': {
+            'file_system': 'disk0:',
+            'enable_scp': False,
+            # Delete pattern is the same on IOS-XR
+            'delete_file': delete_file_ios,
+        },
+        'linux': {
+            'file_system': '/var/tmp',
+            'enable_scp': False,
+            'delete_file': delete_file_generic,
+        },
+    }
+
