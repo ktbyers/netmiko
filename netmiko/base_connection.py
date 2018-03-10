@@ -508,7 +508,7 @@ class BaseConnection(object):
         :type delay_factor: int
 
         :param max_loops: Controls the wait time in conjunction with the delay_factor
-        (default: 60)
+        (default: 20)
         """
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
@@ -721,21 +721,11 @@ class BaseConnection(object):
         :param count: the number of times to check the channel for data
         :type count: int
 
-        :param pattern: Signifying the device prompt has returned and to break out of the loop
+        :param pattern: Regular expression pattern used to determine end of channel read
         :type pattern: str
         """
         def _increment_delay(main_delay, increment=1.1, maximum=8):
-            """Increment sleep time to a maximum value.
-
-            :param main_delay: Pri sleep factor for data to return from the channel
-            :type main_delay: int
-
-            :param increment: Sec sleep factor for waiting for data to return from the channel
-            :type increment: float
-
-            :param maximum: Max delay to sleep when waiting for data to return from the channel
-            :type maximum: int
-            """
+            """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
             if main_delay >= maximum:
                 main_delay = maximum
@@ -829,8 +819,6 @@ class BaseConnection(object):
 
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
-
-        TODO: delay_factor doesn't seem to be used in this method
         """
         if not command:
             return ""
@@ -1117,7 +1105,7 @@ class BaseConnection(object):
     def normalize_linefeeds(self, a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
 
-        :param a_string: A string that may hove non-normalized line feeds
+        :param a_string: A string that may have non-normalized line feeds
             i.e. output returned from device, or a device prompt
         :type a_string: str
         """
@@ -1153,7 +1141,7 @@ class BaseConnection(object):
         :param cmd: Device command to enter enable mode
         :type cmd: str
 
-        :param pattern: patter to search for indicating device is waiting for password
+        :param pattern: pattern to search for indicating device is waiting for password
         :type pattern: str
 
         :param re_flags: Regular expression flags used in conjunction with pattern
@@ -1194,7 +1182,7 @@ class BaseConnection(object):
         :param check_string: Identification of configuration mode from the device
         :type check_string: str
 
-        :param pattern: Pattern to identify the device prompt
+        :param pattern: Pattern to terminate reading of channel
         :type pattern: str
         """
         self.write_channel(self.RETURN)
@@ -1211,7 +1199,7 @@ class BaseConnection(object):
         :param config_command: Configuration command to send to the device
         :type config_command: str
 
-        :param pattern: The pattern signifying the config command was completed
+        :param pattern: Pattern to terminate reading of channel
         :type pattern: str
         """
         output = ''
@@ -1228,7 +1216,7 @@ class BaseConnection(object):
         :param exit_config: Command to exit configuration mode
         :type exit_config: str
 
-        :param pattern: The pattern signifying the exit config mode command completed
+        :param pattern: Pattern to terminate reading of channel
         :type pattern: str
         """
         output = ''
@@ -1269,13 +1257,13 @@ class BaseConnection(object):
 
         Automatically exits/enters configuration mode.
 
-        :param config_commands: Multiple commands to be sent to the device
-        :type config_commands: list of strings
+        :param config_commands: Multiple configuration commands to be sent to the device
+        :type config_commands: list or string
 
         :param exit_config_mode: Determines whether or not to exit config mode after complete
         :type exit_config_mode: bool
 
-        :param delay_factor: Factor to adjust delay when reading the channel
+        :param delay_factor: Factor to adjust delays
         :type delay_factor: int
 
         :param max_loops: Controls wait time in conjunction with delay_factor (default: 150)
@@ -1289,8 +1277,6 @@ class BaseConnection(object):
 
         :param config_mode_command: The command to enter into config mode
         :type config_mode_command: str
-
-        TODO: strip_prompt and strip_command not used in the method
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1343,7 +1329,7 @@ class BaseConnection(object):
 
         HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
 
-        :param string_buffer: The string that may require ansi escape chars to be removed
+        :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
         """
         log.debug("In strip_ansi_escape_codes")
