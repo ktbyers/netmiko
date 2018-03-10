@@ -7,7 +7,7 @@ import sys
 PY2 = sys.version_info.major == 2
 PY3 = sys.version_info.major == 3
 
-if sys.version_info.major == 3:
+if PY3:
     string_types = (str,)
     text_type = str
 else:

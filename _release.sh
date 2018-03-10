@@ -68,8 +68,8 @@ else
     echo
     echo
     echo "Netmiko Installed Version"
-    python -c "import netmiko; print netmiko.__version__"
-    TEST_VERSION=`python -c "import netmiko; print netmiko.__version__"`
+    python -c "import netmiko; print(netmiko.__version__)"
+    TEST_VERSION=`python -c "import netmiko; print(netmiko.__version__)"`
     echo
 fi
 
@@ -139,7 +139,7 @@ else
     echo
     echo
     echo "Netmiko Installed Version (from pypi)"
-    python -c "import netmiko; print netmiko.__version__"
-    TEST_VERSION=`python -c "import netmiko; print netmiko.__version__"`
+    python -c "import netmiko; print(netmiko.__version__)"
+    TEST_VERSION=`python -c "import netmiko; print(netmiko.__version__)"`
     echo
 fi
