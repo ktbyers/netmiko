@@ -4,9 +4,11 @@ from __future__ import unicode_literals
 import time
 import sys
 import os
+import pytest
 from datetime import datetime
 from getpass import getpass
 from netmiko import ConnectHandler, FileTransfer
+from netmiko import file_transfer
 
 ###def test_enable_scp(scp_fixture):
 ###    ssh_conn, scp_transfer = scp_fixture
@@ -64,7 +66,6 @@ def test_disconnect(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
     ssh_conn.disconnect()
 
-
 def test_verify_space_available_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
     assert scp_transfer.verify_space_available() == True
@@ -96,3 +97,102 @@ def test_disconnect_get(scp_fixture_get):
     """Terminate the SSH session."""
     ssh_conn, scp_transfer = scp_fixture_get
     ssh_conn.disconnect()
+
+
+def test_file_transfer(scp_file_transfer):
+    """Test Netmiko file_transfer function."""
+    ssh_conn, file_system = scp_file_transfer
+    source_file = 'test9.txt'
+    dest_file = 'test9.txt'
+    direction = 'put'
+    print(file_system)
+
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                           dest_file=dest_file,
+                                           file_system=file_system, direction=direction,
+                                           overwrite_file=True)
+
+    # No file on device at the beginning
+    assert transfer_dict['file_exists'] and transfer_dict['file_transferred'] and transfer_dict['file_verified']
+
+    # File exists on device at this point
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                           dest_file=dest_file,
+                                           file_system=file_system, direction=direction,
+                                           overwrite_file=True)
+    assert transfer_dict['file_exists'] and not transfer_dict['file_transferred'] and transfer_dict['file_verified']
+
+    # Don't allow a file overwrite (switch the source file, but same dest file name)
+    source_file = 'test2_src.txt'
+    with pytest.raises(Exception):
+        transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                               dest_file=dest_file,
+                                               file_system=file_system, direction=direction,
+                                               overwrite_file=False)
+
+    # Don't allow MD5 and file overwrite not allowed
+    source_file = 'test9.txt'
+    with pytest.raises(Exception):
+        transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                               dest_file=dest_file, disable_md5=True,
+                                               file_system=file_system, direction=direction,
+                                               overwrite_file=False)
+
+    # Don't allow MD5 (this will force a re-transfer)
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                           dest_file=dest_file, disable_md5=True,
+                                           file_system=file_system, direction=direction,
+                                           overwrite_file=True)
+    assert transfer_dict['file_exists'] and transfer_dict['file_transferred'] and not transfer_dict['file_verified']
+
+    # Transfer 'test2.txt' in preparation for get operations
+    source_file = 'test2_src.txt'
+    dest_file = 'test2.txt'
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                           dest_file=dest_file,
+                                           file_system=file_system, direction=direction,
+                                           overwrite_file=True)
+    assert transfer_dict['file_exists']
+
+    # GET Operations
+    direction = 'get'
+    source_file = 'test9.txt'
+    dest_file = 'testx.txt'
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                           dest_file=dest_file, disable_md5=False,
+                                           file_system=file_system, direction=direction,
+                                           overwrite_file=True)
+    # File get should occur here
+    assert transfer_dict['file_exists'] and transfer_dict['file_transferred'] and transfer_dict['file_verified']
+
+    # File should exist now
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                           dest_file=dest_file, disable_md5=False,
+                                           file_system=file_system, direction=direction,
+                                           overwrite_file=True)
+    assert transfer_dict['file_exists'] and not transfer_dict['file_transferred'] and transfer_dict['file_verified']
+
+    # Don't allow a file overwrite (switch the file, but same dest file name)
+    source_file = 'test2.txt'
+    dest_file = 'testx.txt'
+    with pytest.raises(Exception):
+        transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                               dest_file=dest_file,
+                                               file_system=file_system, direction=direction,
+                                               overwrite_file=False)
+
+    # Don't allow MD5 and file overwrite not allowed
+    source_file = 'test9.txt'
+    dest_file = 'testx.txt'
+    with pytest.raises(Exception):
+        transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                               dest_file=dest_file, disable_md5=True,
+                                               file_system=file_system, direction=direction,
+                                               overwrite_file=False)
+
+    # Don't allow MD5 (this will force a re-transfer)
+    transfer_dict = file_transfer(ssh_conn, source_file=source_file,
+                                           dest_file=dest_file, disable_md5=True,
+                                           file_system=file_system, direction=direction,
+                                           overwrite_file=True)
+    assert transfer_dict['file_exists'] and transfer_dict['file_transferred'] and not transfer_dict['file_verified']

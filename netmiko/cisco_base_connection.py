@@ -86,6 +86,8 @@ class CiscoBaseConnection(BaseConnection):
 
     def _autodetect_fs(self, cmd='dir', pattern=r'Directory of (.*)/'):
         """Autodetect the file system on the remote device. Used by SCP operations."""
+        if not self.check_enable_mode():
+            raise ValueError('Must be in enable mode to auto-detect the file-system.')
         output = self.send_command_expect(cmd)
         match = re.search(pattern, output)
         if match:
@@ -93,7 +95,10 @@ class CiscoBaseConnection(BaseConnection):
             # Test file_system
             cmd = "dir {}".format(file_system)
             output = self.send_command_expect(cmd)
-            if '% Invalid' not in output:
+            if '% Invalid' in output or '%Error:' in output:
+                raise ValueError("An error occurred in dynamically determining remote file "
+                                 "system: {} {}".format(cmd, output))
+            else:
                 return file_system
 
         raise ValueError("An error occurred in dynamically determining remote file "

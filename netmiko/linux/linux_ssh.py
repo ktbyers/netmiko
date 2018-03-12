@@ -5,6 +5,7 @@ import socket
 import time
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.cisco_base_connection import CiscoFileTransfer
 from netmiko.ssh_exception import NetMikoTimeoutException
 
 
@@ -14,6 +15,14 @@ class LinuxSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         return super(LinuxSSH, self).session_preparation()
+
+    def _enter_shell(self):
+        """Already in shell."""
+        return ''
+
+    def _return_cli(self):
+        """The shell is the CLI."""
+        return ''
 
     def disable_paging(self, *args, **kwargs):
         """Linux doesn't have paging by default."""
@@ -88,4 +97,51 @@ class LinuxSSH(CiscoSSHConnection):
 
     def save_config(self, cmd='', confirm=True, confirm_response=''):
         """Not Implemented"""
+        raise NotImplementedError
+
+
+class LinuxFileTransfer(CiscoFileTransfer):
+    """
+    Linux SCP File Transfer driver.
+
+    Mostly for testing purposes.
+    """
+    def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put'):
+        return super(LinuxFileTransfer, self).__init__(ssh_conn=ssh_conn,
+                                                       source_file=source_file,
+                                                       dest_file=dest_file,
+                                                       file_system=file_system,
+                                                       direction=direction)
+
+    def remote_space_available(self, search_pattern=""):
+        """Return space available on remote device."""
+        return self._remote_space_available_unix(search_pattern=search_pattern)
+
+    def check_file_exists(self, remote_cmd=""):
+        """Check if the dest_file already exists on the file system (return boolean)."""
+        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+
+    def remote_file_size(self, remote_cmd="", remote_file=None):
+        """Get the file size of the remote file."""
+        return self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
+
+    def remote_md5(self, base_cmd='md5sum', remote_file=None):
+        if remote_file is None:
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
+        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=750, delay_factor=2)
+        dest_md5 = self.process_md5(dest_md5)
+        return dest_md5
+
+    @staticmethod
+    def process_md5(md5_output, pattern=r"^(\S+)\s+"):
+        return super(LinuxFileTransfer, LinuxFileTransfer).process_md5(md5_output, pattern=pattern)
+
+    def enable_scp(self, cmd=None):
+        raise NotImplementedError
+
+    def disable_scp(self, cmd=None):
         raise NotImplementedError

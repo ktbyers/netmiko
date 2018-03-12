@@ -5,7 +5,7 @@ from netmiko.cisco_base_connection import CiscoFileTransfer
 from netmiko import log
 
 
-class AristaSSH(CiscoSSHConnection):
+class AristaBase(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r'[>#]')
@@ -43,6 +43,17 @@ class AristaSSH(CiscoSSHConnection):
         return self.send_command('exit', expect_string=r"[#>]")
 
 
+class AristaSSH(AristaBase):
+    pass
+
+
+class AristaTelnet(AristaBase):
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get('default_enter')
+        kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
+        super(AristaTelnet, self).__init__(*args, **kwargs)
+
+
 class AristaFileTransfer(CiscoFileTransfer):
     """Arista SCP File Transfer driver."""
     def __init__(self, ssh_conn, source_file, dest_file, file_system="/mnt/flash", direction='put'):
@@ -55,12 +66,6 @@ class AristaFileTransfer(CiscoFileTransfer):
     def remote_space_available(self, search_pattern=""):
         """Return space available on remote device."""
         return self._remote_space_available_unix(search_pattern=search_pattern)
-
-    def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
-        """Verify sufficient space is available on destination file system (return boolean)."""
-        return super(AristaFileTransfer, self).verify_space_available(
-            search_pattern=search_pattern
-        )
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
@@ -77,7 +82,7 @@ class AristaFileTransfer(CiscoFileTransfer):
             elif self.direction == 'get':
                 remote_file = self.source_file
         remote_md5_cmd = "{} file:{}/{}".format(base_cmd, self.file_system, remote_file)
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=750, delay_factor=4)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 

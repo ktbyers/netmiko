@@ -59,9 +59,11 @@ class BaseFileTransfer(object):
         self.dest_file = dest_file
         self.direction = direction
 
-        ios_flag = 'cisco_ios' in ssh_conn.device_type or 'cisco_xe' in ssh_conn.device_type
+        auto_flag = 'cisco_ios' in ssh_conn.device_type or \
+                    'cisco_xe' in ssh_conn.device_type or \
+                    'cisco_xr' in ssh_conn.device_type
         if not file_system:
-            if ios_flag:
+            if auto_flag:
                 self.file_system = self.ssh_ctl_chan._autodetect_fs()
             else:
                 raise ValueError("Destination file system not specified")
@@ -109,7 +111,7 @@ class BaseFileTransfer(object):
         remote_output = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
 
         # Try to ensure parsing is correct:
-        # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
+        # Filesystem   1K-blocks  Used   Avail Capacity  Mounted on
         # /dev/bo0s3f    1264808 16376 1147248     1%    /cf/var
         remote_output = remote_output.strip()
         output_lines = remote_output.splitlines()
@@ -119,7 +121,7 @@ class BaseFileTransfer(object):
         filesystem_line = output_lines[1]
 
         if 'Filesystem' not in header_line or 'Avail' not in header_line.split()[3]:
-            # Filesystem  512-blocks  Used   Avail Capacity  Mounted on
+            # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
             msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
                                                                          remote_output)
             raise ValueError(msg)
@@ -155,9 +157,9 @@ class BaseFileTransfer(object):
                 remote_cmd = "dir {}/{}".format(self.file_system, self.dest_file)
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"Directory of .*{0}".format(self.dest_file)
-            if 'Error opening' in remote_out:
+            if 'Error opening' in remote_out or 'No such file or directory' in remote_out:
                 return False
-            elif re.search(search_string, remote_out):
+            elif re.search(search_string, remote_out, flags=re.DOTALL):
                 return True
             else:
                 raise ValueError("Unexpected output from check_file_exists")
@@ -196,7 +198,7 @@ class BaseFileTransfer(object):
             line = match.group(0)
             # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
             file_size = line.split()[2]
-        if 'Error opening' in remote_out:
+        if 'Error opening' in remote_out or 'No such file or directory' in remote_out:
             raise IOError("Unable to find file on remote system")
         else:
             return int(file_size)
@@ -267,7 +269,7 @@ class BaseFileTransfer(object):
             elif self.direction == 'get':
                 remote_file = self.source_file
         remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, delay_factor=3.0)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
