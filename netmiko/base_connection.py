@@ -684,11 +684,11 @@ class BaseConnection(object):
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', verbose=False):
+    def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', verbose=False, telnet_return='\n'):
         """Finds the current network device prompt, last line only."""
         debug = self.debug_flag
         self.clear_buffer()
-        self.write_channel("\n")
+        self.write_channel(telnet_return)
         # sleep for brief 100ms (default) - adjust by delay_factor
         sleep_interval = self._read_interval
         self.sleep_timer(sleep_interval, delay_factor)
@@ -713,7 +713,7 @@ class BaseConnection(object):
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
-                self.write_channel("\n")
+                self.write_channel(telnet_return)
                 self.sleep_timer(sleep_interval, delay_factor)
             count += 1
 
