@@ -154,3 +154,13 @@ alcatel_aos:
     - 'VLAN 666'
   config_verification: "show vlan"
 
+calix_b6_ssh:
+  version: "show version"
+  basic: "show interface bvi 1"
+  extended_output: "show hardware"
+  config:
+    - "access-list ethernet 999 permit 0x8863"
+    - "access-list ethernet 999 permit 0x8864"
+    - "access-list ethernet 999 permit ip"
+    - "access-list ethernet 999 permit arp"
+  config_verification: "find running-config 999"
