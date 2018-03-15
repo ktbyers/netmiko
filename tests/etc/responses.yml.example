@@ -103,3 +103,13 @@ alcatel_aos:
   interface_ip: 192.168.1.154
   version_banner: "Alcatel-Lucent OS6250-24 6.7.1.108.R04 Service Release, January 04, 2017"
   multiple_line_output: "FC - ForcedCopper PC - PreferredCopper C - Copper"
+
+calix_b6_ssh:
+  base_prompt: CALIX-B6-TEST
+  router_prompt: CALIX-B6-TEST>
+  enable_prompt: CALIX-B6-TEST#
+  interface_ip: 192.168.99.99
+  version_banner: "Kernel build id 8.0.30.0"
+  multiple_line_output: "rtcPwrUptimeTotal"
+  cmd_response_init: "Building configuration...    Done"
+  cmd_response_final: "access-list ethernet 999 permit ip"
