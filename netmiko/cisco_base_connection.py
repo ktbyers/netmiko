@@ -27,8 +27,6 @@ class CiscoBaseConnection(BaseConnection):
 
         Cisco IOS devices abbreviate the prompt at 20 chars in config mode
         """
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
         return super(CiscoBaseConnection, self).check_config_mode(check_string=check_string,
                                                                   pattern=pattern)
 
@@ -157,7 +155,10 @@ class CiscoBaseConnection(BaseConnection):
             # Test file_system
             cmd = "dir {}".format(file_system)
             output = self.send_command_expect(cmd)
-            if '% Invalid' not in output:
+            if '% Invalid' in output or '%Error:' in output:
+                raise ValueError("An error occurred in dynamically determining remote file "
+                                 "system: {} {}".format(cmd, output))
+            else:
                 return file_system
 
         raise ValueError("An error occurred in dynamically determining remote file "

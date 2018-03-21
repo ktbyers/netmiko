@@ -283,7 +283,7 @@ class BaseConnection(object):
                 # Try sending IAC + NOP (IAC is telnet way of sending command
                 # IAC = Interpret as Command (it comes before the NOP)
                 log.debug("Sending IAC + NOP")
-                self.device.write_channel(telnetlib.IAC + telnetlib.NOP)
+                self.write_channel(telnetlib.IAC + telnetlib.NOP)
                 return True
             except AttributeError:
                 return False
@@ -367,7 +367,7 @@ class BaseConnection(object):
         loop_delay = .1
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # argument for backwards compatibility).
-        if max_loops != 150:
+        if max_loops == 150:
             max_loops = self.timeout / loop_delay
         while i < max_loops:
             if self.protocol == 'ssh':
@@ -1062,7 +1062,11 @@ class BaseConnection(object):
     def check_config_mode(self, check_string='', pattern=''):
         """Checks if the device is in configuration mode or not."""
         self.write_channel(self.RETURN)
-        output = self.read_until_pattern(pattern=pattern)
+        # You can encounter an issue here (on router name changes) prefer delay-based solution
+        if not pattern:
+            output = self._read_channel_timing()
+        else:
+            output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
     def config_mode(self, config_command='', pattern=''):
