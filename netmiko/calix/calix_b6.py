@@ -67,12 +67,6 @@ class CalixB6Base(CiscoSSHConnection):
     def save_config(self, cmd='copy run start', confirm=False):
         return super(CalixB6Base, self).save_config(cmd=cmd, confirm=confirm)
 
-    def exit_config_mode(self, exit_config=None, pattern=''):
-        """Exit from configuration mode."""
-        if exit_config is None:
-            exit_config = 'exit{}{}end'.format(self.RETURN, self.RETURN)
-        return super(CalixB6SSH, self).exit_config_mode(exit_config=exit_config, pattern=pattern)
-
 
 class CalixB6SSH(CalixB6Base):
     """Calix B6 SSH Driver.
