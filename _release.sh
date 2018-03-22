@@ -64,6 +64,7 @@ else
     source /home/gituser/VENV/netmiko_packaging/bin/activate
     which python
     cd /home/gituser/netmiko
+    pip install --upgrade setuptools
     pip install dist/$PACKAGE
     echo
     echo
@@ -94,7 +95,7 @@ source /home/gituser/VENV/py27_netmiko/bin/activate
 echo `which python`
 cd /home/gituser/netmiko
 ### FIX: Uncomment
-#twine upload -r pypitest $DIR_PACKAGE
+### twine upload -r pypitest $DIR_PACKAGE
 
 echo
 echo
@@ -110,10 +111,10 @@ done
 echo
 
 ### FIX: NEED TO ADD
-# twine upload $DIR_PACKAGE
+### twine upload $DIR_PACKAGE
 
 
-sleep 1
+sleep 90
 echo
 echo "Test clean install from pypi"
 if [ -d "/home/gituser/VENV" ]; then
@@ -135,6 +136,7 @@ else
     source /home/gituser/VENV/netmiko_packaging/bin/activate
     which python
     cd /home/gituser
+    pip install --upgrade setuptools
     pip install netmiko
     echo
     echo
