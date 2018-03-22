@@ -55,10 +55,18 @@ def file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction=
     if not cisco_ios and inline_transfer:
         raise ValueError("Inline Transfer only supported for Cisco IOS/Cisco IOS-XE")
 
-    TransferClass = InLineTransfer if inline_transfer else FileTransfer
-    with TransferClass(ssh_conn, source_file=source_file, dest_file=dest_file,
-                       file_system=file_system, direction=direction) as scp_transfer:
+    scp_args = {
+        'ssh_conn': ssh_conn,
+        'source_file': source_file,
+        'dest_file': dest_file,
+        'direction': direction,
+    }
+    if file_system is not None:
+        scp_args['file_system'] = file_system
 
+    TransferClass = InLineTransfer if inline_transfer else FileTransfer
+
+    with TransferClass(**scp_args) as scp_transfer:
         if scp_transfer.check_file_exists():
             if overwrite_file:
                 if not disable_md5:

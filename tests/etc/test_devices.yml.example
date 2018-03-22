@@ -100,3 +100,10 @@ alcatel_aos:
   ip: 192.168.1.154
   username: admin
   password: switch
+
+calix_b6_ssh:
+  device_type: calix_b6_ssh
+  ip: 192.168.99.99
+  username: cli
+  password: occam
+  secret: razor

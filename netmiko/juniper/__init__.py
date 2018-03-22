@@ -1,4 +1,4 @@
 from __future__ import unicode_literals
-from netmiko.juniper.juniper_ssh import JuniperSSH, JuniperFileTransfer
+from netmiko.juniper.juniper import JuniperSSH, JuniperTelnet, JuniperFileTransfer
 
-__all__ = ['JuniperSSH', 'JuniperFileTransfer']
+__all__ = ['JuniperSSH', 'JuniperTelnet', 'JuniperFileTransfer']
