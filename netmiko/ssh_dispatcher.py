@@ -5,7 +5,7 @@ from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.alcatel import AlcatelSrosSSH
-from netmiko.arista import AristaSSH, AristaTelnet
+from netmiko.arista import AristaSSH
 from netmiko.arista import AristaFileTransfer
 from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
@@ -13,7 +13,7 @@ from netmiko.avaya import AvayaVspSSH
 from netmiko.brocade import BrocadeNetironSSH
 from netmiko.brocade import BrocadeNetironTelnet
 from netmiko.brocade import BrocadeNosSSH
-from netmiko.calix import CalixB6SSH, CalixB6Telnet
+from netmiko.calix import CalixB6SSH
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
@@ -34,11 +34,11 @@ from netmiko.extreme import ExtremeWingSSH
 from netmiko.extreme import ExtremeTelnet
 from netmiko.f5 import F5LtmSSH
 from netmiko.fortinet import FortinetSSH
-from netmiko.hp import HPProcurveSSH, HPComwareSSH
+from netmiko.hp import HPProcurveSSH, HPComwareSSH, HPProcurveJinhuaSSH, HPProcurve512900SSH
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH
-from netmiko.juniper import JuniperSSH, JuniperTelnet
+from netmiko.juniper import JuniperSSH
 from netmiko.juniper import JuniperFileTransfer
-from netmiko.linux import LinuxSSH, LinuxFileTransfer
+from netmiko.linux import LinuxSSH
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
@@ -92,6 +92,8 @@ CLASS_MAPPER_BASE = {
     'generic_termserver': TerminalServerSSH,
     'hp_comware': HPComwareSSH,
     'hp_procurve': HPProcurveSSH,
+    'hp_procurvejinhua': HPProcurveJinhuaSSH,
+    'hp_procurve512900': HPProcurve512900SSH,
     'huawei': HuaweiSSH,
     'huawei_vrpv8': HuaweiVrpv8SSH,
     'juniper': JuniperSSH,
@@ -119,7 +121,6 @@ FILE_TRANSFER_MAP = {
     'cisco_xe': CiscoIosFileTransfer,
     'cisco_xr': CiscoXrFileTransfer,
     'juniper_junos': JuniperFileTransfer,
-    'linux': LinuxFileTransfer,
 }
 
 # Also support keys that end in _ssh
@@ -141,9 +142,6 @@ FILE_TRANSFER_MAP = new_mapper
 CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
 CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
-CLASS_MAPPER['arista_eos_telnet'] = AristaTelnet
-CLASS_MAPPER['juniper_junos_telnet'] = JuniperTelnet
-CLASS_MAPPER['calix_b6_telnet'] = CalixB6Telnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 CLASS_MAPPER['extreme_telnet'] = ExtremeTelnet
