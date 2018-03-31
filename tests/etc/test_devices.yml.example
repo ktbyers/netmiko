@@ -89,6 +89,12 @@ dell_powerconnect:
   username: admin
   password: admin
 
+dellos10:
+  device_type: dellos10
+  ip: 192.168.23.129
+  username: admin
+  password: admin
+
 pluribus:
   device_type: pluribus_ssh
   ip: 172.17.19.1

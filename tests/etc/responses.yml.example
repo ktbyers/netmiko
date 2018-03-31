@@ -78,6 +78,16 @@ ubiquiti_edge:
   cmd_response_init: ""
   cmd_response_final: "logging persistent 4"
 
+dellos10:
+  base_prompt: OS10
+  router_prompt : OS10#
+  enable_prompt: OS10#
+  interface_ip: 192.168.23.129
+  version_banner: "Dell EMC Networking OS10 Enterprise"
+  multiple_line_output: "Last configuration change"
+  cmd_response_init: "host-description test"
+  cmd_response_final: "host-description node"
+
 dell_powerconnect:
   base_prompt: myswitch
   router_prompt : myswitch#
