@@ -8,6 +8,7 @@ class DellOS10SSH(CiscoSSHConnection):
     """Dell EMC Networking OS10 Driver - supports dellos10."""
     pass
 
+
 class DellOS10FileTransfer(LinuxFileTransfer):
     """Dell EMC Networking OS10 SCP File Transfer driver."""
     pass
