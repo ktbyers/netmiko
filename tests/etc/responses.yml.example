@@ -103,3 +103,11 @@ alcatel_aos:
   interface_ip: 192.168.1.154
   version_banner: "Alcatel-Lucent OS6250-24 6.7.1.108.R04 Service Release, January 04, 2017"
   multiple_line_output: "FC - ForcedCopper PC - PreferredCopper C - Copper"
+
+netscaler:
+  base_prompt: ""
+  router_prompt: ">"
+  enable_prompt: ">"
+  interface_ip: "192.168.10.10"
+  multiple_line_output: "Netscaler Loopback interface"
+  version_banner: "NetScaler"
