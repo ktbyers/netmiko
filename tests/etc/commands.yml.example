@@ -153,4 +153,8 @@ alcatel_aos:
   config:
     - 'VLAN 666'
   config_verification: "show vlan"
-
+  
+netscaler:
+  version: "show version"
+  basic: "show ip -summary"
+  extended_output: "show interfaces"
