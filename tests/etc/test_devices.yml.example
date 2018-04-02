@@ -107,3 +107,9 @@ netscaler:
   username: admin
   password: admin
 
+calix_b6_ssh:
+  device_type: calix_b6_ssh
+  ip: 192.168.99.99
+  username: cli
+  password: occam
+  secret: razor

@@ -13,7 +13,7 @@ from netmiko.avaya import AvayaVspSSH
 from netmiko.brocade import BrocadeNetironSSH
 from netmiko.brocade import BrocadeNetironTelnet
 from netmiko.brocade import BrocadeNosSSH
-from netmiko.calix import CalixB6SSH
+from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
@@ -145,6 +145,7 @@ CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
 CLASS_MAPPER['arista_eos_telnet'] = AristaTelnet
 CLASS_MAPPER['juniper_junos_telnet'] = JuniperTelnet
+CLASS_MAPPER['calix_b6_telnet'] = CalixB6Telnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 CLASS_MAPPER['extreme_telnet'] = ExtremeTelnet
