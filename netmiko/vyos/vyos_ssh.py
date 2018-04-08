@@ -62,7 +62,7 @@ class VyOSSSH(CiscoSSHConnection):
 
         """
         delay_factor = self.select_delay_factor(delay_factor)
-        error_marker = 'Failed to generate committed config'
+        error_marker = ['Failed to generate committed config', 'Commit failed']
         command_string = 'commit'
 
         if comment:
@@ -72,7 +72,7 @@ class VyOSSSH(CiscoSSHConnection):
         output += self.send_command_expect(command_string, strip_prompt=False,
                                            strip_command=False, delay_factor=delay_factor)
 
-        if error_marker in output:
+        if any(x in output for x in error_marker):
             raise ValueError('Commit failed with following errors:\n\n{}'.format(output))
         return output
 
