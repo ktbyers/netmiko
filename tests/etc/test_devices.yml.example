@@ -100,6 +100,12 @@ alcatel_aos:
   ip: 192.168.1.154
   username: admin
   password: switch
+  
+netscaler:
+  device_type: netscaler
+  ip: 192.168.10.10
+  username: admin
+  password: admin
 
 calix_b6_ssh:
   device_type: calix_b6_ssh
