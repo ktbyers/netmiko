@@ -11,6 +11,6 @@ class QuantaMeshSSH(CiscoSSHConnection):
         """Enter configuration mode."""
         return super(QuantaMeshSSH, self).config_mode(config_command=config_command)
 
-    def save_config(self, cmd='', confirm=True, confirm_response=''):
-        """Not Implemented"""
-        raise NotImplementedError
+    def save_config(self, cmd='copy running-config startup-config', confirm=False):
+        """Saves Config"""
+        return super(QuantaMeshSSH, self).save_config(cmd=cmd, confirm=confirm)
