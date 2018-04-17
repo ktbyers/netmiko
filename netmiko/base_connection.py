@@ -1331,7 +1331,7 @@ class BaseConnection(object):
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
-        """
+        """         # noqa
         log.debug("In strip_ansi_escape_codes")
         log.debug("repr = {0}".format(repr(string_buffer)))
 
