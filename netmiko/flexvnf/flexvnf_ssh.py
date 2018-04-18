@@ -2,11 +2,10 @@ from __future__ import unicode_literals
 
 import re
 import time
-import os
+#import os
 
 from netmiko.base_connection import BaseConnection
-from netmiko.scp_handler import BaseFileTransfer, SCPConn
-
+#from netmiko.scp_handler import BaseFileTransfer, SCPConn
 
 class FlexvnfSSH(BaseConnection):
 
@@ -145,7 +144,6 @@ class FlexvnfSSH(BaseConnection):
 
         if commit_marker not in output:
             raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
-
 
         return output
 
