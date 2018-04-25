@@ -56,7 +56,7 @@ class FortinetSSH(CiscoSSHConnection):
 
     def _retreive_output_mode(self):
         """get output mode before change it in order to re set to the right value at cleanup"""
-        reg_mode = re.compile('output\s+:\s+(?P<mode>.*)\s+\n')
+        reg_mode = re.compile(r'output\s+:\s+(?P<mode>.*)\s+\n')
         output = self.send_command("get system console")
         result_mode = reg_mode.search(output)
         if result_mode:
