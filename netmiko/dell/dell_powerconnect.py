@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from paramiko import SSHClient
 import time
 from os import path
-from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class SSHClient_noauth(SSHClient):
@@ -12,7 +12,7 @@ class SSHClient_noauth(SSHClient):
         return
 
 
-class DellPowerConnectBase(CiscoSSHConnection):
+class DellPowerConnectBase(CiscoBaseConnection):
     """Dell PowerConnect Driver."""
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
