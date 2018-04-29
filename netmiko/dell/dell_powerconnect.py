@@ -19,6 +19,7 @@ class DellPowerConnectBase(CiscoSSHConnection):
         self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
+        self.enable()
         self.disable_paging(command="terminal datadump")
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
@@ -100,14 +101,5 @@ class DellPowerConnectSSH(DellPowerConnectBase):
 
 
 class DellPowerConnectTelnet(DellPowerConnectBase):
-    def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        self.ansi_escape_codes = True
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.enable()
-        self.disable_paging(command="terminal datadump")
-        self.set_terminal_width()
-        # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
-        self.clear_buffer()
+    """Dell PowerConnect Telnet Driver."""
+    pass
