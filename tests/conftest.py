@@ -113,6 +113,18 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
 
     raise ValueError("An error happened deleting file on Cisco IOS")
 
+def delete_file_dellos10(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for a Dell OS10 device."""
+    if not dest_file:
+        raise ValueError("Invalid dest file specified")
+
+    cmd = "delete home://{}".format(dest_file)
+    output = ssh_conn.send_command_timing(cmd)
+    if "Proceed to delete" in output:
+        output = ssh_conn.send_command_timing("yes")
+        return output
+
+    raise ValueError("An error happened deleting file on Dell OS10")
 
 def delete_file_generic(ssh_conn, dest_file_system, dest_file):
     """Delete a remote file for a Junos device."""
@@ -336,6 +348,12 @@ def get_platform_args():
             'file_system': '/var/tmp',
             'enable_scp': False,
             'delete_file': delete_file_generic,
+        },
+
+        'dellos10': {
+            'file_system': '/home/admin',
+            'enable_scp': False,
+            'delete_file': delete_file_dellos10,
         },
     }
 
