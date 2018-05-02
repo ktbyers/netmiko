@@ -83,7 +83,7 @@ class CiscoBaseConnection(BaseConnection):
                 return_msg += output
 
                 #is at spitfire xr prompt
-                if re.search('xr#', output):
+                if re.search('RP/\d+/RP\d+/CPU\d+:\S*#$', output):
                     return return_msg
 
                 #At Rebooted BMC prompt
