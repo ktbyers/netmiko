@@ -68,7 +68,7 @@ def update_connection_with_ssh_config(ssh_config_file, dict_arg):
     if connect_dict['port'] == 22:
         connect_dict['port'] = int(source.get('port', 22))
     if connect_dict['username'] == '':
-        connect_dict['username'] = source.get('username', connect_dict['username'])  # bkane: Not sure I need this. I don't have default stuff other than
+        connect_dict['username'] = source.get('username', connect_dict['username'])
     if proxy:
         connect_dict['sock'] = proxy
     connect_dict['hostname'] = source.get('hostname', connect_dict['hostname'])
@@ -79,7 +79,7 @@ def update_connection_with_ssh_config(ssh_config_file, dict_arg):
 def guess_device_type(device: str,
                       username: str,
                       password: str,
-                      timeout: int=90,
+                      timeout: int = 90,
                       ssh_config_file=None) -> str:
     """return 'cisco_ios' or 'cisco_nxos'
 
@@ -139,7 +139,7 @@ def run_commands(device: str,
                  username: str,
                  password: str,
                  command_list: t.List[str],
-                 timeout: int=90,
+                 timeout: int = 90,
                  device_type=None,
                  ssh_config_file=None) -> t.List[str]:
     """run commands on a device
@@ -242,11 +242,13 @@ def parse_args(*args, **kwargs):
     try:
         args.username = args.username or os.environ['NET_MUX_USER']
     except KeyError:
-        raise SystemExit('Either use the --username flag or export NET_MUX_USER in your environment')
+        raise SystemExit('Either use the --username flag'
+                         ' or export NET_MUX_USER in your environment')
     try:
         args.password = args.password or os.environ['NET_MUX_PASS']
     except KeyError:
-        raise SystemExit('Either use the --password flag or export NET_MUX_PASS in your environment')
+        raise SystemExit('Either use the --password flag'
+                         ' or export NET_MUX_PASS in your environment')
 
     return args
 
@@ -268,9 +270,12 @@ def parse_iterable(iterable, key=lambda l: l and not l.startswith('#'), strip_li
                 yield line
 
 
+DeviceToOutputGenerator = t.Generator[t.Tuple[str, t.List[str]], None, None]
+
+
 def run_concurrent_commands(args: argparse.Namespace,
                             devices: t.Iterable[str],
-                            commands: t.Iterable[str]) -> t.Generator[t.Tuple[str, t.List[str]], None, None]:
+                            commands: t.Iterable[str]) -> DeviceToOutputGenerator:
     """Run some concurrent commands with what we're passed
 
     Returns a generator of (device, outputs)
