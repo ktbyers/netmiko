@@ -1,0 +1,4 @@
+# comments must be on their own lines
+my-ios-or-nxos-hostname
+# IPs also work
+10.0.10.10

@@ -1,0 +1,3 @@
+show run
+show clock
+show hostname
