@@ -2,10 +2,9 @@ from __future__ import unicode_literals
 
 import re
 import time
-#import os
 
 from netmiko.base_connection import BaseConnection
-#from netmiko.scp_handler import BaseFileTransfer, SCPConn
+
 
 class FlexvnfSSH(BaseConnection):
 
