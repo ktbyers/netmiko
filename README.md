@@ -27,7 +27,7 @@ Cisco IOS-XE
 Cisco IOS-XR  
 Cisco NX-OS  
 Cisco SG300  
-Dell OS10 Enterprise
+Dell OS10  
 HP Comware7  
 HP ProCurve  
 Juniper Junos  

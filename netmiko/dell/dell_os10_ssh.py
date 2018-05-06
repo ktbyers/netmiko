@@ -8,7 +8,6 @@ import re
 
 class DellOS10SSH(CiscoSSHConnection):
     """Dell EMC Networking OS10 Driver - supports dellos10."""
-
     def save_config(self, cmd='copy running-configuration startup-configuration', confirm=False):
         """Saves Config"""
         return super(DellOS10SSH, self).save_config(cmd=cmd, confirm=confirm)
@@ -16,33 +15,22 @@ class DellOS10SSH(CiscoSSHConnection):
 
 class DellOS10FileTransfer(BaseFileTransfer):
     """Dell EMC Networking OS10 SCP File Transfer driver."""
-
-    def __init__(self, ssh_conn, source_file, dest_file, direction='get',
-                 **args):
-        self.ssh_ctl_chan = ssh_conn
-        self.source_file = source_file
-        self.dest_file = dest_file
-        self.direction = direction
-        self.file_system = '/home/admin'
+    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put'):
+        if file_system is None:
+            file_system = '/home/admin'
+        super(DellOS10FileTransfer, self).__init__(ssh_conn=ssh_conn, source_file=source_file,
+                                                   dest_file=dest_file, file_system=file_system,
+                                                   direction=direction)
         self.folder_name = '/config'
 
-        if direction == 'put':
-            self.source_md5 = self.file_md5(source_file)
-            self.file_size = os.stat(source_file).st_size
-        elif direction == 'get':
-            self.source_md5 = self.remote_md5(remote_file=source_file)
-            self.file_size = self.remote_file_size(remote_file=source_file)
-        else:
-            raise ValueError("Invalid direction specified")
-
-    def remote_file_size(self, remote_cmd='system "ls -l {}/{}"', remote_file=None):
+    def remote_file_size(self, remote_cmd='', remote_file=None):
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == 'put':
                 remote_file = self.dest_file
             elif self.direction == 'get':
                 remote_file = self.source_file
-        remote_cmd = remote_cmd.format(self.file_system, remote_file)
+        remote_cmd = 'system "ls -l {}/{}"'.format(self.file_system, remote_file)
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
         for line in remote_out.splitlines():
             if remote_file in line:
@@ -84,12 +72,8 @@ class DellOS10FileTransfer(BaseFileTransfer):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == 'put':
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
-            search_string = r"Directory contents .*{0}".format(self.dest_file)
-            match = re.search(search_string, remote_out, flags=re.DOTALL)
-            if match:
-                return True
-            else:
-                return False
+            search_string = r"Directory contents .*{}".format(self.dest_file)
+            return bool(re.search(search_string, remote_out, flags=re.DOTALL))
         elif self.direction == 'get':
             return os.path.exists(self.dest_file)
 

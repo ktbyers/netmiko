@@ -123,7 +123,7 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'dellos10': {
+    'dell_os10': {
         "cmd": "show version",
         "search_patterns": ["Dell EMC Networking OS10-Enterprise"],
         "priority": 99,
