@@ -26,6 +26,7 @@ from netmiko.cisco import CiscoXrSSH, CiscoXrFileTransfer
 from netmiko.citrix import NetscalerSSH
 from netmiko.coriant import CoriantSSH
 from netmiko.dell import DellForce10SSH
+from netmiko.dell import DellOS10SSH, DellOS10FileTransfer
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
 from netmiko.eltex import EltexSSH
@@ -83,6 +84,7 @@ CLASS_MAPPER_BASE = {
     'cisco_xr': CiscoXrSSH,
     'coriant': CoriantSSH,
     'dell_force10': DellForce10SSH,
+    'dellos10': DellOS10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
     'eltex': EltexSSH,
     'enterasys': EnterasysSSH,
@@ -117,6 +119,7 @@ FILE_TRANSFER_MAP = {
     'arista_eos': AristaFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
     'cisco_ios': CiscoIosFileTransfer,
+    'dellos10': DellOS10FileTransfer,
     'cisco_nxos': CiscoNxosFileTransfer,
     'cisco_xe': CiscoIosFileTransfer,
     'cisco_xr': CiscoXrFileTransfer,

@@ -126,6 +126,16 @@ ubiquiti_edge:
     - "logging persistent 4"
   config_verification: "show running-config | include 'logging'"
 
+dellos10:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show running-config"
+  config:
+    - "host-description test"
+    - "no host-description"
+    - "host-description node"
+  config_verification: "show running-config"
+
 dell_powerconnect:
   version: "show version"
   basic: "show ip interface vlan 1"
