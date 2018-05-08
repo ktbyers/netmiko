@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-# Purpose:   Script commands to group of Cisco devices with success/failure feedback.
-
-import sys
+# Author:    Peter Bruno
+# Purpose:   Script commands to group of Cisco devices with
+#           success/failure feedback.
 from __future__ import print_function, unicode_literals
+import sys
 from netmiko import ConnectHandler
 from getpass import getpass
 
@@ -13,7 +14,8 @@ def usage(ext):
     print("Commands should be the commands you wish to run on your")
     print('network devices enclosed in "quotes".')
     print(
-        "Results key: # = enable mode, * = successful command, w = write mem, ! = command failure"
+        "Results key: # = enable mode, * = successful command",
+        "w = write mem, ! = command failure"
     )
     print("\nusage:")
     print(
@@ -26,18 +28,21 @@ def usage(ext):
     sys.exit(ext)
 
 
-def main():
-    inputfile = ""
-    config_commands = ""
-
+def get_cmd_line():
+    if len(sys.argv) < 2:
+        usage(0)
+    cmdlist = sys.argv[2:]
     try:
-        inputfile = open(sys.argv[1], "r")
+        with open(sys.argv[1], "r") as f:
+            switchip = f.read().splitlines()
+        f.close()
     except (IndexError, IOError):
         usage(0)
+    return switchip, cmdlist
 
-    if len(sys.argv) > 2:
-        # list of command line switch commands
-        config_commands = sys.argv[2:]
+
+def main():
+    inputfile, config_commands = get_cmd_line()
 
     print("Switch configuration updater. Please provide login information.\n")
     # Get username and password information.
@@ -45,7 +50,8 @@ def main():
     password = getpass("Password: ")
     enasecret = getpass("Enable Secret: ")
 
-    print("{}{:<20}{:<40}{:<20}".format("\n", "IP Address", "Name", "Results"), end="")
+    print("{}{:<20}{:<40}{:<20}".format(
+        "\n", "IP Address", "Name", "Results"), end="")
 
     for switchip in inputfile:
         ciscosw = {
@@ -60,7 +66,7 @@ def main():
         try:
             # Connect to switch and enter enable mode.
             net_connect = ConnectHandler(**ciscosw)
-        except:
+        except Exception:
             print("** Failed to connect.", end="", flush=True)
             continue
 
@@ -72,7 +78,7 @@ def main():
             if "#" not in prompt[-1]:
                 net_connect.enable()
                 print("#", end="", flush=True)
-        except:
+        except Exception:
             print("Unable to enter enable mode.", end="", flush=True)
             continue
 
@@ -89,11 +95,10 @@ def main():
                             # Unsupported command in this IOS version.
                             print("Invalid input: ", cmd, end="", flush=True)
                         print("*", end="", flush=True)
-                except:
+                except Exception:
                     # Command failed! Stop processing further commands.
                     print("!")
                     break
-
         net_connect.disconnect()
 
 
