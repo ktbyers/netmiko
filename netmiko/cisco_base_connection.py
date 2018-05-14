@@ -27,6 +27,9 @@ class CiscoBaseConnection(BaseConnection):
 
         Cisco IOS devices abbreviate the prompt at 20 chars in config mode
         """
+        if not pattern:
+            #pattern = self.base_prompt[:16]
+            pattern = self.base_prompt[:14] 
         return super(CiscoBaseConnection, self).check_config_mode(check_string=check_string,
                                                                   pattern=pattern)
 
@@ -44,7 +47,10 @@ class CiscoBaseConnection(BaseConnection):
     def exit_config_mode(self, exit_config='end', pattern=''):
         """Exit from configuration mode."""
         if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
+            #pattern = self.base_prompt[:16]
+            #pattern = self.current_prompt[:16]
+            pattern = self.base_prompt[:14]
+            #pattern = self.current_prompt[:14]
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
 
@@ -71,27 +77,131 @@ class CiscoBaseConnection(BaseConnection):
         output = ''
         return_msg = ''
         i = 1
+
+        is_spitfire = False
+
+        #import pdb; pdb.set_trace()
         while i <= max_loops:
             try:
-                output = self.read_channel()
+                output = self.read_channel(verbose=True)
+                #This below if block is addeed because when the telnet console starts with UserName,
+                #self.read_channel which internally calls telnetlib.read_ver_eager() returns empty string
+                #So, assign it to self.find_prompt()
+                if output == '':
+                    output=self.find_prompt()
                 return_msg += output
 
-                # Search for username pattern / send username
-                if re.search(username_pattern, output):
-                    self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
-                    output = self.read_channel()
+                #is at spitfire xr prompt
+                if re.search('xr#', output):
+                    return return_msg
+
+                #At Rebooted BMC prompt
+                # reboot_bmc_to_bmc_cmd = 'boot'
+                rebooted_bmc_prompt_pattern = r"cisco-bmc#"
+                if re.search(rebooted_bmc_prompt_pattern, output):
+                    self.write_channel(TELNET_RETURN + "boot" + TELNET_RETURN)
+                    time.sleep(60 * delay_factor)
+                    self.write_channel(TELNET_RETURN)
+                    output = self.read_channel(verbose=True)
                     return_msg += output
+
+                #At BMC prompt
+                bmc_prompt_pattern = r"root@spitfire-arm:~#"
+                if re.search(bmc_prompt_pattern, output):
+                    self.write_channel(TELNET_RETURN + "\x17" + TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+
+
+                # Search for linux host prompt pattern [xr:~] or x86 prompt pattern
+                linux_prompt_pattern = r"\[xr:~]\$"
+                switch_to_xr_command = 'xr'
+                x86_prompt_pattern = r"root@xr:~#"
+                if re.search(linux_prompt_pattern, output) or re.search(x86_prompt_pattern, output):
+                    self.write_channel(TELNET_RETURN + "xr" + TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+
+                # If previously from xr prompt, if bash was executed to go to linux host prompt,
+                # then inorder to go back to xr prompt, no need of xrlogin and password,
+                # just do "exit" cmd
+                xr_no_login_pattern = "Exec cannot be started from within an existing exec session"
+                if re.search(xr_no_login_pattern, output):
+                    self.write_channel(TELNET_RETURN + "exit" + TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+                    if pri_prompt_terminator in output or alt_prompt_terminator in output:
+                        return return_msg
+                #import pdb; pdb.set_trace()
+
+                # If previously from xr prompt, XR not started, must restart XR
+                xr_not_started = r"(error while loading shared libraries)|(cannot open shared object)"
+                if re.search(xr_not_started, output):
+                    self.write_channel("initctl start ios-xr.routing.start" + TELNET_RETURN)
+                    time.sleep(60 * delay_factor)
+                    self.write_channel(TELNET_RETURN)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+
+
+                # Search for standby console pattern
+                standby_pattern=r"RP Node is not ready or active for login"
+                if re.search(standby_pattern,output):
+                    ''' Session is standby state '''
+                    return return_msg
+
+                my_password = self.password
+                # Search for username pattern / send username OR
+                # If the prompt shows "xr login:", the you can directly login to xr using xr username
+                # and password or you can login to linux host, using linux host's username password
+                if re.search(username_pattern, output):
+                    time.sleep(1)
+                    bmc_login_pattern = "spitfire-arm login:"
+                    if re.search(bmc_login_pattern, output):
+                        my_password = '0penBmc'
+                    else:
+                        my_password = self.password
+                    self.write_channel(self.username + TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel(verbose=True)
+                    return_msg += output
+
+                else:
+                    xr_or_host_login_pattern = "xr login:"
+                    if re.search(xr_or_host_login_pattern, output):
+                        self.write_channel(self.username + TELNET_RETURN)
+                        time.sleep(1 * delay_factor)
+                        output = self.read_channel(verbose=True)
+                        print ('output after passing username = ', output)
+                        return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
-                    self.write_channel(self.password + self.TELNET_RETURN)
+                    self.write_channel(my_password + TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
-                    output = self.read_channel()
+                    output = self.read_channel(verbose=True)
                     return_msg += output
-                    if (re.search(pri_prompt_terminator, output, flags=re.M)
-                            or re.search(alt_prompt_terminator, output, flags=re.M)):
+                    if (pri_prompt_terminator in output or alt_prompt_terminator in output) and not re.search(x86_prompt_pattern, output):
                         return return_msg
+                    if re.search(pwd_pattern, output):
+                        self.write_channel(my_password + TELNET_RETURN)
+                        time.sleep(.5 * delay_factor)
+                        output = self.read_channel(verbose=True)
+                        return_msg += output
+
+
+
+                #Search for "VR0 con0/RP0/CPU0 is now available Press RETURN to get started" pattern
+                #on Sunstone devices
+                sunstone_pattern = r'Press RETURN to get started\.$'
+                if re.search(sunstone_pattern,output):
+                    print("*****Sunstone pattern detected")
+                    self.write_channel(TELNET_RETURN)
+                    output = self.read_channel(verbose=True)
+
 
                 # Support direct telnet through terminal server
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
@@ -99,7 +209,7 @@ class CiscoBaseConnection(BaseConnection):
                     time.sleep(.5 * delay_factor)
                     count = 0
                     while count < 15:
-                        output = self.read_channel()
+                        output = self.read_channel(verbose=True)
                         return_msg += output
                         if re.search(r"ress RETURN to get started", output):
                             output = ""
@@ -113,28 +223,31 @@ class CiscoBaseConnection(BaseConnection):
                         self.host)
                     raise NetMikoAuthenticationException(msg)
 
+
+                if re.search(rebooted_bmc_prompt_pattern, output) or re.search(bmc_prompt_pattern, output) or re.search(x86_prompt_pattern, output):
+                    is_spitfire = True
+
                 # Check if proper data received
-                if (re.search(pri_prompt_terminator, output, flags=re.M)
-                        or re.search(alt_prompt_terminator, output, flags=re.M)):
+                if (pri_prompt_terminator in output or alt_prompt_terminator in output) and is_spitfire == False:
                     return return_msg
 
                 self.write_channel(self.TELNET_RETURN)
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {}".format(self.host)
+                msg = "EOFError Telnet login failed: {0}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
         time.sleep(.5 * delay_factor)
-        output = self.read_channel()
+        output = self.read_channel(verbose=True)
         return_msg += output
         if (re.search(pri_prompt_terminator, output, flags=re.M)
                 or re.search(alt_prompt_terminator, output, flags=re.M)):
             return return_msg
 
-        msg = "Telnet login failed: {}".format(self.host)
+        msg = "LAST_TRY Telnet login failed: {0}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
     def cleanup(self):

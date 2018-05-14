@@ -97,7 +97,7 @@ class BaseFileTransfer(object):
         self.scp_conn.close()
         self.scp_conn = None
 
-    def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
+    def remote_space_available(self, search_pattern=r"(\d+) k?bytes free"):
         """Return space available on remote device."""
         remote_cmd = "dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
@@ -140,7 +140,7 @@ class BaseFileTransfer(object):
         destination_stats = os.statvfs(".")
         return destination_stats.f_bsize * destination_stats.f_bavail
 
-    def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
+    def verify_space_available(self, search_pattern=r"(\d+) k?bytes free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
         if self.direction == 'put':
             space_avail = self.remote_space_available(search_pattern=search_pattern)
@@ -157,7 +157,8 @@ class BaseFileTransfer(object):
                 remote_cmd = "dir {}/{}".format(self.file_system, self.dest_file)
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"Directory of .*{0}".format(self.dest_file)
-            if 'Error opening' in remote_out or 'No such file or directory' in remote_out:
+            if 'Error opening' in remote_out or 'No such file or directory' in remote_out or \
+                                                        'Path does not exist' in remote_out:
                 return False
             elif re.search(search_string, remote_out, flags=re.DOTALL):
                 return True

@@ -20,7 +20,7 @@ from os import path
 from threading import Lock
 
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
-from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
+from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException, PatternNotFoundException
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
 from netmiko.py23_compat import string_types
 from netmiko import log
@@ -1047,8 +1047,8 @@ class BaseConnection(object):
                 time.sleep(delay_factor * loop_delay)
             i += 1
         else:   # nobreak
-            raise IOError("Search pattern never detected in send_command_expect: {}".format(
-                search_pattern))
+            raise IOError("Search pattern never detected in send_command_expect: {},\
+                            pattern found was: {}".format(search_pattern, output))
 
         output = self._sanitize_output(output, strip_command=strip_command,
                                        command_string=command_string, strip_prompt=strip_prompt)
