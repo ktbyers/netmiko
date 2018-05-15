@@ -998,6 +998,7 @@ class BaseConnection(object):
         count = 0
         prompt = prompt.strip()
         while count <= 10 and not prompt:
+            log.debug("count = {}".format(count))
             prompt = self.read_channel().strip()
             if prompt:
                 if self.ansi_escape_codes:

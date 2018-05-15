@@ -3,8 +3,15 @@ from __future__ import unicode_literals
 
 import re
 import time
-from logger.cafylog import CafyLog
-log = CafyLog()
+#from logger.cafylog import CafyLog
+#log = CafyLog()
+import logging
+
+
+# This will create a file named 'test.log' in your current directory.
+# It will log all reads and writes on the SSH channel.
+logging.basicConfig(filename='test_netmiko.log', level=logging.DEBUG)
+logger = logging.getLogger("netmiko")
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
@@ -50,7 +57,7 @@ class CiscoXr(CiscoBaseConnection):
             self.write_channel(SSH_RETURN + "xr" + SSH_RETURN)
             delay_factor = self.select_delay_factor(delay_factor)
             time.sleep(1 * delay_factor)
-            output = self.read_channel(verbose=True)
+            output = self.read_channel()
             return_msg += output
 
             # Search for username pattern / send username and then expect Password
@@ -242,8 +249,8 @@ class CiscoXrTelnet(CiscoXr):
         if 'RP Node is not ' in self.find_prompt():
             # Incase of standby - skip rest of section
             return
-        self.disable_paging(verbose=True)
-        self.set_terminal_width(command='terminal width 511', verbose=True)
+        self.disable_paging()
+        self.set_terminal_width(command='terminal width 511')
 
     def set_base_prompt(self, pri_prompt_terminator='#',
                         alt_prompt_terminator='>', delay_factor=1,
@@ -276,3 +283,41 @@ class CiscoXrTelnet(CiscoXr):
 class CiscoCxrHa(CiscoXrTelnet):
     def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', verbose=False, telnet_return='\n'):
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern, verbose=verbose, telnet_return='\r\n')
+        
+class CiscoXrFileTransfer(CiscoFileTransfer):
+    """Cisco IOS-XR SCP File Transfer driver."""
+    def process_md5(self, md5_output, pattern=r"^([a-fA-F0-9]+)$"):
+        """
+        IOS-XR defaults with timestamps enabled
+        # show md5 file /bootflash:/boot/grub/grub.cfg
+        Sat Mar  3 17:49:03.596 UTC
+        c84843f0030efd44b01343fdb8c2e801
+        """
+        match = re.search(pattern, md5_output, flags=re.M)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError("Invalid output from MD5 command: {}".format(md5_output))
+
+    def remote_md5(self, base_cmd='show md5 file', remote_file=None):
+        """
+        IOS-XR for MD5 requires this extra leading /
+        show md5 file /bootflash:/boot/grub/grub.cfg
+        """
+        if remote_file is None:
+            if self.direction == 'put':
+                remote_file = self.dest_file
+            elif self.direction == 'get':
+                remote_file = self.source_file
+        # IOS-XR requires both the leading slash and the slash between file-system and file here
+        remote_md5_cmd = "{} /{}/{}".format(base_cmd, self.file_system, remote_file)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
+        dest_md5 = self.process_md5(dest_md5)
+        return dest_md5
+
+    def enable_scp(self, cmd=None):
+        raise NotImplementedError
+
+    def disable_scp(self, cmd=None):
+        raise NotImplementedError
+>>>>>>> Telnet fixes for moving to netmiko2
