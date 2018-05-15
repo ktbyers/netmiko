@@ -3,8 +3,15 @@ from __future__ import unicode_literals
 
 import re
 import time
-from logger.cafylog import CafyLog
-log = CafyLog()
+#from logger.cafylog import CafyLog
+#log = CafyLog()
+import logging
+
+
+# This will create a file named 'test.log' in your current directory.
+# It will log all reads and writes on the SSH channel.
+logging.basicConfig(filename='test_netmiko.log', level=logging.DEBUG)
+logger = logging.getLogger("netmiko")
 
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
@@ -50,7 +57,7 @@ class CiscoXr(CiscoBaseConnection):
             self.write_channel(SSH_RETURN + "xr" + SSH_RETURN)
             delay_factor = self.select_delay_factor(delay_factor)
             time.sleep(1 * delay_factor)
-            output = self.read_channel(verbose=True)
+            output = self.read_channel()
             return_msg += output
 
             # Search for username pattern / send username and then expect Password
@@ -89,7 +96,7 @@ class CiscoXr(CiscoBaseConnection):
                                                        exit_config_mode=False, **kwargs)
         '''
         return super(CiscoXr, self).send_config_set(config_commands=config_commands,\
-                                                    exit_config_mode=False)
+                                                    exit_config_mode=False, **kwargs)
 
     def commit(self, confirm=False, confirm_delay=None, comment='', label='',
                replace=False,
@@ -241,8 +248,8 @@ class CiscoXrTelnet(CiscoXr):
         if 'RP Node is not ' in self.find_prompt():
             # Incase of standby - skip rest of section
             return
-        self.disable_paging(verbose=True)
-        self.set_terminal_width(command='terminal width 511', verbose=True)
+        self.disable_paging()
+        self.set_terminal_width(command='terminal width 511')
 
     def set_base_prompt(self, pri_prompt_terminator='#',
                         alt_prompt_terminator='>', delay_factor=1,
@@ -273,8 +280,8 @@ class CiscoXrTelnet(CiscoXr):
         return self.base_prompt
         
 class CiscoCxrHa(CiscoXrTelnet):
-    def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', verbose=False, telnet_return='\n'):
-        return super().find_prompt(delay_factor=delay_factor, pattern=pattern, verbose=verbose, telnet_return='\r\n')
+    def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', telnet_return='\n'):
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern, telnet_return='\r\n')
         
 class CiscoXrFileTransfer(CiscoFileTransfer):
     """Cisco IOS-XR SCP File Transfer driver."""
