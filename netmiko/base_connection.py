@@ -995,7 +995,7 @@ class BaseConnection(object):
         """
         # Time to delay in each read loop
         loop_delay = .2
-
+        config_large_msg = "This could be a few minutes if your config is large"
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # and delay_factor arguments for backwards compatibility).
         delay_factor = self.select_delay_factor(delay_factor)
@@ -1044,6 +1044,13 @@ class BaseConnection(object):
                     pass
                 if re.search(search_pattern, output):
                     break
+                
+                if re.search(config_large_msg, output):
+                    output = self.send_command(command_string=self.RETURN, \
+                    auto_find_prompt=False, strip_prompt=False, strip_command=False,)
+                    output += self.read_channel()
+                    if re.search(search_pattern, output):
+                        break
             else:
                 time.sleep(delay_factor * loop_delay)
             i += 1
