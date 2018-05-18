@@ -17,6 +17,14 @@ class ApresiaAeosBase(CiscoSSHConnection):
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    def disable_paging(self, command="", delay_factor=1):
+        """No disable paging command mode on AEOS"""
+        pass
+
+    def set_terminal_width(self, command="", delay_factor=1):
+        """No terminal width command mode on AEOS"""
+        pass
+
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True, normalize=True,
