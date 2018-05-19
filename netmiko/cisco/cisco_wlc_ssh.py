@@ -159,6 +159,18 @@ class CiscoWlcSSH(BaseConnection):
         log.debug("{}".format(output))
         return output
 
-    def save_config(self, cmd='save config', confirm=True, confirm_response='y'):
-        return super(CiscoWlcSSH, self).save_config(cmd=cmd, confirm=confirm,
-                                                    confirm_response=confirm_response)
+    def save_config(self, cmd='save config', confirm=True,
+                    confirm_response='y'):
+        """Saves Config."""
+        self.enable()
+        if confirm:
+            output = self.send_command_timing(command_string=cmd)
+            if confirm_response:
+                output += self.send_command_timing(confirm_response)
+            else:
+                # Send enter by default
+                output += self.send_command_timing(self.RETURN)
+        else:
+            # Some devices are slow so match on trailing-prompt if you can
+            output = self.send_command(command_string=cmd)
+        return output
