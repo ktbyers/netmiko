@@ -89,6 +89,12 @@ dell_powerconnect:
   username: admin
   password: admin
 
+dellos10:
+  device_type: dellos10
+  ip: 192.168.23.129
+  username: admin
+  password: admin
+
 pluribus:
   device_type: pluribus_ssh
   ip: 172.17.19.1
@@ -100,6 +106,12 @@ alcatel_aos:
   ip: 192.168.1.154
   username: admin
   password: switch
+  
+netscaler:
+  device_type: netscaler
+  ip: 192.168.10.10
+  username: admin
+  password: admin
 
 calix_b6_ssh:
   device_type: calix_b6_ssh

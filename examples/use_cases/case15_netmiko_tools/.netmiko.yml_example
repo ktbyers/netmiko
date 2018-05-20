@@ -1,0 +1,69 @@
+---
+
+# Dictionary is a device
+pynet_rtr1:
+  device_type: cisco_ios
+  host: cisco1.twb-tech.com
+  username: admin
+  password: cisco123
+  port: 22
+
+pynet_rtr2:
+  device_type: cisco_ios
+  ip: 10.10.10.71
+  username: admin
+  password: cisco123
+
+arista_sw1:
+  device_type: arista_eos
+  ip: 10.10.10.72
+  username: admin
+  password: cisco123
+
+arista_sw2:
+  device_type: arista_eos
+  ip: 10.10.10.73
+  username: admin
+  password: cisco123
+
+arista_sw3:
+  device_type: arista_eos
+  ip: 10.10.10.74
+  username: admin
+  password: cisco123
+
+arista_sw4:
+  device_type: arista_eos
+  ip: 10.10.10.75
+  username: admin
+  password: cisco123
+
+juniper_srx:
+  device_type: juniper
+  ip: 10.10.10.76
+  username: admin
+  password: cisco123
+
+cisco_asa:
+  device_type: cisco_asa
+  ip: 10.10.10.1
+  username: admin
+  password: cisco123
+  secret: secret
+
+# Any list is group of devices
+cisco:
+  - pynet_rtr1
+  - pynet_rtr2
+
+asa:
+  - cisco_asa
+
+arista:
+  - arista_sw1
+  - arista_sw2
+  - arista_sw3
+  - arista_sw4
+
+juniper:
+  - juniper_srx

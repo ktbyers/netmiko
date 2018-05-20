@@ -491,7 +491,7 @@ class BaseConnection(object):
                           pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
+                     username_pattern=r"(?:user:|username|login|user name)", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=20):
         """Telnet login. Can be username/password or just password.
 
@@ -522,14 +522,14 @@ class BaseConnection(object):
                 return_msg += output
 
                 # Search for username pattern / send username
-                if re.search(username_pattern, output):
+                if re.search(username_pattern, output, flags=re.I):
                     self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
-                if re.search(pwd_pattern, output):
+                if re.search(pwd_pattern, output, flags=re.I):
                     self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
@@ -1225,7 +1225,7 @@ class BaseConnection(object):
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-        log.debug("exit_config_mode: {0}".format(output))
+        log.debug("exit_config_mode: {}".format(output))
         return output
 
     def send_config_from_file(self, config_file=None, **kwargs):
@@ -1331,7 +1331,7 @@ class BaseConnection(object):
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
-        """
+        """         # noqa
         log.debug("In strip_ansi_escape_codes")
         log.debug("repr = {0}".format(repr(string_buffer)))
 

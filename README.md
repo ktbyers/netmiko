@@ -27,6 +27,7 @@ Cisco IOS-XE
 Cisco IOS-XR  
 Cisco NX-OS  
 Cisco SG300  
+Dell OS10  
 HP Comware7  
 HP ProCurve  
 Juniper Junos  
@@ -58,6 +59,7 @@ A10
 Accedian  
 Aruba  
 Ciena SAOS  
+Citrix Netscaler  
 Cisco Telepresence  
 Check Point GAiA  
 Coriant  
