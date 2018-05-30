@@ -7,7 +7,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
 
 
-class HPProcurveSSH(CiscoSSHConnection):
+class HPProcurveBase(CiscoSSHConnection):
 
     def session_preparation(self):
         """
@@ -77,4 +77,22 @@ class HPProcurveSSH(CiscoSSHConnection):
 
     def save_config(self, cmd='write memory', confirm=False):
         """Save Config."""
-        return super(HPProcurveSSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(HPProcurveBase, self).save_config(cmd=cmd, confirm=confirm)
+
+
+class HPProcurveSSH(HPProcurveBase):
+    pass
+
+
+class HPProcurveTelnet(HPProcurveBase):
+    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
+                     username_pattern=r"Login Name:", pwd_pattern=r"assword",
+                     delay_factor=1, max_loops=60):
+        """Telnet login. Can be username/password or just password."""
+        super(HPProcurveTelnet, self).telnet_login(
+                pri_prompt_terminator=pri_prompt_terminator,
+                alt_prompt_terminator=alt_prompt_terminator,
+                username_pattern=username_pattern,
+                pwd_pattern=pwd_pattern,
+                delay_factor=delay_factor,
+                max_loops=max_loops)
