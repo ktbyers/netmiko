@@ -88,7 +88,7 @@ class HPProcurveTelnet(HPProcurveBase):
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
                      username_pattern=r"Login Name:", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=60):
-        """Telnet login. Can be username/password or just password."""
+        """Telnet login: can be username/password or just password."""
         super(HPProcurveTelnet, self).telnet_login(
                 pri_prompt_terminator=pri_prompt_terminator,
                 alt_prompt_terminator=alt_prompt_terminator,
