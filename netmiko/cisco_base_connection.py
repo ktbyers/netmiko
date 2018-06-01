@@ -73,6 +73,7 @@ class CiscoBaseConnection(BaseConnection):
                      username_pattern=r"(?:[Uu]ser:|sername|ogin|User Name)", pwd_pattern=r"(assword)|(ecret)",
                      delay_factor=1, delay_factor2=30, max_loops=60):
         """Telnet login. Can be username/password or just password."""
+        self.TELNET_RETURN = '\n'
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -96,7 +97,7 @@ class CiscoBaseConnection(BaseConnection):
                     time.sleep(2 * delay_factor)
                     log.debug("output is empty, doing find_prompt()")
                     output=self.find_prompt()
-                print ("output = ", output)
+                
                 log.debug("Output after doing find_prompt: {}".format(output))
                 return_msg += output
 
@@ -167,7 +168,7 @@ class CiscoBaseConnection(BaseConnection):
                 # and password or you can login to linux host, using linux host's username password
                 log.debug("Searching for username pattern")
                 if re.search(username_pattern, output):
-                    print("Username pattern detected, sending Username=", self.username)
+                    #print("Username pattern detected, sending Username=", self.username)
                     log.debug("Username pattern detected, sending Username={}".format(self.username))
                     time.sleep(1)
                     bmc_login_pattern = "spitfire-arm login:"
@@ -178,13 +179,12 @@ class CiscoBaseConnection(BaseConnection):
                     time.sleep(1)
                     self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
-                    #import pdb;pdb.set_trace()
                     output = self.read_channel()
                     return_msg += output
                     log.debug("After sending username, the output pattern is={}".format(output))
                     log.debug("________________________________________________")
-                    print("After sending username, the output pattern is=", output)
-                    print ("__________________________________________")
+                    #print("After sending username, the output pattern is=", output)
+                    #print ("__________________________________________")
                 else:
                     xr_or_host_login_pattern = "xr login:"
                     if re.search(xr_or_host_login_pattern, output):
@@ -218,7 +218,7 @@ class CiscoBaseConnection(BaseConnection):
 
                 #Search for "VR0 con0/RP0/CPU0 is now available Press RETURN to get started" pattern
                 #on Sunstone devices
-                sunstone_pattern = r'Press RETURN to get started\.$'
+                sunstone_pattern = r'Press RETURN to get started\.'
                 if re.search(sunstone_pattern,output):
                     print("*****Sunstone pattern detected")
                     self.write_channel(self.TELNET_RETURN)
