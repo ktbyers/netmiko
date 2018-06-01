@@ -10,8 +10,8 @@ import logging
 
 # This will create a file named 'test.log' in your current directory.
 # It will log all reads and writes on the SSH channel.
-logging.basicConfig(filename='test_netmiko.log', level=logging.DEBUG)
-logger = logging.getLogger("netmiko")
+#logging.basicConfig(filename='test_netmiko.log', level=logging.DEBUG)
+#logger = logging.getLogger("netmiko")
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
