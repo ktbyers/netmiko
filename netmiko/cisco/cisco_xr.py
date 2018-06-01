@@ -180,7 +180,7 @@ class CiscoXr(CiscoBaseConnection):
                                                    max_timeout=max_timeout)
                 return output
                                    
-        else:                                       
+        else:                  
             output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
                                                delay_factor=delay_factor,
                                                max_timeout=max_timeout, **kwargs)

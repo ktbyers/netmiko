@@ -1075,6 +1075,7 @@ class BaseConnection(object):
         if delay_factor == 1 and max_loops == 500:
             # Default arguments are being used; use self.timeout instead
             max_loops = int(self.timeout / loop_delay)
+        print ("max_loops from send_command = ", max_loops)
 
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # and delay_factor arguments for backwards compatibility).
@@ -1159,9 +1160,9 @@ class BaseConnection(object):
                 if re.search(config_large_msg, output):
                     output = self.send_command(command_string=self.RETURN, \
                     auto_find_prompt=False, strip_prompt=False, strip_command=False,)
-                    output += self.read_channel()
-                    if re.search(search_pattern, output):
-                        break
+                    #output += self.read_channel()
+                    #if re.search(search_pattern, output):
+                        #break
             else:
                 time.sleep(delay_factor * loop_delay)
             i += 1
@@ -1418,9 +1419,9 @@ class BaseConnection(object):
         :type config_mode_command: str
 
         TODO: strip_prompt and strip_command not used in the method
->>>>>>> Fix PR conflicts for docstring updates
-        """
         debug = self.debug_flag
+        print ("max_loops from send_config_set = %s", str(max_loops))
+        delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ''
         if not hasattr(config_commands, '__iter__'):
@@ -1441,6 +1442,8 @@ class BaseConnection(object):
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
         log.debug("{}".format(output))
+        print ("Return output from send_config_set = ", output)
+        print ("**************************************************")
         return output
 
     def strip_ansi_escape_codes(self, string_buffer):
