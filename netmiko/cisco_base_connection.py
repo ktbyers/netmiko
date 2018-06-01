@@ -211,7 +211,7 @@ class CiscoBaseConnection(BaseConnection):
 
                 #Search for "VR0 con0/RP0/CPU0 is now available Press RETURN to get started" pattern
                 #on Sunstone devices
-                sunstone_pattern = r'Press RETURN to get started\.'
+                sunstone_pattern = r'Press RETURN to get started\.$'
                 if re.search(sunstone_pattern,output):
                     print("*****Sunstone pattern detected")
                     self.write_channel(self.TELNET_RETURN)
