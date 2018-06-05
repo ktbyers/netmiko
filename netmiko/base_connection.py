@@ -1028,6 +1028,8 @@ class BaseConnection(object):
         while i <= max_loops:
             new_data = self.read_channel()
             if new_data:
+                if self.ansi_escape_codes:
+                    new_data = self.strip_ansi_escape_codes(new_data)
                 output += new_data
                 try:
                     lines = output.split(self.RETURN)
@@ -1346,6 +1348,7 @@ class BaseConnection(object):
         code_carriage_return = chr(27) + r'\[1M'
         code_disable_line_wrapping = chr(27) + r'\[\?7l'
         code_reset_mode_screen_options = chr(27) + r'\[\?\d+l'
+        code_reset_graphics_mode = chr(27) + r'\[00m'
         code_erase_display = chr(27) + r'\[2J'
         code_graphics_mode = chr(27) + r'\[\d\d;\d\dm'
         code_graphics_mode2 = chr(27) + r'\[\d\d;\d\d;\d\dm'
@@ -1354,7 +1357,7 @@ class BaseConnection(object):
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
                     code_erase_start_line, code_form_feed, code_carriage_return,
                     code_disable_line_wrapping, code_erase_line_end,
-                    code_reset_mode_screen_options, code_erase_display,
+                    code_reset_mode_screen_options, code_reset_graphics_mode, code_erase_display,
                     code_graphics_mode, code_graphics_mode2, code_get_cursor_position]
 
         output = string_buffer
