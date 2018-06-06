@@ -867,8 +867,7 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
-        time.sleep(delay_factor * .1)
-
+        time.sleep(delay_factor * 10)
         # Initial attempt to get prompt
         prompt = self.read_channel()
         if self.ansi_escape_codes:
@@ -1002,7 +1001,6 @@ class BaseConnection(object):
         if delay_factor == 1 and max_loops == 500:
             # Default arguments are being used; use self.timeout instead
             max_loops = int(self.timeout / loop_delay)
-        print ("max_loops from send_command = ", max_loops)
 
         # Find the current router prompt
         if expect_string is None:
@@ -1287,7 +1285,6 @@ class BaseConnection(object):
         :param config_mode_command: The command to enter into config mode
         :type config_mode_command: str
         """
-        print ("max_loops from send_config_set = %s", str(max_loops))
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ''
@@ -1310,8 +1307,6 @@ class BaseConnection(object):
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
         log.debug("{}".format(output))
-        print ("Return output from send_config_set = ", output)
-        print ("**************************************************")
         return output
 
     def strip_ansi_escape_codes(self, string_buffer):
