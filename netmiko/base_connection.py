@@ -1075,7 +1075,6 @@ class BaseConnection(object):
         if delay_factor == 1 and max_loops == 500:
             # Default arguments are being used; use self.timeout instead
             max_loops = int(self.timeout / loop_delay)
-        print ("max_loops from send_command = ", max_loops)
 
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # and delay_factor arguments for backwards compatibility).
@@ -1442,8 +1441,6 @@ class BaseConnection(object):
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
         log.debug("{}".format(output))
-        print ("Return output from send_config_set = ", output)
-        print ("**************************************************")
         return output
 
     def strip_ansi_escape_codes(self, string_buffer):
