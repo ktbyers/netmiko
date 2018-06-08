@@ -547,7 +547,8 @@ class BaseConnection(object):
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {}".format(self.host)
+                self.remote_conn.close()
+                msg = "Login failed: {}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -559,7 +560,8 @@ class BaseConnection(object):
                 or re.search(alt_prompt_terminator, output, flags=re.M)):
             return return_msg
 
-        msg = "Telnet login failed: {}".format(self.host)
+        msg = "Login failed: {}".format(self.host)
+        self.remote_conn.close()
         raise NetMikoAuthenticationException(msg)
 
     def session_preparation(self):
@@ -688,10 +690,12 @@ class BaseConnection(object):
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
             except socket.error:
+                self.paramiko_cleanup()
                 msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
                 raise NetMikoTimeoutException(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
+                self.paramiko_cleanup()
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
                 msg += self.RETURN + str(auth_err)
@@ -1373,18 +1377,26 @@ class BaseConnection(object):
         """Any needed cleanup before closing connection."""
         pass
 
+    def paramiko_cleanup(self):
+        """Cleanup Paramiko to try to gracefully handle SSH session ending."""
+        self.remote_conn_pre.close()
+        del self.remote_conn_pre
+
     def disconnect(self):
         """Try to gracefully close the SSH connection."""
         try:
             self.cleanup()
             if self.protocol == 'ssh':
-                self.remote_conn_pre.close()
-            elif self.protocol == 'telnet' or 'serial':
+                self.paramiko_cleanup()
+            elif self.protocol == 'telnet':
+                self.remote_conn.close()
+            elif self.protocol == 'serial':
                 self.remote_conn.close()
         except Exception:
             # There have been race conditions observed on disconnect.
             pass
         finally:
+            self.remote_conn_pre = None
             self.remote_conn = None
 
     def commit(self):
