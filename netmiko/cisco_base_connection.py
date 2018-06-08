@@ -107,7 +107,8 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Check for device with no password configured
                 if re.search(r"assword required, but none set", output):
-                    msg = "Telnet login failed - Password required, but none set: {}".format(
+                    self.remote_conn.close()
+                    msg = "Login failed - Password required, but none set: {}".format(
                         self.host)
                     raise NetMikoAuthenticationException(msg)
 
@@ -120,7 +121,8 @@ class CiscoBaseConnection(BaseConnection):
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {}".format(self.host)
+                self.remote_conn.close()
+                msg = "Login failed: {}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -132,7 +134,8 @@ class CiscoBaseConnection(BaseConnection):
                 or re.search(alt_prompt_terminator, output, flags=re.M)):
             return return_msg
 
-        msg = "Telnet login failed: {}".format(self.host)
+        self.remote_conn.close()
+        msg = "Login failed: {}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
     def cleanup(self):
