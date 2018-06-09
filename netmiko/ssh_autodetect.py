@@ -57,7 +57,7 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'alcatel_sros': {
-        "cmd": "show version | match TiMOS",
+        "cmd": "show version",
         "search_patterns": [
             "Nokia",
             "Alcatel",
@@ -66,13 +66,13 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'arista_eos': {
-        "cmd": "show version | inc rist",
+        "cmd": "show version",
         "search_patterns": ["Arista"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_ios': {
-        "cmd": "show version | inc Cisco",
+        "cmd": "show version",
         "search_patterns": [
            "Cisco IOS Software",
            "Cisco Internetwork Operating System Software"
@@ -81,25 +81,25 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'cisco_asa': {
-        "cmd": "show version | inc Cisco",
+        "cmd": "show version",
         "search_patterns": ["Cisco Adaptive Security Appliance", "Cisco ASA"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_nxos': {
-        "cmd": "show version | inc Cisco",
+        "cmd": "show version",
         "search_patterns": ["Cisco Nexus Operating System", "NX-OS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_xr': {
-        "cmd": "show version | inc Cisco",
+        "cmd": "show version",
         "search_patterns": ["Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'huawei': {
-        "cmd": "display version | inc Huawei",
+        "cmd": "display version",
         "search_patterns": [
             "Huawei Technologies",
             "Huawei Versatile Routing Platform Software"
@@ -108,7 +108,7 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'juniper_junos': {
-        "cmd": "show version | match JUNOS",
+        "cmd": "show version",
         "search_patterns": [
             "JUNOS Software Release",
             "JUNOS .+ Software",
@@ -118,7 +118,7 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'dell_force10': {
-        "cmd": "show version | grep Type",
+        "cmd": "show version",
         "search_patterns": ["S4048-ON"],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -181,11 +181,18 @@ class SSHDetect(object):
         best_match : str or None
             The device type that is currently the best to use to interact with the device
         """
+
+        # Get all unique commands needed by autodetect dict, and
+        # retrieve and store responses for each
+        responses = {}
+        for command in {ad_dict["cmd"] for ad_dict in SSH_MAPPER_BASE.values()}:
+            responses[command] = self._send_command_wrapper(command)
+
         for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop("dispatch")
             autodetect_method = getattr(self, call_method)
-            accuracy = autodetect_method(**tmp_dict)
+            accuracy = autodetect_method(response=responses[autodetect_dict["cmd"]], **tmp_dict)
             if accuracy:
                 self.potential_matches[device_type] = accuracy
                 if accuracy >= 99:  # Stop the loop as we are sure of our match
@@ -246,7 +253,7 @@ class SSHDetect(object):
         else:
             return cached_results
 
-    def _autodetect_std(self, cmd="", search_patterns=None, re_flags=re.I, priority=99):
+    def _autodetect_std(self, response, cmd="", search_patterns=None, re_flags=re.I, priority=99):
         """
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
@@ -273,7 +280,6 @@ class SSHDetect(object):
         if not cmd or not search_patterns:
             return 0
         try:
-            response = self._send_command_wrapper(cmd)
             # Look for error conditions in output
             for pattern in invalid_responses:
                 match = re.search(pattern, response, flags=re.I)
