@@ -52,7 +52,7 @@ from netmiko.base_connection import BaseConnection
 SSH_MAPPER_BASE = {
     'alcatel_aos': {
         "cmd": "show system",
-        "search_patterns": ["Alcatel-Lucent"],
+        "search_patterns": [r"Alcatel-Lucent"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -67,7 +67,7 @@ SSH_MAPPER_BASE = {
     },
     'arista_eos': {
         "cmd": "show version",
-        "search_patterns": ["Arista"],
+        "search_patterns": [r"Arista"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -82,27 +82,27 @@ SSH_MAPPER_BASE = {
     },
     'cisco_asa': {
         "cmd": "show version",
-        "search_patterns": ["Cisco Adaptive Security Appliance", "Cisco ASA"],
+        "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_nxos': {
         "cmd": "show version",
-        "search_patterns": ["Cisco Nexus Operating System", "NX-OS"],
+        "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_xr': {
         "cmd": "show version",
-        "search_patterns": ["Cisco IOS XR"],
+        "search_patterns": [r"Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'huawei': {
         "cmd": "display version",
         "search_patterns": [
-            "Huawei Technologies",
-            "Huawei Versatile Routing Platform Software"
+            r"Huawei Technologies",
+            r"Huawei Versatile Routing Platform Software"
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -110,22 +110,22 @@ SSH_MAPPER_BASE = {
     'juniper_junos': {
         "cmd": "show version",
         "search_patterns": [
-            "JUNOS Software Release",
-            "JUNOS .+ Software",
-            "JUNOS OS Kernel",
+            r"JUNOS Software Release",
+            r"JUNOS .+ Software",
+            r"JUNOS OS Kernel",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'dell_force10': {
         "cmd": "show version",
-        "search_patterns": ["S4048-ON"],
+        "search_patterns": [r"S4048-ON"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'dell_os10': {
         "cmd": "show version",
-        "search_patterns": ["Dell EMC Networking OS10-Enterprise"],
+        "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
