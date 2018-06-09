@@ -181,18 +181,11 @@ class SSHDetect(object):
         best_match : str or None
             The device type that is currently the best to use to interact with the device
         """
-
-        # Get all unique commands needed by autodetect dict, and
-        # retrieve and store responses for each
-        responses = {}
-        for command in {ad_dict["cmd"] for ad_dict in SSH_MAPPER_BASE.values()}:
-            responses[command] = self._send_command_wrapper(command)
-
         for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop("dispatch")
             autodetect_method = getattr(self, call_method)
-            accuracy = autodetect_method(response=responses[autodetect_dict["cmd"]], **tmp_dict)
+            accuracy = autodetect_method(**tmp_dict)
             if accuracy:
                 self.potential_matches[device_type] = accuracy
                 if accuracy >= 99:  # Stop the loop as we are sure of our match
@@ -253,7 +246,7 @@ class SSHDetect(object):
         else:
             return cached_results
 
-    def _autodetect_std(self, response, cmd="", search_patterns=None, re_flags=re.I, priority=99):
+    def _autodetect_std(self, cmd="", search_patterns=None, re_flags=re.I, priority=99):
         """
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
@@ -280,6 +273,8 @@ class SSHDetect(object):
         if not cmd or not search_patterns:
             return 0
         try:
+            # _send_command_wrapper will use already cached results if available
+            response = self._send_command_wrapper(cmd)
             # Look for error conditions in output
             for pattern in invalid_responses:
                 match = re.search(pattern, response, flags=re.I)
