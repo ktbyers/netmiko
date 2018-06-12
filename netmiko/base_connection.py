@@ -935,9 +935,13 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
-        time.sleep(delay_factor * .1)
+        time.sleep(delay_factor * 0.1 )
         # Initial attempt to get prompt
         prompt = self.read_channel()
+        vxr_pattern = "Last Login"
+        if vxr_pattern in prompt:
+            time.sleep((delay_factor * 0.1)+3)
+            prompt = self.read_channel()
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
 
