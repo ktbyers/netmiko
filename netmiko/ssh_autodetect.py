@@ -66,7 +66,7 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'apresia_aeos': {
-        "cmd": "show system | inc presia",
+        "cmd": "show system",
         "search_patterns": ["Apresia"],
         "priority": 99,
         "dispatch": "_autodetect_std",
