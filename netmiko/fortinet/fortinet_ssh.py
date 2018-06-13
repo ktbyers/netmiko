@@ -42,7 +42,7 @@ class FortinetSSH(CiscoSSHConnection):
 
         new_output = ''
         if self.allow_disable_global:
-            self._retreive_output_mode()
+            self._retrieve_output_mode()
             disable_paging_commands = ["config system console", "set output standard", "end"]
             # There is an extra 'end' required if in multi-vdoms are enabled
             if self.vdoms:
@@ -54,19 +54,23 @@ class FortinetSSH(CiscoSSHConnection):
 
         return output + new_output
 
-    def _retreive_output_mode(self):
-        """get output mode before change it in order to re set to the right value at cleanup"""
+    def _retrieve_output_mode(self):
+        """Save the state of the output mode so it can be reset at the end of the session."""
         reg_mode = re.compile(r'output\s+:\s+(?P<mode>.*)\s+\n')
         output = self.send_command("get system console")
-        result_mode = reg_mode.search(output)
-        if result_mode:
-            self._output_mode = result_mode.group('mode')
+        result_mode_re = reg_mode.search(output)
+        if result_mode_re:
+            result_mode = result_mode_re.group('mode').strip()
+            if result_mode in ['more', 'standard']:
+                self._output_mode = result_mode
 
     def cleanup(self):
         """Re-enable paging globally."""
         if self.allow_disable_global:
+            # Return paging state
+            output_mode_cmd = "set output {}".format(self._output_mode)
             enable_paging_commands = ["config system console",
-                                      "set output %s" % self._output_mode,
+                                      output_mode_cmd,
                                       "end"]
             if self.vdoms:
                 enable_paging_commands.insert(0, "config global")
