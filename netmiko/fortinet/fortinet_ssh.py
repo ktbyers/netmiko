@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import paramiko
 import time
+import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -28,6 +29,7 @@ class FortinetSSH(CiscoSSHConnection):
         output = self.send_command_timing(check_command)
         self.allow_disable_global = True
         self.vdoms = False
+        self._output_mode = 'more'
 
         if "Virtual domain configuration: enable" in output:
             self.vdoms = True
@@ -40,6 +42,7 @@ class FortinetSSH(CiscoSSHConnection):
 
         new_output = ''
         if self.allow_disable_global:
+            self._retreive_output_mode()
             disable_paging_commands = ["config system console", "set output standard", "end"]
             # There is an extra 'end' required if in multi-vdoms are enabled
             if self.vdoms:
@@ -51,10 +54,20 @@ class FortinetSSH(CiscoSSHConnection):
 
         return output + new_output
 
+    def _retreive_output_mode(self):
+        """get output mode before change it in order to re set to the right value at cleanup"""
+        reg_mode = re.compile(r'output\s+:\s+(?P<mode>.*)\s+\n')
+        output = self.send_command("get system console")
+        result_mode = reg_mode.search(output)
+        if result_mode:
+            self._output_mode = result_mode.group('mode')
+
     def cleanup(self):
         """Re-enable paging globally."""
         if self.allow_disable_global:
-            enable_paging_commands = ["config system console", "set output more", "end"]
+            enable_paging_commands = ["config system console",
+                                      "set output %s" % self._output_mode,
+                                      "end"]
             if self.vdoms:
                 enable_paging_commands.insert(0, "config global")
             # Should test output is valid
