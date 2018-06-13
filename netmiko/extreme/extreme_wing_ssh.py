@@ -6,8 +6,8 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class ExtremeWingSSH(CiscoSSHConnection):
     """Extreme WiNG support."""
     def session_preparation(self):
-        """Pass banner motd if used, disable paging and set Max term width"""
-        self._test_channel_read(pattern=">|#")
+        """Disable paging and set Max term width"""
+        self._test_channel_read(pattern=r">|#")
         self.set_base_prompt()
         self.disable_paging(command="no page")
         self.set_terminal_width(command='terminal width 512')
