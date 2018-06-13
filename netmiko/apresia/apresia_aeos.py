@@ -21,7 +21,6 @@ class ApresiaAeosBase(CiscoSSHConnection):
 
         if "terminal length 0" not in output:
             self.send_config_set("terminal length 0")
-
         self.exit_enable_mode()
 
     def set_terminal_width(self, command="", delay_factor=1):
