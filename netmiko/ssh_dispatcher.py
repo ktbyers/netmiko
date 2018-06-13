@@ -7,6 +7,7 @@ from netmiko.alcatel import AlcatelAosSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
+from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
 from netmiko.avaya import AvayaVspSSH
@@ -62,6 +63,7 @@ CLASS_MAPPER_BASE = {
     'accedian': AccedianSSH,
     'alcatel_aos': AlcatelAosSSH,
     'alcatel_sros': AlcatelSrosSSH,
+    'apresia_aeos': ApresiaAeosSSH,
     'arista_eos': AristaSSH,
     'aruba_os': ArubaSSH,
     'avaya_ers': AvayaErsSSH,
@@ -146,6 +148,7 @@ FILE_TRANSFER_MAP = new_mapper
 CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
 CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
+CLASS_MAPPER['apresia_aeos_telnet'] = ApresiaAeosTelnet
 CLASS_MAPPER['arista_eos_telnet'] = AristaTelnet
 CLASS_MAPPER['hp_procurve_telnet'] = HPProcurveTelnet
 CLASS_MAPPER['hp_comware_telnet'] = HPComwareTelnet
