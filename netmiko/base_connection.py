@@ -1254,12 +1254,15 @@ class BaseConnection(object):
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
                         max_loops=150, strip_prompt=False, strip_command=False,
-                        config_mode_command=None):
+                        config_mode_command=None, fast_mode=False):
         """
         Send configuration commands down the SSH channel.
 
         config_commands is an iterable containing all of the configuration commands.
         The commands will be executed one after the other.
+
+        Fast mode sacrifices command output reliability for the ability to quickly
+        apply config to a device.
 
         Automatically exits/enters configuration mode.
 
@@ -1283,6 +1286,9 @@ class BaseConnection(object):
 
         :param config_mode_command: The command to enter into config mode
         :type config_mode_command: str
+
+        :param fast_mode: Enable fast mode (default: False)
+        :type fast_mode: bool
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1298,10 +1304,20 @@ class BaseConnection(object):
         output = self.config_mode(*cfg_mode_args)
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(delay_factor * .5)
-
-        # Gather output
-        output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
+            if fast_mode:
+                # Execute fast, sacrificing output reliability
+                loop = 1
+                while loop <= max_loops:
+                    if self.remote_conn.recv_ready():
+                        output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                        time.sleep(delay_factor)
+                    else:
+                        break
+                    loop += 1
+            else:
+                # Gather output reliably
+                time.sleep(delay_factor * .5)
+                output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
