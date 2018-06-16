@@ -413,6 +413,27 @@ class BaseConnection(object):
         raise NetMikoTimeoutException("Timed-out reading channel, pattern not found in output: {}"
                                       .format(pattern))
 
+    def _read_channel_fast(self, delay_factor=1, max_loops=150):
+        """
+        Attempt to gather output from executed commands, sacrificing speed for reliability.
+
+        :param delay_factor: delay between reading channel data attempts
+        :type delay_factor: int or float
+        :param max_loops: maximum number of loops to iterate through before returning channel data.
+        :type max_loops: int
+        """
+        loop = 1
+        channel_data = ''
+
+        while loop <= max_loops:
+            if self.remote_conn.recv_ready():
+                channel_data += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                time.sleep(delay_factor)
+            else:
+                break
+
+        return channel_data
+
     def _read_channel_timing(self, delay_factor=1, max_loops=150):
         """Read data on the channel based on timing delays.
 
@@ -1306,14 +1327,7 @@ class BaseConnection(object):
             self.write_channel(self.normalize_cmd(cmd))
             if fast_mode:
                 # Execute fast, sacrificing output reliability
-                loop = 1
-                while loop <= max_loops:
-                    if self.remote_conn.recv_ready():
-                        output += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
-                        time.sleep(delay_factor)
-                    else:
-                        break
-                    loop += 1
+                output += self._read_channel_fast(delay_factor=delay_factor, max_loops=max_loops)
             else:
                 # Gather output reliably
                 time.sleep(delay_factor * .5)
