@@ -4,7 +4,6 @@ import time
 import re
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.ssh_exception import NetMikoTimeoutException
 
 
 class MrvLxSSH(CiscoSSHConnection):
@@ -26,12 +25,9 @@ class MrvLxSSH(CiscoSSHConnection):
               "the 'secret' argument to ConnectHandler."
         if not self.check_enable_mode('>>'):
             self.write_channel(self.normalize_cmd(cmd))
-            try:
-                output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
-                self.write_channel(self.normalize_cmd(self.secret))
-                output += self.read_until_prompt()
-            except NetMikoTimeoutException:
-                raise ValueError(msg)
+            output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
+            self.write_channel(self.normalize_cmd(self.secret))
+            output += self.read_until_prompt()
             if not self.check_enable_mode('>>'):
                 raise ValueError(msg)
         return output
