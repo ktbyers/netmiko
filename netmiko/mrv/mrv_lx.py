@@ -34,4 +34,4 @@ class MrvLxSSH(CiscoSSHConnection):
 
     def save_config(self, cmd='save config flash', confirm=False):
         """Saves configuration."""
-        return super(MrvLx, self).save_config(cmd=cmd, confirm=confirm)
+        return super(MrvLxSSH, self).save_config(cmd=cmd, confirm=confirm)
