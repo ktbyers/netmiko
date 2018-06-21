@@ -21,7 +21,7 @@ class CalixB6Base(CiscoSSHConnection):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get('default_enter')
         kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
-        super(CalixB6SSH, self).__init__(*args, **kwargs)
+        super(CalixB6Base, self).__init__(*args, **kwargs)
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
