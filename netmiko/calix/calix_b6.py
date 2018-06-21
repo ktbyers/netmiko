@@ -73,7 +73,7 @@ class CalixB6SSH(CalixB6Base):
 
     To make it work, we have to override the SSHClient _auth method and manually handle
     the username/password.
-    """        
+    """
     def _build_ssh_client(self):
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
