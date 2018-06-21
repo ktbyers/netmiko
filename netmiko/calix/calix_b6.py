@@ -21,7 +21,6 @@ class CalixB6Base(CiscoSSHConnection):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get('default_enter')
         kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
-        super(CalixB6SSH, self).__init__(*args, **kwargs)
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -74,6 +73,9 @@ class CalixB6SSH(CalixB6Base):
     To make it work, we have to override the SSHClient _auth method and manually handle
     the username/password.
     """
+    def __init__(self, *args, **kwargs):
+        super(CalixB6SSH, self).__init__(*args, **kwargs)
+        
     def _build_ssh_client(self):
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
