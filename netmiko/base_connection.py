@@ -430,6 +430,7 @@ class BaseConnection(object):
                 channel_data += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
                 time.sleep(delay_factor)
             else:
+                self.find_prompt(delay_factor=delay_factor)
                 break
 
         return channel_data
