@@ -38,7 +38,7 @@ class BaseConnection(object):
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
-                 response_return=None, serial_settings=None, fast_cli=False):
+                 response_return=None, serial_settings=None, fast_cli=False, session_logfile=None):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -121,6 +121,9 @@ class BaseConnection(object):
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: False)
         :type fast_cli: boolean
+
+        :param session_logfile: Path to a file to write the session to.
+        :type session_logfile: str
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -151,6 +154,10 @@ class BaseConnection(object):
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
+        if session_logfile:
+            self._session_logfile = open(session_logfile, mode="ab")
+        else:
+            self._session_logfile = None
 
         # Default values
         self.serial_settings = {
@@ -282,9 +289,15 @@ class BaseConnection(object):
             raise ValueError("Invalid protocol specified")
         try:
             log.debug("write_channel: {}".format(write_bytes(out_data)))
+            self._write_session_log(out_data)
         except UnicodeDecodeError:
             # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
             pass
+
+    def _write_session_log(self, data):
+        if self._session_logfile and len(data) > 0:
+            self._session_logfile.write(write_bytes(data))
+            self._session_logfile.flush()
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel.
@@ -346,6 +359,7 @@ class BaseConnection(object):
             while (self.remote_conn.in_waiting > 0):
                 output += self.remote_conn.read(self.remote_conn.in_waiting)
         log.debug("read_channel: {}".format(output))
+        self._write_session_log(output)
         return output
 
     def read_channel(self):
@@ -1422,6 +1436,9 @@ class BaseConnection(object):
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
+            if self._session_logfile:
+                self._session_logfile.close()
+
 
     def commit(self):
         """Commit method for platforms that support this."""
