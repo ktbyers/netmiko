@@ -12,6 +12,8 @@ examples/SECRET_DEVICE_CREDS.py
 ./build/*
 build/
 dist
+env
+.idea
 netmiko.egg-info
 .cache
 bin/.netmiko.cfg

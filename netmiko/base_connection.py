@@ -413,6 +413,28 @@ class BaseConnection(object):
         raise NetMikoTimeoutException("Timed-out reading channel, pattern not found in output: {}"
                                       .format(pattern))
 
+    def _read_channel_fast(self, delay_factor=1, max_loops=150):
+        """
+        Attempt to gather output from executed commands, sacrificing speed for reliability.
+
+        :param delay_factor: delay between reading channel data attempts
+        :type delay_factor: int or float
+        :param max_loops: maximum number of loops to iterate through before returning channel data.
+        :type max_loops: int
+        """
+        loop = 1
+        channel_data = ''
+
+        while loop <= max_loops:
+            if self.remote_conn.recv_ready():
+                channel_data += self.remote_conn.recv(MAX_BUFFER).decode('utf-8', 'ignore')
+                time.sleep(delay_factor)
+            else:
+                self.find_prompt(delay_factor=delay_factor)
+                break
+
+        return channel_data
+
     def _read_channel_timing(self, delay_factor=1, max_loops=150):
         """Read data on the channel based on timing delays.
 
@@ -1254,12 +1276,15 @@ class BaseConnection(object):
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
                         max_loops=150, strip_prompt=False, strip_command=False,
-                        config_mode_command=None):
+                        config_mode_command=None, fast_mode=False):
         """
         Send configuration commands down the SSH channel.
 
         config_commands is an iterable containing all of the configuration commands.
         The commands will be executed one after the other.
+
+        Fast mode sacrifices command output reliability for the ability to quickly
+        apply config to a device.
 
         Automatically exits/enters configuration mode.
 
@@ -1283,6 +1308,9 @@ class BaseConnection(object):
 
         :param config_mode_command: The command to enter into config mode
         :type config_mode_command: str
+
+        :param fast_mode: Enable fast mode (default: False)
+        :type fast_mode: bool
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1298,10 +1326,13 @@ class BaseConnection(object):
         output = self.config_mode(*cfg_mode_args)
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(delay_factor * .5)
-
-        # Gather output
-        output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
+            if fast_mode:
+                # Execute fast, sacrificing output reliability
+                output += self._read_channel_fast(delay_factor=delay_factor, max_loops=max_loops)
+            else:
+                # Gather output reliably
+                time.sleep(delay_factor * .5)
+                output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
