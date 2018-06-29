@@ -1339,7 +1339,7 @@ class BaseConnection(object):
         :type string_buffer: str
         """         # noqa
         log.debug("In strip_ansi_escape_codes")
-        log.debug("repr = {0}".format(repr(string_buffer)))
+        log.debug("repr = {}".format(repr(string_buffer)))
 
         code_position_cursor = chr(27) + r'\[\d+;\d+H'
         code_show_cursor = chr(27) + r'\[\?25h'
@@ -1357,12 +1357,15 @@ class BaseConnection(object):
         code_graphics_mode = chr(27) + r'\[\d\d;\d\dm'
         code_graphics_mode2 = chr(27) + r'\[\d\d;\d\d;\d\dm'
         code_get_cursor_position = chr(27) + r'\[6n'
+        code_cursor_position = chr(27) + r'\[m'
+        code_erase_display = chr(27) + r'\[J'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
                     code_erase_start_line, code_form_feed, code_carriage_return,
                     code_disable_line_wrapping, code_erase_line_end,
                     code_reset_mode_screen_options, code_reset_graphics_mode, code_erase_display,
-                    code_graphics_mode, code_graphics_mode2, code_get_cursor_position]
+                    code_graphics_mode, code_graphics_mode2, code_get_cursor_position,
+                    code_cursor_position, code_erase_display]
 
         output = string_buffer
         for ansi_esc_code in code_set:
