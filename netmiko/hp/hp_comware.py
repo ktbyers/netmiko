@@ -34,9 +34,10 @@ class HPComwareBase(CiscoSSHConnection):
         """Enter configuration mode."""
         return super(HPComwareBase, self).config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config='return'):
+    def exit_config_mode(self, exit_config='return', pattern=r'>'):
         """Exit config mode."""
-        return super(HPComwareBase, self).exit_config_mode(exit_config=exit_config)
+        return super(HPComwareBase, self).exit_config_mode(exit_config=exit_config,
+                                                           pattern=pattern)
 
     def check_config_mode(self, check_string=']'):
         """Check whether device is in configuration mode. Return a boolean."""
