@@ -36,7 +36,7 @@ class BaseConnection(object):
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
-                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=90,
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
                  response_return=None, serial_settings=None, fast_cli=False):
         """
@@ -1064,8 +1064,8 @@ class BaseConnection(object):
                     pass
                 if re.search(search_pattern, output):
                     break
-            else:
-                time.sleep(delay_factor * loop_delay)
+
+            time.sleep(delay_factor * loop_delay)
             i += 1
         else:   # nobreak
             raise IOError("Search pattern never detected in send_command_expect: {}".format(
