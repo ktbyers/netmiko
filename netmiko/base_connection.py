@@ -38,7 +38,7 @@ class BaseConnection(object):
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=90,
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
-                 response_return=None, serial_settings=None):
+                 response_return=None, serial_settings=None, fast_cli=False):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -116,6 +116,11 @@ class BaseConnection(object):
         :param response_return: Character(s) to use in normalized return data to represent
                 enter key (default: '\n')
         :type response_return: str
+
+        :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+                to select smallest of global and specific. Sets default global_delay_factor to .1
+                (default: False)
+        :type fast_cli: boolean
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -166,8 +171,10 @@ class BaseConnection(object):
             comm_port = check_serial_port(comm_port)
             self.serial_settings.update({'port': comm_port})
 
-        # Use the greater of global_delay_factor or delay_factor local to method
+        self.fast_cli = fast_cli
         self.global_delay_factor = global_delay_factor
+        if self.fast_cli and self.global_delay_factor == 1:
+            self.global_delay_factor = .1
 
         # set in set_base_prompt method
         self.base_prompt = ''
@@ -702,7 +709,7 @@ class BaseConnection(object):
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
-                print("SSH connection established to {0}:{1}".format(self.host, self.port))
+                print("SSH connection established to {}:{}".format(self.host, self.port))
 
             # Use invoke_shell to establish an 'interactive session'
             if width and height:
@@ -775,15 +782,23 @@ class BaseConnection(object):
         return remote_conn_pre
 
     def select_delay_factor(self, delay_factor):
-        """Choose the greater of delay_factor or self.global_delay_factor.
+        """
+        Choose the greater of delay_factor or self.global_delay_factor (default).
+        In fast_cli choose the lesser of delay_factor of self.global_delay_factor.
 
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
-        if delay_factor >= self.global_delay_factor:
-            return delay_factor
+        if self.fast_cli:
+            if delay_factor <= self.global_delay_factor:
+                return delay_factor
+            else:
+                return self.global_delay_factor
         else:
-            return self.global_delay_factor
+            if delay_factor >= self.global_delay_factor:
+                return delay_factor
+            else:
+                return self.global_delay_factor
 
     def special_login_handler(self, delay_factor=1):
         """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
@@ -1298,7 +1313,10 @@ class BaseConnection(object):
         output = self.config_mode(*cfg_mode_args)
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(delay_factor * .5)
+            if self.fast_cli:
+                pass
+            else:
+                time.sleep(delay_factor * .05)
 
         # Gather output
         output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
