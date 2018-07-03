@@ -1440,7 +1440,6 @@ class BaseConnection(object):
             if self._session_logfile:
                 self._session_logfile.close()
 
-
     def commit(self):
         """Commit method for platforms that support this."""
         raise AttributeError("Network device does not support 'commit()' method")
