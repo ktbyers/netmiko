@@ -420,6 +420,7 @@ class BaseConnection(object):
                     new_data = new_data.decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
+                    self._write_session_log(new_data)
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
                 finally:
