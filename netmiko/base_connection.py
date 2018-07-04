@@ -164,7 +164,8 @@ class BaseConnection(object):
                 self._session_log = session_log
                 self._external_session_log = True
             else:
-                raise ValueError("session_log must be a path to a file or a BufferedIOBase subclass")
+                raise ValueError("session_log must be a path to a file, "
+                                 "a file handle, or a BufferedIOBase subclass")
 
         # Default values
         self.serial_settings = {
