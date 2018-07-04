@@ -10,21 +10,22 @@ Also defines methods that should generally be supported by child classes
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import paramiko
+import io
+import re
+import socket
 import telnetlib
 import time
-import socket
-import re
-import io
 from os import path
 from threading import Lock
 
+import paramiko
+import serial
+
+from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
+from netmiko.py23_compat import string_types, bytes_io_types
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
-from netmiko.py23_compat import string_types
-from netmiko import log
-import serial
 
 
 class BaseConnection(object):
@@ -159,7 +160,7 @@ class BaseConnection(object):
             if isinstance(session_log, str):
                 self._session_log = open(session_log, mode="ab")
                 self._external_session_log = False
-            elif isinstance(session_log, io.BufferedIOBase) and session_log.writable():
+            elif isinstance(session_log, bytes_io_types):
                 self._session_log = session_log
                 self._external_session_log = True
             else:
