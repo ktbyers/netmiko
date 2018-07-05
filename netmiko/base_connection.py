@@ -938,8 +938,8 @@ class BaseConnection(object):
         time.sleep(delay_factor * 0.1 )
         # Initial attempt to get prompt
         prompt = self.read_channel()
-        vxr_pattern = "Last Login"
-        if vxr_pattern in prompt:
+        vxr_pattern = "last login"
+        if vxr_pattern in prompt.lower():
             time.sleep((delay_factor * 0.1)+3)
             prompt = self.read_channel()
         if self.ansi_escape_codes:
