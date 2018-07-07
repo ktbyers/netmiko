@@ -16,6 +16,12 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device cisco881 \
 && py.test -v test_netmiko_config.py --test_device cisco881 \
 \
+&& echo "Cisco IOS SSH fast_cli (including SCP)" \
+&& py.test -v test_netmiko_scp.py --test_device cisco881_fast \
+&& py.test -v test_netmiko_tcl.py --test_device cisco881_fast \
+&& py.test -v test_netmiko_show.py --test_device cisco881_fast \
+&& py.test -v test_netmiko_config.py --test_device cisco881_fast \
+\
 && echo "Cisco IOS using SSH config with SSH Proxy" \
 && py.test -v test_netmiko_show.py --test_device cisco881_ssh_config \
 && py.test -v test_netmiko_config.py --test_device cisco881_ssh_config \
