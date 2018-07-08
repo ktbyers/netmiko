@@ -10,21 +10,22 @@ Also defines methods that should generally be supported by child classes
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import paramiko
+import io
+import re
+import socket
 import telnetlib
 import time
-import socket
-import re
-import io
 from os import path
 from threading import Lock
 
+import paramiko
+import serial
+
+from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
+from netmiko.py23_compat import string_types, bytes_io_types
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
-from netmiko.py23_compat import string_types
-from netmiko import log
-import serial
 
 
 class BaseConnection(object):
@@ -38,7 +39,7 @@ class BaseConnection(object):
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
-                 response_return=None, serial_settings=None, fast_cli=False):
+                 response_return=None, serial_settings=None, fast_cli=False, session_log=None):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -121,6 +122,9 @@ class BaseConnection(object):
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: False)
         :type fast_cli: boolean
+
+        :param session_log: Path to a file to write the session to.
+        :type session_log: str
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -151,6 +155,17 @@ class BaseConnection(object):
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
+        self._session_log = None
+        if session_log is not None:
+            if isinstance(session_log, str):
+                self._session_log = open(session_log, mode="ab")
+                self._external_session_log = False
+            elif isinstance(session_log, bytes_io_types):
+                self._session_log = session_log
+                self._external_session_log = True
+            else:
+                raise ValueError("session_log must be a path to a file, "
+                                 "a file handle, or a BufferedIOBase subclass")
 
         # Default values
         self.serial_settings = {
@@ -282,9 +297,15 @@ class BaseConnection(object):
             raise ValueError("Invalid protocol specified")
         try:
             log.debug("write_channel: {}".format(write_bytes(out_data)))
+            self._write_session_log(out_data)
         except UnicodeDecodeError:
             # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
             pass
+
+    def _write_session_log(self, data):
+        if self._session_log is not None and len(data) > 0:
+            self._session_log.write(write_bytes(data))
+            self._session_log.flush()
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel.
@@ -346,6 +367,7 @@ class BaseConnection(object):
             while (self.remote_conn.in_waiting > 0):
                 output += self.remote_conn.read(self.remote_conn.in_waiting)
         log.debug("read_channel: {}".format(output))
+        self._write_session_log(output)
         return output
 
     def read_channel(self):
@@ -406,6 +428,7 @@ class BaseConnection(object):
                     new_data = new_data.decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
+                    self._write_session_log(new_data)
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
                 finally:
@@ -1422,6 +1445,8 @@ class BaseConnection(object):
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
+            if self._session_log is not None and not self._external_session_log:
+                self._session_log.close()
 
     def commit(self):
         """Commit method for platforms that support this."""
