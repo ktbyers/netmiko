@@ -11,8 +11,8 @@ PY3 = sys.version_info.major == 3
 if PY3:
     string_types = (str,)
     text_type = str
-    bytes_io_types = io.BufferedIOBase
+    bufferedio_types = io.BufferedIOBase
 else:
     string_types = (basestring,)  # noqa
     text_type = unicode  # noqa
-    bytes_io_types = (io.BufferedIOBase, file)  # noqa
+    bufferedio_types = (io.BufferedIOBase, file)    # noqa

@@ -23,7 +23,7 @@ import serial
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
-from netmiko.py23_compat import string_types, bytes_io_types
+from netmiko.py23_compat import string_types, bufferedio_types
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
 
@@ -39,7 +39,8 @@ class BaseConnection(object):
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
-                 response_return=None, serial_settings=None, fast_cli=False, session_log=None):
+                 response_return=None, serial_settings=None, fast_cli=False, session_log=None,
+                 session_log_mode='write'):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -123,8 +124,11 @@ class BaseConnection(object):
                 (default: False)
         :type fast_cli: boolean
 
-        :param session_log: Path to a file to write the session to.
+        :param session_log: File path or BufferedIOBase subclass object to write the session log to.
         :type session_log: str
+
+        :param session_log_mode: "write" or "append" for session_log file mode (default: "write")
+        :type session_log_mode: str
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -157,15 +161,18 @@ class BaseConnection(object):
         self.keepalive = keepalive
         self._session_log = None
         if session_log is not None:
-            if isinstance(session_log, str):
-                self._session_log = open(session_log, mode="ab")
-                self._external_session_log = False
-            elif isinstance(session_log, bytes_io_types):
+            # If session_log is a string, open a file corresponding to string name.
+            if isinstance(session_log, string_types):
+                if session_log_mode == 'append':
+                    self._session_log = open(session_log, mode="ab")
+                else:
+                    self._session_log = open(session_log, mode="wb")
+            # In-memory buffer or an already open file handle
+            elif isinstance(session_log, bufferedio_types):
                 self._session_log = session_log
-                self._external_session_log = True
             else:
-                raise ValueError("session_log must be a path to a file, "
-                                 "a file handle, or a BufferedIOBase subclass")
+                raise ValueError("session_log must be a path to a file, a file handle, "
+                                 "or a BufferedIOBase subclass.")
 
         # Default values
         self.serial_settings = {
@@ -1445,8 +1452,6 @@ class BaseConnection(object):
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
-            if self._session_log is not None and not self._external_session_log:
-                self._session_log.close()
 
     def commit(self):
         """Commit method for platforms that support this."""
@@ -1455,6 +1460,12 @@ class BaseConnection(object):
     def save_config(self, cmd='', confirm=True, confirm_response=''):
         """Not Implemented"""
         raise NotImplementedError
+
+    def close_session_log(self):
+        """Close the session_log file. If in-memory this will destroy the buffer."""
+        if self._session_log is not None:
+            self._session_log.close()
+            self._session_log = None
 
 
 class TelnetConnection(BaseConnection):
