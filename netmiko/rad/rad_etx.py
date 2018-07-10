@@ -13,20 +13,30 @@ class RadETXBase(BaseConnection):
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd='admin save', confirm=False):
+    def save_config(self, cmd='admin save', confirm=False, confirm_response=''):
         """Saves Config Using admin save"""
-        return super(RadETXBase, self).save_config(cmd=cmd, confirm=confirm)
+        if confirm:
+            output = self.send_command_timing(command_string=cmd)
+            if confirm_response:
+                output += self.send_command_timing(confirm_response)
+            else:
+                # Send enter by default
+                output += self.send_command_timing(self.RETURN)
+        else:
+            # Some devices are slow so match on trailing-prompt if you can
+            output = self.send_command(command_string=cmd)
+        return output
     
     def enable(self, *args, **kwargs):
         pass
-        
+
 class RadETXSSH(RadETXBase):
     """RAD ETX SSH Support"""
     pass
 
 class RadETXTelnet(RadETXBase):
     """RAD ETX Telnet Support"""
-    def special_login_handler(self, delay_factor=1):
+    def telnet_login(self, delay_factor=1):
         """
         RAD presents with the following on login
 
