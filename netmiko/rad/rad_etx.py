@@ -5,7 +5,7 @@ from netmiko.base_connection import BaseConnection
 
 
 class RadETXBase(BaseConnection):
-    """RAD ETX Support, Tested on RAD 203AX, 205A and 220A"""
+    """RAD ETX Support, Tested on RAD 203AX, 205A and 220A."""
     def session_preparation(self):
         self._test_channel_read()
         self.set_base_prompt()
@@ -15,7 +15,7 @@ class RadETXBase(BaseConnection):
         self.clear_buffer()
 
     def save_config(self, cmd='admin save', confirm=False, confirm_response=''):
-        """Saves Config Using admin save"""
+        """Saves Config Using admin save."""
         if confirm:
             output = self.send_command_timing(command_string=cmd)
             if confirm_response:
@@ -29,15 +29,11 @@ class RadETXBase(BaseConnection):
         return output
 
     def enable(self, *args, **kwargs):
-        """The Rad ETX software does not have an enable"""
+        """The Rad ETX software does not have an enable."""
         pass
 
     def config_mode(self, config_command='config', pattern='>config'):
-        """
-        Enter into configuration mode on remote device.
-
-        This needs some extended testing.
-        """
+        """Enter into configuration mode on remote device."""
         return super(RadETXBase, self).config_mode(config_command=config_command,
                                                    pattern=pattern)
 
@@ -45,7 +41,7 @@ class RadETXBase(BaseConnection):
         """
         Checks if the device is in configuration mode or not.
 
-        Rad config starts with baseprompt>config
+        Rad config starts with baseprompt>config.
         """
         return super(RadETXBase, self).check_config_mode(check_string=check_string,
                                                          pattern=pattern)
@@ -65,7 +61,7 @@ class RadETXSSH(RadETXBase):
 
 
 class RadETXTelnet(RadETXBase):
-    """RAD ETX Telnet Support"""
+    """RAD ETX Telnet Support."""
     def telnet_login(self, delay_factor=1):
         """
         RAD presents with the following on login
