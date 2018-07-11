@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import time
+import re
 from netmiko.base_connection import BaseConnection
 
 class RadETXBase(BaseConnection):
@@ -28,7 +29,30 @@ class RadETXBase(BaseConnection):
         return output
     
     def enable(self, *args, **kwargs):
+        """The Rad ETX software does not have an enable"""
         pass
+
+    def config_mode(self, config_command='config', pattern='>config'):
+        """
+        Enter into configuration mode on remote device.
+
+        This needs some extended testing.
+        """
+        return super(RadETXBase, self).config_mode(config_command=config_command,
+                                                            pattern=pattern)
+    def check_config_mode(self, check_string='>config', pattern=''):
+        """
+        Checks if the device is in configuration mode or not.
+
+        Rad config starts with baseprompt>config
+        """
+        return super(RadETXBase, self).check_config_mode(check_string=check_string,
+                                                                  pattern=pattern)
+
+    def exit_config_mode(self, exit_config='exit all', pattern='#'):
+        """Exit from configuration mode."""
+        return super(RadETXBase, self).exit_config_mode(exit_config=exit_config,
+                                                                 pattern=pattern)
 
 class RadETXSSH(RadETXBase):
     """RAD ETX SSH Support"""
