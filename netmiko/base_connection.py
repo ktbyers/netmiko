@@ -40,7 +40,7 @@ class BaseConnection(object):
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
                  response_return=None, serial_settings=None, fast_cli=False, session_log=None,
-                 session_log_mode='write'):
+                 session_log_record_writes=False, session_log_file_mode='write'):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -127,8 +127,14 @@ class BaseConnection(object):
         :param session_log: File path or BufferedIOBase subclass object to write the session log to.
         :type session_log: str
 
-        :param session_log_mode: "write" or "append" for session_log file mode (default: "write")
-        :type session_log_mode: str
+        :param session_log_record_writes: The session log generally only records channel reads due
+                to eliminate command duplication due to command echo. You can enable this if you
+                want to record both channel reads and channel writes in the log (default: False).
+        :type session_log_record_writes: boolean
+
+        :param session_log_file_mode: "write" or "append" for session_log file mode
+                (default: "write")
+        :type session_log_file_mode: str
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -162,11 +168,14 @@ class BaseConnection(object):
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
+        self.session_log_record_writes = session_log_record_writes
         self._session_log_close = False
+        # Ensures last write operations prior to disconnect are recorded.
+        self._session_log_fin = False
         if session_log is not None:
             if isinstance(session_log, string_types):
                 # If session_log is a string, open a file corresponding to string name.
-                self.open_session_log(filename=session_log, mode=session_log_mode)
+                self.open_session_log(filename=session_log, mode=session_log_file_mode)
             elif isinstance(session_log, bufferedio_types):
                 # In-memory buffer or an already open file handle
                 self.session_log = session_log
@@ -304,7 +313,8 @@ class BaseConnection(object):
             raise ValueError("Invalid protocol specified")
         try:
             log.debug("write_channel: {}".format(write_bytes(out_data)))
-            self._write_session_log(out_data)
+            if self._session_log_fin or self.session_log_record_writes:
+                self._write_session_log(out_data)
         except UnicodeDecodeError:
             # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
             pass
