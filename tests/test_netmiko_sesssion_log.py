@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 import hashlib
+import io
 from netmiko import ConnectHandler
 
 
@@ -75,21 +76,39 @@ def test_session_log_write(net_connect_slog_wr, commands, expected_responses):
     session_log_md5(session_file, compare_file)
 
 
-def test_session_log_append(net_connect_slog_append, commands, expected_responses):
+def test_session_log_append(device_slog, commands, expected_responses):
     """Verify session_log matches expected content, but when channel writes are also logged."""
-
     session_file = expected_responses['session_log_append']
     # Create a starting file
     with open(session_file, "wb") as f:
         f.write(b"Initial file contents\n\n")
 
     # The netmiko connection has not been established yet.
-    device = net_connect_slog_append
-    device['session_log'] = session_file
+    device_slog['session_log'] = session_file
 
-    conn = ConnectHandler(**device)
+    conn = ConnectHandler(**device_slog)
     command = commands["basic"]
     session_action(conn, command)
 
     compare_file = expected_responses['compare_log_append']
     session_log_md5_append(session_file, compare_file)
+
+
+def test_session_log_bytesio(device_slog, commands, expected_responses):
+    """Verify session_log matches expected content, but when channel writes are also logged."""
+    s_log = io.BytesIO()
+
+    # The netmiko connection has not been established yet.
+    device_slog['session_log'] = s_log
+    device_slog['session_log_file_mode'] = 'write'
+
+    conn = ConnectHandler(**device_slog)
+    command = commands["basic"]
+    session_action(conn, command)
+
+    compare_file = expected_responses['compare_log']
+    compare_log_md5 = calc_md5(file_name=compare_file)
+
+    log_content = s_log.getvalue()
+    session_log_md5 = calc_md5(contents=log_content)
+    assert session_log_md5 == compare_log_md5

@@ -65,18 +65,17 @@ def net_connect_slog_wr(request):
 
 
 @pytest.fixture(scope='module')
-def net_connect_slog_append(request):
+def device_slog(request):
     """
     Create the SSH connection to the remote device. Modify session_log init arguments.
 
-    Return the netmiko connection object.
+    Return the netmiko device (not connected)
     """
     device_under_test = request.config.getoption('test_device')
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device['verbose'] = False
     device['session_log_file_mode'] = 'append'
-    # conn = ConnectHandler(**device)
     return device
 
 
