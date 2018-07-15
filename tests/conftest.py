@@ -65,6 +65,23 @@ def net_connect_slog_wr(request):
 
 
 @pytest.fixture(scope='module')
+def net_connect_slog_append(request):
+    """
+    Create the SSH connection to the remote device. Modify session_log init arguments.
+
+    Return the netmiko connection object.
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    device['session_log_file_mode'] = 'append'
+    device['session_log'] = "SLOG/cisco881_slog_append.log"
+    conn = ConnectHandler(**device)
+    return conn
+
+
+@pytest.fixture(scope='module')
 def expected_responses(request):
     '''
     Parse the responses.yml file to get a responses dictionary

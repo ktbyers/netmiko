@@ -18,42 +18,57 @@ def calc_md5(file_name=None, contents=None):
     return hashlib.md5(contents).hexdigest()
 
 
+def read_session_log(session_file):
+    """Leading white-space can vary. Strip off leading white-space."""
+    with open(session_file, "rb") as f:
+        log_content = f.read().lstrip()
+        return log_content
+
+
+def session_action(my_connect, command):
+    """Common actions in the netmiko session to generate the session log."""
+    time.sleep(1)
+    my_connect.clear_buffer()
+    output = my_connect.send_command(command)
+    my_connect.disconnect()
+    return output
+
+
+def session_log_md5(session_file, compare_file):
+    """Compare the session_log MD5 to the compare_file MD5"""
+    compare_log_md5 = calc_md5(file_name=compare_file)
+    log_content = read_session_log(session_file)
+    session_log_md5 = calc_md5(contents=log_content)
+    assert session_log_md5 == compare_log_md5
+
+
 def test_session_log(net_connect, commands, expected_responses):
     """Verify session_log matches expected content."""
-    time.sleep(1)
-    net_connect.clear_buffer()
-    show_ip_int_br = net_connect.send_command(commands["basic"])
+    command = commands["basic"]
+    session_action(net_connect, command)
 
     compare_file = expected_responses['compare_log']
     session_file = expected_responses['session_log']
-
-    net_connect.disconnect()
-    compare_log_md5 = calc_md5(file_name=compare_file)
-    with open(session_file, "rb") as f:
-        log_content = f.read()
-        # Leading white-space can vary
-        log_content = log_content.lstrip()
-        session_log_md5 = calc_md5(contents=log_content)
-
-    assert session_log_md5 == compare_log_md5
+    
+    session_log_md5(session_file, compare_file)
 
 
 def test_session_log_write(net_connect_slog_wr, commands, expected_responses):
     """Verify session_log matches expected content, but when channel writes are also logged."""
-    net_connect = net_connect_slog_wr
-    time.sleep(1)
-    net_connect.clear_buffer()
-    show_ip_int_br = net_connect.send_command(commands["basic"])
+    command = commands["basic"]
+    session_action(net_connect_slog_wr, command)
 
     compare_file = expected_responses['compare_log_wr']
     session_file = expected_responses['session_log']
+    session_log_md5(session_file, compare_file)
 
-    net_connect.disconnect()
-    compare_log_md5 = calc_md5(file_name=compare_file)
-    with open(session_file, "rb") as f:
-        log_content = f.read()
-        # Leading white-space can vary
-        log_content = log_content.lstrip()
-        session_log_md5 = calc_md5(contents=log_content)
 
-    assert session_log_md5 == compare_log_md5
+def test_session_log_write(net_connect_slog_append, commands, expected_responses):
+    """Verify session_log matches expected content, but when channel writes are also logged."""
+    command = commands["basic"]
+    command_list = [command, command]
+    session_action(command)
+
+    compare_file = expected_responses['compare_log_append']
+    session_file = expected_responses['session_log_append']
+    session_log_md5(session_file, compare_file)
