@@ -76,9 +76,8 @@ def net_connect_slog_append(request):
     device = test_devices[device_under_test]
     device['verbose'] = False
     device['session_log_file_mode'] = 'append'
-    device['session_log'] = "SLOG/cisco881_slog_append.log"
-    conn = ConnectHandler(**device)
-    return conn
+    # conn = ConnectHandler(**device)
+    return device
 
 
 @pytest.fixture(scope='module')

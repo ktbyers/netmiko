@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 import hashlib
+from netmiko import ConnectHandler
 
 
 def calc_md5(file_name=None, contents=None):
@@ -18,9 +19,12 @@ def calc_md5(file_name=None, contents=None):
     return hashlib.md5(contents).hexdigest()
 
 
-def read_session_log(session_file):
+def read_session_log(session_file, append=False):
     """Leading white-space can vary. Strip off leading white-space."""
     with open(session_file, "rb") as f:
+        if append is True:
+            line = f.readline().decode()
+            assert 'Initial file contents' in line
         log_content = f.read().lstrip()
         return log_content
 
@@ -42,6 +46,14 @@ def session_log_md5(session_file, compare_file):
     assert session_log_md5 == compare_log_md5
 
 
+def session_log_md5_append(session_file, compare_file):
+    """Compare the session_log MD5 to the compare_file MD5"""
+    compare_log_md5 = calc_md5(file_name=compare_file)
+    log_content = read_session_log(session_file, append=True)
+    session_log_md5 = calc_md5(contents=log_content)
+    assert session_log_md5 == compare_log_md5
+
+
 def test_session_log(net_connect, commands, expected_responses):
     """Verify session_log matches expected content."""
     command = commands["basic"]
@@ -49,7 +61,7 @@ def test_session_log(net_connect, commands, expected_responses):
 
     compare_file = expected_responses['compare_log']
     session_file = expected_responses['session_log']
-    
+
     session_log_md5(session_file, compare_file)
 
 
@@ -63,12 +75,21 @@ def test_session_log_write(net_connect_slog_wr, commands, expected_responses):
     session_log_md5(session_file, compare_file)
 
 
-def test_session_log_write(net_connect_slog_append, commands, expected_responses):
+def test_session_log_append(net_connect_slog_append, commands, expected_responses):
     """Verify session_log matches expected content, but when channel writes are also logged."""
+
+    session_file = expected_responses['session_log_append']
+    # Create a starting file
+    with open(session_file, "wb") as f:
+        f.write(b"Initial file contents\n\n")
+
+    # The netmiko connection has not been established yet.
+    device = net_connect_slog_append
+    device['session_log'] = session_file
+
+    conn = ConnectHandler(**device)
     command = commands["basic"]
-    command_list = [command, command]
-    session_action(command)
+    session_action(conn, command)
 
     compare_file = expected_responses['compare_log_append']
-    session_file = expected_responses['session_log_append']
-    session_log_md5(session_file, compare_file)
+    session_log_md5_append(session_file, compare_file)
