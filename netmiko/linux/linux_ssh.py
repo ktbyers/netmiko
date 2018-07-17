@@ -93,6 +93,7 @@ class LinuxSSH(CiscoSSHConnection):
 
     def cleanup(self):
         """Try to Gracefully exit the SSH session."""
+        self._session_log_fin = True
         self.write_channel("exit" + self.RETURN)
 
     def save_config(self, cmd='', confirm=True, confirm_response=''):

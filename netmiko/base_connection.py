@@ -23,7 +23,7 @@ import serial
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
-from netmiko.py23_compat import string_types, bytes_io_types
+from netmiko.py23_compat import string_types, bufferedio_types
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
 
@@ -39,7 +39,8 @@ class BaseConnection(object):
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
-                 response_return=None, serial_settings=None, fast_cli=False, session_log=None):
+                 response_return=None, serial_settings=None, fast_cli=False, session_log=None,
+                 session_log_record_writes=False, session_log_file_mode='write'):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -123,8 +124,17 @@ class BaseConnection(object):
                 (default: False)
         :type fast_cli: boolean
 
-        :param session_log: Path to a file to write the session to.
+        :param session_log: File path or BufferedIOBase subclass object to write the session log to.
         :type session_log: str
+
+        :param session_log_record_writes: The session log generally only records channel reads due
+                to eliminate command duplication due to command echo. You can enable this if you
+                want to record both channel reads and channel writes in the log (default: False).
+        :type session_log_record_writes: boolean
+
+        :param session_log_file_mode: "write" or "append" for session_log file mode
+                (default: "write")
+        :type session_log_file_mode: str
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -155,17 +165,23 @@ class BaseConnection(object):
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
-        self._session_log = None
+
+        # Netmiko will close the session_log if we open the file
+        self.session_log = None
+        self.session_log_record_writes = session_log_record_writes
+        self._session_log_close = False
+        # Ensures last write operations prior to disconnect are recorded.
+        self._session_log_fin = False
         if session_log is not None:
-            if isinstance(session_log, str):
-                self._session_log = open(session_log, mode="ab")
-                self._external_session_log = False
-            elif isinstance(session_log, bytes_io_types):
-                self._session_log = session_log
-                self._external_session_log = True
+            if isinstance(session_log, string_types):
+                # If session_log is a string, open a file corresponding to string name.
+                self.open_session_log(filename=session_log, mode=session_log_file_mode)
+            elif isinstance(session_log, bufferedio_types):
+                # In-memory buffer or an already open file handle
+                self.session_log = session_log
             else:
-                raise ValueError("session_log must be a path to a file, "
-                                 "a file handle, or a BufferedIOBase subclass")
+                raise ValueError("session_log must be a path to a file, a file handle, "
+                                 "or a BufferedIOBase subclass.")
 
         # Default values
         self.serial_settings = {
@@ -297,15 +313,16 @@ class BaseConnection(object):
             raise ValueError("Invalid protocol specified")
         try:
             log.debug("write_channel: {}".format(write_bytes(out_data)))
-            self._write_session_log(out_data)
+            if self._session_log_fin or self.session_log_record_writes:
+                self._write_session_log(out_data)
         except UnicodeDecodeError:
             # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
             pass
 
     def _write_session_log(self, data):
-        if self._session_log is not None and len(data) > 0:
-            self._session_log.write(write_bytes(data))
-            self._session_log.flush()
+        if self.session_log is not None and len(data) > 0:
+            self.session_log.write(write_bytes(data))
+            self.session_log.flush()
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel.
@@ -1445,8 +1462,7 @@ class BaseConnection(object):
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
-            if self._session_log is not None and not self._external_session_log:
-                self._session_log.close()
+            self.close_session_log()
 
     def commit(self):
         """Commit method for platforms that support this."""
@@ -1455,6 +1471,20 @@ class BaseConnection(object):
     def save_config(self, cmd='', confirm=True, confirm_response=''):
         """Not Implemented"""
         raise NotImplementedError
+
+    def open_session_log(self, filename, mode="write"):
+        """Open the session_log file."""
+        if mode == 'append':
+            self.session_log = open(filename, mode="ab")
+        else:
+            self.session_log = open(filename, mode="wb")
+        self._session_log_close = True
+
+    def close_session_log(self):
+        """Close the session_log file (if it is a file that we opened)."""
+        if self.session_log is not None and self._session_log_close:
+            self.session_log.close()
+            self.session_log = None
 
 
 class TelnetConnection(BaseConnection):

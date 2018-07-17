@@ -28,7 +28,6 @@ def net_connect(request):
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device['verbose'] = False
-    device['fast_cli'] = False
     conn = ConnectHandler(**device)
     return conn
 
@@ -47,6 +46,37 @@ def net_connect_cm(request):
     with ConnectHandler(**device) as conn:
         my_prompt = conn.find_prompt()
     return my_prompt
+
+
+@pytest.fixture(scope='module')
+def net_connect_slog_wr(request):
+    """
+    Create the SSH connection to the remote device. Modify session_log init arguments.
+
+    Return the netmiko connection object.
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    device['session_log_record_writes'] = True
+    conn = ConnectHandler(**device)
+    return conn
+
+
+@pytest.fixture(scope='module')
+def device_slog(request):
+    """
+    Create the SSH connection to the remote device. Modify session_log init arguments.
+
+    Return the netmiko device (not connected)
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    device['session_log_file_mode'] = 'append'
+    return device
 
 
 @pytest.fixture(scope='module')

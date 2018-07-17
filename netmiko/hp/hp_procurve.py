@@ -65,10 +65,13 @@ class HPProcurveBase(CiscoSSHConnection):
             time.sleep(.5)
             output = self.read_channel()
             if 'Do you want to log out' in output:
+                self._session_log_fin = True
                 self.write_channel("y" + self.RETURN)
             # Don't automatically save the config (user's responsibility)
             elif 'Do you want to save the current' in output:
+                self._session_log_fin = True
                 self.write_channel("n" + self.RETURN)
+
             try:
                 self.write_channel(self.RETURN)
             except socket.error:
