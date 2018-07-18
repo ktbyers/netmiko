@@ -10,21 +10,22 @@ Also defines methods that should generally be supported by child classes
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import paramiko
+import io
+import re
+import socket
 import telnetlib
 import time
-import socket
-import re
-import io
 from os import path
 from threading import Lock
 
+import paramiko
+import serial
+
+from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
+from netmiko.py23_compat import string_types, bufferedio_types
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
-from netmiko.py23_compat import string_types
-from netmiko import log
-import serial
 
 
 class BaseConnection(object):
@@ -36,9 +37,10 @@ class BaseConnection(object):
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
-                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=90,
+                 alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
-                 response_return=None, serial_settings=None):
+                 response_return=None, serial_settings=None, fast_cli=False, session_log=None,
+                 session_log_record_writes=False, session_log_file_mode='write'):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -116,6 +118,23 @@ class BaseConnection(object):
         :param response_return: Character(s) to use in normalized return data to represent
                 enter key (default: '\n')
         :type response_return: str
+
+        :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+                to select smallest of global and specific. Sets default global_delay_factor to .1
+                (default: False)
+        :type fast_cli: boolean
+
+        :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+        :type session_log: str
+
+        :param session_log_record_writes: The session log generally only records channel reads due
+                to eliminate command duplication due to command echo. You can enable this if you
+                want to record both channel reads and channel writes in the log (default: False).
+        :type session_log_record_writes: boolean
+
+        :param session_log_file_mode: "write" or "append" for session_log file mode
+                (default: "write")
+        :type session_log_file_mode: str
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -147,6 +166,23 @@ class BaseConnection(object):
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
 
+        # Netmiko will close the session_log if we open the file
+        self.session_log = None
+        self.session_log_record_writes = session_log_record_writes
+        self._session_log_close = False
+        # Ensures last write operations prior to disconnect are recorded.
+        self._session_log_fin = False
+        if session_log is not None:
+            if isinstance(session_log, string_types):
+                # If session_log is a string, open a file corresponding to string name.
+                self.open_session_log(filename=session_log, mode=session_log_file_mode)
+            elif isinstance(session_log, bufferedio_types):
+                # In-memory buffer or an already open file handle
+                self.session_log = session_log
+            else:
+                raise ValueError("session_log must be a path to a file, a file handle, "
+                                 "or a BufferedIOBase subclass.")
+
         # Default values
         self.serial_settings = {
             'port': 'COM1',
@@ -166,8 +202,10 @@ class BaseConnection(object):
             comm_port = check_serial_port(comm_port)
             self.serial_settings.update({'port': comm_port})
 
-        # Use the greater of global_delay_factor or delay_factor local to method
+        self.fast_cli = fast_cli
         self.global_delay_factor = global_delay_factor
+        if self.fast_cli and self.global_delay_factor == 1:
+            self.global_delay_factor = .1
 
         # set in set_base_prompt method
         self.base_prompt = ''
@@ -275,9 +313,16 @@ class BaseConnection(object):
             raise ValueError("Invalid protocol specified")
         try:
             log.debug("write_channel: {}".format(write_bytes(out_data)))
+            if self._session_log_fin or self.session_log_record_writes:
+                self._write_session_log(out_data)
         except UnicodeDecodeError:
             # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
             pass
+
+    def _write_session_log(self, data):
+        if self.session_log is not None and len(data) > 0:
+            self.session_log.write(write_bytes(data))
+            self.session_log.flush()
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel.
@@ -339,6 +384,7 @@ class BaseConnection(object):
             while (self.remote_conn.in_waiting > 0):
                 output += self.remote_conn.read(self.remote_conn.in_waiting)
         log.debug("read_channel: {}".format(output))
+        self._write_session_log(output)
         return output
 
     def read_channel(self):
@@ -399,6 +445,7 @@ class BaseConnection(object):
                     new_data = new_data.decode('utf-8', 'ignore')
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
+                    self._write_session_log(new_data)
                 except socket.timeout:
                     raise NetMikoTimeoutException("Timed-out reading channel, data not available.")
                 finally:
@@ -491,7 +538,7 @@ class BaseConnection(object):
                           pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
+                     username_pattern=r"(?:user:|username|login|user name)", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=20):
         """Telnet login. Can be username/password or just password.
 
@@ -522,14 +569,14 @@ class BaseConnection(object):
                 return_msg += output
 
                 # Search for username pattern / send username
-                if re.search(username_pattern, output):
+                if re.search(username_pattern, output, flags=re.I):
                     self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
-                if re.search(pwd_pattern, output):
+                if re.search(pwd_pattern, output, flags=re.I):
                     self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
@@ -547,7 +594,8 @@ class BaseConnection(object):
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {}".format(self.host)
+                self.remote_conn.close()
+                msg = "Login failed: {}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -559,7 +607,8 @@ class BaseConnection(object):
                 or re.search(alt_prompt_terminator, output, flags=re.M)):
             return return_msg
 
-        msg = "Telnet login failed: {}".format(self.host)
+        msg = "Login failed: {}".format(self.host)
+        self.remote_conn.close()
         raise NetMikoAuthenticationException(msg)
 
     def session_preparation(self):
@@ -688,17 +737,19 @@ class BaseConnection(object):
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
             except socket.error:
+                self.paramiko_cleanup()
                 msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
                 raise NetMikoTimeoutException(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
+                self.paramiko_cleanup()
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
                 msg += self.RETURN + str(auth_err)
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
-                print("SSH connection established to {0}:{1}".format(self.host, self.port))
+                print("SSH connection established to {}:{}".format(self.host, self.port))
 
             # Use invoke_shell to establish an 'interactive session'
             if width and height:
@@ -771,15 +822,23 @@ class BaseConnection(object):
         return remote_conn_pre
 
     def select_delay_factor(self, delay_factor):
-        """Choose the greater of delay_factor or self.global_delay_factor.
+        """
+        Choose the greater of delay_factor or self.global_delay_factor (default).
+        In fast_cli choose the lesser of delay_factor of self.global_delay_factor.
 
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
-        if delay_factor >= self.global_delay_factor:
-            return delay_factor
+        if self.fast_cli:
+            if delay_factor <= self.global_delay_factor:
+                return delay_factor
+            else:
+                return self.global_delay_factor
         else:
-            return self.global_delay_factor
+            if delay_factor >= self.global_delay_factor:
+                return delay_factor
+            else:
+                return self.global_delay_factor
 
     def special_login_handler(self, delay_factor=1):
         """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
@@ -1028,6 +1087,8 @@ class BaseConnection(object):
         while i <= max_loops:
             new_data = self.read_channel()
             if new_data:
+                if self.ansi_escape_codes:
+                    new_data = self.strip_ansi_escape_codes(new_data)
                 output += new_data
                 try:
                     lines = output.split(self.RETURN)
@@ -1043,8 +1104,8 @@ class BaseConnection(object):
                     pass
                 if re.search(search_pattern, output):
                     break
-            else:
-                time.sleep(delay_factor * loop_delay)
+
+            time.sleep(delay_factor * loop_delay)
             i += 1
         else:   # nobreak
             raise IOError("Search pattern never detected in send_command_expect: {}".format(
@@ -1225,7 +1286,7 @@ class BaseConnection(object):
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-        log.debug("exit_config_mode: {0}".format(output))
+        log.debug("exit_config_mode: {}".format(output))
         return output
 
     def send_config_from_file(self, config_file=None, **kwargs):
@@ -1292,7 +1353,10 @@ class BaseConnection(object):
         output = self.config_mode(*cfg_mode_args)
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(delay_factor * .5)
+            if self.fast_cli:
+                pass
+            else:
+                time.sleep(delay_factor * .05)
 
         # Gather output
         output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
@@ -1331,9 +1395,9 @@ class BaseConnection(object):
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
-        """
+        """         # noqa
         log.debug("In strip_ansi_escape_codes")
-        log.debug("repr = {0}".format(repr(string_buffer)))
+        log.debug("repr = {}".format(repr(string_buffer)))
 
         code_position_cursor = chr(27) + r'\[\d+;\d+H'
         code_show_cursor = chr(27) + r'\[\?25h'
@@ -1346,16 +1410,20 @@ class BaseConnection(object):
         code_carriage_return = chr(27) + r'\[1M'
         code_disable_line_wrapping = chr(27) + r'\[\?7l'
         code_reset_mode_screen_options = chr(27) + r'\[\?\d+l'
+        code_reset_graphics_mode = chr(27) + r'\[00m'
         code_erase_display = chr(27) + r'\[2J'
         code_graphics_mode = chr(27) + r'\[\d\d;\d\dm'
         code_graphics_mode2 = chr(27) + r'\[\d\d;\d\d;\d\dm'
         code_get_cursor_position = chr(27) + r'\[6n'
+        code_cursor_position = chr(27) + r'\[m'
+        code_erase_display = chr(27) + r'\[J'
 
         code_set = [code_position_cursor, code_show_cursor, code_erase_line, code_enable_scroll,
                     code_erase_start_line, code_form_feed, code_carriage_return,
                     code_disable_line_wrapping, code_erase_line_end,
-                    code_reset_mode_screen_options, code_erase_display,
-                    code_graphics_mode, code_graphics_mode2, code_get_cursor_position]
+                    code_reset_mode_screen_options, code_reset_graphics_mode, code_erase_display,
+                    code_graphics_mode, code_graphics_mode2, code_get_cursor_position,
+                    code_cursor_position, code_erase_display]
 
         output = string_buffer
         for ansi_esc_code in code_set:
@@ -1373,19 +1441,28 @@ class BaseConnection(object):
         """Any needed cleanup before closing connection."""
         pass
 
+    def paramiko_cleanup(self):
+        """Cleanup Paramiko to try to gracefully handle SSH session ending."""
+        self.remote_conn_pre.close()
+        del self.remote_conn_pre
+
     def disconnect(self):
         """Try to gracefully close the SSH connection."""
         try:
             self.cleanup()
             if self.protocol == 'ssh':
-                self.remote_conn_pre.close()
-            elif self.protocol == 'telnet' or 'serial':
+                self.paramiko_cleanup()
+            elif self.protocol == 'telnet':
+                self.remote_conn.close()
+            elif self.protocol == 'serial':
                 self.remote_conn.close()
         except Exception:
             # There have been race conditions observed on disconnect.
             pass
         finally:
+            self.remote_conn_pre = None
             self.remote_conn = None
+            self.close_session_log()
 
     def commit(self):
         """Commit method for platforms that support this."""
@@ -1394,6 +1471,20 @@ class BaseConnection(object):
     def save_config(self, cmd='', confirm=True, confirm_response=''):
         """Not Implemented"""
         raise NotImplementedError
+
+    def open_session_log(self, filename, mode="write"):
+        """Open the session_log file."""
+        if mode == 'append':
+            self.session_log = open(filename, mode="ab")
+        else:
+            self.session_log = open(filename, mode="wb")
+        self._session_log_close = True
+
+    def close_session_log(self):
+        """Close the session_log file (if it is a file that we opened)."""
+        if self.session_log is not None and self._session_log_close:
+            self.session_log.close()
+            self.session_log = None
 
 
 class TelnetConnection(BaseConnection):

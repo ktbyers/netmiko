@@ -7,7 +7,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
 
 
-class HPProcurveSSH(CiscoSSHConnection):
+class HPProcurveBase(CiscoSSHConnection):
 
     def session_preparation(self):
         """
@@ -44,6 +44,8 @@ class HPProcurveSSH(CiscoSSHConnection):
     def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE,
                default_username='manager'):
         """Enter enable mode"""
+        if self.check_enable_mode():
+            return ''
         output = self.send_command_timing(cmd)
         if 'username' in output.lower() or 'login name' in output.lower() or \
                 'user name' in output.lower():
@@ -63,10 +65,13 @@ class HPProcurveSSH(CiscoSSHConnection):
             time.sleep(.5)
             output = self.read_channel()
             if 'Do you want to log out' in output:
+                self._session_log_fin = True
                 self.write_channel("y" + self.RETURN)
             # Don't automatically save the config (user's responsibility)
             elif 'Do you want to save the current' in output:
+                self._session_log_fin = True
                 self.write_channel("n" + self.RETURN)
+
             try:
                 self.write_channel(self.RETURN)
             except socket.error:
@@ -75,4 +80,22 @@ class HPProcurveSSH(CiscoSSHConnection):
 
     def save_config(self, cmd='write memory', confirm=False):
         """Save Config."""
-        return super(HPProcurveSSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(HPProcurveBase, self).save_config(cmd=cmd, confirm=confirm)
+
+
+class HPProcurveSSH(HPProcurveBase):
+    pass
+
+
+class HPProcurveTelnet(HPProcurveBase):
+    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
+                     username_pattern=r"Login Name:", pwd_pattern=r"assword",
+                     delay_factor=1, max_loops=60):
+        """Telnet login: can be username/password or just password."""
+        super(HPProcurveTelnet, self).telnet_login(
+                pri_prompt_terminator=pri_prompt_terminator,
+                alt_prompt_terminator=alt_prompt_terminator,
+                username_pattern=username_pattern,
+                pwd_pattern=pwd_pattern,
+                delay_factor=delay_factor,
+                max_loops=max_loops)

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from paramiko import SSHClient
 import time
 from os import path
-from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class SSHClient_noauth(SSHClient):
@@ -12,13 +12,14 @@ class SSHClient_noauth(SSHClient):
         return
 
 
-class DellPowerConnectBase(CiscoSSHConnection):
+class DellPowerConnectBase(CiscoBaseConnection):
     """Dell PowerConnect Driver."""
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
+        self.enable()
         self.disable_paging(command="terminal datadump")
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
@@ -100,14 +101,5 @@ class DellPowerConnectSSH(DellPowerConnectBase):
 
 
 class DellPowerConnectTelnet(DellPowerConnectBase):
-    def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        self.ansi_escape_codes = True
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.enable()
-        self.disable_paging(command="terminal length 0")
-        self.set_terminal_width()
-        # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
-        self.clear_buffer()
+    """Dell PowerConnect Telnet Driver."""
+    pass

@@ -41,15 +41,13 @@ class CiscoBaseConnection(BaseConnection):
         return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
                                                             pattern=pattern)
 
-    def exit_config_mode(self, exit_config='end', pattern=''):
+    def exit_config_mode(self, exit_config='end', pattern='#'):
         """Exit from configuration mode."""
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
 
     def serial_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:[Uu]ser:|sername|ogin)", pwd_pattern=r"assword",
+                     username_pattern=r"(?:user:|username|login)", pwd_pattern=r"assword",
                      delay_factor=1, max_loops=20):
         self.write_channel(self.TELNET_RETURN)
         output = self.read_channel()
@@ -61,7 +59,7 @@ class CiscoBaseConnection(BaseConnection):
                                      username_pattern, pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:[Uu]ser:|sername|ogin|User Name)",
+                     username_pattern=r"(?:user:|username|login|user name)",
                      pwd_pattern=r"assword",
                      delay_factor=1, max_loops=20):
         """Telnet login. Can be username/password or just password."""
@@ -77,14 +75,14 @@ class CiscoBaseConnection(BaseConnection):
                 return_msg += output
 
                 # Search for username pattern / send username
-                if re.search(username_pattern, output):
+                if re.search(username_pattern, output, flags=re.I):
                     self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
-                if re.search(pwd_pattern, output):
+                if re.search(pwd_pattern, output, flags=re.I):
                     self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
@@ -109,7 +107,8 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Check for device with no password configured
                 if re.search(r"assword required, but none set", output):
-                    msg = "Telnet login failed - Password required, but none set: {}".format(
+                    self.remote_conn.close()
+                    msg = "Login failed - Password required, but none set: {}".format(
                         self.host)
                     raise NetMikoAuthenticationException(msg)
 
@@ -122,7 +121,8 @@ class CiscoBaseConnection(BaseConnection):
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {}".format(self.host)
+                self.remote_conn.close()
+                msg = "Login failed: {}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -134,7 +134,8 @@ class CiscoBaseConnection(BaseConnection):
                 or re.search(alt_prompt_terminator, output, flags=re.M)):
             return return_msg
 
-        msg = "Telnet login failed: {}".format(self.host)
+        self.remote_conn.close()
+        msg = "Login failed: {}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
     def cleanup(self):
@@ -144,6 +145,7 @@ class CiscoBaseConnection(BaseConnection):
         except Exception:
             # Always try to send 'exit' regardless of whether exit_config_mode works or not.
             pass
+        self._session_log_fin = True
         self.write_channel("exit" + self.RETURN)
 
     def _autodetect_fs(self, cmd='dir', pattern=r'Directory of (.*)/'):

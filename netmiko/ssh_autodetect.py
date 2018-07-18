@@ -52,12 +52,12 @@ from netmiko.base_connection import BaseConnection
 SSH_MAPPER_BASE = {
     'alcatel_aos': {
         "cmd": "show system",
-        "search_patterns": ["Alcatel-Lucent"],
+        "search_patterns": [r"Alcatel-Lucent"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'alcatel_sros': {
-        "cmd": "show version | match TiMOS",
+        "cmd": "show version",
         "search_patterns": [
             "Nokia",
             "Alcatel",
@@ -65,14 +65,20 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'apresia_aeos': {
+        "cmd": "show system",
+        "search_patterns": ["Apresia"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'arista_eos': {
-        "cmd": "show version | inc rist",
-        "search_patterns": ["Arista"],
+        "cmd": "show version",
+        "search_patterns": [r"Arista"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_ios': {
-        "cmd": "show version | inc Cisco",
+        "cmd": "show version",
         "search_patterns": [
            "Cisco IOS Software",
            "Cisco Internetwork Operating System Software"
@@ -81,45 +87,51 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     'cisco_asa': {
-        "cmd": "show version | inc Cisco",
-        "search_patterns": ["Cisco Adaptive Security Appliance", "Cisco ASA"],
+        "cmd": "show version",
+        "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_nxos': {
-        "cmd": "show version | inc Cisco",
-        "search_patterns": ["Cisco Nexus Operating System", "NX-OS"],
+        "cmd": "show version",
+        "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'cisco_xr': {
-        "cmd": "show version | inc Cisco",
-        "search_patterns": ["Cisco IOS XR"],
+        "cmd": "show version",
+        "search_patterns": [r"Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'huawei': {
-        "cmd": "display version | inc Huawei",
+        "cmd": "display version",
         "search_patterns": [
-            "Huawei Technologies",
-            "Huawei Versatile Routing Platform Software"
+            r"Huawei Technologies",
+            r"Huawei Versatile Routing Platform Software"
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'juniper_junos': {
-        "cmd": "show version | match JUNOS",
+        "cmd": "show version",
         "search_patterns": [
-            "JUNOS Software Release",
-            "JUNOS .+ Software",
-            "JUNOS OS Kernel",
+            r"JUNOS Software Release",
+            r"JUNOS .+ Software",
+            r"JUNOS OS Kernel",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     'dell_force10': {
-        "cmd": "show version | grep Type",
-        "search_patterns": ["S4048-ON"],
+        "cmd": "show version",
+        "search_patterns": [r"S4048-ON"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'dell_os10': {
+        "cmd": "show version",
+        "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -267,6 +279,7 @@ class SSHDetect(object):
         if not cmd or not search_patterns:
             return 0
         try:
+            # _send_command_wrapper will use already cached results if available
             response = self._send_command_wrapper(cmd)
             # Look for error conditions in output
             for pattern in invalid_responses:

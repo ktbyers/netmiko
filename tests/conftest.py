@@ -49,6 +49,37 @@ def net_connect_cm(request):
 
 
 @pytest.fixture(scope='module')
+def net_connect_slog_wr(request):
+    """
+    Create the SSH connection to the remote device. Modify session_log init arguments.
+
+    Return the netmiko connection object.
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    device['session_log_record_writes'] = True
+    conn = ConnectHandler(**device)
+    return conn
+
+
+@pytest.fixture(scope='module')
+def device_slog(request):
+    """
+    Create the SSH connection to the remote device. Modify session_log init arguments.
+
+    Return the netmiko device (not connected)
+    """
+    device_under_test = request.config.getoption('test_device')
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device['verbose'] = False
+    device['session_log_file_mode'] = 'append'
+    return device
+
+
+@pytest.fixture(scope='module')
 def expected_responses(request):
     '''
     Parse the responses.yml file to get a responses dictionary
@@ -113,6 +144,18 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
 
     raise ValueError("An error happened deleting file on Cisco IOS")
 
+def delete_file_dellos10(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for a Dell OS10 device."""
+    if not dest_file:
+        raise ValueError("Invalid dest file specified")
+
+    cmd = "delete home://{}".format(dest_file)
+    output = ssh_conn.send_command_timing(cmd)
+    if "Proceed to delete" in output:
+        output = ssh_conn.send_command_timing("yes")
+        return output
+
+    raise ValueError("An error happened deleting file on Dell OS10")
 
 def delete_file_generic(ssh_conn, dest_file_system, dest_file):
     """Delete a remote file for a Junos device."""
@@ -336,6 +379,12 @@ def get_platform_args():
             'file_system': '/var/tmp',
             'enable_scp': False,
             'delete_file': delete_file_generic,
+        },
+
+        'dellos10': {
+            'file_system': '/home/admin',
+            'enable_scp': False,
+            'delete_file': delete_file_dellos10,
         },
     }
 

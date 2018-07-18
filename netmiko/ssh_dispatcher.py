@@ -7,6 +7,7 @@ from netmiko.alcatel import AlcatelAosSSH
 from netmiko.alcatel import AlcatelSrosSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
+from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
 from netmiko.avaya import AvayaVspSSH
@@ -23,10 +24,13 @@ from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.cisco import CiscoWlcSSH
 from netmiko.cisco import CiscoXrSSH, CiscoXrFileTransfer
+from netmiko.citrix import NetscalerSSH
 from netmiko.coriant import CoriantSSH
 from netmiko.dell import DellForce10SSH
+from netmiko.dell import DellOS10SSH, DellOS10FileTransfer
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
+from netmiko.dell import DellIsilonSSH
 from netmiko.eltex import EltexSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeSSH
@@ -34,7 +38,7 @@ from netmiko.extreme import ExtremeWingSSH
 from netmiko.extreme import ExtremeTelnet
 from netmiko.f5 import F5LtmSSH
 from netmiko.fortinet import FortinetSSH
-from netmiko.hp import HPProcurveSSH, HPComwareSSH
+from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH
 from netmiko.juniper import JuniperSSH, JuniperTelnet
 from netmiko.juniper import JuniperFileTransfer
@@ -60,6 +64,7 @@ CLASS_MAPPER_BASE = {
     'accedian': AccedianSSH,
     'alcatel_aos': AlcatelAosSSH,
     'alcatel_sros': AlcatelSrosSSH,
+    'apresia_aeos': ApresiaAeosSSH,
     'arista_eos': AristaSSH,
     'aruba_os': ArubaSSH,
     'avaya_ers': AvayaErsSSH,
@@ -82,7 +87,9 @@ CLASS_MAPPER_BASE = {
     'cisco_xr': CiscoXrSSH,
     'coriant': CoriantSSH,
     'dell_force10': DellForce10SSH,
+    'dell_os10': DellOS10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
+    'dell_isilon': DellIsilonSSH,
     'eltex': EltexSSH,
     'enterasys': EnterasysSSH,
     'extreme': ExtremeSSH,
@@ -100,6 +107,7 @@ CLASS_MAPPER_BASE = {
     'mellanox': MellanoxSSH,
     'mrv_optiswitch': MrvOptiswitchSSH,
     'netapp_cdot': NetAppcDotSSH,
+    'netscaler': NetscalerSSH,
     'ovs_linux': OvsLinuxSSH,
     'paloalto_panos': PaloAltoPanosSSH,
     'pluribus': PluribusSSH,
@@ -115,6 +123,7 @@ FILE_TRANSFER_MAP = {
     'arista_eos': AristaFileTransfer,
     'cisco_asa': CiscoAsaFileTransfer,
     'cisco_ios': CiscoIosFileTransfer,
+    'dell_os10': DellOS10FileTransfer,
     'cisco_nxos': CiscoNxosFileTransfer,
     'cisco_xe': CiscoIosFileTransfer,
     'cisco_xr': CiscoXrFileTransfer,
@@ -141,7 +150,10 @@ FILE_TRANSFER_MAP = new_mapper
 CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
 CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
+CLASS_MAPPER['apresia_aeos_telnet'] = ApresiaAeosTelnet
 CLASS_MAPPER['arista_eos_telnet'] = AristaTelnet
+CLASS_MAPPER['hp_procurve_telnet'] = HPProcurveTelnet
+CLASS_MAPPER['hp_comware_telnet'] = HPComwareTelnet
 CLASS_MAPPER['juniper_junos_telnet'] = JuniperTelnet
 CLASS_MAPPER['calix_b6_telnet'] = CalixB6Telnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
