@@ -124,9 +124,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         if not hasattr(self, "prev_term_width"):
             output = self.send_command("show run | i terminal width")
             if output:
-                if "511" in output.split()[-1]:
-                    return None
-                else:
+                if not "511" in output.split()[-1]:
                     self.prev_term_width = output.split()[-1]
             else:
                 self.prev_term_width = 80
