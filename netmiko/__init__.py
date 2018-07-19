@@ -23,7 +23,7 @@ NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
 Netmiko = ConnectHandler
 
-__version__ = '2.2.0'
+__version__ = '2.2.2'
 __all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTransfer',
            'NetMikoTimeoutException', 'NetMikoAuthenticationException',
            'NetmikoTimeoutError', 'NetmikoAuthError', 'InLineTransfer', 'redispatch',
