@@ -48,7 +48,7 @@ class PaloAltoPanosBase(BaseConnection):
     def exit_config_mode(self, exit_config='exit', pattern=r'>'):
         """Exit configuration mode."""
         return super(PaloAltoPanosBase, self).exit_config_mode(exit_config=exit_config,
-                                                              pattern=pattern)
+                                                               pattern=pattern)
 
     def commit(self, force=False, partial=False, device_and_network=False,
                policy_and_objects=False, vsys='', no_vsys=False, delay_factor=.1):
