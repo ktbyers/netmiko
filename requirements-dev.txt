@@ -1,5 +1,6 @@
-pytest>=3.2.5
-pylama
-tox
+pytest==2.9.1
+pylama==7.4.3
+tox==2.5.0
+twine==1.11.0
 pysnmp
 -r requirements.txt
