@@ -27,7 +27,6 @@ Cisco IOS-XE
 Cisco IOS-XR  
 Cisco NX-OS  
 Cisco SG300  
-Dell OS10  
 HP Comware7  
 HP ProCurve  
 Juniper Junos  
@@ -36,12 +35,14 @@ Linux
 ###### Limited testing
 
 Alcatel AOS6/AOS8  
+Apresia Systems AEOS  
 Avaya ERS  
 Avaya VSP  
 Brocade VDX  
 Brocade MLX/NetIron  
 Calix B6  
 Cisco WLC  
+Dell OS10  
 Dell-Force10  
 Dell PowerConnect  
 Huawei  
@@ -63,7 +64,7 @@ Citrix Netscaler
 Cisco Telepresence  
 Check Point GAiA  
 Coriant  
-Dell Isilon  
+Dell EMC Isilon  
 Eltex  
 Enterasys  
 Extreme EXOS  
@@ -80,9 +81,17 @@ QuantaMesh
 
 https://pynet.twb-tech.com/blog/automation/netmiko.html
 
+##### Secure Copy Tutorial:
+
+https://pynet.twb-tech.com/blog/automation/netmiko-scp.html
+
 ##### SSH Proxy:
 
 https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html
+
+##### Common Issues:
+
+https://github.com/ktbyers/netmiko/blob/develop/COMMON_ISSUES.md
 
 ##### Documentation (Stable)
 
@@ -128,25 +137,6 @@ FastEthernet2              unassigned      YES unset  down                  down
 FastEthernet3              unassigned      YES unset  down                  down    
 FastEthernet4              10.10.10.10     YES manual up                    up      
 Vlan1                      unassigned      YES unset  down                  down    
-```
-
-#### For long-running commands, use `send_command_expect()`
-
-`send_command_expect` waits for the trailing prompt (or for an optional pattern)
-```py
-net_connect.send_command_expect('write memory')
-```
-
-```
-Building configuration...
-[OK]
-```
-
-#### Enter and exit enable mode.
-
-```py
-net_connect.enable()
-net_connect.exit_enable_mode()
 ```
 
 #### Execute configuration change commands (will automatically enter into config mode)
