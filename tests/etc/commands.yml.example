@@ -9,7 +9,10 @@ cisco_ios:
     - "no logging console"
     - "logging buffered 20010"      # something you can verify has changed
   config_verification: "show run | inc logging buffer"
-  config_file: "cisco_ios_commands.txt"
+  config_file: 'cisco_ios_commands.txt'
+  save_config_cmd: 'copy run start'
+  save_config_confirm: True
+  save_config_response: ''
 
 cisco_asa:
   version: "show version"
