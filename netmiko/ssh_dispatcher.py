@@ -48,6 +48,7 @@ from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
+from netmiko.paloalto import PaloAltoPanosTelnet
 from netmiko.pluribus import PluribusSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.ruckus import RuckusFastironSSH
@@ -155,6 +156,7 @@ CLASS_MAPPER['arista_eos_telnet'] = AristaTelnet
 CLASS_MAPPER['hp_procurve_telnet'] = HPProcurveTelnet
 CLASS_MAPPER['hp_comware_telnet'] = HPComwareTelnet
 CLASS_MAPPER['juniper_junos_telnet'] = JuniperTelnet
+CLASS_MAPPER['paloalto_panos_telnet'] = PaloAltoPanosTelnet
 CLASS_MAPPER['calix_b6_telnet'] = CalixB6Telnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
