@@ -841,7 +841,7 @@ class BaseConnection(object):
                 return self.global_delay_factor
 
     def special_login_handler(self, delay_factor=1):
-        """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
+        """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
         pass
 
     def disable_paging(self, command="terminal length 0", delay_factor=1):

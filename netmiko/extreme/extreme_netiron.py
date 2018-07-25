@@ -2,18 +2,18 @@ from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class BrocadeNetironBase(CiscoSSHConnection):
+class ExtremeNetironBase(CiscoSSHConnection):
     def save_config(self, cmd='write memory', confirm=False):
         """Save Config"""
-        return super(BrocadeNetironBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(ExtremeNetironBase, self).save_config(cmd=cmd, confirm=confirm)
 
 
-class BrocadeNetironSSH(BrocadeNetironBase):
+class ExtremeNetironSSH(ExtremeNetironBase):
     pass
 
 
-class BrocadeNetironTelnet(BrocadeNetironBase):
+class ExtremeNetironTelnet(ExtremeNetironBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get('default_enter')
         kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
-        super(BrocadeNetironTelnet, self).__init__(*args, **kwargs)
+        super(ExtremeNetironTelnet, self).__init__(*args, **kwargs)
