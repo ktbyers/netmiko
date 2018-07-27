@@ -243,6 +243,10 @@ class BaseConnection(object):
 
             self._modify_connection_params()
             self.establish_connection()
+            
+            #clears the line when trying to enter enable mode
+            self.write_channel("\r")
+            
             self.session_preparation()
 
     def __enter__(self):
