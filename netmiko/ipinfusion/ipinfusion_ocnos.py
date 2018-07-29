@@ -1,9 +1,10 @@
 from __future__ import unicode_literals
 import time
 import re
-from telnetlib import Telnet, IAC, DO, DONT, WILL, WONT, SB, SE, TTYPE
+from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, TTYPE
 from netmiko.ssh_exception import NetMikoTimeoutException
 from netmiko.cisco_base_connection import CiscoBaseConnection
+
 
 class IpinfusionOcnosBase(CiscoBaseConnection):
     """Common Methods for IP Infusion OcNOS support."""
@@ -47,9 +48,11 @@ class IpinfusionOcnosBase(CiscoBaseConnection):
                 raise ValueError(msg)
         return output
 
+
 class IpinfusionOcnosSSH(IpinfusionOcnosBase):
     """IP Infusion OcNOS SSH driver."""
     pass
+
 
 class IpinfusionOcNOSTelnet(IpinfusionOcnosBase):
     """IP Infusion OcNOS  Telnet driver."""
@@ -71,7 +74,7 @@ class IpinfusionOcNOSTelnet(IpinfusionOcnosBase):
     def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
                      username_pattern=r"(?:user:|sername|login|user name)", pwd_pattern=r"assword:",
                      delay_factor=1, max_loops=20):
-        #set callback function to handle telnet options.
+        # set callback function to handle telnet options.
         self.remote_conn.set_option_negotiation_callback(self.process_option)
         return super(IpinfusionOcNOSTelnet, self).telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
