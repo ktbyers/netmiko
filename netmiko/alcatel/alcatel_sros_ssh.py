@@ -25,7 +25,33 @@ class AlcatelSrosSSH(CiscoSSHConnection):
             self.base_prompt = match.group(1)
             return self.base_prompt
 
-    def enable(self, *args, **kwargs):
+    def enable(self, cmd='enable-admin', pattern='ssword', re_flags=re.IGNORECASE):
+        """Enter enable mode."""
+        return super(AlcatelSrosSSH, self).enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+
+    def check_enable_mode(self, check_string='CLI Already in admin mode'):
+        """Check whether we are in enable-admin mode.
+         SROS requires us to do this:
+        *A:HOSTNAME# enable-admin
+        MINOR: CLI Already in admin mode.
+        *A:HOSTNAME#
+        *A:HOSTNAME# enable-admin
+        Password:
+        MINOR: CLI Invalid password.
+        *A:HOSTNAME#
+        """
+        output = self.send_command_timing('enable-admin')
+        if re.search(r"ssword", output):
+            # Just hit enter as we don't actually want to enter enable here
+            self.write_channel(self.normalize_cmd(self.RETURN))
+            self.read_until_prompt()
+            return False
+        elif check_string in output:
+            return True
+        raise ValueError("Unexpected response in check_enable_mode() method")
+
+    def exit_enable_mode(self, exit_command=''):
+        """No corresponding exit of enable mode on SROS."""
         pass
 
     def config_mode(self, config_command='configure', pattern='#'):
