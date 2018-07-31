@@ -62,7 +62,8 @@ class RadETXSSH(RadETXBase):
 
 class RadETXTelnet(RadETXBase):
     """RAD ETX Telnet Support."""
-    def telnet_login(self, username_pattern=r"(?:user>)"):
+    def telnet_login(self, username_pattern=r"(?:user>)",
+                     alt_prompt_term=r"#\s*$"):
         """
         RAD presents with the following on login
 
@@ -72,4 +73,5 @@ class RadETXTelnet(RadETXBase):
         """
         self.TELNET_RETURN = self.RETURN
         return super(RadETXTelnet,
-                     self).telnet_login(username_pattern=username_pattern)
+                     self).telnet_login(username_pattern=username_pattern,
+                                        alt_prompt_terminator=alt_prompt_term)
