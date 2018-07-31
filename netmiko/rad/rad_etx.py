@@ -62,7 +62,7 @@ class RadETXSSH(RadETXBase):
 
 class RadETXTelnet(RadETXBase):
     """RAD ETX Telnet Support."""
-    def telnet_login(self, delay_factor=1):
+    def telnet_login(self, username_pattern=r"(?:user>)"):
         """
         RAD presents with the following on login
 
@@ -70,20 +70,6 @@ class RadETXTelnet(RadETXBase):
 
         password> ****
         """
-        delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
-        time.sleep(delay_factor * .5)
-        output = ""
-        while i <= 12:
-            output = self.read_channel()
-            if output:
-                if 'user>' in output:
-                    self.write_channel(self.username + self.RETURN)
-                elif 'password>' in output:
-                    self.write_channel(self.password + self.RETURN)
-                    break
-                time.sleep(delay_factor * 1)
-            else:
-                self.write_channel(self.RETURN)
-                time.sleep(delay_factor * 1.5)
-            i += 1
+        self.TELNET_RETURN = self.RETURN
+        return super(RadETXTelnet,
+                     self).telnet_login(username_pattern=username_pattern)
