@@ -122,7 +122,7 @@ def test_save_confirm(net_connect, commands, expected_responses):
     confirm = commands['save_config_confirm']
     save_verify = expected_responses['save_config']
 
-    cmd_response = net_connect.save_config(confirm)
+    cmd_response = net_connect.save_config(confirm=confirm)
     assert save_verify in cmd_response
 
 def test_save_response(net_connect, commands, expected_responses):
