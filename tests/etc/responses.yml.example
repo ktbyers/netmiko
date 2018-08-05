@@ -133,3 +133,25 @@ calix_b6_ssh:
   multiple_line_output: "rtcPwrUptimeTotal"
   cmd_response_init: "Building configuration...    Done"
   cmd_response_final: "access-list ethernet 999 permit ip"
+
+ipinfusion_ocnos:
+  base_prompt: rtr1
+  router_prompt: rtr1>
+  enable_prompt: rtr1#
+  interface_ip: 10.12.39.34
+  version_banner: "Software Product: OcNOS"
+  multiple_line_output: "lo                   127.0.0.1"
+  cmd_response_init: "ospfd                   2                           4"
+  cmd_response_final: "ospfd                   2                           5"
+  save_config: '[OK]'
+
+ipinfusion_ocnos_telnet:
+  base_prompt: rtr1
+  router_prompt: rtr1>
+  enable_prompt: rtr1#
+  interface_ip: 10.12.39.34
+  version_banner: "Software Product: OcNOS"
+  multiple_line_output: "lo                   127.0.0.1"
+  cmd_response_init: "ospfd                   2                           4"
+  cmd_response_final: "ospfd                   2                           5"
+  save_config: '[OK]'

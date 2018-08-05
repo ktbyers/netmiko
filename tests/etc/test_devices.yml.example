@@ -119,3 +119,18 @@ calix_b6_ssh:
   username: cli
   password: occam
   secret: razor
+
+ipinfusion_ocnos:
+  device_type: ipinfusion_ocnos
+  ip: 10.12.39.34
+  username: ocnos
+  password: ocnos
+  secret: ocnos
+
+ipinfusion_ocnos_telnet:
+  device_type: ipinfusion_ocnos_telnet
+  ip: 10.12.39.34
+  username: ocnos
+  password: ocnos
+  secret: ocnos
+
