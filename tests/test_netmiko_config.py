@@ -1,25 +1,4 @@
 #!/usr/bin/env python
-"""
-This module runs tests against Cisco IOS devices.
-
-setup_module: setup variables for later use.
-
-test_ssh_connect: verify ssh connectivity
-test_enable_mode: verify enter enable mode
-test_config_mode: verify enter config mode
-test_exit_config_mode: verify exit config mode
-test_command_set: verify sending a set of config commands
-test_commands_from_file: verify sending a set of config commands from a file
-test_save_base: verify save config with default values
-test_save_confirm: verify save config with confirm
-test_save_response: verify save config with response
-test_save_cmd: verify save config with cmd
-test_save_confirm_response: verify save config with confirm and confirm response
-test_save_all: verify save config with all options
-test_disconnect: cleanly disconnect the SSH session
-
-"""
-
 from __future__ import print_function
 from __future__ import unicode_literals
 
@@ -106,74 +85,9 @@ def test_commands_from_file(net_connect, commands, expected_responses):
     else:
         print("Skipping test (no file specified)...",)
 
-def test_save_base(net_connect, commands, expected_responses):
-    '''
-    Test save config with no options.
-    '''
-    save_verify = expected_responses['save_config']
-
-    cmd_response = net_connect.save_config()
-    assert save_verify in cmd_response
-
-def test_save_confirm(net_connect, commands, expected_responses):
-    '''
-    Test save config with the confirm parameter.
-    '''
-    confirm = commands['save_config_confirm']
-    save_verify = expected_responses['save_config']
-
-    cmd_response = net_connect.save_config(confirm)
-    assert save_verify in cmd_response
-
-def test_save_response(net_connect, commands, expected_responses):
-    '''
-    Test save config with the confirm response parameter.
-    '''
-    confirm_response = commands['save_config_response']
-    save_verify = expected_responses['save_config']
-
-    cmd_response = net_connect.save_config(confirm_response=confirm_response)
-    assert save_verify in cmd_response
-
-def test_save_cmd(net_connect, commands, expected_responses):
-    '''
-    Test save config with cmd parameter.
-    '''
-    cmd = commands['save_config_cmd']
-    save_verify = expected_responses['save_config']
-
-    cmd_response = net_connect.save_config(cmd=cmd)
-    assert save_verify in cmd_response
-
-def test_save_confirm_response(net_connect, commands, expected_responses):
-    '''
-    Test save config with confirm and confirm response parameters
-    '''
-    confirm = commands['save_config_confirm']
-    confirm_response = commands['save_config_response']
-    save_verify = expected_responses['save_config']
-
-    cmd_response = net_connect.save_config(confirm=confirm, 
-                                          confirm_response=confirm_response)
-    assert save_verify in cmd_response    
-
-def test_save_all(net_connect, commands, expected_responses):
-    '''
-    Test the save config method with all additional parameters.
-    '''
-    cmd = commands['save_config_cmd'] 
-    confirm = commands['save_config_confirm']
-    confirm_response = commands['save_config_response']
-    save_verify = expected_responses['save_config']
-
-    cmd_response = net_connect.save_config(cmd=cmd, confirm=confirm, 
-                                           confirm_response=confirm_response)
-    assert save_verify in cmd_response
 
 def test_disconnect(net_connect, commands, expected_responses):
     '''
     Terminate the SSH session
     '''
     net_connect.disconnect()
-
-
