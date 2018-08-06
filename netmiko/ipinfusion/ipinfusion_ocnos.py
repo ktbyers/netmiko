@@ -7,8 +7,9 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 class IpInfusionOcNOSBase(CiscoBaseConnection):
     """Common Methods for IP Infusion OcNOS support."""
     def __init__(self, **kwargs):
-        if kwargs.get('default_enter') is None:
+        if kwargs.get('default_enter') is None and kwargs.get('response_return') is None:
             kwargs['default_enter'] = '\r\n'
+            kwargs['response_return'] = '\r\n'
         return super(IpInfusionOcNOSBase, self).__init__(**kwargs)
 
     def session_preparation(self):
