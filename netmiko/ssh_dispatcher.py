@@ -52,6 +52,8 @@ from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
 from netmiko.pluribus import PluribusSSH
 from netmiko.quanta import QuantaMeshSSH
+from netmiko.rad import RadETXSSH
+from netmiko.rad import RadETXTelnet
 from netmiko.ruckus import RuckusFastironSSH
 from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.terminal_server import TerminalServerSSH
@@ -115,6 +117,7 @@ CLASS_MAPPER_BASE = {
     'paloalto_panos': PaloAltoPanosSSH,
     'pluribus': PluribusSSH,
     'quanta_mesh': QuantaMeshSSH,
+    'rad_etx': RadETXSSH,
     'ruckus_fastiron': RuckusFastironSSH,
     'ubiquiti_edge': UbiquitiEdgeSSH,
     'ubiquiti_edgeswitch': UbiquitiEdgeSSH,
@@ -164,6 +167,7 @@ CLASS_MAPPER['calix_b6_telnet'] = CalixB6Telnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 CLASS_MAPPER['extreme_telnet'] = ExtremeTelnet
+CLASS_MAPPER['rad_etx_telnet'] = RadETXTelnet
 CLASS_MAPPER['ruckus_fastiron_telnet'] = RuckusFastironTelnet
 
 # Add serial drivers
