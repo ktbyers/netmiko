@@ -41,10 +41,10 @@ Cisco WLC
 Dell OS10  
 Dell-Force10  
 Dell PowerConnect  
-Extreme ERS  
-Extreme VSP  
-Extreme VDX
-Extreme MLX/NetIron  
+Extreme ERS (Avaya)  
+Extreme VSP (Avaya)    
+Extreme VDX (Brocade)  
+Extreme MLX/NetIron (Brocade/Foundry)    
 Huawei  
 IP Infusion OcNOS  
 Mellanox  
@@ -70,7 +70,7 @@ Eltex
 Enterasys  
 Extreme EXOS  
 Extreme Wing
-Extreme SLX  
+Extreme SLX (Brocade)  
 F5 LTM  
 Fortinet  
 MRV Communications OptiSwitch  
