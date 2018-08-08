@@ -107,6 +107,40 @@ class CiscoAsaSSH(CiscoSSHConnection):
         """Saves Config"""
         return super(CiscoAsaSSH, self).save_config(cmd=cmd, confirm=confirm)
 
+    def set_terminal_width(self, command="", delay_factor=1):
+        """
+        On ASAs, terminal width is set in global configuration mode. First,
+        we should check to see if we can access config mode. If we can't,
+        then don't do anything. If we can and the current terminal width
+        is not already 511, store the current terminal width as an attribute
+        of this object so that it can be restored when our session is complete.
+        """
+        if not super(CiscoAsaSSH, self).check_config_mode():
+            try:
+                super(CiscoAsaSSH, self).config_mode()
+            except ValueError:
+                # Unable to access global config mode
+                return None
+        if not hasattr(self, "prev_term_width"):
+            output = self.send_command("show run | i terminal width")
+            if output:
+                if not "511" in output.split()[-1]:
+                    self.prev_term_width = output.split()[-1]
+            else:
+                self.prev_term_width = 80
+        super(CiscoAsaSSH, self).set_terminal_width(command=command)
+        super(CiscoAsaSSH, self).exit_config_mode()
+    
+    def cleanup(self):
+        """
+        Gracefully exit the SSH session. On ASAs, we need to try to restore
+        the user-configured terminal width before exiting the session.
+        """
+        try:
+            self.set_terminal_width(command="terminal width {}".format(self.prev_term_width))
+        except AttributeError:
+            pass
+        super(CiscoAsaSSH, self).cleanup()
 
 class CiscoAsaFileTransfer(CiscoFileTransfer):
     """Cisco ASA SCP File Transfer driver."""
