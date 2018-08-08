@@ -1,6 +1,6 @@
 [![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
-  
-  
+
+
 Netmiko
 =======
 
@@ -31,20 +31,20 @@ HP Comware7
 HP ProCurve  
 Juniper Junos  
 Linux  
-  
+
 ###### Limited testing
 
 Alcatel AOS6/AOS8  
 Apresia Systems AEOS  
-Avaya ERS  
-Avaya VSP  
-Brocade VDX  
-Brocade MLX/NetIron  
 Calix B6  
 Cisco WLC  
 Dell OS10  
 Dell-Force10  
 Dell PowerConnect  
+Extreme ERS  
+Extreme VSP  
+Extreme VDX
+Extreme MLX/NetIron  
 Huawei  
 IP Infusion OcNOS  
 Mellanox  
@@ -69,7 +69,8 @@ Dell EMC Isilon
 Eltex  
 Enterasys  
 Extreme EXOS  
-Extreme Wing  
+Extreme Wing
+Extreme SLX  
 F5 LTM  
 Fortinet  
 MRV Communications OptiSwitch  

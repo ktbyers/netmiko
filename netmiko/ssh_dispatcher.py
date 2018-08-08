@@ -9,11 +9,6 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
-from netmiko.avaya import AvayaErsSSH
-from netmiko.avaya import AvayaVspSSH
-from netmiko.brocade import BrocadeNetironSSH
-from netmiko.brocade import BrocadeNetironTelnet
-from netmiko.brocade import BrocadeNosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
@@ -33,9 +28,15 @@ from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
 from netmiko.eltex import EltexSSH
 from netmiko.enterasys import EnterasysSSH
-from netmiko.extreme import ExtremeSSH
+from netmiko.extreme import ExtremeErsSSH
+from netmiko.extreme import ExtremeExosSSH
+from netmiko.extreme import ExtremeExosTelnet
+from netmiko.extreme import ExtremeNetironSSH
+from netmiko.extreme import ExtremeNetironTelnet
+from netmiko.extreme import ExtremeNosSSH
+from netmiko.extreme import ExtremeSlxSSH
+from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
-from netmiko.extreme import ExtremeTelnet
 from netmiko.f5 import F5LtmSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
@@ -69,12 +70,12 @@ CLASS_MAPPER_BASE = {
     'apresia_aeos': ApresiaAeosSSH,
     'arista_eos': AristaSSH,
     'aruba_os': ArubaSSH,
-    'avaya_ers': AvayaErsSSH,
-    'avaya_vsp': AvayaVspSSH,
+    'avaya_ers': ExtremeErsSSH,
+    'avaya_vsp': ExtremeVspSSH,
     'brocade_fastiron': RuckusFastironSSH,
-    'brocade_netiron': BrocadeNetironSSH,
-    'brocade_nos': BrocadeNosSSH,
-    'brocade_vdx': BrocadeNosSSH,
+    'brocade_netiron': ExtremeNetironSSH,
+    'brocade_nos': ExtremeNosSSH,
+    'brocade_vdx': ExtremeNosSSH,
     'brocade_vyos': VyOSSSH,
     'checkpoint_gaia': CheckPointGaiaSSH,
     'calix_b6': CalixB6SSH,
@@ -94,7 +95,14 @@ CLASS_MAPPER_BASE = {
     'dell_isilon': DellIsilonSSH,
     'eltex': EltexSSH,
     'enterasys': EnterasysSSH,
-    'extreme': ExtremeSSH,
+    'extreme': ExtremeExosSSH,
+    'extreme_ers': ExtremeErsSSH,
+    'extreme_exos': ExtremeExosSSH,
+    'extreme_netiron': ExtremeNetironSSH,
+    'extreme_nos': ExtremeNosSSH,
+    'extreme_slx': ExtremeSlxSSH,
+    'extreme_vdx': ExtremeNosSSH,
+    'extreme_vsp': ExtremeVspSSH,
     'extreme_wing': ExtremeWingSSH,
     'f5_ltm': F5LtmSSH,
     'fortinet': FortinetSSH,
@@ -150,20 +158,22 @@ for k, v in FILE_TRANSFER_MAP.items():
 FILE_TRANSFER_MAP = new_mapper
 
 # Add telnet drivers
-CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
-CLASS_MAPPER['brocade_netiron_telnet'] = BrocadeNetironTelnet
-CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
 CLASS_MAPPER['apresia_aeos_telnet'] = ApresiaAeosTelnet
 CLASS_MAPPER['arista_eos_telnet'] = AristaTelnet
+CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
+CLASS_MAPPER['brocade_netiron_telnet'] = ExtremeNetironTelnet
+CLASS_MAPPER['calix_b6_telnet'] = CalixB6Telnet
+CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
+CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
+CLASS_MAPPER['extreme_telnet'] = ExtremeExosTelnet
+CLASS_MAPPER['extreme_exos_telnet'] = ExtremeExosTelnet
+CLASS_MAPPER['extreme_netiron_telnet'] = ExtremeNetironTelnet
+CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
 CLASS_MAPPER['hp_procurve_telnet'] = HPProcurveTelnet
 CLASS_MAPPER['hp_comware_telnet'] = HPComwareTelnet
 CLASS_MAPPER['ipinfusion_ocnos_telnet'] = IpInfusionOcNOSTelnet
 CLASS_MAPPER['juniper_junos_telnet'] = JuniperTelnet
 CLASS_MAPPER['paloalto_panos_telnet'] = PaloAltoPanosTelnet
-CLASS_MAPPER['calix_b6_telnet'] = CalixB6Telnet
-CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
-CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
-CLASS_MAPPER['extreme_telnet'] = ExtremeTelnet
 CLASS_MAPPER['ruckus_fastiron_telnet'] = RuckusFastironTelnet
 
 # Add serial drivers
