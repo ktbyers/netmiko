@@ -17,7 +17,13 @@ class CiscoAsaSSH(CiscoSSHConnection):
         else:
             self.asa_login()
         self.disable_paging(command="terminal pager 0")
-        self.set_terminal_width(command="terminal width 511")
+        if self.allow_auto_change:
+            try:
+                self.send_config_set("terminal width 511")
+            except ValueError:
+                # Don't fail for the terminal width
+                pass
+
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
