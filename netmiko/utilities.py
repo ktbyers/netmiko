@@ -8,6 +8,7 @@ import os
 import serial.tools.list_ports
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
+from netmiko.py23_compat import text_type
 
 
 # Dictionary mapping 'show run' for vendors with different command
@@ -183,7 +184,7 @@ def check_serial_port(name):
         msg += "available devices are: "
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
-            msg += "{},".format(str(p))
+            msg += "{},".format(text_type(p))
         raise ValueError(msg)
 
 

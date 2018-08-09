@@ -23,7 +23,7 @@ import serial
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
-from netmiko.py23_compat import string_types, bufferedio_types
+from netmiko.py23_compat import string_types, bufferedio_types, text_type
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
 
@@ -750,7 +750,7 @@ class BaseConnection(object):
                 self.paramiko_cleanup()
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
-                msg += self.RETURN + str(auth_err)
+                msg += self.RETURN + text_type(auth_err)
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:

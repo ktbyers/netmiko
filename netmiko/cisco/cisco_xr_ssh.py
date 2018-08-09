@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
+from netmiko.py23_compat import text_type
 
 
 class CiscoXrSSH(CiscoSSHConnection):
@@ -70,22 +71,23 @@ class CiscoXrSSH(CiscoSSHConnection):
                 raise ValueError("Invalid comment contains double quote")
             comment = '"{0}"'.format(comment)
 
-        label = str(label)
+        label = text_type(label)
         error_marker = 'Failed to'
         alt_error_marker = 'One or more commits have occurred from other'
 
         # Select proper command string based on arguments provided
         if label:
             if comment:
-                command_string = 'commit label {0} comment {1}'.format(label, comment)
+                command_string = 'commit label {} comment {}'.format(label, comment)
             elif confirm:
-                command_string = 'commit label {0} confirmed {1}'.format(label, str(confirm_delay))
+                command_string = 'commit label {} confirmed {}'.format(label,
+                                                                       text_type(confirm_delay))
             else:
-                command_string = 'commit label {0}'.format(label)
+                command_string = 'commit label {}'.format(label)
         elif confirm:
-            command_string = 'commit confirmed {0}'.format(str(confirm_delay))
+            command_string = 'commit confirmed {}'.format(text_type(confirm_delay))
         elif comment:
-            command_string = 'commit comment {0}'.format(comment)
+            command_string = 'commit comment {}'.format(comment)
         else:
             command_string = 'commit'
 
@@ -99,7 +101,7 @@ class CiscoXrSSH(CiscoSSHConnection):
             # Other commits occurred, don't proceed with commit
             output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
                                                delay_factor=delay_factor)
-            raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+            raise ValueError("Commit failed with the following errors:\n\n{}".format(output))
 
         return output
 
