@@ -1124,7 +1124,8 @@ class BaseConnection(object):
                 if self.ansi_escape_codes:
                     new_data = self.strip_ansi_escape_codes(new_data)
 
-                # Case where we haven't processed the first_line yet
+                # Case where we haven't processed the first_line yet (there is a potential issue
+                # in the first line (in cases where the line is repainted).
                 if not first_line_processed:
                     output += new_data
                     output, first_line_processed = self._first_line_handler(
