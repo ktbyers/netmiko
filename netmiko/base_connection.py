@@ -170,6 +170,7 @@ class BaseConnection(object):
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
+        self.allow_auto_change = allow_auto_change
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
