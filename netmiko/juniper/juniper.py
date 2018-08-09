@@ -5,6 +5,7 @@ import time
 
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
+from netmiko.py23_compat import text_type
 
 
 class JuniperBase(BaseConnection):
@@ -127,7 +128,7 @@ class JuniperBase(BaseConnection):
             commit_marker = 'configuration check succeeds'
         elif confirm:
             if confirm_delay:
-                command_string = 'commit confirmed ' + str(confirm_delay)
+                command_string = 'commit confirmed ' + text_type(confirm_delay)
             else:
                 command_string = 'commit confirmed'
             commit_marker = 'commit confirmed will be automatically rolled back in'
