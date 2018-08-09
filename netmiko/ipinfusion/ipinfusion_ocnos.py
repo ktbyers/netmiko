@@ -8,7 +8,7 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
     """Common Methods for IP Infusion OcNOS support."""
     def __init__(self, *args, **kwargs):
         if kwargs.get('default_enter') is None:
-            kwargs['default_enter'] = '\r\n'
+            kwargs['default_enter'] = '\r'
         return super(IpInfusionOcNOSBase, self).__init__(**kwargs)
 
     def session_preparation(self):
