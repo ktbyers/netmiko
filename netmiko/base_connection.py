@@ -662,12 +662,12 @@ class BaseConnection(object):
         elif "ProxyCommand" in source:
             proxy = paramiko.ProxyCommand(source['ProxyCommand'])
         elif 'proxyjump' in source:
-            source['proxycommand'] = 'ssh ' + source['proxyjump'] + ' nc ' + source['hostname'] + ' ' \
-                                     + source.get('port', '22')
+            source['proxycommand'] = 'ssh ' + source['proxyjump'] + ' nc ' + source['hostname'] + \
+                                     ' ' + source.get('port', '22')
             proxy = paramiko.ProxyCommand(source['proxycommand'])
         elif 'ProxyJump' in source:
-            source['proxycommand'] = 'ssh ' + source['ProxyJump'] + ' nc ' + source['hostname'] + ' ' \
-                                     + source.get('port', '22')
+            source['proxycommand'] = 'ssh ' + source['ProxyJump'] + ' nc ' + source['hostname'] + \
+                                     ' ' + source.get('port', '22')
             proxy = paramiko.ProxyCommand(source['proxycommand'])
         else:
             proxy = None
