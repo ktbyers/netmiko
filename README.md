@@ -160,10 +160,6 @@ pynet-rtr1(config)#end
 pynet-rtr1#
 ```
 
-#### Note, Netmiko in certain situations will automatically execute configuration changes to change terminal settings.
-
-For example, if a platform requires a configuration mode change to disable output paging or to set the terminal width. Netmiko, will generally not attempt to track state on these settings (so your program would need to reset it to the value you require, if you are permanently saving the configuration).
-
 
 ## Questions/Discussion
 

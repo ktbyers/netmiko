@@ -40,7 +40,8 @@ class BaseConnection(object):
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
                  response_return=None, serial_settings=None, fast_cli=False, session_log=None,
-                 session_log_record_writes=False, session_log_file_mode='write'):
+                 session_log_record_writes=False, session_log_file_mode='write',
+                 allow_auto_change=False):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -135,6 +136,10 @@ class BaseConnection(object):
         :param session_log_file_mode: "write" or "append" for session_log file mode
                 (default: "write")
         :type session_log_file_mode: str
+
+        :param allow_auto_change: Allow automatic configuration changes for terminal settings.
+                (default: False)
+        :type allow_auto_change: bool
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
