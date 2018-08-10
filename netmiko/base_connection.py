@@ -170,6 +170,7 @@ class BaseConnection(object):
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
+        self.allow_auto_change = allow_auto_change
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
@@ -1021,6 +1022,33 @@ class BaseConnection(object):
         else:
             return a_string
 
+    def _first_line_handler(self, data, search_pattern):
+        """
+        In certain situations the first line will get repainted which causes a false
+        match on the terminating pattern.
+
+        Filter this out.
+
+        returns a tuple of (data, first_line_processed)
+
+        Where data is the original data potentially with the first line modified
+        and the first_line_processed is a flag indicating that we have handled the
+        first line.
+        """
+        try:
+            # First line is the echo line containing the command. In certain situations
+            # it gets repainted and needs filtered
+            lines = data.split(self.RETURN)
+            first_line = lines[0]
+            if BACKSPACE_CHAR in first_line:
+                pattern = search_pattern + r'.*$'
+                first_line = re.sub(pattern, repl='', string=first_line)
+                lines[0] = first_line
+                data = self.RETURN.join(lines)
+            return (data, True)
+        except IndexError:
+            return (data, False)
+
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True, normalize=True,
@@ -1088,27 +1116,32 @@ class BaseConnection(object):
 
         i = 1
         output = ''
+        first_line_processed = False
+
         # Keep reading data until search_pattern is found or until max_loops is reached.
         while i <= max_loops:
             new_data = self.read_channel()
             if new_data:
                 if self.ansi_escape_codes:
                     new_data = self.strip_ansi_escape_codes(new_data)
-                output += new_data
-                try:
-                    lines = output.split(self.RETURN)
-                    first_line = lines[0]
-                    # First line is the echo line containing the command. In certain situations
-                    # it gets repainted and needs filtered
-                    if BACKSPACE_CHAR in first_line:
-                        pattern = search_pattern + r'.*$'
-                        first_line = re.sub(pattern, repl='', string=first_line)
-                        lines[0] = first_line
-                        output = self.RETURN.join(lines)
-                except IndexError:
-                    pass
-                if re.search(search_pattern, output):
-                    break
+
+                # Case where we haven't processed the first_line yet (there is a potential issue
+                # in the first line (in cases where the line is repainted).
+                if not first_line_processed:
+                    output += new_data
+                    output, first_line_processed = self._first_line_handler(
+                        output,
+                        search_pattern
+                    )
+                    # Check if we have already found our pattern
+                    if re.search(search_pattern, output):
+                        break
+
+                else:
+                    output += new_data
+                    # Check if pattern is in the incremental data
+                    if re.search(search_pattern, new_data):
+                        break
 
             time.sleep(delay_factor * loop_delay)
             i += 1
