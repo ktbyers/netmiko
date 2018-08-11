@@ -21,9 +21,10 @@ class HuaweiSSH(CiscoSSHConnection):
         """Enter configuration mode."""
         return super(HuaweiSSH, self).config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config='return'):
+    def exit_config_mode(self, exit_config='return', pattern=r'>'):
         """Exit configuration mode."""
-        return super(HuaweiSSH, self).exit_config_mode(exit_config=exit_config)
+        return super(HuaweiSSH, self).exit_config_mode(exit_config=exit_config,
+                                                       pattern=pattern)
 
     def check_config_mode(self, check_string=']'):
         """Checks whether in configuration mode. Returns a boolean."""
