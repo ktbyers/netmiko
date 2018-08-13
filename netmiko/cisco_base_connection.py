@@ -127,7 +127,7 @@ class CiscoBaseConnection(BaseConnection):
                 # Search for linux host prompt pattern [xr:~] or x86 prompt pattern
                 linux_prompt_pattern = r"\[xr:~]\$"
                 switch_to_xr_command = 'xr'
-                x86_prompt_pattern = r"root@xr:~#"
+                x86_prompt_pattern = r"(root@xr:~#)|(root@ios:~#)"
                 if re.search(linux_prompt_pattern, output) or re.search(x86_prompt_pattern, output):
                     self.write_channel(self.TELNET_RETURN + "xr" + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
@@ -187,7 +187,8 @@ class CiscoBaseConnection(BaseConnection):
                     #print ("__________________________________________")
                 else:
                     xr_or_host_login_pattern = "xr login:"
-                    if re.search(xr_or_host_login_pattern, output):
+                    xr_or_host_login_alt_pattern = "ios login:"
+                    if re.search(xr_or_host_login_pattern, output) or re.search(xr_or_host_login_alt_pattern, output):
                         self.write_channel(self.username + self.TELNET_RETURN)
                         time.sleep(1 * delay_factor)
                         output = self.read_channel()
