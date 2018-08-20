@@ -663,7 +663,8 @@ class BaseConnection(object):
             proxy = paramiko.ProxyCommand(source['ProxyCommand'])
         elif 'proxyjump' in source:
             hops = list(reversed(source['proxyjump'].split(',')))
-            source['proxycommand'] = 'ssh -W ' + source['hostname'] + ':' + source.get('port', '22') + ' ' + hops[0]
+            source['proxycommand'] = 'ssh -W ' + source['hostname'] + ':' + \
+                                     source.get('port', '22') + ' ' + hops[0]
             proxy = paramiko.ProxyCommand(source['proxycommand'])
         else:
             proxy = None
