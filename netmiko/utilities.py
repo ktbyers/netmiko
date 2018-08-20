@@ -176,7 +176,7 @@ def write_bytes(out_data, encoding='ascii'):
                 return out_data.encode('ascii', 'ignore')
         elif isinstance(out_data, type(str(''))):
             return out_data
-    msg = "Invalid value for out_data neither unicode nor byte string: {0}".format(out_data)
+    msg = "Invalid value for out_data neither unicode nor byte string: {}".format(out_data)
     raise ValueError(msg)
 
 

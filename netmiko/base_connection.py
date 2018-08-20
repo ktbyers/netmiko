@@ -41,7 +41,7 @@ class BaseConnection(object):
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
                  response_return=None, serial_settings=None, fast_cli=False, session_log=None,
                  session_log_record_writes=False, session_log_file_mode='write',
-                 allow_auto_change=False, write_encoding='ascii'):
+                 allow_auto_change=False, encoding='ascii'):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -140,6 +140,10 @@ class BaseConnection(object):
         :param allow_auto_change: Allow automatic configuration changes for terminal settings.
                 (default: False)
         :type allow_auto_change: bool
+
+        :param encoding: Encoding to be used when writing bytes to the output channel.
+                (default: 'ascii')
+        :type encoding: str
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -171,7 +175,7 @@ class BaseConnection(object):
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
-        self.write_encoding = write_encoding
+        self.encoding = encoding
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
