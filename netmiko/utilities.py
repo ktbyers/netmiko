@@ -158,16 +158,22 @@ def find_netmiko_dir():
     return (netmiko_base_dir, netmiko_full_dir)
 
 
-def write_bytes(out_data):
+def write_bytes(out_data, encoding='ascii'):
     """Write Python2 and Python3 compatible byte stream."""
     if sys.version_info[0] >= 3:
         if isinstance(out_data, type(u'')):
-            return out_data.encode('utf-8')
+            if encoding == 'utf-8':
+                return out_data.encode('utf-8')
+            else:
+                return out_data.encode('ascii', 'ignore')
         elif isinstance(out_data, type(b'')):
             return out_data
     else:
         if isinstance(out_data, type(u'')):
-            return out_data.encode('utf-8')
+            if encoding == 'utf-8':
+                return out_data.encode('utf-8')
+            else:
+                return out_data.encode('ascii', 'ignore')
         elif isinstance(out_data, type(str(''))):
             return out_data
     msg = "Invalid value for out_data neither unicode nor byte string: {0}".format(out_data)
