@@ -41,7 +41,7 @@ class BaseConnection(object):
                  session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
                  response_return=None, serial_settings=None, fast_cli=False, session_log=None,
                  session_log_record_writes=False, session_log_file_mode='write',
-                 allow_auto_change=False):
+                 allow_auto_change=False, encoding='ascii'):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -140,6 +140,10 @@ class BaseConnection(object):
         :param allow_auto_change: Allow automatic configuration changes for terminal settings.
                 (default: False)
         :type allow_auto_change: bool
+
+        :param encoding: Encoding to be used when writing bytes to the output channel.
+                (default: 'ascii')
+        :type encoding: str
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -171,6 +175,7 @@ class BaseConnection(object):
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
+        self.encoding = encoding
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
@@ -309,16 +314,16 @@ class BaseConnection(object):
         :type out_data: str (can be either unicode/byte string)
         """
         if self.protocol == 'ssh':
-            self.remote_conn.sendall(write_bytes(out_data))
+            self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
         elif self.protocol == 'telnet':
-            self.remote_conn.write(write_bytes(out_data))
+            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
         elif self.protocol == 'serial':
-            self.remote_conn.write(write_bytes(out_data))
+            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
             self.remote_conn.flush()
         else:
             raise ValueError("Invalid protocol specified")
         try:
-            log.debug("write_channel: {}".format(write_bytes(out_data)))
+            log.debug("write_channel: {}".format(write_bytes(out_data, encoding=self.encoding)))
             if self._session_log_fin or self.session_log_record_writes:
                 self._write_session_log(out_data)
         except UnicodeDecodeError:
@@ -327,7 +332,7 @@ class BaseConnection(object):
 
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) > 0:
-            self.session_log.write(write_bytes(data))
+            self.session_log.write(write_bytes(data, encoding=self.encoding))
             self.session_log.flush()
 
     def write_channel(self, out_data):
