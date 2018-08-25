@@ -38,7 +38,7 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
-                 session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
+                 session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None,
                  response_return=None, serial_settings=None, fast_cli=False, session_log=None,
                  session_log_record_writes=False, session_log_file_mode='write',
                  allow_auto_change=False, encoding='ascii'):
@@ -108,6 +108,9 @@ class BaseConnection(object):
         :param session_timeout: Set a timeout for parallel requests.
         :type session_timeout: float
 
+        :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
+        :type auth_timeout: float
+
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
                 to keep the connection alive).
@@ -171,6 +174,7 @@ class BaseConnection(object):
         self.ansi_escape_codes = False
         self.verbose = verbose
         self.timeout = timeout
+        self.auth_timeout = auth_timeout
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
@@ -693,6 +697,7 @@ class BaseConnection(object):
             'allow_agent': self.allow_agent,
             'key_filename': self.key_file,
             'timeout': self.timeout,
+            'auth_timeout': self.auth_timeout
         }
 
         # Check if using SSH 'config' file mainly for SSH proxy support
