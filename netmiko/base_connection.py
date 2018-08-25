@@ -36,8 +36,8 @@ class BaseConnection(object):
     """
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
-                 key_file=None, pkey=None, allow_agent=False, ssh_strict=False,
-                 system_host_keys=False,
+                 key_file=None, pkey=None, passphrase=None, allow_agent=False,
+                 ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
                  session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0,
                  default_enter=None, response_return=None, serial_settings=None, fast_cli=False,
@@ -84,8 +84,12 @@ class BaseConnection(object):
         :param key_file: Filename path of the SSH key file to use.
         :type key_file: str
 
-        :param priv_key: SSH key object to use.
-        :type priv_key: paramiko.PKey
+        :param pkey: SSH key object to use.
+        :type pkey: paramiko.PKey
+
+        :param passphrase: Passphrase to use for encrypted key; password will be used for key
+                decryption if not specified.
+        :type passphrase: str
 
         :param allow_agent: Enable use of SSH key-agent.
         :type allow_agent: bool
@@ -252,7 +256,8 @@ class BaseConnection(object):
             # Options for SSH host_keys
             self.use_keys = use_keys
             self.key_file = key_file
-            self.priv_key = priv_key
+            self.pkey = pkey
+            self.passphrase = passphrase
             self.allow_agent = allow_agent
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
@@ -701,7 +706,8 @@ class BaseConnection(object):
             'look_for_keys': self.use_keys,
             'allow_agent': self.allow_agent,
             'key_filename': self.key_file,
-            'pkey': self.priv_key,
+            'pkey': self.pkey,
+            'passphrase': self.passphrase,
             'timeout': self.timeout,
             'auth_timeout': self.auth_timeout
         }
