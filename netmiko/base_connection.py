@@ -38,9 +38,9 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
-                 session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None,
-                 response_return=None, serial_settings=None, fast_cli=False, session_log=None,
-                 session_log_record_writes=False, session_log_file_mode='write',
+                 session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0,
+                 default_enter=None, response_return=None, serial_settings=None, fast_cli=False,
+                 session_log=None, session_log_record_writes=False, session_log_file_mode='write',
                  allow_auto_change=False, encoding='ascii'):
         """
         Initialize attributes for establishing connection to target device.
