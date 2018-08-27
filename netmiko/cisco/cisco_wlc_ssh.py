@@ -23,7 +23,7 @@ class CiscoWlcSSH(BaseConnection):
 
         Password:****
         """
-        password_length = len(password)
+        password_length = len(self.password)
         delay_factor = self.select_delay_factor(delay_factor)
         i = 0
         time.sleep(delay_factor * .5)
