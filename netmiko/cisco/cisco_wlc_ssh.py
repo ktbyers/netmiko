@@ -15,7 +15,6 @@ class CiscoWlcSSH(BaseConnection):
 
     def special_login_handler(self, delay_factor=1):
         """WLC presents with the following on login (in certain OS versions)
-        
 
         login as: user
 
