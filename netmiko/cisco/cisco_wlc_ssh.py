@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import time
 import re
 
+from netmiko.ssh_exception import NetMikoAuthenticationException
 from netmiko.base_connection import BaseConnection
 from netmiko.py23_compat import string_types
 from netmiko import log
@@ -13,8 +14,8 @@ class CiscoWlcSSH(BaseConnection):
     """Netmiko Cisco WLC support."""
 
     def special_login_handler(self, delay_factor=1):
-        """WLC presents with the following on login (in certain OS versions),
-        maximum password length is 25 on Aireos
+        """WLC presents with the following on login (in certain OS versions)
+        
 
         login as: user
 
@@ -35,12 +36,8 @@ class CiscoWlcSSH(BaseConnection):
                     self.write_channel(self.username + self.RETURN)
                 elif 'Password' in output:
                     self.write_channel(self.password + self.RETURN)
-                    self.clear_buffer()
-                    self.write_channel(self.RETURN)
-                    time.sleep(delay_factor * 1)
-                    output = self.read_channel()
-                    if 'User' in output:
-                        
+                    if 'User:' in self.find_prompt():
+                        raise NetMikoAuthenticationException('Unable to authenticate.')
                     break
                 time.sleep(delay_factor * 1)
             else:
