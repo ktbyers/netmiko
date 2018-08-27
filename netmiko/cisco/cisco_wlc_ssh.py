@@ -13,7 +13,8 @@ class CiscoWlcSSH(BaseConnection):
     """Netmiko Cisco WLC support."""
 
     def special_login_handler(self, delay_factor=1):
-        """WLC presents with the following on login (in certain OS versions)
+        """WLC presents with the following on login (in certain OS versions),
+        maximum password length is 25 on Aireos
 
         login as: user
 
@@ -23,6 +24,10 @@ class CiscoWlcSSH(BaseConnection):
 
         Password:****
         """
+        password_length = len(self.password)
+        if password_length > 25:
+            raise ValueError('The supplied password of [{}]'.format(str(password_length))) +
+                             ' is greater than the maximum supported length of [25] for Cisco WLC.'
         delay_factor = self.select_delay_factor(delay_factor)
         i = 0
         time.sleep(delay_factor * .5)
