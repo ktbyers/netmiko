@@ -36,7 +36,7 @@ class CiscoWlcSSH(BaseConnection):
                     self.write_channel(self.username + self.RETURN)
                 elif 'Password' in output:
                     self.write_channel(self.password + self.RETURN)
-                    if 'User:' in self.find_prompt():
+                    if 'User:' == self.find_prompt():
                         raise NetMikoAuthenticationException('Unable to authenticate.')
                     break
                 time.sleep(delay_factor * 1)
