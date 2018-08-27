@@ -168,6 +168,8 @@ Netmiko has been configured to automatically look in `~/ntc-template/templates/i
 export NET_TEXTFSM=/path/to/ntc-templates/templates/
 ```
 
+(More info on TextFSM and Netmiko)[https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html].
+
 ## Questions/Discussion
 
 If you find an issue with Netmiko, then you can open an issue on this projects issue page here: [https://github.com/ktbyers/netmiko/issues](https://github.com/ktbyers/netmiko/issues)
