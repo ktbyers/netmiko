@@ -6,76 +6,76 @@ Netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-Python 2.7, 3.5, 3.6  
+Python 2.7, 3.5, 3.6
 
 #### Requires:
 
-Paramiko >= 2  
-scp >= 0.10.0  
-pyyaml  
-pyserial  
-textfsm  
+- Paramiko >= 2
+- scp >= 0.10.0
+- pyyaml
+- pyserial
+- textfsm
 
 #### Supports:
 
 ###### Regularly tested
 
-Arista vEOS  
-Cisco ASA  
-Cisco IOS  
-Cisco IOS-XE  
-Cisco IOS-XR  
-Cisco NX-OS  
-Cisco SG300  
-HP Comware7  
-HP ProCurve  
-Juniper Junos  
-Linux  
+- Arista vEOS
+- Cisco ASA
+- Cisco IOS
+- Cisco IOS-XE
+- Cisco IOS-XR
+- Cisco NX-OS
+- Cisco SG300
+- HP Comware7
+- HP ProCurve
+- Juniper Junos
+- Linux
 
 ###### Limited testing
 
-Alcatel AOS6/AOS8  
-Apresia Systems AEOS  
-Calix B6  
-Cisco WLC  
-Dell OS10  
-Dell-Force10  
-Dell PowerConnect  
-Extreme ERS (Avaya)  
-Extreme VSP (Avaya)    
-Extreme VDX (Brocade)  
-Extreme MLX/NetIron (Brocade/Foundry)    
-Huawei  
-IP Infusion OcNOS  
-Mellanox  
-NetApp cDOT  
-Palo Alto PAN-OS  
-Pluribus  
-Ruckus ICX/FastIron  
-Ubiquiti EdgeSwitch  
-Vyatta VyOS  
+- Alcatel AOS6/AOS8
+- Apresia Systems AEOS
+- Calix B6
+- Cisco WLC
+- Dell OS10
+- Dell-Force10
+- Dell PowerConnect
+- Extreme ERS (Avaya)
+- Extreme VSP (Avaya)
+- Extreme VDX (Brocade)
+- Extreme MLX/NetIron (Brocade/Foundry)
+- Huawei
+- IP Infusion OcNOS
+- Mellanox
+- NetApp cDOT
+- Palo Alto PAN-OS
+- Pluribus
+- Ruckus ICX/FastIron
+- Ubiquiti EdgeSwitch
+- Vyatta VyOS
 
 ###### Experimental
 
-A10  
-Accedian  
-Aruba  
-Ciena SAOS  
-Citrix Netscaler  
-Cisco Telepresence  
-Check Point GAiA  
-Coriant  
-Dell EMC Isilon  
-Eltex  
-Enterasys  
-Extreme EXOS  
-Extreme Wing
-Extreme SLX (Brocade)  
-F5 LTM  
-Fortinet  
-MRV Communications OptiSwitch  
-Nokia/Alcatel SR-OS  
-QuantaMesh  
+- A10
+- Accedian
+- Aruba
+- Ciena SAOS
+- Citrix Netscaler
+- Cisco Telepresence
+- Check Point GAiA
+- Coriant
+- Dell EMC Isilon
+- Eltex
+- Enterasys
+- Extreme EXOS
+- Extreme Wing
+- Extreme SLX (Brocade)
+- F5 LTM
+- Fortinet
+- MRV Communications OptiSwitch
+- Nokia/Alcatel SR-OS
+- QuantaMesh
 
 ## Tutorials:
 
@@ -133,12 +133,12 @@ print(output)
 ```
 ```
 Interface                  IP-Address      OK? Method Status                Protocol
-FastEthernet0              unassigned      YES unset  down                  down    
-FastEthernet1              unassigned      YES unset  down                  down    
-FastEthernet2              unassigned      YES unset  down                  down    
-FastEthernet3              unassigned      YES unset  down                  down    
-FastEthernet4              10.10.10.10     YES manual up                    up      
-Vlan1                      unassigned      YES unset  down                  down    
+FastEthernet0              unassigned      YES unset  down                  down
+FastEthernet1              unassigned      YES unset  down                  down
+FastEthernet2              unassigned      YES unset  down                  down
+FastEthernet3              unassigned      YES unset  down                  down
+FastEthernet4              10.10.10.10     YES manual up                    up
+Vlan1                      unassigned      YES unset  down                  down
 ```
 
 #### Execute configuration change commands (will automatically enter into config mode)
@@ -160,6 +160,15 @@ pynet-rtr1(config)#end
 pynet-rtr1#
 ```
 
+## TextFSM Integration
+
+Netmiko has been configured to automatically look in `~/ntc-template/templates/index` for the ntc-templates index file. Alternatively, you can explicitly tell Netmiko where to look for the TextFSM template directory by setting the `NET_TEXTFSM` environment variable (note, there must be an index file in this directory):
+
+```
+export NET_TEXTFSM=/path/to/ntc-templates/templates/
+```
+
+[More info on TextFSM and Netmiko](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html).
 
 ## Questions/Discussion
 
@@ -170,7 +179,7 @@ If you have questions or would like to discuss Netmiko, a Netmiko channel exists
 
 
 
----    
-Kirk Byers  
-Python for Network Engineers  
-https://pynet.twb-tech.com  
+---
+Kirk Byers
+Python for Network Engineers
+https://pynet.twb-tech.com
