@@ -179,7 +179,7 @@ If you have questions or would like to discuss Netmiko, a Netmiko channel exists
 
 
 
----  
+---   
 Kirk Byers  
 Python for Network Engineers  
 https://pynet.twb-tech.com  
