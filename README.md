@@ -6,7 +6,7 @@ Netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-Python 2.7, 3.5, 3.6
+Python 2.7, 3.5, 3.6  
 
 #### Requires:
 
@@ -179,7 +179,7 @@ If you have questions or would like to discuss Netmiko, a Netmiko channel exists
 
 
 
----
-Kirk Byers
-Python for Network Engineers
-https://pynet.twb-tech.com
+---  
+Kirk Byers  
+Python for Network Engineers  
+https://pynet.twb-tech.com  
