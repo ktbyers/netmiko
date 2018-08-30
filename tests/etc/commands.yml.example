@@ -10,9 +10,7 @@ cisco_ios:
     - "logging buffered 20010"      # something you can verify has changed
   config_verification: "show run | inc logging buffer"
   config_file: 'cisco_ios_commands.txt'
-  save_config_cmd: 'copy run start'
-  save_config_confirm: True
-  save_config_response: ''
+  save_config_confirm: False
 
 cisco_asa:
   version: "show version"
@@ -192,9 +190,6 @@ ipinfusion_ocnos:
     - "no logging level ospf"
     - "logging level ospf 5"      # something you can verify has changed
   config_verification: "show logging level ospf"
-  save_config_cmd: 'write'
-  save_config_confirm: False
-  save_config_response: "[OK]"
 
 ipinfusion_ocnos_telnet:
   version: "show version"
@@ -205,6 +200,3 @@ ipinfusion_ocnos_telnet:
     - "no logging level ospf"
     - "logging level ospf 5"      # something you can verify has changed
   config_verification: "show logging level ospf"
-  save_config_cmd: 'write'
-  save_config_confirm: False
-  save_config_response: "[OK]"

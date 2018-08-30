@@ -9,6 +9,7 @@ cisco_ios:
   multiple_line_output: "Configuration register is"
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
+  save_config_response: ''
 
 juniper:
   base_prompt: pyclass@pynet-jnpr-srx1
@@ -143,7 +144,6 @@ ipinfusion_ocnos:
   multiple_line_output: "lo                   127.0.0.1"
   cmd_response_init: "ospfd                   2                           4"
   cmd_response_final: "ospfd                   2                           5"
-  save_config: '[OK]'
 
 ipinfusion_ocnos_telnet:
   base_prompt: rtr1
@@ -154,4 +154,3 @@ ipinfusion_ocnos_telnet:
   multiple_line_output: "lo                   127.0.0.1"
   cmd_response_init: "ospfd                   2                           4"
   cmd_response_final: "ospfd                   2                           5"
-  save_config: '[OK]'

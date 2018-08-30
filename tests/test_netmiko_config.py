@@ -4,19 +4,17 @@ from __future__ import unicode_literals
 
 
 def test_ssh_connect(net_connect, commands, expected_responses):
-    '''
-    Verify the connection was established successfully
-    '''
+    """Verify the connection was established successfully."""
     show_version = net_connect.send_command(commands["version"])
     assert expected_responses["version_banner"] in show_version
 
 
 def test_enable_mode(net_connect, commands, expected_responses):
-    '''
+    """
     Test entering enable mode
 
     Catch exception for devices that don't support enable
-    '''
+    """
     try:
         net_connect.enable()
         enable_prompt = net_connect.find_prompt()
@@ -26,19 +24,16 @@ def test_enable_mode(net_connect, commands, expected_responses):
 
 
 def test_config_mode(net_connect, commands, expected_responses):
-    '''
-    Test enter config mode
-    '''
+    """Test enter config mode."""
     net_connect.config_mode()
     assert net_connect.check_config_mode() == True
 
 
 def test_exit_config_mode(net_connect, commands, expected_responses):
-    '''
-    Test exit config mode
-    '''
+    """Test exit config mode."""
     net_connect.exit_config_mode()
     assert net_connect.check_config_mode() == False
+
 
 def test_command_set(net_connect, commands, expected_responses):
     """Test sending configuration commands."""
@@ -73,9 +68,7 @@ def test_command_set(net_connect, commands, expected_responses):
 
 
 def test_commands_from_file(net_connect, commands, expected_responses):
-    '''
-    Test sending configuration commands from a file
-    '''
+    """Test sending configuration commands from a file."""
     config_file = commands.get('config_file')
     config_verify = commands['config_verification']
     if config_file is not None:
@@ -87,7 +80,5 @@ def test_commands_from_file(net_connect, commands, expected_responses):
 
 
 def test_disconnect(net_connect, commands, expected_responses):
-    '''
-    Terminate the SSH session
-    '''
+    """Terminate the SSH session."""
     net_connect.disconnect()
