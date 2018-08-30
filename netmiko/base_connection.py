@@ -1151,7 +1151,7 @@ class BaseConnection(object):
             output += self._read_channel_expect(pattern=pattern, re_flags=re.M)
         return output
 
-    def send_command(self, command_string=None, command_list=None, expect_string=None,
+    def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True, normalize=True,
                      use_textfsm=False):
@@ -1160,13 +1160,8 @@ class BaseConnection(object):
         network device prompt is detected. The current network device prompt will be determined
         automatically.
 
-        :param command_string: The command to be executed on the remote device. Mutually
-            exclusive with command_list
+        :param command_string: The command to be executed on the remote device.
         :type command_string: str
-
-        :param command_list: command iterable to be executed on the remote device. Mutually
-            exclusive with command_string.
-        :type command_list: iterable
 
         :param expect_string: Regular expression pattern to use for determining end of output.
             If left blank will default to being based on router prompt.
@@ -1191,7 +1186,10 @@ class BaseConnection(object):
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type use_textfsm: bool
         """
+        i = 1
+        output = ''
         loop_delay = .2
+        first_line_processed = False
 
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # and delay_factor arguments for backwards compatibility).
@@ -1211,12 +1209,10 @@ class BaseConnection(object):
         time.sleep(delay_factor * loop_delay)
         self.clear_buffer()
 
-        commands = self._send_command_args(command_string, command_list, normalize=normalize)
-        self._fast_cli_write(commands, delay_factor=delay_factor)
-
-        i = 1
-        output = ''
-        first_line_processed = False
+        # Write command down the channel
+        if normalize:
+            command_string = self.normalize_cmd(command_string)
+        self.write_channel(command_string)
 
         # Keep reading data until search_pattern is found or until max_loops is reached.
         while i <= max_loops:
