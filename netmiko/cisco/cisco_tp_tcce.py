@@ -60,31 +60,19 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         else:
             return a_string
 
-    def send_command(self, *args, **kwargs):
-        '''
+    def send_command(self, **kwargs):
+        """
         Send command to network device retrieve output until router_prompt or expect_string
 
         By default this method will keep waiting to receive data until the network device prompt is
         detected. The current network device prompt will be determined automatically.
-
-        command_string = command to execute
-        expect_string = pattern to search for uses re.search (use raw strings)
-        delay_factor = decrease the initial delay before we start looking for data
-        max_loops = number of iterations before we give up and raise an exception
-        strip_prompt = strip the trailing prompt from the output
-        strip_command = strip the leading command from the output
-        '''
-        if len(args) >= 2:
-            expect_string = args[1]
-        else:
-            expect_string = kwargs.get('expect_string')
-            if expect_string is None:
-                expect_string = r'(OK|ERROR|Command not recognized\.)'
-                expect_string = self.RETURN + expect_string + self.RETURN
-                kwargs.setdefault('expect_string', expect_string)
-
-        output = super(CiscoSSHConnection, self).send_command(*args, **kwargs)
-        return output
+        """
+        expect_string = kwargs.get('expect_string')
+        if expect_string is None:
+            expect_string = r'(OK|ERROR|Command not recognized\.)'
+            expect_string = self.RETURN + expect_string + self.RETURN
+            kwargs['expect_string'] = expect_string
+        return super(CiscoSSHConnection, self).send_command(**kwargs)
 
     def save_config(self):
         """Not Implemented"""

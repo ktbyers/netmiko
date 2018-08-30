@@ -42,26 +42,26 @@ class CiscoAsaSSH(CiscoSSHConnection):
             self.set_base_prompt()
         return output
 
-    def send_command(self, *args, **kwargs):
+    def send_command(self, command_string=None, **kwargs):
         """
         If the ASA is in multi-context mode, then the base_prompt needs to be
         updated after each context change.
         """
-        if len(args) >= 1:
-            command_string = args[0]
-        else:
-            command_string = kwargs['command_string']
+        changeto = False
+        command_list = kwargs.get('command_list')
+        if command_string is not None and "changeto" in command_string:
+            changeto = True
+        elif command_list is not None:
+            changeto = any(('changeto' in cmd for cmd in command_list))
 
         # If changeto in command, look for '#' to determine command is done
-        if "changeto" in command_string:
-            if len(args) <= 1:
-                expect_string = kwargs.get('expect_string', '#')
-                kwargs['expect_string'] = expect_string
-        output = super(CiscoAsaSSH, self).send_command(*args, **kwargs)
+        if changeto:
+            expect_string = kwargs.get('expect_string', r'#')
+            kwargs['expect_string'] = expect_string
+        output = super(CiscoAsaSSH, self).send_command(command_string, **kwargs)
 
-        if "changeto" in command_string:
+        if changeto:
             self.set_base_prompt()
-
         return output
 
     def send_command_expect(self, *args, **kwargs):

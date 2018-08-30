@@ -1071,7 +1071,7 @@ class BaseConnection(object):
         except IndexError:
             return (data, False)
 
-    def send_command(self, command_string, expect_string=None,
+    def send_command(self, command_string=None, command_list=None, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True, normalize=True,
                      use_textfsm=False):
@@ -1082,6 +1082,10 @@ class BaseConnection(object):
 
         :param command_string: The command to be executed on the remote device.
         :type command_string: str
+
+        :param command_list: command iterable to be executed on the remote device. Mutually
+            with command_string.
+        :type command_list: iterable
 
         :param expect_string: Regular expression pattern to use for determining end of output.
             If left blank will default to being based on router prompt.
@@ -1118,23 +1122,41 @@ class BaseConnection(object):
 
         # Find the current router prompt
         if expect_string is None:
+            prompt = self.base_prompt
             if auto_find_prompt:
                 try:
                     prompt = self.find_prompt(delay_factor=delay_factor)
                 except ValueError:
-                    prompt = self.base_prompt
-            else:
-                prompt = self.base_prompt
+                    pass
             search_pattern = re.escape(prompt.strip())
         else:
             search_pattern = expect_string
 
-        if normalize:
-            command_string = self.normalize_cmd(command_string)
+        # Process commands
+        if command_string and command_list:
+            msg = "command_string and command_list arguments are mutually exclusive."
+            raise ValueError(msg)
+        if command_string is None and command_list is None:
+            raise ValueError("Both command_string and command_list can't be None.")
 
+        if command_string is not None:
+            commands = [command_string]
+        else:
+            commands = command_list
+        if normalize:
+            commands = (self.normalize_cmd(cmd) for cmd in commands)
+
+        # Clean-up anything leftover
         time.sleep(delay_factor * loop_delay)
         self.clear_buffer()
-        self.write_channel(command_string)
+
+        # Send commands to remote device
+        for cmd in commands:
+            self.write_channel(cmd)
+            if self.fast_cli:
+                pass
+            else:
+                time.sleep(delay_factor * .05)
 
         i = 1
         output = ''
