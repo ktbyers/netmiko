@@ -988,14 +988,51 @@ class BaseConnection(object):
         """Read any data available in the channel."""
         self.read_channel()
 
-    def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
-                            strip_prompt=True, strip_command=True, normalize=True,
-                            use_textfsm=False):
+    def _fast_cli_write(self, commands, delay_factor=1, default_delay=.05):
+        """Write a sequence of commands to the channel with fast cli support."""
+        # Send commands to remote device
+        for cmd in commands:
+            self.write_channel(cmd)
+            if self.fast_cli:
+                pass
+            else:
+                time.sleep(default_delay * delay_factor)
+
+    @staticmethod
+    def _send_command_args(command_string=None, command_list=None):
+        """
+        Process the command arguments from send_command and send_command_timing. Return a command
+        generator, a list, or raise an exception.
+        """
+        # Process commands
+        if command_string and command_list:
+            msg = "command_string and command_list arguments are mutually exclusive."
+            raise ValueError(msg)
+        if command_string is None and command_list is None:
+            raise ValueError("Both command_string and command_list can't be None.")
+
+        if command_string is not None:
+            commands = [command_string]
+        else:
+            commands = command_list
+
+        if normalize:
+            commands = (self.normalize_cmd(cmd) for cmd in commands)
+        return commands
+
+    def send_command_timing(self, command_string=None, command_list=None,
+                            delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True,
+                            normalize=True, use_textfsm=False):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
-        :param command_string: The command to be executed on the remote device.
+        :param command_string: The command to be executed on the remote device. Mutually
+            exclusive with command_list
         :type command_string: str
+
+        :param command_list: command iterable to be executed on the remote device. Mutually
+            exclusive with command_string.
+        :type command_list: iterable
 
         :param delay_factor: Multiplying factor used to adjust delays (default: 1).
         :type delay_factor: int or float
@@ -1019,10 +1056,11 @@ class BaseConnection(object):
         output = ''
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        if normalize:
-            command_string = self.normalize_cmd(command_string)
 
-        self.write_channel(command_string)
+        # Send commands to remote device
+        commands = self._send_command_args(command_string, command_list)
+        self._fast_cli_write(commands, delay_factor=delay_factor)
+
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
         output = self._sanitize_output(output, strip_command=strip_command,
                                        command_string=command_string, strip_prompt=strip_prompt)
@@ -1080,11 +1118,12 @@ class BaseConnection(object):
         network device prompt is detected. The current network device prompt will be determined
         automatically.
 
-        :param command_string: The command to be executed on the remote device.
+        :param command_string: The command to be executed on the remote device. Mutually
+            exclusive with command_list
         :type command_string: str
 
         :param command_list: command iterable to be executed on the remote device. Mutually
-            with command_string.
+            exclusive with command_string.
         :type command_list: iterable
 
         :param expect_string: Regular expression pattern to use for determining end of output.
@@ -1132,31 +1171,12 @@ class BaseConnection(object):
         else:
             search_pattern = expect_string
 
-        # Process commands
-        if command_string and command_list:
-            msg = "command_string and command_list arguments are mutually exclusive."
-            raise ValueError(msg)
-        if command_string is None and command_list is None:
-            raise ValueError("Both command_string and command_list can't be None.")
-
-        if command_string is not None:
-            commands = [command_string]
-        else:
-            commands = command_list
-        if normalize:
-            commands = (self.normalize_cmd(cmd) for cmd in commands)
-
         # Clean-up anything leftover
         time.sleep(delay_factor * loop_delay)
         self.clear_buffer()
 
-        # Send commands to remote device
-        for cmd in commands:
-            self.write_channel(cmd)
-            if self.fast_cli:
-                pass
-            else:
-                time.sleep(delay_factor * .05)
+        commands = self._send_command_args(command_string, command_list)
+        self._fast_cli_write(commands, delay_factor=delay_factor)
 
         i = 1
         output = ''
