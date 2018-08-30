@@ -22,7 +22,7 @@ class CiscoIosBase(CiscoBaseConnection):
         self.clear_buffer()
 
     def save_config(self, cmd='write mem', confirm=False):
-        """Saves Config Using Copy Run Start"""
+        """Saves config using write mem."""
         return super(CiscoIosBase, self).save_config(cmd=cmd, confirm=confirm)
 
 
