@@ -998,8 +998,7 @@ class BaseConnection(object):
             else:
                 time.sleep(default_delay * delay_factor)
 
-    @staticmethod
-    def _send_command_args(command_string=None, command_list=None):
+    def _send_command_args(self, command_string=None, command_list=None, normalize=True):
         """
         Process the command arguments from send_command and send_command_timing. Return a command
         generator, a list, or raise an exception.
@@ -1450,15 +1449,13 @@ class BaseConnection(object):
         if not hasattr(config_commands, '__iter__'):
             raise ValueError("Invalid argument passed into send_config_set")
 
-        # Send config commands
+        # Enter config mode
         cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
         output = self.config_mode(*cfg_mode_args)
-        for cmd in config_commands:
-            self.write_channel(self.normalize_cmd(cmd))
-            if self.fast_cli:
-                pass
-            else:
-                time.sleep(delay_factor * .05)
+
+        # Write commands down the channel
+        commands = (self.normalize_cmd(cmd) for cmd in config_commands)
+        self._fast_cli_write(commands, delay_factor=delay_factor)
 
         # Gather output
         output += self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)

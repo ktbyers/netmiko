@@ -28,17 +28,25 @@ class CiscoAsaSSH(CiscoSSHConnection):
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def send_command_timing(self, *args, **kwargs):
+    @staticmethod
+    def _handle_changeto(command_string=None, command_list=None):
+        """Check if 'changeto' command exists in command_string or command_list."""
+        changeto = False
+        if command_string is not None and "changeto" in command_string:
+            changeto = True
+        elif command_list is not None:
+            changeto = any(('changeto' in cmd for cmd in command_list))
+        return changeto
+
+    def send_command_timing(self, command_string=None, **kwargs):
         """
         If the ASA is in multi-context mode, then the base_prompt needs to be
         updated after each context change.
         """
-        output = super(CiscoAsaSSH, self).send_command_timing(*args, **kwargs)
-        if len(args) >= 1:
-            command_string = args[0]
-        else:
-            command_string = kwargs['command_string']
-        if "changeto" in command_string:
+        command_list = kwargs.get('command_list')
+        changeto = self._handle_changeto(command_string, command_list)
+        output = super(CiscoAsaSSH, self).send_command_timing(command_string, **kwargs)
+        if changeto:
             self.set_base_prompt()
         return output
 
@@ -47,12 +55,8 @@ class CiscoAsaSSH(CiscoSSHConnection):
         If the ASA is in multi-context mode, then the base_prompt needs to be
         updated after each context change.
         """
-        changeto = False
         command_list = kwargs.get('command_list')
-        if command_string is not None and "changeto" in command_string:
-            changeto = True
-        elif command_list is not None:
-            changeto = any(('changeto' in cmd for cmd in command_list))
+        changeto = self._handle_changeto(command_string, command_list)
 
         # If changeto in command, look for '#' to determine command is done
         if changeto:
