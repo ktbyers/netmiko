@@ -1050,14 +1050,14 @@ class BaseConnection(object):
         :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
-        :type normalize: bool
+        :type use_textfsm: bool
         """
         output = ''
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
 
         # Send commands to remote device
-        commands = self._send_command_args(command_string, command_list)
+        commands = self._send_command_args(command_string, command_list, normalize=normalize)
         self._fast_cli_write(commands, delay_factor=delay_factor)
 
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
@@ -1146,7 +1146,7 @@ class BaseConnection(object):
         :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
-        :type normalize: bool
+        :type use_textfsm: bool
         """
         # Time to delay in each read loop
         loop_delay = .2
@@ -1174,7 +1174,7 @@ class BaseConnection(object):
         time.sleep(delay_factor * loop_delay)
         self.clear_buffer()
 
-        commands = self._send_command_args(command_string, command_list)
+        commands = self._send_command_args(command_string, command_list, normalize=normalize)
         self._fast_cli_write(commands, delay_factor=delay_factor)
 
         i = 1
