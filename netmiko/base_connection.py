@@ -1108,6 +1108,49 @@ class BaseConnection(object):
         except IndexError:
             return (data, False)
 
+    def _default_search_pattern(self, delay_factor=1, auto_find_prompt=True):
+        """Find the default pattern to use."""
+        prompt = self.base_prompt
+        if auto_find_prompt:
+            try:
+                prompt = self.find_prompt(delay_factor=delay_factor)
+            except ValueError:
+                pass
+        return re.escape(prompt.strip())
+
+    def send_command_multiline(self, command_list=None, expect_list=None,
+                               delay_factor=1, max_loops=500, auto_find_prompt=True,
+                               normalize=True):
+        """
+        Docstring.
+
+        Behavior send a list of commands, match pattern for each command
+        """
+        output = ''
+        loop_delay = .2
+
+        import pdb
+        pdb.set_trace()
+        if expect_list is None:
+            # Base default pattern on the device's prompt
+            default_pattern = self._default_search_pattern(delay_factor=delay_factor,
+                                                           auto_find_prompt=auto_find_prompt)
+            expect_list = [default_pattern for x in command_list]
+
+        # Clean-up anything leftover
+        time.sleep(delay_factor * loop_delay)
+        self.clear_buffer()
+
+        if normalize:
+            command_list = [self.normalize_cmd(cmd) for cmd in command_list]
+        if len(command_list) != len(expect_list):
+            raise ValueError("Length of the command_list and the expect_list must be identical.")
+
+        for cmd, pattern in zip(command_list, expect_list):
+            self.write_channel(cmd)
+            output += self._read_channel_expect(pattern=pattern, re_flags=re.M)
+        return output
+
     def send_command(self, command_string=None, command_list=None, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True, normalize=True,
@@ -1148,7 +1191,6 @@ class BaseConnection(object):
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type use_textfsm: bool
         """
-        # Time to delay in each read loop
         loop_delay = .2
 
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
@@ -1158,15 +1200,10 @@ class BaseConnection(object):
             # Default arguments are being used; use self.timeout instead
             max_loops = int(self.timeout / loop_delay)
 
-        # Find the current router prompt
         if expect_string is None:
-            prompt = self.base_prompt
-            if auto_find_prompt:
-                try:
-                    prompt = self.find_prompt(delay_factor=delay_factor)
-                except ValueError:
-                    pass
-            search_pattern = re.escape(prompt.strip())
+            # Default pattern is based on device's prompt
+            search_pattern = self._default_search_pattern(delay_factor=delay_factor,
+                                                          auto_find_prompt=auto_find_prompt)
         else:
             search_pattern = expect_string
 
