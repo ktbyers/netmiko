@@ -76,6 +76,7 @@ Python 2.7, 3.5, 3.6
 - MRV Communications OptiSwitch
 - Nokia/Alcatel SR-OS
 - QuantaMesh
+- Rad ETX
 
 ## Tutorials:
 
