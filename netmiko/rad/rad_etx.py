@@ -28,7 +28,15 @@ class RadETXBase(BaseConnection):
             output = self.send_command(command_string=cmd)
         return output
 
+    def check_enable_mode(self, *args, **kwargs):
+        """The Rad ETX software does not have an enable."""
+        pass
+
     def enable(self, *args, **kwargs):
+        """The Rad ETX software does not have an enable."""
+        pass
+
+    def exit_enable_mode(self, *args, **kwargs):
         """The Rad ETX software does not have an enable."""
         pass
 
@@ -53,17 +61,17 @@ class RadETXBase(BaseConnection):
 
 
 class RadETXSSH(RadETXBase):
-    """RAD ETX SSH Support.
-
-    Found that a global_delay_factor of 2 is needed at minimum for SSH to the Rad ETX.
-    """
-    pass
+    """RAD ETX SSH Support."""
+    def __init__(self, **kwargs):
+        # Found that a global_delay_factor of 2 is needed at minimum for SSH to the Rad ETX.
+        kwargs.setdefault('global_delay_factor', 2)
+        return super(RadETXSSH, self).__init__(**kwargs)
 
 
 class RadETXTelnet(RadETXBase):
     """RAD ETX Telnet Support."""
     def telnet_login(self, username_pattern=r"(?:user>)",
-                     alt_prompt_term=r"#\s*$"):
+                     alt_prompt_term=r"#\s*$", **kwargs):
         """
         RAD presents with the following on login
 
@@ -74,4 +82,4 @@ class RadETXTelnet(RadETXBase):
         self.TELNET_RETURN = self.RETURN
         return super(RadETXTelnet,
                      self).telnet_login(username_pattern=username_pattern,
-                                        alt_prompt_terminator=alt_prompt_term)
+                                        alt_prompt_terminator=alt_prompt_term, **kwargs)
