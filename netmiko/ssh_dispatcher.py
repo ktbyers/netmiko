@@ -53,6 +53,8 @@ from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
 from netmiko.pluribus import PluribusSSH
 from netmiko.quanta import QuantaMeshSSH
+from netmiko.rad import RadETXSSH
+from netmiko.rad import RadETXTelnet
 from netmiko.ruckus import RuckusFastironSSH
 from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.terminal_server import TerminalServerSSH
@@ -123,6 +125,7 @@ CLASS_MAPPER_BASE = {
     'paloalto_panos': PaloAltoPanosSSH,
     'pluribus': PluribusSSH,
     'quanta_mesh': QuantaMeshSSH,
+    'rad_etx': RadETXSSH,
     'ruckus_fastiron': RuckusFastironSSH,
     'ubiquiti_edge': UbiquitiEdgeSSH,
     'ubiquiti_edgeswitch': UbiquitiEdgeSSH,
@@ -174,6 +177,7 @@ CLASS_MAPPER['hp_comware_telnet'] = HPComwareTelnet
 CLASS_MAPPER['ipinfusion_ocnos_telnet'] = IpInfusionOcNOSTelnet
 CLASS_MAPPER['juniper_junos_telnet'] = JuniperTelnet
 CLASS_MAPPER['paloalto_panos_telnet'] = PaloAltoPanosTelnet
+CLASS_MAPPER['rad_etx_telnet'] = RadETXTelnet
 CLASS_MAPPER['ruckus_fastiron_telnet'] = RuckusFastironTelnet
 
 # Add serial drivers
