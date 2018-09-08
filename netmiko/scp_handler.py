@@ -27,12 +27,16 @@ class SCPConn(object):
         self.ssh_ctl_chan = ssh_conn
         self.establish_scp_conn()
 
-    def establish_scp_conn(self):
+    def establish_scp_conn(self, progress=None):
+
+        @param progress: callback - called with (filename, size, sent) during transfers
+        @type progress: function(string, int, int)
+
         """Establish the secure copy connection."""
         ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
-        self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+        self.scp_client = scp.SCPClient(self.scp_conn.get_transport(), progress=progress)
 
     def scp_transfer_file(self, source_file, dest_file):
         """Put file using SCP (for backwards compatibility)."""
