@@ -29,10 +29,12 @@ class SCPConn(object):
 
     def establish_scp_conn(self, progress=None):
 
-        @param progress: callback - called with (filename, size, sent) during transfers
-        @type progress: function(string, int, int)
-
-        """Establish the secure copy connection."""
+        """Establish the secure copy connection.
+        
+        :param progress: callback - called with (filename, size, sent) during transfers
+        :type progress: function(string, int, int)
+        
+        """
         ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
