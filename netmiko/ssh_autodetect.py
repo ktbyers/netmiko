@@ -141,6 +141,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     }
+    'linux': {
+        "cmd": "uname -a",
+        "search_patterns": [r"Linux"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    }
 }
 
 
