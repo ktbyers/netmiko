@@ -135,6 +135,18 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'f5_ltm': {
+        "cmd": "show sys version",
+        "search_patterns": [r"BIG-IP"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'linux': {
+        "cmd": "uname -a",
+        "search_patterns": [r"Linux"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    }
 }
 
 
@@ -275,6 +287,8 @@ class SSHDetect(object):
             r'syntax error, expecting',
             r'Error: Unrecognized command',
             r'%Error'
+            r'command not found'
+            r'Syntax Error: unexpected argument'
         ]
         if not cmd or not search_patterns:
             return 0
