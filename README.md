@@ -10,7 +10,7 @@ Python 2.7, 3.5, 3.6
 
 #### Requires:
 
-- Paramiko >= 2
+- Paramiko >= 2.4.1
 - scp >= 0.10.0
 - pyyaml
 - pyserial
