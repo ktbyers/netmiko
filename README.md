@@ -38,8 +38,8 @@ Python 2.7, 3.5, 3.6
 - Apresia Systems AEOS
 - Calix B6
 - Cisco WLC
+- Dell OS9 (Force10)
 - Dell OS10
-- Dell-Force10
 - Dell PowerConnect
 - Extreme ERS (Avaya)
 - Extreme VSP (Avaya)
@@ -65,6 +65,7 @@ Python 2.7, 3.5, 3.6
 - Cisco Telepresence
 - Check Point GAiA
 - Coriant
+- Dell OS6
 - Dell EMC Isilon
 - Eltex
 - Enterasys
