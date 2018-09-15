@@ -373,14 +373,11 @@ class BaseConnection(object):
                 # Try sending IAC + NOP (IAC is telnet way of sending command)
                 # IAC = Interpret as Command; it comes before the NOP.
                 log.debug("Sending IAC + NOP")
-                if self.remote_conn.sock:
-                    # Need to send multiple times to test connection
-                    self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                    self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                    self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                    return True
-                else:
-                    return False
+                # Need to send multiple times to test connection
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                return True
             except AttributeError:
                 return False
         else:
