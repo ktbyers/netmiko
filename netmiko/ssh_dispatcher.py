@@ -21,6 +21,8 @@ from netmiko.cisco import CiscoWlcSSH
 from netmiko.cisco import CiscoXrSSH, CiscoXrFileTransfer
 from netmiko.citrix import NetscalerSSH
 from netmiko.coriant import CoriantSSH
+from netmiko.dell import DellDNOS6SSH
+from netmiko.dell import DellDNOS6Telnet
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellOS10SSH, DellOS10FileTransfer
 from netmiko.dell import DellPowerConnectSSH
@@ -91,7 +93,10 @@ CLASS_MAPPER_BASE = {
     'cisco_xe': CiscoIosSSH,
     'cisco_xr': CiscoXrSSH,
     'coriant': CoriantSSH,
+    'dell_dnos9': DellForce10SSH,
     'dell_force10': DellForce10SSH,
+    'dell_os6': DellDNOS6SSH,
+    'dell_os9': DellForce10SSH,
     'dell_os10': DellOS10SSH,
     'dell_powerconnect': DellPowerConnectSSH,
     'dell_isilon': DellIsilonSSH,
@@ -167,6 +172,7 @@ CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
 CLASS_MAPPER['brocade_netiron_telnet'] = ExtremeNetironTelnet
 CLASS_MAPPER['calix_b6_telnet'] = CalixB6Telnet
 CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
+CLASS_MAPPER['dell_dnos6_telnet'] = DellDNOS6Telnet
 CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
 CLASS_MAPPER['extreme_telnet'] = ExtremeExosTelnet
 CLASS_MAPPER['extreme_exos_telnet'] = ExtremeExosTelnet
