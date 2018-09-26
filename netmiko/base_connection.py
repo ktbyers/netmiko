@@ -239,12 +239,12 @@ class BaseConnection(object):
             self.protocol = 'telnet'
             self._modify_connection_params()
             self.establish_connection()
-            self.session_preparation()
+            self._safe_session_preparation()
         elif '_serial' in device_type:
             self.protocol = 'serial'
             self._modify_connection_params()
             self.establish_connection()
-            self.session_preparation()
+            self._safe_session_preparation()
         else:
             self.protocol = 'ssh'
 
@@ -268,7 +268,7 @@ class BaseConnection(object):
 
             self._modify_connection_params()
             self.establish_connection()
-            self.session_preparation()
+            self._safe_session_preparation()
 
     def __enter__(self):
         """Establish a session using a Context Manager."""
@@ -638,6 +638,17 @@ class BaseConnection(object):
         msg = "Login failed: {}".format(self.host)
         self.remote_conn.close()
         raise NetMikoAuthenticationException(msg)
+
+    def _safe_session_preparation(self):
+        # `session_preparation()` may fail to retrieve command prompt, and raises
+        # ValueError, which results in connection not being closed in cases
+        # when context manager cannot be used. Make sure connection is always closed
+        # in those cases.
+        try:
+            self.session_preparation()
+        except Exception:
+            self.disconnect()
+            raise
 
     def session_preparation(self):
         """
