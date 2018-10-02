@@ -15,7 +15,7 @@ class DellOS10SSH(CiscoSSHConnection):
 
 class DellOS10FileTransfer(BaseFileTransfer):
     """Dell EMC Networking OS10 SCP File Transfer driver."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put'):
+    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put', progress=None):
         if file_system is None:
             file_system = '/home/admin'
         super(DellOS10FileTransfer, self).__init__(ssh_conn=ssh_conn, source_file=source_file,

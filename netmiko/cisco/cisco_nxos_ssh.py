@@ -27,7 +27,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):
     """Cisco NXOS SCP File Transfer driver."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system='bootflash:', direction='put'):
+    def __init__(self, ssh_conn, source_file, dest_file, file_system='bootflash:', direction='put', progress=None):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file

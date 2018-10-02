@@ -21,7 +21,7 @@ def verifyspace_and_transferfile(scp_transfer):
 
 
 def file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction='put',
-                  disable_md5=False, inline_transfer=False, overwrite_file=False):
+                  disable_md5=False, inline_transfer=False, overwrite_file=False, progress=None):
     """Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
     inline_transfer ONLY SUPPORTS TEXT FILES and will not support binary file transfers.
@@ -60,6 +60,7 @@ def file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction=
         'source_file': source_file,
         'dest_file': dest_file,
         'direction': direction,
+        'progress': progress
     }
     if file_system is not None:
         scp_args['file_system'] = file_system

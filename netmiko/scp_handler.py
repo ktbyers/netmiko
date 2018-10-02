@@ -23,17 +23,17 @@ class SCPConn(object):
 
     Must close the SCP connection to get the file to write to the remote filesystem
     """
-    def __init__(self, ssh_conn):
+    def __init__(self, ssh_conn, progress=None):
         self.ssh_ctl_chan = ssh_conn
-        self.establish_scp_conn()
+        self.establish_scp_conn(progress=progress)
 
     def establish_scp_conn(self, progress=None):
 
         """Establish the secure copy connection.
-        
+
         :param progress: callback - called with (filename, size, sent) during transfers
         :type progress: function(string, int, int)
-        
+
         """
         ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
@@ -59,11 +59,12 @@ class SCPConn(object):
 
 class BaseFileTransfer(object):
     """Class to manage SCP file transfer and associated SSH control channel."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put'):
+    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put', progress=None):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+        self.progress = progress
 
         auto_flag = 'cisco_ios' in ssh_conn.device_type or \
                     'cisco_xe' in ssh_conn.device_type or \
@@ -96,7 +97,7 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         """Establish SCP connection."""
-        self.scp_conn = SCPConn(self.ssh_ctl_chan)
+        self.scp_conn = SCPConn(self.ssh_ctl_chan, progress=self.progress)
 
     def close_scp_chan(self):
         """Close the SCP connection to the remote network device."""

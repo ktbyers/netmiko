@@ -56,7 +56,7 @@ class AristaTelnet(AristaBase):
 
 class AristaFileTransfer(CiscoFileTransfer):
     """Arista SCP File Transfer driver."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system="/mnt/flash", direction='put'):
+    def __init__(self, ssh_conn, source_file, dest_file, file_system="/mnt/flash", direction='put', progress=None):
         return super(AristaFileTransfer, self).__init__(ssh_conn=ssh_conn,
                                                         source_file=source_file,
                                                         dest_file=dest_file,

@@ -49,7 +49,7 @@ class CiscoIosFileTransfer(CiscoFileTransfer):
 class InLineTransfer(CiscoIosFileTransfer):
     """Use TCL on Cisco IOS to directly transfer file."""
     def __init__(self, ssh_conn, source_file=None, dest_file=None, file_system=None,
-                 direction='put', source_config=None):
+                 direction='put', source_config=None, progress=None):
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
             raise ValueError(msg)

@@ -207,12 +207,13 @@ class JuniperTelnet(JuniperBase):
 
 class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put'):
+    def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put', progress=None):
         return super(JuniperFileTransfer, self).__init__(ssh_conn=ssh_conn,
                                                          source_file=source_file,
                                                          dest_file=dest_file,
                                                          file_system=file_system,
-                                                         direction=direction)
+                                                         direction=direction,
+                                                         progress=progress)
 
     def remote_space_available(self, search_pattern=""):
         """Return space available on remote device."""
