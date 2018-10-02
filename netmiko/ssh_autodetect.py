@@ -50,24 +50,12 @@ from netmiko.base_connection import BaseConnection
 # remaining keys indicate kwargs that will be passed to dispatch method.
 # Note, the 'cmd' needs to avoid output paging.
 SSH_MAPPER_BASE = {
-    'alcatel_aos': {
-        "cmd": "show system",
-        "search_patterns": [r"Alcatel-Lucent"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
     'alcatel_sros': {
         "cmd": "show version",
         "search_patterns": [
             "Nokia",
             "Alcatel",
         ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    'apresia_aeos': {
-        "cmd": "show system",
-        "search_patterns": ["Apresia"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -104,15 +92,6 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'huawei': {
-        "cmd": "display version",
-        "search_patterns": [
-            r"Huawei Technologies",
-            r"Huawei Versatile Routing Platform Software"
-        ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
     'juniper_junos': {
         "cmd": "show version",
         "search_patterns": [
@@ -135,6 +114,39 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'alcatel_aos': {
+        "cmd": "show system",
+        "search_patterns": [r"Alcatel-Lucent"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'apresia_aeos': {
+        "cmd": "show system",
+        "search_patterns": ["Apresia"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'huawei': {
+        "cmd": "display version",
+        "search_patterns": [
+            r"Huawei Technologies",
+            r"Huawei Versatile Routing Platform Software"
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'f5_ltm': {
+        "cmd": "show sys version",
+        "search_patterns": [r"BIG-IP"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'linux': {
+        "cmd": "uname -a",
+        "search_patterns": [r"Linux"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    }
 }
 
 
@@ -274,7 +286,9 @@ class SSHDetect(object):
             r'% Invalid input detected',
             r'syntax error, expecting',
             r'Error: Unrecognized command',
-            r'%Error'
+            r'%Error',
+            r'command not found',
+            r'Syntax Error: unexpected argument',
         ]
         if not cmd or not search_patterns:
             return 0

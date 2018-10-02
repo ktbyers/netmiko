@@ -6,7 +6,7 @@ import sys
 
 
 requirements = [
-    'paramiko>=2.0.0',
+    'paramiko>=2.4.1',
     'scp>=0.10.0',
     'pyyaml',
     'pyserial',
