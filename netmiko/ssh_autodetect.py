@@ -123,6 +123,18 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'acs_linux': {
+        "cmd": "cat /etc/issue",
+        "search_patterns": [r"ACS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'opengear_linux': {
+        "cmd": "cat /etc/issue",
+        "search_patterns": [r"OpenGear"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'dell_force10': {
         "cmd": "show version",
         "search_patterns": [r"S4048-ON"],

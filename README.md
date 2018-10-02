@@ -59,6 +59,7 @@ Vyatta VyOS
 A10  
 Accedian  
 Aruba  
+Avocent ACS  
 Ciena SAOS  
 Citrix Netscaler  
 Cisco Telepresence  
@@ -73,6 +74,7 @@ F5 LTM
 Fortinet  
 MRV Communications OptiSwitch  
 Nokia/Alcatel SR-OS  
+Opengear  
 QuantaMesh  
 
 ## Tutorials:

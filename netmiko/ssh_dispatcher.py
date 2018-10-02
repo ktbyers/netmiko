@@ -11,6 +11,7 @@ from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
 from netmiko.avaya import AvayaErsSSH
 from netmiko.avaya import AvayaVspSSH
+from netmiko.avocent import AcsLinuxSSH
 from netmiko.brocade import BrocadeNetironSSH
 from netmiko.brocade import BrocadeNetironTelnet
 from netmiko.brocade import BrocadeNosSSH
@@ -46,6 +47,7 @@ from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
+from netmiko.opengear import OpengearLinuxSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.pluribus import PluribusSSH
@@ -69,6 +71,7 @@ CLASS_MAPPER_BASE = {
     'aruba_os': ArubaSSH,
     'avaya_ers': AvayaErsSSH,
     'avaya_vsp': AvayaVspSSH,
+    'acs_linux': AcsLinuxSSH,
     'brocade_fastiron': RuckusFastironSSH,
     'brocade_netiron': BrocadeNetironSSH,
     'brocade_nos': BrocadeNosSSH,
@@ -108,6 +111,7 @@ CLASS_MAPPER_BASE = {
     'mrv_optiswitch': MrvOptiswitchSSH,
     'netapp_cdot': NetAppcDotSSH,
     'netscaler': NetscalerSSH,
+    'opengear_linux': OpengearLinuxSSH,
     'ovs_linux': OvsLinuxSSH,
     'paloalto_panos': PaloAltoPanosSSH,
     'pluribus': PluribusSSH,
