@@ -232,7 +232,7 @@ def redispatch(obj, device_type, session_prep=True):
     obj.device_type = device_type
     obj.__class__ = new_class
     if session_prep:
-        obj.session_preparation()
+        obj._try_session_preparation()
 
 
 def FileTransfer(*args, **kwargs):
