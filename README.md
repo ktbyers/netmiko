@@ -72,7 +72,8 @@ Python 2.7, 3.5, 3.6
 - Extreme EXOS
 - Extreme Wing
 - Extreme SLX (Brocade)
-- F5 LTM
+- F5 TMSH
+- F5 Linux
 - Fortinet
 - MRV Communications OptiSwitch
 - Nokia/Alcatel SR-OS
