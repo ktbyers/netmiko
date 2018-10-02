@@ -239,12 +239,12 @@ class BaseConnection(object):
             self.protocol = 'telnet'
             self._modify_connection_params()
             self.establish_connection()
-            self._safe_session_preparation()
+            self._try_session_preparation()
         elif '_serial' in device_type:
             self.protocol = 'serial'
             self._modify_connection_params()
             self.establish_connection()
-            self._safe_session_preparation()
+            self._try_session_preparation()
         else:
             self.protocol = 'ssh'
 
@@ -268,7 +268,7 @@ class BaseConnection(object):
 
             self._modify_connection_params()
             self.establish_connection()
-            self._safe_session_preparation()
+            self._try_session_preparation()
 
     def __enter__(self):
         """Establish a session using a Context Manager."""
@@ -639,11 +639,13 @@ class BaseConnection(object):
         self.remote_conn.close()
         raise NetMikoAuthenticationException(msg)
 
-    def _safe_session_preparation(self):
-        # `session_preparation()` may fail to retrieve command prompt, and raises
-        # ValueError, which results in connection not being closed in cases
-        # when context manager cannot be used. Make sure connection is always closed
-        # in those cases.
+    def _try_sesssion_preparation(self):
+        """
+        In case of an exception happening during `session_preparation()` Netmiko should
+        gracefully clean-up after itself. This might be challenging for library users
+        to do since they don't have a reference to the object. This is possibly related
+        to threads used in Paramiko.
+        """
         try:
             self.session_preparation()
         except Exception:
