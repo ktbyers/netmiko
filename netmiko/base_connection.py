@@ -23,7 +23,7 @@ import serial
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
-from netmiko.py23_compat import string_types, bufferedio_types
+from netmiko.py23_compat import string_types, bufferedio_types, text_type
 from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthenticationException
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
 
@@ -36,11 +36,13 @@ class BaseConnection(object):
     """
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
-                 key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
+                 key_file=None, pkey=None, passphrase=None, allow_agent=False,
+                 ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100,
-                 session_timeout=60, blocking_timeout=8, keepalive=0, default_enter=None,
-                 response_return=None, serial_settings=None, fast_cli=False, session_log=None,
-                 session_log_record_writes=False, session_log_file_mode='write'):
+                 session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0,
+                 default_enter=None, response_return=None, serial_settings=None, fast_cli=False,
+                 session_log=None, session_log_record_writes=False, session_log_file_mode='write',
+                 allow_auto_change=False, encoding='ascii'):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -82,6 +84,13 @@ class BaseConnection(object):
         :param key_file: Filename path of the SSH key file to use.
         :type key_file: str
 
+        :param pkey: SSH key object to use.
+        :type pkey: paramiko.PKey
+
+        :param passphrase: Passphrase to use for encrypted key; password will be used for key
+                decryption if not specified.
+        :type passphrase: str
+
         :param allow_agent: Enable use of SSH key-agent.
         :type allow_agent: bool
 
@@ -106,6 +115,9 @@ class BaseConnection(object):
 
         :param session_timeout: Set a timeout for parallel requests.
         :type session_timeout: float
+
+        :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
+        :type auth_timeout: float
 
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -135,6 +147,14 @@ class BaseConnection(object):
         :param session_log_file_mode: "write" or "append" for session_log file mode
                 (default: "write")
         :type session_log_file_mode: str
+
+        :param allow_auto_change: Allow automatic configuration changes for terminal settings.
+                (default: False)
+        :type allow_auto_change: bool
+
+        :param encoding: Encoding to be used when writing bytes to the output channel.
+                (default: 'ascii')
+        :type encoding: str
         """
         self.remote_conn = None
         self.RETURN = '\n' if default_enter is None else default_enter
@@ -162,9 +182,12 @@ class BaseConnection(object):
         self.ansi_escape_codes = False
         self.verbose = verbose
         self.timeout = timeout
+        self.auth_timeout = auth_timeout
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
+        self.allow_auto_change = allow_auto_change
+        self.encoding = encoding
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
@@ -216,12 +239,12 @@ class BaseConnection(object):
             self.protocol = 'telnet'
             self._modify_connection_params()
             self.establish_connection()
-            self.session_preparation()
+            self._try_session_preparation()
         elif '_serial' in device_type:
             self.protocol = 'serial'
             self._modify_connection_params()
             self.establish_connection()
-            self.session_preparation()
+            self._try_session_preparation()
         else:
             self.protocol = 'ssh'
 
@@ -233,6 +256,8 @@ class BaseConnection(object):
             # Options for SSH host_keys
             self.use_keys = use_keys
             self.key_file = key_file
+            self.pkey = pkey
+            self.passphrase = passphrase
             self.allow_agent = allow_agent
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
@@ -243,7 +268,7 @@ class BaseConnection(object):
 
             self._modify_connection_params()
             self.establish_connection()
-            self.session_preparation()
+            self._try_session_preparation()
 
     def __enter__(self):
         """Establish a session using a Context Manager."""
@@ -303,16 +328,16 @@ class BaseConnection(object):
         :type out_data: str (can be either unicode/byte string)
         """
         if self.protocol == 'ssh':
-            self.remote_conn.sendall(write_bytes(out_data))
+            self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
         elif self.protocol == 'telnet':
-            self.remote_conn.write(write_bytes(out_data))
+            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
         elif self.protocol == 'serial':
-            self.remote_conn.write(write_bytes(out_data))
+            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
             self.remote_conn.flush()
         else:
             raise ValueError("Invalid protocol specified")
         try:
-            log.debug("write_channel: {}".format(write_bytes(out_data)))
+            log.debug("write_channel: {}".format(write_bytes(out_data, encoding=self.encoding)))
             if self._session_log_fin or self.session_log_record_writes:
                 self._write_session_log(out_data)
         except UnicodeDecodeError:
@@ -321,7 +346,7 @@ class BaseConnection(object):
 
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) > 0:
-            self.session_log.write(write_bytes(data))
+            self.session_log.write(write_bytes(data, encoding=self.encoding))
             self.session_log.flush()
 
     def write_channel(self, out_data):
@@ -345,10 +370,13 @@ class BaseConnection(object):
             return False
         if self.protocol == 'telnet':
             try:
-                # Try sending IAC + NOP (IAC is telnet way of sending command
-                # IAC = Interpret as Command (it comes before the NOP)
+                # Try sending IAC + NOP (IAC is telnet way of sending command)
+                # IAC = Interpret as Command; it comes before the NOP.
                 log.debug("Sending IAC + NOP")
-                self.write_channel(telnetlib.IAC + telnetlib.NOP)
+                # Need to send multiple times to test connection
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
                 return True
             except AttributeError:
                 return False
@@ -611,6 +639,19 @@ class BaseConnection(object):
         self.remote_conn.close()
         raise NetMikoAuthenticationException(msg)
 
+    def _try_sesssion_preparation(self):
+        """
+        In case of an exception happening during `session_preparation()` Netmiko should
+        gracefully clean-up after itself. This might be challenging for library users
+        to do since they don't have a reference to the object. This is possibly related
+        to threads used in Paramiko.
+        """
+        try:
+            self.session_preparation()
+        except Exception:
+            self.disconnect()
+            raise
+
     def session_preparation(self):
         """
         Prepare the session after the connection has been established
@@ -681,7 +722,10 @@ class BaseConnection(object):
             'look_for_keys': self.use_keys,
             'allow_agent': self.allow_agent,
             'key_filename': self.key_file,
+            'pkey': self.pkey,
+            'passphrase': self.passphrase,
             'timeout': self.timeout,
+            'auth_timeout': self.auth_timeout
         }
 
         # Check if using SSH 'config' file mainly for SSH proxy support
@@ -745,7 +789,7 @@ class BaseConnection(object):
                 self.paramiko_cleanup()
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port)
-                msg += self.RETURN + str(auth_err)
+                msg += self.RETURN + text_type(auth_err)
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
@@ -841,7 +885,7 @@ class BaseConnection(object):
                 return self.global_delay_factor
 
     def special_login_handler(self, delay_factor=1):
-        """Handler for devices like WLC, Avaya ERS that throw up characters prior to login."""
+        """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
         pass
 
     def disable_paging(self, command="terminal length 0", delay_factor=1):
@@ -1016,6 +1060,33 @@ class BaseConnection(object):
         else:
             return a_string
 
+    def _first_line_handler(self, data, search_pattern):
+        """
+        In certain situations the first line will get repainted which causes a false
+        match on the terminating pattern.
+
+        Filter this out.
+
+        returns a tuple of (data, first_line_processed)
+
+        Where data is the original data potentially with the first line modified
+        and the first_line_processed is a flag indicating that we have handled the
+        first line.
+        """
+        try:
+            # First line is the echo line containing the command. In certain situations
+            # it gets repainted and needs filtered
+            lines = data.split(self.RETURN)
+            first_line = lines[0]
+            if BACKSPACE_CHAR in first_line:
+                pattern = search_pattern + r'.*$'
+                first_line = re.sub(pattern, repl='', string=first_line)
+                lines[0] = first_line
+                data = self.RETURN.join(lines)
+            return (data, True)
+        except IndexError:
+            return (data, False)
+
     def send_command(self, command_string, expect_string=None,
                      delay_factor=1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True, normalize=True,
@@ -1083,27 +1154,32 @@ class BaseConnection(object):
 
         i = 1
         output = ''
+        first_line_processed = False
+
         # Keep reading data until search_pattern is found or until max_loops is reached.
         while i <= max_loops:
             new_data = self.read_channel()
             if new_data:
                 if self.ansi_escape_codes:
                     new_data = self.strip_ansi_escape_codes(new_data)
-                output += new_data
-                try:
-                    lines = output.split(self.RETURN)
-                    first_line = lines[0]
-                    # First line is the echo line containing the command. In certain situations
-                    # it gets repainted and needs filtered
-                    if BACKSPACE_CHAR in first_line:
-                        pattern = search_pattern + r'.*$'
-                        first_line = re.sub(pattern, repl='', string=first_line)
-                        lines[0] = first_line
-                        output = self.RETURN.join(lines)
-                except IndexError:
-                    pass
-                if re.search(search_pattern, output):
-                    break
+
+                # Case where we haven't processed the first_line yet (there is a potential issue
+                # in the first line (in cases where the line is repainted).
+                if not first_line_processed:
+                    output += new_data
+                    output, first_line_processed = self._first_line_handler(
+                        output,
+                        search_pattern
+                    )
+                    # Check if we have already found our pattern
+                    if re.search(search_pattern, output):
+                        break
+
+                else:
+                    output += new_data
+                    # Check if pattern is in the incremental data
+                    if re.search(search_pattern, new_data):
+                        break
 
             time.sleep(delay_factor * loop_delay)
             i += 1
@@ -1391,7 +1467,7 @@ class BaseConnection(object):
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
 
-        HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
+        HP ProCurve and Cisco SG300 require this (possible others).
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str

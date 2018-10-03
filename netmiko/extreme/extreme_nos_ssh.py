@@ -1,17 +1,17 @@
-"""Support for Brocade NOS/VDX."""
+"""Support for Extreme NOS/VDX."""
 from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class BrocadeNosSSH(CiscoSSHConnection):
-    """Support for Brocade NOS/VDX."""
+class ExtremeNosSSH(CiscoSSHConnection):
+    """Support for Extreme NOS/VDX."""
     def enable(self, *args, **kwargs):
-        """No enable mode on Brocade VDX."""
+        """No enable mode on Extreme VDX."""
         pass
 
     def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Brocade VDX."""
+        """No enable mode on Extreme VDX."""
         pass
 
     def special_login_handler(self, delay_factor=1):
@@ -22,6 +22,6 @@ class BrocadeNosSSH(CiscoSSHConnection):
 
     def save_config(self, cmd='copy running-config startup-config', confirm=True,
                     confirm_response='y'):
-        """Save Config for Brocade VDX."""
-        return super(BrocadeNosSSH, self).save_config(cmd=cmd, confirm=confirm,
+        """Save Config for Extreme VDX."""
+        return super(ExtremeNosSSH, self).save_config(cmd=cmd, confirm=confirm,
                                                       confirm_response=confirm_response)

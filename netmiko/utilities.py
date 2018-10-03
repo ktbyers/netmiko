@@ -8,6 +8,7 @@ import os
 import serial.tools.list_ports
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
+from netmiko.py23_compat import text_type
 
 
 # Dictionary mapping 'show run' for vendors with different command
@@ -15,6 +16,13 @@ SHOW_RUN_MAPPER = {
     'juniper': 'show configuration',
     'juniper_junos': 'show configuration',
     'extreme': 'show configuration',
+    'extreme_ers': 'show running-config',
+    'extreme_exos': 'show configuration',
+    'extreme_netiron': 'show running-config',
+    'extreme_nos': 'show running-config',
+    'extreme_slx': 'show running-config',
+    'extreme_vdx': 'show running-config',
+    'extreme_vsp': 'show running-config',
     'extreme_wing': 'show running-config',
     'hp_comware': 'display current-configuration',
     'huawei': 'display current-configuration',
@@ -150,19 +158,25 @@ def find_netmiko_dir():
     return (netmiko_base_dir, netmiko_full_dir)
 
 
-def write_bytes(out_data):
+def write_bytes(out_data, encoding='ascii'):
     """Write Python2 and Python3 compatible byte stream."""
     if sys.version_info[0] >= 3:
         if isinstance(out_data, type(u'')):
-            return out_data.encode('ascii', 'ignore')
+            if encoding == 'utf-8':
+                return out_data.encode('utf-8')
+            else:
+                return out_data.encode('ascii', 'ignore')
         elif isinstance(out_data, type(b'')):
             return out_data
     else:
         if isinstance(out_data, type(u'')):
-            return out_data.encode('ascii', 'ignore')
+            if encoding == 'utf-8':
+                return out_data.encode('utf-8')
+            else:
+                return out_data.encode('ascii', 'ignore')
         elif isinstance(out_data, type(str(''))):
             return out_data
-    msg = "Invalid value for out_data neither unicode nor byte string: {0}".format(out_data)
+    msg = "Invalid value for out_data neither unicode nor byte string: {}".format(out_data)
     raise ValueError(msg)
 
 
@@ -176,7 +190,7 @@ def check_serial_port(name):
         msg += "available devices are: "
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
-            msg += "{},".format(str(p))
+            msg += "{},".format(text_type(p))
         raise ValueError(msg)
 
 

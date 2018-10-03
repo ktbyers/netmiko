@@ -29,6 +29,7 @@ except ImportError:
     raise ImportError("pysnmp not installed; please install it: 'pip install pysnmp'")
 
 from netmiko.ssh_dispatcher import CLASS_MAPPER
+from netmiko.py23_compat import text_type
 
 
 # Higher priority indicates a better match.
@@ -42,6 +43,9 @@ SNMP_MAPPER_BASE = {
     'hp_comware': {"oid": ".1.3.6.1.2.1.1.1.0",
                    "expr": re.compile(r".*HP Comware.*", re.IGNORECASE),
                    "priority": 99},
+    'hp_procurve': {"oid": ".1.3.6.1.2.1.1.1.0",
+                    "expr": re.compile(r".ProCurve", re.IGNORECASE),
+                    "priority": 99},
     'cisco_ios': {"oid": ".1.3.6.1.2.1.1.1.0",
                   "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
                   "priority": 60},
@@ -60,9 +64,9 @@ SNMP_MAPPER_BASE = {
     'cisco_wlc': {"oid": ".1.3.6.1.2.1.1.1.0",
                   "expr": re.compile(r".*Cisco Controller.*", re.IGNORECASE),
                   "priority": 99},
-    'f5_ltm': {"oid": ".1.3.6.1.4.1.3375.2.1.4.1.0",
-               "expr": re.compile(r".*BIG-IP.*", re.IGNORECASE),
-               "priority": 99},
+    'f5_tmsh': {"oid": ".1.3.6.1.4.1.3375.2.1.4.1.0",
+                "expr": re.compile(r".*BIG-IP.*", re.IGNORECASE),
+                "priority": 99},
     'fortinet': {"oid": ".1.3.6.1.2.1.1.1.0",
                  "expr": re.compile(r"Forti.*", re.IGNORECASE),
                  "priority": 80},
@@ -198,7 +202,7 @@ class SNMPDetect(object):
             oid, lookupNames=True, lookupValues=True)
 
         if not error_detected and snmp_data[0][1]:
-            return str(snmp_data[0][1])
+            return text_type(snmp_data[0][1])
         return ""
 
     def _get_snmpv2c(self, oid):
@@ -224,7 +228,7 @@ class SNMPDetect(object):
             oid, lookupNames=True, lookupValues=True)
 
         if not error_detected and snmp_data[0][1]:
-            return str(snmp_data[0][1])
+            return text_type(snmp_data[0][1])
         return ""
 
     def _get_snmp(self, oid):

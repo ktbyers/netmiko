@@ -1,19 +1,4 @@
 #!/usr/bin/env python
-"""
-This module runs tests against Cisco IOS devices.
-
-setup_module: setup variables for later use.
-
-test_ssh_connect: verify ssh connectivity
-test_enable_mode: verify enter enable mode
-test_config_mode: verify enter config mode
-test_exit_config_mode: verify exit config mode
-test_command_set: verify sending a set of config commands
-test_commands_from_file: verify sending a set of config commands from a file
-test_disconnect: cleanly disconnect the SSH session
-
-"""
-
 from __future__ import print_function
 from __future__ import unicode_literals
 
@@ -106,5 +91,3 @@ def test_disconnect(net_connect, commands, expected_responses):
     Terminate the SSH session
     '''
     net_connect.disconnect()
-
-
