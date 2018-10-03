@@ -60,6 +60,7 @@ Python 2.7, 3.5, 3.6
 - A10
 - Accedian
 - Aruba
+- Avocent ACS
 - Ciena SAOS
 - Citrix Netscaler
 - Cisco Telepresence
@@ -77,6 +78,7 @@ Python 2.7, 3.5, 3.6
 - Fortinet
 - MRV Communications OptiSwitch
 - Nokia/Alcatel SR-OS
+- Opengear
 - QuantaMesh
 - Rad ETX
 

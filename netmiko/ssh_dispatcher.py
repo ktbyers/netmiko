@@ -9,6 +9,12 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
+from netmiko.avaya import AvayaErsSSH
+from netmiko.avaya import AvayaVspSSH
+from netmiko.avocent import AcsLinuxSSH
+from netmiko.brocade import BrocadeNetironSSH
+from netmiko.brocade import BrocadeNetironTelnet
+from netmiko.brocade import BrocadeNosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
@@ -51,6 +57,7 @@ from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
+from netmiko.opengear import OpengearLinuxSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
@@ -75,8 +82,9 @@ CLASS_MAPPER_BASE = {
     'apresia_aeos': ApresiaAeosSSH,
     'arista_eos': AristaSSH,
     'aruba_os': ArubaSSH,
-    'avaya_ers': ExtremeErsSSH,
-    'avaya_vsp': ExtremeVspSSH,
+    'avaya_ers': AvayaErsSSH,
+    'avaya_vsp': AvayaVspSSH,
+    'acs_linux': AcsLinuxSSH,
     'brocade_fastiron': RuckusFastironSSH,
     'brocade_netiron': ExtremeNetironSSH,
     'brocade_nos': ExtremeNosSSH,
@@ -129,6 +137,7 @@ CLASS_MAPPER_BASE = {
     'mrv_optiswitch': MrvOptiswitchSSH,
     'netapp_cdot': NetAppcDotSSH,
     'netscaler': NetscalerSSH,
+    'opengear_linux': OpengearLinuxSSH,
     'ovs_linux': OvsLinuxSSH,
     'paloalto_panos': PaloAltoPanosSSH,
     'pluribus': PluribusSSH,

@@ -104,18 +104,6 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'dell_force10': {
-        "cmd": "show version",
-        "search_patterns": [r"S4048-ON"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    'dell_os10': {
-        "cmd": "show version",
-        "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
     'f5_tmsh': {
         "cmd": "show sys version",
         "search_patterns": [r"BIG-IP"],
@@ -147,6 +135,29 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'acs_linux': {
+        "cmd": "cat /etc/issue",
+        "search_patterns": [r"ACS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'opengear_linux': {
+        "cmd": "cat /etc/issue",
+        "search_patterns": [r"OpenGear"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'dell_force10': {
+        "cmd": "show version",
+        "search_patterns": [r"S4048-ON"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'dell_os10': {
+        "cmd": "show version",
+        "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
     'linux': {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
