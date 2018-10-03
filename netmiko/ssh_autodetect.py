@@ -147,6 +147,18 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'acs_linux': {
+        "cmd": "cat /etc/issue",
+        "search_patterns": [r"ACS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'opengear_linux': {
+        "cmd": "cat /etc/issue",
+        "search_patterns": [r"OpenGear"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'linux': {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
