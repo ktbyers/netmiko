@@ -239,12 +239,12 @@ class BaseConnection(object):
             self.protocol = 'telnet'
             self._modify_connection_params()
             self.establish_connection()
-            self.session_preparation()
+            self._try_session_preparation()
         elif '_serial' in device_type:
             self.protocol = 'serial'
             self._modify_connection_params()
             self.establish_connection()
-            self.session_preparation()
+            self._try_session_preparation()
         else:
             self.protocol = 'ssh'
 
@@ -268,7 +268,7 @@ class BaseConnection(object):
 
             self._modify_connection_params()
             self.establish_connection()
-            self.session_preparation()
+            self._try_session_preparation()
 
     def __enter__(self):
         """Establish a session using a Context Manager."""
@@ -638,6 +638,19 @@ class BaseConnection(object):
         msg = "Login failed: {}".format(self.host)
         self.remote_conn.close()
         raise NetMikoAuthenticationException(msg)
+
+    def _try_sesssion_preparation(self):
+        """
+        In case of an exception happening during `session_preparation()` Netmiko should
+        gracefully clean-up after itself. This might be challenging for library users
+        to do since they don't have a reference to the object. This is possibly related
+        to threads used in Paramiko.
+        """
+        try:
+            self.session_preparation()
+        except Exception:
+            self.disconnect()
+            raise
 
     def session_preparation(self):
         """
@@ -1454,7 +1467,7 @@ class BaseConnection(object):
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
 
-        HP ProCurve's, Cisco SG300, and F5 LTM's require this (possible others)
+        HP ProCurve and Cisco SG300 require this (possible others).
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str

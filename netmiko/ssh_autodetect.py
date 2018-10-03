@@ -50,6 +50,12 @@ from netmiko.base_connection import BaseConnection
 # remaining keys indicate kwargs that will be passed to dispatch method.
 # Note, the 'cmd' needs to avoid output paging.
 SSH_MAPPER_BASE = {
+    'alcatel_aos': {
+        "cmd": "show system",
+        "search_patterns": [r"Alcatel-Lucent"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'alcatel_sros': {
         "cmd": "show version",
         "search_patterns": [
@@ -59,9 +65,21 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'apresia_aeos': {
+        "cmd": "show system",
+        "search_patterns": ["Apresia"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'arista_eos': {
         "cmd": "show version",
         "search_patterns": [r"Arista"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'cisco_asa': {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -71,12 +89,6 @@ SSH_MAPPER_BASE = {
            "Cisco IOS Software",
            "Cisco Internetwork Operating System Software"
         ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    'cisco_asa': {
-        "cmd": "show version",
-        "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -92,16 +104,6 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'juniper_junos': {
-        "cmd": "show version",
-        "search_patterns": [
-            r"JUNOS Software Release",
-            r"JUNOS .+ Software",
-            r"JUNOS OS Kernel",
-        ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
     'dell_force10': {
         "cmd": "show version",
         "search_patterns": [r"S4048-ON"],
@@ -114,15 +116,15 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'alcatel_aos': {
-        "cmd": "show system",
-        "search_patterns": [r"Alcatel-Lucent"],
+    'f5_tmsh': {
+        "cmd": "show sys version",
+        "search_patterns": [r"BIG-IP"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'apresia_aeos': {
-        "cmd": "show system",
-        "search_patterns": ["Apresia"],
+    'f5_linux': {
+        "cmd": "cat /etc/issue",
+        "search_patterns": [r"BIG-IP"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -135,9 +137,13 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'f5_ltm': {
-        "cmd": "show sys version",
-        "search_patterns": [r"BIG-IP"],
+    'juniper_junos': {
+        "cmd": "show version",
+        "search_patterns": [
+            r"JUNOS Software Release",
+            r"JUNOS .+ Software",
+            r"JUNOS OS Kernel",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
