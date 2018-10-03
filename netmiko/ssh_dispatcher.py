@@ -39,7 +39,8 @@ from netmiko.extreme import ExtremeNosSSH
 from netmiko.extreme import ExtremeSlxSSH
 from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
-from netmiko.f5 import F5LtmSSH
+from netmiko.f5 import F5TmshSSH
+from netmiko.f5 import F5LinuxSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH
@@ -111,7 +112,8 @@ CLASS_MAPPER_BASE = {
     'extreme_vdx': ExtremeNosSSH,
     'extreme_vsp': ExtremeVspSSH,
     'extreme_wing': ExtremeWingSSH,
-    'f5_ltm': F5LtmSSH,
+    'f5_tmsh': F5TmshSSH,
+    'f5_linux': F5LinuxSSH,
     'fortinet': FortinetSSH,
     'generic_termserver': TerminalServerSSH,
     'hp_comware': HPComwareSSH,

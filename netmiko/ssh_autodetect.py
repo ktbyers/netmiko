@@ -50,21 +50,6 @@ from netmiko.base_connection import BaseConnection
 # remaining keys indicate kwargs that will be passed to dispatch method.
 # Note, the 'cmd' needs to avoid output paging.
 SSH_MAPPER_BASE = {
-    'alcatel_sros': {
-        "cmd": "show version",
-        "search_patterns": [
-            "Nokia",
-            "Alcatel",
-        ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    'arista_eos': {
-        "cmd": "show version",
-        "search_patterns": [r"Arista"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
     'cisco_ios': {
         "cmd": "show version",
         "search_patterns": [
@@ -102,6 +87,21 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'alcatel_sros': {
+        "cmd": "show version",
+        "search_patterns": [
+            "Nokia",
+            "Alcatel",
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'arista_eos': {
+        "cmd": "show version",
+        "search_patterns": [r"Arista"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'dell_force10': {
         "cmd": "show version",
         "search_patterns": [r"S4048-ON"],
@@ -135,8 +135,14 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'f5_ltm': {
+    'f5_tmsh': {
         "cmd": "show sys version",
+        "search_patterns": [r"BIG-IP"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'f5_linux': {
+        "cmd": "cat /etc/issue",
         "search_patterns": [r"BIG-IP"],
         "priority": 99,
         "dispatch": "_autodetect_std",
