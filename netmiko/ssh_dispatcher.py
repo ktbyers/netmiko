@@ -112,6 +112,7 @@ CLASS_MAPPER_BASE = {
     'extreme_vdx': ExtremeNosSSH,
     'extreme_vsp': ExtremeVspSSH,
     'extreme_wing': ExtremeWingSSH,
+    'f5_ltm': F5TmshSSH,
     'f5_tmsh': F5TmshSSH,
     'f5_linux': F5LinuxSSH,
     'fortinet': FortinetSSH,

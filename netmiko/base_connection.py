@@ -1467,7 +1467,7 @@ class BaseConnection(object):
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
 
-        HP ProCurve's, Cisco SG300, and F5 Big-IP's require this (possible others)
+        HP ProCurve and Cisco SG300 require this (possible others).
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
