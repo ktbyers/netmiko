@@ -639,7 +639,7 @@ class BaseConnection(object):
         self.remote_conn.close()
         raise NetMikoAuthenticationException(msg)
 
-    def _try_sesssion_preparation(self):
+    def _try_session_preparation(self):
         """
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
