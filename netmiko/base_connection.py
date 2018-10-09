@@ -24,6 +24,7 @@ from netmiko.ssh_exception import NetMikoTimeoutException, NetMikoAuthentication
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
 from netmiko.py23_compat import string_types, bytes_io_types
 from netmiko import log
+from datetime import datetime
 import serial
 
 
@@ -201,7 +202,7 @@ class BaseConnection(object):
         elif '_serial' in device_type:
             self.protocol = 'serial'
             self._modify_connection_params()
-            self.establish_connection()
+            self.establish_connection()    
             self.session_preparation()
         else:
             self.protocol = 'ssh'
@@ -329,7 +330,7 @@ class BaseConnection(object):
                 # IAC = Interpret as Command (it comes before the NOP)
                 log.debug("Sending IAC + NOP")
                 self.write_channel(telnetlib.IAC + telnetlib.NOP)
-                return True
+                return True 
             except AttributeError:
                 return False
         else:
@@ -609,7 +610,7 @@ class BaseConnection(object):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
-
+        
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -913,6 +914,10 @@ class BaseConnection(object):
         if vxr_pattern in prompt.lower():
             time.sleep((delay_factor * 0.1)+3)
             prompt = self.read_channel()
+        autocommand_pattern = "executing autocommand"
+        if autocommand_pattern in prompt.lower():
+            time.sleep((delay_factor * 0.1)+5)
+            prompt=self.read_channel()
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
 
