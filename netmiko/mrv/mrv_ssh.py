@@ -11,11 +11,12 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r'[>#]')
-        self.enable()
         self.set_base_prompt()
+        self.enable()
         self.disable_paging(command="no cli-paging")
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
+        self.set_base_prompt()
         self.clear_buffer()
 
     def enable(self, cmd='enable', pattern=r'#', re_flags=re.IGNORECASE):
