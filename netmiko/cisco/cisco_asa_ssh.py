@@ -8,6 +8,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 
 class CiscoAsaSSH(CiscoSSHConnection):
     """Subclass specific to Cisco ASA."""
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
@@ -25,7 +26,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
                 pass
 
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def send_command_timing(self, *args, **kwargs):
@@ -37,7 +38,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         if len(args) >= 1:
             command_string = args[0]
         else:
-            command_string = kwargs['command_string']
+            command_string = kwargs["command_string"]
         if "changeto" in command_string:
             self.set_base_prompt()
         return output
@@ -50,13 +51,13 @@ class CiscoAsaSSH(CiscoSSHConnection):
         if len(args) >= 1:
             command_string = args[0]
         else:
-            command_string = kwargs['command_string']
+            command_string = kwargs["command_string"]
 
         # If changeto in command, look for '#' to determine command is done
         if "changeto" in command_string:
             if len(args) <= 1:
-                expect_string = kwargs.get('expect_string', '#')
-                kwargs['expect_string'] = expect_string
+                expect_string = kwargs.get("expect_string", "#")
+                kwargs["expect_string"] = expect_string
         output = super(CiscoAsaSSH, self).send_command(*args, **kwargs)
 
         if "changeto" in command_string:
@@ -77,7 +78,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         happens the trailing '(config*' needs stripped off.
         """
         cur_base_prompt = super(CiscoAsaSSH, self).set_base_prompt(*args, **kwargs)
-        match = re.search(r'(.*)\(conf.*', cur_base_prompt)
+        match = re.search(r"(.*)\(conf.*", cur_base_prompt)
         if match:
             # strip off (conf.* from base_prompt
             self.base_prompt = match.group(1)
@@ -97,23 +98,24 @@ class CiscoAsaSSH(CiscoSSHConnection):
         max_attempts = 50
         self.write_channel("login" + self.RETURN)
         while i <= max_attempts:
-            time.sleep(.5 * delay_factor)
+            time.sleep(0.5 * delay_factor)
             output = self.read_channel()
-            if 'sername' in output:
+            if "sername" in output:
                 self.write_channel(self.username + self.RETURN)
-            elif 'ssword' in output:
+            elif "ssword" in output:
                 self.write_channel(self.password + self.RETURN)
-            elif '#' in output:
+            elif "#" in output:
                 break
             else:
                 self.write_channel("login" + self.RETURN)
             i += 1
 
-    def save_config(self, cmd='write mem', confirm=False):
+    def save_config(self, cmd="write mem", confirm=False):
         """Saves Config"""
         return super(CiscoAsaSSH, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class CiscoAsaFileTransfer(CiscoFileTransfer):
     """Cisco ASA SCP File Transfer driver."""
+
     pass

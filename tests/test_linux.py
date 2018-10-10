@@ -3,28 +3,30 @@
 from __future__ import print_function
 from netmiko import ConnectHandler
 
+
 def main():
 
-    try: 
+    try:
         hostname = raw_input("Enter remote host to test: ")
         username = raw_input("Enter remote username: ")
     except NameError:
         hostname = input("Enter remote host to test: ")
         username = input("Enter remote username: ")
-    
+
     linux_test = {
-        'username': username, 
-        'use_keys': True, 
-        'ip': hostname,
-        'device_type': 'ovs_linux', 
-        'key_file': '/home/{}/.ssh/test_rsa'.format(username),
-        'verbose': False}
+        "username": username,
+        "use_keys": True,
+        "ip": hostname,
+        "device_type": "ovs_linux",
+        "key_file": "/home/{}/.ssh/test_rsa".format(username),
+        "verbose": False,
+    }
 
     net_connect = ConnectHandler(**linux_test)
     print()
     print(net_connect.find_prompt())
-  
-    # Test enable mode 
+
+    # Test enable mode
     print()
     print("***** Testing enable mode *****")
     net_connect.enable()
@@ -38,7 +40,7 @@ def main():
     print("Out of enable mode")
     print(net_connect.find_prompt())
 
-    # Test config mode 
+    # Test config mode
     print()
     print("***** Testing config mode *****")
     net_connect.config_mode()
@@ -77,9 +79,10 @@ def main():
     print()
     print("***** Testing send_config_set *****")
     print(net_connect.find_prompt())
-    output = net_connect.send_config_set(['ls -al'])
+    output = net_connect.send_config_set(["ls -al"])
     print(output)
     print()
+
 
 if __name__ == "__main__":
     main()

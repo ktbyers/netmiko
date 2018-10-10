@@ -6,10 +6,10 @@ from netmiko import Netmiko
 from getpass import getpass
 
 my_device = {
-    'host': 'host.domain.com',
-    'username': 'pyclass',
-    'password': getpass(),
-    'device_type': 'cisco_ios',
+    "host": "host.domain.com",
+    "username": "pyclass",
+    "password": getpass(),
+    "device_type": "cisco_ios",
 }
 
 net_connect = Netmiko(**my_device)

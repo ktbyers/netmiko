@@ -5,11 +5,11 @@ from getpass import getpass
 password = getpass()
 
 cisco1 = {
-    'host': 'cisco1.twb-tech.com',
-    'username': 'pyclass',
-    'password': password,
-    'device_type': 'cisco_ios',
-    'secret': password,
+    "host": "cisco1.twb-tech.com",
+    "username": "pyclass",
+    "password": password,
+    "device_type": "cisco_ios",
+    "secret": password,
 }
 
 net_connect = Netmiko(**cisco1)
