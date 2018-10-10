@@ -3,15 +3,13 @@ from netmiko import Netmiko
 from getpass import getpass
 
 device = {
-    'host': 'srx1.twb-tech.com', 
-    'username': 'pyclass', 
-    'password': getpass(), 
-    'device_type': 'juniper_junos',
+    "host": "srx1.twb-tech.com",
+    "username": "pyclass",
+    "password": getpass(),
+    "device_type": "juniper_junos",
 }
 
-commands = [
-    'set system syslog archive size 240k files 3 '
-]
+commands = ["set system syslog archive size 240k files 3 "]
 
 net_connect = Netmiko(**device)
 

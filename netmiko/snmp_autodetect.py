@@ -23,6 +23,7 @@ netmiko requirements. So installation of pysnmp might be required.
 from __future__ import unicode_literals
 
 import re
+
 try:
     from pysnmp.entity.rfc3413.oneliner import cmdgen
 except ImportError:
@@ -34,45 +35,71 @@ from netmiko.py23_compat import text_type
 
 # Higher priority indicates a better match.
 SNMP_MAPPER_BASE = {
-    'arista_eos': {"oid": ".1.3.6.1.2.1.1.1.0",
-                   "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
-                   "priority": 99},
-    'paloalto_panos': {"oid": ".1.3.6.1.2.1.1.1.0",
-                       "expr": re.compile(r".*Palo Alto Networks.*", re.IGNORECASE),
-                       "priority": 99},
-    'hp_comware': {"oid": ".1.3.6.1.2.1.1.1.0",
-                   "expr": re.compile(r".*HP Comware.*", re.IGNORECASE),
-                   "priority": 99},
-    'hp_procurve': {"oid": ".1.3.6.1.2.1.1.1.0",
-                    "expr": re.compile(r".ProCurve", re.IGNORECASE),
-                    "priority": 99},
-    'cisco_ios': {"oid": ".1.3.6.1.2.1.1.1.0",
-                  "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
-                  "priority": 60},
-    'cisco_xe': {"oid": ".1.3.6.1.2.1.1.1.0",
-                 "expr": re.compile(r".*IOS-XE Software,.*", re.IGNORECASE),
-                 "priority": 99},
-    'cisco_xr': {"oid": ".1.3.6.1.2.1.1.1.0",
-                 "expr": re.compile(r".*Cisco IOS XR Software.*", re.IGNORECASE),
-                 "priority": 99},
-    'cisco_asa': {"oid": ".1.3.6.1.2.1.1.1.0",
-                  "expr": re.compile(r".*Cisco Adaptive Security Appliance.*", re.IGNORECASE),
-                  "priority": 99},
-    'cisco_nxos': {"oid": ".1.3.6.1.2.1.1.1.0",
-                   "expr": re.compile(r".*Cisco NX-OS.*", re.IGNORECASE),
-                   "priority": 99},
-    'cisco_wlc': {"oid": ".1.3.6.1.2.1.1.1.0",
-                  "expr": re.compile(r".*Cisco Controller.*", re.IGNORECASE),
-                  "priority": 99},
-    'f5_tmsh': {"oid": ".1.3.6.1.4.1.3375.2.1.4.1.0",
-                "expr": re.compile(r".*BIG-IP.*", re.IGNORECASE),
-                "priority": 99},
-    'fortinet': {"oid": ".1.3.6.1.2.1.1.1.0",
-                 "expr": re.compile(r"Forti.*", re.IGNORECASE),
-                 "priority": 80},
-    'checkpoint': {"oid": ".1.3.6.1.4.1.2620.1.6.16.9.0",
-                   "expr": re.compile(r"CheckPoint"),
-                   "priority": 79},
+    "arista_eos": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "paloalto_panos": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Palo Alto Networks.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "hp_comware": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*HP Comware.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "hp_procurve": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".ProCurve", re.IGNORECASE),
+        "priority": 99,
+    },
+    "cisco_ios": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
+        "priority": 60,
+    },
+    "cisco_xe": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*IOS-XE Software,.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "cisco_xr": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco IOS XR Software.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "cisco_asa": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco Adaptive Security Appliance.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "cisco_nxos": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco NX-OS.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "cisco_wlc": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Cisco Controller.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "f5_tmsh": {
+        "oid": ".1.3.6.1.4.1.3375.2.1.4.1.0",
+        "expr": re.compile(r".*BIG-IP.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "fortinet": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r"Forti.*", re.IGNORECASE),
+        "priority": 80,
+    },
+    "checkpoint": {
+        "oid": ".1.3.6.1.4.1.2620.1.6.16.9.0",
+        "expr": re.compile(r"CheckPoint"),
+        "priority": 79,
+    },
 }
 
 # Ensure all SNMP device types are supported by Netmiko
@@ -138,8 +165,19 @@ class SNMPDetect(object):
         Try to determine the device type.
 
     """
-    def __init__(self, hostname, snmp_version="v3", snmp_port=161, community=None, user="",
-                 auth_key="", encrypt_key="", auth_proto="sha", encrypt_proto="aes128"):
+
+    def __init__(
+        self,
+        hostname,
+        snmp_version="v3",
+        snmp_port=161,
+        community=None,
+        user="",
+        auth_key="",
+        encrypt_key="",
+        auth_proto="sha",
+        encrypt_proto="aes128",
+    ):
 
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == "v1" or snmp_version == "v2c":
@@ -152,19 +190,29 @@ class SNMPDetect(object):
             raise ValueError("SNMP version must be set to 'v1', 'v2c' or 'v3'")
 
         # Check that the SNMPv3 auth & priv parameters match allowed types
-        self._snmp_v3_authentication = {"sha": cmdgen.usmHMACSHAAuthProtocol,
-                                        "md5": cmdgen.usmHMACMD5AuthProtocol}
-        self._snmp_v3_encryption = {"des": cmdgen.usmDESPrivProtocol,
-                                    "3des": cmdgen.usm3DESEDEPrivProtocol,
-                                    "aes128": cmdgen.usmAesCfb128Protocol,
-                                    "aes192": cmdgen.usmAesCfb192Protocol,
-                                    "aes256": cmdgen.usmAesCfb256Protocol}
+        self._snmp_v3_authentication = {
+            "sha": cmdgen.usmHMACSHAAuthProtocol,
+            "md5": cmdgen.usmHMACMD5AuthProtocol,
+        }
+        self._snmp_v3_encryption = {
+            "des": cmdgen.usmDESPrivProtocol,
+            "3des": cmdgen.usm3DESEDEPrivProtocol,
+            "aes128": cmdgen.usmAesCfb128Protocol,
+            "aes192": cmdgen.usmAesCfb192Protocol,
+            "aes256": cmdgen.usmAesCfb256Protocol,
+        }
         if auth_proto not in self._snmp_v3_authentication.keys():
-            raise ValueError("SNMP V3 'auth_proto' argument must be one of the following: {}"
-                             .format(self._snmp_v3_authentication.keys()))
+            raise ValueError(
+                "SNMP V3 'auth_proto' argument must be one of the following: {}".format(
+                    self._snmp_v3_authentication.keys()
+                )
+            )
         if encrypt_proto not in self._snmp_v3_encryption.keys():
-            raise ValueError("SNMP V3 'encrypt_proto' argument must be one of the following: {}"
-                             .format(self._snmp_v3_encryption.keys()))
+            raise ValueError(
+                "SNMP V3 'encrypt_proto' argument must be one of the following: {}".format(
+                    self._snmp_v3_encryption.keys()
+                )
+            )
 
         self.hostname = hostname
         self.snmp_version = snmp_version
@@ -195,11 +243,18 @@ class SNMPDetect(object):
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
-            cmdgen.UsmUserData(self.user, self.auth_key, self.encrypt_key,
-                               authProtocol=self.auth_proto,
-                               privProtocol=self.encryp_proto),
+            cmdgen.UsmUserData(
+                self.user,
+                self.auth_key,
+                self.encrypt_key,
+                authProtocol=self.auth_proto,
+                privProtocol=self.encryp_proto,
+            ),
             cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
-            oid, lookupNames=True, lookupValues=True)
+            oid,
+            lookupNames=True,
+            lookupValues=True,
+        )
 
         if not error_detected and snmp_data[0][1]:
             return text_type(snmp_data[0][1])
@@ -225,7 +280,10 @@ class SNMPDetect(object):
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
             cmdgen.CommunityData(self.community),
             cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
-            oid, lookupNames=True, lookupValues=True)
+            oid,
+            lookupNames=True,
+            lookupValues=True,
+        )
 
         if not error_detected and snmp_data[0][1]:
             return text_type(snmp_data[0][1])
@@ -255,13 +313,15 @@ class SNMPDetect(object):
         snmp_mapper_list = []
         for k, v in SNMP_MAPPER.items():
             snmp_mapper_list.append({k: v})
-        snmp_mapper_list = sorted(snmp_mapper_list, key=lambda x: list(x.values())[0]['priority'])
+        snmp_mapper_list = sorted(
+            snmp_mapper_list, key=lambda x: list(x.values())[0]["priority"]
+        )
         snmp_mapper_list.reverse()
 
         for entry in snmp_mapper_list:
             for device_type, v in entry.items():
-                oid = v['oid']
-                regex = v['expr']
+                oid = v["oid"]
+                regex = v["expr"]
 
             # Used cache data if we already queryied this OID
             if self._response_cache.get(oid):

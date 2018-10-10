@@ -15,7 +15,7 @@ def usage(ext):
     print('network devices enclosed in "quotes".')
     print(
         "Results key: # = enable mode, * = successful command",
-        "w = write mem, ! = command failure"
+        "w = write mem, ! = command failure",
     )
     print("\nusage:")
     print(
@@ -50,8 +50,7 @@ def main():
     password = getpass("Password: ")
     enasecret = getpass("Enable Secret: ")
 
-    print("{}{:<20}{:<40}{:<20}".format(
-        "\n", "IP Address", "Name", "Results"), end="")
+    print("{}{:<20}{:<40}{:<20}".format("\n", "IP Address", "Name", "Results"), end="")
 
     for switchip in inputfile:
         ciscosw = {

@@ -7,17 +7,19 @@ from netmiko.base_connection import BaseConnection
 
 
 class DellIsilonSSH(BaseConnection):
-    def set_base_prompt(self, pri_prompt_terminator='$',
-                        alt_prompt_terminator='#', delay_factor=1):
+    def set_base_prompt(
+        self, pri_prompt_terminator="$", alt_prompt_terminator="#", delay_factor=1
+    ):
         """Determine base prompt."""
         return super(DellIsilonSSH, self).set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
-            delay_factor=delay_factor)
+            delay_factor=delay_factor,
+        )
 
     def strip_ansi_escape_codes(self, string_buffer):
         """Remove Null code"""
-        output = re.sub(r'\x00', '', string_buffer)
+        output = re.sub(r"\x00", "", string_buffer)
         return super(DellIsilonSSH, self).strip_ansi_escape_codes(output)
 
     def session_preparation(self):
@@ -27,7 +29,7 @@ class DellIsilonSSH(BaseConnection):
         self.find_prompt(delay_factor=1)
         self.set_base_prompt()
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def zsh_mode(self, delay_factor=1, prompt_terminator="$"):
@@ -61,17 +63,18 @@ class DellIsilonSSH(BaseConnection):
         """No enable mode on Isilon."""
         pass
 
-    def check_config_mode(self, check_string='#'):
+    def check_config_mode(self, check_string="#"):
         return super(DellIsilonSSH, self).check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command='sudo su'):
+    def config_mode(self, config_command="sudo su"):
         """Attempt to become root."""
         delay_factor = self.select_delay_factor(delay_factor=1)
         output = ""
         if not self.check_config_mode():
-            output += self.send_command_timing(config_command, strip_prompt=False,
-                                               strip_command=False)
-            if 'Password:' in output:
+            output += self.send_command_timing(
+                config_command, strip_prompt=False, strip_command=False
+            )
+            if "Password:" in output:
                 output = self.write_channel(self.normalize_cmd(self.secret))
             self.set_prompt(prompt_terminator="#")
             time.sleep(1 * delay_factor)
@@ -80,6 +83,6 @@ class DellIsilonSSH(BaseConnection):
                 raise ValueError("Failed to configuration mode")
         return output
 
-    def exit_config_mode(self, exit_config='exit'):
+    def exit_config_mode(self, exit_config="exit"):
         """Exit enable mode."""
         return super(DellIsilonSSH, self).exit_config_mode(exit_config=exit_config)
