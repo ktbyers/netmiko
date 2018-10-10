@@ -1,4 +1,4 @@
 from __future__ import unicode_literals
-from netmiko.paloalto.paloalto_panos_ssh import PaloAltoPanosSSH
+from netmiko.paloalto.paloalto_panos import PaloAltoPanosSSH, PaloAltoPanosTelnet
 
-__all__ = ['PaloAltoPanosSSH']
+__all__ = ['PaloAltoPanosSSH', 'PaloAltoPanosTelnet']

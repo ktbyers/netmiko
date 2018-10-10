@@ -19,7 +19,7 @@ class ApresiaAeosBase(CiscoSSHConnection):
         check_command = "show running-config | include terminal length 0"
         output = self.send_command(check_command)
 
-        if "terminal length 0" not in output:
+        if self.allow_auto_change and "terminal length 0" not in output:
             self.send_config_set("terminal length 0")
         self.exit_enable_mode()
 

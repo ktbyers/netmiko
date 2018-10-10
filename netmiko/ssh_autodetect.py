@@ -77,18 +77,18 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'cisco_asa': {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     'cisco_ios': {
         "cmd": "show version",
         "search_patterns": [
            "Cisco IOS Software",
            "Cisco Internetwork Operating System Software"
         ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    'cisco_asa': {
-        "cmd": "show version",
-        "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -101,6 +101,30 @@ SSH_MAPPER_BASE = {
     'cisco_xr': {
         "cmd": "show version",
         "search_patterns": [r"Cisco IOS XR"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'dell_force10': {
+        "cmd": "show version",
+        "search_patterns": [r"S4048-ON"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'dell_os10': {
+        "cmd": "show version",
+        "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'f5_tmsh': {
+        "cmd": "show sys version",
+        "search_patterns": [r"BIG-IP"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    'f5_linux': {
+        "cmd": "cat /etc/issue",
+        "search_patterns": [r"BIG-IP"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -123,18 +147,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'dell_force10': {
-        "cmd": "show version",
-        "search_patterns": [r"S4048-ON"],
+    'linux': {
+        "cmd": "uname -a",
+        "search_patterns": [r"Linux"],
         "priority": 99,
         "dispatch": "_autodetect_std",
-    },
-    'dell_os10': {
-        "cmd": "show version",
-        "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
+    }
 }
 
 
@@ -274,7 +292,9 @@ class SSHDetect(object):
             r'% Invalid input detected',
             r'syntax error, expecting',
             r'Error: Unrecognized command',
-            r'%Error'
+            r'%Error',
+            r'command not found',
+            r'Syntax Error: unexpected argument',
         ]
         if not cmd or not search_patterns:
             return 0

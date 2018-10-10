@@ -3,7 +3,7 @@ import time
 from netmiko.base_connection import BaseConnection
 
 
-class F5LtmSSH(BaseConnection):
+class F5TmshSSH(BaseConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
