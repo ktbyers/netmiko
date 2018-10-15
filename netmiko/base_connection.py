@@ -158,14 +158,14 @@ class BaseConnection(object):
         """
         self.remote_conn = None
 
+        self.TELNET_RETURN = '\r\n'
         if default_enter is None:
             if not 'telnet' in device_type:
                 self.RETURN = '\n'
             else:
-                self.RETURN = '\r\n'
+                self.RETURN = self.TELNET_RETURN
         else:
             self.RETURN = default_enter
-        self.TELNET_RETURN = '\r\n'
 
         # Line Separator in response lines
         self.RESPONSE_RETURN = '\n' if response_return is None else response_return
