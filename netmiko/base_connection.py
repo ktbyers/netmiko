@@ -160,7 +160,7 @@ class BaseConnection(object):
 
         self.TELNET_RETURN = '\r\n'
         if default_enter is None:
-            if not 'telnet' in device_type:
+            if 'telnet' not in device_type:
                 self.RETURN = '\n'
             else:
                 self.RETURN = self.TELNET_RETURN
