@@ -9,28 +9,36 @@ import time
 
 class CiscoBaseConnection(BaseConnection):
     """Base Class for cisco-like behavior."""
-    def check_enable_mode(self, check_string='#'):
+
+    def check_enable_mode(self, check_string="#"):
         """Check if in enable mode. Return boolean."""
-        return super(CiscoBaseConnection, self).check_enable_mode(check_string=check_string)
+        return super(CiscoBaseConnection, self).check_enable_mode(
+            check_string=check_string
+        )
 
-    def enable(self, cmd='enable', pattern='ssword', re_flags=re.IGNORECASE):
+    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
         """Enter enable mode."""
-        return super(CiscoBaseConnection, self).enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        return super(CiscoBaseConnection, self).enable(
+            cmd=cmd, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_enable_mode(self, exit_command='disable'):
+    def exit_enable_mode(self, exit_command="disable"):
         """Exits enable (privileged exec) mode."""
-        return super(CiscoBaseConnection, self).exit_enable_mode(exit_command=exit_command)
+        return super(CiscoBaseConnection, self).exit_enable_mode(
+            exit_command=exit_command
+        )
 
-    def check_config_mode(self, check_string=')#', pattern=''):
+    def check_config_mode(self, check_string=")#", pattern=""):
         """
         Checks if the device is in configuration mode or not.
 
         Cisco IOS devices abbreviate the prompt at 20 chars in config mode
         """
-        return super(CiscoBaseConnection, self).check_config_mode(check_string=check_string,
-                                                                  pattern=pattern)
+        return super(CiscoBaseConnection, self).check_config_mode(
+            check_string=check_string, pattern=pattern
+        )
 
-    def config_mode(self, config_command='config term', pattern=''):
+    def config_mode(self, config_command="config term", pattern=""):
         """
         Enter into configuration mode on remote device.
 
@@ -38,36 +46,56 @@ class CiscoBaseConnection(BaseConnection):
         """
         if not pattern:
             pattern = re.escape(self.base_prompt[:16])
-        return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
-                                                            pattern=pattern)
+        return super(CiscoBaseConnection, self).config_mode(
+            config_command=config_command, pattern=pattern
+        )
 
-    def exit_config_mode(self, exit_config='end', pattern='#'):
+    def exit_config_mode(self, exit_config="end", pattern="#"):
         """Exit from configuration mode."""
-        return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
-                                                                 pattern=pattern)
+        return super(CiscoBaseConnection, self).exit_config_mode(
+            exit_config=exit_config, pattern=pattern
+        )
 
-    def serial_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:user:|username|login)", pwd_pattern=r"assword",
-                     delay_factor=1, max_loops=20):
+    def serial_login(
+        self,
+        pri_prompt_terminator=r"#\s*$",
+        alt_prompt_terminator=r">\s*$",
+        username_pattern=r"(?:user:|username|login)",
+        pwd_pattern=r"assword",
+        delay_factor=1,
+        max_loops=20,
+    ):
         self.write_channel(self.TELNET_RETURN)
         output = self.read_channel()
-        if (re.search(pri_prompt_terminator, output, flags=re.M)
-                or re.search(alt_prompt_terminator, output, flags=re.M)):
+        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+            alt_prompt_terminator, output, flags=re.M
+        ):
             return output
         else:
-            return self.telnet_login(pri_prompt_terminator, alt_prompt_terminator,
-                                     username_pattern, pwd_pattern, delay_factor, max_loops)
+            return self.telnet_login(
+                pri_prompt_terminator,
+                alt_prompt_terminator,
+                username_pattern,
+                pwd_pattern,
+                delay_factor,
+                max_loops,
+            )
 
-    def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:user:|username|login|user name)",
-                     pwd_pattern=r"assword",
-                     delay_factor=1, max_loops=20):
+    def telnet_login(
+        self,
+        pri_prompt_terminator=r"#\s*$",
+        alt_prompt_terminator=r">\s*$",
+        username_pattern=r"(?:user:|username|login|user name)",
+        pwd_pattern=r"assword",
+        delay_factor=1,
+        max_loops=20,
+    ):
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
-        output = ''
-        return_msg = ''
+        output = ""
+        return_msg = ""
         i = 1
         while i <= max_loops:
             try:
@@ -84,17 +112,18 @@ class CiscoBaseConnection(BaseConnection):
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
                     self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(.5 * delay_factor)
+                    time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if (re.search(pri_prompt_terminator, output, flags=re.M)
-                            or re.search(alt_prompt_terminator, output, flags=re.M)):
+                    if re.search(
+                        pri_prompt_terminator, output, flags=re.M
+                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
                 # Support direct telnet through terminal server
                 if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
                     self.write_channel("no" + self.TELNET_RETURN)
-                    time.sleep(.5 * delay_factor)
+                    time.sleep(0.5 * delay_factor)
                     count = 0
                     while count < 15:
                         output = self.read_channel()
@@ -109,16 +138,18 @@ class CiscoBaseConnection(BaseConnection):
                 if re.search(r"assword required, but none set", output):
                     self.remote_conn.close()
                     msg = "Login failed - Password required, but none set: {}".format(
-                        self.host)
+                        self.host
+                    )
                     raise NetMikoAuthenticationException(msg)
 
                 # Check if proper data received
-                if (re.search(pri_prompt_terminator, output, flags=re.M)
-                        or re.search(alt_prompt_terminator, output, flags=re.M)):
+                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                    alt_prompt_terminator, output, flags=re.M
+                ):
                     return return_msg
 
                 self.write_channel(self.TELNET_RETURN)
-                time.sleep(.5 * delay_factor)
+                time.sleep(0.5 * delay_factor)
                 i += 1
             except EOFError:
                 self.remote_conn.close()
@@ -127,11 +158,12 @@ class CiscoBaseConnection(BaseConnection):
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
-        time.sleep(.5 * delay_factor)
+        time.sleep(0.5 * delay_factor)
         output = self.read_channel()
         return_msg += output
-        if (re.search(pri_prompt_terminator, output, flags=re.M)
-                or re.search(alt_prompt_terminator, output, flags=re.M)):
+        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+            alt_prompt_terminator, output, flags=re.M
+        ):
             return return_msg
 
         self.remote_conn.close()
@@ -148,10 +180,10 @@ class CiscoBaseConnection(BaseConnection):
         self._session_log_fin = True
         self.write_channel("exit" + self.RETURN)
 
-    def _autodetect_fs(self, cmd='dir', pattern=r'Directory of (.*)/'):
+    def _autodetect_fs(self, cmd="dir", pattern=r"Directory of (.*)/"):
         """Autodetect the file system on the remote device. Used by SCP operations."""
         if not self.check_enable_mode():
-            raise ValueError('Must be in enable mode to auto-detect the file-system.')
+            raise ValueError("Must be in enable mode to auto-detect the file-system.")
         output = self.send_command_expect(cmd)
         match = re.search(pattern, output)
         if match:
@@ -159,17 +191,25 @@ class CiscoBaseConnection(BaseConnection):
             # Test file_system
             cmd = "dir {}".format(file_system)
             output = self.send_command_expect(cmd)
-            if '% Invalid' in output or '%Error:' in output:
-                raise ValueError("An error occurred in dynamically determining remote file "
-                                 "system: {} {}".format(cmd, output))
+            if "% Invalid" in output or "%Error:" in output:
+                raise ValueError(
+                    "An error occurred in dynamically determining remote file "
+                    "system: {} {}".format(cmd, output)
+                )
             else:
                 return file_system
 
-        raise ValueError("An error occurred in dynamically determining remote file "
-                         "system: {} {}".format(cmd, output))
+        raise ValueError(
+            "An error occurred in dynamically determining remote file "
+            "system: {} {}".format(cmd, output)
+        )
 
-    def save_config(self, cmd='copy running-config startup-config', confirm=False,
-                    confirm_response=''):
+    def save_config(
+        self,
+        cmd="copy running-config startup-config",
+        confirm=False,
+        confirm_response="",
+    ):
         """Saves Config."""
         self.enable()
         if confirm:

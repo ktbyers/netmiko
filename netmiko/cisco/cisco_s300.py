@@ -12,16 +12,18 @@ class CiscoS300SSH(CiscoSSHConnection):
     configure terminal
     ip ssh password-auth
     """
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="terminal datadump")
-        self.set_terminal_width(command='terminal width 511')
+        self.set_terminal_width(command="terminal width 511")
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
 
-    def save_config(self, cmd='write memory', confirm=True, confirm_response='Y'):
-        return super(CiscoS300SSH, self).save_config(cmd=cmd, confirm=confirm,
-                                                     confirm_response=confirm_response)
+    def save_config(self, cmd="write memory", confirm=True, confirm_response="Y"):
+        return super(CiscoS300SSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )

@@ -50,94 +50,91 @@ from netmiko.base_connection import BaseConnection
 # remaining keys indicate kwargs that will be passed to dispatch method.
 # Note, the 'cmd' needs to avoid output paging.
 SSH_MAPPER_BASE = {
-    'alcatel_aos': {
+    "alcatel_aos": {
         "cmd": "show system",
         "search_patterns": [r"Alcatel-Lucent"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'alcatel_sros': {
+    "alcatel_sros": {
         "cmd": "show version",
-        "search_patterns": [
-            "Nokia",
-            "Alcatel",
-        ],
+        "search_patterns": ["Nokia", "Alcatel"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'apresia_aeos': {
+    "apresia_aeos": {
         "cmd": "show system",
         "search_patterns": ["Apresia"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'arista_eos': {
+    "arista_eos": {
         "cmd": "show version",
         "search_patterns": [r"Arista"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'cisco_asa': {
+    "cisco_asa": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'cisco_ios': {
+    "cisco_ios": {
         "cmd": "show version",
         "search_patterns": [
-           "Cisco IOS Software",
-           "Cisco Internetwork Operating System Software"
+            "Cisco IOS Software",
+            "Cisco Internetwork Operating System Software",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'cisco_nxos': {
+    "cisco_nxos": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'cisco_xr': {
+    "cisco_xr": {
         "cmd": "show version",
         "search_patterns": [r"Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'dell_force10': {
+    "dell_force10": {
         "cmd": "show version",
         "search_patterns": [r"S4048-ON"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'dell_os10': {
+    "dell_os10": {
         "cmd": "show version",
         "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'f5_tmsh': {
+    "f5_tmsh": {
         "cmd": "show sys version",
         "search_patterns": [r"BIG-IP"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'f5_linux': {
+    "f5_linux": {
         "cmd": "cat /etc/issue",
         "search_patterns": [r"BIG-IP"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'huawei': {
+    "huawei": {
         "cmd": "display version",
         "search_patterns": [
             r"Huawei Technologies",
-            r"Huawei Versatile Routing Platform Software"
+            r"Huawei Versatile Routing Platform Software",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'juniper_junos': {
+    "juniper_junos": {
         "cmd": "show version",
         "search_patterns": [
             r"JUNOS Software Release",
@@ -147,24 +144,24 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'acs_linux': {
+    "acs_linux": {
         "cmd": "cat /etc/issue",
         "search_patterns": [r"ACS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'opengear_linux': {
+    "opengear_linux": {
         "cmd": "cat /etc/issue",
         "search_patterns": [r"OpenGear"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    'linux': {
+    "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
         "priority": 99,
         "dispatch": "_autodetect_std",
-    }
+    },
 }
 
 
@@ -225,8 +222,9 @@ class SSHDetect(object):
             if accuracy:
                 self.potential_matches[device_type] = accuracy
                 if accuracy >= 99:  # Stop the loop as we are sure of our match
-                    best_match = sorted(self.potential_matches.items(), key=lambda t: t[1],
-                                        reverse=True)
+                    best_match = sorted(
+                        self.potential_matches.items(), key=lambda t: t[1], reverse=True
+                    )
                     self.connection.disconnect()
                     return best_match[0][0]
 
@@ -234,7 +232,9 @@ class SSHDetect(object):
             self.connection.disconnect()
             return None
 
-        best_match = sorted(self.potential_matches.items(), key=lambda t: t[1], reverse=True)
+        best_match = sorted(
+            self.potential_matches.items(), key=lambda t: t[1], reverse=True
+        )
         self.connection.disconnect()
         return best_match[0][0]
 
@@ -301,12 +301,12 @@ class SSHDetect(object):
             The confidence the match is right between 0 and 99 (default: 99).
         """
         invalid_responses = [
-            r'% Invalid input detected',
-            r'syntax error, expecting',
-            r'Error: Unrecognized command',
-            r'%Error',
-            r'command not found',
-            r'Syntax Error: unexpected argument',
+            r"% Invalid input detected",
+            r"syntax error, expecting",
+            r"Error: Unrecognized command",
+            r"%Error",
+            r"command not found",
+            r"Syntax Error: unexpected argument",
         ]
         if not cmd or not search_patterns:
             return 0

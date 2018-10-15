@@ -1,6 +1,6 @@
-'''
+"""
 Delay the Travis CI testing for Python versions so that they don't interfere with each other
-'''
+"""
 
 from __future__ import print_function
 
@@ -13,9 +13,9 @@ TRAVIS_DELAY = 0
 
 
 def main():
-    '''
+    """
     Delay the Travis CI testing for Python versions so that they don't interfere with each other
-    '''
+    """
     python_version = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
 
     if re.search(r"^3.5", python_version):
