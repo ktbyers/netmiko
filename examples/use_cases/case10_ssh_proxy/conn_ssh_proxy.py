@@ -5,16 +5,15 @@ from getpass import getpass
 key_file = "/home/gituser/.ssh/test_rsa"
 
 cisco1 = {
-    'device_type': 'cisco_ios',
-    'host': 'cisco1.twb-tech.com', 
-    'username': 'testuser',
-    'use_keys': True,
-    'key_file': key_file,
-    'ssh_config_file': './ssh_config',
+    "device_type": "cisco_ios",
+    "host": "cisco1.twb-tech.com",
+    "username": "testuser",
+    "use_keys": True,
+    "key_file": key_file,
+    "ssh_config_file": "./ssh_config",
 }
 
 net_connect = Netmiko(**cisco1)
 print(net_connect.find_prompt())
 output = net_connect.send_command("show ip arp")
 print(output)
-

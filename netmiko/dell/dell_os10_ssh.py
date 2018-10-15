@@ -8,27 +8,37 @@ import re
 
 class DellOS10SSH(CiscoSSHConnection):
     """Dell EMC Networking OS10 Driver - supports dellos10."""
-    def save_config(self, cmd='copy running-configuration startup-configuration', confirm=False):
+
+    def save_config(
+        self, cmd="copy running-configuration startup-configuration", confirm=False
+    ):
         """Saves Config"""
         return super(DellOS10SSH, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class DellOS10FileTransfer(BaseFileTransfer):
     """Dell EMC Networking OS10 SCP File Transfer driver."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put'):
-        if file_system is None:
-            file_system = '/home/admin'
-        super(DellOS10FileTransfer, self).__init__(ssh_conn=ssh_conn, source_file=source_file,
-                                                   dest_file=dest_file, file_system=file_system,
-                                                   direction=direction)
-        self.folder_name = '/config'
 
-    def remote_file_size(self, remote_cmd='', remote_file=None):
+    def __init__(
+        self, ssh_conn, source_file, dest_file, file_system=None, direction="put"
+    ):
+        if file_system is None:
+            file_system = "/home/admin"
+        super(DellOS10FileTransfer, self).__init__(
+            ssh_conn=ssh_conn,
+            source_file=source_file,
+            dest_file=dest_file,
+            file_system=file_system,
+            direction=direction,
+        )
+        self.folder_name = "/config"
+
+    def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
         if remote_file is None:
-            if self.direction == 'put':
+            if self.direction == "put":
                 remote_file = self.dest_file
-            elif self.direction == 'get':
+            elif self.direction == "get":
                 remote_file = self.source_file
         remote_cmd = 'system "ls -l {}/{}"'.format(self.file_system, remote_file)
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
@@ -36,7 +46,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
             if remote_file in line:
                 file_size = line.split()[4]
                 break
-        if 'Error opening' in remote_out or 'No such file or directory' in remote_out:
+        if "Error opening" in remote_out or "No such file or directory" in remote_out:
             raise IOError("Unable to find file on remote system")
         else:
             return int(file_size)
@@ -52,16 +62,17 @@ class DellOS10FileTransfer(BaseFileTransfer):
         return int(space_available)
 
     @staticmethod
-    def process_md5(md5_output, pattern=r'(.*) (.*)'):
-        return super(DellOS10FileTransfer, DellOS10FileTransfer).process_md5(md5_output,
-                                                                             pattern=r'(.*) (.*)')
+    def process_md5(md5_output, pattern=r"(.*) (.*)"):
+        return super(DellOS10FileTransfer, DellOS10FileTransfer).process_md5(
+            md5_output, pattern=r"(.*) (.*)"
+        )
 
-    def remote_md5(self, base_cmd='verify /md5', remote_file=None):
+    def remote_md5(self, base_cmd="verify /md5", remote_file=None):
         """Calculate remote MD5 and returns the hash. """
         if remote_file is None:
-            if self.direction == 'put':
+            if self.direction == "put":
                 remote_file = self.dest_file
-            elif self.direction == 'get':
+            elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = 'system "md5sum {}/{}"'.format(self.file_system, remote_file)
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
@@ -70,11 +81,11 @@ class DellOS10FileTransfer(BaseFileTransfer):
 
     def check_file_exists(self, remote_cmd="dir home"):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        if self.direction == 'put':
+        if self.direction == "put":
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"Directory contents .*{}".format(self.dest_file)
             return bool(re.search(search_string, remote_out, flags=re.DOTALL))
-        elif self.direction == 'get':
+        elif self.direction == "get":
             return os.path.exists(self.dest_file)
 
     def put_file(self):

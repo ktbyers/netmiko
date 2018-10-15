@@ -7,12 +7,13 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class AlcatelAosSSH(CiscoSSHConnection):
     """Alcatel-Lucent Enterprise AOS support (AOS6 and AOS8)."""
+
     def session_preparation(self):
         # Prompt can be anything, but best practice is to end with > or #
-        self._test_channel_read(pattern=r'[>#]')
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def check_enable_mode(self, *args, **kwargs):
@@ -33,12 +34,12 @@ class AlcatelAosSSH(CiscoSSHConnection):
 
     def config_mode(self, *args, **kwargs):
         """No config mode on AOS"""
-        return ''
+        return ""
 
     def exit_config_mode(self, *args, **kwargs):
         """No config mode on AOS"""
-        return ''
+        return ""
 
-    def save_config(self, cmd='write memory flash-synchro', confirm=False):
+    def save_config(self, cmd="write memory flash-synchro", confirm=False):
         """Save Config"""
         return super(AlcatelAosSSH, self).save_config(cmd=cmd, confirm=confirm)

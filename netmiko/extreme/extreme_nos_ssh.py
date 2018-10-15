@@ -6,6 +6,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class ExtremeNosSSH(CiscoSSHConnection):
     """Support for Extreme NOS/VDX."""
+
     def enable(self, *args, **kwargs):
         """No enable mode on Extreme VDX."""
         pass
@@ -20,8 +21,13 @@ class ExtremeNosSSH(CiscoSSHConnection):
         self.write_channel(self.RETURN)
         time.sleep(1 * delay_factor)
 
-    def save_config(self, cmd='copy running-config startup-config', confirm=True,
-                    confirm_response='y'):
+    def save_config(
+        self,
+        cmd="copy running-config startup-config",
+        confirm=True,
+        confirm_response="y",
+    ):
         """Save Config for Extreme VDX."""
-        return super(ExtremeNosSSH, self).save_config(cmd=cmd, confirm=confirm,
-                                                      confirm_response=confirm_response)
+        return super(ExtremeNosSSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )

@@ -20,8 +20,16 @@ def verifyspace_and_transferfile(scp_transfer):
     scp_transfer.transfer_file()
 
 
-def file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction='put',
-                  disable_md5=False, inline_transfer=False, overwrite_file=False):
+def file_transfer(
+    ssh_conn,
+    source_file,
+    dest_file,
+    file_system=None,
+    direction="put",
+    disable_md5=False,
+    inline_transfer=False,
+    overwrite_file=False,
+):
     """Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
     inline_transfer ONLY SUPPORTS TEXT FILES and will not support binary file transfers.
@@ -33,22 +41,22 @@ def file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction=
     }
     """
     transferred_and_verified = {
-        'file_exists': True,
-        'file_transferred': True,
-        'file_verified': True,
+        "file_exists": True,
+        "file_transferred": True,
+        "file_verified": True,
     }
     transferred_and_notverified = {
-        'file_exists': True,
-        'file_transferred': True,
-        'file_verified': False,
+        "file_exists": True,
+        "file_transferred": True,
+        "file_verified": False,
     }
     nottransferred_but_verified = {
-        'file_exists': True,
-        'file_transferred': False,
-        'file_verified': True,
+        "file_exists": True,
+        "file_transferred": False,
+        "file_verified": True,
     }
 
-    if 'cisco_ios' in ssh_conn.device_type or 'cisco_xe' in ssh_conn.device_type:
+    if "cisco_ios" in ssh_conn.device_type or "cisco_xe" in ssh_conn.device_type:
         cisco_ios = True
     else:
         cisco_ios = False
@@ -56,13 +64,13 @@ def file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction=
         raise ValueError("Inline Transfer only supported for Cisco IOS/Cisco IOS-XE")
 
     scp_args = {
-        'ssh_conn': ssh_conn,
-        'source_file': source_file,
-        'dest_file': dest_file,
-        'direction': direction,
+        "ssh_conn": ssh_conn,
+        "source_file": source_file,
+        "dest_file": dest_file,
+        "direction": direction,
     }
     if file_system is not None:
-        scp_args['file_system'] = file_system
+        scp_args["file_system"] = file_system
 
     TransferClass = InLineTransfer if inline_transfer else FileTransfer
 
@@ -78,7 +86,9 @@ def file_transfer(ssh_conn, source_file, dest_file, file_system=None, direction=
                         if scp_transfer.compare_md5():
                             return transferred_and_verified
                         else:
-                            raise ValueError("MD5 failure between source and destination files")
+                            raise ValueError(
+                                "MD5 failure between source and destination files"
+                            )
                 else:
                     # File exists, you can overwrite it, but MD5 not allowed (transfer file)
                     verifyspace_and_transferfile(scp_transfer)

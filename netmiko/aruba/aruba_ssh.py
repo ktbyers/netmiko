@@ -7,9 +7,10 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class ArubaSSH(CiscoSSHConnection):
     """Aruba OS support"""
+
     def __init__(self, **kwargs):
-        if kwargs.get('default_enter') is None:
-            kwargs['default_enter'] = '\r'
+        if kwargs.get("default_enter") is None:
+            kwargs["default_enter"] = "\r"
         return super(ArubaSSH, self).__init__(**kwargs)
 
     def session_preparation(self):
@@ -21,10 +22,10 @@ class ArubaSSH(CiscoSSHConnection):
         self.enable()
         self.disable_paging(command="no paging")
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string='(config) #', pattern=''):
+    def check_config_mode(self, check_string="(config) #", pattern=""):
         """
         Checks if the device is in configuration mode or not.
 
@@ -32,5 +33,6 @@ class ArubaSSH(CiscoSSHConnection):
         """
         if not pattern:
             pattern = re.escape(self.base_prompt[:16])
-        return super(ArubaSSH, self).check_config_mode(check_string=check_string,
-                                                       pattern=pattern)
+        return super(ArubaSSH, self).check_config_mode(
+            check_string=check_string, pattern=pattern
+        )
