@@ -157,8 +157,16 @@ class BaseConnection(object):
         :type encoding: str
         """
         self.remote_conn = None
-        self.RETURN = '\n' if default_enter is None else default_enter
+
+        if default_enter is None:
+            if not 'telnet' in device_type:
+                self.RETURN = '\n'
+            else:
+                self.RETURN = '\r\n'
+        else:
+            self.RETURN = default_enter
         self.TELNET_RETURN = '\r\n'
+
         # Line Separator in response lines
         self.RESPONSE_RETURN = '\n' if response_return is None else response_return
         if ip:
