@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 from netmiko.base_connection import BaseConnection
 import re
 
+
 class EndaceSSH(BaseConnection):
 
-    
     def establish_connection(self, width=None, height=None):
         return super(EndaceSSH, self).establish_connection(
             width=width, height=height
@@ -18,11 +18,10 @@ class EndaceSSH(BaseConnection):
         )
 
     def session_preparation(self):
-        #self.ansi_escape_codes = True
         return super(EndaceSSH, self).session_preparation()
 
     def check_enable_mode(self, check_string="#"):
-        #Check if in enable mode. Return boolean.
+        # Check if in enable mode. Return boolean.
         return super(EndaceSSH, self).check_enable_mode(
             check_string=str(check_string)
         )
@@ -65,13 +64,13 @@ class EndaceSSH(BaseConnection):
 
     def exit_config_mode(self, exit_config='exit', pattern='#'):
         return super(EndaceSSH, self).exit_config_mode(
-            exit_config = str(exit_config), pattern=str(pattern)
+            exit_config=str(exit_config), pattern=str(pattern)
         )
 
     def cleanup(self):
         if self.check_config_mode():
             self.exit_config_mode()
-        self._session_log_fin=True
+        self._session_log_fin = True
         self.write_channel("exit" + self.RETURN)
 
     def save_config(self, cmd=str('configuration write'), confirm=True, confirm_response=''):
