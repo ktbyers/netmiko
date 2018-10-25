@@ -180,20 +180,22 @@ class CiscoXr(CiscoBaseConnection):
                                                    max_timeout=max_timeout)
                 return output
                                    
-        else:                  
-            output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
-                                               delay_factor=delay_factor,
-                                               max_timeout=max_timeout, **kwargs)
-            if error_marker in output:
-                raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
-            if alt_error_marker in output:
-                # Other commits occurred, don't proceed with commit
-                output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
-                                                   delay_factor=delay_factor,
-                                                   max_timeout=max_timeout)
-                raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
-
-            return output
+        else: 
+            try:                 
+                output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
+                                                   delay_factor=delay_factor, **kwargs)
+                return output
+            except Exception as err:
+                output = str(err)
+                if error_marker in output:
+                    raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+                if alt_error_marker in output:
+                    # Other commits occurred, don't proceed with commit
+                    output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
+                                                           delay_factor=delay_factor)
+                    raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+                else:
+                    raise err
 
 
     def check_config_mode(self, check_string=')#', pattern=r"[#\$]"):
