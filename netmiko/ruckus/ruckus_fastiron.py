@@ -57,7 +57,7 @@ class RuckusFastironBase(CiscoSSHConnection):
             )
             raise ValueError(msg)
 
-    def save_config(self, cmd="write mem", confirm=False):
+    def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves configuration."""
         return super(RuckusFastironBase, self).save_config(cmd=cmd, confirm=confirm)
 
