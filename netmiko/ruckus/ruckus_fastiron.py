@@ -68,6 +68,27 @@ class RuckusFastironTelnet(RuckusFastironBase):
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super(RuckusFastironTelnet, self).__init__(*args, **kwargs)
 
+    def strip_command(self, command_string, output):
+        """
+        Modified strip_command for Ruckus FastIron telnet connections
+
+        :param command_string: The command string sent to the device
+        :type command_string: str
+
+        :param output: The returned output as a result of the command string sent to the device
+        :type output: str
+        """
+        backspace_char = "\x08"
+
+        # Check for line wrap (remove backspaces)
+        if backspace_char in output:
+            output = output.replace(backspace_char, "")
+            output_lines = output.split(self.RESPONSE_RETURN)
+            new_output = output_lines[1:]
+            return self.RESPONSE_RETURN.join(new_output)
+        else:
+            return output
+
 
 class RuckusFastironSSH(RuckusFastironBase):
     pass
