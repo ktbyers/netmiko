@@ -3,7 +3,9 @@ from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
+
 class EltexEsrSSH(CiscoSSHConnection):
+    """Netmiko support for routers Eltex ESR."""
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -17,8 +19,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         self.clear_buffer()
 
     def config_mode(
-            self, config_command="configure", pattern=r"\S+:\S+\(config\)#"
-        ):
+            self, config_command="configure", pattern=r"\S+:\S+\(config\)#"):
 
         """Enter configuration mode."""
 
@@ -42,14 +43,11 @@ class EltexEsrSSH(CiscoSSHConnection):
         return super().check_config_mode(
             check_string=check_string, pattern=pattern
         )
-    
 
     def save_config(
-            self, cmd="save", commit=False, confirm=False, delay_factor=1
-        ):
+            self, cmd="save", commit=False, confirm=False, delay_factor=1):
         """
         Saves Config for ESR
-        
         """
 
         if self.check_config_mode():
@@ -64,12 +62,12 @@ class EltexEsrSSH(CiscoSSHConnection):
         if confirm:
             self.confirm()
 
-        return output   
+        return output
 
     def commit(self, delay_factor=1):
         """
         Commit the candidate configuration.
-        Commit the entered configuration. 
+        Commit the entered configuration.
         Raise an error and return the failure
         if the commit fails.
         default:
@@ -94,7 +92,7 @@ class EltexEsrSSH(CiscoSSHConnection):
 
     def confirm(self, delay_factor=1):
         """
-        Confirm the candidate configuration. 
+        Confirm the candidate configuration.
         Raise an error and return the failure
         if the confirm fails.
         default:
@@ -120,7 +118,7 @@ class EltexEsrSSH(CiscoSSHConnection):
     def restore(self, delay_factor=1):
         """
         Restore the candidate configuration.
-        it is executed only if commited. 
+        it is executed only if commited.
         Raise an error and return the failure
         if the restore fails.
         default:
