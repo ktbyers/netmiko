@@ -23,6 +23,12 @@ class CiscoNxosSSH(CiscoSSHConnection):
         newline = re.compile(r"(\r\r\n|\r\n)")
         return newline.sub(self.RESPONSE_RETURN, a_string).replace("\r", "")
 
+    def check_config_mode(self, check_string=")#", pattern="#"):
+        """Checks if the device is in configuration mode or not."""
+        return super(CiscoNxosSSH, self).check_config_mode(
+            check_string=check_string, pattern=pattern
+        )
+
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):
     """Cisco NXOS SCP File Transfer driver."""
