@@ -155,3 +155,27 @@ ipinfusion_ocnos_telnet:
   cmd_response_init: "ospfd                   2                           4"
   cmd_response_final: "ospfd                   2                           5"
   save_config: '[OK]'
+
+
+oneaccess_oneos:
+  base_prompt: dops-4glbb-01
+  router_prompt: dops-4glbb-01>
+  enable_prompt: dops-4glbb-01#
+  interface_ip: 10.94.49.187
+  version_banner: "Software version"
+  multiple_line_output: "Software created on"
+  file_check_cmd: "logging buffered 20010"
+  save_config: '[OK]'
+
+
+oneaccess_oneos_telnet:
+  base_prompt: dops-4glbb-01
+  router_prompt: dops-4glbb-01>
+  enable_prompt: dops-4glbb-01#
+  interface_ip: 10.94.49.187
+  version_banner: "Software version"
+  multiple_line_output: "Software created on"
+  file_check_cmd: "logging buffered 20010"
+  save_config: '[OK]'
+
+
