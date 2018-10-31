@@ -27,8 +27,10 @@ class OneaccessOneos(CiscoBaseConnection):
         """Save config: write mem"""
         return super(OneaccessOneos, self).save_config(cmd=cmd, confirm=confirm)
 
+
 class OneaccessOneosSSH(OneaccessOneos):
     pass
+
 
 class OneaccessOneosTelnet(OneaccessOneos):
     pass
