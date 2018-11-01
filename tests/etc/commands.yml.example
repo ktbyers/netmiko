@@ -208,3 +208,32 @@ ipinfusion_ocnos_telnet:
   save_config_cmd: 'write'
   save_config_confirm: False
   save_config_response: "[OK]"
+
+
+oneaccess_oneos:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show system status"   # requires paging to be disabled
+  config:
+    - "logging buffered size 20000"      # base command
+    - "no logging console"
+    - "logging buffered size 20010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: "[OK]"
+
+oneaccess_oneos_telnet:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show system status"   # requires paging to be disabled
+  config:
+    - "logging buffered size 20000"      # base command
+    - "no logging console"
+    - "logging buffered size 20010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: "[OK]"
+
+
