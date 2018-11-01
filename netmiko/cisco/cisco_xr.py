@@ -184,11 +184,12 @@ class CiscoXr(CiscoBaseConnection):
             try:                 
                 output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
                                                    delay_factor=delay_factor, **kwargs)
-                return output
-            except Exception as err:
-                output = str(err)
                 if error_marker in output:
                     raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+                else:
+                    return output
+            except Exception as err:
+                output = str(err)
                 if alt_error_marker in output:
                     # Other commits occurred, don't proceed with commit
                     output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
