@@ -7,12 +7,12 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 import time
 
 
-class OneaccessOneos(CiscoBaseConnection):
+class OneaccessOneOSBase(CiscoBaseConnection):
     def __init__(self, *args, **kwargs):
         """Init connection - similar as Cisco"""
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
-        super(OneaccessOneos, self).__init__(*args, **kwargs)
+        super(OneaccessOneOSBase, self).__init__(*args, **kwargs)
 
     def session_preparation(self):
         """Prepare connection - disable paging"""
@@ -25,12 +25,12 @@ class OneaccessOneos(CiscoBaseConnection):
 
     def save_config(self, cmd="write mem", confirm=False):
         """Save config: write mem"""
-        return super(OneaccessOneos, self).save_config(cmd=cmd, confirm=confirm)
+        return super(OneaccessOneOSBase, self).save_config(cmd=cmd, confirm=confirm)
 
 
-class OneaccessOneosSSH(OneaccessOneos):
+class OneaccessOneOSSSH(OneaccessOneOSBase):
     pass
 
 
-class OneaccessOneosTelnet(OneaccessOneos):
+class OneaccessOneOSTelnet(OneaccessOneOSBase):
     pass

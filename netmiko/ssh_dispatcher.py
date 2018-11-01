@@ -69,7 +69,7 @@ from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
-from netmiko.oneaccess import OneaccessOneosTelnet, OneaccessOneosSSH
+from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -145,7 +145,7 @@ CLASS_MAPPER_BASE = {
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
-    "oneaccess_oneos": OneaccessOneosSSH,
+    "oneaccess_oneos": OneaccessOneOSSSH,
 }
 
 FILE_TRANSFER_MAP = {
@@ -195,7 +195,7 @@ CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
-CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneosTelnet
+CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
