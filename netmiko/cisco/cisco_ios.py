@@ -22,6 +22,16 @@ class CiscoIosBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    def check_config_mode(self, check_string=")#", pattern="#"):
+        """
+        Checks if the device is in configuration mode or not.
+
+        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
+        """
+        return super(CiscoIosBase, self).check_config_mode(
+            check_string=check_string, pattern=pattern
+        )
+
     def save_config(self, cmd="write mem", confirm=False):
         """Saves Config Using Copy Run Start"""
         return super(CiscoIosBase, self).save_config(cmd=cmd, confirm=confirm)
