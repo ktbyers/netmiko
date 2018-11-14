@@ -4,7 +4,7 @@ host jumphost
   hostname host1.domain.com
 
 host *
-  user admin
-  hostname 10.10.10.70
-  Port 22
+  User admin
+  HostName 10.10.10.70
+  Port 8022
   ProxyCommand ssh jumphost nc %h %p

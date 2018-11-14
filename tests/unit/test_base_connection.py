@@ -48,34 +48,32 @@ def test_use_ssh_file():
     connection = FakeBaseConnection(
         host="localhost",
         port=22,
-        username="user",
+        username="",
         password="secret",
         use_keys=True,
         allow_agent=False,
         key_file="/home/user/.ssh/id_rsa",
         timeout=60,
+        pkey=None,
+        passphrase=None,
+        auth_timeout=None,
         ssh_config_file=join(RESOURCE_FOLDER, "ssh_config"),
     )
 
-    connect_dict = {
-        "hostname": "localhost",
-        "port": 22,
-        "username": "",
-        "password": "secret",
-        "look_for_keys": True,
-        "allow_agent": False,
-        "key_filename": "/home/user/.ssh/id_rsa",
-        "timeout": 60,
-    }
+    connect_dict = connection._connect_params_dict()
+
     expected = {
         "hostname": "10.10.10.70",
-        "port": 22,
-        "username": "user",
+        "port": 8022,
+        "username": "admin",
         "password": "secret",
         "look_for_keys": True,
         "allow_agent": False,
         "key_filename": "/home/user/.ssh/id_rsa",
         "timeout": 60,
+        "pkey": None,
+        "passphrase": None,
+        "auth_timeout": None,
     }
 
     result = connection._use_ssh_config(connect_dict)
