@@ -123,42 +123,70 @@ def test_connect_params_dict():
 
 def test_sanitize_nothing():
     """Keep command echo, trailing router prompt and ANSI escape codes"""
-    output = """echo hello world
-hello world""" + ESC + r"E" + "myhostname>"
+
+    output = """
+show cdp neighbors
+Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone, 
+                  D - Remote, C - CVTA, M - Two-port Mac Relay 
+
+Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
+
+Total cdp entries displayed : 0
+cisco3#"""
 
     connection = FakeBaseConnection(
         RESPONSE_RETURN="\n",
         RETURN="\n",
         ansi_escape_codes=False,
-        base_prompt="myhostname>",
+        base_prompt="cisco3#",
     )
 
     result = connection._sanitize_output(
         output,
         strip_command=False,
-        command_string="echo hello world",
+        command_string="show cdp neighbors\n",
         strip_prompt=False,
     )
     assert result == output
 
 
-def test_sanitize_all_output():
+def test_sanitize_output():
     """Strip out command echo, trailing router prompt and ANSI escape codes"""
-    output = """echo hello world
-hello world""" + ESC + r"E" + "myhostname>"
 
-    expected = "\nhello world"
+    output = """
+show cdp neighbors
+Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone, 
+                  D - Remote, C - CVTA, M - Two-port Mac Relay 
+
+Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
+
+Total cdp entries displayed : 0
+cisco3#"""
+    output = output.lstrip()
+
+    expected = """
+Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone, 
+                  D - Remote, C - CVTA, M - Two-port Mac Relay 
+
+Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
+
+Total cdp entries displayed : 0"""
+    expected = expected.lstrip()
+
     connection = FakeBaseConnection(
         RESPONSE_RETURN="\n",
         RETURN="\n",
-        ansi_escape_codes=True,
-        base_prompt="myhostname>",
+        ansi_escape_codes=False,
+        base_prompt="cisco3#",
     )
 
     result = connection._sanitize_output(
         output,
         strip_command=True,
-        command_string="echo hello world",
+        command_string="show cdp neighbors\n",
         strip_prompt=True,
     )
     assert result == expected
