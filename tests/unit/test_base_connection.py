@@ -206,10 +206,7 @@ def test_strip_prompt():
     """Strip the trailing router prompt from the output"""
     string = """MyRouter version 1.25.9
 myhostname>"""
-    connection = FakeBaseConnection(
-        RESPONSE_RETURN="\n",
-        base_prompt="myhostname>",
-    )
+    connection = FakeBaseConnection(RESPONSE_RETURN="\n", base_prompt="myhostname>")
     result = connection.strip_prompt(string)
     assert result == "MyRouter version 1.25.9"
 
@@ -218,10 +215,7 @@ def test_strip_no_prompt():
     """Strip no prompt from the output"""
     string = """MyRouter version 1.25.9
 additional text"""
-    connection = FakeBaseConnection(
-        RESPONSE_RETURN="\n",
-        base_prompt="myhostname>",
-    )
+    connection = FakeBaseConnection(RESPONSE_RETURN="\n", base_prompt="myhostname>")
     result = connection.strip_prompt(string)
     assert result == string
 
