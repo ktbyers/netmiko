@@ -68,8 +68,8 @@ def test_use_ssh_file():
         "timeout": 60,
     }
     expected = {
-        "hostname": "192.168.0.251",
-        "port": 42,
+        "hostname": "10.10.10.70",
+        "port": 22,
         "username": "user",
         "password": "secret",
         "look_for_keys": True,
@@ -77,9 +77,10 @@ def test_use_ssh_file():
         "key_filename": "/home/user/.ssh/id_rsa",
         "timeout": 60,
     }
+
     result = connection._use_ssh_config(connect_dict)
     assert "sock" in result
-    assert len(result["sock"].cmd) == 7
+    assert len(result["sock"].cmd) == 5
     assert "nc" in result["sock"].cmd
     del result["sock"]
     assert result == expected
