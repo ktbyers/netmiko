@@ -1,0 +1,5 @@
+Host localhost
+     Port 42
+     HostName 192.168.0.251
+     User user
+     ProxyCommand  ssh user@gateway nc %h %p 2> /dev/null

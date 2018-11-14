@@ -1,0 +1,8 @@
+---
+
+cisco_ios:
+  device_type: cisco_ios
+  ip: 10.10.10.10
+  username: admin
+  password: cisco123
+  secret: cisco123
