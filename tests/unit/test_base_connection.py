@@ -8,8 +8,6 @@ from netmiko import NetMikoTimeoutException
 from netmiko.base_connection import BaseConnection
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
-CONFIG_FILENAME = join(RESOURCE_FOLDER, ".netmiko.yml")
-ESC = chr(27)
 
 
 class FakeBaseConnection(BaseConnection):
@@ -56,7 +54,7 @@ def test_use_ssh_file():
         allow_agent=False,
         key_file="/home/user/.ssh/id_rsa",
         timeout=60,
-        ssh_config_file=join(RESOURCE_FOLDER, "ssh_config.example"),
+        ssh_config_file=join(RESOURCE_FOLDER, "ssh_config"),
     )
 
     connect_dict = {
@@ -127,8 +125,8 @@ def test_sanitize_nothing():
     output = """
 show cdp neighbors
 Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
-                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone, 
-                  D - Remote, C - CVTA, M - Two-port Mac Relay 
+                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone,
+                  D - Remote, C - CVTA, M - Two-port Mac Relay
 
 Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
 
@@ -194,13 +192,13 @@ Total cdp entries displayed : 0"""
 
 def test_select_global_delay_factor():
     """Select the global delay factor"""
-    connection = FakeBaseConnection(global_delay_factor=4)
+    connection = FakeBaseConnection(global_delay_factor=4, fast_cli=False)
     assert connection.select_delay_factor(2) == 4
 
 
 def test_select_current_delay_factor():
     """Select the current delay factor"""
-    connection = FakeBaseConnection(global_delay_factor=4)
+    connection = FakeBaseConnection(global_delay_factor=4, fast_cli=False)
     assert connection.select_delay_factor(10) == 10
 
 
@@ -219,7 +217,7 @@ myhostname>"""
 def test_strip_no_prompt():
     """Strip no prompt from the output"""
     string = """MyRouter version 1.25.9
-"""
+additional text"""
     connection = FakeBaseConnection(
         RESPONSE_RETURN="\n",
         base_prompt="myhostname>",
@@ -251,27 +249,41 @@ def test_strip_backspaces():
 
 def test_strip_command():
     """Strip command string from output"""
-    output = """echo "hello world"
-hello world
-myhostname>
-"""
-    command = "echo \"hello world\""
+
+    output = """show cdp neighbors
+Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone, 
+                  D - Remote, C - CVTA, M - Two-port Mac Relay 
+
+Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
+
+Total cdp entries displayed : 0
+cisco3#"""
+
+    command = "show cdp neighbors\n"
     expect = """
-hello world
-myhostname>
-"""
+Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone, 
+                  D - Remote, C - CVTA, M - Two-port Mac Relay 
+
+Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
+
+Total cdp entries displayed : 0
+cisco3#"""
+    expect = expect.lstrip()
+
     connection = FakeBaseConnection(RESPONSE_RETURN="\n")
     result = connection.strip_command(command, output)
     assert result == expect
 
 
-def test_strip_and_unwrap_command():
-    """Strip command string from output and unwrap it"""
+def test_strip_command_w_backspaces():
+    """Strip command string from output and remove backspaces"""
     output = """echo "hello world"
 hello \x08world
 myhost\x08name>
 """
-    command = "echo \"hello world\""
+    command = 'echo "hello world"'
     expect = """hello world
 myhostname>
 """
@@ -281,7 +293,7 @@ myhostname>
 
 
 def test_normalize_linefeeds():
-    """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n`"""
+    """Convert combinations of carriage returns and newlines to standardized form."""
     text = """show hostname\r
 show version\r\r
 show inventory\r\r\r
@@ -302,20 +314,6 @@ def test_normalize_cmd():
     connection = FakeBaseConnection(RETURN="\n")
     result = connection.normalize_cmd("show version \n\n\n ")
     assert result == "show version\n"
-
-
-def test_strip_ansi_escape_codes():
-    """Remove any ANSI (VT100) ESC codes from the output"""
-    connection = FakeBaseConnection(RETURN="\n")
-    # Erase entire line, erase display, next line
-    text = "hello world" + \
-           ESC + r"[2K" + \
-           ESC + r"[2J" + \
-           ESC + r"E" + \
-           "hi"
-
-    result = connection.strip_ansi_escape_codes(text)
-    assert result == "hello world\nhi"
 
 
 def test_unlocking_no_lock():
