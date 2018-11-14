@@ -8,7 +8,7 @@ from netmiko import NetMikoTimeoutException
 from netmiko.base_connection import BaseConnection
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
-CONFIG_FILENAME = join(RESOURCE_FOLDER, ".netmiko.yml.example")
+CONFIG_FILENAME = join(RESOURCE_FOLDER, ".netmiko.yml")
 ESC = chr(27)
 
 
@@ -98,6 +98,9 @@ def test_connect_params_dict():
         allow_agent=False,
         key_file="/home/user/.ssh/id_rsa",
         timeout=60,
+        pkey=None,
+        passphrase=None,
+        auth_timeout=None,
         ssh_config_file=None,
     )
 
@@ -110,6 +113,9 @@ def test_connect_params_dict():
         "allow_agent": False,
         "key_filename": "/home/user/.ssh/id_rsa",
         "timeout": 60,
+        "pkey": None,
+        "passphrase": None,
+        "auth_timeout": None,
     }
     result = connection._connect_params_dict()
     assert result == expected
