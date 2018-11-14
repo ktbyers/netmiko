@@ -16,9 +16,9 @@ def test_load_yaml_file():
     """Read a YAML file successfully"""
     filename = join(RESOURCE_FOLDER, "yaml_test.yml")
     expected = {
-        "answer": 42, 
-        "hello": "world", 
-        "complex": {"truth": False, "key": "value"}
+        "answer": 42,
+        "hello": "world",
+        "complex": {"truth": False, "key": "value"},
     }
     assert utilities.load_yaml_file(filename) == expected
 
@@ -42,9 +42,22 @@ def test_find_cfg_file():
 def test_load_cfg_file():
     """Try to load a configuration file"""
     expected = {
-        'rtr1': {'device_type': 'cisco_ios', 'ip': '10.10.10.1', 'username': 'admin', 'password': 'cisco123', 'secret': 'cisco123'}, 
-        'rtr2': {'device_type': 'cisco_ios', 'ip': '10.10.10.2', 'username': 'admin', 'password': 'cisco123', 'secret': 'cisco123'}, 
-        'cisco': ['rtr1', 'rtr2']}
+        "rtr1": {
+            "device_type": "cisco_ios",
+            "ip": "10.10.10.1",
+            "username": "admin",
+            "password": "cisco123",
+            "secret": "cisco123",
+        },
+        "rtr2": {
+            "device_type": "cisco_ios",
+            "ip": "10.10.10.2",
+            "username": "admin",
+            "password": "cisco123",
+            "secret": "cisco123",
+        },
+        "cisco": ["rtr1", "rtr2"],
+    }
     assert utilities.load_devices(CONFIG_FILENAME) == expected
 
 
@@ -52,8 +65,21 @@ def test_obtain_all_devices():
     """Dynamically create 'all' group."""
     netmiko_tools_load = utilities.load_devices(CONFIG_FILENAME)
     expected = {
-        'rtr1': {'device_type': 'cisco_ios', 'ip': '10.10.10.1', 'username': 'admin', 'password': 'cisco123', 'secret': 'cisco123'}, 
-        'rtr2': {'device_type': 'cisco_ios', 'ip': '10.10.10.2', 'username': 'admin', 'password': 'cisco123', 'secret': 'cisco123'}}
+        "rtr1": {
+            "device_type": "cisco_ios",
+            "ip": "10.10.10.1",
+            "username": "admin",
+            "password": "cisco123",
+            "secret": "cisco123",
+        },
+        "rtr2": {
+            "device_type": "cisco_ios",
+            "ip": "10.10.10.2",
+            "username": "admin",
+            "password": "cisco123",
+            "secret": "cisco123",
+        },
+    }
     result = utilities.obtain_all_devices(netmiko_tools_load)
     assert result == expected
 
@@ -119,26 +145,22 @@ def test_clitable_to_dict():
     """Converts TextFSM cli_table object to list of dictionaries"""
     table = clitable.CliTable(template_dir=RESOURCE_FOLDER)
     text_filename = join(RESOURCE_FOLDER, "textfsm.txt")
-    template_filename = join(
-        RESOURCE_FOLDER, "cisco_ios_show_version.template"
-    )
+    template_filename = join(RESOURCE_FOLDER, "cisco_ios_show_version.template")
     with open(text_filename) as data_file:
         text = data_file.read()
 
     with open(template_filename) as template_file:
-           table = table._ParseCmdItem(text, template_file)
+        table = table._ParseCmdItem(text, template_file)
 
     result = utilities.clitable_to_dict(table)
-    assert result == [{'model': '4500'}]
+    assert result == [{"model": "4500"}]
 
 
 def test_get_structured_data():
     """Convert raw CLI output to structured data using TextFSM template"""
-    environ['NET_TEXTFSM'] = RESOURCE_FOLDER
+    environ["NET_TEXTFSM"] = RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
     result = utilities.get_structured_data(
-        raw_output,
-        platform="cisco_ios",
-        command="show version",
+        raw_output, platform="cisco_ios", command="show version"
     )
-    assert result == [{'model': '4500'}]
+    assert result == [{"model": "4500"}]
