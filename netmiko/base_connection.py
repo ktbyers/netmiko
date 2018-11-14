@@ -775,7 +775,7 @@ class BaseConnection(object):
         if connect_dict["port"] == 22:
             connect_dict["port"] = int(source.get("port", self.port))
         if connect_dict["username"] == "":
-            connect_dict["username"] = source.get("username", self.username)
+            connect_dict["username"] = source.get("user", self.username)
         if proxy:
             connect_dict["sock"] = proxy
         connect_dict["hostname"] = source.get("hostname", self.host)
