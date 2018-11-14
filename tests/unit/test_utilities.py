@@ -9,12 +9,12 @@ from netmiko import utilities
 from netmiko._textfsm import _clitable as clitable
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
-CONFIG_FILENAME = join(RESOURCE_FOLDER, ".netmiko.yml.example")
+CONFIG_FILENAME = join(RESOURCE_FOLDER, ".netmiko.yml")
 
 
 def test_load_yaml_file():
     """Read a YAML file successfully"""
-    filename = join(RESOURCE_FOLDER, "yaml_test.yml.example")
+    filename = join(RESOURCE_FOLDER, "yaml_test.yml")
     expected = {
         "answer": 42, 
         "hello": "world", 
@@ -42,39 +42,20 @@ def test_find_cfg_file():
 def test_load_cfg_file():
     """Try to load a configuration file"""
     expected = {
-        "cisco_ios": {
-            "ip": "10.10.10.10",
-            "username": "admin", 
-            "password": "cisco123", 
-            "device_type": "cisco_ios", 
-            "secret": "cisco123"
-        }
-    }
+        'rtr1': {'device_type': 'cisco_ios', 'ip': '10.10.10.1', 'username': 'admin', 'password': 'cisco123', 'secret': 'cisco123'}, 
+        'rtr2': {'device_type': 'cisco_ios', 'ip': '10.10.10.2', 'username': 'admin', 'password': 'cisco123', 'secret': 'cisco123'}, 
+        'cisco': ['rtr1', 'rtr2']}
     assert utilities.load_devices(CONFIG_FILENAME) == expected
 
 
 def test_obtain_all_devices():
     """Dynamically create 'all' group."""
-    devices = {
-        "cisco_ios": {
-            "ip": "10.10.10.10",
-            "username": "admin",
-            "password": "cisco123",
-            "device_type": "cisco_ios",
-            "secret": "cisco123"
-        },
-        "group": [
-            {
-                "ip": "192.168.1.1",
-                "username": "admin",
-                "password": "cisco123",
-                "device_type": "cisco_ios",
-                "secret": "cisco123"
-            }
-        ]
-    }
-    result = utilities.obtain_all_devices(devices)
-    assert result == {"cisco_ios": devices["cisco_ios"]}
+    netmiko_tools_load = utilities.load_devices(CONFIG_FILENAME)
+    expected = {
+        'rtr1': {'device_type': 'cisco_ios', 'ip': '10.10.10.1', 'username': 'admin', 'password': 'cisco123', 'secret': 'cisco123'}, 
+        'rtr2': {'device_type': 'cisco_ios', 'ip': '10.10.10.2', 'username': 'admin', 'password': 'cisco123', 'secret': 'cisco123'}}
+    result = utilities.obtain_all_devices(netmiko_tools_load)
+    assert result == expected
 
 
 def test_find_netmiko_dir():
@@ -119,17 +100,6 @@ def test_invalid_data_to_bytes():
     assert False
 
 
-def test_creating_a_directory():
-    """Create a directory that does not exist"""
-    folder = join(dirname(__file__), str(random_uuid()))
-    assert not isdir(folder)
-    try:
-        utilities.ensure_dir_exists(folder)
-        assert isdir(folder)
-    finally:
-        os.rmdir(folder)
-
-
 def test_ensure_resource_dir_exists():
     """Ensure that the resource folder exists"""
     utilities.ensure_dir_exists(RESOURCE_FOLDER)
@@ -142,14 +112,13 @@ def test_ensure_file_exists():
     except ValueError as exc:
         assert isinstance(exc, ValueError)
         return
-
     assert False
 
 
 def test_clitable_to_dict():
     """Converts TextFSM cli_table object to list of dictionaries"""
     table = clitable.CliTable(template_dir=RESOURCE_FOLDER)
-    text_filename = join(RESOURCE_FOLDER, "textfsm.txt.example")
+    text_filename = join(RESOURCE_FOLDER, "textfsm.txt")
     template_filename = join(
         RESOURCE_FOLDER, "cisco_ios_show_version.template"
     )
