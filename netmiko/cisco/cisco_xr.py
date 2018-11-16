@@ -132,6 +132,9 @@ class CiscoXr(CiscoBaseConnection):
         Exit of configuration mode with pending changes will cause the changes to be discarded and
         an exception to be generated.
         """
+        commit_error_dialog_dict = kwargs.get('commit_error_dialog_dict')
+        if 'commit_error_dialog_dict' in kwargs:
+            kwargs.pop('commit_error_dialog_dict')
         delay_factor = self.select_delay_factor(delay_factor)
         if confirm and not confirm_delay:
             raise ValueError("Invalid arguments supplied to XR commit")
@@ -190,7 +193,13 @@ class CiscoXr(CiscoBaseConnection):
                     return output
             except Exception as err:
                 output = str(err)
-                if alt_error_marker in output:
+                if commit_error_dialog_dict is not None and alt_error_marker in commit_error_dialog_dict:
+                    if alt_error_marker in output:
+                        marker_value = commit_error_dialog_dict[alt_error_marker]
+                        output += self.send_command_timing(marker_value, strip_prompt=False, strip_command=False,
+                                                               delay_factor=delay_factor)
+                        return output
+                elif alt_error_marker in output:
                     # Other commits occurred, don't proceed with commit
                     output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
                                                            delay_factor=delay_factor)
