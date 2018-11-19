@@ -170,7 +170,7 @@ class BaseFileTransfer(object):
             if (
                 "Error opening" in remote_out
                 or "No such file or directory" in remote_out
-                or 'Path does not exist' in remote_out
+                or "Path does not exist" in remote_out
             ):
                 return False
             elif re.search(search_string, remote_out, flags=re.DOTALL):
