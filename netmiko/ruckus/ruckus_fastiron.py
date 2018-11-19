@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import re
 import time
+from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -57,7 +58,7 @@ class RuckusFastironBase(CiscoSSHConnection):
             )
             raise ValueError(msg)
 
-    def save_config(self, cmd="write mem", confirm=False):
+    def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves configuration."""
         return super(RuckusFastironBase, self).save_config(cmd=cmd, confirm=confirm)
 
@@ -67,6 +68,24 @@ class RuckusFastironTelnet(RuckusFastironBase):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super(RuckusFastironTelnet, self).__init__(*args, **kwargs)
+
+    def _process_option(self, tsocket, command, option):
+        """
+        Ruckus FastIron/ICX does not always echo commands to output by default.
+        If server expresses interest in 'ECHO' option, then reply back with 'DO
+        ECHO'
+        """
+        if option == ECHO:
+            tsocket.sendall(IAC + DO + ECHO)
+        elif command in (DO, DONT):
+            tsocket.sendall(IAC + WONT + option)
+        elif command in (WILL, WONT):
+            tsocket.sendall(IAC + DONT + option)
+
+    def telnet_login(self, *args, **kwargs):
+        # set callback function to handle telnet options.
+        self.remote_conn.set_option_negotiation_callback(self._process_option)
+        return super(RuckusFastironTelnet, self).telnet_login(*args, **kwargs)
 
 
 class RuckusFastironSSH(RuckusFastironBase):
