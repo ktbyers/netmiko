@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import re
 import time
+from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -68,26 +69,23 @@ class RuckusFastironTelnet(RuckusFastironBase):
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super(RuckusFastironTelnet, self).__init__(*args, **kwargs)
 
-    def strip_command(self, command_string, output):
+    def _process_option(self, tsocket, command, option):
         """
-        Modified strip_command for Ruckus FastIron telnet connections
-
-        :param command_string: The command string sent to the device
-        :type command_string: str
-
-        :param output: The returned output as a result of the command string sent to the device
-        :type output: str
+        Ruckus FastIron/ICX does not always echo commands to output by default.
+        If server expresses interest in 'ECHO' option, then reply back with 'DO
+        ECHO'
         """
-        backspace_char = "\x08"
+        if option == ECHO:
+            tsocket.sendall(IAC + DO + ECHO)
+        elif command in (DO, DONT):
+            tsocket.sendall(IAC + WONT + option)
+        elif command in (WILL, WONT):
+            tsocket.sendall(IAC + DONT + option)
 
-        # Check for line wrap (remove backspaces)
-        if backspace_char in output:
-            output = output.replace(backspace_char, "")
-            output_lines = output.split(self.RESPONSE_RETURN)
-            new_output = output_lines[1:]
-            return self.RESPONSE_RETURN.join(new_output)
-        else:
-            return output
+    def telnet_login(self, *args, **kwargs):
+        # set callback function to handle telnet options.
+        self.remote_conn.set_option_negotiation_callback(self._process_option)
+        return super(RuckusFastironTelnet, self).telnet_login(*args, **kwargs)
 
 
 class RuckusFastironSSH(RuckusFastironBase):
