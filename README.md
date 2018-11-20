@@ -1,4 +1,5 @@
 [![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
+[![Downloads](https://pepy.tech/badge/netmiko)](https://pepy.tech/project/netmiko)
 
 
 Netmiko
