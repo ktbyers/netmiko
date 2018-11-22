@@ -70,7 +70,7 @@ from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
-from netmiko.dlink import DlinkTelnet,DlinkSSH
+from netmiko.dlink import DlinkDSTelnet,DlinkDSSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -108,8 +108,8 @@ CLASS_MAPPER_BASE = {
     "dell_os10": DellOS10SSH,
     "dell_powerconnect": DellPowerConnectSSH,
     "dell_isilon": DellIsilonSSH,
+    "dlink_ds": DlinkDSSSH,
     "eltex": EltexSSH,
-    "dlink": DlinkSSH,
     "enterasys": EnterasysSSH,
     "extreme": ExtremeExosSSH,
     "extreme_ers": ExtremeErsSSH,
@@ -198,7 +198,7 @@ CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
-CLASS_MAPPER["dlink_telnet"] = DlinkTelnet
+CLASS_MAPPER["dlink_ds_telnet"] = DlinkDSTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
