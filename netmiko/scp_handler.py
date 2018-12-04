@@ -109,7 +109,7 @@ class BaseFileTransfer(object):
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
         if "kbytes" in match.group(0) or "Kbytes" in match.group(0):
-            return int(match.group(1))*1000
+            return int(match.group(1)) * 1000
         return int(match.group(1))
 
     def _remote_space_available_unix(self, search_pattern=""):
