@@ -22,3 +22,5 @@ docs/build/doctrees/
 
 # Tox
 .tox/*
+
+.pytest_cache/*
