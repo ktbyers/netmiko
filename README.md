@@ -179,7 +179,7 @@ export NET_TEXTFSM=/path/to/ntc-templates/templates/
 
 If you find an issue with Netmiko, then you can open an issue on this projects issue page here: [https://github.com/ktbyers/netmiko/issues](https://github.com/ktbyers/netmiko/issues)
 
-If you have questions or would like to discuss Netmiko, a Netmiko channel exists on [this Slack](https://networktocode.slack.com) team.  To join, visit [this url](http://slack.networktocode.com/) and request access to the Slack team. Once access is granted you can join the [#netmiko](https://networktocode.slack.com/messages/netmiko/) channel.
+If you have questions or would like to discuss Netmiko, a #netmiko channel exists in [this Slack](https://pynet.slack.com) workspace.  To join, use [this invitation](https://join.slack.com/t/pynet/shared_invite/enQtNTAyMjY4ODE2NjQ0LTcwMTQ2ZGY1OWYzNmE3ZWE0NTU5NTAxODY4OTc1ZjBjM2YyYWIyZTI1Y2YyMDg3NmZjMDhkM2U0ZmRjZTJiZjk). Once you have entered the workspace, then you can join the #netmiko channel.
 
 
 
