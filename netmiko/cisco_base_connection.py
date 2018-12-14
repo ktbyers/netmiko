@@ -209,7 +209,7 @@ class CiscoBaseConnection(BaseConnection):
         cmd="copy running-config startup-config",
         confirm=False,
         confirm_response="",
-        delay_factor=1
+        delay_factor=1,
     ):
         """Saves running configuration."""
         self.enable()
@@ -219,11 +219,16 @@ class CiscoBaseConnection(BaseConnection):
         # If prompt detected, progress through it, otherwise return output
         if confirm or any(confirm in output for confirm in ["[confirm]", "[y]"]):
             if confirm_response:
-                output += self.send_command_timing(confirm_response, delay_factor=delay_factor)
+                output += self.send_command_timing(
+                    confirm_response, delay_factor=delay_factor
+                )
             else:
                 # Default RETURN if no confirm_response given
-                output += self.send_command_timing(self.RETURN, delay_factor=delay_factor)
+                output += self.send_command_timing(
+                    self.RETURN, delay_factor=delay_factor
+                )
         return output
+
 
 class CiscoSSHConnection(CiscoBaseConnection):
     pass
