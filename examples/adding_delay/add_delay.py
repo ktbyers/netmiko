@@ -6,12 +6,12 @@ from netmiko import Netmiko
 from getpass import getpass
 
 my_device = {
-    'host': "host.domain.com",
-    'username': 'pyclass',
-    'password': getpass(),
-    'device_type': 'cisco_ios',
+    "host": "host.domain.com",
+    "username": "pyclass",
+    "password": getpass(),
+    "device_type": "cisco_ios",
     # Increase (essentially) all sleeps by a factor of 2
-    'global_delay_factor': 2,
+    "global_delay_factor": 2,
 }
 
 net_connect = Netmiko(**my_device)

@@ -13,7 +13,12 @@ from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
-from netmiko.cisco import CiscoIosSSH, CiscoIosFileTransfer, CiscoIosTelnet, CiscoIosSerial
+from netmiko.cisco import (
+    CiscoIosSSH,
+    CiscoIosFileTransfer,
+    CiscoIosTelnet,
+    CiscoIosSerial,
+)
 from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
@@ -64,137 +69,140 @@ from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
+from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
-    'a10': A10SSH,
-    'accedian': AccedianSSH,
-    'alcatel_aos': AlcatelAosSSH,
-    'alcatel_sros': AlcatelSrosSSH,
-    'apresia_aeos': ApresiaAeosSSH,
-    'arista_eos': AristaSSH,
-    'aruba_os': ArubaSSH,
-    'avaya_ers': ExtremeErsSSH,
-    'avaya_vsp': ExtremeVspSSH,
-    'brocade_fastiron': RuckusFastironSSH,
-    'brocade_netiron': ExtremeNetironSSH,
-    'brocade_nos': ExtremeNosSSH,
-    'brocade_vdx': ExtremeNosSSH,
-    'brocade_vyos': VyOSSSH,
-    'checkpoint_gaia': CheckPointGaiaSSH,
-    'calix_b6': CalixB6SSH,
-    'ciena_saos': CienaSaosSSH,
-    'cisco_asa': CiscoAsaSSH,
-    'cisco_ios': CiscoIosSSH,
-    'cisco_nxos': CiscoNxosSSH,
-    'cisco_s300': CiscoS300SSH,
-    'cisco_tp': CiscoTpTcCeSSH,
-    'cisco_wlc': CiscoWlcSSH,
-    'cisco_xe': CiscoIosSSH,
-    'cisco_xr': CiscoXrSSH,
-    'coriant': CoriantSSH,
-    'dell_dnos9': DellForce10SSH,
-    'dell_force10': DellForce10SSH,
-    'dell_os6': DellDNOS6SSH,
-    'dell_os9': DellForce10SSH,
-    'dell_os10': DellOS10SSH,
-    'dell_powerconnect': DellPowerConnectSSH,
-    'dell_isilon': DellIsilonSSH,
-    'eltex': EltexSSH,
-    'enterasys': EnterasysSSH,
-    'extreme': ExtremeExosSSH,
-    'extreme_ers': ExtremeErsSSH,
-    'extreme_exos': ExtremeExosSSH,
-    'extreme_netiron': ExtremeNetironSSH,
-    'extreme_nos': ExtremeNosSSH,
-    'extreme_slx': ExtremeSlxSSH,
-    'extreme_vdx': ExtremeNosSSH,
-    'extreme_vsp': ExtremeVspSSH,
-    'extreme_wing': ExtremeWingSSH,
-    'f5_ltm': F5TmshSSH,
-    'f5_tmsh': F5TmshSSH,
-    'f5_linux': F5LinuxSSH,
-    'fortinet': FortinetSSH,
-    'generic_termserver': TerminalServerSSH,
-    'hp_comware': HPComwareSSH,
-    'hp_procurve': HPProcurveSSH,
-    'huawei': HuaweiSSH,
-    'huawei_vrpv8': HuaweiVrpv8SSH,
-    'ipinfusion_ocnos': IpInfusionOcNOSSSH,
-    'juniper': JuniperSSH,
-    'juniper_junos': JuniperSSH,
-    'linux': LinuxSSH,
-    'mellanox': MellanoxSSH,
-    'mrv_optiswitch': MrvOptiswitchSSH,
-    'netapp_cdot': NetAppcDotSSH,
-    'netscaler': NetscalerSSH,
-    'ovs_linux': OvsLinuxSSH,
-    'paloalto_panos': PaloAltoPanosSSH,
-    'pluribus': PluribusSSH,
-    'quanta_mesh': QuantaMeshSSH,
-    'rad_etx': RadETXSSH,
-    'ruckus_fastiron': RuckusFastironSSH,
-    'ubiquiti_edge': UbiquitiEdgeSSH,
-    'ubiquiti_edgeswitch': UbiquitiEdgeSSH,
-    'vyatta_vyos': VyOSSSH,
-    'vyos': VyOSSSH,
+    "a10": A10SSH,
+    "accedian": AccedianSSH,
+    "alcatel_aos": AlcatelAosSSH,
+    "alcatel_sros": AlcatelSrosSSH,
+    "apresia_aeos": ApresiaAeosSSH,
+    "arista_eos": AristaSSH,
+    "aruba_os": ArubaSSH,
+    "avaya_ers": ExtremeErsSSH,
+    "avaya_vsp": ExtremeVspSSH,
+    "brocade_fastiron": RuckusFastironSSH,
+    "brocade_netiron": ExtremeNetironSSH,
+    "brocade_nos": ExtremeNosSSH,
+    "brocade_vdx": ExtremeNosSSH,
+    "brocade_vyos": VyOSSSH,
+    "checkpoint_gaia": CheckPointGaiaSSH,
+    "calix_b6": CalixB6SSH,
+    "ciena_saos": CienaSaosSSH,
+    "cisco_asa": CiscoAsaSSH,
+    "cisco_ios": CiscoIosSSH,
+    "cisco_nxos": CiscoNxosSSH,
+    "cisco_s300": CiscoS300SSH,
+    "cisco_tp": CiscoTpTcCeSSH,
+    "cisco_wlc": CiscoWlcSSH,
+    "cisco_xe": CiscoIosSSH,
+    "cisco_xr": CiscoXrSSH,
+    "coriant": CoriantSSH,
+    "dell_dnos9": DellForce10SSH,
+    "dell_force10": DellForce10SSH,
+    "dell_os6": DellDNOS6SSH,
+    "dell_os9": DellForce10SSH,
+    "dell_os10": DellOS10SSH,
+    "dell_powerconnect": DellPowerConnectSSH,
+    "dell_isilon": DellIsilonSSH,
+    "eltex": EltexSSH,
+    "enterasys": EnterasysSSH,
+    "extreme": ExtremeExosSSH,
+    "extreme_ers": ExtremeErsSSH,
+    "extreme_exos": ExtremeExosSSH,
+    "extreme_netiron": ExtremeNetironSSH,
+    "extreme_nos": ExtremeNosSSH,
+    "extreme_slx": ExtremeSlxSSH,
+    "extreme_vdx": ExtremeNosSSH,
+    "extreme_vsp": ExtremeVspSSH,
+    "extreme_wing": ExtremeWingSSH,
+    "f5_ltm": F5TmshSSH,
+    "f5_tmsh": F5TmshSSH,
+    "f5_linux": F5LinuxSSH,
+    "fortinet": FortinetSSH,
+    "generic_termserver": TerminalServerSSH,
+    "hp_comware": HPComwareSSH,
+    "hp_procurve": HPProcurveSSH,
+    "huawei": HuaweiSSH,
+    "huawei_vrpv8": HuaweiVrpv8SSH,
+    "ipinfusion_ocnos": IpInfusionOcNOSSSH,
+    "juniper": JuniperSSH,
+    "juniper_junos": JuniperSSH,
+    "linux": LinuxSSH,
+    "mellanox": MellanoxSSH,
+    "mrv_optiswitch": MrvOptiswitchSSH,
+    "netapp_cdot": NetAppcDotSSH,
+    "netscaler": NetscalerSSH,
+    "ovs_linux": OvsLinuxSSH,
+    "paloalto_panos": PaloAltoPanosSSH,
+    "pluribus": PluribusSSH,
+    "quanta_mesh": QuantaMeshSSH,
+    "rad_etx": RadETXSSH,
+    "ruckus_fastiron": RuckusFastironSSH,
+    "ubiquiti_edge": UbiquitiEdgeSSH,
+    "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
+    "vyatta_vyos": VyOSSSH,
+    "vyos": VyOSSSH,
+    "oneaccess_oneos": OneaccessOneOSSSH,
 }
 
 FILE_TRANSFER_MAP = {
-    'arista_eos': AristaFileTransfer,
-    'cisco_asa': CiscoAsaFileTransfer,
-    'cisco_ios': CiscoIosFileTransfer,
-    'dell_os10': DellOS10FileTransfer,
-    'cisco_nxos': CiscoNxosFileTransfer,
-    'cisco_xe': CiscoIosFileTransfer,
-    'cisco_xr': CiscoXrFileTransfer,
-    'juniper_junos': JuniperFileTransfer,
-    'linux': LinuxFileTransfer,
+    "arista_eos": AristaFileTransfer,
+    "cisco_asa": CiscoAsaFileTransfer,
+    "cisco_ios": CiscoIosFileTransfer,
+    "dell_os10": DellOS10FileTransfer,
+    "cisco_nxos": CiscoNxosFileTransfer,
+    "cisco_xe": CiscoIosFileTransfer,
+    "cisco_xr": CiscoXrFileTransfer,
+    "juniper_junos": JuniperFileTransfer,
+    "linux": LinuxFileTransfer,
 }
 
 # Also support keys that end in _ssh
 new_mapper = {}
 for k, v in CLASS_MAPPER_BASE.items():
     new_mapper[k] = v
-    alt_key = k + u"_ssh"
+    alt_key = k + "_ssh"
     new_mapper[alt_key] = v
 CLASS_MAPPER = new_mapper
 
 new_mapper = {}
 for k, v in FILE_TRANSFER_MAP.items():
     new_mapper[k] = v
-    alt_key = k + u"_ssh"
+    alt_key = k + "_ssh"
     new_mapper[alt_key] = v
 FILE_TRANSFER_MAP = new_mapper
 
 # Add telnet drivers
-CLASS_MAPPER['apresia_aeos_telnet'] = ApresiaAeosTelnet
-CLASS_MAPPER['arista_eos_telnet'] = AristaTelnet
-CLASS_MAPPER['brocade_fastiron_telnet'] = RuckusFastironTelnet
-CLASS_MAPPER['brocade_netiron_telnet'] = ExtremeNetironTelnet
-CLASS_MAPPER['calix_b6_telnet'] = CalixB6Telnet
-CLASS_MAPPER['cisco_ios_telnet'] = CiscoIosTelnet
-CLASS_MAPPER['dell_dnos6_telnet'] = DellDNOS6Telnet
-CLASS_MAPPER['dell_powerconnect_telnet'] = DellPowerConnectTelnet
-CLASS_MAPPER['extreme_telnet'] = ExtremeExosTelnet
-CLASS_MAPPER['extreme_exos_telnet'] = ExtremeExosTelnet
-CLASS_MAPPER['extreme_netiron_telnet'] = ExtremeNetironTelnet
-CLASS_MAPPER['generic_termserver_telnet'] = TerminalServerTelnet
-CLASS_MAPPER['hp_procurve_telnet'] = HPProcurveTelnet
-CLASS_MAPPER['hp_comware_telnet'] = HPComwareTelnet
-CLASS_MAPPER['ipinfusion_ocnos_telnet'] = IpInfusionOcNOSTelnet
-CLASS_MAPPER['juniper_junos_telnet'] = JuniperTelnet
-CLASS_MAPPER['paloalto_panos_telnet'] = PaloAltoPanosTelnet
-CLASS_MAPPER['rad_etx_telnet'] = RadETXTelnet
-CLASS_MAPPER['ruckus_fastiron_telnet'] = RuckusFastironTelnet
+CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
+CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
+CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
+CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
+CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
+CLASS_MAPPER["cisco_ios_telnet"] = CiscoIosTelnet
+CLASS_MAPPER["dell_dnos6_telnet"] = DellDNOS6Telnet
+CLASS_MAPPER["dell_powerconnect_telnet"] = DellPowerConnectTelnet
+CLASS_MAPPER["extreme_telnet"] = ExtremeExosTelnet
+CLASS_MAPPER["extreme_exos_telnet"] = ExtremeExosTelnet
+CLASS_MAPPER["extreme_netiron_telnet"] = ExtremeNetironTelnet
+CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
+CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
+CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
+CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
+CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
+CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
+CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
+CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
+CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 
 # Add serial drivers
-CLASS_MAPPER['cisco_ios_serial'] = CiscoIosSerial
+CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
 
 # Add general terminal_server driver and autodetect
-CLASS_MAPPER['terminal_server'] = TerminalServerSSH
-CLASS_MAPPER['autodetect'] = TerminalServerSSH
+CLASS_MAPPER["terminal_server"] = TerminalServerSSH
+CLASS_MAPPER["autodetect"] = TerminalServerSSH
 
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
@@ -211,10 +219,12 @@ scp_platforms_str = "\n" + scp_platforms_str
 
 def ConnectHandler(*args, **kwargs):
     """Factory function selects the proper class and creates object based on device_type."""
-    if kwargs['device_type'] not in platforms:
-        raise ValueError('Unsupported device_type: '
-                         'currently supported platforms are: {}'.format(platforms_str))
-    ConnectionClass = ssh_dispatcher(kwargs['device_type'])
+    if kwargs["device_type"] not in platforms:
+        raise ValueError(
+            "Unsupported device_type: "
+            "currently supported platforms are: {}".format(platforms_str)
+        )
+    ConnectionClass = ssh_dispatcher(kwargs["device_type"])
     return ConnectionClass(*args, **kwargs)
 
 
@@ -241,9 +251,11 @@ def FileTransfer(*args, **kwargs):
     if len(args) >= 1:
         device_type = args[0].device_type
     else:
-        device_type = kwargs['ssh_conn'].device_type
+        device_type = kwargs["ssh_conn"].device_type
     if device_type not in scp_platforms:
-        raise ValueError('Unsupported SCP device_type: '
-                         'currently supported platforms are: {}'.format(scp_platforms_str))
+        raise ValueError(
+            "Unsupported SCP device_type: "
+            "currently supported platforms are: {}".format(scp_platforms_str)
+        )
     FileTransferClass = FILE_TRANSFER_MAP[device_type]
     return FileTransferClass(*args, **kwargs)

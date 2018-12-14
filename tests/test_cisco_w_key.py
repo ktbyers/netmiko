@@ -4,23 +4,25 @@ from __future__ import print_function
 from netmiko import ConnectHandler
 from os import path
 
+
 def main():
 
-    try: 
+    try:
         hostname = raw_input("Enter remote host to test: ")
     except NameError:
         hostname = input("Enter remote host to test: ")
-    
-    home_dir = (path.expanduser('~'))
+
+    home_dir = path.expanduser("~")
     key_file = "{}/.ssh/cisco_rsa".format(home_dir)
 
     cisco_test = {
-        'ip': hostname,
-        'username': 'testuser2',
-        'device_type': 'cisco_ios', 
-        'use_keys': True, 
-        'key_file': key_file,
-        'verbose': False}
+        "ip": hostname,
+        "username": "testuser2",
+        "device_type": "cisco_ios",
+        "use_keys": True,
+        "key_file": key_file,
+        "verbose": False,
+    }
 
     net_connect = ConnectHandler(**cisco_test)
     print()
@@ -31,6 +33,7 @@ def main():
     output = net_connect.send_command("show ip int brief")
     print(output)
     print()
+
 
 if __name__ == "__main__":
     main()

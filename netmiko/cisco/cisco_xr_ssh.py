@@ -7,23 +7,25 @@ from netmiko.py23_compat import text_type
 
 
 class CiscoXrSSH(CiscoSSHConnection):
-
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
-        self.set_terminal_width(command='terminal width 511')
+        self.set_terminal_width(command="terminal width 511")
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
-        return super(CiscoXrSSH, self).send_config_set(config_commands=config_commands,
-                                                       exit_config_mode=False, **kwargs)
+        return super(CiscoXrSSH, self).send_config_set(
+            config_commands=config_commands, exit_config_mode=False, **kwargs
+        )
 
-    def commit(self, confirm=False, confirm_delay=None, comment='', label='', delay_factor=1):
+    def commit(
+        self, confirm=False, confirm_delay=None, comment="", label="", delay_factor=1
+    ):
         """
         Commit the candidate configuration.
 
@@ -72,40 +74,50 @@ class CiscoXrSSH(CiscoSSHConnection):
             comment = '"{0}"'.format(comment)
 
         label = text_type(label)
-        error_marker = 'Failed to'
-        alt_error_marker = 'One or more commits have occurred from other'
+        error_marker = "Failed to"
+        alt_error_marker = "One or more commits have occurred from other"
 
         # Select proper command string based on arguments provided
         if label:
             if comment:
-                command_string = 'commit label {} comment {}'.format(label, comment)
+                command_string = "commit label {} comment {}".format(label, comment)
             elif confirm:
-                command_string = 'commit label {} confirmed {}'.format(label,
-                                                                       text_type(confirm_delay))
+                command_string = "commit label {} confirmed {}".format(
+                    label, text_type(confirm_delay)
+                )
             else:
-                command_string = 'commit label {}'.format(label)
+                command_string = "commit label {}".format(label)
         elif confirm:
-            command_string = 'commit confirmed {}'.format(text_type(confirm_delay))
+            command_string = "commit confirmed {}".format(text_type(confirm_delay))
         elif comment:
-            command_string = 'commit comment {}'.format(comment)
+            command_string = "commit comment {}".format(comment)
         else:
-            command_string = 'commit'
+            command_string = "commit"
 
         # Enter config mode (if necessary)
         output = self.config_mode()
-        output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
-                                           delay_factor=delay_factor)
+        output += self.send_command_expect(
+            command_string,
+            strip_prompt=False,
+            strip_command=False,
+            delay_factor=delay_factor,
+        )
         if error_marker in output:
-            raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{0}".format(output)
+            )
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
-            output += self.send_command_timing("no", strip_prompt=False, strip_command=False,
-                                               delay_factor=delay_factor)
-            raise ValueError("Commit failed with the following errors:\n\n{}".format(output))
+            output += self.send_command_timing(
+                "no", strip_prompt=False, strip_command=False, delay_factor=delay_factor
+            )
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{}".format(output)
+            )
 
         return output
 
-    def check_config_mode(self, check_string=')#', pattern=r"[#\$]"):
+    def check_config_mode(self, check_string=")#", pattern=r"[#\$]"):
         """Checks if the device is in configuration mode or not.
 
         IOS-XR, unfortunately, does this:
@@ -118,13 +130,17 @@ class CiscoXrSSH(CiscoSSHConnection):
         output = output.replace("(admin)", "")
         return check_string in output
 
-    def exit_config_mode(self, exit_config='end'):
+    def exit_config_mode(self, exit_config="end"):
         """Exit configuration mode."""
-        output = ''
+        output = ""
         if self.check_config_mode():
-            output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
+            output = self.send_command_timing(
+                exit_config, strip_prompt=False, strip_command=False
+            )
             if "Uncommitted changes found" in output:
-                output += self.send_command_timing('no', strip_prompt=False, strip_command=False)
+                output += self.send_command_timing(
+                    "no", strip_prompt=False, strip_command=False
+                )
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
@@ -136,6 +152,7 @@ class CiscoXrSSH(CiscoSSHConnection):
 
 class CiscoXrFileTransfer(CiscoFileTransfer):
     """Cisco IOS-XR SCP File Transfer driver."""
+
     def process_md5(self, md5_output, pattern=r"^([a-fA-F0-9]+)$"):
         """
         IOS-XR defaults with timestamps enabled
@@ -150,16 +167,16 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         else:
             raise ValueError("Invalid output from MD5 command: {}".format(md5_output))
 
-    def remote_md5(self, base_cmd='show md5 file', remote_file=None):
+    def remote_md5(self, base_cmd="show md5 file", remote_file=None):
         """
         IOS-XR for MD5 requires this extra leading /
 
         show md5 file /bootflash:/boot/grub/grub.cfg
         """
         if remote_file is None:
-            if self.direction == 'put':
+            if self.direction == "put":
                 remote_file = self.dest_file
-            elif self.direction == 'get':
+            elif self.direction == "get":
                 remote_file = self.source_file
         # IOS-XR requires both the leading slash and the slash between file-system and file here
         remote_md5_cmd = "{} /{}/{}".format(base_cmd, self.file_system, remote_file)

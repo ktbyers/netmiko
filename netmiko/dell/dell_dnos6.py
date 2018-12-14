@@ -14,10 +14,12 @@ class DellDNOS6Base(DellPowerConnectBase):
         self.disable_paging(command="terminal length 0")
         self.set_terminal_width()
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd='copy running-configuration startup-configuration', confirm=False):
+    def save_config(
+        self, cmd="copy running-configuration startup-configuration", confirm=False
+    ):
         """Saves Config"""
         return super(DellDNOS6SSH, self).save_config(cmd=cmd, confirm=confirm)
 

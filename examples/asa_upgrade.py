@@ -6,10 +6,10 @@ from getpass import getpass
 from netmiko import ConnectHandler, FileTransfer
 
 
-def asa_scp_handler(ssh_conn, cmd='ssh scopy enable', mode='enable'):
+def asa_scp_handler(ssh_conn, cmd="ssh scopy enable", mode="enable"):
     """Enable/disable SCP on Cisco ASA."""
-    if mode == 'disable':
-        cmd = 'no ' + cmd
+    if mode == "disable":
+        cmd = "no " + cmd
     return ssh_conn.send_config_set([cmd])
 
 
@@ -24,12 +24,12 @@ def main():
     print(">>>> {}".format(start_time))
 
     net_device = {
-        'device_type': 'cisco_asa',
-        'ip': ip_addr,
-        'username': 'admin',
-        'password': my_pass,
-        'secret': my_pass,
-        'port': 22,
+        "device_type": "cisco_asa",
+        "ip": ip_addr,
+        "username": "admin",
+        "password": my_pass,
+        "secret": my_pass,
+        "port": 22,
     }
 
     print("\nLogging in to ASA")
@@ -37,27 +37,31 @@ def main():
     print()
 
     # ADJUST TO TRANSFER IMAGE FILE
-    dest_file_system = 'disk0:'
-    source_file = 'test1.txt'
-    dest_file = 'test1.txt'
-    alt_dest_file = 'asa825-59-k8.bin'
+    dest_file_system = "disk0:"
+    source_file = "test1.txt"
+    dest_file = "test1.txt"
+    alt_dest_file = "asa825-59-k8.bin"
 
-    with FileTransfer(ssh_conn, source_file=source_file, dest_file=dest_file,
-                      file_system=dest_file_system) as scp_transfer:
+    with FileTransfer(
+        ssh_conn,
+        source_file=source_file,
+        dest_file=dest_file,
+        file_system=dest_file_system,
+    ) as scp_transfer:
 
         if not scp_transfer.check_file_exists():
             if not scp_transfer.verify_space_available():
                 raise ValueError("Insufficient space available on remote device")
 
             print("Enabling SCP")
-            output = asa_scp_handler(ssh_conn, mode='enable')
+            output = asa_scp_handler(ssh_conn, mode="enable")
             print(output)
 
             print("\nTransferring file\n")
             scp_transfer.transfer_file()
 
             print("Disabling SCP")
-            output = asa_scp_handler(ssh_conn, mode='disable')
+            output = asa_scp_handler(ssh_conn, mode="disable")
             print(output)
 
         print("\nVerifying file")
@@ -68,12 +72,12 @@ def main():
 
     print("\nSending boot commands")
     full_file_name = "{}/{}".format(dest_file_system, alt_dest_file)
-    boot_cmd = 'boot system {}'.format(full_file_name)
+    boot_cmd = "boot system {}".format(full_file_name)
     output = ssh_conn.send_config_set([boot_cmd])
     print(output)
 
     print("\nVerifying state")
-    output = ssh_conn.send_command('show boot')
+    output = ssh_conn.send_command("show boot")
     print(output)
 
     # UNCOMMENT TO PERFORM WR MEM AND RELOAD

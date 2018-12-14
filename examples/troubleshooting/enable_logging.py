@@ -7,14 +7,14 @@ from getpass import getpass
 
 # This will create a file named 'test.log' in your current directory.
 # It will log all reads and writes on the SSH channel.
-logging.basicConfig(filename='test.log', level=logging.DEBUG)
+logging.basicConfig(filename="test.log", level=logging.DEBUG)
 logger = logging.getLogger("netmiko")
 
 my_device = {
-    'host': 'host.domain.com',
-    'username': 'pyclass',
-    'password': getpass(),
-    'device_type': 'cisco_ios',
+    "host": "host.domain.com",
+    "username": "pyclass",
+    "password": getpass(),
+    "device_type": "cisco_ios",
 }
 
 net_connect = Netmiko(**my_device)

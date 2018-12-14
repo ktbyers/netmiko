@@ -1,0 +1,6 @@
+---
+hello: world
+answer: 42
+complex:
+  key: value
+  truth: false

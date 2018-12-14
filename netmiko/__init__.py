@@ -2,8 +2,8 @@ from __future__ import unicode_literals
 import logging
 
 # Logging configuration
-log = logging.getLogger(__name__) # noqa
-log.addHandler(logging.NullHandler()) # noqa
+log = logging.getLogger(__name__)  # noqa
+log.addHandler(logging.NullHandler())  # noqa
 
 from netmiko.ssh_dispatcher import ConnectHandler
 from netmiko.ssh_dispatcher import ssh_dispatcher
@@ -23,11 +23,24 @@ NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
 Netmiko = ConnectHandler
 
-__version__ = '2.2.2'
-__all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTransfer',
-           'NetMikoTimeoutException', 'NetMikoAuthenticationException',
-           'NetmikoTimeoutError', 'NetmikoAuthError', 'InLineTransfer', 'redispatch',
-           'SSHDetect', 'BaseConnection', 'Netmiko', 'file_transfer')
+__version__ = "2.3.1"
+__all__ = (
+    "ConnectHandler",
+    "ssh_dispatcher",
+    "platforms",
+    "SCPConn",
+    "FileTransfer",
+    "NetMikoTimeoutException",
+    "NetMikoAuthenticationException",
+    "NetmikoTimeoutError",
+    "NetmikoAuthError",
+    "InLineTransfer",
+    "redispatch",
+    "SSHDetect",
+    "BaseConnection",
+    "Netmiko",
+    "file_transfer",
+)
 
 # Cisco cntl-shift-six sequence
 CNTL_SHIFT_6 = chr(30)

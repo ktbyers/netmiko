@@ -4,10 +4,10 @@ from getpass import getpass
 import time
 
 cisco1 = {
-    'host': 'cisco1.twb-tech.com', 
-    'username': 'pyclass', 
-    'password': getpass(), 
-    'device_type': 'cisco_ios',
+    "host": "cisco1.twb-tech.com",
+    "username": "pyclass",
+    "password": getpass(),
+    "device_type": "cisco_ios",
 }
 
 net_connect = Netmiko(**cisco1)

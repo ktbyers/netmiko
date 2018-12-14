@@ -1,6 +1,9 @@
 
 # Use pynetcio machine
 
+# NEED TO CONVERT OVER TO USE A WHEEL
+# python setup.py sdist bdist_wheel
+
 # Make sure you have rolled the version in __init__.py
 
 # Merge into master / checkout master (use PR in GitHub for this)

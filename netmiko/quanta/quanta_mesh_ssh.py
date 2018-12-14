@@ -7,10 +7,10 @@ class QuantaMeshSSH(CiscoSSHConnection):
         """Disable paging"""
         return super(QuantaMeshSSH, self).disable_paging(command=command)
 
-    def config_mode(self, config_command='configure'):
+    def config_mode(self, config_command="configure"):
         """Enter configuration mode."""
         return super(QuantaMeshSSH, self).config_mode(config_command=config_command)
 
-    def save_config(self, cmd='copy running-config startup-config', confirm=False):
+    def save_config(self, cmd="copy running-config startup-config", confirm=False):
         """Saves Config"""
         return super(QuantaMeshSSH, self).save_config(cmd=cmd, confirm=confirm)
