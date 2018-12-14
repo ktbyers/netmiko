@@ -57,7 +57,7 @@ class CiscoWlcSSH(BaseConnection):
         kwargs["delay_factor"] = self.select_delay_factor(delay_factor)
         output = self.send_command_timing(*args, **kwargs)
 
-        if "Press Enter to" in output:
+        if "Press any key" in output or "Press Enter to" in output:
             new_args = list(args)
             if len(args) == 1:
                 new_args[0] = self.RETURN
