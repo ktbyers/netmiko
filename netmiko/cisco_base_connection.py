@@ -57,18 +57,18 @@ class CiscoBaseConnection(BaseConnection):
         )
 
     def serial_login(
-        self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
+            self,
+            pri_prompt_terminator=r"#\s*$",
+            alt_prompt_terminator=r">\s*$",
+            username_pattern=r"(?:user:|username|login)",
+            pwd_pattern=r"assword",
+            delay_factor=1,
+            max_loops=20,
     ):
         self.write_channel(self.TELNET_RETURN)
         output = self.read_channel()
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-            alt_prompt_terminator, output, flags=re.M
+                alt_prompt_terminator, output, flags=re.M
         ):
             return output
         else:
@@ -82,13 +82,13 @@ class CiscoBaseConnection(BaseConnection):
             )
 
     def telnet_login(
-        self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
+            self,
+            pri_prompt_terminator=r"#\s*$",
+            alt_prompt_terminator=r">\s*$",
+            username_pattern=r"(?:user:|username|login|user name)",
+            pwd_pattern=r"assword",
+            delay_factor=1,
+            max_loops=20,
     ):
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -116,7 +116,7 @@ class CiscoBaseConnection(BaseConnection):
                     output = self.read_channel()
                     return_msg += output
                     if re.search(
-                        pri_prompt_terminator, output, flags=re.M
+                            pri_prompt_terminator, output, flags=re.M
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
@@ -144,7 +144,7 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Check if proper data received
                 if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
+                        alt_prompt_terminator, output, flags=re.M
                 ):
                     return return_msg
 
@@ -162,7 +162,7 @@ class CiscoBaseConnection(BaseConnection):
         output = self.read_channel()
         return_msg += output
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-            alt_prompt_terminator, output, flags=re.M
+                alt_prompt_terminator, output, flags=re.M
         ):
             return return_msg
 
@@ -204,20 +204,19 @@ class CiscoBaseConnection(BaseConnection):
             "system: {} {}".format(cmd, output)
         )
 
-    def save_config(
-        self,
-        cmd="copy running-config startup-config",
-        confirm=False,
-        confirm_response="",
-        delay_factor=1,
+    def _confirm_command(
+            self,
+            cmd="",
+            confirm=False,
+            confirm_response="",
+            delay_factor=1,
     ):
-        """Saves running configuration."""
+
         self.enable()
 
-        # Extend delay factor for slower devices
         output = self.send_command_timing(command_string=cmd, delay_factor=delay_factor)
         # If prompt detected, progress through it, otherwise return output
-        if confirm or any(confirm in output for confirm in ["[confirm]", "[y]"]):
+        if confirm or any(confirm in output for confirm in ["[confirm]", "[y]", "[n]"]):
             if confirm_response:
                 output += self.send_command_timing(
                     confirm_response, delay_factor=delay_factor
@@ -228,6 +227,28 @@ class CiscoBaseConnection(BaseConnection):
                     self.RETURN, delay_factor=delay_factor
                 )
         return output
+
+    def save_config(
+            self,
+            cmd="copy running-config startup-config",
+            confirm=False,
+            confirm_response="",
+            delay_factor=1,
+    ):
+        """Saves running configuration."""
+        return self._confirm_command(cmd=cmd, confirm=confirm, confirm_response=confirm_response,
+                                     delay_factor=delay_factor)
+
+    def reload(
+            self,
+            cmd="reload",
+            confirm=True,
+            confirm_response="",
+            delay_factor=1
+    ):
+        """Reloads device."""
+        return self._confirm_command(cmd=cmd, confirm=confirm, confirm_response=confirm_response,
+                                     delay_factor=delay_factor)
 
 
 class CiscoSSHConnection(CiscoBaseConnection):
