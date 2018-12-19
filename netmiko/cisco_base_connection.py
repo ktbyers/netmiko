@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 from netmiko.ssh_exception import NetMikoAuthenticationException
+from paramiko.ssh_exception import ProxyCommandFailure
 import re
 import time
 
@@ -238,12 +239,17 @@ class CiscoBaseConnection(BaseConnection):
 
     def reload(self, cmd="reload", confirm=True, confirm_response="", delay_factor=1):
         """Reloads device."""
-        return self._confirm_command(
-            cmd=cmd,
-            confirm=confirm,
-            confirm_response=confirm_response,
-            delay_factor=delay_factor,
-        )
+        try:
+            return self._confirm_command(
+                cmd=cmd,
+                confirm=confirm,
+                confirm_response=confirm_response,
+                delay_factor=delay_factor,
+            )
+        except (OSError, BrokenPipeError, ProxyCommandFailure) as e:
+            # Try to return the results of the reload command.  Some platforms will catch it, others kick out too fast.
+            # If we fail, just exit anyways.
+            pass
 
 
 class CiscoSSHConnection(CiscoBaseConnection):
