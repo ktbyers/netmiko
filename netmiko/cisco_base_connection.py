@@ -205,23 +205,6 @@ class CiscoBaseConnection(BaseConnection):
             "system: {} {}".format(cmd, output)
         )
 
-    def _confirm_command(
-        self, cmd="", confirm=False, confirm_response="", delay_factor=1
-    ):
-
-        self.enable()
-
-        output = self.send_command_timing(command_string=cmd, delay_factor=delay_factor)
-        # If confirm prompt detected or confirm=True, progress through action, otherwise return output
-        # Prompts are expected after confirms, so back to send_command
-        if confirm or any(confirm in output for confirm in ["[confirm]", "[y]", "[n]"]):
-            if confirm_response:
-                output += self.send_command(confirm_response, delay_factor=delay_factor)
-            else:
-                # Default RETURN if no confirm_response given
-                output += self.send_command(self.RETURN, delay_factor=delay_factor)
-        return output
-
     def save_config(
         self,
         cmd="copy running-config startup-config",
@@ -229,28 +212,19 @@ class CiscoBaseConnection(BaseConnection):
         confirm_response="",
         delay_factor=1,
     ):
-        """Saves running configuration."""
-        return self._confirm_command(
-            cmd=cmd,
-            confirm=confirm,
-            confirm_response=confirm_response,
-            delay_factor=delay_factor,
-        )
 
-    def reload(self, cmd="reload", confirm=True, confirm_response="", delay_factor=1):
-        """Reloads device."""
-        try:
-            return self._confirm_command(
-                cmd=cmd,
-                confirm=confirm,
-                confirm_response=confirm_response,
-                delay_factor=delay_factor,
-            )
-        except (OSError, BrokenPipeError, ProxyCommandFailure) as e:
-            # Try to return the results of the reload command.  Some platforms will catch it, others kick out too fast.
-            # If we fail, just exit anyways.
-            pass
+        self.enable()
 
+        output = self.send_command_timing(command_string=cmd, delay_factor=delay_factor)
+        # If confirm prompt detected or confirm=True, progress through action, otherwise return output
+        # Prompts are expected after confirms, so back to send_command
+        if confirm or any(confirm in str(output).lower() for confirm in ["[confirm]", "[y]", "[n]"]):
+            if confirm_response:
+                output += self.send_command(confirm_response, delay_factor=delay_factor)
+            else:
+                # Default RETURN if no confirm_response given
+                output += self.send_command(self.RETURN, delay_factor=delay_factor)
+        return output
 
 class CiscoSSHConnection(CiscoBaseConnection):
     pass
