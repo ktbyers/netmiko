@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 from netmiko.ssh_exception import NetMikoAuthenticationException
-from paramiko.ssh_exception import ProxyCommandFailure
 import re
 import time
 
@@ -218,13 +217,16 @@ class CiscoBaseConnection(BaseConnection):
         output = self.send_command_timing(command_string=cmd, delay_factor=delay_factor)
         # If confirm prompt detected or confirm=True, progress through action, otherwise return output
         # Prompts are expected after confirms, so back to send_command
-        if confirm or any(confirm in str(output).lower() for confirm in ["[confirm]", "[y]", "[n]"]):
+        if confirm or any(
+            confirm in str(output).lower() for confirm in ["[confirm]", "[y]", "[n]"]
+        ):
             if confirm_response:
                 output += self.send_command(confirm_response, delay_factor=delay_factor)
             else:
                 # Default RETURN if no confirm_response given
                 output += self.send_command(self.RETURN, delay_factor=delay_factor)
         return output
+
 
 class CiscoSSHConnection(CiscoBaseConnection):
     pass
