@@ -211,7 +211,7 @@ class CiscoBaseConnection(BaseConnection):
         confirm_response="",
         delay_factor=1,
     ):
-
+        """Save configuration."""
         self.enable()
 
         output = self.send_command_timing(command_string=cmd, delay_factor=delay_factor)
