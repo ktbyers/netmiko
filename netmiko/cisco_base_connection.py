@@ -221,10 +221,10 @@ class CiscoBaseConnection(BaseConnection):
             confirm in str(output).lower() for confirm in ["[confirm]", "[y]", "[n]"]
         ):
             if confirm_response:
-                output += self.send_command(confirm_response, delay_factor=delay_factor)
+                output += self.send_command_timing(confirm_response, delay_factor=delay_factor)
             else:
                 # Default RETURN if no confirm_response given
-                output += self.send_command(self.RETURN, delay_factor=delay_factor)
+                output += self.send_command_timing(self.RETURN, delay_factor=delay_factor)
         return output
 
 
