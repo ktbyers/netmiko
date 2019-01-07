@@ -15,6 +15,7 @@ import re
 import socket
 import telnetlib
 import time
+from collections import deque
 from os import path
 from threading import Lock
 
@@ -1256,6 +1257,7 @@ class BaseConnection(object):
 
         i = 1
         output = ""
+        past_three_reads = deque(maxlen=3)
         first_line_processed = False
 
         # Keep reading data until search_pattern is found or until max_loops is reached.
@@ -1265,10 +1267,12 @@ class BaseConnection(object):
                 if self.ansi_escape_codes:
                     new_data = self.strip_ansi_escape_codes(new_data)
 
+                output += new_data
+                past_three_reads.append(new_data)
+
                 # Case where we haven't processed the first_line yet (there is a potential issue
                 # in the first line (in cases where the line is repainted).
                 if not first_line_processed:
-                    output += new_data
                     output, first_line_processed = self._first_line_handler(
                         output, search_pattern
                     )
@@ -1277,9 +1281,8 @@ class BaseConnection(object):
                         break
 
                 else:
-                    output += new_data
-                    # Check if pattern is in the incremental data
-                    if re.search(search_pattern, new_data):
+                    # Check if pattern is in the past three reads
+                    if re.search(search_pattern, "".join(past_three_reads)):
                         break
 
             time.sleep(delay_factor * loop_delay)
