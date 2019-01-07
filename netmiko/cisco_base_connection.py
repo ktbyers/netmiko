@@ -222,10 +222,14 @@ class CiscoBaseConnection(BaseConnection):
             confirm in str(output).lower() for confirm in ["[confirm]", "[y]", "[n]"]
         ):
             if confirm_response:
-                output += self.send_command(confirm_response, delay_factor=delay_factor, expect_string=prompt)
+                output += self.send_command(
+                    confirm_response, delay_factor=delay_factor, expect_string=prompt
+                )
             else:
                 # Default RETURN if no confirm_response given
-                output += self.send_command(self.RETURN, delay_factor=delay_factor, expect_string=prompt)
+                output += self.send_command(
+                    self.RETURN, delay_factor=delay_factor, expect_string=prompt
+                )
         return output
 
 
