@@ -213,7 +213,7 @@ class CiscoBaseConnection(BaseConnection):
     ):
         """Save configuration."""
         self.enable()
-        prompt = ssh_netmiko.find_prompt(delay_factor=delay_factor)
+        prompt = self.find_prompt(delay_factor=delay_factor)
 
         output = self.send_command_timing(command_string=cmd, delay_factor=delay_factor)
         # If confirm prompt detected or confirm=True, progress through action, otherwise return output
@@ -223,12 +223,16 @@ class CiscoBaseConnection(BaseConnection):
         ):
             if confirm_response:
                 output += self.send_command(
-                    confirm_response, delay_factor=delay_factor, expect_string=prompt
+                    confirm_response,
+                    delay_factor=delay_factor,
+                    expect_string=re.escape(prompt.strip()),
                 )
             else:
                 # Default RETURN if no confirm_response given
                 output += self.send_command(
-                    self.RETURN, delay_factor=delay_factor, expect_string=prompt
+                    self.RETURN,
+                    delay_factor=delay_factor,
+                    expect_string=re.escape(prompt.strip()),
                 )
         return output
 
