@@ -55,6 +55,6 @@ class NetscalerSSH(BaseConnection):
         output = super(NetscalerSSH, self).strip_prompt(a_string)
         lines = output.split(self.RESPONSE_RETURN)
         if "Done" in lines[-1]:
-            return "self.RESPONSE_RETURN".join(lines[:-1])
+            return self.RESPONSE_RETURN.join(lines[:-1])
         else:
             return output
