@@ -38,7 +38,8 @@ class BaseConnection(object):
                  device_type='', verbose=False, global_delay_factor=1, use_keys=False,
                  key_file=None, allow_agent=False, ssh_strict=False, system_host_keys=False,
                  alt_host_keys=False, alt_key_file='', ssh_config_file=None,
-                 session_timeout=60, debug_flag=False, timeout=8, keep_alive=0, default_enter=None, response_return=None,**kwargs):
+                 session_timeout=60, debug_flag=False, timeout=8, keep_alive=0, default_enter=None, 
+                 response_return=None, serial_settings={}, **kwargs):
         """
         Initialize attributes for establishing connection to target device.
 
@@ -137,6 +138,8 @@ class BaseConnection(object):
         self.verbose = verbose
         self.timeout = kwargs.get('timeout', 8)
         self.session_timeout = session_timeout
+        self.keepalive = keepalive
+        self.serial_settings=serial_settings
 
         # Use the greater of global_delay_factor or delay_factor local to method
         self.global_delay_factor = global_delay_factor
@@ -249,7 +252,7 @@ class BaseConnection(object):
             self.remote_conn.write(write_bytes(out_data))
         elif self.protocol == 'serial':
             self.remote_conn.write(write_bytes(out_data))
-            time.sleep(0.5)
+            self.remote_conn.flush()
         else:
             raise ValueError("Invalid protocol specified")
         try:
@@ -308,7 +311,7 @@ class BaseConnection(object):
             output = self.remote_conn.read_very_eager().decode('utf-8', 'ignore')
         elif self.protocol == 'serial':
             output=""
-            while (self.remote_conn.inWaiting()>0):
+            while (self.remote_conn.in_waiting > 0):
                 output+=self.remote_conn.read(self.remote_conn.inWaiting())
         log.debug("read_channel: {}".format(output))
         return output
@@ -590,13 +593,17 @@ class BaseConnection(object):
             self.remote_conn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             self.telnet_login()
         elif self.protocol == 'serial':
-            self.remote_conn = serial.Serial()
-            self.remote_conn.port = str(self.port).split(" ")[0]
-            self.remote_conn.baudrate = 9600                # found after exhaustive testing, FUCK
-            self.remote_conn.bytesize = serial.EIGHTBITS     #number of bits per bytes
-            self.remote_conn.parity = serial.PARITY_NONE     #set parity check: no parity
-            self.remote_conn.stopbits = serial.STOPBITS_ONE
-            #self.remote_conn.timeout=1
+            self.serial_settings["port"]=str(self.port).split(" ")[0]
+            serial_defaults = {
+                'baudrate': 9600,
+                'bytesize': serial.EIGHTBITS,
+                'parity': serial.PARITY_NONE,
+                'stopbits': serial.STOPBITS_ONE
+            }
+            for k in self.serial_settings:
+                serial_defaults[k]=self.serial_settings[k]
+            self.serial_settings=serial_defaults
+            self.remote_conn = serial.Serial(**self.serial_settings)
             self.remote_conn.open()
             self.serial_login()
         elif self.protocol == 'ssh':
