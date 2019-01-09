@@ -474,11 +474,16 @@ class BaseConnection(object):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
+        self.clear_buffer()
         """
         #self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width()
+
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def _use_ssh_config(self, dict_arg):
         """Update SSH connection parameters based on contents of SSH 'config' file."""

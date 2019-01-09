@@ -37,6 +37,9 @@ class HPProcurveSSH(CiscoSSHConnection):
         command = self.RETURN + "no page"
         self.disable_paging(command=command)
         self.set_terminal_width(command='terminal width 511')
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def enable(self, cmd='enable', pattern='password', re_flags=re.IGNORECASE,
                default_username='manager'):

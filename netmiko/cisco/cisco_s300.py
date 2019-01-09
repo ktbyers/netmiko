@@ -18,3 +18,6 @@ class CiscoS300SSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.disable_paging(command="terminal datadump")
         self.set_terminal_width(command='terminal width 511')
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()

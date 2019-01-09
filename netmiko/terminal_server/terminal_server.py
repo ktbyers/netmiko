@@ -21,4 +21,7 @@ class TerminalServerSSH(TerminalServer):
 
 class TerminalServerTelnet(TerminalServer):
     """Generic Terminal Server driver telnet."""
-    pass
+    def telnet_login(self, pri_prompt_terminator='#', alt_prompt_terminator='>',
+                     username_pattern=r"sername", pwd_pattern=r"assword",
+                     delay_factor=1, max_loops=60):
+        pass

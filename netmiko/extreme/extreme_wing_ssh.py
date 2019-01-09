@@ -11,3 +11,6 @@ class ExtremeWingSSH(CiscoSSHConnection):
                              delay_factor=2)
         self.disable_paging(command="no page")
         self.set_terminal_width(command='terminal width 512')
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()

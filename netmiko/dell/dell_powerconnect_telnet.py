@@ -9,7 +9,6 @@ from netmiko import log
 class DellPowerConnectTelnet(CiscoBaseConnection):
     def disable_paging(self, command="terminal length 0", delay_factor=1):
         """Must be in enable mode to disable paging."""
-
         self.enable()
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * .1)

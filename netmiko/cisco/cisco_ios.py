@@ -11,7 +11,9 @@ class CiscoIosBase(CiscoBaseConnection):
         self.set_base_prompt()
         self.disable_paging()
         self.set_terminal_width(command='terminal width 511')
-
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
 class CiscoIosSSH(CiscoBaseConnection):
     """Cisco IOS SSH driver."""

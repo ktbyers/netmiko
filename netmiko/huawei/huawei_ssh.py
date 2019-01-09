@@ -13,6 +13,9 @@ class HuaweiSSH(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def config_mode(self, config_command='system-view'):
         """Enter configuration mode."""

@@ -13,6 +13,9 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
         self.enable()
         self.set_base_prompt()
         self.disable_paging(command="no cli-paging")
+        # Clear the read buffer
+        time.sleep(.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def enable(self, cmd='enable', pattern=r'#', re_flags=re.IGNORECASE):
         """Enable mode on MRV uses no password."""
