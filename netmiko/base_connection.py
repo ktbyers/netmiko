@@ -457,7 +457,7 @@ class BaseConnection(object):
         elif self.protocol == "serial":
             output = ""
             while self.remote_conn.in_waiting > 0:
-                output += self.remote_conn.read(self.remote_conn.in_waiting)
+                output += self.remote_conn.read(self.remote_conn.in_waiting).decode('utf-8', 'ignore')
         log.debug("read_channel: {}".format(output))
         self._write_session_log(output)
         return output
