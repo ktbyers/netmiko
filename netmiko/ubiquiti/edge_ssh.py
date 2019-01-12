@@ -19,6 +19,16 @@ class UbiquitiEdgeSSH(CiscoSSHConnection):
         """Enter configuration mode."""
         return super(UbiquitiEdgeSSH, self).config_mode(config_command=config_command)
 
+    def disable_paging(self):
+        """Disable paging of output."""
+        enter_enable = not self.check_enable_mode()
+        if enter_enable:
+            self.enable()
+        output = super(UbiquitiEdgeSSH, self).disable_paging()
+        if enter_enable:
+            self.exit_enable_mode()
+        return output
+
     def exit_config_mode(self, exit_config="exit"):
         """Exit configuration mode."""
         return super(UbiquitiEdgeSSH, self).exit_config_mode(exit_config=exit_config)

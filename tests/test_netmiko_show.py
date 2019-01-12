@@ -25,6 +25,10 @@ def test_disable_paging(net_connect, commands, expected_responses):
     if net_connect.device_type == "arista_eos":
         # Arista logging buffer gets enormous
         net_connect.send_command_expect("clear logging")
+    elif net_connect.device_type == "ubiquiti_edgeswitch":
+        # Ubiquiti EdgeSwitches don't have anything useful outside of enable mode that we can
+        # use for testing for paging
+        net_connect.enable()
     multiple_line_output = net_connect.send_command_expect(commands["extended_output"])
     assert expected_responses["multiple_line_output"] in multiple_line_output
     if net_connect.device_type == "arista_eos":
