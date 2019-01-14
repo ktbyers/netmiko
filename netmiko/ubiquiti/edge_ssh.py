@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -10,6 +11,18 @@ class UbiquitiEdgeSSH(CiscoSSHConnection):
 
     This is NOT for EdgeRouter devices.
     """
+
+    def session_preparation(self):
+        self._test_channel_read()
+        self.set_base_prompt()
+        self.enable()
+        self.set_base_prompt()
+        self.disable_paging()
+        self.set_terminal_width()
+
+        # Clear the read buffer
+        time.sleep(0.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def check_config_mode(self, check_string=")#"):
         """Checks if the device is in configuration mode or not."""
