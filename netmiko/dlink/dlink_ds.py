@@ -4,6 +4,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 import time
 import re
 
+
 class DlinkDSBase(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -32,13 +33,13 @@ class DlinkDSBase(CiscoSSHConnection):
 
     def config_mode(self, *args, **kwargs):
         """No config mode on D-Link"""
-        return ''
+        return ""
 
     def exit_config_mode(self, *args, **kwargs):
         """No config mode on D-Link"""
-        return ''
+        return ""
 
-    def save_config(self, cmd='save', confirm=False):
+    def save_config(self, cmd="save", confirm=False):
         """Saves configuration."""
         log.debug("Saving all configurations to NV-RAM")
         return self.send_command_timing("save")
@@ -49,13 +50,15 @@ class DlinkDSBase(CiscoSSHConnection):
         log.debug("Exiting disable_paging")
 
     def strip_command(self, command_string, output):
-        return re.sub(r'^.*?[\r\n]+Command:.*?[\n\r]+', '', output)
+        return re.sub(r"^.*?[\r\n]+Command:.*?[\n\r]+", "", output)
+
 
 class DlinkDSSSH(DlinkDSBase):
     pass
 
+
 class DlinkDSTelnet(DlinkDSBase):
     def __init__(self, *args, **kwargs):
-        default_enter = kwargs.get('default_enter')
-        kwargs['default_enter'] = '\n' if default_enter is None else default_enter
+        default_enter = kwargs.get("default_enter")
+        kwargs["default_enter"] = "\n" if default_enter is None else default_enter
         super(DlinkDSTelnet, self).__init__(*args, **kwargs)

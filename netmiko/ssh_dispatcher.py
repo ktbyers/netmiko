@@ -70,7 +70,7 @@ from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
-from netmiko.dlink import DlinkDSTelnet,DlinkDSSSH
+from netmiko.dlink import DlinkDSTelnet, DlinkDSSSH
 
 
 # The keys of this dictionary are the supported device_types
