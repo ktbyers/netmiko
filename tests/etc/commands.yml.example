@@ -236,4 +236,8 @@ oneaccess_oneos_telnet:
   save_config_confirm: False
   save_config_response: "[OK]"
 
+dlink_ds:
+  version: "show greeting_message"
+  extended_output: "show config current_config"   # requires paging to be disabled
+  basic: "show ipif"
 

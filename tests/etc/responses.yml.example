@@ -178,4 +178,10 @@ oneaccess_oneos_telnet:
   file_check_cmd: "logging buffered 20010"
   save_config: '[OK]'
 
-
+dlink_ds:
+  base_prompt: DGS-3120-24TC:admin
+  router_prompt : DGS-3120-24TC:admin#
+  enable_prompt: DGS-3120-24TC:admin#
+  version_banner: "D-Link Corporation"
+  multiple_line_output: "End of configuration file"
+  interface_ip: 192.168.50.10
