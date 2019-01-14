@@ -103,11 +103,13 @@ class BaseFileTransfer(object):
         self.scp_conn.close()
         self.scp_conn = None
 
-    def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
+    def remote_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Return space available on remote device."""
         remote_cmd = "dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
+        if "kbytes" in match.group(0) or "Kbytes" in match.group(0):
+            return int(match.group(1)) * 1000
         return int(match.group(1))
 
     def _remote_space_available_unix(self, search_pattern=""):
@@ -150,7 +152,7 @@ class BaseFileTransfer(object):
         destination_stats = os.statvfs(".")
         return destination_stats.f_bsize * destination_stats.f_bavail
 
-    def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
+    def verify_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
         if self.direction == "put":
             space_avail = self.remote_space_available(search_pattern=search_pattern)
@@ -170,6 +172,7 @@ class BaseFileTransfer(object):
             if (
                 "Error opening" in remote_out
                 or "No such file or directory" in remote_out
+                or "Path does not exist" in remote_out
             ):
                 return False
             elif re.search(search_string, remote_out, flags=re.DOTALL):
@@ -231,6 +234,11 @@ class BaseFileTransfer(object):
 
         self.ssh_ctl_chan._enter_shell()
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+        self.ssh_ctl_chan._return_cli()
+
+        if "No such file or directory" in remote_out:
+            raise IOError("Unable to find file on remote system")
+
         escape_file_name = re.escape(remote_file)
         pattern = r"^.* ({}).*$".format(escape_file_name)
         match = re.search(pattern, remote_out, flags=re.M)
@@ -238,9 +246,11 @@ class BaseFileTransfer(object):
             # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
             line = match.group(0)
             file_size = line.split()[4]
+            return int(file_size)
 
-        self.ssh_ctl_chan._return_cli()
-        return int(file_size)
+        raise ValueError(
+            "Search pattern not found for remote file size during SCP transfer."
+        )
 
     def file_md5(self, file_name):
         """Compute MD5 hash of file."""
