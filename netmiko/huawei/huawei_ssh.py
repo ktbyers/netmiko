@@ -78,6 +78,7 @@ class HuaweiSSH(CiscoSSHConnection):
         prompt = prompt.strip()
         self.base_prompt = prompt
         log.debug("prompt: {0}".format(self.base_prompt))
+
         return self.base_prompt
 
     def save_config(self, cmd='save', confirm=False, confirm_response=''):

@@ -97,7 +97,7 @@ class BaseFileTransfer(object):
         self.scp_conn.close()
         self.scp_conn = None
 
-    def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
+    def remote_space_available(self, search_pattern=r"(\d+) k?bytes free"):
         """Return space available on remote device."""
         remote_cmd = "dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
@@ -140,7 +140,7 @@ class BaseFileTransfer(object):
         destination_stats = os.statvfs(".")
         return destination_stats.f_bsize * destination_stats.f_bavail
 
-    def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
+    def verify_space_available(self, search_pattern=r"(\d+) k?bytes free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
         if self.direction == 'put':
             space_avail = self.remote_space_available(search_pattern=search_pattern)
@@ -154,10 +154,11 @@ class BaseFileTransfer(object):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == 'put':
             if not remote_cmd:
-                remote_cmd = "dir {0}/{1}".format(self.file_system, self.dest_file)
+                remote_cmd = "dir {}/{}".format(self.file_system, self.dest_file)
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"Directory of .*{0}".format(self.dest_file)
-            if 'Error opening' in remote_out or 'No such file or directory' in remote_out:
+            if 'Error opening' in remote_out or 'No such file or directory' in remote_out or \
+                                                        'Path does not exist' in remote_out:
                 return False
             elif re.search(search_string, remote_out, flags=re.DOTALL):
                 return True
@@ -235,7 +236,7 @@ class BaseFileTransfer(object):
         return file_hash
 
     @staticmethod
-    def process_md5(md5_output, pattern=r"= (.*)"):
+    def process_md5(md5_output, pattern=r"=\s+(\S+)"):
         """
         Process the string to retrieve the MD5 hash
 
@@ -247,7 +248,7 @@ class BaseFileTransfer(object):
         if match:
             return match.group(1)
         else:
-            raise ValueError("Invalid output from MD5 command: {0}".format(md5_output))
+            raise ValueError("Invalid output from MD5 command: {}".format(md5_output))
 
     def compare_md5(self):
         """Compare md5 of file on network device to md5 of local file."""
@@ -288,9 +289,7 @@ class BaseFileTransfer(object):
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
-        destination = "{}{}".format(self.file_system, self.dest_file)
-        if ':' not in destination:
-            raise ValueError("Invalid destination file system specified")
+        destination = "{}/{}".format(self.file_system, self.dest_file)
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()
