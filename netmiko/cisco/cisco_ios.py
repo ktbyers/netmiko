@@ -199,7 +199,3 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     def disable_scp(self, cmd=None):
         raise NotImplementedError
-<<<<<<< HEAD
->>>>>>> Restructure SCP code to support class hierarchy
-=======
->>>>>>> rebase

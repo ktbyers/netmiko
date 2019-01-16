@@ -4,7 +4,7 @@ import re
 import time
 
 from netmiko.base_connection import BaseConnection
-from netmiko.scp_handler import BaseFileTransfer, SCPConn
+from netmiko.scp_handler import BaseFileTransfer
 
 
 class JuniperBase(BaseConnection):
@@ -29,6 +29,14 @@ class JuniperBase(BaseConnection):
         # Clear the read buffer
         time.sleep(.3 * self.global_delay_factor)
         self.clear_buffer()
+
+    def _enter_shell(self):
+        """Enter the Bourne Shell."""
+        return self.send_command('start shell sh', expect_string=r"[\$#]")
+
+    def _return_cli(self):
+        """Return to the Juniper CLI."""
+        return self.send_command('exit', expect_string=r"[#>]")
 
     def enter_cli_mode(self):
         """Check if at shell prompt root@ and go into CLI."""
@@ -206,24 +214,6 @@ class JuniperFileTransfer(BaseFileTransfer):
                                                          file_system=file_system,
                                                          direction=direction)
 
-    def __enter__(self):
-        """Context manager setup"""
-        self.establish_scp_conn()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        """Context manager cleanup."""
-        self.close_scp_chan()
-
-    def establish_scp_conn(self):
-        """Establish SCP connection."""
-        self.scp_conn = SCPConn(self.ssh_ctl_chan)
-
-    def close_scp_chan(self):
-        """Close the SCP connection to the remote network device."""
-        self.scp_conn.close()
-        self.scp_conn = None
-
     def remote_space_available(self, search_pattern=""):
         """Return space available on remote device."""
         return self._remote_space_available_unix(search_pattern=search_pattern)
@@ -236,34 +226,9 @@ class JuniperFileTransfer(BaseFileTransfer):
         """Get the file size of the remote file."""
         return self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
 
-    @staticmethod
-    def process_md5(md5_output, pattern=r"= (.*)"):
-        """
-        Process the string to retrieve the MD5 hash
-
-        Output from Cisco IOS (ASA is similar)
-        .MD5 of flash:file_name Done!
-        verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
-        """
-        raise NotImplementedError
-
-    def compare_md5(self):
-        """Compare md5 of file on network device to md5 of local file"""
-        raise NotImplementedError
-
-    def remote_md5(self, base_cmd='verify /md5', remote_file=None):
-        raise NotImplementedError
-
-    def put_file(self):
-        """SCP copy the file from the local system to the remote device."""
-        destination = "{}/{}".format(self.file_system, self.dest_file)
-        self.scp_conn.scp_transfer_file(self.source_file, destination)
-        # Must close the SCP connection to get the file written (flush)
-        self.scp_conn.close()
-
-    def verify_file(self):
-        """Verify the file has been transferred correctly."""
-        raise NotImplementedError
+    def remote_md5(self, base_cmd='file checksum md5', remote_file=None):
+        return super(JuniperFileTransfer, self).remote_md5(base_cmd=base_cmd,
+                                                           remote_file=remote_file)
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError

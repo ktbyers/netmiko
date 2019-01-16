@@ -23,25 +23,11 @@ NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
 Netmiko = ConnectHandler
 
-__version__ = "2.3.1"
-__all__ = (
-    "ConnectHandler",
-    "ssh_dispatcher",
-    "platforms",
-    "SCPConn",
-    "FileTransfer",
-    "NetMikoTimeoutException",
-    "NetMikoAuthenticationException",
-    "NetmikoTimeoutError",
-    "NetmikoAuthError",
-    "InLineTransfer",
-    "redispatch",
-    "SSHDetect",
-    "BaseConnection",
-    "Netmiko",
-    "file_transfer",
-)
-
+__version__ = '2.1.1'
+__all__ = ('ConnectHandler', 'ssh_dispatcher', 'platforms', 'SCPConn', 'FileTransfer',
+           'NetMikoTimeoutException', 'NetMikoAuthenticationException',
+           'NetmikoTimeoutError', 'NetmikoAuthError', 'InLineTransfer', 'redispatch',
+           'SSHDetect', 'BaseConnection', 'Netmiko', 'file_transfer')
 
 # Cisco cntl-shift-six sequence
 CNTL_SHIFT_6 = chr(30)

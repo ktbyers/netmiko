@@ -10,10 +10,9 @@ import time
 
 class CiscoBaseConnection(BaseConnection):
     """Base Class for cisco-like behavior."""
-    def check_enable_mode(self, check_string='#', newline_format='\n'):
+    def check_enable_mode(self, check_string='#'):
         """Check if in enable mode. Return boolean."""
-        return super(CiscoBaseConnection, self).check_enable_mode(check_string=check_string,
-                                                                  newline_format=newline_format)
+        return super(CiscoBaseConnection, self).check_enable_mode(check_string=check_string)
 
     def enable(self, cmd='enable', pattern='ssword', re_flags=re.IGNORECASE):
         """Enter enable mode."""
@@ -23,7 +22,7 @@ class CiscoBaseConnection(BaseConnection):
         """Exits enable (privileged exec) mode."""
         return super(CiscoBaseConnection, self).exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string=')#', pattern='', newline_format='\n'):
+    def check_config_mode(self, check_string=')#', pattern=''):
         """
         Checks if the device is in configuration mode or not.
 
@@ -33,8 +32,7 @@ class CiscoBaseConnection(BaseConnection):
             #pattern = self.base_prompt[:16]
             pattern = self.base_prompt[:14] 
         return super(CiscoBaseConnection, self).check_config_mode(check_string=check_string,
-                                                                  pattern=pattern,
-                                                                  newline_format=newline_format)
+                                                                  pattern=pattern)
 
     def config_mode(self, config_command='config term', pattern=''):
         """
@@ -53,7 +51,7 @@ class CiscoBaseConnection(BaseConnection):
             #pattern = self.base_prompt[:16]
             #pattern = self.current_prompt[:16]
             pattern = self.base_prompt[:14]
-            pattern = self.current_prompt[:14]
+            #pattern = self.current_prompt[:14]
         return super(CiscoBaseConnection, self).exit_config_mode(exit_config=exit_config,
                                                                  pattern=pattern)
 
@@ -70,14 +68,13 @@ class CiscoBaseConnection(BaseConnection):
                                      username_pattern, pwd_pattern, delay_factor, max_loops)
 
     def telnet_login(self, pri_prompt_terminator=r'#\s*$', alt_prompt_terminator=r'>\s*$',
-                     username_pattern=r"(?:[Uu]ser:|sername|ogin|User Name)", pwd_pattern=r"(assword)|(ecret)",
-                     delay_factor=1, delay_factor2=30, max_loops=60):
+                     username_pattern=r"(?:[Uu]ser:|sername|ogin|User Name)",
+                     pwd_pattern=r"assword|ecret",
+                     delay_factor=1, max_loops=20):
         """Telnet login. Can be username/password or just password."""
         self.TELNET_RETURN = '\n'
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
-
-        delay_factor2 = self.select_delay_factor(delay_factor2)
 
         output = ''
         return_msg = ''
@@ -109,10 +106,10 @@ class CiscoBaseConnection(BaseConnection):
                 # reboot_bmc_to_bmc_cmd = 'boot'
                 rebooted_bmc_prompt_pattern = r"cisco-bmc#"
                 if re.search(rebooted_bmc_prompt_pattern, output):
-                    self.write_channel(TELNET_RETURN + "boot" + TELNET_RETURN)
-                    time.sleep(2 * delay_factor2)
-                    self.write_channel(TELNET_RETURN)
-                    output = self.read_channel(verbose=True)
+                    self.write_channel(self.TELNET_RETURN + "boot" + self.TELNET_RETURN)
+                    time.sleep(60 * delay_factor)
+                    self.write_channel(self.TELNET_RETURN)
+                    output = self.read_channel()
                     return_msg += output
 
                 #At BMC prompt
@@ -149,10 +146,10 @@ class CiscoBaseConnection(BaseConnection):
                 # If previously from xr prompt, XR not started, must restart XR
                 xr_not_started = r"(error while loading shared libraries)|(cannot open shared object)"
                 if re.search(xr_not_started, output):
-                    self.write_channel("initctl start ios-xr.routing.start" + TELNET_RETURN)
-                    time.sleep(2 * delay_factor2)
-                    self.write_channel(TELNET_RETURN)
-                    output = self.read_channel(verbose=True)
+                    self.write_channel("initctl start ios-xr.routing.start" + self.TELNET_RETURN)
+                    time.sleep(60 * delay_factor)
+                    self.write_channel(self.TELNET_RETURN)
+                    output = self.read_channel()
                     return_msg += output
 
 
@@ -176,7 +173,6 @@ class CiscoBaseConnection(BaseConnection):
                         my_password = '0penBmc'
                     else:
                         my_password = self.password
-                    time.sleep(1)
                     self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
@@ -196,7 +192,7 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output):
-                    self.write_channel(self.password + self.TELNET_RETURN)
+                    self.write_channel(my_password + self.TELNET_RETURN)
                     time.sleep(.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -211,11 +207,8 @@ class CiscoBaseConnection(BaseConnection):
                         time.sleep(.5 * delay_factor)
                         output = self.read_channel()
                         return_msg += output
-                # Search for standby console pattern
-                standby_pattern=r"RP Node is not ready or active for login"
-                if re.search(standby_pattern,output):
-                    ''' Session is standby state '''
-                    return return_msg
+
+
 
                 #Search for "VR0 con0/RP0/CPU0 is now available Press RETURN to get started" pattern
                 #on Sunstone devices
@@ -258,7 +251,7 @@ class CiscoBaseConnection(BaseConnection):
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "Telnet login failed: {}".format(self.host)
+                msg = "EOFError Telnet login failed: {0}".format(self.host)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -270,7 +263,7 @@ class CiscoBaseConnection(BaseConnection):
                 or re.search(alt_prompt_terminator, output, flags=re.M)):
             return return_msg
 
-        msg = "Telnet login failed: {}".format(self.host)
+        msg = "LAST_TRY Telnet login failed: {0}".format(self.host)
         raise NetMikoAuthenticationException(msg)
 
     def cleanup(self):

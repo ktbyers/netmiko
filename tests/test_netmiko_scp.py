@@ -10,6 +10,17 @@ from getpass import getpass
 from netmiko import ConnectHandler, FileTransfer
 from netmiko import file_transfer
 
+###def test_enable_scp(scp_fixture):
+###    ssh_conn, scp_transfer = scp_fixture
+###
+###    scp_transfer.disable_scp()
+###    output = ssh_conn.send_command_expect("show run | inc scp")
+###    assert 'ip scp server enable' not in output
+###
+###    scp_transfer.enable_scp()
+###    output = ssh_conn.send_command_expect("show run | inc scp")
+###    assert 'ip scp server enable' in output
+
 def test_scp_put(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
     if scp_transfer.check_file_exists():

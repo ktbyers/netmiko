@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from netmiko import ConnectHandler, FileTransfer, InLineTransfer, SSHDetect, log
+from netmiko import ConnectHandler, FileTransfer, InLineTransfer, SSHDetect
 from tests.test_utils import parse_yaml
 
 
@@ -103,12 +103,9 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
 
     cmd = "delete {0}".format(full_file_name)
     output = ssh_conn.send_command_timing(cmd)
-    log.debug("{0}".format(output))
     if 'Delete' in output and dest_file in output:
         output += ssh_conn.send_command_timing("\n")
-        log.debug("{0}".format(output))
         if 'Delete' in output and full_file_name in output and 'confirm' in output:
-            log.debug("Deleting file.")
             output += ssh_conn.send_command_timing("y")
             return output
         else:

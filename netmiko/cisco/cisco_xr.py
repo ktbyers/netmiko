@@ -13,7 +13,7 @@ import logging
 #logging.basicConfig(filename='test_netmiko.log', level=logging.DEBUG)
 #logger = logging.getLogger("netmiko")
 
-from netmiko.cisco_base_connection import CiscoBaseConnection
+from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 
 class CiscoXr(CiscoBaseConnection):
@@ -84,16 +84,19 @@ class CiscoXr(CiscoBaseConnection):
             #pattern = self.base_prompt[:16]
             #pattern = self.current_prompt[:16]
             pattern = self.base_prompt[:16]
-            pattern = self.current_prompt[:16]
+            #pattern = self.current_prompt[:16]
         pattern = pattern + ".*config"
         return super(CiscoBaseConnection, self).config_mode(config_command=config_command,
-                                                            pattern=pattern,
-                                                            skip_check=skip_check)
+                                                            pattern=pattern)
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
+        '''
         return super(CiscoXr, self).send_config_set(config_commands=config_commands,
                                                        exit_config_mode=False, **kwargs)
+        '''
+        return super(CiscoXr, self).send_config_set(config_commands=config_commands,\
+                                                    exit_config_mode=False, **kwargs)
 
     def commit(self, confirm=False, confirm_delay=None, comment='', label='',
                replace=False,
@@ -174,13 +177,11 @@ class CiscoXr(CiscoBaseConnection):
         output = ''
         if replace:
             output += self.send_command_timing('commit replace', strip_prompt=False, strip_command=False,
-                                               delay_factor=delay_factor,
-                                               max_timeout=max_timeout)
+                                               delay_factor=delay_factor)
             commit_replace_marker = "This commit will replace or remove the entire running configuration"
             if commit_replace_marker in output:
                 output += self.send_command_timing("yes", strip_prompt=False, strip_command=False,
-                                                   delay_factor=delay_factor,
-                                                   max_timeout=max_timeout)
+                                                   delay_factor=delay_factor)
                 return output
                                    
         else: 
@@ -291,10 +292,10 @@ class CiscoXrTelnet(CiscoXr):
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
         return self.base_prompt
-
+        
 class CiscoCxrHa(CiscoXrTelnet):
-    def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', verbose=False, telnet_return='\n'):
-        return super().find_prompt(delay_factor=delay_factor, pattern=pattern, verbose=verbose, telnet_return='\r\n')
+    def find_prompt(self, delay_factor=1, pattern=r'[a-z0-9]$', telnet_return='\n'):
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern, telnet_return='\r\n')
         
 class CiscoXrFileTransfer(CiscoFileTransfer):
     """Cisco IOS-XR SCP File Transfer driver."""
@@ -332,4 +333,3 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
 
     def disable_scp(self, cmd=None):
         raise NotImplementedError
->>>>>>> Telnet fixes for moving to netmiko2
