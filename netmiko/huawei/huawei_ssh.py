@@ -115,6 +115,7 @@ class HuaweiVrpv8SSH(HuaweiSSH):
             strip_prompt=False,
             strip_command=False,
             delay_factor=delay_factor,
+            expect_string=r"]",
         )
         output += self.exit_config_mode()
 
