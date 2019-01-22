@@ -140,6 +140,7 @@ SSH_MAPPER_BASE = {
             r"JUNOS Software Release",
             r"JUNOS .+ Software",
             r"JUNOS OS Kernel",
+            r"JUNOS Base Version",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -147,6 +148,14 @@ SSH_MAPPER_BASE = {
     "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "brocade": {
+        "cmd": "show version",
+        "search_patterns": [
+            r"Brocade Communications Systems",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
