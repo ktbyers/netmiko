@@ -153,9 +153,7 @@ SSH_MAPPER_BASE = {
     },
     "brocade": {
         "cmd": "show version",
-        "search_patterns": [
-            r"Brocade Communications Systems",
-        ],
+        "search_patterns": [r"Brocade Communications Systems"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
