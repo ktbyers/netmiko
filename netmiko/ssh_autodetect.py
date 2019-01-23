@@ -151,9 +151,15 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "brocade": {
+    "brocade_netiron": {
         "cmd": "show version",
-        "search_patterns": [r"Brocade Communications Systems"],
+        "search_patterns": [r"NetIron"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_slx": {
+        "cmd": "show version",
+        "search_patterns": [r"SLX-OS Operating System Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
