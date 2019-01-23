@@ -140,6 +140,7 @@ SSH_MAPPER_BASE = {
             r"JUNOS Software Release",
             r"JUNOS .+ Software",
             r"JUNOS OS Kernel",
+            r"JUNOS Base Version",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -147,6 +148,18 @@ SSH_MAPPER_BASE = {
     "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "brocade_netiron": {
+        "cmd": "show version",
+        "search_patterns": [r"NetIron"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_slx": {
+        "cmd": "show version",
+        "search_patterns": [r"SLX-OS Operating System Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
