@@ -1,19 +1,24 @@
+import time
+from netmiko import log
+
+
 class CommandBufferArbiter:
     """
-    Acts as a send command rate limiter that maintains the “command buffer” at bucket_size number of commands.
-    It would allow sending of bucket_size commands, when it sees X prompts come back, it allows another X command(s).
-    If it doesn’t see a prompt come back in some time, it figures “I must have missed it” and sends another command.
-    This continues until the config set is depleted.
+    Acts as a send command rate limiter that maintains the “command buffer” at bucket_size number
+    of commands. It would allow sending of bucket_size commands, when it sees X prompts come back,
+    it allows another X command(s). If it doesn’t see a prompt come back in some time, it figures
+    “I must have missed it” and sends another command. This continues until the config set is
+    depleted.
     """
 
     def __init__(self, connection, bucket_size=10, timeout=10):
         """
         :param connection: Connection object
 
-        :param bucket_size: The number of commands that can be executed without acknowledging the prompt
+        :param bucket_size: Number of commands that can be executed without acknowledging the prompt
         :type bucket_size: int
 
-        :param timeout: The amount of seconds before giving up looking for the prompt and allow another command to be sent
+        :param timeout: Seconds before it expires an unacknowledged_command
         :type timeout: int
         """
         self.connection = connection
@@ -44,7 +49,7 @@ class CommandBufferArbiter:
         self._process_output(output)
 
         log.debug(
-            "Arbiter completed_lines: %s, pending_lines: %s, incomplete_line: %s, unacknowledged_commands: %s",
+            "Arbiter completed/pending/incomplete_lines: %s/%s/%s, unacknowledged_commands: %s",
             len(self.completed_lines),
             len(self.pending_lines),
             self.incomplete_line,

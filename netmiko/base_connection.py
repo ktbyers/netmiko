@@ -30,6 +30,7 @@ from netmiko.ssh_exception import (
     NetMikoAuthenticationException,
 )
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
+from netmiko.arbiter import CommandBufferArbiter
 
 
 class BaseConnection(object):
