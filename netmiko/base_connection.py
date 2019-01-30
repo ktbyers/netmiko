@@ -1567,6 +1567,81 @@ class BaseConnection(object):
         log.debug("{}".format(output))
         return output
 
+    def send_config_set_with_arbiter(self, config_commands=None, exit_config_mode=True, delay_factor=1,
+                                     config_mode_command=None, bucket_size=10, timeout=10):
+        """
+        Send configuration commands down the SSH channel using a rate-limiter to control
+        how quickly to send commands.
+
+        config_commands is an iterable containing all of the configuration commands.
+        The commands will be executed one after the other.
+
+        Automatically exits/enters configuration mode.
+
+        :param config_commands: Multiple configuration commands to be sent to the device
+        :type config_commands: list or string
+
+        :param exit_config_mode: Determines whether or not to exit config mode after complete
+        :type exit_config_mode: bool
+
+        :param delay_factor: Factor to adjust delays
+        :type delay_factor: int
+
+        :param max_loops: Controls wait time in conjunction with delay_factor (default: 150)
+        :type max_loops: int
+
+        :param config_mode_command: The command to enter into config mode
+        :type config_mode_command: str
+
+        :param bucket_size: The number of commands that can be executed without acknowledging the prompt
+        :type bucket_size: int
+
+        :param timeout: The amount of seconds before giving up looking for the prompt and allow another command to be sent
+        :type timeout: int
+        """
+        from netmiko.py23_compat import string_types
+
+        delay_factor = self.select_delay_factor(delay_factor)
+        if config_commands is None:
+            return ''
+
+        if isinstance(config_commands, string_types):
+            config_commands = (config_commands,)
+
+        if not hasattr(config_commands, '__iter__'):
+            raise ValueError("Invalid argument passed into send_config_set")
+
+        # Send config commands
+        cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
+        output = self.config_mode(*cfg_mode_args)
+
+        cba = CommandBufferArbiter(
+            self,
+            bucket_size=bucket_size,
+            timeout=timeout,
+        )
+
+        for command in config_commands:
+            while not cba.get_token(self._sanitize_output(self.read_channel())):
+                time.sleep(delay_factor * 0.05)
+            log.debug("Pushing: %s", command)
+            self.write_channel(self.normalize_cmd(command))
+            time.sleep(delay_factor * 0.05)
+
+        # Gather output
+        while not cba.is_done(self._sanitize_output(self.read_channel())):
+            time.sleep(delay_factor * 0.05)
+
+        output += cba.all_output()
+
+        if exit_config_mode:
+            output += self.exit_config_mode()
+        output = self._sanitize_output(output)
+        return output
+
+    def line_has_prompt(self, line):
+        raise NotImplementedError
+
     def strip_ansi_escape_codes(self, string_buffer):
         """
         Remove any ANSI (VT100) ESC codes from the output

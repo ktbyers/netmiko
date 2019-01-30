@@ -224,6 +224,12 @@ class CiscoBaseConnection(BaseConnection):
             output = self.send_command(command_string=cmd)
         return output
 
+    def line_has_prompt(self, line):
+        log.debug("Arbiter - looking for %s at the start of %s", self.base_prompt[:16], line)
+        if line.startswith(self.base_prompt[:16]):
+            return True
+        return False
+
 
 class CiscoSSHConnection(CiscoBaseConnection):
     pass
