@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko import log
 import re
 import time
 
