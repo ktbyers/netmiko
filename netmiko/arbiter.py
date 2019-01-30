@@ -1,5 +1,3 @@
-
-
 class CommandBufferArbiter:
     """
     Acts as a send command rate limiter that maintains the “command buffer” at bucket_size number of commands.
@@ -30,7 +28,7 @@ class CommandBufferArbiter:
         # lines that have yet to be checked for prompts
         self.pending_lines = []
         # The current line that has not yet been completed with a terminating EOL
-        self.incomplete_line = ''
+        self.incomplete_line = ""
 
     def get_token(self, output):
         """
@@ -83,28 +81,27 @@ class CommandBufferArbiter:
 
         :return: str all of the processed output
         """
-        completed_and_pending_lines = "\n".join(self.completed_lines + self.pending_lines)
-        return "{}\n{}".format(
-            completed_and_pending_lines,
-            self.incomplete_line
+        completed_and_pending_lines = "\n".join(
+            self.completed_lines + self.pending_lines
         )
+        return "{}\n{}".format(completed_and_pending_lines, self.incomplete_line)
 
     def _process_output(self, output):
         log.debug("Arbiter ingest output:\n%s", output)
         output_lines = output.splitlines()
 
         # If the output starts with a new line, close out the incomplete line
-        if output.startswith('\n'):
+        if output.startswith("\n"):
             output_lines.insert(0, self.incomplete_line)
-            self.incomplete_line = ''
+            self.incomplete_line = ""
 
         if output_lines:
             # Concatenate the incomplete line with the first line in the output
             output_lines[0] = self.incomplete_line + output_lines[0]
-            self.incomplete_line = ''
+            self.incomplete_line = ""
 
             # Consider the last line incomplete if the output does not end with a new line
-            if not output.endswith('\n'):
+            if not output.endswith("\n"):
                 self.incomplete_line = output_lines.pop()
 
         self.pending_lines.extend(output_lines)
@@ -125,7 +122,7 @@ class CommandBufferArbiter:
             log.debug("Arbiter found prompt in incomplete_line")
             self._acknowledge_command()
             self.completed_lines.append(self.incomplete_line)
-            self.incomplete_line = ''
+            self.incomplete_line = ""
 
     def _process_timer(self):
         # If our timer has expired, acknowledge one command

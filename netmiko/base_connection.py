@@ -1567,8 +1567,15 @@ class BaseConnection(object):
         log.debug("{}".format(output))
         return output
 
-    def send_config_set_with_arbiter(self, config_commands=None, exit_config_mode=True, delay_factor=1,
-                                     config_mode_command=None, bucket_size=10, timeout=10):
+    def send_config_set_with_arbiter(
+        self,
+        config_commands=None,
+        exit_config_mode=True,
+        delay_factor=1,
+        config_mode_command=None,
+        bucket_size=10,
+        timeout=10,
+    ):
         """
         Send configuration commands down the SSH channel using a rate-limiter to control
         how quickly to send commands.
@@ -1603,23 +1610,19 @@ class BaseConnection(object):
 
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
-            return ''
+            return ""
 
         if isinstance(config_commands, string_types):
             config_commands = (config_commands,)
 
-        if not hasattr(config_commands, '__iter__'):
+        if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Send config commands
         cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
         output = self.config_mode(*cfg_mode_args)
 
-        cba = CommandBufferArbiter(
-            self,
-            bucket_size=bucket_size,
-            timeout=timeout,
-        )
+        cba = CommandBufferArbiter(self, bucket_size=bucket_size, timeout=timeout)
 
         for command in config_commands:
             while not cba.get_token(self._sanitize_output(self.read_channel())):
