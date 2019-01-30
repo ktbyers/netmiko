@@ -4,10 +4,10 @@ from netmiko import log
 
 class CommandBufferArbiter:
     """
-    Acts as a send command rate limiter that maintains the “command buffer” at bucket_size number
+    Acts as a send command rate limiter that maintains the command buffer at bucket_size number
     of commands. It would allow sending of bucket_size commands, when it sees X prompts come back,
-    it allows another X command(s). If it doesn’t see a prompt come back in some time, it figures
-    “I must have missed it” and sends another command. This continues until the config set is
+    it allows another X command(s). If it does not see a prompt come back in some time, it figures
+    it must have missed it and sends another command. This continues until the config set is
     depleted.
     """
 
@@ -15,7 +15,7 @@ class CommandBufferArbiter:
         """
         :param connection: Connection object
 
-        :param bucket_size: Number of commands that can be executed without acknowledging the prompt
+        :param bucket_size: Number of commands that can be sent without acknowledging the prompt
         :type bucket_size: int
 
         :param timeout: Seconds before it expires an unacknowledged_command

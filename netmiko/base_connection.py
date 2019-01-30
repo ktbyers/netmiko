@@ -1601,10 +1601,10 @@ class BaseConnection(object):
         :param config_mode_command: The command to enter into config mode
         :type config_mode_command: str
 
-        :param bucket_size: The number of commands that can be executed without acknowledging the prompt
+        :param bucket_size: Number of commands that can be sent without acknowledging the prompt
         :type bucket_size: int
 
-        :param timeout: The amount of seconds before giving up looking for the prompt and allow another command to be sent
+        :param timeout: Seconds before it expires an unacknowledged_command
         :type timeout: int
         """
         from netmiko.py23_compat import string_types
