@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 import re
+import os
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
@@ -10,9 +11,9 @@ from netmiko.scp_handler import BaseFileTransfer
 class CienaSaosBase(BaseConnection):
     """
     Ciena SAOS support.
-    
+
     Implements methods for interacting Ciena Saos devices.
-    
+
     Disables enable(), check_enable_mode(), config_mode() and
     check_config_mode()
     """
