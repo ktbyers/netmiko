@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 from netmiko.base_connection import BaseConnection
+from netmike.scp_handler import BaseFileTransfer
 
 
 
@@ -48,15 +49,15 @@ class CienaSaosBase(BaseConnection):
         """No config mode on Ciena SAOS."""
         pass
 
-    def config_mode(self, config_command="configure"):
+    def config_mode(self, config_command=""):
         """No config mode on Ciena SAOS."""
         pass
 
-    def exit_config_mode(self, exit_config="exit configuration-mode"):
+    def exit_config_mode(self, exit_config=""):
         """No config mode on Ciena SAOS."""
         pass
 
-    def save_config(self, cmd="configuration save", confirm=False, confirm_response=""):
+    def save_config(self, cmd="configuration sa ve", confirm=False, confirm_response=""):
         """Saves Config."""
         output = self.send_command(command_string=cmd)
         return output
@@ -75,8 +76,10 @@ class CienaSaosFileTransfer(BaseFileTransfer):
     """Ciena SAOS SCP File Transfer driver."""
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction="put"
+        self, ssh_conn, source_file, dest_file, file_system="", direction="put"
     ):
+        if file_system="":
+            file_system = "/tmp/users/{}".format(ssh_conn.username)
         return super(CienaSaosFileTransfer, self).__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
@@ -86,23 +89,78 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         )
 
     def remote_space_available(self, search_pattern=""):
-        """Return space available on remote device."""
-        return self._remote_space_available_unix(search_pattern=search_pattern)
+        """Return space available on Ciena SAOS"""
+	remote_cmd = "file vols {}".format(self.file_system)
+        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+        
+	# Try to ensure parsing is correct:
+        # Filesystem           1K-blocks      Used Available Use% Mounted on
+        # var                       1024       528       496  52% /var
+        remote_output = remote_output.strip()
+        output_lines = remote_output.splitlines()
 
-    def check_file_exists(self, remote_cmd=""):
+        # First line is the header; second is the actual file system info
+        header_line = output_lines[0]
+        filesystem_line = output_lines[1]
+
+        if "Filesystem" not in header_line or "Avail" not in header_line.split()[3]:
+            # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
+            msg = "Parsing error, unexpected output from {}:\n{}".format(
+                remote_cmd, remote_output
+            )
+            raise ValueError(msg)
+
+        space_available = filesystem_line.split()[3]
+        if not re.search(r"^\d+$", space_available):
+            msg = "Parsing error, unexpected output from {}:\n{}".format(
+                remote_cmd, remote_output
+            )
+            raise ValueError(msg)
+
+        return int(space_available) * 1024
+
+    def check_file_exists(self, remote_cmd="" ):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+        if remote_cmd == "":
+            remote_cmd = "file ls {}/{}".format(self.file_system, self.dest_file)
+        return super(CienaSaosFileTransfer, self).check_file_exists(
+            remote_cmd=remote_cmd
+        )
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
+        if remote_file is None:
+            if self.direction == "put":
+                remote_file = self.dest_file
+            elif self.direction == "get":
+                remote_file = self.source_file
+            remote_file = "{}/{}".format(self.file_system, remote_file)
+        
+        if not remote_cmd:
+            remote_cmd = "file ls -l {}".format(remote_file)
+
         return self._remote_file_size_unix(
             remote_cmd=remote_cmd, remote_file=remote_file
         )
 
-    def remote_md5(self, base_cmd="file checksum md5", remote_file=None):
-        return super(CienaSaosTransfer, self).remote_md5(
-            base_cmd=base_cmd, remote_file=remote_file
-        )
+    def remote_md5(self, base_cmd="", remote_file=None):
+        """Calculate remote MD5 and returns the hash.
+        
+        This command can be CPU intensive on the remote device.
+        """
+        if remote_file is None:
+            if self.direction == "put":
+                remote_file = self.dest_file
+            elif self.direction == "get":
+                remote_file = self.source_file
+         
+        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
+        
+        self.ssh_ctl_chan._enter_shell()
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, expect_string=r"[\$#]", max_loops=1500)
+        self.ssh_ctl_chan._return_cli()
+        dest_md5 = self.process_md5(dest_md5, pattern=r'([0-9a-f]+)\s+')
+        return dest_md5
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError
