@@ -2,8 +2,9 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 import time
+import re
 from netmiko.base_connection import BaseConnection
-from netmike.scp_handler import BaseFileTransfer
+from netmiko.scp_handler import BaseFileTransfer
 
 
 
@@ -27,7 +28,7 @@ class CienaSaosBase(BaseConnection):
 
     def _enter_shell(self):
         """Enter the Bourne Shell."""
-        return self.send_command("start shell sh", expect_string=r"[\$#]")
+        return self.send_command("diag shell", expect_string=r"[\$#]")
 
     def _return_cli(self):
         """Return to the Ciena SAOS CLI."""
@@ -51,11 +52,11 @@ class CienaSaosBase(BaseConnection):
 
     def config_mode(self, config_command=""):
         """No config mode on Ciena SAOS."""
-        pass
+        return "" 
 
     def exit_config_mode(self, exit_config=""):
         """No config mode on Ciena SAOS."""
-        pass
+        return ""
 
     def save_config(self, cmd="configuration sa ve", confirm=False, confirm_response=""):
         """Saves Config."""
@@ -78,7 +79,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
     def __init__(
         self, ssh_conn, source_file, dest_file, file_system="", direction="put"
     ):
-        if file_system="":
+        if file_system=="":
             file_system = "/tmp/users/{}".format(ssh_conn.username)
         return super(CienaSaosFileTransfer, self).__init__(
             ssh_conn=ssh_conn,
@@ -90,7 +91,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
     def remote_space_available(self, search_pattern=""):
         """Return space available on Ciena SAOS"""
-	remote_cmd = "file vols {}".format(self.file_system)
+        remote_cmd = "file vols {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         
 	# Try to ensure parsing is correct:
@@ -121,11 +122,19 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
     def check_file_exists(self, remote_cmd="" ):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        if remote_cmd == "":
-            remote_cmd = "file ls {}/{}".format(self.file_system, self.dest_file)
-        return super(CienaSaosFileTransfer, self).check_file_exists(
-            remote_cmd=remote_cmd
-        )
+        if self.direction == "put":
+            if not remote_cmd:
+                remote_cmd = "file ls {}/{}".format(self.file_system, self.dest_file)
+            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            search_string = r"{}/{}".format(self.file_system, self.dest_file)
+            if "ERROR" in remote_out:
+                return False
+            elif re.search(search_string, remote_out, flags=re.DOTALL):
+                return True
+            else:
+                raise ValueError("Unexpected output from check_file_exists")
+        elif self.direction == "get":
+            return os.path.exists(self.dest_file)
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
@@ -148,6 +157,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         
         This command can be CPU intensive on the remote device.
         """
+        if base_cmd=="":
+            base_cmd="md5sum"
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
@@ -162,8 +173,12 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         dest_md5 = self.process_md5(dest_md5, pattern=r'([0-9a-f]+)\s+')
         return dest_md5
 
-    def enable_scp(self, cmd=None):
-        raise NotImplementedError
+    def enable_scp(self, cmd="system server scp enable"):
+        return super(CienaSaosFileTransfer, self).enable_scp(
+            cmd=cmd
+        )
 
-    def disable_scp(self, cmd=None):
-        raise NotImplementedError
+    def disable_scp(self, cmd="system server scp disable"):
+        return super(CienaSaosFileTransfer, self).disable_scp(
+            cmd=cmd
+        )
