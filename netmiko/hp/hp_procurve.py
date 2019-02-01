@@ -11,23 +11,7 @@ class HPProcurveBase(CiscoSSHConnection):
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
-        Procurve uses - 'Press any key to continue'
         """
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        output = ""
-        count = 1
-        while count <= 30:
-            output += self.read_channel()
-            if "any key to continue" in output:
-                self.write_channel(self.RETURN)
-                break
-            else:
-                time.sleep(0.33 * delay_factor)
-            count += 1
-
-        # Try one last time to past "Press any key to continue
-        self.write_channel(self.RETURN)
-
         # HP output contains VT100 escape codes
         self.ansi_escape_codes = True
 
@@ -93,7 +77,27 @@ class HPProcurveBase(CiscoSSHConnection):
 
 
 class HPProcurveSSH(HPProcurveBase):
-    pass
+    def session_preparation(self):
+        """
+        Prepare the session after the connection has been established.
+        """
+        # Procurve over SHH uses 'Press any key to continue'
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        output = ""
+        count = 1
+        while count <= 30:
+            output += self.read_channel()
+            if "any key to continue" in output:
+                self.write_channel(self.RETURN)
+                break
+            else:
+                time.sleep(0.33 * delay_factor)
+            count += 1
+
+        # Try one last time to past "Press any key to continue
+        self.write_channel(self.RETURN)
+
+        super(HPProcurveSSH, self).session_preparation()
 
 
 class HPProcurveTelnet(HPProcurveBase):
