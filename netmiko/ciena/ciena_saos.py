@@ -58,7 +58,7 @@ class CienaSaosBase(BaseConnection):
         """No config mode on Ciena SAOS."""
         return ""
 
-    def save_config(self, cmd="configuration sa ve", confirm=False, confirm_response=""):
+    def save_config(self, cmd="configuration save", confirm=False, confirm_response=""):
         """Saves Config."""
         output = self.send_command(command_string=cmd)
         return output
