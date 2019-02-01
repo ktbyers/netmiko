@@ -7,7 +7,6 @@ from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
 
-
 class CienaSaosBase(BaseConnection):
     """
     Ciena SAOS support.
@@ -52,7 +51,7 @@ class CienaSaosBase(BaseConnection):
 
     def config_mode(self, config_command=""):
         """No config mode on Ciena SAOS."""
-        return "" 
+        return ""
 
     def exit_config_mode(self, exit_config=""):
         """No config mode on Ciena SAOS."""
@@ -63,6 +62,7 @@ class CienaSaosBase(BaseConnection):
         output = self.send_command(command_string=cmd)
         return output
 
+
 class CienaSaosSSH(CienaSaosBase):
     pass
 
@@ -72,14 +72,15 @@ class CienaSaosTelnet(CienaSaosBase):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super(CienaSaosTelnet, self).__init__(*args, **kwargs)
-        
+
+
 class CienaSaosFileTransfer(BaseFileTransfer):
     """Ciena SAOS SCP File Transfer driver."""
 
     def __init__(
         self, ssh_conn, source_file, dest_file, file_system="", direction="put"
     ):
-        if file_system=="":
+        if file_system == "":
             file_system = "/tmp/users/{}".format(ssh_conn.username)
         return super(CienaSaosFileTransfer, self).__init__(
             ssh_conn=ssh_conn,
@@ -93,8 +94,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         """Return space available on Ciena SAOS"""
         remote_cmd = "file vols {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
-        
-	# Try to ensure parsing is correct:
+
+        # Try to ensure parsing is correct:
         # Filesystem           1K-blocks      Used Available Use% Mounted on
         # var                       1024       528       496  52% /var
         remote_output = remote_output.strip()
@@ -120,7 +121,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
         return int(space_available) * 1024
 
-    def check_file_exists(self, remote_cmd="" ):
+    def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             if not remote_cmd:
@@ -144,7 +145,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
             remote_file = "{}/{}".format(self.file_system, remote_file)
-        
+
         if not remote_cmd:
             remote_cmd = "file ls -l {}".format(remote_file)
 
@@ -157,28 +158,26 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         
         This command can be CPU intensive on the remote device.
         """
-        if base_cmd=="":
-            base_cmd="md5sum"
+        if base_cmd == "":
+            base_cmd = "md5sum"
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-         
+
         remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
-        
+
         self.ssh_ctl_chan._enter_shell()
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, expect_string=r"[\$#]", max_loops=1500)
+        dest_md5 = self.ssh_ctl_chan.send_command(
+            remote_md5_cmd, expect_string=r"[\$#]", max_loops=1500
+        )
         self.ssh_ctl_chan._return_cli()
-        dest_md5 = self.process_md5(dest_md5, pattern=r'([0-9a-f]+)\s+')
+        dest_md5 = self.process_md5(dest_md5, pattern=r"([0-9a-f]+)\s+")
         return dest_md5
 
     def enable_scp(self, cmd="system server scp enable"):
-        return super(CienaSaosFileTransfer, self).enable_scp(
-            cmd=cmd
-        )
+        return super(CienaSaosFileTransfer, self).enable_scp(cmd=cmd)
 
     def disable_scp(self, cmd="system server scp disable"):
-        return super(CienaSaosFileTransfer, self).disable_scp(
-            cmd=cmd
-        )
+        return super(CienaSaosFileTransfer, self).disable_scp(cmd=cmd)
