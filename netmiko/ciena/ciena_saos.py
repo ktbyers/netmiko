@@ -156,7 +156,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
     def remote_md5(self, base_cmd="", remote_file=None):
         """Calculate remote MD5 and returns the hash.
-        
+
         This command can be CPU intensive on the remote device.
         """
         if base_cmd == "":
