@@ -46,7 +46,7 @@ class CienaSaosBase(BaseConnection):
         """No enable mode on Ciena SAOS."""
         pass
 
-    def check_config_mode(self, check_string="]"):
+    def check_config_mode(self, check_string=">", pattern=""):
         """No config mode on Ciena SAOS."""
         pass
 
@@ -93,7 +93,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
     def remote_space_available(self, search_pattern=""):
         """Return space available on Ciena SAOS"""
-        remote_cmd = "file vols {}".format(self.file_system)
+        remote_cmd = "file vols".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
 
         # Try to ensure parsing is correct:
@@ -113,7 +113,16 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             )
             raise ValueError(msg)
 
-        space_available = filesystem_line.split()[3]
+        longest_match = (0, 0)
+        for filesystem_line in output_lines[1:]:
+            mounted_on = filesystem_line.split()[5]
+            if (
+                self.file_system.startswith(mounted_on)
+                and len(mounted_on) > longest_match[0]
+            ):
+                longest_match = (len(mounted_on), filesystem_line.split()[3])
+        space_available = longest_match[1]
+
         if not re.search(r"^\d+$", space_available):
             msg = "Parsing error, unexpected output from {}:\n{}".format(
                 remote_cmd, remote_output
@@ -145,13 +154,27 @@ class CienaSaosFileTransfer(BaseFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-            remote_file = "{}/{}".format(self.file_system, remote_file)
+        remote_file = "{}/{}".format(self.file_system, remote_file)
 
         if not remote_cmd:
             remote_cmd = "file ls -l {}".format(remote_file)
 
-        return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
+        remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+
+        if "No such file or directory" in remote_out:
+            raise IOError("Unable to find file on remote system")
+
+        escape_file_name = re.escape(remote_file)
+        pattern = r"^.* ({}).*$".format(escape_file_name)
+        match = re.search(pattern, remote_out, flags=re.M)
+        if match:
+            # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
+            line = match.group(0)
+            file_size = line.split()[4]
+            return int(file_size)
+
+        raise ValueError(
+            "Search pattern not found for remote file size during SCP transfer."
         )
 
     def remote_md5(self, base_cmd="", remote_file=None):
