@@ -24,3 +24,6 @@ docs/build/doctrees/
 .tox/*
 
 .pytest_cache/*
+
+.idea/*
+.venv
