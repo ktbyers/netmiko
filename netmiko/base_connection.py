@@ -18,6 +18,7 @@ import time
 from collections import deque
 from os import path
 from threading import Lock
+from datetime import datetime
 
 import paramiko
 import serial
@@ -72,6 +73,7 @@ class BaseConnection(object):
         session_log=None,
         session_log_record_writes=False,
         session_log_file_mode="write",
+        trace_file=None,
         allow_auto_change=False,
         encoding="ascii",
     ):
@@ -180,6 +182,10 @@ class BaseConnection(object):
                 (default: "write")
         :type session_log_file_mode: str
 
+        :param trace_file: Record the internal state of Netmiko to a trace file for in-depth
+                troubleshooting.
+        :type trace_file: str
+
         :param allow_auto_change: Allow automatic configuration changes for terminal settings.
                 (default: False)
         :type allow_auto_change: bool
@@ -248,6 +254,11 @@ class BaseConnection(object):
                     "or a BufferedIOBase subclass."
                 )
 
+        self._trace_file = None
+        self._trace_mode = False
+        if trace_file:
+            self.open_trace_file(trace_file)
+
         # Default values
         self.serial_settings = {
             "port": "COM1",
@@ -279,14 +290,8 @@ class BaseConnection(object):
         # determine if telnet or SSH
         if "_telnet" in device_type:
             self.protocol = "telnet"
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
         elif "_serial" in device_type:
             self.protocol = "serial"
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
         else:
             self.protocol = "ssh"
 
@@ -308,9 +313,17 @@ class BaseConnection(object):
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
 
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
+        # Dump settings
+        if self._trace_mode:
+            self.trace("Netmiko settings:")
+            for x in dir(self):
+                x_attr = getattr(self, x)
+                if not x.startswith("_") and not callable(x_attr):
+                    self.trace("{}: {!r}".format(x, x_attr))
+
+        self._modify_connection_params()
+        self.establish_connection()
+        self._try_session_preparation()
 
     def __enter__(self):
         """Establish a session using a Context Manager."""
@@ -338,6 +351,7 @@ class BaseConnection(object):
             return False
         if time.time() - start > self.session_timeout:
             # session_timeout exceeded
+            self.trace("Timeout exceeded")
             raise NetMikoTimeoutException(msg)
         return False
 
@@ -380,6 +394,7 @@ class BaseConnection(object):
         else:
             raise ValueError("Invalid protocol specified")
         try:
+            self.trace("Write channel: {!r}".format(out_data))
             log.debug(
                 "write_channel: {}".format(
                     write_bytes(out_data, encoding=self.encoding)
@@ -413,13 +428,17 @@ class BaseConnection(object):
         """Returns a boolean flag with the state of the connection."""
         null = chr(0)
         if self.remote_conn is None:
-            log.error("Connection is not initialised, is_alive returns False")
+            msg = "Connection is not initialised, is_alive returns False"
+            self.trace(msg)
+            log.error(msg)
             return False
         if self.protocol == "telnet":
             try:
                 # Try sending IAC + NOP (IAC is telnet way of sending command)
                 # IAC = Interpret as Command; it comes before the NOP.
-                log.debug("Sending IAC + NOP")
+                msg ="Sending IAC + NOP"
+                self.trace(msg)
+                log.debug(msg)
                 # Need to send multiple times to test connection
                 self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
                 self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
@@ -431,11 +450,15 @@ class BaseConnection(object):
             # SSH
             try:
                 # Try sending ASCII null byte to maintain the connection alive
-                log.debug("Sending the NULL byte")
+                msg = "Sending the NULL byte"
+                self.trace(msg)
+                log.debug(msg)
                 self.write_channel(null)
                 return self.remote_conn.transport.is_active()
             except (socket.error, EOFError):
-                log.error("Unable to send", exc_info=True)
+                msg = "Unable to send"
+                self.trace(msg)
+                log.error(msg, exc_info=True)
                 # If unable to send, we can tell for sure that the connection is unusable
                 return False
         return False
@@ -443,23 +466,26 @@ class BaseConnection(object):
     def _read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
         if self.protocol == "ssh":
-            output = ""
+            output = b""
             while True:
                 if self.remote_conn.recv_ready():
                     outbuf = self.remote_conn.recv(MAX_BUFFER)
                     if len(outbuf) == 0:
-                        raise EOFError("Channel stream closed by remote device.")
-                    output += outbuf.decode("utf-8", "ignore")
+                        msg = "Channel stream closed by remote device."
+                        self.trace("msg")
+                        raise EOFError(msg)
+                    output += outbuf
                 else:
                     break
         elif self.protocol == "telnet":
-            output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
+            output = self.remote_conn.read_very_eager()
         elif self.protocol == "serial":
-            output = ""
+            output = b""
             while self.remote_conn.in_waiting > 0:
-                output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                    "utf-8", "ignore"
-                )
+                output += self.remote_conn.read(self.remote_conn.in_waiting)
+
+        self.trace("Read channel: {!r}".format(output))
+        output = output.decode("utf-8", "ignore")
         log.debug("read_channel: {}".format(output))
         self._write_session_log(output)
         return output
@@ -504,6 +530,7 @@ class BaseConnection(object):
         if not pattern:
             pattern = re.escape(self.base_prompt)
         log.debug("Pattern is: {}".format(pattern))
+        self.trace("_read_channel_expect looking for pattern: {!r}".format(pattern))
 
         i = 1
         loop_delay = 0.1
@@ -518,27 +545,31 @@ class BaseConnection(object):
                     self._lock_netmiko_session()
                     new_data = self.remote_conn.recv(MAX_BUFFER)
                     if len(new_data) == 0:
-                        raise EOFError("Channel stream closed by remote device.")
+                        msg = "Channel stream closed by remote device."
+                        self.trace(msg)
+                        raise EOFError(msg)
+                    self.trace("_read_channel_expect: {!r}".format(new_data))
                     new_data = new_data.decode("utf-8", "ignore")
                     log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
                     self._write_session_log(new_data)
                 except socket.timeout:
-                    raise NetMikoTimeoutException(
-                        "Timed-out reading channel, data not available."
-                    )
+                    msg = "Timed-out reading channel, data not available."
+                    self.trace(msg)
+                    raise NetMikoTimeoutException(msg)
                 finally:
                     self._unlock_netmiko_session()
             elif self.protocol == "telnet" or "serial":
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
+                self.trace("Pattern found: {!r}".format(pattern))
                 log.debug("Pattern found: {} {}".format(pattern, output))
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
             i += 1
-        raise NetMikoTimeoutException(
-            "Timed-out reading channel, pattern not found in output: {}".format(pattern)
-        )
+        msg = "Timed-out reading channel, pattern not found in output: {!r}".format(pattern)
+        self.trace(msg)
+        raise NetMikoTimeoutException(msg)
 
     def _read_channel_timing(self, delay_factor=1, max_loops=150):
         """Read data on the channel based on timing delays.
@@ -696,6 +727,7 @@ class BaseConnection(object):
             except EOFError:
                 self.remote_conn.close()
                 msg = "Login failed: {}".format(self.host)
+                self.trace(msg)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -708,8 +740,9 @@ class BaseConnection(object):
         ):
             return return_msg
 
-        msg = "Login failed: {}".format(self.host)
         self.remote_conn.close()
+        msg = "Login failed: {}".format(self.host)
+        self.trace(msg)
         raise NetMikoAuthenticationException(msg)
 
     def _try_session_preparation(self):
@@ -723,6 +756,7 @@ class BaseConnection(object):
             self.session_preparation()
         except Exception:
             self.disconnect()
+            self.trace("Session preparation failed")
             raise
 
     def session_preparation(self):
@@ -739,6 +773,7 @@ class BaseConnection(object):
         self.set_terminal_width()
         self.clear_buffer()
         """
+        self.trace("Preparing session")
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
@@ -747,6 +782,7 @@ class BaseConnection(object):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+        self.trace("Done preparing session")
 
     def _use_ssh_config(self, dict_arg):
         """Update SSH connection parameters based on contents of SSH 'config' file.
@@ -842,14 +878,19 @@ class BaseConnection(object):
         :type height: int
         """
         if self.protocol == "telnet":
+            self.trace("Setting up telnet connection")
             self.remote_conn = telnetlib.Telnet(
                 self.host, port=self.port, timeout=self.timeout
             )
+            self.trace("Telnet connection established")
             self.telnet_login()
         elif self.protocol == "serial":
+            self.trace("Setting up serial connection")
             self.remote_conn = serial.Serial(**self.serial_settings)
+            self.trace("Serial connection established")
             self.serial_login()
         elif self.protocol == "ssh":
+            self.trace("Setting up SSH connection")
             ssh_connect_params = self._connect_params_dict()
             self.remote_conn_pre = self._build_ssh_client()
 
@@ -857,23 +898,26 @@ class BaseConnection(object):
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
             except socket.error:
-                self.paramiko_cleanup()
                 msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port
                 )
+                self.trace(msg)
+                self.paramiko_cleanup()
                 raise NetMikoTimeoutException(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
-                self.paramiko_cleanup()
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port
                 )
                 msg += self.RETURN + text_type(auth_err)
+                self.trace(msg)
+                self.paramiko_cleanup()
                 raise NetMikoAuthenticationException(msg)
 
             if self.verbose:
                 print(
                     "SSH connection established to {}:{}".format(self.host, self.port)
                 )
+            self.trace("SSH connection established to {}:{}".format(self.host, self.port))
 
             # Use invoke_shell to establish an 'interactive session'
             if width and height:
@@ -889,6 +933,7 @@ class BaseConnection(object):
             self.special_login_handler()
             if self.verbose:
                 print("Interactive SSH session established")
+            self.trace("Interactive SSH session established")
         return ""
 
     def _test_channel_read(self, count=40, pattern=""):
@@ -930,7 +975,9 @@ class BaseConnection(object):
         if new_data:
             return ""
         else:
-            raise NetMikoTimeoutException("Timed out waiting for data")
+            msg = "Timed out waiting for data"
+            self.trace(msg)
+            raise NetMikoTimeoutException(msg)
 
     def _build_ssh_client(self):
         """Prepare for Paramiko SSH connection."""
@@ -979,6 +1026,7 @@ class BaseConnection(object):
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
+        self.trace("Disabling paging")
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
@@ -991,6 +1039,7 @@ class BaseConnection(object):
             output = self.strip_ansi_escape_codes(output)
         log.debug("{0}".format(output))
         log.debug("Exiting disable_paging")
+        self.trace("Disable paging output: {!r}".format(output))
         return output
 
     def set_terminal_width(self, command="", delay_factor=1):
@@ -1007,12 +1056,14 @@ class BaseConnection(object):
         """
         if not command:
             return ""
+        self.trace("Setting terminal width")
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
         output = self.read_until_prompt()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
+        self.trace("Terminal width command returned: {!r}".format(output))
         return output
 
     def set_base_prompt(
@@ -1039,6 +1090,8 @@ class BaseConnection(object):
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+            msg = "Router prompt not found: {0}".format(repr(prompt))
+            self.trace(msg)
             raise ValueError("Router prompt not found: {0}".format(repr(prompt)))
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
@@ -1050,6 +1103,7 @@ class BaseConnection(object):
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
+        self.trace("Determining prompt")
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
@@ -1078,13 +1132,17 @@ class BaseConnection(object):
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
         if not prompt:
-            raise ValueError("Unable to find prompt: {}".format(prompt))
+            msg = "Unable to find prompt: {}".format(prompt)
+            self.trace(msg)
+            raise ValueError(msg)
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
+        self.trace("Found prompt: {!r}".format(prompt))
         return prompt
 
     def clear_buffer(self):
         """Read any data available in the channel."""
+        self.trace("Clearing buffer")
         self.read_channel()
 
     def send_command_timing(
@@ -1290,11 +1348,11 @@ class BaseConnection(object):
             time.sleep(delay_factor * loop_delay)
             i += 1
         else:  # nobreak
-            raise IOError(
-                "Search pattern never detected in send_command_expect: {}".format(
-                    search_pattern
-                )
+            msg = "Search pattern never detected in send_command_expect: {}".format(
+                search_pattern
             )
+            self.trace(msg)
+            raise IOError(msg)
 
         output = self._sanitize_output(
             output,
@@ -1412,8 +1470,10 @@ class BaseConnection(object):
                 self.write_channel(self.normalize_cmd(self.secret))
                 output += self.read_until_prompt()
             except NetMikoTimeoutException:
+                self.trace(msg)
                 raise ValueError(msg)
             if not self.check_enable_mode():
+                self.trace(msg)
                 raise ValueError(msg)
         return output
 
@@ -1428,6 +1488,8 @@ class BaseConnection(object):
             self.write_channel(self.normalize_cmd(exit_command))
             output += self.read_until_prompt()
             if self.check_enable_mode():
+                msg = "Failed to exit enable mode."
+                self.trace(msg)
                 raise ValueError("Failed to exit enable mode.")
         return output
 
@@ -1462,7 +1524,9 @@ class BaseConnection(object):
             self.write_channel(self.normalize_cmd(config_command))
             output = self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
-                raise ValueError("Failed to enter configuration mode.")
+                msg = "Failed to enter configuration mode."
+                self.trace(msg)
+                raise ValueError(msg)
         return output
 
     def exit_config_mode(self, exit_config="", pattern=""):
@@ -1479,7 +1543,10 @@ class BaseConnection(object):
             self.write_channel(self.normalize_cmd(exit_config))
             output = self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
-                raise ValueError("Failed to exit configuration mode")
+                msg = "Failed to exit configuration mode"
+                self.trace(msg)
+                raise ValueError(msg)
+        self.trace("Exit config mode output: {!r}".format(output))
         log.debug("exit_config_mode: {}".format(output))
         return output
 
@@ -1599,6 +1666,7 @@ class BaseConnection(object):
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
         """  # noqa
+        self.trace("String to ANSI strip: {!r}".format(string_buffer))
         log.debug("In strip_ansi_escape_codes")
         log.debug("repr = {}".format(repr(string_buffer)))
 
@@ -1656,6 +1724,7 @@ class BaseConnection(object):
         # CODE_NEXT_LINE must substitute with return
         output = re.sub(code_next_line, self.RETURN, output)
 
+        self.trace("ANSI stripped output: {!r}".format(output))
         log.debug("new_output = {0}".format(output))
         log.debug("repr = {0}".format(repr(output)))
 
@@ -1709,6 +1778,22 @@ class BaseConnection(object):
         if self.session_log is not None and self._session_log_close:
             self.session_log.close()
             self.session_log = None
+
+    def open_trace_file(self, filename):
+        self._trace_file = open(filename, mode="w")
+        self._trace_mode = True
+        self.trace("Trace started")
+
+    def trace(self, msg):
+        if self._trace_mode:
+            log = "{} - {}\n".format(datetime.now().isoformat(), msg)
+            self._trace_file.write(log)
+            self._trace_file.flush()
+
+    def close_trace_file(self):
+        self.trace("Trace stopped")
+        self._trace_mode = False
+        self._trace_file.close()
 
 
 class TelnetConnection(BaseConnection):
