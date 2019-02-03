@@ -91,6 +91,8 @@ class CiscoBaseConnection(BaseConnection):
         max_loops=20,
     ):
         """Telnet login. Can be username/password or just password."""
+        self.trace("Logging in via telnet")
+
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -104,6 +106,10 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output, flags=re.I):
+                    self.trace(
+                        "Detected username pattern, sending username. "
+                        "Pattern was: {!r}".format(username_pattern)
+                    )
                     self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
@@ -111,6 +117,10 @@ class CiscoBaseConnection(BaseConnection):
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
+                    self.trace(
+                        "Detected password pattern, sending password. "
+                        "Pattern was: {!r}".format(pwd_pattern)
+                    )
                     self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
@@ -140,12 +150,18 @@ class CiscoBaseConnection(BaseConnection):
                     msg = "Login failed - Password required, but none set: {}".format(
                         self.host
                     )
+                    self.trace(msg)
                     raise NetMikoAuthenticationException(msg)
 
                 # Check if proper data received
                 if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
                     alt_prompt_terminator, output, flags=re.M
                 ):
+                    self.trace(
+                        "Prompt detected after login. Pattern: {!r} or {!r}".format(
+                            pri_prompt_terminator, alt_prompt_terminator
+                        )
+                    )
                     return return_msg
 
                 self.write_channel(self.TELNET_RETURN)
@@ -154,6 +170,7 @@ class CiscoBaseConnection(BaseConnection):
             except EOFError:
                 self.remote_conn.close()
                 msg = "Login failed: {}".format(self.host)
+                self.trace(msg)
                 raise NetMikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -164,14 +181,21 @@ class CiscoBaseConnection(BaseConnection):
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
             alt_prompt_terminator, output, flags=re.M
         ):
+            self.trace(
+                "Prompt detected after login. Pattern: {!r} or {!r}".format(
+                    pri_prompt_terminator, alt_prompt_terminator
+                )
+            )
             return return_msg
 
         self.remote_conn.close()
         msg = "Login failed: {}".format(self.host)
+        self.trace(msg)
         raise NetMikoAuthenticationException(msg)
 
     def cleanup(self):
         """Gracefully exit the SSH session."""
+        self.trace("Session cleanup")
         try:
             self.exit_config_mode()
         except Exception:
@@ -211,6 +235,7 @@ class CiscoBaseConnection(BaseConnection):
         confirm_response="",
     ):
         """Saves Config."""
+        self.trace("Saving config")
         self.enable()
         if confirm:
             output = self.send_command_timing(command_string=cmd)
