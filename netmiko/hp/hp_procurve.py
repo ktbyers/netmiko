@@ -16,9 +16,11 @@ class HPProcurveBase(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
         count = 1
+        self.trace("Searching for 'any key' prompt.")
         while count <= 30:
             output += self.read_channel()
             if "any key to continue" in output:
+                self.trace("Any key prompt found.")
                 self.write_channel(self.RETURN)
                 break
             else:
@@ -48,7 +50,9 @@ class HPProcurveBase(CiscoSSHConnection):
         default_username="manager",
     ):
         """Enter enable mode"""
+        self.trace("Trying to go to enable mode.")
         if self.check_enable_mode():
+            self.trace("Already in enable mode.")
             return ""
         output = self.send_command_timing(cmd)
         if (
@@ -56,8 +60,10 @@ class HPProcurveBase(CiscoSSHConnection):
             or "login name" in output.lower()
             or "user name" in output.lower()
         ):
+            self.trace("Enable mode login prompt detected. Sending username.")
             output += self.send_command_timing(default_username)
         if "password" in output.lower():
+            self.trace("Enable mode password prompt detected. Sending password.")
             output += self.send_command_timing(self.secret)
         log.debug("{}".format(output))
         self.clear_buffer()
@@ -65,6 +71,7 @@ class HPProcurveBase(CiscoSSHConnection):
 
     def cleanup(self):
         """Gracefully exit the SSH session."""
+        self.trace("Cleaning up")
         self.exit_config_mode()
         self.write_channel("logout" + self.RETURN)
         count = 0

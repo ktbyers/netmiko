@@ -316,10 +316,12 @@ class BaseConnection(object):
         # Dump settings
         if self._trace_mode:
             self.trace("Netmiko settings:")
+            self.trace("="*50)
             for x in dir(self):
                 x_attr = getattr(self, x)
                 if not x.startswith("_") and not callable(x_attr):
                     self.trace("{}: {!r}".format(x, x_attr))
+            self.trace("=" * 50)
 
         self._modify_connection_params()
         self.establish_connection()
@@ -436,7 +438,7 @@ class BaseConnection(object):
             try:
                 # Try sending IAC + NOP (IAC is telnet way of sending command)
                 # IAC = Interpret as Command; it comes before the NOP.
-                msg ="Sending IAC + NOP"
+                msg = "Sending IAC + NOP"
                 self.trace(msg)
                 log.debug(msg)
                 # Need to send multiple times to test connection
@@ -567,7 +569,9 @@ class BaseConnection(object):
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
             i += 1
-        msg = "Timed-out reading channel, pattern not found in output: {!r}".format(pattern)
+        msg = "Timed-out reading channel, pattern not found in output: {!r}".format(
+            pattern
+        )
         self.trace(msg)
         raise NetMikoTimeoutException(msg)
 
@@ -686,6 +690,7 @@ class BaseConnection(object):
         :param max_loops: Controls the wait time in conjunction with the delay_factor
         (default: 20)
         """
+        self.trace("Logging in via telnet")
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -699,6 +704,10 @@ class BaseConnection(object):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output, flags=re.I):
+                    self.trace(
+                        "Detected username pattern, sending username. "
+                        "Pattern was: {!r}".format(username_pattern)
+                    )
                     self.write_channel(self.username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
@@ -706,19 +715,24 @@ class BaseConnection(object):
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
+                    self.trace(
+                        "Detected password pattern, sending password. "
+                        "Pattern was: {!r}".format(pwd_pattern)
+                    )
                     self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                        return return_msg
 
                 # Check if proper data received
                 if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
                     alt_prompt_terminator, output, flags=re.M
                 ):
+                    self.trace(
+                        "Prompt detected after login. Pattern: {!r} or {!r}".format(
+                            pri_prompt_terminator, alt_prompt_terminator
+                        )
+                    )
                     return return_msg
 
                 self.write_channel(self.TELNET_RETURN)
@@ -738,6 +752,11 @@ class BaseConnection(object):
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
             alt_prompt_terminator, output, flags=re.M
         ):
+            self.trace(
+                "Prompt detected after login. Pattern: {!r} or {!r}".format(
+                    pri_prompt_terminator, alt_prompt_terminator
+                )
+            )
             return return_msg
 
         self.remote_conn.close()
@@ -752,12 +771,14 @@ class BaseConnection(object):
         to do since they don't have a reference to the object. This is possibly related
         to threads used in Paramiko.
         """
+        self.trace("Preparing session")
         try:
             self.session_preparation()
         except Exception:
             self.disconnect()
             self.trace("Session preparation failed")
             raise
+        self.trace("Done preparing session")
 
     def session_preparation(self):
         """
@@ -773,7 +794,6 @@ class BaseConnection(object):
         self.set_terminal_width()
         self.clear_buffer()
         """
-        self.trace("Preparing session")
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging()
@@ -782,7 +802,6 @@ class BaseConnection(object):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-        self.trace("Done preparing session")
 
     def _use_ssh_config(self, dict_arg):
         """Update SSH connection parameters based on contents of SSH 'config' file.
@@ -917,7 +936,9 @@ class BaseConnection(object):
                 print(
                     "SSH connection established to {}:{}".format(self.host, self.port)
                 )
-            self.trace("SSH connection established to {}:{}".format(self.host, self.port))
+            self.trace(
+                "SSH connection established to {}:{}".format(self.host, self.port)
+            )
 
             # Use invoke_shell to establish an 'interactive session'
             if width and height:
@@ -953,6 +974,7 @@ class BaseConnection(object):
                 main_delay = maximum
             return main_delay
 
+        self.trace("Testing channel read")
         i = 0
         delay_factor = self.select_delay_factor(delay_factor=0)
         main_delay = delay_factor * 0.1
@@ -1090,9 +1112,9 @@ class BaseConnection(object):
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            msg = "Router prompt not found: {0}".format(repr(prompt))
+            msg = "Router prompt not found: {!r}".format(prompt)
             self.trace(msg)
-            raise ValueError("Router prompt not found: {0}".format(repr(prompt)))
+            raise ValueError(msg)
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
         return self.base_prompt
@@ -1143,7 +1165,8 @@ class BaseConnection(object):
     def clear_buffer(self):
         """Read any data available in the channel."""
         self.trace("Clearing buffer")
-        self.read_channel()
+        output = self.read_channel()
+        self.trace("Buffer content while clearing: {!r}".format(output))
 
     def send_command_timing(
         self,
@@ -1180,6 +1203,7 @@ class BaseConnection(object):
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
         """
+        self.trace("In send_command_timing, sending: {!r}".format(command_string))
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -1200,6 +1224,7 @@ class BaseConnection(object):
             output = get_structured_data(
                 output, platform=self.device_type, command=command_string.strip()
             )
+        self.trace("send_command_timing returned: {!r}".format(output))
         return output
 
     def strip_prompt(self, a_string):
@@ -1285,6 +1310,8 @@ class BaseConnection(object):
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
         """
+        self.trace("in send_command, sending: {!r}".format(command_string))
+
         # Time to delay in each read loop
         loop_delay = 0.2
 
@@ -1338,11 +1365,13 @@ class BaseConnection(object):
                     )
                     # Check if we have already found our pattern
                     if re.search(search_pattern, output):
+                        self.trace("Found pattern: {!r}".format(search_pattern))
                         break
 
                 else:
                     # Check if pattern is in the past three reads
                     if re.search(search_pattern, "".join(past_three_reads)):
+                        self.trace("Found pattern: {!r}".format(search_pattern))
                         break
 
             time.sleep(delay_factor * loop_delay)
@@ -1364,6 +1393,7 @@ class BaseConnection(object):
             output = get_structured_data(
                 output, platform=self.device_type, command=command_string.strip()
             )
+        self.trace("send_command returned: {!r}".format(output))
         return output
 
     def send_command_expect(self, *args, **kwargs):
@@ -1456,6 +1486,7 @@ class BaseConnection(object):
         :param re_flags: Regular expression flags used in conjunction with pattern
         :type re_flags: int
         """
+        self.trace("Trying to go to enable mode.")
         output = ""
         msg = (
             "Failed to enter enable mode. Please ensure you pass "
@@ -1475,6 +1506,9 @@ class BaseConnection(object):
             if not self.check_enable_mode():
                 self.trace(msg)
                 raise ValueError(msg)
+            self.trace("Entered enable mode")
+        else:
+            self.trace("Already in enable mode")
         return output
 
     def exit_enable_mode(self, exit_command=""):
@@ -1483,6 +1517,7 @@ class BaseConnection(object):
         :param exit_command: Command that exits the session from privileged mode
         :type exit_command: str
         """
+        self.trace("Exiting enable mode")
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
@@ -1491,6 +1526,9 @@ class BaseConnection(object):
                 msg = "Failed to exit enable mode."
                 self.trace(msg)
                 raise ValueError("Failed to exit enable mode.")
+            self.trace("Exited from enable mode")
+        else:
+            self.trace("Not in enable mode")
         return output
 
     def check_config_mode(self, check_string="", pattern=""):
@@ -1519,6 +1557,7 @@ class BaseConnection(object):
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
         """
+        self.trace("Entering config mode")
         output = ""
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
@@ -1527,6 +1566,9 @@ class BaseConnection(object):
                 msg = "Failed to enter configuration mode."
                 self.trace(msg)
                 raise ValueError(msg)
+            self.trace("Entered config mode")
+        else:
+            self.trace("Already in config mode")
         return output
 
     def exit_config_mode(self, exit_config="", pattern=""):
@@ -1538,6 +1580,7 @@ class BaseConnection(object):
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
         """
+        self.trace("Exiting config mode")
         output = ""
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
@@ -1546,7 +1589,9 @@ class BaseConnection(object):
                 msg = "Failed to exit configuration mode"
                 self.trace(msg)
                 raise ValueError(msg)
-        self.trace("Exit config mode output: {!r}".format(output))
+            self.trace("Exited config mode")
+        else:
+            self.trace("Not in config mode")
         log.debug("exit_config_mode: {}".format(output))
         return output
 
@@ -1741,6 +1786,7 @@ class BaseConnection(object):
 
     def disconnect(self):
         """Try to gracefully close the SSH connection."""
+        self.trace("Disconnecting")
         try:
             self.cleanup()
             if self.protocol == "ssh":
@@ -1753,9 +1799,11 @@ class BaseConnection(object):
             # There have been race conditions observed on disconnect.
             pass
         finally:
+            self.trace("Disconnected")
             self.remote_conn_pre = None
             self.remote_conn = None
             self.close_session_log()
+            self.close_trace_file()
 
     def commit(self):
         """Commit method for platforms that support this."""
