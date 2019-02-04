@@ -25,7 +25,7 @@ import serial
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
-from netmiko.py23_compat import string_types, bufferedio_types, text_type
+from netmiko.py23_compat import string_types, bufferedio_types, textio_types, text_type
 from netmiko.ssh_exception import (
     NetMikoTimeoutException,
     NetMikoAuthenticationException,
@@ -256,6 +256,7 @@ class BaseConnection(object):
 
         self._trace_file = None
         self._trace_mode = False
+        self._trace_file_close = False
         if trace_file:
             self.open_trace_file(trace_file)
 
@@ -1159,7 +1160,7 @@ class BaseConnection(object):
             raise ValueError(msg)
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
-        self.trace("Found prompt: {!r}".format(prompt))
+        self.trace("Prompt determined to be: {!r}".format(prompt))
         return prompt
 
     def clear_buffer(self):
@@ -1429,6 +1430,10 @@ class BaseConnection(object):
         :param output: The returned output as a result of the command string sent to the device
         :type output: str
         """
+        self.trace(
+            "in strip_command. Stripping {!r} from {!r}".format(command_string, output)
+        )
+
         backspace_char = "\x08"
 
         # Check for line wrap (remove backspaces)
@@ -1436,10 +1441,13 @@ class BaseConnection(object):
             output = output.replace(backspace_char, "")
             output_lines = output.split(self.RESPONSE_RETURN)
             new_output = output_lines[1:]
-            return self.RESPONSE_RETURN.join(new_output)
+            new_output = self.RESPONSE_RETURN.join(new_output)
         else:
             command_length = len(command_string)
-            return output[command_length:]
+            new_output = output[command_length:]
+
+        self.trace("in strip_command. result: {!r}".format(new_output))
+        return new_output
 
     def normalize_linefeeds(self, a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
@@ -1819,8 +1827,17 @@ class BaseConnection(object):
             self.session_log.close()
             self.session_log = None
 
-    def open_trace_file(self, filename):
-        self._trace_file = open(filename, mode="w")
+    def open_trace_file(self, file):
+        if isinstance(file, string_types):
+            self._trace_file = open(file, mode="w")
+            self._trace_file_close = True
+        elif isinstance(file, textio_types):
+            self._trace_file = file
+        else:
+            raise ValueError(
+                "_trace_file must be a path to a file, a file handle, "
+                "or a TextIOBase subclass."
+            )
         self._trace_mode = True
         self.trace("Trace started")
 
@@ -1833,7 +1850,8 @@ class BaseConnection(object):
     def close_trace_file(self):
         self.trace("Trace stopped")
         self._trace_mode = False
-        self._trace_file.close()
+        if self._trace_file_close:
+            self._trace_file.close()
 
 
 class TelnetConnection(BaseConnection):

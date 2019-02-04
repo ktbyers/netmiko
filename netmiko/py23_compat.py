@@ -12,7 +12,9 @@ if PY3:
     string_types = (str,)
     text_type = str
     bufferedio_types = io.BufferedIOBase
+    textio_types = io.TextIOBase
 else:
     string_types = (basestring,)  # noqa
     text_type = unicode  # noqa
     bufferedio_types = (io.BufferedIOBase, file)  # noqa
+    textio_types = (io.TextIOBase, file)  # noqa
