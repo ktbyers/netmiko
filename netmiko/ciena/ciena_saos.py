@@ -145,14 +145,28 @@ class CienaSaosFileTransfer(BaseFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        
+
         remote_file = "{}/{}".format(self.file_system, remote_file)
 
         if not remote_cmd:
             remote_cmd = "file ls -l {}".format(remote_file)
 
-        return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
+        remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+
+        if "No such file or directory" in remote_out:
+            raise IOError("Unable to find file on remote system")
+
+        escape_file_name = re.escape(remote_file)
+        pattern = r"^.* ({}).*$".format(escape_file_name)
+        match = re.search(pattern, remote_out, flags=re.M)
+        if match:
+            # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
+            line = match.group(0)
+            file_size = line.split()[4]
+            return int(file_size)
+
+        raise ValueError(
+            "Search pattern not found for remote file size during SCP transfer."
         )
 
     def remote_md5(self, base_cmd="", remote_file=None):
