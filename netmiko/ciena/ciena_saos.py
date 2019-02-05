@@ -145,7 +145,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-            remote_file = "{}/{}".format(self.file_system, remote_file)
+        
+        remote_file = "{}/{}".format(self.file_system, remote_file)
 
         if not remote_cmd:
             remote_cmd = "file ls -l {}".format(remote_file)
