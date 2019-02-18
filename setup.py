@@ -2,16 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 import os
 import re
-import sys
 
-
-requirements = ["paramiko>=2.4.1", "scp>=0.10.0", "pyyaml", "pyserial", "textfsm"]
-
-# Cryptography library makes this necessary as older versions of PIP (PIP7 and less)
-# will not auto_install enum34 from extras_require.
-if sys.version_info < (3,):
-    requirements.append("enum34")
-    requirements.append("ipaddress")
 
 with open("README.md", "r") as fs:
     long_description = fs.read()
@@ -53,8 +44,18 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
     packages=find_packages(exclude=("test*",)),
-    install_requires=requirements,
+    install_requires=[
+        "setuptools>=38.4.0",
+        "paramiko>=2.4.2",
+        "scp>=0.10.0",
+        "pyyaml",
+        "pyserial",
+        "textfsm",
+        'enum34; python_version == "2.7"',
+        'ipaddress; python_version == "2.7"',
+    ],
     extras_require={"test": ["pytest>=3.2.5"]},
 )
