@@ -48,6 +48,7 @@ setup(
     ],
     packages=find_packages(exclude=("test*",)),
     install_requires=[
+        "setuptools>=38.4.0",
         "paramiko>=2.4.2",
         "scp>=0.10.0",
         "pyyaml",
