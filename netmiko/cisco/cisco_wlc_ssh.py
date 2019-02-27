@@ -100,7 +100,12 @@ class CiscoWlcSSH(BaseConnection):
         Cisco WLC uses "config paging disable" to disable paging
         """
         self._test_channel_read()
-        self.set_base_prompt()
+
+        try:
+            self.set_base_prompt()
+        except ValueError:
+            raise ValueError("Incorrect username and/or password.")
+
         self.disable_paging(command="config paging disable")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
