@@ -163,6 +163,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "ubiquiti_edgeswitch": {
+        "cmd": "show version",
+        "search_patterns": [r"EdgeSwitch"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 
