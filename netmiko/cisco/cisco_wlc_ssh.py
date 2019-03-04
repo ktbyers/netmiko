@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import time
 import re
 
+from netmiko.ssh_exception import NetMikoAuthenticationException
 from netmiko.base_connection import BaseConnection
 from netmiko.py23_compat import string_types
 from netmiko import log
@@ -104,7 +105,8 @@ class CiscoWlcSSH(BaseConnection):
         try:
             self.set_base_prompt()
         except ValueError:
-            raise ValueError("Incorrect username and/or password.")
+            msg = "Authentication failed: {}".format(self.host)
+            raise NetMikoAuthenticationException(msg)
 
         self.disable_paging(command="config paging disable")
         # Clear the read buffer
