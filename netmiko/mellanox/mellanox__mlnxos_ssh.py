@@ -50,8 +50,8 @@ class MellanoxMlnxosSSH(CiscoSSHConnection):
         return output
 
     def check_config_mode(self, check_string='(config', pattern=r'#'):
-        return super(MellanoxMlnxosSSH, self).check_config_mode(check_string=check_string,
-                                                          pattern=pattern)
+        return super(MellanoxMlnxosSSH, self).check_config_mode(
+            check_string=check_string,pattern=pattern)
 
     def disable_paging(self, command="terminal length 999", delay_factor=1):
         """Disable paging default to a Cisco CLI method."""
