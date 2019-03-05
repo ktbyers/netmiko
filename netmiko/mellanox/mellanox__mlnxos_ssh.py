@@ -18,6 +18,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
 import time
 
+
 class MellanoxMlnxosSSH(CiscoSSHConnection):
     """Mellanox MLNX-OS Switch support."""
 
@@ -51,7 +52,7 @@ class MellanoxMlnxosSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string='(config', pattern=r'#'):
         return super(MellanoxMlnxosSSH, self).check_config_mode(
-            check_string=check_string,pattern=pattern)
+            check_string=check_string, pattern=pattern)
 
     def disable_paging(self, command="terminal length 999", delay_factor=1):
         """Disable paging default to a Cisco CLI method."""
