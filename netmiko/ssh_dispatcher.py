@@ -70,6 +70,7 @@ from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
+from netmiko.mellanox import MellanoxMlnxosSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -146,6 +147,7 @@ CLASS_MAPPER_BASE = {
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
+    "mellanox_mlnxos": MellanoxMlnxosSSH,
 }
 
 FILE_TRANSFER_MAP = {
