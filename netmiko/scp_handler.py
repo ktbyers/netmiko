@@ -254,10 +254,11 @@ class BaseFileTransfer(object):
 
     def file_md5(self, file_name):
         """Compute MD5 hash of file."""
+        md5_hash = hashlib.md5()
         with open(file_name, "rb") as f:
-            file_contents = f.read()
-            file_hash = hashlib.md5(file_contents).hexdigest()
-        return file_hash
+            for byte_block in iter(lambda: f.read(4096),b""):
+                md5_hash.update(byte_block)
+        return md5_hash.hexdigest()
 
     @staticmethod
     def process_md5(md5_output, pattern=r"=\s+(\S+)"):
