@@ -7,11 +7,11 @@ Netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-Python 2.7, 3.5, 3.6  
+Python 2.7, 3.5, 3.6, 3.7  
 
 #### Requires:
 
-- Paramiko >= 2.4.1
+- Paramiko >= 2.4.2
 - scp >= 0.10.0
 - pyyaml
 - pyserial
@@ -28,7 +28,6 @@ Python 2.7, 3.5, 3.6
 - Cisco IOS-XR
 - Cisco NX-OS
 - Cisco SG300
-- HP Comware7
 - HP ProCurve
 - Juniper Junos
 - Linux
@@ -46,6 +45,7 @@ Python 2.7, 3.5, 3.6
 - Extreme VSP (Avaya)
 - Extreme VDX (Brocade)
 - Extreme MLX/NetIron (Brocade/Foundry)
+- HP Comware7
 - Huawei
 - IP Infusion OcNOS
 - Mellanox
