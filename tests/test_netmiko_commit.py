@@ -18,35 +18,45 @@ import re
 import random
 import string
 
+
 def gen_random(N=6):
-    return "".join([random.choice(string.ascii_lowercase + string.ascii_uppercase
-                   + string.digits) for x in range(N) ])
+    return "".join(
+        [
+            random.choice(
+                string.ascii_lowercase + string.ascii_uppercase + string.digits
+            )
+            for x in range(N)
+        ]
+    )
+
 
 def retrieve_commands(commands):
     """
     Retrieve context needed for a set of commit actions
     """
 
-    config_commands = commands['config']
-    support_commit = commands.get('support_commit')
-    config_verify = commands['config_verification']
+    config_commands = commands["config"]
+    support_commit = commands.get("support_commit")
+    config_verify = commands["config_verification"]
 
     return (config_commands, support_commit, config_verify)
 
+
 def setup_initial_state(net_connect, commands, expected_responses):
-    '''
+    """
     Setup initial configuration prior to change so that config change can be verified
-    '''
+    """
 
     # Setup initial state
     config_commands, support_commit, config_verify = retrieve_commands(commands)
     setup_base_config(net_connect, config_commands[0:1])
 
-    cmd_response = expected_responses.get('cmd_response_init', config_commands[0])
+    cmd_response = expected_responses.get("cmd_response_init", config_commands[0])
     initial_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert initial_state is True
 
     return config_commands, support_commit, config_verify
+
 
 def setup_base_config(net_connect, config_changes):
     """
@@ -55,63 +65,69 @@ def setup_base_config(net_connect, config_changes):
     net_connect.send_config_set(config_changes)
     net_connect.commit()
 
+
 def config_change_verify(net_connect, verify_cmd, cmd_response):
-    '''
+    """
     Send verify_cmd down channel, verify cmd_response in output
-    '''
+    """
     config_commands_output = net_connect.send_command_expect(verify_cmd)
     if cmd_response in config_commands_output:
         return True
     else:
         return False
 
+
 def test_ssh_connect(net_connect, commands, expected_responses):
-    '''
+    """
     Verify the connection was established successfully
-    '''
+    """
     show_version = net_connect.send_command_expect(commands["version"])
     assert expected_responses["version_banner"] in show_version
 
+
 def test_config_mode(net_connect, commands, expected_responses):
-    '''
+    """
     Test enter config mode
-    '''
+    """
     net_connect.config_mode()
     assert net_connect.check_config_mode() == True
 
+
 def test_commit_base(net_connect, commands, expected_responses):
-    '''
+    """
     Test .commit() with no options
-    '''
+    """
     # Setup the initial config state
-    config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-        commands, expected_responses)
+    config_commands, support_commit, config_verify = setup_initial_state(
+        net_connect, commands, expected_responses
+    )
 
     # Perform commit test
     net_connect.send_config_set(config_commands)
     net_connect.commit()
 
-    cmd_response = expected_responses.get('cmd_response_final', config_commands[-1])
+    cmd_response = expected_responses.get("cmd_response_final", config_commands[-1])
     final_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert final_state is True
 
 
 def test_commit_confirm(net_connect, commands, expected_responses):
-    '''
+    """
     Test confirm with confirm
-    '''
+    """
     # Setup the initial config state
-    config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-        commands, expected_responses)
+    config_commands, support_commit, config_verify = setup_initial_state(
+        net_connect, commands, expected_responses
+    )
 
     # Perform commit-confirm test
     net_connect.send_config_set(config_commands)
-    if net_connect.device_type == 'cisco_xr':
+    if net_connect.device_type == "cisco_xr":
         net_connect.commit(confirm=True, confirm_delay=60)
     else:
         net_connect.commit(confirm=True)
 
-    cmd_response = expected_responses.get('cmd_response_final', config_commands[-1])
+    cmd_response = expected_responses.get("cmd_response_final", config_commands[-1])
     final_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert final_state is True
 
@@ -120,21 +136,22 @@ def test_commit_confirm(net_connect, commands, expected_responses):
 
 
 def test_confirm_delay(net_connect, commands, expected_responses):
-    '''
+    """
     Test commit with confirm and non-default delay
-    '''
+    """
     # Setup the initial config state
-    config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-        commands, expected_responses)
+    config_commands, support_commit, config_verify = setup_initial_state(
+        net_connect, commands, expected_responses
+    )
 
     # Perform commit-confirm test
     net_connect.send_config_set(config_commands)
-    if net_connect.device_type == 'cisco_xr':
+    if net_connect.device_type == "cisco_xr":
         net_connect.commit(confirm=True, confirm_delay=60)
     else:
         net_connect.commit(confirm=True, confirm_delay=5)
 
-    cmd_response = expected_responses.get('cmd_response_final', config_commands[-1])
+    cmd_response = expected_responses.get("cmd_response_final", config_commands[-1])
     final_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert final_state is True
 
@@ -143,30 +160,32 @@ def test_confirm_delay(net_connect, commands, expected_responses):
 
 
 def test_no_confirm(net_connect, commands, expected_responses):
-    '''
+    """
     Perform commit-confirm, but don't confirm (verify rollback)
-    '''
+    """
     # Setup the initial config state
-    config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-        commands, expected_responses)
+    config_commands, support_commit, config_verify = setup_initial_state(
+        net_connect, commands, expected_responses
+    )
 
     # Perform commit-confirm test
     net_connect.send_config_set(config_commands)
-    if net_connect.device_type == 'cisco_xr':
+    if net_connect.device_type == "cisco_xr":
         net_connect.commit(confirm=True, confirm_delay=30)
     else:
         net_connect.commit(confirm=True, confirm_delay=1)
 
-    cmd_response = expected_responses.get('cmd_response_final', config_commands[-1])
+    cmd_response = expected_responses.get("cmd_response_final", config_commands[-1])
     final_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert final_state is True
 
     time.sleep(130)
 
     # Verify rolled back to initial state
-    cmd_response = expected_responses.get('cmd_response_init', config_commands[0])
+    cmd_response = expected_responses.get("cmd_response_init", config_commands[0])
     init_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert init_state is True
+
 
 def test_clear_msg(net_connect, commands, expected_responses):
     """
@@ -184,59 +203,64 @@ def test_clear_msg(net_connect, commands, expected_responses):
     # Setup the initial config state
     config_commands, support_commit, config_verify = retrieve_commands(commands)
 
-    if net_connect.device_type == 'cisco_xr':
+    if net_connect.device_type == "cisco_xr":
         output = net_connect.send_config_set(config_commands)
-        output += net_connect.send_command_expect('commit', expect_string=r'Do you wish to')
-        output += net_connect.send_command_expect('yes', auto_find_prompt=False)
+        output += net_connect.send_command_expect(
+            "commit", expect_string=r"Do you wish to"
+        )
+        output += net_connect.send_command_expect("yes", auto_find_prompt=False)
     assert True is True
 
+
 def test_commit_check(net_connect, commands, expected_responses):
-    '''
+    """
     Test commit check
-    '''
+    """
     # IOS-XR does not support commit check
-    if net_connect.device_type == 'cisco_xr':
+    if net_connect.device_type == "cisco_xr":
         assert True is True
     else:
 
         # Setup the initial config state
-        config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-            commands, expected_responses)
-    
+        config_commands, support_commit, config_verify = setup_initial_state(
+            net_connect, commands, expected_responses
+        )
+
         # Perform commit-confirm test
         net_connect.send_config_set(config_commands)
         net_connect.commit(check=True)
-    
+
         # Verify at initial state
-        cmd_response = expected_responses.get('cmd_response_init', config_commands[0])
+        cmd_response = expected_responses.get("cmd_response_init", config_commands[0])
         init_state = config_change_verify(net_connect, config_verify, cmd_response)
         assert init_state is True
-    
-        rollback = commands.get('rollback')
+
+        rollback = commands.get("rollback")
         net_connect.send_config_set([rollback])
 
 
 def test_commit_comment(net_connect, commands, expected_responses):
-    '''
+    """
     Test commit with comment
-    '''
+    """
     # Setup the initial config state
-    config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-        commands, expected_responses)
+    config_commands, support_commit, config_verify = setup_initial_state(
+        net_connect, commands, expected_responses
+    )
 
     # Perform commit with comment
     net_connect.send_config_set(config_commands)
     net_connect.commit(comment="Unit test on commit with comment")
 
     # Verify change was committed
-    cmd_response = expected_responses.get('cmd_response_final', config_commands[-1])
+    cmd_response = expected_responses.get("cmd_response_final", config_commands[-1])
     final_state = config_change_verify(net_connect, config_verify, cmd_response)
     assert final_state is True
 
     # Verify commit comment
     commit_verification = commands.get("commit_verification")
     tmp_output = net_connect.send_command(commit_verification)
-    if net_connect.device_type == 'cisco_xr':
+    if net_connect.device_type == "cisco_xr":
         commit_comment = tmp_output
     else:
         commit_comment = tmp_output.split("\n")[2]
@@ -244,26 +268,27 @@ def test_commit_comment(net_connect, commands, expected_responses):
 
 
 def test_commit_andquit(net_connect, commands, expected_responses):
-    '''
+    """
     Test commit and immediately quit configure mode
-    '''
+    """
 
     # IOS-XR does not support commit and quit
-    if net_connect.device_type == 'cisco_xr':
+    if net_connect.device_type == "cisco_xr":
         assert True is True
     else:
 
         # Setup the initial config state
-        config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-            commands, expected_responses)
-    
+        config_commands, support_commit, config_verify = setup_initial_state(
+            net_connect, commands, expected_responses
+        )
+
         # Execute change and commit
         net_connect.send_config_set(config_commands)
         net_connect.commit(and_quit=True)
-    
+
         # Verify change was committed
-        cmd_response = expected_responses.get('cmd_response_final', config_commands[-1])
-        config_verify = 'show configuration | match archive'
+        cmd_response = expected_responses.get("cmd_response_final", config_commands[-1])
+        config_verify = "show configuration | match archive"
         final_state = config_change_verify(net_connect, config_verify, cmd_response)
         assert final_state is True
 
@@ -271,18 +296,19 @@ def test_commit_andquit(net_connect, commands, expected_responses):
 def test_commit_label(net_connect, commands, expected_responses):
     """Test commit label for IOS-XR."""
 
-    if net_connect.device_type != 'cisco_xr':
+    if net_connect.device_type != "cisco_xr":
         assert True is True
     else:
         # Setup the initial config state
-        config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-            commands, expected_responses)
-    
+        config_commands, support_commit, config_verify = setup_initial_state(
+            net_connect, commands, expected_responses
+        )
+
         # Execute change and commit
         net_connect.send_config_set(config_commands)
         label = "test_lbl_" + gen_random()
         net_connect.commit(label=label)
-    
+
         # Verify commit label
         commit_verification = commands.get("commit_verification")
         tmp_output = net_connect.send_command(commit_verification)
@@ -293,23 +319,24 @@ def test_commit_label(net_connect, commands, expected_responses):
 
 
 def test_commit_label_comment(net_connect, commands, expected_responses):
-    '''
+    """
     Test commit label for IOS-XR with comment
-    '''
-    # IOS-XR only test 
-    if net_connect.device_type != 'cisco_xr':
+    """
+    # IOS-XR only test
+    if net_connect.device_type != "cisco_xr":
         assert True is True
     else:
         # Setup the initial config state
-        config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-            commands, expected_responses)
-    
+        config_commands, support_commit, config_verify = setup_initial_state(
+            net_connect, commands, expected_responses
+        )
+
         # Execute change and commit
         net_connect.send_config_set(config_commands)
         label = "test_lbl_" + gen_random()
-        comment="Test with comment and label"
+        comment = "Test with comment and label"
         net_connect.commit(label=label, comment=comment)
-    
+
         # Verify commit label
         commit_verification = commands.get("commit_verification")
         tmp_output = net_connect.send_command(commit_verification)
@@ -325,23 +352,24 @@ def test_commit_label_comment(net_connect, commands, expected_responses):
 
 
 def test_commit_label_confirm(net_connect, commands, expected_responses):
-    '''
+    """
     Test commit label for IOS-XR with confirm
-    '''
-    # IOS-XR only test 
-    if net_connect.device_type != 'cisco_xr':
+    """
+    # IOS-XR only test
+    if net_connect.device_type != "cisco_xr":
         assert True is True
     else:
         # Setup the initial config state
-        config_commands, support_commit, config_verify = setup_initial_state(net_connect,
-            commands, expected_responses)
-    
+        config_commands, support_commit, config_verify = setup_initial_state(
+            net_connect, commands, expected_responses
+        )
+
         # Execute change and commit
         net_connect.send_config_set(config_commands)
         label = "test_lbl_" + gen_random()
         net_connect.commit(label=label, confirm=True, confirm_delay=120)
-    
-        cmd_response = expected_responses.get('cmd_response_final', config_commands[-1])
+
+        cmd_response = expected_responses.get("cmd_response_final", config_commands[-1])
         final_state = config_change_verify(net_connect, config_verify, cmd_response)
         assert final_state is True
 
@@ -357,17 +385,16 @@ def test_commit_label_confirm(net_connect, commands, expected_responses):
 
 
 def test_exit_config_mode(net_connect, commands, expected_responses):
-    '''
+    """
     Test exit config mode
-    '''
+    """
     net_connect.exit_config_mode()
     time.sleep(1)
     assert net_connect.check_config_mode() == False
 
 
 def test_disconnect(net_connect, commands, expected_responses):
-    '''
+    """
     Terminate the SSH session
-    '''
+    """
     net_connect.disconnect()
-

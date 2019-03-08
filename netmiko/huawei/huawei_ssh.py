@@ -7,26 +7,26 @@ from netmiko import log
 
 
 class HuaweiSSH(CiscoSSHConnection):
-
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary")
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command='system-view'):
+    def config_mode(self, config_command="system-view"):
         """Enter configuration mode."""
         return super(HuaweiSSH, self).config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config='return', pattern=r'>'):
+    def exit_config_mode(self, exit_config="return", pattern=r">"):
         """Exit configuration mode."""
-        return super(HuaweiSSH, self).exit_config_mode(exit_config=exit_config,
-                                                       pattern=pattern)
+        return super(HuaweiSSH, self).exit_config_mode(
+            exit_config=exit_config, pattern=pattern
+        )
 
-    def check_config_mode(self, check_string=']'):
+    def check_config_mode(self, check_string="]"):
         """Checks whether in configuration mode. Returns a boolean."""
         return super(HuaweiSSH, self).check_config_mode(check_string=check_string)
 
@@ -36,14 +36,15 @@ class HuaweiSSH(CiscoSSHConnection):
 
     def enable(self, *args, **kwargs):
         """Huawei has no enable mode."""
-        return ''
+        return ""
 
     def exit_enable_mode(self, *args, **kwargs):
         """Huawei has no enable mode."""
-        return ''
+        return ""
 
-    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',
-                        delay_factor=1):
+    def set_base_prompt(
+        self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1
+    ):
         """
         Sets self.base_prompt
 
@@ -58,7 +59,7 @@ class HuaweiSSH(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
-        time.sleep(.5 * delay_factor)
+        time.sleep(0.5 * delay_factor)
 
         prompt = self.read_channel()
         prompt = self.normalize_linefeeds(prompt)
@@ -82,14 +83,13 @@ class HuaweiSSH(CiscoSSHConnection):
 
         return self.base_prompt
 
-    def save_config(self, cmd='save', confirm=False, confirm_response=''):
+    def save_config(self, cmd="save", confirm=False, confirm_response=""):
         """ Save Config for HuaweiSSH"""
         return super(HuaweiSSH, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
-
-    def commit(self, comment='', delay_factor=1):
+    def commit(self, comment="", delay_factor=1):
         """
         Commit the candidate configuration.
 
@@ -103,21 +103,28 @@ class HuaweiVrpv8SSH(HuaweiSSH):
 
         """
         delay_factor = self.select_delay_factor(delay_factor)
-        error_marker = 'Failed to generate committed config'
-        command_string = 'commit'
+        error_marker = "Failed to generate committed config"
+        command_string = "commit"
 
         if comment:
             command_string += ' comment "{}"'.format(comment)
 
         output = self.config_mode()
-        output += self.send_command_expect(command_string, strip_prompt=False,
-                                           strip_command=False, delay_factor=delay_factor)
+        output += self.send_command_expect(
+            command_string,
+            strip_prompt=False,
+            strip_command=False,
+            delay_factor=delay_factor,
+            expect_string=r"]",
+        )
         output += self.exit_config_mode()
 
         if error_marker in output:
-            raise ValueError('Commit failed with following errors:\n\n{}'.format(output))
+            raise ValueError(
+                "Commit failed with following errors:\n\n{}".format(output)
+            )
         return output
 
-    def save_config(self, cmd='', confirm=True, confirm_response=''):
+    def save_config(self, cmd="", confirm=True, confirm_response=""):
         """Not Implemented"""
         raise NotImplementedError

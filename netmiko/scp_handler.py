@@ -23,6 +23,7 @@ class SCPConn(object):
 
     Must close the SCP connection to get the file to write to the remote filesystem
     """
+
     def __init__(self, ssh_conn):
         self.ssh_ctl_chan = ssh_conn
         self.establish_scp_conn()
@@ -53,15 +54,20 @@ class SCPConn(object):
 
 class BaseFileTransfer(object):
     """Class to manage SCP file transfer and associated SSH control channel."""
-    def __init__(self, ssh_conn, source_file, dest_file, file_system=None, direction='put'):
+
+    def __init__(
+        self, ssh_conn, source_file, dest_file, file_system=None, direction="put"
+    ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
 
-        auto_flag = 'cisco_ios' in ssh_conn.device_type or \
-                    'cisco_xe' in ssh_conn.device_type or \
-                    'cisco_xr' in ssh_conn.device_type
+        auto_flag = (
+            "cisco_ios" in ssh_conn.device_type
+            or "cisco_xe" in ssh_conn.device_type
+            or "cisco_xr" in ssh_conn.device_type
+        )
         if not file_system:
             if auto_flag:
                 self.file_system = self.ssh_ctl_chan._autodetect_fs()
@@ -70,10 +76,10 @@ class BaseFileTransfer(object):
         else:
             self.file_system = file_system
 
-        if direction == 'put':
+        if direction == "put":
             self.source_md5 = self.file_md5(source_file)
             self.file_size = os.stat(source_file).st_size
-        elif direction == 'get':
+        elif direction == "get":
             self.source_md5 = self.remote_md5(remote_file=source_file)
             self.file_size = self.remote_file_size(remote_file=source_file)
         else:
@@ -97,18 +103,22 @@ class BaseFileTransfer(object):
         self.scp_conn.close()
         self.scp_conn = None
 
-    def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
+    def remote_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Return space available on remote device."""
         remote_cmd = "dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
+        if "kbytes" in match.group(0) or "Kbytes" in match.group(0):
+            return int(match.group(1)) * 1000
         return int(match.group(1))
 
     def _remote_space_available_unix(self, search_pattern=""):
         """Return space available on *nix system (BSD/Linux)."""
         self.ssh_ctl_chan._enter_shell()
         remote_cmd = "/bin/df -k {}".format(self.file_system)
-        remote_output = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+        remote_output = self.ssh_ctl_chan.send_command(
+            remote_cmd, expect_string=r"[\$#]"
+        )
 
         # Try to ensure parsing is correct:
         # Filesystem   1K-blocks  Used   Avail Capacity  Mounted on
@@ -120,16 +130,18 @@ class BaseFileTransfer(object):
         header_line = output_lines[0]
         filesystem_line = output_lines[1]
 
-        if 'Filesystem' not in header_line or 'Avail' not in header_line.split()[3]:
+        if "Filesystem" not in header_line or "Avail" not in header_line.split()[3]:
             # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
-            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
-                                                                         remote_output)
+            msg = "Parsing error, unexpected output from {}:\n{}".format(
+                remote_cmd, remote_output
+            )
             raise ValueError(msg)
 
         space_available = filesystem_line.split()[3]
         if not re.search(r"^\d+$", space_available):
-            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd,
-                                                                         remote_output)
+            msg = "Parsing error, unexpected output from {}:\n{}".format(
+                remote_cmd, remote_output
+            )
             raise ValueError(msg)
 
         self.ssh_ctl_chan._return_cli()
@@ -140,11 +152,11 @@ class BaseFileTransfer(object):
         destination_stats = os.statvfs(".")
         return destination_stats.f_bsize * destination_stats.f_bavail
 
-    def verify_space_available(self, search_pattern=r"(\d+) bytes free"):
+    def verify_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
-        if self.direction == 'put':
+        if self.direction == "put":
             space_avail = self.remote_space_available(search_pattern=search_pattern)
-        elif self.direction == 'get':
+        elif self.direction == "get":
             space_avail = self.local_space_available()
         if space_avail > self.file_size:
             return True
@@ -152,37 +164,43 @@ class BaseFileTransfer(object):
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        if self.direction == 'put':
+        if self.direction == "put":
             if not remote_cmd:
                 remote_cmd = "dir {}/{}".format(self.file_system, self.dest_file)
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"Directory of .*{0}".format(self.dest_file)
-            if 'Error opening' in remote_out or 'No such file or directory' in remote_out:
+            if (
+                "Error opening" in remote_out
+                or "No such file or directory" in remote_out
+                or "Path does not exist" in remote_out
+            ):
                 return False
             elif re.search(search_string, remote_out, flags=re.DOTALL):
                 return True
             else:
                 raise ValueError("Unexpected output from check_file_exists")
-        elif self.direction == 'get':
+        elif self.direction == "get":
             return os.path.exists(self.dest_file)
 
     def _check_file_exists_unix(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        if self.direction == 'put':
+        if self.direction == "put":
             self.ssh_ctl_chan._enter_shell()
             remote_cmd = "ls {}".format(self.file_system)
-            remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+            remote_out = self.ssh_ctl_chan.send_command(
+                remote_cmd, expect_string=r"[\$#]"
+            )
             self.ssh_ctl_chan._return_cli()
             return self.dest_file in remote_out
-        elif self.direction == 'get':
+        elif self.direction == "get":
             return os.path.exists(self.dest_file)
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
         if remote_file is None:
-            if self.direction == 'put':
+            if self.direction == "put":
                 remote_file = self.dest_file
-            elif self.direction == 'get':
+            elif self.direction == "get":
                 remote_file = self.source_file
         if not remote_cmd:
             remote_cmd = "dir {}/{}".format(self.file_system, remote_file)
@@ -198,7 +216,7 @@ class BaseFileTransfer(object):
             line = match.group(0)
             # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
             file_size = line.split()[2]
-        if 'Error opening' in remote_out or 'No such file or directory' in remote_out:
+        if "Error opening" in remote_out or "No such file or directory" in remote_out:
             raise IOError("Unable to find file on remote system")
         else:
             return int(file_size)
@@ -206,9 +224,9 @@ class BaseFileTransfer(object):
     def _remote_file_size_unix(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
         if remote_file is None:
-            if self.direction == 'put':
+            if self.direction == "put":
                 remote_file = self.dest_file
-            elif self.direction == 'get':
+            elif self.direction == "get":
                 remote_file = self.source_file
         remote_file = "{}/{}".format(self.file_system, remote_file)
         if not remote_cmd:
@@ -216,6 +234,11 @@ class BaseFileTransfer(object):
 
         self.ssh_ctl_chan._enter_shell()
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
+        self.ssh_ctl_chan._return_cli()
+
+        if "No such file or directory" in remote_out:
+            raise IOError("Unable to find file on remote system")
+
         escape_file_name = re.escape(remote_file)
         pattern = r"^.* ({}).*$".format(escape_file_name)
         match = re.search(pattern, remote_out, flags=re.M)
@@ -223,9 +246,11 @@ class BaseFileTransfer(object):
             # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
             line = match.group(0)
             file_size = line.split()[4]
+            return int(file_size)
 
-        self.ssh_ctl_chan._return_cli()
-        return int(file_size)
+        raise ValueError(
+            "Search pattern not found for remote file size during SCP transfer."
+        )
 
     def file_md5(self, file_name):
         """Compute MD5 hash of file."""
@@ -251,22 +276,22 @@ class BaseFileTransfer(object):
 
     def compare_md5(self):
         """Compare md5 of file on network device to md5 of local file."""
-        if self.direction == 'put':
+        if self.direction == "put":
             remote_md5 = self.remote_md5()
             return self.source_md5 == remote_md5
-        elif self.direction == 'get':
+        elif self.direction == "get":
             local_md5 = self.file_md5(self.dest_file)
             return self.source_md5 == local_md5
 
-    def remote_md5(self, base_cmd='verify /md5', remote_file=None):
+    def remote_md5(self, base_cmd="verify /md5", remote_file=None):
         """Calculate remote MD5 and returns the hash.
 
         This command can be CPU intensive on the remote device.
         """
         if remote_file is None:
-            if self.direction == 'put':
+            if self.direction == "put":
                 remote_file = self.dest_file
-            elif self.direction == 'get':
+            elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
@@ -275,9 +300,9 @@ class BaseFileTransfer(object):
 
     def transfer_file(self):
         """SCP transfer file."""
-        if self.direction == 'put':
+        if self.direction == "put":
             self.put_file()
-        elif self.direction == 'get':
+        elif self.direction == "get":
             self.get_file()
 
     def get_file(self):
@@ -304,8 +329,8 @@ class BaseFileTransfer(object):
         Defaults to Cisco IOS command
         """
         if cmd is None:
-            cmd = ['ip scp server enable']
-        elif not hasattr(cmd, '__iter__'):
+            cmd = ["ip scp server enable"]
+        elif not hasattr(cmd, "__iter__"):
             cmd = [cmd]
         self.ssh_ctl_chan.send_config_set(cmd)
 
@@ -316,7 +341,7 @@ class BaseFileTransfer(object):
         Defaults to Cisco IOS command
         """
         if cmd is None:
-            cmd = ['no ip scp server enable']
-        elif not hasattr(cmd, '__iter__'):
+            cmd = ["no ip scp server enable"]
+        elif not hasattr(cmd, "__iter__"):
             cmd = [cmd]
         self.ssh_ctl_chan.send_config_set(cmd)

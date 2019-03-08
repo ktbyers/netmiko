@@ -1,16 +1,18 @@
 [![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
+[![Downloads](https://pepy.tech/badge/netmiko)](https://pepy.tech/project/netmiko)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 
 Netmiko
 =======
 
-Multi-vendor library to simplify Paramiko SSH connections to network devices
+Multi-vendor library to simplify Paramiko SSH connections to network devices  
 
-Python 2.7, 3.5, 3.6  
+Python 2.7, 3.5, 3.6, 3.7  
 
 #### Requires:
 
-- Paramiko >= 2.4.1
+- Paramiko >= 2.4.2
 - scp >= 0.10.0
 - pyyaml
 - pyserial
@@ -27,7 +29,6 @@ Python 2.7, 3.5, 3.6
 - Cisco IOS-XR
 - Cisco NX-OS
 - Cisco SG300
-- HP Comware7
 - HP ProCurve
 - Juniper Junos
 - Linux
@@ -37,7 +38,7 @@ Python 2.7, 3.5, 3.6
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
 - Calix B6
-- Cisco WLC
+- Cisco AireOS (Wireless LAN Controllers)
 - Dell OS9 (Force10)
 - Dell OS10
 - Dell PowerConnect
@@ -45,10 +46,12 @@ Python 2.7, 3.5, 3.6
 - Extreme VSP (Avaya)
 - Extreme VDX (Brocade)
 - Extreme MLX/NetIron (Brocade/Foundry)
+- HP Comware7
 - Huawei
 - IP Infusion OcNOS
 - Mellanox
 - NetApp cDOT
+- OneAccess
 - Palo Alto PAN-OS
 - Pluribus
 - Ruckus ICX/FastIron
@@ -177,7 +180,7 @@ export NET_TEXTFSM=/path/to/ntc-templates/templates/
 
 If you find an issue with Netmiko, then you can open an issue on this projects issue page here: [https://github.com/ktbyers/netmiko/issues](https://github.com/ktbyers/netmiko/issues)
 
-If you have questions or would like to discuss Netmiko, a Netmiko channel exists on [this Slack](https://networktocode.slack.com) team.  To join, visit [this url](http://slack.networktocode.com/) and request access to the Slack team. Once access is granted you can join the [#netmiko](https://networktocode.slack.com/messages/netmiko/) channel.
+If you have questions or would like to discuss Netmiko, a #netmiko channel exists in [this Slack](https://pynet.slack.com) workspace.  To join, use [this invitation](https://join.slack.com/t/pynet/shared_invite/enQtNTA2MDI3NjU0MTM0LTQ5MjExNGNlNWIzMmRhOTZmNmZkNDA2Nzk4Y2Q1Y2RkMWNhZGEzM2Y5MjI0NDYxODkzM2M0ODIwYzFkMzVmZGY). Once you have entered the workspace, then you can join the #netmiko channel.
 
 
 

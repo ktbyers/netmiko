@@ -16,11 +16,12 @@ class NetscalerSSH(BaseConnection):
         self.disable_paging(command=cmd)
         time.sleep(1 * delay_factor)
         self.set_base_prompt()
-        time.sleep(.3 * delay_factor)
+        time.sleep(0.3 * delay_factor)
         self.clear_buffer()
 
-    def set_base_prompt(self, pri_prompt_terminator='#',
-                        alt_prompt_terminator='>', delay_factor=1):
+    def set_base_prompt(
+        self, pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
+    ):
         """Sets self.base_prompt.
 
         Netscaler has '>' for the prompt.
@@ -43,17 +44,17 @@ class NetscalerSSH(BaseConnection):
 
     def config_mode(self):
         """Netscaler devices do not have a config mode."""
-        return ''
+        return ""
 
     def exit_config_mode(self):
         """Netscaler devices do not have a config mode."""
-        return ''
+        return ""
 
     def strip_prompt(self, a_string):
         """ Strip 'Done' from command output """
         output = super(NetscalerSSH, self).strip_prompt(a_string)
         lines = output.split(self.RESPONSE_RETURN)
         if "Done" in lines[-1]:
-            return 'self.RESPONSE_RETURN'.join(lines[:-1])
+            return self.RESPONSE_RETURN.join(lines[:-1])
         else:
             return output

@@ -3,13 +3,13 @@ from netmiko import Netmiko
 from getpass import getpass
 
 nxos1 = {
-    'host': 'nxos1.twb-tech.com', 
-    'username': 'pyclass', 
-    'password': getpass(), 
-    'device_type': 'cisco_nxos',
+    "host": "nxos1.twb-tech.com",
+    "username": "pyclass",
+    "password": getpass(),
+    "device_type": "cisco_nxos",
 }
 
-cfg_file = 'config_changes.txt'
+cfg_file = "config_changes.txt"
 net_connect = Netmiko(**nxos1)
 
 print()

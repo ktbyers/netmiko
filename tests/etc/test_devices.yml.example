@@ -134,3 +134,17 @@ ipinfusion_ocnos_telnet:
   password: ocnos
   secret: ocnos
 
+oneaccess_oneos:
+  device_type: oneaccess_oneos
+  ip: 10.94.49.187
+  username: m-wallraf
+  password: TEST
+  secret: TEST
+
+oneaccess_oneos_telnet:
+  device_type: oneaccess_oneos_telnet
+  ip: 10.94.49.187
+  username: m-wallraf
+  password: TEST
+  secret: TEST
+

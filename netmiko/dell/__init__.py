@@ -7,6 +7,13 @@ from netmiko.dell.dell_powerconnect import DellPowerConnectSSH
 from netmiko.dell.dell_powerconnect import DellPowerConnectTelnet
 from netmiko.dell.dell_isilon_ssh import DellIsilonSSH
 
-__all__ = ['DellForce10SSH', 'DellPowerConnectSSH', 'DellPowerConnectTelnet',
-           'DellOS10SSH', 'DellOS10FileTransfer', 'DellIsilonSSH',
-           'DellDNOS6SSH', 'DellDNOS6Telnet']
+__all__ = [
+    "DellForce10SSH",
+    "DellPowerConnectSSH",
+    "DellPowerConnectTelnet",
+    "DellOS10SSH",
+    "DellOS10FileTransfer",
+    "DellIsilonSSH",
+    "DellDNOS6SSH",
+    "DellDNOS6Telnet",
+]

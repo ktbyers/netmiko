@@ -15,4 +15,4 @@ if PY3:
 else:
     string_types = (basestring,)  # noqa
     text_type = unicode  # noqa
-    bufferedio_types = (io.BufferedIOBase, file)    # noqa
+    bufferedio_types = (io.BufferedIOBase, file)  # noqa

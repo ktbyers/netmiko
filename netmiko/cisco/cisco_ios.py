@@ -11,49 +11,72 @@ from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 class CiscoIosBase(CiscoBaseConnection):
     """Common Methods for IOS (both SSH and telnet)."""
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r'[>#]')
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.disable_paging()
-        self.set_terminal_width(command='terminal width 511')
+        self.set_terminal_width(command="terminal width 511")
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd='write mem', confirm=False):
+    def check_config_mode(self, check_string=")#", pattern="#"):
+        """
+        Checks if the device is in configuration mode or not.
+
+        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
+        """
+        return super(CiscoIosBase, self).check_config_mode(
+            check_string=check_string, pattern=pattern
+        )
+
+    def save_config(self, cmd="write mem", confirm=False):
         """Saves Config Using Copy Run Start"""
         return super(CiscoIosBase, self).save_config(cmd=cmd, confirm=confirm)
 
 
 class CiscoIosSSH(CiscoIosBase):
     """Cisco IOS SSH driver."""
+
     pass
 
 
 class CiscoIosTelnet(CiscoIosBase):
     """Cisco IOS Telnet driver."""
+
     pass
 
 
 class CiscoIosSerial(CiscoIosBase):
     """Cisco IOS Serial driver."""
+
     pass
 
 
 class CiscoIosFileTransfer(CiscoFileTransfer):
     """Cisco IOS SCP File Transfer driver."""
+
     pass
 
 
 class InLineTransfer(CiscoIosFileTransfer):
     """Use TCL on Cisco IOS to directly transfer file."""
-    def __init__(self, ssh_conn, source_file=None, dest_file=None, file_system=None,
-                 direction='put', source_config=None):
+
+    def __init__(
+        self,
+        ssh_conn,
+        source_file=None,
+        dest_file=None,
+        file_system=None,
+        direction="put",
+        source_config=None,
+    ):
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
             raise ValueError(msg)
-        if direction != 'put':
+        if direction != "put":
             raise ValueError("Only put operation supported by InLineTransfer.")
 
         self.ssh_ctl_chan = ssh_conn
@@ -66,7 +89,7 @@ class InLineTransfer(CiscoIosFileTransfer):
             self.source_file = None
             self.source_config = source_config
             self.source_md5 = self.config_md5(source_config)
-            self.file_size = len(source_config.encode('UTF-8'))
+            self.file_size = len(source_config.encode("UTF-8"))
         self.dest_file = dest_file
         self.direction = direction
 
@@ -77,7 +100,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     @staticmethod
     def _read_file(file_name):
-        with io.open(file_name, "rt", encoding='utf-8') as f:
+        with io.open(file_name, "rt", encoding="utf-8") as f:
             return f.read()
 
     @staticmethod
@@ -104,21 +127,27 @@ class InLineTransfer(CiscoIosFileTransfer):
         _ = self._exit_tcl_mode()  # noqa
 
     def _enter_tcl_mode(self):
-        TCL_ENTER = 'tclsh'
-        cmd_failed = ['Translating "tclsh"', '% Unknown command', '% Bad IP address']
-        output = self.ssh_ctl_chan.send_command(TCL_ENTER, expect_string=r"\(tcl\)#",
-                                                strip_prompt=False, strip_command=False)
+        TCL_ENTER = "tclsh"
+        cmd_failed = ['Translating "tclsh"', "% Unknown command", "% Bad IP address"]
+        output = self.ssh_ctl_chan.send_command(
+            TCL_ENTER,
+            expect_string=r"\(tcl\)#",
+            strip_prompt=False,
+            strip_command=False,
+        )
         for pattern in cmd_failed:
             if pattern in output:
-                raise ValueError("Failed to enter tclsh mode on router: {}".format(output))
+                raise ValueError(
+                    "Failed to enter tclsh mode on router: {}".format(output)
+                )
         return output
 
     def _exit_tcl_mode(self):
-        TCL_EXIT = 'tclquit'
+        TCL_EXIT = "tclquit"
         self.ssh_ctl_chan.write_channel("\r")
         time.sleep(1)
         output = self.ssh_ctl_chan.read_channel()
-        if '(tcl)' in output:
+        if "(tcl)" in output:
             self.ssh_ctl_chan.write_channel(TCL_EXIT + "\r")
         time.sleep(1)
         output += self.ssh_ctl_chan.read_channel()
@@ -136,21 +165,22 @@ class InLineTransfer(CiscoIosFileTransfer):
     def file_md5(self, file_name):
         """Compute MD5 hash of file."""
         file_contents = self._read_file(file_name)
-        file_contents = file_contents + '\n'    # Cisco IOS automatically adds this
-        file_contents = file_contents.encode('UTF-8')
+        file_contents = file_contents + "\n"  # Cisco IOS automatically adds this
+        file_contents = file_contents.encode("UTF-8")
         return hashlib.md5(file_contents).hexdigest()
 
     def config_md5(self, source_config):
         """Compute MD5 hash of file."""
-        file_contents = source_config + '\n'    # Cisco IOS automatically adds this
-        file_contents = file_contents.encode('UTF-8')
+        file_contents = source_config + "\n"  # Cisco IOS automatically adds this
+        file_contents = file_contents.encode("UTF-8")
         return hashlib.md5(file_contents).hexdigest()
 
     def put_file(self):
-        curlybrace = r'{'
-        TCL_FILECMD_ENTER = 'puts [open "{}{}" w+] {}'.format(self.file_system,
-                                                              self.dest_file, curlybrace)
-        TCL_FILECMD_EXIT = '}'
+        curlybrace = r"{"
+        TCL_FILECMD_ENTER = 'puts [open "{}{}" w+] {}'.format(
+            self.file_system, self.dest_file, curlybrace
+        )
+        TCL_FILECMD_EXIT = "}"
 
         if self.source_file:
             file_contents = self._read_file(self.source_file)
@@ -162,7 +192,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         self.ssh_ctl_chan.clear_buffer()
 
         self.ssh_ctl_chan.write_channel(TCL_FILECMD_ENTER)
-        time.sleep(.25)
+        time.sleep(0.25)
         self.ssh_ctl_chan.write_channel(file_contents)
         self.ssh_ctl_chan.write_channel(TCL_FILECMD_EXIT + "\r")
 
@@ -180,10 +210,12 @@ class InLineTransfer(CiscoIosFileTransfer):
         time.sleep(sleep_time)
 
         # File paste and TCL_FILECMD_exit should be indicated by "router(tcl)#"
-        output = self.ssh_ctl_chan._read_channel_expect(pattern=r"\(tcl\)", max_loops=max_loops)
+        output = self.ssh_ctl_chan._read_channel_expect(
+            pattern=r"\(tcl\)", max_loops=max_loops
+        )
 
         # The file doesn't write until tclquit
-        TCL_EXIT = 'tclquit'
+        TCL_EXIT = "tclquit"
         self.ssh_ctl_chan.write_channel(TCL_EXIT + "\r")
 
         time.sleep(1)

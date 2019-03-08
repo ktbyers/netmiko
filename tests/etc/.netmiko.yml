@@ -1,0 +1,18 @@
+---
+rtr1:
+  device_type: cisco_ios
+  ip: 10.10.10.1
+  username: admin
+  password: cisco123
+  secret: cisco123
+
+rtr2:
+  device_type: cisco_ios
+  ip: 10.10.10.2
+  username: admin
+  password: cisco123
+  secret: cisco123
+
+cisco:
+  - rtr1
+  - rtr2

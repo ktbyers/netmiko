@@ -13,43 +13,43 @@ from netmiko.py23_compat import text_type
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
-    'juniper': 'show configuration',
-    'juniper_junos': 'show configuration',
-    'extreme': 'show configuration',
-    'extreme_ers': 'show running-config',
-    'extreme_exos': 'show configuration',
-    'extreme_netiron': 'show running-config',
-    'extreme_nos': 'show running-config',
-    'extreme_slx': 'show running-config',
-    'extreme_vdx': 'show running-config',
-    'extreme_vsp': 'show running-config',
-    'extreme_wing': 'show running-config',
-    'hp_comware': 'display current-configuration',
-    'huawei': 'display current-configuration',
-    'fortinet': 'show full-configuration',
-    'checkpoint': 'show configuration',
-    'cisco_wlc': 'show run-config',
-    'enterasys': 'show running-config',
-    'dell_force10': 'show running-config',
-    'avaya_vsp': 'show running-config',
-    'avaya_ers': 'show running-config',
-    'brocade_vdx': 'show running-config',
-    'brocade_nos': 'show running-config',
-    'brocade_fastiron': 'show running-config',
-    'brocade_netiron': 'show running-config',
-    'alcatel_aos': 'show configuration snapshot',
+    "juniper": "show configuration",
+    "juniper_junos": "show configuration",
+    "extreme": "show configuration",
+    "extreme_ers": "show running-config",
+    "extreme_exos": "show configuration",
+    "extreme_netiron": "show running-config",
+    "extreme_nos": "show running-config",
+    "extreme_slx": "show running-config",
+    "extreme_vdx": "show running-config",
+    "extreme_vsp": "show running-config",
+    "extreme_wing": "show running-config",
+    "hp_comware": "display current-configuration",
+    "huawei": "display current-configuration",
+    "fortinet": "show full-configuration",
+    "checkpoint": "show configuration",
+    "cisco_wlc": "show run-config",
+    "enterasys": "show running-config",
+    "dell_force10": "show running-config",
+    "avaya_vsp": "show running-config",
+    "avaya_ers": "show running-config",
+    "brocade_vdx": "show running-config",
+    "brocade_nos": "show running-config",
+    "brocade_fastiron": "show running-config",
+    "brocade_netiron": "show running-config",
+    "alcatel_aos": "show configuration snapshot",
 }
 
 # Expand SHOW_RUN_MAPPER to include '_ssh' key
 new_dict = {}
 for k, v in SHOW_RUN_MAPPER.items():
-    new_key = k + '_ssh'
+    new_key = k + "_ssh"
     new_dict[k] = v
     new_dict[new_key] = v
 SHOW_RUN_MAPPER = new_dict
 
 # Default location of netmiko temp directory for netmiko tools
-NETMIKO_BASE_DIR = '~/.netmiko'
+NETMIKO_BASE_DIR = "~/.netmiko"
 
 
 def load_yaml_file(yaml_file):
@@ -59,7 +59,7 @@ def load_yaml_file(yaml_file):
     except ImportError:
         sys.exit("Unable to import yaml module.")
     try:
-        with io.open(yaml_file, "rt", encoding='utf-8') as fname:
+        with io.open(yaml_file, "rt", encoding="utf-8") as fname:
             return yaml.load(fname)
     except IOError:
         sys.exit("Unable to open YAML file: {0}".format(yaml_file))
@@ -73,11 +73,8 @@ def load_devices(file_name=None):
 
 def find_cfg_file(file_name=None):
     """Look for .netmiko.yml in current dir, then ~/.netmiko.yml."""
-    base_file = '.netmiko.yml'
-    check_files = [
-        base_file,
-        os.path.expanduser('~') + '/' + base_file,
-    ]
+    base_file = ".netmiko.yml"
+    check_files = [base_file, os.path.expanduser("~") + "/" + base_file]
     if file_name:
         check_files.insert(0, file_name)
     for test_file in check_files:
@@ -88,23 +85,23 @@ def find_cfg_file(file_name=None):
 
 def display_inventory(my_devices):
     """Print out inventory devices and groups."""
-    inventory_groups = ['all']
+    inventory_groups = ["all"]
     inventory_devices = []
     for k, v in my_devices.items():
         if isinstance(v, list):
             inventory_groups.append(k)
         elif isinstance(v, dict):
-            inventory_devices.append((k, v['device_type']))
+            inventory_devices.append((k, v["device_type"]))
 
     inventory_groups.sort()
     inventory_devices.sort(key=lambda x: x[0])
     print("\nDevices:")
-    print('-' * 40)
+    print("-" * 40)
     for a_device, device_type in inventory_devices:
         device_type = "  ({})".format(device_type)
         print("{:<25}{:>15}".format(a_device, device_type))
     print("\n\nGroups:")
-    print('-' * 40)
+    print("-" * 40)
     for a_group in inventory_groups:
         print(a_group)
     print()
@@ -148,35 +145,37 @@ def ensure_dir_exists(verify_dir):
 def find_netmiko_dir():
     """Check environment first, then default dir"""
     try:
-        netmiko_base_dir = os.environ['NETMIKO_DIR']
+        netmiko_base_dir = os.environ["NETMIKO_DIR"]
     except KeyError:
         netmiko_base_dir = NETMIKO_BASE_DIR
     netmiko_base_dir = os.path.expanduser(netmiko_base_dir)
-    if netmiko_base_dir == '/':
+    if netmiko_base_dir == "/":
         raise ValueError("/ cannot be netmiko_base_dir")
     netmiko_full_dir = "{}/tmp".format(netmiko_base_dir)
     return (netmiko_base_dir, netmiko_full_dir)
 
 
-def write_bytes(out_data, encoding='ascii'):
+def write_bytes(out_data, encoding="ascii"):
     """Write Python2 and Python3 compatible byte stream."""
     if sys.version_info[0] >= 3:
-        if isinstance(out_data, type(u'')):
-            if encoding == 'utf-8':
-                return out_data.encode('utf-8')
+        if isinstance(out_data, type("")):
+            if encoding == "utf-8":
+                return out_data.encode("utf-8")
             else:
-                return out_data.encode('ascii', 'ignore')
-        elif isinstance(out_data, type(b'')):
+                return out_data.encode("ascii", "ignore")
+        elif isinstance(out_data, type(b"")):
             return out_data
     else:
-        if isinstance(out_data, type(u'')):
-            if encoding == 'utf-8':
-                return out_data.encode('utf-8')
+        if isinstance(out_data, type("")):
+            if encoding == "utf-8":
+                return out_data.encode("utf-8")
             else:
-                return out_data.encode('ascii', 'ignore')
-        elif isinstance(out_data, type(str(''))):
+                return out_data.encode("ascii", "ignore")
+        elif isinstance(out_data, type(str(""))):
             return out_data
-    msg = "Invalid value for out_data neither unicode nor byte string: {}".format(out_data)
+    msg = "Invalid value for out_data neither unicode nor byte string: {}".format(
+        out_data
+    )
     raise ValueError(msg)
 
 
@@ -184,7 +183,7 @@ def check_serial_port(name):
     """returns valid COM Port."""
     try:
         cdc = next(serial.tools.list_ports.grep(name))
-        return cdc.split()[0]
+        return cdc[0]
     except StopIteration:
         msg = "device {} not found. ".format(name)
         msg += "available devices are: "
@@ -197,17 +196,17 @@ def check_serial_port(name):
 def get_template_dir():
     """Find and return the ntc-templates/templates dir."""
     try:
-        template_dir = os.environ['NET_TEXTFSM']
-        index = os.path.join(template_dir, 'index')
+        template_dir = os.environ["NET_TEXTFSM"]
+        index = os.path.join(template_dir, "index")
         if not os.path.isfile(index):
             # Assume only base ./ntc-templates specified
-            template_dir = os.path.join(template_dir, 'templates')
+            template_dir = os.path.join(template_dir, "templates")
     except KeyError:
         # Construct path ~/ntc-templates/templates
         home_dir = os.path.expanduser("~")
-        template_dir = os.path.join(home_dir, 'ntc-templates', 'templates')
+        template_dir = os.path.join(home_dir, "ntc-templates", "templates")
 
-    index = os.path.join(template_dir, 'index')
+    index = os.path.join(template_dir, "index")
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
         msg = """
 Valid ntc-templates not found, please install https://github.com/networktocode/ntc-templates
@@ -231,9 +230,9 @@ def clitable_to_dict(cli_table):
 def get_structured_data(raw_output, platform, command):
     """Convert raw CLI output to structured data using TextFSM template."""
     template_dir = get_template_dir()
-    index_file = os.path.join(template_dir, 'index')
+    index_file = os.path.join(template_dir, "index")
     textfsm_obj = clitable.CliTable(index_file, template_dir)
-    attrs = {'Command': command, 'Platform': platform}
+    attrs = {"Command": command, "Platform": platform}
     try:
         # Parse output through template
         textfsm_obj.ParseCmd(raw_output, attrs)

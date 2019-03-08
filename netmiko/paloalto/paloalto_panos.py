@@ -11,6 +11,7 @@ class PaloAltoPanosBase(BaseConnection):
     Disables `enable()` and `check_enable_mode()`
     methods.  Overrides several methods for PaloAlto-specific compatibility.
     """
+
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
@@ -22,7 +23,7 @@ class PaloAltoPanosBase(BaseConnection):
         self.set_base_prompt(delay_factor=20)
         self.disable_paging(command="set cli pager off")
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def check_enable_mode(self, *args, **kwargs):
@@ -37,21 +38,32 @@ class PaloAltoPanosBase(BaseConnection):
         """No enable mode on PaloAlto."""
         pass
 
-    def check_config_mode(self, check_string=']'):
+    def check_config_mode(self, check_string="]"):
         """Checks if the device is in configuration mode or not."""
-        return super(PaloAltoPanosBase, self).check_config_mode(check_string=check_string)
+        return super(PaloAltoPanosBase, self).check_config_mode(
+            check_string=check_string
+        )
 
-    def config_mode(self, config_command='configure'):
+    def config_mode(self, config_command="configure"):
         """Enter configuration mode."""
         return super(PaloAltoPanosBase, self).config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config='exit', pattern=r'>'):
+    def exit_config_mode(self, exit_config="exit", pattern=r">"):
         """Exit configuration mode."""
-        return super(PaloAltoPanosBase, self).exit_config_mode(exit_config=exit_config,
-                                                               pattern=pattern)
+        return super(PaloAltoPanosBase, self).exit_config_mode(
+            exit_config=exit_config, pattern=pattern
+        )
 
-    def commit(self, force=False, partial=False, device_and_network=False,
-               policy_and_objects=False, vsys='', no_vsys=False, delay_factor=.1):
+    def commit(
+        self,
+        force=False,
+        partial=False,
+        device_and_network=False,
+        policy_and_objects=False,
+        vsys="",
+        no_vsys=False,
+        delay_factor=0.1,
+    ):
         """
         Commit the candidate configuration.
 
@@ -68,38 +80,46 @@ class PaloAltoPanosBase(BaseConnection):
         """
         delay_factor = self.select_delay_factor(delay_factor)
 
-        if ((device_and_network or policy_and_objects or vsys or
-                no_vsys) and not partial):
-            raise ValueError("'partial' must be True when using "
-                             "device_and_network or policy_and_objects "
-                             "or vsys or no_vsys.")
+        if (
+            device_and_network or policy_and_objects or vsys or no_vsys
+        ) and not partial:
+            raise ValueError(
+                "'partial' must be True when using "
+                "device_and_network or policy_and_objects "
+                "or vsys or no_vsys."
+            )
 
         # Select proper command string based on arguments provided
-        command_string = 'commit'
-        commit_marker = 'configuration committed successfully'
+        command_string = "commit"
+        commit_marker = "configuration committed successfully"
         if force:
-            command_string += ' force'
+            command_string += " force"
         if partial:
-            command_string += ' partial'
+            command_string += " partial"
             if vsys:
-                command_string += ' {0}'.format(vsys)
+                command_string += " {0}".format(vsys)
             if device_and_network:
-                command_string += ' device-and-network'
+                command_string += " device-and-network"
             if policy_and_objects:
-                command_string += ' device-and-network'
+                command_string += " device-and-network"
             if no_vsys:
-                command_string += ' no-vsys'
-            command_string += ' excluded'
+                command_string += " no-vsys"
+            command_string += " excluded"
 
         # Enter config mode (if necessary)
         output = self.config_mode()
-        output += self.send_command_expect(command_string, strip_prompt=False,
-                                           strip_command=False, expect_string='100%',
-                                           delay_factor=delay_factor)
+        output += self.send_command_expect(
+            command_string,
+            strip_prompt=False,
+            strip_command=False,
+            expect_string="100%",
+            delay_factor=delay_factor,
+        )
 
         if commit_marker not in output.lower():
-            raise ValueError("Commit failed with the following errors:\n\n{0}"
-                             .format(output))
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{0}".format(output)
+            )
         return output
 
     def strip_command(self, command_string, output):
@@ -126,9 +146,7 @@ class PaloAltoPanosBase(BaseConnection):
 
         This method removes those lines.
         """
-        strings_to_strip = [
-            r'\[edit.*\]',
-        ]
+        strings_to_strip = [r"\[edit.*\]"]
 
         response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
@@ -145,8 +163,18 @@ class PaloAltoPanosBase(BaseConnection):
 
     def send_command(self, *args, **kwargs):
         """Palo Alto requires an extra delay"""
-        kwargs['delay_factor'] = kwargs.get('delay_factor', 2.5)
+        kwargs["delay_factor"] = kwargs.get("delay_factor", 2.5)
         return super(PaloAltoPanosBase, self).send_command(*args, **kwargs)
+
+    def cleanup(self):
+        """Gracefully exit the SSH session."""
+        try:
+            self.exit_config_mode()
+        except Exception:
+            # Always try to send 'exit' regardless of whether exit_config_mode works or not.
+            pass
+        self._session_log_fin = True
+        self.write_channel("exit" + self.RETURN)
 
 
 class PaloAltoPanosSSH(PaloAltoPanosBase):

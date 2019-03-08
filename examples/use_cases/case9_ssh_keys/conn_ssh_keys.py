@@ -5,11 +5,11 @@ from getpass import getpass
 key_file = "/home/gituser/.ssh/test_rsa"
 
 cisco1 = {
-    'device_type': 'cisco_ios',
-    'host': 'cisco1.twb-tech.com', 
-    'username': 'testuser',
-    'use_keys': True,
-    'key_file': key_file,
+    "device_type": "cisco_ios",
+    "host": "cisco1.twb-tech.com",
+    "username": "testuser",
+    "use_keys": True,
+    "key_file": key_file,
 }
 
 net_connect = Netmiko(**cisco1)

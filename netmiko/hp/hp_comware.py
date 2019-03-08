@@ -5,7 +5,6 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class HPComwareBase(CiscoSSHConnection):
-
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
@@ -16,35 +15,37 @@ class HPComwareBase(CiscoSSHConnection):
         while i <= 4:
             # Comware can have a banner that prompts you to continue
             # 'Press Y or ENTER to continue, N to exit.'
-            time.sleep(.5 * delay_factor)
+            time.sleep(0.5 * delay_factor)
             self.write_channel("\n")
             i += 1
 
-        time.sleep(.3 * delay_factor)
+        time.sleep(0.3 * delay_factor)
         self.clear_buffer()
-        self._test_channel_read(pattern=r'[>\]]')
+        self._test_channel_read(pattern=r"[>\]]")
         self.set_base_prompt()
         command = self.RETURN + "screen-length disable"
         self.disable_paging(command=command)
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command='system-view'):
+    def config_mode(self, config_command="system-view"):
         """Enter configuration mode."""
         return super(HPComwareBase, self).config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config='return', pattern=r'>'):
+    def exit_config_mode(self, exit_config="return", pattern=r">"):
         """Exit config mode."""
-        return super(HPComwareBase, self).exit_config_mode(exit_config=exit_config,
-                                                           pattern=pattern)
+        return super(HPComwareBase, self).exit_config_mode(
+            exit_config=exit_config, pattern=pattern
+        )
 
-    def check_config_mode(self, check_string=']'):
+    def check_config_mode(self, check_string="]"):
         """Check whether device is in configuration mode. Return a boolean."""
         return super(HPComwareBase, self).check_config_mode(check_string=check_string)
 
-    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator=']',
-                        delay_factor=1):
+    def set_base_prompt(
+        self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1
+    ):
         """
         Sets self.base_prompt
 
@@ -58,7 +59,8 @@ class HPComwareBase(CiscoSSHConnection):
         prompt = super(HPComwareBase, self).set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
-            delay_factor=delay_factor)
+            delay_factor=delay_factor,
+        )
 
         # Strip off leading character
         prompt = prompt[1:]
@@ -66,19 +68,19 @@ class HPComwareBase(CiscoSSHConnection):
         self.base_prompt = prompt
         return self.base_prompt
 
-    def enable(self, cmd='system-view'):
+    def enable(self, cmd="system-view"):
         """enable mode on Comware is system-view."""
         return self.config_mode(config_command=cmd)
 
-    def exit_enable_mode(self, exit_command='return'):
+    def exit_enable_mode(self, exit_command="return"):
         """enable mode on Comware is system-view."""
         return self.exit_config_mode(exit_config=exit_command)
 
-    def check_enable_mode(self, check_string=']'):
+    def check_enable_mode(self, check_string="]"):
         """enable mode on Comware is system-view."""
         return self.check_config_mode(check_string=check_string)
 
-    def save_config(self, cmd='save force', confirm=False):
+    def save_config(self, cmd="save force", confirm=False):
         """Save Config."""
         return super(HPComwareBase, self).save_config(cmd=cmd, confirm=confirm)
 
@@ -89,6 +91,6 @@ class HPComwareSSH(HPComwareBase):
 
 class HPComwareTelnet(HPComwareBase):
     def __init__(self, *args, **kwargs):
-        default_enter = kwargs.get('default_enter')
-        kwargs['default_enter'] = '\r\n' if default_enter is None else default_enter
+        default_enter = kwargs.get("default_enter")
+        kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super(HPComwareTelnet, self).__init__(*args, **kwargs)
