@@ -1,11 +1,12 @@
 [![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
 [![Downloads](https://pepy.tech/badge/netmiko)](https://pepy.tech/project/netmiko)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 
 Netmiko
 =======
 
-Multi-vendor library to simplify Paramiko SSH connections to network devices
+Multi-vendor library to simplify Paramiko SSH connections to network devices  
 
 Python 2.7, 3.5, 3.6, 3.7  
 
