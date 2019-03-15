@@ -1154,7 +1154,7 @@ class BaseConnection(object):
         last_line = response_list[-1]
         if len(response_list) == 1 and self.base_prompt in last_line:
             prompt = self.find_prompt()
-            return last_line.replace(prompt, '').strip()
+            return last_line.replace(prompt, "").strip()
         elif self.base_prompt in last_line:
             return self.RESPONSE_RETURN.join(response_list[:-1])
         else:
