@@ -19,8 +19,7 @@ class RuckusFastironBase(CiscoSSHConnection):
         self.clear_buffer()
 
     def enable(
-        self, cmd="enable", pattern=r"(ssword|User Name)", re_flags=re.IGNORECASE
-    ):
+            self, cmd="enable", pattern=r"(ssword|User Name)", re_flags=re.IGNORECASE):
         """Enter enable mode.
         With RADIUS can prompt for User Name
         SSH@Lab-ICX7250>en
@@ -30,26 +29,22 @@ class RuckusFastironBase(CiscoSSHConnection):
         """
         output = ""
         if not self.check_enable_mode():
-            count = 4
-            i = 1
-            while i < count:
-                self.write_channel(self.normalize_cmd(cmd))
+            self.write_channel(self.normalize_cmd(cmd))
+            new_data = self.read_until_prompt_or_pattern(
+                pattern=pattern, re_flags=re_flags
+            )
+            output += new_data
+            if "User Name" in new_data:
+                self.write_channel(self.normalize_cmd(self.username))
                 new_data = self.read_until_prompt_or_pattern(
                     pattern=pattern, re_flags=re_flags
                 )
                 output += new_data
-                if "User Name" in new_data:
-                    self.write_channel(self.normalize_cmd(self.username))
-                    new_data = self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
-                    )
-                    output += new_data
-                if "ssword" in new_data:
-                    self.write_channel(self.normalize_cmd(self.secret))
-                    output += self.read_until_prompt()
-                    return output
-                time.sleep(1)
-                i += 1
+            if "ssword" in new_data:
+                self.write_channel(self.normalize_cmd(self.secret))
+                output += self.read_until_prompt()
+        else:
+            return None
 
         if not self.check_enable_mode():
             msg = (
@@ -57,6 +52,8 @@ class RuckusFastironBase(CiscoSSHConnection):
                 "the 'secret' argument to ConnectHandler."
             )
             raise ValueError(msg)
+        else:
+            return output
 
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves configuration."""
