@@ -21,7 +21,8 @@ class CiscoNxosSSH(CiscoSSHConnection):
     def normalize_linefeeds(self, a_string):
         """Convert '\r\n' or '\r\r\n' to '\n, and remove extra '\r's in the text."""
         newline = re.compile(r"(\r\r\n|\r\n)")
-        return newline.sub(self.RESPONSE_RETURN, a_string).replace("\r", "")
+        # NX-OS fix for incorrect MD5 on 9K (due to strange <enter> patterns on NX-OS)
+        return newline.sub(self.RESPONSE_RETURN, a_string).replace("\r", "\n")
 
     def check_config_mode(self, check_string=")#", pattern="#"):
         """Checks if the device is in configuration mode or not."""
@@ -115,7 +116,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         remote_md5_cmd = "{} {}{} md5sum".format(
             base_cmd, self.file_system, remote_file
         )
-        return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
+        return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500).strip()
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError
