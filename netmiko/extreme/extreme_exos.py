@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from collections import deque
+from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
 
 
 class ExtremeExosBase(CiscoSSHConnection):
@@ -35,7 +37,8 @@ class ExtremeExosBase(CiscoSSHConnection):
             * testhost.4 #
             * testhost.5 #
         """
-        cur_base_prompt = super(ExtremeExosBase, self).set_base_prompt(*args, **kwargs)
+        cur_base_prompt = super(
+            ExtremeExosBase, self).set_base_prompt(*args, **kwargs)
         # Strip off any leading * or whitespace chars; strip off trailing period and digits
         match = re.search(r"[\*\s]*(.*)\.\d+", cur_base_prompt)
         if match:
@@ -44,15 +47,95 @@ class ExtremeExosBase(CiscoSSHConnection):
         else:
             return self.base_prompt
 
-    def send_command(self, *args, **kwargs):
-        """Extreme needs special handler here due to the prompt changes."""
+    def send_command(
+        self,
+        command_string,
+        expect_string=None,
+        delay_factor=1,
+        max_loops=500,
+        strip_prompt=True,
+        strip_command=True,
+        normalize=True,
+        use_textfsm=False,
+    ):
+        # Exos need special treatment since its prompt increment for each command
+        self.set_base_prompt()  # refresh self.base_prompt
 
-        # Change send_command behavior to use self.base_prompt
-        kwargs.setdefault("auto_find_prompt", False)
+        # Time to delay in each read loop
+        loop_delay = 0.2
 
-        # refresh self.base_prompt
-        self.set_base_prompt()
-        return super(ExtremeExosBase, self).send_command(*args, **kwargs)
+        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
+        # and delay_factor arguments for backwards compatibility).
+        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor == 1 and max_loops == 500:
+            # Default arguments are being used; use self.timeout instead
+            max_loops = int(self.timeout / loop_delay)
+
+        # Find the current router prompt
+        if expect_string is None:
+            prompt = self.base_prompt
+            search_pattern = re.escape(prompt.strip())
+            # Solves Issue #1144 when hostname is captured in show commands
+            search_pattern += '\..*#'
+        else:
+            search_pattern = expect_string
+
+        if normalize:
+            command_string = self.normalize_cmd(command_string)
+        time.sleep(delay_factor * loop_delay)
+        self.clear_buffer()
+        self.write_channel(command_string)
+
+        i = 1
+        output = ""
+        past_three_reads = deque(maxlen=3)
+        first_line_processed = False
+
+        # Keep reading data until search_pattern is found or until max_loops is reached.
+        while i <= max_loops:
+            new_data = self.read_channel()
+            if new_data:
+                if self.ansi_escape_codes:
+                    new_data = self.strip_ansi_escape_codes(new_data)
+
+                output += new_data
+                past_three_reads.append(new_data)
+
+                # Case where we haven't processed the first_line yet (there is a potential issue
+                # in the first line (in cases where the line is repainted).
+                if not first_line_processed:
+                    output, first_line_processed = self._first_line_handler(
+                        output, search_pattern
+                    )
+                    # Check if we have already found our pattern
+                    if re.search(search_pattern, output):
+                        break
+
+                else:
+                    # Check if pattern is in the past three reads
+                    if re.search(search_pattern, "".join(past_three_reads)):
+                        break
+
+            time.sleep(delay_factor * loop_delay)
+            i += 1
+        else:  # nobreak
+            raise IOError(
+                "Search pattern never detected in send_command_expect: {}".format(
+                    search_pattern
+                )
+            )
+
+        output = self._sanitize_output(
+            output,
+            strip_command=strip_command,
+            command_string=command_string,
+            strip_prompt=strip_prompt,
+        )
+        if use_textfsm:
+            output = get_structured_data(
+                output, platform=self.device_type, command=command_string.strip()
+            )
+        return output
 
     def config_mode(self, config_command=""):
         """No configuration mode on Extreme Exos."""
