@@ -35,7 +35,8 @@ class ExtremeExosBase(CiscoSSHConnection):
             * testhost.4 #
             * testhost.5 #
         """
-        cur_base_prompt = super(ExtremeExosBase, self).set_base_prompt(*args, **kwargs)
+        cur_base_prompt = super(
+            ExtremeExosBase, self).set_base_prompt(*args, **kwargs)
         # Strip off any leading * or whitespace chars; strip off trailing period and digits
         match = re.search(r"[\*\s]*(.*)\.\d+", cur_base_prompt)
         if match:
@@ -43,16 +44,6 @@ class ExtremeExosBase(CiscoSSHConnection):
             return self.base_prompt
         else:
             return self.base_prompt
-
-    def send_command(self, *args, **kwargs):
-        """Extreme needs special handler here due to the prompt changes."""
-
-        # Change send_command behavior to use self.base_prompt
-        kwargs.setdefault("auto_find_prompt", False)
-
-        # refresh self.base_prompt
-        self.set_base_prompt()
-        return super(ExtremeExosBase, self).send_command(*args, **kwargs)
 
     def config_mode(self, config_command=""):
         """No configuration mode on Extreme Exos."""
