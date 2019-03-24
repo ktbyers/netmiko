@@ -291,9 +291,9 @@ class BaseConnection(object):
             self.protocol = "ssh"
 
             if not ssh_strict:
-                self.key_policy = paramiko.AutoAddPolicy()
+                self.key_policy = paramiko.AutoAddPolicy
             else:
-                self.key_policy = paramiko.RejectPolicy()
+                self.key_policy = paramiko.RejectPolicy
 
             # Options for SSH host_keys
             self.use_keys = use_keys
