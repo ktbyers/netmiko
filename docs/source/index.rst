@@ -6,15 +6,25 @@
 Welcome to Netmiko's documentation!
 ===================================
 
-Contents:
+
+Using Netmiko
+*************
 
 .. toctree::
    :maxdepth: 2
 
    classes
+   scp
+   auto_detect
+
+External Links
+**************
+
+* `Examples <https://github.com/ktbyers/netmiko/tree/develop/examples>`_
+* `Tests <https://github.com/ktbyers/netmiko/tree/develop/tests>`_
 
 Indices and tables
-==================
+******************
 
 * :ref:`genindex`
 * :ref:`modindex`

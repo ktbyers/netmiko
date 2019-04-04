@@ -1,8 +1,8 @@
-Classes
-=======
+Auto Detect
+===========
 
 .. toctree ::
    :maxdepth: 2
    :glob:
 
-   classes/*
+   auto_detect/*

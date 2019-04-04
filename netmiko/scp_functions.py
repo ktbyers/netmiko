@@ -30,16 +30,21 @@ def file_transfer(
     inline_transfer=False,
     overwrite_file=False,
 ):
-    """Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
-
-    inline_transfer ONLY SUPPORTS TEXT FILES and will not support binary file transfers.
-
-    return {
-        'file_exists': boolean,
-        'file_transferred': boolean,
-        'file_verified': boolean,
-    }
     """
+    Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
+
+    `inline_transfer` ONLY SUPPORTS TEXT FILES and will not support binary file transfers.
+
+    Returns:
+        .. code-block:: none
+
+            {
+            'file_exists': boolean,
+            'file_transferred': boolean,
+            'file_verified': boolean,
+            }
+    """
+
     transferred_and_verified = {
         "file_exists": True,
         "file_transferred": True,

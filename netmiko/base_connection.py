@@ -187,7 +187,9 @@ class BaseConnection(object):
         :param encoding: Encoding to be used when writing bytes to the output channel.
                 (default: 'ascii')
         :type encoding: str
+
         """
+
         self.remote_conn = None
 
         self.TELNET_RETURN = "\r\n"
@@ -638,7 +640,8 @@ class BaseConnection(object):
         delay_factor=1,
         max_loops=20,
     ):
-        """Telnet login. Can be username/password or just password.
+        """
+        Telnet login. Can be username/password or just password.
 
         :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
         :type pri_prompt_terminator: str
@@ -654,7 +657,9 @@ class BaseConnection(object):
 
         :param max_loops: Controls the wait time in conjunction with the delay_factor
         (default: 20)
+
         """
+
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -1354,7 +1359,7 @@ class BaseConnection(object):
             return output[command_length:]
 
     def normalize_linefeeds(self, a_string):
-        """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
+        """Convert ``\\r\\r\\n``, ``\\r\\n``, ``\\n\\r`` to ``\\n``.
 
         :param a_string: A string that may have non-normalized line feeds
             i.e. output returned from device, or a device prompt
@@ -1490,7 +1495,7 @@ class BaseConnection(object):
         The file is processed line-by-line and each command is sent down the
         SSH channel.
 
-        **kwargs are passed to send_config_set method.
+        `kwargs` are passed to send_config_set method.
 
         :param config_file: Path to configuration file to be sent to the device
         :type config_file: str
@@ -1498,6 +1503,7 @@ class BaseConnection(object):
         :param kwargs: params to be sent to send_config_set method
         :type kwargs: dict
         """
+
         with io.open(config_file, "rt", encoding="utf-8") as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
@@ -1579,20 +1585,23 @@ class BaseConnection(object):
         I have encountered
 
         Current codes that are filtered:
-        ESC = '\x1b' or chr(27)
-        ESC = is the escape character [^ in hex ('\x1b')
-        ESC[24;27H   Position cursor
-        ESC[?25h     Show the cursor
-        ESC[E        Next line (HP does ESC-E)
-        ESC[K        Erase line from cursor to the end of line
-        ESC[2K       Erase entire line
-        ESC[1;24r    Enable scrolling from start to row end
-        ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
-        ESC[?7l      Disable line wrapping
-        ESC[2J       Code erase display
-        ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
-                     ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
-        ESC[6n       Get cursor position
+        
+        .. code-block:: none
+        
+            ESC = '\x1b' or chr(27)
+            ESC = is the escape character [^ in hex ('\x1b')
+            ESC[24;27H   Position cursor
+            ESC[?25h     Show the cursor
+            ESC[E        Next line (HP does ESC-E)
+            ESC[K        Erase line from cursor to the end of line
+            ESC[2K       Erase entire line
+            ESC[1;24r    Enable scrolling from start to row end
+            ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
+            ESC[?7l      Disable line wrapping
+            ESC[2J       Code erase display
+            ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
+                         ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
+            ESC[6n       Get cursor position
 
         HP ProCurve and Cisco SG300 require this (possible others).
 

@@ -16,6 +16,7 @@ netmiko.egg-info
 .cache
 bin/.netmiko.cfg
 .vscode/*
+.idea
 
 # Sphinx documentation
 docs/build/doctrees/
