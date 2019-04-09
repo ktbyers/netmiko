@@ -87,6 +87,16 @@ class HuaweiSSH(CiscoSSHConnection):
         """ Save Config for HuaweiSSH"""
         return super(HuaweiSSH, self).save_config(cmd=cmd, confirm=confirm)
 
+    def special_login_handler(self):
+        """Handle password change request by ignoring it"""
+
+        pattern = "The password needs to be changed. Change now? [Y/N]"
+        output = self.read_until_prompt_or_pattern(re.escape(pattern))
+        if output.find(pattern) > -1:
+            self.write_channel("N\n")
+            self._read_channel_expect(pattern="N\n")
+        return output
+
 
 class HuaweiVrpv8SSH(HuaweiSSH):
     def commit(self, comment="", delay_factor=1):
