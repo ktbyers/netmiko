@@ -216,7 +216,8 @@ class CiscoBaseConnection(BaseConnection):
         prompt = self.find_prompt(delay_factor=delay_factor)
 
         output = self.send_command_timing(command_string=cmd, delay_factor=delay_factor)
-        # If confirm prompt detected or confirm=True, progress through action, otherwise return output
+        # If confirm prompt detected or confirm=True, progress through action, otherwise,
+        # return output
         # Prompts are expected after confirms, so back to send_command
         if confirm or any(
             confirm in str(output).lower() for confirm in ["[confirm]", "[y]", "[n]"]
