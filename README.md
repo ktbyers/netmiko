@@ -82,6 +82,7 @@ Python 2.7, 3.5, 3.6, 3.7
 - Nokia/Alcatel SR-OS
 - QuantaMesh
 - Rad ETX
+- Versa Networks FlexVNF
 
 ## Tutorials:
 
