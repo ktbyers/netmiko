@@ -23,7 +23,8 @@ from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.cisco import CiscoWlcSSH
-from netmiko.cisco import CiscoXrSSH
+from netmiko.cisco import CiscoXrSSH, CiscoXrFileTransfer
+from netmiko.citrix import NetscalerSSH
 from netmiko.coriant import CoriantSSH
 from netmiko.dell import DellDNOS6SSH
 from netmiko.dell import DellDNOS6Telnet
@@ -121,7 +122,7 @@ CLASS_MAPPER_BASE = {
     "f5_ltm": F5TmshSSH,
     "f5_tmsh": F5TmshSSH,
     "f5_linux": F5LinuxSSH,
-    'flexvnf': FlexvnfSSH,
+    "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
     "generic_termserver": TerminalServerSSH,
     "hp_comware": HPComwareSSH,

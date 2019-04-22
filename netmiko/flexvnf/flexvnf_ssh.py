@@ -7,7 +7,6 @@ from netmiko.base_connection import BaseConnection
 
 
 class FlexvnfSSH(BaseConnection):
-
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
@@ -19,26 +18,28 @@ class FlexvnfSSH(BaseConnection):
         self.enter_cli_mode()
         self.set_base_prompt()
         self.disable_paging(command="set screen length 0")
-        self.set_terminal_width(command='set screen width 511')
+        self.set_terminal_width(command="set screen width 511")
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def enter_cli_mode(self):
         """Check if at shell prompt root@ and go into CLI."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         count = 0
-        cur_prompt = ''
+        cur_prompt = ""
         while count < 50:
             self.write_channel(self.RETURN)
-            time.sleep(.1 * delay_factor)
+            time.sleep(0.1 * delay_factor)
             cur_prompt = self.read_channel()
-            if re.search(r'admin@', cur_prompt) or re.search(r"^\$$", cur_prompt.strip()):
+            if re.search(r"admin@", cur_prompt) or re.search(
+                r"^\$$", cur_prompt.strip()
+            ):
                 self.write_channel("cli" + self.RETURN)
-                time.sleep(.3 * delay_factor)
+                time.sleep(0.3 * delay_factor)
                 self.clear_buffer()
                 break
-            elif '>' in cur_prompt or '%' in cur_prompt:
+            elif ">" in cur_prompt or "%" in cur_prompt:
                 break
             count += 1
 
@@ -54,28 +55,39 @@ class FlexvnfSSH(BaseConnection):
         """No enable mode on flexvnf."""
         pass
 
-    def check_config_mode(self, check_string=']'):
+    def check_config_mode(self, check_string="]"):
         """Checks if the device is in configuration mode or not."""
         return super(FlexvnfSSH, self).check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command='configure'):
+    def config_mode(self, config_command="configure"):
         """Enter configuration mode."""
         return super(FlexvnfSSH, self).config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config='exit configuration-mode'):
+    def exit_config_mode(self, exit_config="exit configuration-mode"):
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
-            output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
+            output = self.send_command_timing(
+                exit_config, strip_prompt=False, strip_command=False
+            )
             # if 'Exit with uncommitted changes?' in output:
-            if 'uncommitted changes' in output:
-                output += self.send_command_timing('yes', strip_prompt=False, strip_command=False)
+            if "uncommitted changes" in output:
+                output += self.send_command_timing(
+                    "yes", strip_prompt=False, strip_command=False
+                )
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
 
-    def commit(self, confirm=False, confirm_delay=None, check=False, comment='',
-               and_quit=False, delay_factor=1):
+    def commit(
+        self,
+        confirm=False,
+        confirm_delay=None,
+        check=False,
+        comment="",
+        and_quit=False,
+        delay_factor=1,
+    ):
         """
         Commit the candidate configuration.
 
@@ -104,45 +116,57 @@ class FlexvnfSSH(BaseConnection):
             raise ValueError("Invalid arguments supplied with commit check")
 
         if confirm_delay and not confirm:
-            raise ValueError("Invalid arguments supplied to commit method both confirm and check")
+            raise ValueError(
+                "Invalid arguments supplied to commit method both confirm and check"
+            )
 
         # Select proper command string based on arguments provided
-        command_string = 'commit'
-        commit_marker = 'Commit complete.'
+        command_string = "commit"
+        commit_marker = "Commit complete."
         if check:
-            command_string = 'commit check'
-            commit_marker = 'Validation complete'
+            command_string = "commit check"
+            commit_marker = "Validation complete"
         elif confirm:
             if confirm_delay:
-                command_string = 'commit confirmed ' + str(confirm_delay)
+                command_string = "commit confirmed " + str(confirm_delay)
             else:
-                command_string = 'commit confirmed'
-            commit_marker = 'commit confirmed will be automatically rolled back in'
+                command_string = "commit confirmed"
+            commit_marker = "commit confirmed will be automatically rolled back in"
 
         # wrap the comment in quotes
         if comment:
             if '"' in comment:
                 raise ValueError("Invalid comment contains double quote")
             comment = '"{0}"'.format(comment)
-            command_string += ' comment ' + comment
+            command_string += " comment " + comment
 
         if and_quit:
-            command_string += ' and-quit'
+            command_string += " and-quit"
 
         # Enter config mode (if necessary)
         output = self.config_mode()
         # and_quit will get out of config mode on commit
         if and_quit:
             prompt = self.base_prompt
-            output += self.send_command_expect(command_string, expect_string=prompt,
-                                               strip_prompt=True,
-                                               strip_command=True, delay_factor=delay_factor)
+            output += self.send_command_expect(
+                command_string,
+                expect_string=prompt,
+                strip_prompt=True,
+                strip_command=True,
+                delay_factor=delay_factor,
+            )
         else:
-            output += self.send_command_expect(command_string, strip_prompt=True,
-                                               strip_command=True, delay_factor=delay_factor)
+            output += self.send_command_expect(
+                command_string,
+                strip_prompt=True,
+                strip_command=True,
+                delay_factor=delay_factor,
+            )
 
         if commit_marker not in output:
-            raise ValueError("Commit failed with the following errors:\n\n{0}".format(output))
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{0}".format(output)
+            )
 
         return output
 
@@ -163,16 +187,16 @@ class FlexvnfSSH(BaseConnection):
         This method removes those lines.
         """
         strings_to_strip = [
-            r'admin@lab-pg-dev-cp02v.*',
-            r'\[edit.*\]',
-            r'\[edit\]',
-            r'\[ok\]',
-            r'\[.*\]',
-            r'\{master:.*\}',
-            r'\{backup:.*\}',
-            r'\{line.*\}',
-            r'\{primary.*\}',
-            r'\{secondary.*\}',
+            r"admin@lab-pg-dev-cp02v.*",
+            r"\[edit.*\]",
+            r"\[edit\]",
+            r"\[ok\]",
+            r"\[.*\]",
+            r"\{master:.*\}",
+            r"\{backup:.*\}",
+            r"\{line.*\}",
+            r"\{primary.*\}",
+            r"\{secondary.*\}",
         ]
 
         response_list = a_string.split(self.RESPONSE_RETURN)
