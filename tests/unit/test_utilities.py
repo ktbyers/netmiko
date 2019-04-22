@@ -2,13 +2,14 @@
 
 import os
 from os import environ
-from os.path import dirname, join, isdir
+from os.path import dirname, join, isdir, relpath
 from uuid import uuid4 as random_uuid
 
 from netmiko import utilities
 from netmiko._textfsm import _clitable as clitable
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
+RELATIVE_RESOURCE_FOLDER = join(dirname(dirname(relpath(__file__))), "etc")
 CONFIG_FILENAME = join(RESOURCE_FOLDER, ".netmiko.yml")
 
 
@@ -168,7 +169,7 @@ def test_get_structured_data():
 
 def test_get_structured_data_relative_path():
     """Test relative path for textfsm ntc directory"""
-    environ["NET_TEXTFSM"] = "tests/etc"
+    environ["NET_TEXTFSM"] = RELATIVE_RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
     result = utilities.get_structured_data(
         raw_output, platform="cisco_ios", command="show version"
