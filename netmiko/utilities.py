@@ -60,7 +60,7 @@ def load_yaml_file(yaml_file):
         sys.exit("Unable to import yaml module.")
     try:
         with io.open(yaml_file, "rt", encoding="utf-8") as fname:
-            return yaml.load(fname)
+            return yaml.safe_load(fname)
     except IOError:
         sys.exit("Unable to open YAML file: {0}".format(yaml_file))
 
