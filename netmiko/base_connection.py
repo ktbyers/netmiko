@@ -510,7 +510,7 @@ class BaseConnection(object):
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # argument for backwards compatibility).
         if max_loops == 150:
-            max_loops = self.timeout / loop_delay
+            max_loops = int(self.timeout / loop_delay)
         while i < max_loops:
             if self.protocol == "ssh":
                 try:

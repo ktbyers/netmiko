@@ -164,3 +164,13 @@ def test_get_structured_data():
         raw_output, platform="cisco_ios", command="show version"
     )
     assert result == [{"model": "4500"}]
+
+
+def test_get_structured_data_relative_path():
+    """Test relative path for textfsm ntc directory"""
+    environ["NET_TEXTFSM"] = "tests/etc"
+    raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
+    result = utilities.get_structured_data(
+        raw_output, platform="cisco_ios", command="show version"
+    )
+    assert result == [{"model": "4500"}]

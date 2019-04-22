@@ -213,7 +213,7 @@ Valid ntc-templates not found, please install https://github.com/networktocode/n
 and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
 directory."""
         raise ValueError(msg)
-    return template_dir
+    return os.path.abspath(template_dir)
 
 
 def clitable_to_dict(cli_table):
