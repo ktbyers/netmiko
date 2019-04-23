@@ -3,4 +3,5 @@ pylama==7.6.6
 tox==3.5.3
 twine==1.12.1
 pysnmp
+pre-commit
 -r requirements.txt
