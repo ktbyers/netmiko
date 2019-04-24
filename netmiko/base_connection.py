@@ -201,10 +201,24 @@ class BaseConnection(object):
 
         # Line Separator in response lines
         self.RESPONSE_RETURN = "\n" if response_return is None else response_return
-        
+
         # Unsafe characters in URL and IP Addresses
-        Unsafe_characters = ['\n', ' ', '\\', '<', '>', '#', '%', '{', '}',\
-                            '|', '^', '~', '[', ']' '\'']
+        Unsafe_characters = [
+            "\n",
+            " ",
+            "\\",
+            "<",
+            ">",
+            "#",
+            "%",
+            "{",
+            "}",
+            "|",
+            "^",
+            "~",
+            "[",
+            "]" "'",
+        ]
 
         if ip:
             self.host = ip
