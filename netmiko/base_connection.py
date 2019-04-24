@@ -201,6 +201,11 @@ class BaseConnection(object):
 
         # Line Separator in response lines
         self.RESPONSE_RETURN = "\n" if response_return is None else response_return
+        
+        # Unsafe characters in URL and IP Addresses
+        Unsafe_characters = ['\n', ' ', '\\', '<', '>', '#', '%', '{', '}',\
+                            '|', '^', '~', '[', ']' '\'']
+
         if ip:
             self.host = ip
             self.ip = ip
@@ -208,6 +213,8 @@ class BaseConnection(object):
             self.host = host
         if not ip and not host and "serial" not in device_type:
             raise ValueError("Either ip or host must be set")
+        if list(filter(lambda x: self.host.count(x), Unsafe_characters)) is not []:
+            raise ValueError("Unsafe characters in host or ip")
         if port is None:
             if "telnet" in device_type:
                 port = 23
