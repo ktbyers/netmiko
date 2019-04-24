@@ -91,7 +91,7 @@ SSH_MAPPER_BASE = {
     },
     "cisco_nxos": {
         "cmd": "show version",
-        "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS", r"Firmware Version"],
+        "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS", r"Firmware Version\s*-*"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
