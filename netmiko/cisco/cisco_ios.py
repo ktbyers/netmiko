@@ -32,9 +32,11 @@ class CiscoIosBase(CiscoBaseConnection):
             check_string=check_string, pattern=pattern
         )
 
-    def save_config(self, cmd="write mem", confirm=False):
+    def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves Config Using Copy Run Start"""
-        return super(CiscoIosBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(CiscoIosBase, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class CiscoIosSSH(CiscoIosBase):
