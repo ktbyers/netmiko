@@ -17,7 +17,7 @@ class DellOS10SSH(CiscoSSHConnection):
     ):
         """Saves Config"""
         return super(DellOS10SSH, self).save_config(
-            cmd=cmd, confirm=confirm, confirm_response=""
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
 

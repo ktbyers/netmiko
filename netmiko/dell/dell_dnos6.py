@@ -25,7 +25,7 @@ class DellDNOS6Base(DellPowerConnectBase):
     ):
         """Saves Config"""
         return super(DellDNOS6SSH, self).save_config(
-            cmd=cmd, confirm=confirm, confirm_response=""
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
 

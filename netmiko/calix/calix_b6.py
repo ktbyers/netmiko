@@ -67,7 +67,7 @@ class CalixB6Base(CiscoSSHConnection):
 
     def save_config(self, cmd="copy run start", confirm=False, confirm_response=""):
         return super(CalixB6Base, self).save_config(
-            cmd=cmd, confirm=confirm, confirm_response=""
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
 

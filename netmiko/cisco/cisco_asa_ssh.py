@@ -113,7 +113,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves Config"""
         return super(CiscoAsaSSH, self).save_config(
-            cmd=cmd, confirm=confirm, confirm_response=""
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
 
