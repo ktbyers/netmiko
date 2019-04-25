@@ -83,7 +83,7 @@ class HPComwareBase(CiscoSSHConnection):
     def save_config(self, cmd="save force", confirm=False, confirm_response=""):
         """Save Config."""
         return super(HPComwareBase, self).save_config(
-            cmd=cmd, confirm=confirm, confirm_response=""
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
 

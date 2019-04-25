@@ -27,7 +27,7 @@ class OneaccessOneOSBase(CiscoBaseConnection):
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Save config: write mem"""
         return super(OneaccessOneOSBase, self).save_config(
-            cmd=cmd, confirm=confirm, confirm_response=""
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
 
