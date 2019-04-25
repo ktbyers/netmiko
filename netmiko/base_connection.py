@@ -1684,7 +1684,7 @@ class BaseConnection(object):
         """Commit method for platforms that support this."""
         raise AttributeError("Network device does not support 'commit()' method")
 
-    def save_config(self, cmd="", confirm=True, confirm_response=""):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError
 

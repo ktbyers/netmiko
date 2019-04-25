@@ -10,10 +10,15 @@ class DellOS10SSH(CiscoSSHConnection):
     """Dell EMC Networking OS10 Driver - supports dellos10."""
 
     def save_config(
-        self, cmd="copy running-configuration startup-configuration", confirm=False
+        self,
+        cmd="copy running-configuration startup-configuration",
+        confirm=False,
+        confirm_response="",
     ):
         """Saves Config"""
-        return super(DellOS10SSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(DellOS10SSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class DellOS10FileTransfer(BaseFileTransfer):

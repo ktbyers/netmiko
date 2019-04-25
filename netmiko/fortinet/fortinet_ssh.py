@@ -91,6 +91,6 @@ class FortinetSSH(CiscoSSHConnection):
         """No config mode for Fortinet devices."""
         return ""
 
-    def save_config(self, cmd="", confirm=True, confirm_response=""):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError

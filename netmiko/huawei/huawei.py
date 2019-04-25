@@ -86,7 +86,9 @@ class HuaweiBase(CiscoBaseConnection):
 
     def save_config(self, cmd="save", confirm=False, confirm_response=""):
         """ Save Config for HuaweiSSH"""
-        return super(HuaweiBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(HuaweiBase, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class HuaweiSSH(HuaweiBase):
@@ -199,6 +201,6 @@ class HuaweiVrpv8SSH(HuaweiSSH):
             )
         return output
 
-    def save_config(self, cmd="", confirm=True, confirm_response=""):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError
