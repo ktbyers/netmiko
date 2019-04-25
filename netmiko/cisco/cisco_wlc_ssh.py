@@ -30,7 +30,7 @@ class CiscoWlcSSH(BaseConnection):
         while i <= 12:
             output = self.read_channel()
             if output:
-                if "login as" in output or "User" in output:
+                if "login as" in output or "User:" in output:
                     self.write_channel(self.username + self.RETURN)
                 elif "Password" in output:
                     self.write_channel(self.password + self.RETURN)
