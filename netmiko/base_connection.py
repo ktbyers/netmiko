@@ -217,7 +217,8 @@ class BaseConnection(object):
             "^",
             "~",
             "[",
-            "]" "'",
+            "]",
+            "'",
         ]
 
         if ip:
@@ -227,7 +228,7 @@ class BaseConnection(object):
             self.host = host
         if not ip and not host and "serial" not in device_type:
             raise ValueError("Either ip or host must be set")
-        if list(filter(lambda x: self.host.count(x), Unsafe_characters)) is not []:
+        if len(list(filter(lambda x: self.host.count(x), Unsafe_characters))) is not 0:
             raise ValueError("Unsafe characters in host or ip")
         if port is None:
             if "telnet" in device_type:
