@@ -88,6 +88,14 @@ class HuaweiSSH(CiscoSSHConnection):
         return super(HuaweiSSH, self).save_config(cmd=cmd, confirm=confirm)
 
 
+class HuaweiTelnet(HuaweiSSH):
+    pass
+
+
+class HuaweiSerial(HuaweiSSH):
+    pass
+
+
 class HuaweiVrpv8SSH(HuaweiSSH):
     def commit(self, comment="", delay_factor=1):
         """

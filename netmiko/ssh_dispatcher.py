@@ -71,6 +71,10 @@ from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 
+# import customize class
+from netmiko.cisco import CiscoNxosTelnet, CiscoNxosSerial
+from netmiko.huawei import HuaweiTelnet, HuaweiSerial
+
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -196,9 +200,13 @@ CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
+CLASS_MAPPER["cisco_nxos_telnet"] = CiscoNxosTelnet
+CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
+CLASS_MAPPER["cisco_nxos_serial"] = CiscoNxosSerial
+CLASS_MAPPER["huawei_serial"] = HuaweiSerial
 
 # Add general terminal_server driver and autodetect
 CLASS_MAPPER["terminal_server"] = TerminalServerSSH

@@ -31,6 +31,16 @@ class CiscoNxosSSH(CiscoSSHConnection):
         )
 
 
+class CiscoNxosTelnet(CiscoNxosSSH):
+    pass
+
+
+class CiscoNxosSerial(CiscoNxosSSH):
+    pass
+
+
+
+
 class CiscoNxosFileTransfer(CiscoFileTransfer):
     """Cisco NXOS SCP File Transfer driver."""
 
