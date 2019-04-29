@@ -19,7 +19,6 @@ class FortinetSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
-        
         """
         if "set post-login-banner enable" is set it will require you to press 'a'
         to accept the banner before you login. This will accept if it occurs
@@ -33,9 +32,6 @@ class FortinetSSH(CiscoSSHConnection):
             else:
                 time.sleep(0.33 * delay_factor)
             count += 1
-         """
-         end login banner bodge
-         """
 
         self._test_channel_read()
         self.set_base_prompt(alt_prompt_terminator="$")
