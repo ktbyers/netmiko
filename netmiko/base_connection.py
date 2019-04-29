@@ -1620,6 +1620,8 @@ class BaseConnection(object):
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
         code_erase_display = chr(27) + r"\[J"
+        code_attrs_off = chr(27) + r"[0m"
+        code_reverse = chr(27) + r"[7m"
 
         code_set = [
             code_position_cursor,
@@ -1639,6 +1641,8 @@ class BaseConnection(object):
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_attrs_off,
+            code_reverse
         ]
 
         output = string_buffer
