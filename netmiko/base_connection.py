@@ -1642,7 +1642,7 @@ class BaseConnection(object):
             code_cursor_position,
             code_erase_display,
             code_attrs_off,
-            code_reverse
+            code_reverse,
         ]
 
         output = string_buffer
