@@ -148,3 +148,10 @@ oneaccess_oneos_telnet:
   password: TEST
   secret: TEST
 
+mt:
+  device_type: microtik_routeros
+  ip: 192.168.88.1
+  username: admin
+  password: ""
+
+
