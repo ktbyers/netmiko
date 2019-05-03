@@ -14,6 +14,7 @@ cisco_ios:
   save_config_confirm: True
   save_config_response: ''
 
+
 cisco_asa:
   version: "show version"
   basic: "show ip"
@@ -25,6 +26,7 @@ cisco_asa:
   config_verification: "show run | inc logging buffer"
   config_file: "cisco_asa_commands.txt"
 
+
 arista_eos:
   version: "show version"
   basic: "show ip int brief"
@@ -35,6 +37,7 @@ arista_eos:
     - "logging buffered 20010"
   config_verification: "show run | inc logging buffer"
 
+
 hp_procurve:
   version: "show version"
   basic: "show ip"
@@ -44,6 +47,7 @@ hp_procurve:
     - 'time daylight-time-rule Continental-US-and-Canada'
     - 'time timezone -480'
   config_verification: "show run"
+
 
 juniper:
   version: "show version"
@@ -58,6 +62,7 @@ juniper:
   rollback: 'rollback 0'
   commit_verification: "run show system commit"
 
+
 fortinet:
   version: "get system status"
   basic: "get system interface physical"
@@ -68,6 +73,7 @@ fortinet:
     - 'set comment "Generated comment"'
     - 'end'
   config_verification: "show firewall service category Database | grep comment"
+
 
 paloalto_panos:
   version: "show system info | match version"
@@ -223,6 +229,7 @@ oneaccess_oneos:
   save_config_confirm: False
   save_config_response: "[OK]"
 
+
 oneaccess_oneos_telnet:
   version: "show version"
   basic: "show ip interface brief"
@@ -236,4 +243,14 @@ oneaccess_oneos_telnet:
   save_config_confirm: False
   save_config_response: "[OK]"
 
+
+microtik_routeros:
+  version: "/system resource print"
+  basic: "/ip address print"
+  extended_output: "/interface print oid"
+  config:
+    - "/system package unschedule ipv6"
+  config_verification: '/system package print where name="ipv6"'
+  save_config_confirm: False
+  save_config_response: ">"
 
