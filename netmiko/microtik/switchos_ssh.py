@@ -10,7 +10,7 @@ class switchosSSH(CiscoSSHConnection):
 
         self.in_config_mode = True
 
-        return super(routerosSSH, self).__init__(**kwargs)
+        return super(switchosSSH, self).__init__(**kwargs)
 
     def session_preparation(self, *args, **kwargs):
         """Prepare the session after the connection has been established."""
@@ -68,7 +68,7 @@ class switchosSSH(CiscoSSHConnection):
         return ""
 
     def strip_prompt(self, a_string):
-        """Strip the trailing router prompt from the output.
+        """Strip the trailing prompt from the output.
         MT adds some garbage trailing newlines, so
         trim the last two lines from the output.
 
