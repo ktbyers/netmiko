@@ -1,6 +1,4 @@
-
 import time
-import re
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -11,13 +9,14 @@ class routerosSSH(CiscoSSHConnection):
     def __init__(self, **kwargs):
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = '\r\n'
+
+        self.in_config_mode=True
         
         return super(routerosSSH, self).__init__(**kwargs) 
 
     def session_preparation(self, *args, **kwargs):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-#        self.base_prompt = r"\[.*?\] \>"
         self.base_prompt = r"\[.*?\]\s\>\s.*\[.*?\]\s\>\s"
         # Clear the read buffer
         self.write_channel(self.RETURN)
@@ -68,16 +67,19 @@ class routerosSSH(CiscoSSHConnection):
 #        return self.exit_enable_mode(exit_command=exit_config)
 #
 
-    def config_mode(self, config_command=""):
-        """No configuration mode on Extreme Exos."""
+    def config_mode(self):
+        """No configuration mode on Microtik"""
+        self.in_config_mode=True
         return ""
 
-    def check_config_mode(self, check_string=">"):
+    def check_config_mode(self, check_string=""):
         """Checks whether in configuration mode. Returns a boolean."""
-        return super(routerosSSH, self).check_config_mode(check_string=check_string)
+        return self.in_config_mode
+#        return super(routerosSSH, self).check_config_mode(check_string=check_string)
 
-    def exit_config_mode(self, exit_config=""):
-        """No configuration mode on Extreme Exos."""
+    def exit_config_mode(self, exit_config=">"):
+        """No configuration mode on Microtik"""
+        self.in_config_mode=False
         return ""
 
     def strip_prompt(self, a_string):
