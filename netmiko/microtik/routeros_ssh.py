@@ -1,5 +1,3 @@
-import time
-
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -8,11 +6,11 @@ class routerosSSH(CiscoSSHConnection):
 
     def __init__(self, **kwargs):
         if kwargs.get("default_enter") is None:
-            kwargs["default_enter"] = '\r\n'
+            kwargs["default_enter"] = "\r\n"
 
-        self.in_config_mode=True
-        
-        return super(routerosSSH, self).__init__(**kwargs) 
+        self.in_config_mode = True
+
+        return super(routerosSSH, self).__init__(**kwargs)
 
     def session_preparation(self, *args, **kwargs):
         """Prepare the session after the connection has been established."""
@@ -23,7 +21,7 @@ class routerosSSH(CiscoSSHConnection):
         self.set_base_prompt()
 
     def _modify_connection_params(self):
-         self.username += "+cetw511h4098"
+        self.username += "+cetw511h4098"
 
     def _enter_shell(self):
         """Already in shell."""
@@ -53,38 +51,39 @@ class routerosSSH(CiscoSSHConnection):
         """No save command, all configuration is atomic"""
         pass
 
-#    def config_mode(self, config_command=""):
-#        """No configuration mode on Microtik"""
-#        return ""
-#
-#    def check_config_mode(self, check_string=">"):
-#        """Checks whether in configuration mode. Returns a boolean."""
-#        print (super(routerosSSH, self).check_config_mode(check_string=check_string))
-#        return super(routerosSSH, self).check_config_mode(check_string=check_string)
-#
-#
-#    def exit_config_mode(self, exit_config="exit"):
-#        return self.exit_enable_mode(exit_command=exit_config)
-#
+    #    def config_mode(self, config_command=""):
+    #        """No configuration mode on Microtik"""
+    #        return ""
+    #
+    #    def check_config_mode(self, check_string=">"):
+    #        """Checks whether in configuration mode. Returns a boolean."""
+    #        print (super(routerosSSH, self).check_config_mode(check_string=check_string))
+    #        return super(routerosSSH, self).check_config_mode(check_string=check_string)
+    #
+    #
+    #    def exit_config_mode(self, exit_config="exit"):
+    #        return self.exit_enable_mode(exit_command=exit_config)
+    #
 
     def config_mode(self):
         """No configuration mode on Microtik"""
-        self.in_config_mode=True
+        self.in_config_mode = True
         return ""
 
     def check_config_mode(self, check_string=""):
         """Checks whether in configuration mode. Returns a boolean."""
         return self.in_config_mode
-#        return super(routerosSSH, self).check_config_mode(check_string=check_string)
+
+    #        return super(routerosSSH, self).check_config_mode(check_string=check_string)
 
     def exit_config_mode(self, exit_config=">"):
         """No configuration mode on Microtik"""
-        self.in_config_mode=False
+        self.in_config_mode = False
         return ""
 
     def strip_prompt(self, a_string):
         """Strip the trailing router prompt from the output.
-        MT adds some garbage trailing newlines, so 
+        MT adds some garbage trailing newlines, so
         trim the last two lines from the output.
 
         :param a_string: Returned string from device
@@ -110,7 +109,6 @@ class routerosSSH(CiscoSSHConnection):
         :param output: The returned output as a result of the command string sen
         :type output: str
         """
-        command_length = len(self.find_prompt()) + 2*(len(command_string)) + 2
+        command_length = len(self.find_prompt()) + 2 * (len(command_string)) + 2
         print(output[command_length:])
         return output[command_length:]
-

@@ -1,20 +1,27 @@
-import time
-
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class switchosSSH(CiscoSSHConnection):
+    """MicroTik SwitchOS support"""
+
+    def __init__(self, **kwargs):
+        if kwargs.get("default_enter") is None:
+            kwargs["default_enter"] = "\r\n"
+
+        self.in_config_mode = True
+
+        return super(routerosSSH, self).__init__(**kwargs)
 
     def session_preparation(self, *args, **kwargs):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self.base_prompt = r"\[.*?\] \>.*\[.*?\] \>"
+        self.base_prompt = r"\[.*?\]\s\>\s.*\[.*?\]\s\>\s"
         # Clear the read buffer
         self.write_channel(self.RETURN)
         self.set_base_prompt()
 
     def _modify_connection_params(self):
-         self.username += "+cetw511"
+        self.username += "+cetw511h4098"
 
     def _enter_shell(self):
         """Already in shell."""
@@ -24,43 +31,70 @@ class switchosSSH(CiscoSSHConnection):
         """The shell is the CLI."""
         return ""
 
-    def disable_paging(self, *args, **kwargs):
+    def disable_paging(self):
         """Microtik does not have paging by default."""
         return ""
 
     def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on RouterOS"""
+        """No enable mode on Microtik SwitchOS"""
         pass
 
     def enable(self, *args, **kwargs):
-        """No enable mode on RouterOS."""
+        """No enable mode on Microtik SwitchOS."""
         pass
 
     def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on RouterOS."""
-        pass
-
-    def send_config_set(
-        self,
-        config_commands=None,
-        exit_config_mode=False,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=False,
-        strip_command=False,
-        config_mode_command=None,
-    ):
-        """Remain in configuration mode."""
-        return super(switchosSSH, self).send_config_set(
-            config_commands=config_commands,
-            exit_config_mode=exit_config_mode,
-            delay_factor=delay_factor,
-            max_loops=max_loops,
-            strip_prompt=strip_prompt,
-            strip_command=strip_command,
-            config_mode_command=config_mode_command,
-        )
+        """No enable mode on Microtik SwitchOS."""
+        return ""
 
     def save_config(self, *args, **kwargs):
-        """Not Implemented"""
-        raise NotImplementedError
+        """No save command in SwitchOS, all configuration is live"""
+        pass
+
+    #
+
+    def config_mode(self):
+        """No configuration mode on Microtik SwitchOS"""
+        self.in_config_mode = True
+        return ""
+
+    def check_config_mode(self, check_string=""):
+        """Checks whether in configuration mode. Returns a boolean."""
+        return self.in_config_mode
+
+    def exit_config_mode(self, exit_config=">"):
+        """No configuration mode on Microtik SwitchOS"""
+        self.in_config_mode = False
+        return ""
+
+    def strip_prompt(self, a_string):
+        """Strip the trailing router prompt from the output.
+        MT adds some garbage trailing newlines, so
+        trim the last two lines from the output.
+
+        :param a_string: Returned string from device
+        :type a_string: str
+        """
+        response_list = a_string.split(self.RESPONSE_RETURN)
+        last_line = response_list[-2]
+        if self.base_prompt in last_line:
+            return self.RESPONSE_RETURN.join(response_list[:-2])
+        else:
+            return a_string
+
+    def strip_command(self, command_string, output):
+        """
+        Strip command_string from output string
+
+        MT returns, the Command\nRouterpromptCommand\n\n
+        start the defaut return at len(self.get_prompt())+2*len(command)+1
+
+        :param command_string: The command string sent to the device
+        :type command_string: str
+
+        :param output: The returned output as a result of the command string sen
+        :type output: str
+        """
+        command_length = len(self.find_prompt()) + 2 * (len(command_string)) + 2
+        print(output[command_length:])
+        return output[command_length:]

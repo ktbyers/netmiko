@@ -1352,7 +1352,6 @@ class BaseConnection(object):
         else:
             command_length = len(command_string)
             return output[command_length:]
-            
 
     def normalize_linefeeds(self, a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`

@@ -19,6 +19,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 
+
 def test_disable_paging(net_connect, commands, expected_responses):
     """Verify paging is disabled by looking for string after when paging would normally occur."""
     if net_connect.device_type == "arista_eos":
