@@ -1617,6 +1617,8 @@ class BaseConnection(object):
         code_erase_display = chr(27) + r"\[2J"
         code_graphics_mode = chr(27) + r"\[\d\d;\d\dm"
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
+        code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
+        code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
         code_erase_display = chr(27) + r"\[J"
@@ -1638,6 +1640,8 @@ class BaseConnection(object):
             code_erase_display,
             code_graphics_mode,
             code_graphics_mode2,
+            code_graphics_mode3,
+            code_graphics_mode4,
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
