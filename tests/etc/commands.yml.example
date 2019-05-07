@@ -166,7 +166,7 @@ alcatel_aos:
   config:
     - 'VLAN 666'
   config_verification: "show vlan"
-  
+
 netscaler:
   version: "show version"
   basic: "show ip -summary"
@@ -235,8 +235,7 @@ oneaccess_oneos_telnet:
   save_config_confirm: False
   save_config_response: "[OK]"
 
-
-microtik_routeros:
+mikrotik_routeros:
   version: "/system resource print"
   basic: "/ip address print"
   extended_output: "/interface print oid"

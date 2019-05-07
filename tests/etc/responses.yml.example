@@ -178,8 +178,7 @@ oneaccess_oneos_telnet:
   file_check_cmd: "logging buffered 20010"
   save_config: '[OK]'
 
-
-mt:
+mikrotik_routeros:
   base_prompt: '[admin@KLWNBC12RB01] '
   enable_prompt: '[admin@KLWNBC12RB01] >'
   config_prompt: '[admin@KLWNBC12RB01] >'

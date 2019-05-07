@@ -54,8 +54,8 @@ from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet
 from netmiko.juniper import JuniperFileTransfer
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
-from netmiko.microtik import routerosSSH
-from netmiko.microtik import switchosSSH
+from netmiko.mikrotik import MikrotikRouterOsSSH
+from netmiko.mikrotik import MikrotikSwitchOsSSH
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
@@ -135,8 +135,8 @@ CLASS_MAPPER_BASE = {
     "juniper": JuniperSSH,
     "juniper_junos": JuniperSSH,
     "linux": LinuxSSH,
-    "microtik_routeros": routerosSSH,
-    "microtik_switchos": switchosSSH,
+    "mikrotik_routeros": MikrotikRouterOsSSH,
+    "mikrotik_switchos": MikrotikSwitchOsSSH,
     "mellanox": MellanoxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "netapp_cdot": NetAppcDotSSH,

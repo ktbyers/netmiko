@@ -1,8 +1,8 @@
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class switchosSSH(CiscoSSHConnection):
-    """MicroTik SwitchOS support"""
+class MikrotikBase(CiscoSSHConnection):
+    """Common Methods for Mikrotik RouterOS and SwitchOS"""
 
     def __init__(self, **kwargs):
         if kwargs.get("default_enter") is None:
@@ -10,17 +10,23 @@ class switchosSSH(CiscoSSHConnection):
 
         self.in_config_mode = True
 
-        return super(switchosSSH, self).__init__(**kwargs)
+        return super(MikrotikBase, self).__init__(**kwargs)
 
     def session_preparation(self, *args, **kwargs):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self.base_prompt = r"\[.*?\]\s\>\s.*\[.*?\]\s\>\s"
         # Clear the read buffer
         self.write_channel(self.RETURN)
         self.set_base_prompt()
 
     def _modify_connection_params(self):
+        """Append login options to username
+        c: disable console colors
+        e: enable dumb terminal mode
+        t: auto detect terminal capabilities
+        w511: set term width
+        h4098: set term height
+        """
         self.username += "+cetw511h4098"
 
     def _enter_shell(self):
@@ -36,25 +42,23 @@ class switchosSSH(CiscoSSHConnection):
         return ""
 
     def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on Microtik SwitchOS"""
+        """No enable mode on RouterOS"""
         pass
 
     def enable(self, *args, **kwargs):
-        """No enable mode on Microtik SwitchOS."""
+        """No enable mode on RouterOS."""
         pass
 
     def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Microtik SwitchOS."""
+        """No enable mode on RouterOS."""
         return ""
 
     def save_config(self, *args, **kwargs):
-        """No save command in SwitchOS, all configuration is live"""
+        """No save command, all configuration is atomic"""
         pass
 
-    #
-
     def config_mode(self):
-        """No configuration mode on Microtik SwitchOS"""
+        """No configuration mode on Microtik"""
         self.in_config_mode = True
         return ""
 
@@ -63,12 +67,12 @@ class switchosSSH(CiscoSSHConnection):
         return self.in_config_mode
 
     def exit_config_mode(self, exit_config=">"):
-        """No configuration mode on Microtik SwitchOS"""
+        """No configuration mode on Microtik"""
         self.in_config_mode = False
         return ""
 
     def strip_prompt(self, a_string):
-        """Strip the trailing prompt from the output.
+        """Strip the trailing router prompt from the output.
         MT adds some garbage trailing newlines, so
         trim the last two lines from the output.
 
@@ -96,5 +100,16 @@ class switchosSSH(CiscoSSHConnection):
         :type output: str
         """
         command_length = len(self.find_prompt()) + 2 * (len(command_string)) + 2
-        print(output[command_length:])
         return output[command_length:]
+
+
+class MikrotikRouterOsSSH(MikrotikBase):
+    """Mikrotik RouterOS SSH driver."""
+
+    pass
+
+
+class MikrotikSwitchOsSSH(MikrotikBase):
+    """Mikrotik SwitchOS SSH driver."""
+
+    pass
