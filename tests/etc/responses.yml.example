@@ -179,3 +179,13 @@ oneaccess_oneos_telnet:
   save_config: '[OK]'
 
 
+mt:
+  base_prompt: '[admin@KLWNBC12RB01] '
+  enable_prompt: '[admin@KLWNBC12RB01] >'
+  config_prompt: '[admin@KLWNBC12RB01] >'
+  version_banner: "version: "
+  multiple_line_output: "out=.1.3.6.1.2.1.2.2.1.20.8"
+  interface_ip: "0 D "
+  cmd_response_init: "Flags: X "
+  cmd_response_final: "0   bridge1"
+
