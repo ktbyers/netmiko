@@ -78,6 +78,7 @@ Python 2.7, 3.5, 3.6, 3.7
 - F5 TMSH
 - F5 Linux
 - Fortinet
+- Mikrotik
 - MRV Communications OptiSwitch
 - Nokia/Alcatel SR-OS
 - QuantaMesh
