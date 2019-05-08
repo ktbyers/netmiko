@@ -246,3 +246,15 @@ mikrotik_routeros:
   config_verification: '/ip upnp interfaces print'
   save_config_confirm: False
   save_config_response: ">"
+
+cloud_genix_ion:
+  version: "dump software status"
+  basic: "dump interface status 1"
+  extended_output: "inspect interface stats all"
+  config:
+    - "vim-mode ─ [off]"
+    - "set vim-mode"
+    - "vim-mode ─ [off]"
+  config_verification: "help set"
+  save_config_confirm: False
+  save_config_response: ""

@@ -188,3 +188,10 @@ mikrotik_routeros:
   cmd_response_init: "Flags: X "
   cmd_response_final: "0   bridge1"
 
+cloud_genix_ion:
+  base_prompt: 'US-0002-ION-01'
+  enable_prompt: 'US-0002-ION-01#'
+  config_prompt: 'US-0002-ION-01#'
+  version_banner: "CurrentVersion"
+  multiple_line_output: "eth3.207@eth3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT gr\noup default qlen 1000\n    link/ether ec:b9:07:00:91:09 brd ff:ff:ff:ff:ff"
+  interface_ip: "192.168.1.16/24"
