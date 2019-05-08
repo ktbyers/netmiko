@@ -8,7 +8,7 @@ class MikrotikBase(CiscoSSHConnection):
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r\n"
 
-        self.in_config_mode = True
+        self._in_config_mode = False
 
         return super(MikrotikBase, self).__init__(**kwargs)
 
@@ -18,24 +18,17 @@ class MikrotikBase(CiscoSSHConnection):
         # Clear the read buffer
         self.write_channel(self.RETURN)
         self.set_base_prompt()
+        self.clear_buffer()
 
     def _modify_connection_params(self):
         """Append login options to username
         c: disable console colors
         e: enable dumb terminal mode
-        t: auto detect terminal capabilities
+        t: disable auto detect terminal capabilities
         w511: set term width
         h4098: set term height
         """
         self.username += "+cetw511h4098"
-
-    def _enter_shell(self):
-        """Already in shell."""
-        return ""
-
-    def _return_cli(self):
-        """The shell is the CLI."""
-        return ""
 
     def disable_paging(self):
         """Microtik does not have paging by default."""
@@ -59,16 +52,16 @@ class MikrotikBase(CiscoSSHConnection):
 
     def config_mode(self):
         """No configuration mode on Microtik"""
-        self.in_config_mode = True
+        self._in_config_mode = True
         return ""
 
     def check_config_mode(self, check_string=""):
         """Checks whether in configuration mode. Returns a boolean."""
-        return self.in_config_mode
+        return self._in_config_mode
 
     def exit_config_mode(self, exit_config=">"):
         """No configuration mode on Microtik"""
-        self.in_config_mode = False
+        self._in_config_mode = False
         return ""
 
     def strip_prompt(self, a_string):
