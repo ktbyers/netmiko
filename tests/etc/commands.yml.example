@@ -166,7 +166,7 @@ alcatel_aos:
   config:
     - 'VLAN 666'
   config_verification: "show vlan"
-  
+
 netscaler:
   version: "show version"
   basic: "show ip -summary"
@@ -209,7 +209,6 @@ ipinfusion_ocnos_telnet:
   save_config_confirm: False
   save_config_response: "[OK]"
 
-
 oneaccess_oneos:
   version: "show version"
   basic: "show ip interface brief"
@@ -236,4 +235,14 @@ oneaccess_oneos_telnet:
   save_config_confirm: False
   save_config_response: "[OK]"
 
-
+mikrotik_routeros:
+  version: "/system resource print"
+  basic: "/ip address print"
+  extended_output: "/interface print oid"
+  config:
+    - "/ip upnp interfaces remove numbers=0"      # base command
+    - "/ip upnp interfaces add interface=bridge1 type=external"
+    - "/ip upnp interfaces add interface=bridge1 type=external"
+  config_verification: '/ip upnp interfaces print'
+  save_config_confirm: False
+  save_config_response: ">"
