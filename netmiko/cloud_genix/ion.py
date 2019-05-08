@@ -1,4 +1,8 @@
+import time
+
+from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.py23_compat import string_types
 
 
 class IonBase(CiscoSSHConnection):
@@ -46,6 +50,38 @@ class IonBase(CiscoSSHConnection):
     def save_config(self, *args, **kwargs):
         """No save method on ION SSH"""
         pass
+
+    def send_config_set(
+         self,
+         config_commands=None,
+         exit_config_mode=False,
+         delay_factor=1,
+         max_loops=150,
+         strip_prompt=False,
+         strip_command=False,
+         config_mode_command=None,
+    ):
+        delay_factor = self.select_delay_factor(delay_factor)
+        if config_commands is None:
+            return ""
+        elif isinstance(config_commands, string_types):
+            config_commands = (config_commands,)
+
+        if not hasattr(config_commands, "__iter__"):
+            raise ValueError("Invalid argument passed into send_config_set")
+
+        # Send config commands
+        output = ""
+        for cmd in config_commands:
+            output += self.send_command(cmd)
+            if self.fast_cli:
+                pass
+            else:
+                time.sleep(delay_factor * 0.05)
+
+        output = self._sanitize_output(output)
+        log.debug("{}".format(output))
+        return output
 
 
 class IonSSH(IonBase):

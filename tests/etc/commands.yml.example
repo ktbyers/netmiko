@@ -252,9 +252,8 @@ cloud_genix_ion:
   basic: "dump interface status 1"
   extended_output: "inspect interface stats all"
   config:
-    - "vim-mode ─ [off]"
-    - "set vim-mode"
-    - "vim-mode ─ [off]"
-  config_verification: "help set"
+    - "config interface 2 ip static address=172.16.16.15/24 gw=172.16.16.1 dns=8.8.8.8"
+    - "config interface 2 ip static address=172.16.16.16/24 gw=172.16.16.1 dns=8.8.8.8"
+  config_verification: "dump interface status 2"
   save_config_confirm: False
-  save_config_response: ""
+  save_config_response: "#"
