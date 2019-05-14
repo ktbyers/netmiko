@@ -74,6 +74,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "brocade_netiron": {
+        "cmd": "show version",
+        "search_patterns": [r"NetIron"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_asa": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
@@ -110,6 +116,12 @@ SSH_MAPPER_BASE = {
     "dell_os10": {
         "cmd": "show version",
         "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_slx": {
+        "cmd": "show version",
+        "search_patterns": [r"SLX-OS Operating System Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -151,15 +163,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "brocade_netiron": {
+    "ruckus_fastiron": {
         "cmd": "show version",
-        "search_patterns": [r"NetIron"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "extreme_slx": {
-        "cmd": "show version",
-        "search_patterns": [r"SLX-OS Operating System Software"],
+        "search_patterns": [
+            r"Ruckus",
+            r"Foundry Networks",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
