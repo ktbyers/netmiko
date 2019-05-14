@@ -165,10 +165,7 @@ SSH_MAPPER_BASE = {
     },
     "ruckus_fastiron": {
         "cmd": "show version",
-        "search_patterns": [
-            r"Ruckus",
-            r"Foundry Networks",
-        ],
+        "search_patterns": [r"Ruckus", r"Foundry Networks"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
