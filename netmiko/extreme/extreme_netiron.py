@@ -3,9 +3,11 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class ExtremeNetironBase(CiscoSSHConnection):
-    def save_config(self, cmd="write memory", confirm=False):
+    def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
         """Save Config"""
-        return super(ExtremeNetironBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(ExtremeNetironBase, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class ExtremeNetironSSH(ExtremeNetironBase):

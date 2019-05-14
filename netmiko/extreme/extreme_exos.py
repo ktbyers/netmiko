@@ -66,9 +66,13 @@ class ExtremeExosBase(CiscoSSHConnection):
         """No configuration mode on Extreme Exos."""
         return ""
 
-    def save_config(self, cmd="save configuration primary", confirm=False):
+    def save_config(
+        self, cmd="save configuration primary", confirm=False, confirm_response=""
+    ):
         """Saves configuration."""
-        return super(ExtremeExosBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(ExtremeExosBase, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class ExtremeExosSSH(ExtremeExosBase):

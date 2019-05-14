@@ -46,16 +46,20 @@ from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5TmshSSH
 from netmiko.f5 import F5LinuxSSH
+from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
-from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH
+from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet
 from netmiko.juniper import JuniperFileTransfer
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
+from netmiko.mikrotik import MikrotikRouterOsSSH
+from netmiko.mikrotik import MikrotikSwitchOsSSH
 from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
+from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
@@ -69,7 +73,6 @@ from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
-from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -121,6 +124,7 @@ CLASS_MAPPER_BASE = {
     "f5_ltm": F5TmshSSH,
     "f5_tmsh": F5TmshSSH,
     "f5_linux": F5LinuxSSH,
+    "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
     "generic_termserver": TerminalServerSSH,
     "hp_comware": HPComwareSSH,
@@ -131,10 +135,13 @@ CLASS_MAPPER_BASE = {
     "juniper": JuniperSSH,
     "juniper_junos": JuniperSSH,
     "linux": LinuxSSH,
+    "mikrotik_routeros": MikrotikRouterOsSSH,
+    "mikrotik_switchos": MikrotikSwitchOsSSH,
     "mellanox": MellanoxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "netapp_cdot": NetAppcDotSSH,
     "netscaler": NetscalerSSH,
+    "oneaccess_oneos": OneaccessOneOSSSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
     "pluribus": PluribusSSH,
@@ -145,7 +152,6 @@ CLASS_MAPPER_BASE = {
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
-    "oneaccess_oneos": OneaccessOneOSSSH,
 }
 
 FILE_TRANSFER_MAP = {
@@ -196,6 +202,7 @@ CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
+CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
@@ -235,7 +242,6 @@ def ssh_dispatcher(device_type):
 
 def redispatch(obj, device_type, session_prep=True):
     """Dynamically change Netmiko object's class to proper class.
-
     Generally used with terminal_server device_type when you need to redispatch after interacting
     with terminal server.
     """

@@ -110,9 +110,11 @@ class CiscoAsaSSH(CiscoSSHConnection):
                 self.write_channel("login" + self.RETURN)
             i += 1
 
-    def save_config(self, cmd="write mem", confirm=False):
+    def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves Config"""
-        return super(CiscoAsaSSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(CiscoAsaSSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class CiscoAsaFileTransfer(CiscoFileTransfer):

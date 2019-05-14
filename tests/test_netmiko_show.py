@@ -69,6 +69,7 @@ def test_base_prompt(net_connect, commands, expected_responses):
 
 def test_strip_prompt(net_connect, commands, expected_responses):
     """Ensure the router prompt is not in the command output."""
+
     if expected_responses["base_prompt"] == "":
         return
     show_ip = net_connect.send_command_timing(commands["basic"])
