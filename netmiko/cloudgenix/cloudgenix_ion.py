@@ -5,9 +5,9 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.py23_compat import string_types
 
 
-class IonBase(CiscoSSHConnection):
+class CloudGenixIonSSH(CiscoSSHConnection):
     def establish_connection(self):
-        super(IonBase, self).establish_connection(width=100, height=1000)
+        super(CloudGenixIonSSH, self).establish_connection(width=100, height=1000)
 
     def session_preparation(self, *args, **kwargs):
         """Prepare the session after the connection has been established."""
@@ -22,12 +22,12 @@ class IonBase(CiscoSSHConnection):
         return ""
 
     def find_prompt(self, delay_factor=1):
-        prompt = super(IonBase, self).find_prompt()
+        prompt = super(CloudGenixIonSSH, self).find_prompt()
         prompt = self.strip_backspaces(prompt).strip()
         return prompt
 
     def strip_command(self, command_string, output):
-        output = super(IonBase, self).strip_command(command_string, output)
+        output = super(CloudGenixIonSSH, self).strip_command(command_string, output)
         # handle command_string being repainted - otherwise return normal output
         if len(output.split(command_string)) == 4:
             output = output.split(command_string)[3]
@@ -82,7 +82,3 @@ class IonBase(CiscoSSHConnection):
         output = self._sanitize_output(output)
         log.debug("{}".format(output))
         return output
-
-
-class IonSSH(IonBase):
-    pass
