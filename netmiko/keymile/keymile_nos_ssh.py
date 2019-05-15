@@ -1,4 +1,3 @@
-import re
 import time
 
 from netmiko.cisco.cisco_ios import CiscoIosBase

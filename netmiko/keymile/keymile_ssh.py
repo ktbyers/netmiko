@@ -1,9 +1,7 @@
 import re
 import time
 
-from netmiko.ssh_exception import NetMikoTimeoutException
 from netmiko.cisco.cisco_ios import CiscoIosBase
-from netmiko import log
 
 
 class KeymileSSH(CiscoIosBase):
