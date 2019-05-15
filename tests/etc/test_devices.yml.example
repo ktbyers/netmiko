@@ -154,4 +154,15 @@ mikrotik_routeros:
   username: admin
   password: ""
 
+keymile:
+  device_type: keymile
+  ip: 1.2.3.4
+  username: TEST
+  password: TEST
+
+keymile_nos:
+  device_type: keymile_nos
+  ip: 1.2.3.5
+  username: TEST
+  password: TEST
 

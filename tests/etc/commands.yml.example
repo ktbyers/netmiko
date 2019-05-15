@@ -246,3 +246,14 @@ mikrotik_routeros:
   config_verification: '/ip upnp interfaces print'
   save_config_confirm: False
   save_config_response: ">"
+
+keymile:
+  version: "show version"
+  basic: "get /cfgm/IP_Address"
+  extended_output: "ls"   # requires paging to be disabled
+
+keymile_nos:
+  version: "show version"
+  basic: "show ip interface brief | include br328"
+  extended_output: "show interface"   # requires paging to be disabled
+
