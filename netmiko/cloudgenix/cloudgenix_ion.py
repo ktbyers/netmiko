@@ -31,18 +31,16 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         output = output.split(command_string)[-1]
         return output
 
+    def check_config_mode(self):
+        """Devices do not have a config mode."""
+        return False
+
     def config_mode(self):
-        """No configuration mode on ION SSH"""
-        self._in_config_mode = True
+        """Devices do not have a config mode."""
         return ""
 
-    def check_config_mode(self, check_string=""):
-        """Checks whether in configuration mode. Returns a boolean."""
-        return self._in_config_mode
-
-    def exit_config_mode(self, exit_config="#"):
-        """No configuration mode on ION SSH"""
-        self._in_config_mode = False
+    def exit_config_mode(self):
+        """Devices do not have a config mode."""
         return ""
 
     def save_config(self, *args, **kwargs):
