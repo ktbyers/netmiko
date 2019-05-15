@@ -27,36 +27,61 @@ class RuckusFastironBase(CiscoSSHConnection):
         User Name:service_netmiko
         Password:
         SSH@Lab-ICX7250#
+
+        Enter enable mode.
+        without RADIUS failed attempt
+        SSH@Lab-ICX7450>en
+
+        Password:
+        Error - Incorrect username or password.
         """
         output = ""
-        if not self.check_enable_mode():
-            count = 4
-            i = 1
-            while i < count:
-                self.write_channel(self.normalize_cmd(cmd))
-                new_data = self.read_until_prompt_or_pattern(
-                    pattern=pattern, re_flags=re_flags
-                )
-                output += new_data
-                if "User Name" in new_data:
-                    self.write_channel(self.normalize_cmd(self.username))
-                    new_data = self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
-                    )
-                    output += new_data
-                if "ssword" in new_data:
-                    self.write_channel(self.normalize_cmd(self.secret))
-                    output += self.read_until_prompt()
-                    return output
-                time.sleep(1)
-                i += 1
+
+        max_loop = 2  # Try only 2 times
+        i = 0
+        msg = (
+            "Failed to enter enable mode. Please ensure you pass "
+            "the 'secret' argument to ConnectHandler."
+        )
 
         if not self.check_enable_mode():
-            msg = (
-                "Failed to enter enable mode. Please ensure you pass "
-                "the 'secret' argument to ConnectHandler."
-            )
-            raise ValueError(msg)
+            while i < max_loop:
+
+                new_output = ""
+                self.write_channel(self.normalize_cmd(cmd))
+                new_output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
+
+                output += new_output
+
+                if "User Name" in new_output:
+                    self.write_channel(self.normalize_cmd(self.username))
+                    new_output = self.read_until_prompt_or_pattern(
+                        pattern=pattern, re_flags=re_flags
+                    )
+                    output += new_output
+
+                    if "Error" in new_output:
+                        self.write_channel(self.RETURN)
+                        i += 1
+                        continue
+
+                if "ssword" in new_output:
+                    self.write_channel(self.normalize_cmd(self.secret))
+
+                    output += self.read_until_prompt_or_pattern(
+                        pattern=pattern, re_flags=re_flags
+                    )
+
+                    if self.check_enable_mode():
+                        return output
+
+                time.sleep(self.global_delay_factor)
+                i += 1
+
+            if self.check_enable_mode():
+                return output
+            else:
+                raise ValueError(msg)
 
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves configuration."""
