@@ -154,9 +154,8 @@ mikrotik_routeros:
   username: admin
   password: ""
 
-cloud_genix_ion:
-  device_type: cloud_genix_ion
+cloudgenix_ion:
+  device_type: cloudgenix_ion
   ip: 1.1.1.1
   username: TEST
   password: TEST
-

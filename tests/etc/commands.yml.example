@@ -247,7 +247,7 @@ mikrotik_routeros:
   save_config_confirm: False
   save_config_response: ">"
 
-cloud_genix_ion:
+cloudgenix_ion:
   version: "dump software status"
   basic: "dump interface status 1"
   extended_output: "inspect interface stats all"

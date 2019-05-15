@@ -188,7 +188,7 @@ mikrotik_routeros:
   cmd_response_init: "Flags: X "
   cmd_response_final: "0   bridge1"
 
-cloud_genix_ion:
+cloudgenix_ion:
   base_prompt: 'US-0002-ION-01'
   enable_prompt: 'US-0002-ION-01#'
   config_prompt: 'US-0002-ION-01#'
