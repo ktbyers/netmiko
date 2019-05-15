@@ -27,9 +27,8 @@ class CloudGenixIonSSH(CiscoSSHConnection):
 
     def strip_command(self, command_string, output):
         output = super(CloudGenixIonSSH, self).strip_command(command_string, output)
-        # handle command_string being repainted - otherwise return normal output
-        if len(output.split(command_string)) == 4:
-            output = output.split(command_string)[3]
+        # command_string gets repainted potentially multiple times (grab everything after last one)
+        output = output.split(command_string)[-1]
         return output
 
     def config_mode(self):
