@@ -13,12 +13,11 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read()
-        # Clear the read buffer
         self.write_channel(self.RETURN)
         self.set_base_prompt(delay_factor=5)
 
     def disable_paging(self):
-        """Cloud Genix ION sets terminal heigh in establish_connection"""
+        """Cloud Genix ION sets terminal height in establish_connection"""
         return ""
 
     def find_prompt(self, delay_factor=1):
