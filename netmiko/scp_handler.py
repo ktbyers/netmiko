@@ -150,17 +150,18 @@ class BaseFileTransfer(object):
 
     if platform.system() == 'Windows':
         def local_space_available(self):
-            """Return space available on local filesystem for Windows system."""
+            """Return space available on local filesystem for Windows"""
             import ctypes
             free_bytes = ctypes.c_ulonglong(0)
-            ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p("."), None, None, ctypes.pointer(free_bytes))
+            ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p("."), None,
+                                                       None, ctypes.pointer(free_bytes))
             return free_bytes.value
     else:
         def local_space_available(self):
-            """Return space available on local filesystem for POSIX."""
+            """Return space available on local filesystem for POSIX"""
             destination_stats = os.statvfs(".")
             return destination_stats.f_bsize * destination_stats.f_bavail
-            
+
     def verify_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
         if self.direction == "put":
