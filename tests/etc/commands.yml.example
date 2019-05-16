@@ -246,3 +246,14 @@ mikrotik_routeros:
   config_verification: '/ip upnp interfaces print'
   save_config_confirm: False
   save_config_response: ">"
+
+cloudgenix_ion:
+  version: "dump software status"
+  basic: "dump interface status 1"
+  extended_output: "inspect interface stats all"
+  config:
+    - "config interface 2 ip static address=172.16.16.15/24 gw=172.16.16.1 dns=8.8.8.8"
+    - "config interface 2 ip static address=172.16.16.16/24 gw=172.16.16.1 dns=8.8.8.8"
+  config_verification: "dump interface status 2"
+  save_config_confirm: False
+  save_config_response: "#"
