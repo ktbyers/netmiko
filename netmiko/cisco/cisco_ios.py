@@ -22,7 +22,7 @@ class CiscoIosBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string=")#", pattern="#"):
+    def check_config_mode(self, check_string=")#", pattern=">|#"):
         """
         Checks if the device is in configuration mode or not.
 
