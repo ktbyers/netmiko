@@ -86,7 +86,7 @@ class CiscoBaseConnection(BaseConnection):
         pri_prompt_terminator=r"#\s*$",
         alt_prompt_terminator=r">\s*$",
         username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
+        pwd_pattern=r"assword|pass",  # some cisco ask password like "local-pass"
         delay_factor=1,
         max_loops=20,
     ):
