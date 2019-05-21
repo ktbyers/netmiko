@@ -47,8 +47,8 @@ class RuckusFastironBase(CiscoSSHConnection):
                 if "ssword" in new_data:
                     self.write_channel(self.normalize_cmd(self.secret))
                     new_data = self.read_until_prompt()
+                    output += new_data
                     if not re.search(r"error.*incorrect.*password", new_data, flags=re.I):
-                        output += new_data
                         return output
 
                 time.sleep(1)
