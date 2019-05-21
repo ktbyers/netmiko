@@ -48,7 +48,9 @@ class RuckusFastironBase(CiscoSSHConnection):
                     self.write_channel(self.normalize_cmd(self.secret))
                     new_data = self.read_until_prompt()
                     output += new_data
-                    if not re.search(r"error.*incorrect.*password", new_data, flags=re.I):
+                    if not re.search(
+                        r"error.*incorrect.*password", new_data, flags=re.I
+                    ):
                         return output
 
                 time.sleep(1)
