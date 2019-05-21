@@ -39,6 +39,7 @@ Python 2.7, 3.5, 3.6, 3.7
 - Apresia Systems AEOS
 - Calix B6
 - Cisco AireOS (Wireless LAN Controllers)
+- CloudGenix ION
 - Dell OS9 (Force10)
 - Dell OS10
 - Dell PowerConnect
@@ -50,6 +51,8 @@ Python 2.7, 3.5, 3.6, 3.7
 - Huawei
 - IP Infusion OcNOS
 - Mellanox
+- MikroTik RouterOS
+- MikroTik SwitchOS
 - NetApp cDOT
 - OneAccess
 - Palo Alto PAN-OS
@@ -78,6 +81,7 @@ Python 2.7, 3.5, 3.6, 3.7
 - F5 TMSH
 - F5 Linux
 - Fortinet
+- Mikrotik
 - MRV Communications OptiSwitch
 - Nokia/Alcatel SR-OS
 - QuantaMesh
