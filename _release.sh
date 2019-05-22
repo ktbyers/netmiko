@@ -3,8 +3,8 @@
 cd /home/gituser/netmiko/
 echo
 
-VERSION=`cat netmiko/__init__.py | grep version | sed "s/^__version__ = '//"`
-VERSION=`echo $VERSION | sed "s/'$//"`
+VERSION=`cat netmiko/__init__.py | grep version | sed "s/^__version__ = \"//"`
+VERSION=`echo $VERSION | sed "s/\"$//"`
 PACKAGE=`echo 'netmiko-'$VERSION'.tar.gz'`
 DIR_PACKAGE=`echo './dist/'$PACKAGE`
 echo -n "New Version is: "

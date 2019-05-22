@@ -24,3 +24,8 @@ docs/build/doctrees/
 .tox/*
 
 .pytest_cache/*
+
+# Mac stuff
+.DS_Store
+*/.DS_Store
+

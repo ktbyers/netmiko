@@ -1,17 +1,18 @@
 [![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
 [![Downloads](https://pepy.tech/badge/netmiko)](https://pepy.tech/project/netmiko)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 
 Netmiko
 =======
 
-Multi-vendor library to simplify Paramiko SSH connections to network devices
+Multi-vendor library to simplify Paramiko SSH connections to network devices  
 
-Python 2.7, 3.5, 3.6  
+Python 2.7, 3.5, 3.6, 3.7  
 
 #### Requires:
 
-- Paramiko >= 2.4.1
+- Paramiko >= 2.4.2
 - scp >= 0.10.0
 - pyyaml
 - pyserial
@@ -28,7 +29,6 @@ Python 2.7, 3.5, 3.6
 - Cisco IOS-XR
 - Cisco NX-OS
 - Cisco SG300
-- HP Comware7
 - HP ProCurve
 - Juniper Junos
 - Linux
@@ -39,6 +39,7 @@ Python 2.7, 3.5, 3.6
 - Apresia Systems AEOS
 - Calix B6
 - Cisco AireOS (Wireless LAN Controllers)
+- CloudGenix ION
 - Dell OS9 (Force10)
 - Dell OS10
 - Dell PowerConnect
@@ -46,9 +47,12 @@ Python 2.7, 3.5, 3.6
 - Extreme VSP (Avaya)
 - Extreme VDX (Brocade)
 - Extreme MLX/NetIron (Brocade/Foundry)
+- HP Comware7
 - Huawei
 - IP Infusion OcNOS
 - Mellanox
+- MikroTik RouterOS
+- MikroTik SwitchOS
 - NetApp cDOT
 - OneAccess
 - Palo Alto PAN-OS
@@ -77,10 +81,12 @@ Python 2.7, 3.5, 3.6
 - F5 TMSH
 - F5 Linux
 - Fortinet
+- Mikrotik
 - MRV Communications OptiSwitch
 - Nokia/Alcatel SR-OS
 - QuantaMesh
 - Rad ETX
+- Versa Networks FlexVNF
 
 ## Tutorials:
 
