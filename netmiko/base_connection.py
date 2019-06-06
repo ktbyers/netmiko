@@ -1153,8 +1153,8 @@ class BaseConnection(object):
         response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
         if self.base_prompt in last_line:
-            mod_line = re.sub(self.base_prompt+".*","",last_line).strip()
-            return self.RESPONSE_RETURN.join(response_list[:-1]+[mod_line])
+            mod_line = re.sub(self.base_prompt+".*","",last_line)
+            return self.RESPONSE_RETURN.join(response_list[:-1]+[mod_line]).strip()
         else:
             return a_string
 
