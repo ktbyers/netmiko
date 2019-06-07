@@ -2,11 +2,11 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import time
 import re
-from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
+from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 from netmiko.py23_compat import text_type
 
 
-class CiscoXrSSH(CiscoSSHConnection):
+class CiscoXrBase(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
@@ -19,7 +19,7 @@ class CiscoXrSSH(CiscoSSHConnection):
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
-        return super(CiscoXrSSH, self).send_config_set(
+        return super(CiscoXrBase, self).send_config_set(
             config_commands=config_commands, exit_config_mode=False, **kwargs
         )
 
@@ -148,6 +148,18 @@ class CiscoXrSSH(CiscoSSHConnection):
     def save_config(self, *args, **kwargs):
         """Not Implemented (use commit() method)"""
         raise NotImplementedError
+
+
+class CiscoXrSSH(CiscoXrBase):
+    """Cisco XR SSH driver."""
+
+    pass
+
+
+class CiscoXrTelnet(CiscoXrBase):
+    """Cisco XR Telnet driver."""
+
+    pass
 
 
 class CiscoXrFileTransfer(CiscoFileTransfer):
