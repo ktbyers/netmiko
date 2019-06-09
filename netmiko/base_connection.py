@@ -44,7 +44,7 @@ class BaseConnection(object):
         ip="",
         host="",
         username="",
-        password="",
+        password=None,
         secret="",
         port=None,
         device_type="",
@@ -279,11 +279,13 @@ class BaseConnection(object):
         # determine if telnet or SSH
         if "_telnet" in device_type:
             self.protocol = "telnet"
+            self.password = password or ""
             self._modify_connection_params()
             self.establish_connection()
             self._try_session_preparation()
         elif "_serial" in device_type:
             self.protocol = "serial"
+            self.password = password or ""
             self._modify_connection_params()
             self.establish_connection()
             self._try_session_preparation()

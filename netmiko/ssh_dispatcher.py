@@ -23,8 +23,9 @@ from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.cisco import CiscoWlcSSH
-from netmiko.cisco import CiscoXrSSH, CiscoXrFileTransfer
+from netmiko.cisco import CiscoXrSSH, CiscoXrTelnet, CiscoXrFileTransfer
 from netmiko.citrix import NetscalerSSH
+from netmiko.cloudgenix import CloudGenixIonSSH
 from netmiko.coriant import CoriantSSH
 from netmiko.dell import DellDNOS6SSH
 from netmiko.dell import DellDNOS6Telnet
@@ -103,6 +104,7 @@ CLASS_MAPPER_BASE = {
     "cisco_wlc": CiscoWlcSSH,
     "cisco_xe": CiscoIosSSH,
     "cisco_xr": CiscoXrSSH,
+    "cloudgenix_ion": CloudGenixIonSSH,
     "coriant": CoriantSSH,
     "dell_dnos9": DellForce10SSH,
     "dell_force10": DellForce10SSH,
@@ -191,6 +193,7 @@ CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
 CLASS_MAPPER["cisco_ios_telnet"] = CiscoIosTelnet
+CLASS_MAPPER["cisco_xr_telnet"] = CiscoXrTelnet
 CLASS_MAPPER["dell_dnos6_telnet"] = DellDNOS6Telnet
 CLASS_MAPPER["dell_powerconnect_telnet"] = DellPowerConnectTelnet
 CLASS_MAPPER["extreme_telnet"] = ExtremeExosTelnet
@@ -199,13 +202,13 @@ CLASS_MAPPER["extreme_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
+CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
+CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
-CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
-CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
