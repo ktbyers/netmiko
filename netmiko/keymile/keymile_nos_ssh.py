@@ -1,6 +1,5 @@
 import time
 import re
-import socket
 
 
 from netmiko.cisco.cisco_ios import CiscoIosBase
@@ -67,7 +66,8 @@ class KeymileNOSSSH(CiscoIosBase):
                 for line in new_data.split(self.RETURN):
                     if "Login incorrect" in line:
                         self.paramiko_cleanup()
-                        msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
+                        msg = "Authentication failure: unable to connect"
+                        msg += "{device_type} {ip}:{port}".format(
                             device_type=self.device_type, ip=self.host, port=self.port
                         )
                         msg += self.RETURN + "Login incorrect"
