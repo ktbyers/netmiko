@@ -40,6 +40,7 @@ class KeymileNOSSSH(CiscoIosBase):
 
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back.
+        Addition: check for substring 'Login incorrect' in output
 
         :param count: the number of times to check the channel for data
         :type count: int
@@ -91,5 +92,6 @@ class KeymileNOSSSH(CiscoIosBase):
             raise NetMikoTimeoutException("Timed out waiting for data")
 
     def special_login_handler(self, delay_factor=1):
-        """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
+        """Since Keymile NOS always returns 'True' on paramiko.connect() we
+        check the output for substring 'Login incorrect' after connecting"""
         self._test_channel_read(pattern=r">")
