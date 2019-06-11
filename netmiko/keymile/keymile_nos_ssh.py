@@ -13,7 +13,6 @@ from netmiko.ssh_exception import (
 class KeymileNOSSSH(CiscoIosBase):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r">")
         self.set_base_prompt()
         self.disable_paging()
         time.sleep(0.3 * self.global_delay_factor)
