@@ -1,6 +1,13 @@
 import time
+import re
+import socket
+
 
 from netmiko.cisco.cisco_ios import CiscoIosBase
+from netmiko.ssh_exception import (
+    NetMikoTimeoutException,
+    NetMikoAuthenticationException,
+)
 
 
 class KeymileNOSSSH(CiscoIosBase):
@@ -32,3 +39,58 @@ class KeymileNOSSSH(CiscoIosBase):
 
     def exit_enable_mode(self, exit_command="exit"):
         return super(KeymileNOSSSH, self).exit_enable_mode(exit_command=exit_command)
+
+    def _test_channel_read(self, count=40, pattern=""):
+        """Try to read the channel (generally post login) verify you receive data back.
+
+        :param count: the number of times to check the channel for data
+        :type count: int
+
+        :param pattern: Regular expression pattern used to determine end of channel read
+        :type pattern: str
+        """
+
+        def _increment_delay(main_delay, increment=1.1, maximum=8):
+            """Increment sleep time to a maximum value."""
+            main_delay = main_delay * increment
+            if main_delay >= maximum:
+                main_delay = maximum
+            return main_delay
+
+        i = 0
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        main_delay = delay_factor * 0.1
+        time.sleep(main_delay * 10)
+        new_data = ""
+        while i <= count:
+            new_data += self._read_channel_timing()
+            if new_data:
+                for line in new_data.split(self.RETURN):
+                    if "Login incorrect" in line:
+                        self.paramiko_cleanup()
+                        msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
+                            device_type=self.device_type, ip=self.host, port=self.port
+                        )
+                        msg += self.RETURN + "Login incorrect"
+                        raise NetMikoAuthenticationException(msg)
+
+                if pattern:
+                    if re.search(pattern, new_data):
+                        break
+                else:
+                    # no pattern but data
+                    break
+            else:
+                self.write_channel(self.RETURN)
+            main_delay = _increment_delay(main_delay)
+            time.sleep(main_delay)
+            i += 1
+
+        if new_data:
+            return ""
+        else:
+            raise NetMikoTimeoutException("Timed out waiting for data")
+
+    def special_login_handler(self, delay_factor=1):
+        """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
+        self._test_channel_read(pattern=r">")
