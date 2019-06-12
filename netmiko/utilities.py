@@ -254,7 +254,8 @@ def get_structured_data_genie(raw_output, platform, command):
     except ImportError as e:
         print("Failed to import {}.".format(e))
         print(
-            "pyATS and Genie are required to use 'get_structured_data_genie'. Install these packages with pip: 'pip install pyats genie'"
+            "pyATS and Genie are required to use 'get_structured_data_genie'."
+            "Install these packages with pip: 'pip install pyats genie'"
         )
         return raw_output
     if "cisco" not in platform:
