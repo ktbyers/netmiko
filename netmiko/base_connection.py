@@ -207,6 +207,7 @@ class BaseConnection(object):
         elif host:
             self.host = host
         self.host = self.host.strip()
+        self.ip = self.ip.strip()
         if not ip and not host and "serial" not in device_type:
             raise ValueError("Either ip or host must be set")
         if port is None:
