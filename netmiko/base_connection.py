@@ -1514,6 +1514,7 @@ class BaseConnection(object):
         strip_prompt=False,
         strip_command=False,
         config_mode_command=None,
+        config_error_str="",
     ):
         """
         Send configuration commands down the SSH channel.
@@ -1543,6 +1544,9 @@ class BaseConnection(object):
 
         :param config_mode_command: The command to enter into config mode
         :type config_mode_command: str
+
+        :param config_error_str: Error string to look for in device output
+        :type config_error_str: str
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1559,6 +1563,12 @@ class BaseConnection(object):
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
             if self.fast_cli:
+                pass
+            if config_error_str != "":
+                time.sleep(delay_factor * 0.05)
+                cur_output = self.read_channel()
+                if config_error_str in cur_output:
+                    raise SyntaxError("Invalid input at command: {}".format(cmd))
                 pass
             else:
                 time.sleep(delay_factor * 0.05)

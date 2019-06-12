@@ -144,6 +144,7 @@ class CiscoWlcSSH(BaseConnection):
         strip_prompt=False,
         strip_command=False,
         config_mode_command=None,
+        config_error_str="",
     ):
         """
         Send configuration commands down the SSH channel.
@@ -165,7 +166,14 @@ class CiscoWlcSSH(BaseConnection):
         # Send config commands
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(delay_factor * 0.5)
+            if config_error_str != "":
+                time.sleep(delay_factor * 0.05)
+                cur_output = self.read_channel()
+                if config_error_str in cur_output:
+                    raise SyntaxError("Invalid input at command: {}".format(cmd))
+                pass
+            else:
+                time.sleep(delay_factor * 0.5)
 
         # Gather output
         output = self._read_channel_timing(

@@ -56,6 +56,7 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         strip_prompt=False,
         strip_command=False,
         config_mode_command=None,
+        config_error_str="",
     ):
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -71,6 +72,12 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         for cmd in config_commands:
             output += self.send_command(cmd)
             if self.fast_cli:
+                pass
+            if config_error_str != "":
+                time.sleep(delay_factor * 0.05)
+                cur_output = self.read_channel()
+                if config_error_str in cur_output:
+                    raise SyntaxError("Invalid input at command: {}".format(cmd))
                 pass
             else:
                 time.sleep(delay_factor * 0.05)

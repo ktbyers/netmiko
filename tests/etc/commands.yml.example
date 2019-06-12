@@ -13,6 +13,9 @@ cisco_ios:
   save_config_cmd: 'copy run start'
   save_config_confirm: True
   save_config_response: ''
+  invalid_config:
+    - "interfaceloopback9"
+  invalid_config_str: "% Invalid"
 
 cisco_asa:
   version: "show version"
