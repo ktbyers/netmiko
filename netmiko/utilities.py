@@ -241,3 +241,46 @@ def get_structured_data(raw_output, platform, command):
         return output
     except CliTableError:
         return raw_output
+
+
+def get_structured_data_genie(raw_output, platform, command):
+    if not sys.version_info >= (3, 4):
+        print("Genie requires Python3.4 or greater")
+        return raw_output
+    try:
+        from genie.conf.base import Device
+        from genie.libs.parser.utils import get_parser
+        from pyats.datastructures import AttrDict
+    except ImportError as e:
+        print("Failed to import {}.".format(e))
+        print(
+            "pyATS and Genie are required to use 'get_structured_data_genie'. Install these packages with pip: 'pip install pyats genie'"
+        )
+        return raw_output
+    if "cisco" not in platform:
+        return raw_output
+
+    genie_device_mapper = {
+        "ios": ["cisco_ios", "cisco_ios_telnet"],
+        "iosxe": ["cisco_xe"],
+        "iosxr": ["cisco_xr", "cisco_xr_telnet"],
+        "nxos": ["cisco_nxos"],
+    }
+    os = None
+    for genie_os, netmiko_device_types in genie_device_mapper.items():
+        if platform in netmiko_device_types:
+            os = genie_os
+            break
+    if os is None:
+        return raw_output
+
+    device = Device("new_device", os=os)
+    device.custom.setdefault("abstraction", {})["order"] = ["os"]
+    device.cli = AttrDict({"execute": None})
+    try:
+        get_parser(command, device)
+        parsed_output = device.parse(command, output=raw_output)
+        return parsed_output
+    except Exception as e:
+        print("Faield to parse with genie, error: {}".format(e))
+        return raw_output
