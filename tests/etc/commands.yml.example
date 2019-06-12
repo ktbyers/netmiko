@@ -267,3 +267,10 @@ keymile_nos:
   version: "show version"
   basic: "show ip interface brief | include br328"
   extended_output: "show interface"
+  config:
+      - "log login enable"
+  config_verification: "show running-config | include log"
+  save_config_cmd: 'write memory'
+  save_config_confirm: True
+  save_config_response: '[OK]'
+
