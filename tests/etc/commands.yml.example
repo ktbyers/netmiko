@@ -52,6 +52,13 @@ cisco_s300:
   config_verification: "show run"
   config_file: "cisco_ios_commands.txt"
   save_config_confirm: True
+<<<<<<< HEAD
+=======
+  save_config_response: ''
+  invalid_config:
+    - "interfaceloopback9"
+  invalid_config_str: "% Invalid"
+>>>>>>> add error string checker for config set, add test
 
 cisco_asa:
   version: "show version"

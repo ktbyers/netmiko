@@ -43,7 +43,48 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         """No save method on ION SSH"""
         pass
 
+<<<<<<< HEAD
     def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
+=======
+    def send_config_set(
+        self,
+        config_commands=None,
+        exit_config_mode=False,
+        delay_factor=1,
+        max_loops=150,
+        strip_prompt=False,
+        strip_command=False,
+        config_mode_command=None,
+        config_error_str="",
+    ):
+        delay_factor = self.select_delay_factor(delay_factor)
+        if config_commands is None:
+            return ""
+        elif isinstance(config_commands, string_types):
+            config_commands = (config_commands,)
+
+        if not hasattr(config_commands, "__iter__"):
+            raise ValueError("Invalid argument passed into send_config_set")
+
+        # Send config commands
+        output = ""
+        for cmd in config_commands:
+            output += self.send_command(cmd)
+            if self.fast_cli:
+                pass
+            if config_error_str != "":
+                time.sleep(delay_factor * 0.05)
+                cur_output = self.read_channel()
+                if config_error_str in cur_output:
+                    raise SyntaxError("Invalid input at command: {}".format(cmd))
+                pass
+            else:
+                time.sleep(delay_factor * 0.05)
+
+        output = self._sanitize_output(output)
+        log.debug("{}".format(output))
+        return output
+>>>>>>> add error string checker for config set, add test

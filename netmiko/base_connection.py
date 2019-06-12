@@ -1818,6 +1818,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         config_mode_command=None,
         cmd_verify=True,
         enter_config_mode=True,
+        config_error_str="",
     ):
         """
         Send configuration commands down the SSH channel.
@@ -1854,6 +1855,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param enter_config_mode: Do you enter config mode before sending config commands
         :type exit_config_mode: bool
 
+        :param config_error_str: Error string to look for in device output
+        :type config_error_str: str
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
