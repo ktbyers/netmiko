@@ -17,15 +17,6 @@ class KeymileNOSSSH(CiscoIosBase):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    # def check_enable_mode(self, check_string="#"):
-    #    return super(KeymileNOSSSH, self).check_enable_mode(check_string=check_string)
-
-    # def enable(self, cmd="enable"):
-    #    return super(KeymileNOSSSH, self).enable(cmd=cmd)
-
-    # def exit_enable_mode(self, exit_command="exit"):
-    #    return super(KeymileNOSSSH, self).exit_enable_mode(exit_command=exit_command)
-
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back.
         Addition: check for substring 'Login incorrect' in output
