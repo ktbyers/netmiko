@@ -31,6 +31,7 @@ from netmiko.ssh_exception import (
     NetMikoAuthenticationException,
 )
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
+
 try:
     assert ConnectionRefusedError
 except NameError:
@@ -870,18 +871,21 @@ class BaseConnection(object):
             except socket.error as oops:
                 self.paramiko_cleanup()
                 errno_map = {
-                    errno.ECONNREFUSED: ('refused by device', ConnectionRefusedError),
-                    errno.ECONNABORTED: ('aborted by device', ConnectionAbortedError),
-                    errno.ECONNRESET: ('reset by device', ConnectionResetError),
-                    errno.ETIMEDOUT: ('to device timed out', NetMikoTimeoutException),
+                    errno.ECONNREFUSED: ("refused by device", ConnectionRefusedError),
+                    errno.ECONNABORTED: ("aborted by device", ConnectionAbortedError),
+                    errno.ECONNRESET: ("reset by device", ConnectionResetError),
+                    errno.ETIMEDOUT: ("to device timed out", NetMikoTimeoutException),
                 }
-                explanation, exception = errno_map.get(oops.errno,
-                                                       ('to device timed out',
-                                                        NetMikoTimeoutException))
-                msg = ("Connection {explanation} {device_type} {ip}:{port}: {oops}"
-                       .format(device_type=self.device_type, ip=self.host, port=self.port,
-                               explanation=explanation, oops=str(oops))
-                       )
+                explanation, exception = errno_map.get(
+                    oops.errno, ("to device timed out", NetMikoTimeoutException)
+                )
+                msg = "Connection {explanation} {device_type} {ip}:{port}: {oops}".format(
+                    device_type=self.device_type,
+                    ip=self.host,
+                    port=self.port,
+                    explanation=explanation,
+                    oops=str(oops),
+                )
                 raise exception(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
