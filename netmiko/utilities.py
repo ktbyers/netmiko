@@ -283,5 +283,5 @@ def get_structured_data_genie(raw_output, platform, command):
         parsed_output = device.parse(command, output=raw_output)
         return parsed_output
     except Exception as e:
-        print("Faield to parse with genie, error: {}".format(e))
+        print("Failed to parse with genie, error: {}".format(e))
         return raw_output
