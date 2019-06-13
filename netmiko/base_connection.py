@@ -18,6 +18,7 @@ import time
 from collections import deque
 from os import path
 from threading import Lock
+import errno
 
 import paramiko
 import serial
@@ -30,6 +31,12 @@ from netmiko.ssh_exception import (
     NetMikoAuthenticationException,
 )
 from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
+try:
+    assert ConnectionRefusedError
+except NameError:
+    ConnectionRefusedError = NetMikoTimeoutException
+    ConnectionResetError = NetMikoTimeoutException
+    ConnectionAbortedError = NetMikoTimeoutException
 
 
 class BaseConnection(object):
@@ -860,12 +867,22 @@ class BaseConnection(object):
             # initiate SSH connection
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
-            except socket.error:
+            except socket.error as oops:
                 self.paramiko_cleanup()
-                msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
-                raise NetMikoTimeoutException(msg)
+                errno_map = {
+                    errno.ECONNREFUSED: ('refused by device', ConnectionRefusedError),
+                    errno.ECONNABORTED: ('aborted by device', ConnectionAbortedError),
+                    errno.ECONNRESET: ('reset by device', ConnectionResetError),
+                    errno.ETIMEDOUT: ('to device timed out', NetMikoTimeoutException),
+                }
+                explanation, exception = errno_map.get(oops.errno,
+                                                       ('to device timed out',
+                                                        NetMikoTimeoutException))
+                msg = ("Connection {explanation} {device_type} {ip}:{port}: {oops}"
+                       .format(device_type=self.device_type, ip=self.host, port=self.port,
+                               explanation=explanation, oops=str(oops))
+                       )
+                raise exception(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
