@@ -202,12 +202,9 @@ class BaseConnection(object):
         # Line Separator in response lines
         self.RESPONSE_RETURN = "\n" if response_return is None else response_return
         if ip:
-            self.host = ip
-            self.ip = ip
+            self.host = ip.strip()
         elif host:
-            self.host = host
-        self.host = self.host.strip()
-        self.ip = self.ip.strip()
+            self.host = host.strip()
         if not ip and not host and "serial" not in device_type:
             raise ValueError("Either ip or host must be set")
         if port is None:
