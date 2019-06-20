@@ -80,7 +80,9 @@ def find_cfg_file(file_name=None):
     optional_path = os.environ.get("NETMIKO_TOOLS_DIR", False)
     search_paths = [".", os.path.expanduser("~"), optional_path]
     for path in search_paths:
-        files = glob("{}/netmiko.y*".format(path)) + glob("{}/.netmiko.y*".format(path))
+        files = glob("{}/netmiko.y*ml".format(path)) + glob(
+            "{}/.netmiko.y*ml".format(path)
+        )
         if len(files) == 1:
             return files[0]
     raise IOError(
