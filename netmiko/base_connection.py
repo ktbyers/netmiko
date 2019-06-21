@@ -1366,6 +1366,8 @@ class BaseConnection(object):
         if self.RESPONSE_RETURN == "\n":
             # Convert any remaining \r to \n
             return re.sub("\r", self.RESPONSE_RETURN, a_string)
+        else:
+            return a_string
 
     def normalize_cmd(self, command):
         """Normalize CLI commands to have a single trailing newline.
