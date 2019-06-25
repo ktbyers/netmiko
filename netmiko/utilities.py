@@ -73,7 +73,8 @@ def load_devices(file_name=None):
 
 
 def find_cfg_file(file_name=None):
-    """Look for (.)netmiko.yml/yaml in current dir, then ~/.netmiko.yml then NETMIKO_TOOLS_DIR env var path."""
+    """Look for (.)netmiko.yml/yaml in current dir, then ~/.netmiko.yml
+    then NETMIKO_TOOLS_DIR env var path."""
     if file_name:
         if os.path.isfile(file_name):
             return file_name
@@ -86,7 +87,8 @@ def find_cfg_file(file_name=None):
         if len(files) == 1:
             return files[0]
     raise IOError(
-        "netmiko.yml/yaml file not found in current dir, home dir or in NETMIKO_TOOLS_DIR environment variable path"
+        "netmiko.yml/yaml file not found in current dir, home dir or in "
+        "NETMIKO_TOOLS_DIR environment variable path"
     )
 
 
