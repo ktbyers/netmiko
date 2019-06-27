@@ -15,7 +15,7 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 - [Supported Platforms](SupportedPlatforms)
 - [Installation](Installation)
 - [Documentation](Documentation)
-- [Tutorials/Examples/Getting Started](#TutorialsExamplesGettingStarted)
+- [Tutorials/Examples/Getting Started](#TutorialsExamplesGetting-Started)
 - [Common Issues/FAQ](#Common-IssuesFAQ)
 - [TextFSM Integration](#TextFSM-Integration)
 - [Contributing](#Contributing)
