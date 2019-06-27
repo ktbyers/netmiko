@@ -1,6 +1,11 @@
 
 # Use pynetcio machine
 
+# Run the following command to update docs: `pdoc3 --html --output-dir docs netmiko`
+# Docs will be hosted via GitHub Pages in the master branch...
+# README.md is entry point at https://ktbyers.github.io/netmiko/ which then links to...
+# https://ktbyers.github.io/netmiko/docs/netmiko/index.html for full docs
+
 # NEED TO CONVERT OVER TO USE A WHEEL
 # python setup.py sdist bdist_wheel
 
