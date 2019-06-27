@@ -38,7 +38,7 @@ Experimental means that we reviewed the PR and the driver seems reasonable, but 
 Click [here](PLATFORMS.md) for a list of all devices.
 
 
-## Installation:
+## Installation
 
 To install netmiko, simply us pip:
 
@@ -64,7 +64,7 @@ Below are some of the particularly handy Classes/functions for easy reference:
 - [SSH Dispatcher](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.ssh_dispatcher)
 - [Redispatch](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.redispatch)
 
-## Tutorials/Examples/Getting Started:
+## Tutorials/Examples/Getting Started
 
 ### Tutorials:
 
