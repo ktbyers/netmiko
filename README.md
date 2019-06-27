@@ -15,7 +15,7 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 - [Supported Platforms](SupportedPlatforms)
 - [Installation](Installation)
 - [Documentation](Documentation)
-- [Tutorials/Examples](#TutorialsExamples)
+- [Tutorials/Examples/Getting Started](#TutorialsExamplesGettingStarted)
 - [Common Issues/FAQ](#Common-IssuesFAQ)
 - [TextFSM Integration](#TextFSM-Integration)
 - [Contributing](#Contributing)
@@ -64,7 +64,7 @@ Below are some of the particularly handy Classes/functions for easy reference:
 - [SSH Dispatcher](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.ssh_dispatcher)
 - [Redispatch](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.redispatch)
 
-## Tutorials/Examples:
+## Tutorials/Examples/Getting Started:
 
 ### Tutorials:
 
@@ -74,7 +74,16 @@ Below are some of the particularly handy Classes/functions for easy reference:
 - [Netmiko and TextFSM](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html)
 - [Netmiko and what constitutes done](https://pynet.twb-tech.com/blog/automation/netmiko-what-is-done.html)
 
-### Examples:
+### Example Scripts:
+
+You can find example scripts [here](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases), including examples of:
+
+- [Simple Connection](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case1_simple_conn/simple_conn.py)
+- [Sending Show Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case4_show_commands)
+- [Sending Configuration Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case6_config_change)
+- [Connecting with SSH Keys](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case9_ssh_keys/conn_ssh_keys.py)
+
+### Getting Started:
 
 #### Create a dictionary representing the device.
 
