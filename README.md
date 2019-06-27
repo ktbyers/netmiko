@@ -29,7 +29,11 @@ Netmiko supports a wide range of devices. These devices fall into three categori
 - Limited Testing
 - Experimental
 
-Devices in the "Limited Testing" and "Experimental" categories of course have much less testing and are not garuanteed to be 100% functional, so please take care when interacting with those devices.
+Regularly tested means we try to run our full test suite against that set of devices prior to each Netmiko release.
+
+Limited testing means the config and show operation system tests passed against a test on that platform at one point in time so we are reasonably comfortable the driver should generally work.
+
+Experimental means that we reviewed the PR and the driver seems reasonable, but we don't have good data on whether the driver fully passes the unit tests or how reliably it works.
 
 Click [here](PLATFORMS.md) for a list of all devices.
 
@@ -54,7 +58,7 @@ Netmiko has the following requirements (which pip will install for you)
 
 <a href="https://ktbyers.github.io/netmiko/docs/netmiko/index.html" title="Docs">API Documentation</a>
 
-Below are some of the particularily handy Classes/functions for easy reference:
+Below are some of the particularly handy Classes/functions for easy reference:
 - [Base Connection Object](https://ktbyers.github.io/netmiko/docs/netmiko/base_connection.html)
 - [SSH Autodetect](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.SSHDetect)
 - [SSH Dispatcher](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.ssh_dispatcher)
