@@ -1,116 +1,89 @@
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/netmiko.svg)
 [![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
 [![Downloads](https://pepy.tech/badge/netmiko)](https://pepy.tech/project/netmiko)
+![GitHub contributors](https://img.shields.io/github/contributors/ktbyers/netmiko.svg)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 
 Netmiko
 =======
 
-Multi-vendor library to simplify Paramiko SSH connections to network devices  
+Multi-vendor library to simplify Paramiko SSH connections to network devices
 
-Python 2.7, 3.5, 3.6, 3.7  
+## Quick Links
 
-#### Requires:
+- [Supported Platforms](SupportedPlatforms)
+- [Installation](Installation)
+- [Documentation](Documentation)
+- [Tutorials/Examples/Getting Started](#TutorialsExamplesGetting-Started)
+- [Common Issues/FAQ](#Common-IssuesFAQ)
+- [TextFSM Integration](#TextFSM-Integration)
+- [Contributing](#Contributing)
+- [Questions/Discussion](#QuestionsDiscussion)
 
+
+## Supported Platforms
+
+Netmiko supports a wide range of devices. These devices fall into three categories:
+- Regularly Tested
+- Limited Testing
+- Experimental
+
+Regularly tested means we try to run our full test suite against that set of devices prior to each Netmiko release.
+
+Limited testing means the config and show operation system tests passed against a test on that platform at one point in time so we are reasonably comfortable the driver should generally work.
+
+Experimental means that we reviewed the PR and the driver seems reasonable, but we don't have good data on whether the driver fully passes the unit tests or how reliably it works.
+
+Click [here](PLATFORMS.md) for a list of all devices.
+
+
+## Installation
+
+To install netmiko, simply us pip:
+
+```
+$ pip install netmiko
+```
+
+Netmiko has the following requirements (which pip will install for you)
 - Paramiko >= 2.4.2
 - scp >= 0.10.0
 - pyyaml
 - pyserial
 - textfsm
 
-#### Supports:
 
-###### Regularly tested
+## Documentation
 
-- Arista vEOS
-- Cisco ASA
-- Cisco IOS
-- Cisco IOS-XE
-- Cisco IOS-XR
-- Cisco NX-OS
-- Cisco SG300
-- HP ProCurve
-- Juniper Junos
-- Linux
+<a href="https://ktbyers.github.io/netmiko/docs/netmiko/index.html" title="Docs">API Documentation</a>
 
-###### Limited testing
+Below are some of the particularly handy Classes/functions for easy reference:
+- [Base Connection Object](https://ktbyers.github.io/netmiko/docs/netmiko/base_connection.html)
+- [SSH Autodetect](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.SSHDetect)
+- [SSH Dispatcher](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.ssh_dispatcher)
+- [Redispatch](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.redispatch)
 
-- Alcatel AOS6/AOS8
-- Apresia Systems AEOS
-- Calix B6
-- Cisco AireOS (Wireless LAN Controllers)
-- CloudGenix ION
-- Dell OS9 (Force10)
-- Dell OS10
-- Dell PowerConnect
-- Extreme ERS (Avaya)
-- Extreme VSP (Avaya)
-- Extreme VDX (Brocade)
-- Extreme MLX/NetIron (Brocade/Foundry)
-- HP Comware7
-- Huawei
-- IP Infusion OcNOS
-- Mellanox
-- MikroTik RouterOS
-- MikroTik SwitchOS
-- NetApp cDOT
-- OneAccess
-- Palo Alto PAN-OS
-- Pluribus
-- Ruckus ICX/FastIron
-- Ubiquiti EdgeSwitch
-- Vyatta VyOS
+## Tutorials/Examples/Getting Started
 
-###### Experimental
+### Tutorials:
 
-- A10
-- Accedian
-- Aruba
-- Ciena SAOS
-- Citrix Netscaler
-- Cisco Telepresence
-- Check Point GAiA
-- Coriant
-- Dell OS6
-- Dell EMC Isilon
-- Eltex
-- Enterasys
-- Extreme EXOS
-- Extreme Wing
-- Extreme SLX (Brocade)
-- F5 TMSH
-- F5 Linux
-- Fortinet
-- Mikrotik
-- MRV Communications OptiSwitch
-- Nokia/Alcatel SR-OS
-- QuantaMesh
-- Rad ETX
-- Versa Networks FlexVNF
+- [Getting Started](https://pynet.twb-tech.com/blog/automation/netmiko.html)
+- [Secure Copy](https://pynet.twb-tech.com/blog/automation/netmiko-scp.html)
+- [Netmiko through SSH Proxy](https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html)
+- [Netmiko and TextFSM](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html)
+- [Netmiko and what constitutes done](https://pynet.twb-tech.com/blog/automation/netmiko-what-is-done.html)
 
-## Tutorials:
+### Example Scripts:
 
-##### Standard Tutorial:
+You can find example scripts [here](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases), including examples of:
 
-https://pynet.twb-tech.com/blog/automation/netmiko.html
+- [Simple Connection](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case1_simple_conn/simple_conn.py)
+- [Sending Show Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case4_show_commands)
+- [Sending Configuration Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case6_config_change)
+- [Connecting with SSH Keys](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case9_ssh_keys/conn_ssh_keys.py)
 
-##### Secure Copy Tutorial:
-
-https://pynet.twb-tech.com/blog/automation/netmiko-scp.html
-
-##### SSH Proxy:
-
-https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html
-
-##### Common Issues:
-
-https://github.com/ktbyers/netmiko/blob/develop/COMMON_ISSUES.md
-
-##### Documentation (Stable)
-
-http://netmiko.readthedocs.io/en/stable/index.html
-
-## Examples:
+### Getting Started:
 
 #### Create a dictionary representing the device.
 
@@ -171,6 +144,15 @@ pynet-rtr1(config)#end
 pynet-rtr1#
 ```
 
+## Common Issues/FAQ
+
+Answers to the most common questions/issues can be seen [here](COMMON_ISSUES.md)
+
+Topics covered in above document:
+- Handling commands that prompt for additional input
+- Enabling logging of all reads/writes of the communication channel
+- Redispatch -- or connecting through a terminal server
+
 ## TextFSM Integration
 
 Netmiko has been configured to automatically look in `~/ntc-template/templates/index` for the ntc-templates index file. Alternatively, you can explicitly tell Netmiko where to look for the TextFSM template directory by setting the `NET_TEXTFSM` environment variable (note, there must be an index file in this directory):
@@ -181,16 +163,27 @@ export NET_TEXTFSM=/path/to/ntc-templates/templates/
 
 [More info on TextFSM and Netmiko](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html).
 
+
+## Contributing
+
+Contributors are always welcome! You can contribute to Netmiko in a variety of ways: spreading the word about Netmiko, answering questions on Slack (see below in Quests/Discussions), responding to issues, adding to the common issues, reporting/fixing bugs, or even adding your own device type.
+
+Before contributing a new vendor/platform device type, remember that any code added needs to be supported in some fashion (much more so for the "regularly tested" devices and the core of Netmiko)! To add a vendor/platform you can follow the outline [here](VENDOR.md). Once you've worked on your first pass of your driver and have it functional, you'll need to include test data in order for it to be merged into develop, you can see the general flow of how to do that [here](TESTING.md).
+
+For all code contributions, please ensure that you have ran `black` against the code or your code will fail the Travis CI build.
+
+
 ## Questions/Discussion
 
-If you find an issue with Netmiko, then you can open an issue on this projects issue page here: [https://github.com/ktbyers/netmiko/issues](https://github.com/ktbyers/netmiko/issues)
+If you find an issue with Netmiko, then you can open an issue on this projects issue page here: [https://github.com/ktbyers/netmiko/issues](https://github.com/ktbyers/netmiko/issues). Please make sure you've read through the common issues and examples prior to opening an issue. Please only open issues for bugs, feature requests, or other topics related to development of Netmiko. If you simply have a question, join us on Slack...
 
-If you have questions or would like to discuss Netmiko, a #netmiko channel exists in [this Slack](https://pynet.slack.com) workspace.  To join, use [this invitation](https://join.slack.com/t/pynet/shared_invite/enQtNTA2MDI3NjU0MTM0LTQ5MjExNGNlNWIzMmRhOTZmNmZkNDA2Nzk4Y2Q1Y2RkMWNhZGEzM2Y5MjI0NDYxODkzM2M0ODIwYzFkMzVmZGY). Once you have entered the workspace, then you can join the #netmiko channel.
-
-
+If you have questions or would like to discuss Netmiko, a #netmiko channel exists in [this Slack](https://pynet.slack.com) workspace. To join, use [this invitation](https://join.slack.com/t/pynet/shared_invite/enQtNTA2MDI3NjU0MTM0LTQ5MjExNGNlNWIzMmRhOTZmNmZkNDA2Nzk4Y2Q1Y2RkMWNhZGEzM2Y5MjI0NDYxODkzM2M0ODIwYzFkMzVmZGY). Once you have entered the workspace, then you can join the #netmiko channel.
 
 
----   
-Kirk Byers  
-Python for Network Engineers  
-https://pynet.twb-tech.com  
+---
+Kirk Byers
+
+Python for Network Engineers
+
+https://pynet.twb-tech.com
+
