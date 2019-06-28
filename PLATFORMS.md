@@ -27,7 +27,7 @@
 - Extreme VSP (Avaya)
 - Extreme VDX (Brocade)
 - Extreme MLX/NetIron (Brocade/Foundry)
-- HP Comware7
+- HPE Comware7
 - Huawei
 - IP Infusion OcNOS
 - Mellanox

@@ -12,9 +12,9 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 
 ## Quick Links
 
-- [Supported Platforms](SupportedPlatforms)
-- [Installation](Installation)
-- [Documentation](Documentation)
+- [Supported Platforms](#SupportedPlatforms)
+- [Installation](#Installation)
+- [Documentation](#Documentation)
 - [Tutorials/Examples/Getting Started](#TutorialsExamplesGetting-Started)
 - [Common Issues/FAQ](#Common-IssuesFAQ)
 - [TextFSM Integration](#TextFSM-Integration)
@@ -35,7 +35,7 @@ Limited testing means the config and show operation system tests passed against 
 
 Experimental means that we reviewed the PR and the driver seems reasonable, but we don't have good data on whether the driver fully passes the unit tests or how reliably it works.
 
-Click [here](PLATFORMS.md) for a list of all devices.
+Click [PLATFORMS](PLATFORMS.md) for a list of all supported platforms.
 
 
 ## Installation
@@ -47,14 +47,14 @@ $ pip install netmiko
 ```
 
 Netmiko has the following requirements (which pip will install for you)
-- Paramiko >= 2.4.2
-- scp >= 0.10.0
+- Paramiko >= 2.4.3
+- scp >= 0.13.2
 - pyyaml
 - pyserial
 - textfsm
 
 
-## Documentation
+## Documentation (Coming Soon...):
 
 <a href="https://ktbyers.github.io/netmiko/docs/netmiko/index.html" title="Docs">API Documentation</a>
 
@@ -76,29 +76,29 @@ Below are some of the particularly handy Classes/functions for easy reference:
 
 ### Example Scripts:
 
-You can find example scripts [here](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases), including examples of:
+See the following directory for [example scripts](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases), including examples of:
 
 - [Simple Connection](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case1_simple_conn/simple_conn.py)
 - [Sending Show Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case4_show_commands)
 - [Sending Configuration Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case6_config_change)
+- [Handling Additional Prompting](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case5_prompting/send_command_prompting.py)
 - [Connecting with SSH Keys](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case9_ssh_keys/conn_ssh_keys.py)
 
 ### Getting Started:
 
 #### Create a dictionary representing the device.
 
-Supported device_types can be found [here](https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py), see CLASS_MAPPER keys.
+Supported device_types can be found in [ssh_dispatcher.py](https://github.com/ktbyers/netmiko/blob/master/netmiko/ssh_dispatcher.py), see CLASS_MAPPER keys.
 ```py
 from netmiko import ConnectHandler
 
 cisco_881 = {
     'device_type': 'cisco_ios',
-    'ip':   '10.10.10.10',
+    'host':   '10.10.10.10',
     'username': 'test',
     'password': 'password',
     'port' : 8022,          # optional, defaults to 22
     'secret': 'secret',     # optional, defaults to ''
-    'verbose': False,       # optional, defaults to False
 }
 
 ```
@@ -146,7 +146,7 @@ pynet-rtr1#
 
 ## Common Issues/FAQ
 
-Answers to the most common questions/issues can be seen [here](COMMON_ISSUES.md)
+Answers to some [common questions](COMMON_ISSUES.md)
 
 Topics covered in above document:
 - Handling commands that prompt for additional input
