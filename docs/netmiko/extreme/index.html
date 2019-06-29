@@ -88,7 +88,7 @@ __all__ = [
 <dl>
 <dt id="netmiko.extreme.ExtremeErsSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeErsSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Netmiko support for Extreme Ethernet Routing Switch.</p>
@@ -166,6 +166,9 @@ __all__ = [
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -351,7 +354,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeExosSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeExosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Extreme Exos support.</p>
@@ -430,6 +433,9 @@ __all__ = [
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -612,6 +618,9 @@ __all__ = [
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
 
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
+
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
@@ -716,7 +725,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeNetironSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeNetironSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -794,6 +803,9 @@ __all__ = [
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -975,6 +987,9 @@ __all__ = [
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
 
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
+
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
@@ -1079,7 +1094,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeNosSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeNosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Support for Extreme NOS/VDX.</p>
@@ -1157,6 +1172,9 @@ __all__ = [
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1339,7 +1357,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeSlxSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeSlxSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Support for Extreme SLX.</p>
@@ -1417,6 +1435,9 @@ __all__ = [
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1599,7 +1620,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeVspSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeVspSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Extreme Virtual Services Platform Support.</p>
@@ -1677,6 +1698,9 @@ __all__ = [
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1825,7 +1849,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeWingSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeWingSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Extreme WiNG support.</p>
@@ -1903,6 +1927,9 @@ __all__ = [
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt

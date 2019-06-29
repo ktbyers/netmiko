@@ -128,6 +128,9 @@ __all__ = [&#34;IpInfusionOcNOSSSH&#34;, &#34;IpInfusionOcNOSTelnet&#34;]</code>
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
 
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
+
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
@@ -309,6 +312,9 @@ Telnet driver.</p>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
