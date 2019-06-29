@@ -57,6 +57,7 @@ def test_use_ssh_file():
         pkey=None,
         passphrase=None,
         auth_timeout=None,
+        banner_timeout=10,
         ssh_config_file=join(RESOURCE_FOLDER, "ssh_config"),
     )
 
@@ -74,6 +75,7 @@ def test_use_ssh_file():
         "pkey": None,
         "passphrase": None,
         "auth_timeout": None,
+        "banner_timeout": 10,
     }
 
     result = connection._use_ssh_config(connect_dict)
@@ -98,6 +100,7 @@ def test_connect_params_dict():
         pkey=None,
         passphrase=None,
         auth_timeout=None,
+        banner_timeout=10,
         ssh_config_file=None,
     )
 
@@ -113,6 +116,7 @@ def test_connect_params_dict():
         "pkey": None,
         "passphrase": None,
         "auth_timeout": None,
+        "banner_timeout": 10,
     }
     result = connection._connect_params_dict()
     assert result == expected
