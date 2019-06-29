@@ -145,7 +145,7 @@ Expressway/VCS …</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoAsaSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoAsaSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Subclass specific to Cisco ASA.</p>
@@ -223,6 +223,9 @@ Expressway/VCS …</p></section>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -599,7 +602,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosBase"><code class="flex name class">
 <span>class <span class="ident">CiscoIosBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Common Methods for IOS (both SSH and telnet).</p>
@@ -677,6 +680,9 @@ happens the trailing '(config*' needs stripped off.</p></section>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -889,7 +895,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS SSH driver.</p>
@@ -967,6 +973,9 @@ happens the trailing '(config*' needs stripped off.</p></section>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1070,7 +1079,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosSerial"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSerial</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS Serial driver.</p>
@@ -1148,6 +1157,9 @@ happens the trailing '(config*' needs stripped off.</p></section>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1251,7 +1263,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoIosTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS Telnet driver.</p>
@@ -1329,6 +1341,9 @@ happens the trailing '(config*' needs stripped off.</p></section>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1578,7 +1593,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 </dd>
 <dt id="netmiko.cisco.CiscoNxosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoNxosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -1656,6 +1671,9 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1827,7 +1845,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 </dd>
 <dt id="netmiko.cisco.CiscoS300SSH"><code class="flex name class">
 <span>class <span class="ident">CiscoS300SSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Support for Cisco SG300 series of devices.</p>
@@ -1908,6 +1926,9 @@ ip ssh password-auth</p>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -2129,6 +2150,9 @@ ip ssh password-auth</p>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -2445,7 +2469,7 @@ self.set_terminal_width()</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoWlcSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoWlcSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Netmiko Cisco WLC support.</p>
@@ -2523,6 +2547,9 @@ self.set_terminal_width()</p></section>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -3186,7 +3213,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoXrSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoXrSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco XR SSH driver.</p>
@@ -3264,6 +3291,9 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -3367,7 +3397,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoXrTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoXrTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco XR Telnet driver.</p>
@@ -3445,6 +3475,9 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
