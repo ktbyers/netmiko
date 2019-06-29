@@ -64,6 +64,7 @@ class BaseConnection(object):
         session_timeout=60,
         auth_timeout=None,
         blocking_timeout=8,
+        banner_timeout=5,
         keepalive=0,
         default_enter=None,
         response_return=None,
@@ -151,6 +152,9 @@ class BaseConnection(object):
         :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
         :type auth_timeout: float
 
+        :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+        :type banner_timeout: float
+
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
                 to keep the connection alive).
@@ -222,6 +226,7 @@ class BaseConnection(object):
         self.verbose = verbose
         self.timeout = timeout
         self.auth_timeout = auth_timeout
+        self.banner_timeout = banner_timeout
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
@@ -279,15 +284,9 @@ class BaseConnection(object):
         if "_telnet" in device_type:
             self.protocol = "telnet"
             self.password = password or ""
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
         elif "_serial" in device_type:
             self.protocol = "serial"
             self.password = password or ""
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
         else:
             self.protocol = "ssh"
 
@@ -309,9 +308,14 @@ class BaseConnection(object):
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
 
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
+        # Establish the remote connection
+        self._open()
+
+    def _open(self):
+        """Decouple connection creation from __init__ for mocking."""
+        self._modify_connection_params()
+        self.establish_connection()
+        self._try_session_preparation()
 
     def __enter__(self):
         """Establish a session using a Context Manager."""
@@ -800,6 +804,7 @@ class BaseConnection(object):
             "passphrase": self.passphrase,
             "timeout": self.timeout,
             "auth_timeout": self.auth_timeout,
+            "banner_timeout": self.banner_timeout,
         }
 
         # Check if using SSH 'config' file mainly for SSH proxy support

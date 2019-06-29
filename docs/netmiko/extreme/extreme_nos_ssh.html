@@ -69,7 +69,7 @@ class ExtremeNosSSH(CiscoSSHConnection):
 <dl>
 <dt id="netmiko.extreme.extreme_nos_ssh.ExtremeNosSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeNosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Support for Extreme NOS/VDX.</p>
@@ -147,6 +147,9 @@ class ExtremeNosSSH(CiscoSSHConnection):
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt

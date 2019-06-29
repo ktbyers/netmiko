@@ -92,6 +92,7 @@ class BaseConnection(object):
         session_timeout=60,
         auth_timeout=None,
         blocking_timeout=8,
+        banner_timeout=5,
         keepalive=0,
         default_enter=None,
         response_return=None,
@@ -179,6 +180,9 @@ class BaseConnection(object):
         :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
         :type auth_timeout: float
 
+        :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+        :type banner_timeout: float
+
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
                 to keep the connection alive).
@@ -250,6 +254,7 @@ class BaseConnection(object):
         self.verbose = verbose
         self.timeout = timeout
         self.auth_timeout = auth_timeout
+        self.banner_timeout = banner_timeout
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
@@ -307,15 +312,9 @@ class BaseConnection(object):
         if &#34;_telnet&#34; in device_type:
             self.protocol = &#34;telnet&#34;
             self.password = password or &#34;&#34;
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
         elif &#34;_serial&#34; in device_type:
             self.protocol = &#34;serial&#34;
             self.password = password or &#34;&#34;
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
         else:
             self.protocol = &#34;ssh&#34;
 
@@ -337,9 +336,14 @@ class BaseConnection(object):
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
 
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
+        # Establish the remote connection
+        self._open()
+
+    def _open(self):
+        &#34;&#34;&#34;Decouple connection creation from __init__ for mocking.&#34;&#34;&#34;
+        self._modify_connection_params()
+        self.establish_connection()
+        self._try_session_preparation()
 
     def __enter__(self):
         &#34;&#34;&#34;Establish a session using a Context Manager.&#34;&#34;&#34;
@@ -828,6 +832,7 @@ class BaseConnection(object):
             &#34;passphrase&#34;: self.passphrase,
             &#34;timeout&#34;: self.timeout,
             &#34;auth_timeout&#34;: self.auth_timeout,
+            &#34;banner_timeout&#34;: self.banner_timeout,
         }
 
         # Check if using SSH &#39;config&#39; file mainly for SSH proxy support
@@ -1757,7 +1762,7 @@ class TelnetConnection(BaseConnection):
 <dl>
 <dt id="netmiko.base_connection.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -1837,6 +1842,9 @@ class TelnetConnection(BaseConnection):
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
 
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
+
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
@@ -1910,6 +1918,7 @@ class TelnetConnection(BaseConnection):
         session_timeout=60,
         auth_timeout=None,
         blocking_timeout=8,
+        banner_timeout=5,
         keepalive=0,
         default_enter=None,
         response_return=None,
@@ -1997,6 +2006,9 @@ class TelnetConnection(BaseConnection):
         :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
         :type auth_timeout: float
 
+        :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+        :type banner_timeout: float
+
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
                 to keep the connection alive).
@@ -2068,6 +2080,7 @@ class TelnetConnection(BaseConnection):
         self.verbose = verbose
         self.timeout = timeout
         self.auth_timeout = auth_timeout
+        self.banner_timeout = banner_timeout
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
@@ -2125,15 +2138,9 @@ class TelnetConnection(BaseConnection):
         if &#34;_telnet&#34; in device_type:
             self.protocol = &#34;telnet&#34;
             self.password = password or &#34;&#34;
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
         elif &#34;_serial&#34; in device_type:
             self.protocol = &#34;serial&#34;
             self.password = password or &#34;&#34;
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
         else:
             self.protocol = &#34;ssh&#34;
 
@@ -2155,9 +2162,14 @@ class TelnetConnection(BaseConnection):
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
 
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
+        # Establish the remote connection
+        self._open()
+
+    def _open(self):
+        &#34;&#34;&#34;Decouple connection creation from __init__ for mocking.&#34;&#34;&#34;
+        self._modify_connection_params()
+        self.establish_connection()
+        self._try_session_preparation()
 
     def __enter__(self):
         &#34;&#34;&#34;Establish a session using a Context Manager.&#34;&#34;&#34;
@@ -2646,6 +2658,7 @@ class TelnetConnection(BaseConnection):
             &#34;passphrase&#34;: self.passphrase,
             &#34;timeout&#34;: self.timeout,
             &#34;auth_timeout&#34;: self.auth_timeout,
+            &#34;banner_timeout&#34;: self.banner_timeout,
         }
 
         # Check if using SSH &#39;config&#39; file mainly for SSH proxy support
@@ -5118,7 +5131,7 @@ Get cursor position</p>
 </dd>
 <dt id="netmiko.base_connection.TelnetConnection"><code class="flex name class">
 <span>class <span class="ident">TelnetConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -5197,6 +5210,9 @@ Get cursor position</p>
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
     :type auth_timeout: float
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
