@@ -14,9 +14,9 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 
 - [Supported Platforms](#SupportedPlatforms)
 - [Installation](#Installation)
-- [Documentation](#Documentation)
 - [Tutorials/Examples/Getting Started](#TutorialsExamplesGetting-Started)
 - [Common Issues/FAQ](#Common-IssuesFAQ)
+- [API-Documentation](#API-Documentation)
 - [TextFSM Integration](#TextFSM-Integration)
 - [Contributing](#Contributing)
 - [Questions/Discussion](#QuestionsDiscussion)
@@ -54,16 +54,6 @@ Netmiko has the following requirements (which pip will install for you)
 - textfsm
 
 
-## Documentation (Coming Soon...):
-
-<a href="https://ktbyers.github.io/netmiko/docs/netmiko/index.html" title="Docs">API Documentation</a>
-
-Below are some of the particularly handy Classes/functions for easy reference:
-- [Base Connection Object](https://ktbyers.github.io/netmiko/docs/netmiko/base_connection.html)
-- [SSH Autodetect](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.SSHDetect)
-- [SSH Dispatcher](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.ssh_dispatcher)
-- [Redispatch](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.redispatch)
-
 ## Tutorials/Examples/Getting Started
 
 ### Tutorials:
@@ -74,6 +64,7 @@ Below are some of the particularly handy Classes/functions for easy reference:
 - [Netmiko and TextFSM](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html)
 - [Netmiko and what constitutes done](https://pynet.twb-tech.com/blog/automation/netmiko-what-is-done.html)
 
+
 ### Example Scripts:
 
 See the following directory for [example scripts](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases), including examples of:
@@ -83,6 +74,7 @@ See the following directory for [example scripts](https://github.com/ktbyers/net
 - [Sending Configuration Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case6_config_change)
 - [Handling Additional Prompting](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case5_prompting/send_command_prompting.py)
 - [Connecting with SSH Keys](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case9_ssh_keys/conn_ssh_keys.py)
+
 
 ### Getting Started:
 
@@ -144,6 +136,7 @@ pynet-rtr1(config)#end
 pynet-rtr1#
 ```
 
+
 ## Common Issues/FAQ
 
 Answers to some [common questions](COMMON_ISSUES.md)
@@ -152,6 +145,18 @@ Topics covered in above document:
 - Handling commands that prompt for additional input
 - Enabling logging of all reads/writes of the communication channel
 - Redispatch -- or connecting through a terminal server
+
+
+## API-Documentation
+
+<a href="https://ktbyers.github.io/netmiko/docs/netmiko/index.html" title="Docs">API Documentation</a>
+
+Below are some of the particularly handy Classes/functions for easy reference:
+- [Base Connection Object](https://ktbyers.github.io/netmiko/docs/netmiko/base_connection.html)
+- [SSH Autodetect](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.SSHDetect)
+- [SSH Dispatcher](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.ssh_dispatcher)
+- [Redispatch](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.redispatch)
+
 
 ## TextFSM Integration
 
@@ -181,9 +186,6 @@ If you have questions or would like to discuss Netmiko, a #netmiko channel exist
 
 
 ---
-Kirk Byers
-
-Python for Network Engineers
-
-https://pynet.twb-tech.com
-
+Kirk Byers  
+Python for Network Engineers  
+https://pynet.twb-tech.com  
