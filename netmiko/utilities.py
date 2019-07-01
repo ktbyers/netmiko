@@ -2,6 +2,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from glob import glob
 import sys
 import io
 import os
@@ -72,15 +73,23 @@ def load_devices(file_name=None):
 
 
 def find_cfg_file(file_name=None):
-    """Look for .netmiko.yml in current dir, then ~/.netmiko.yml."""
-    base_file = ".netmiko.yml"
-    check_files = [base_file, os.path.expanduser("~") + "/" + base_file]
+    """Look for (.)netmiko.yml/yaml in current dir, then ~/.netmiko.yml
+    then NETMIKO_TOOLS_DIR env var path."""
     if file_name:
-        check_files.insert(0, file_name)
-    for test_file in check_files:
-        if os.path.isfile(test_file):
-            return test_file
-    raise IOError("{}: file not found in current dir or home dir.".format(base_file))
+        if os.path.isfile(file_name):
+            return file_name
+    optional_path = os.environ.get("NETMIKO_TOOLS_DIR", False)
+    search_paths = [".", os.path.expanduser("~"), optional_path]
+    for path in search_paths:
+        files = glob("{}/netmiko.y*ml".format(path)) + glob(
+            "{}/.netmiko.y*ml".format(path)
+        )
+        if len(files) == 1:
+            return files[0]
+    raise IOError(
+        "netmiko.yml/yaml file not found in current dir, home dir or in "
+        "NETMIKO_TOOLS_DIR environment variable path"
+    )
 
 
 def display_inventory(my_devices):
