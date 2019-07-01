@@ -55,6 +55,7 @@
 - Dell EMC Isilon
 - Eltex
 - Enterasys
+- Endace
 - Extreme EXOS
 - Extreme Wing
 - Extreme SLX (Brocade)
