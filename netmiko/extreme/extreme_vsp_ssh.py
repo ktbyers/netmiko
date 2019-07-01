@@ -17,6 +17,8 @@ class ExtremeVspSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd="save config", confirm=False):
+    def save_config(self, cmd="save config", confirm=False, confirm_response=""):
         """Save Config"""
-        return super(ExtremeVspSSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(ExtremeVspSSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )

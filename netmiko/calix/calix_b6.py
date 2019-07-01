@@ -65,8 +65,10 @@ class CalixB6Base(CiscoSSHConnection):
         """Checks if the device is in configuration mode"""
         return super(CalixB6Base, self).check_config_mode(check_string=check_string)
 
-    def save_config(self, cmd="copy run start", confirm=False):
-        return super(CalixB6Base, self).save_config(cmd=cmd, confirm=confirm)
+    def save_config(self, cmd="copy run start", confirm=False, confirm_response=""):
+        return super(CalixB6Base, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class CalixB6SSH(CalixB6Base):

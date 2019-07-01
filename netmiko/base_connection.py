@@ -510,7 +510,7 @@ class BaseConnection(object):
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # argument for backwards compatibility).
         if max_loops == 150:
-            max_loops = self.timeout / loop_delay
+            max_loops = int(self.timeout / loop_delay)
         while i < max_loops:
             if self.protocol == "ssh":
                 try:
@@ -1617,9 +1617,13 @@ class BaseConnection(object):
         code_erase_display = chr(27) + r"\[2J"
         code_graphics_mode = chr(27) + r"\[\d\d;\d\dm"
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
+        code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
+        code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
         code_erase_display = chr(27) + r"\[J"
+        code_attrs_off = chr(27) + r"\[0m"
+        code_reverse = chr(27) + r"\[7m"
 
         code_set = [
             code_position_cursor,
@@ -1636,9 +1640,13 @@ class BaseConnection(object):
             code_erase_display,
             code_graphics_mode,
             code_graphics_mode2,
+            code_graphics_mode3,
+            code_graphics_mode4,
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_attrs_off,
+            code_reverse,
         ]
 
         output = string_buffer
@@ -1684,7 +1692,7 @@ class BaseConnection(object):
         """Commit method for platforms that support this."""
         raise AttributeError("Network device does not support 'commit()' method")
 
-    def save_config(self, cmd="", confirm=True, confirm_response=""):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError
 

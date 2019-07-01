@@ -60,7 +60,7 @@ def load_yaml_file(yaml_file):
         sys.exit("Unable to import yaml module.")
     try:
         with io.open(yaml_file, "rt", encoding="utf-8") as fname:
-            return yaml.load(fname)
+            return yaml.safe_load(fname)
     except IOError:
         sys.exit("Unable to open YAML file: {0}".format(yaml_file))
 
@@ -196,7 +196,7 @@ def check_serial_port(name):
 def get_template_dir():
     """Find and return the ntc-templates/templates dir."""
     try:
-        template_dir = os.environ["NET_TEXTFSM"]
+        template_dir = os.path.expanduser(os.environ["NET_TEXTFSM"])
         index = os.path.join(template_dir, "index")
         if not os.path.isfile(index):
             # Assume only base ./ntc-templates specified
@@ -213,7 +213,7 @@ Valid ntc-templates not found, please install https://github.com/networktocode/n
 and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
 directory."""
         raise ValueError(msg)
-    return template_dir
+    return os.path.abspath(template_dir)
 
 
 def clitable_to_dict(cli_table):
