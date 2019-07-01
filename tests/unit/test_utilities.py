@@ -36,7 +36,38 @@ def test_invalid_yaml_file():
 
 
 def test_find_cfg_file():
-    """Try to find a configuration file"""
+    """
+    Search for netmiko_tools config file in the following order:
+ 
+    NETMIKO_TOOLS_CFG environment variable
+    Current directory
+    Home directory
+
+    Look for file named: .netmiko.yml or netmiko.yml
+    """
+    # Search using environment variable (point directly at end file)
+    os.environ["NETMIKO_TOOLS_CFG"] = join(RESOURCE_FOLDER, ".netmiko.yml")
+    assert utilities.find_cfg_file() == CONFIG_FILENAME
+
+    # Search using environment variable (pointing at directory)
+    os.environ["NETMIKO_TOOLS_CFG"] = RESOURCE_FOLDER
+    assert utilities.find_cfg_file() == CONFIG_FILENAME
+
+    try:
+        cwd = os.getcwd()
+        os.chdir(dirname(__file__))
+
+        # Environment var should be preferred over current dir
+        assert utilities.find_cfg_file() == CONFIG_FILENAME
+
+        #  Delete env var and verify current dir is returned
+        del os.environ["NETMIKO_TOOLS_CFG"]
+        assert utilities.find_cfg_file() == './.netmiko.yml'
+    finally:
+        # Change directory back to previous state
+        os.chdir(cwd)
+
+    # Verify explicit call using full filename
     assert utilities.find_cfg_file(CONFIG_FILENAME) == CONFIG_FILENAME
 
 

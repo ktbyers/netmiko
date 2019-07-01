@@ -73,24 +73,36 @@ def load_devices(file_name=None):
 
 
 def find_cfg_file(file_name=None):
-    """Look for (.)netmiko.yml/yaml in current dir, then ~/.netmiko.yml
-    then NETMIKO_TOOLS_DIR env var path."""
+    """
+    Search for netmiko_tools inventory file in the following order:
+
+    NETMIKO_TOOLS_CFG environment variable
+    Current directory
+    Home directory
+
+    Look for file named: .netmiko.yml or netmiko.yml
+
+    Also allow NETMIKO_TOOLS_CFG to point directly at a file
+    """
     if file_name:
         if os.path.isfile(file_name):
             return file_name
-    optional_path = os.environ.get("NETMIKO_TOOLS_DIR", False)
-    search_paths = [".", os.path.expanduser("~"), optional_path]
+    optional_path = os.environ.get("NETMIKO_TOOLS_CFG", "")
+    if os.path.isfile(optional_path):
+        return optional_path
+    search_paths = [optional_path, ".", os.path.expanduser("~")]
+    # Filter optional_path if null
+    search_paths = [path for path in search_paths if path]
     for path in search_paths:
-        files = glob("{}/netmiko.y*ml".format(path)) + glob(
-            "{}/.netmiko.y*ml".format(path)
+        files = glob("{}/.netmiko.yml".format(path)) + glob(
+            "{}/netmiko.yml".format(path)
         )
-        if len(files) == 1:
+        if files:
             return files[0]
     raise IOError(
-        "netmiko.yml/yaml file not found in current dir, home dir or in "
-        "NETMIKO_TOOLS_DIR environment variable path"
+        ".netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current "
+        "directory, or home directory."
     )
-
 
 def display_inventory(my_devices):
     """Print out inventory devices and groups."""
