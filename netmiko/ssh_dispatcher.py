@@ -13,7 +13,12 @@ from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
-from netmiko.cisco import CiscoIosSSH, CiscoIosFileTransfer, CiscoIosTelnet, CiscoIosSerial
+from netmiko.cisco import (
+    CiscoIosSSH,
+    CiscoIosFileTransfer,
+    CiscoIosTelnet,
+    CiscoIosSerial,
+)
 from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
@@ -109,7 +114,7 @@ CLASS_MAPPER_BASE = {
     "dell_os10": DellOS10SSH,
     "dell_powerconnect": DellPowerConnectSSH,
     "dell_isilon": DellIsilonSSH,
-    'endace': EndaceSSH,
+    "endace": EndaceSSH,
     "eltex": EltexSSH,
     "enterasys": EnterasysSSH,
     "extreme": ExtremeExosSSH,
@@ -156,29 +161,29 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
-    'arista_eos': AristaFileTransfer,
-    'cisco_asa': CiscoAsaFileTransfer,
-    'cisco_ios': CiscoIosFileTransfer,
-    'dell_os10': DellOS10FileTransfer,
-    'cisco_nxos': CiscoNxosFileTransfer,
-    'cisco_xe': CiscoIosFileTransfer,
-    'cisco_xr': CiscoXrFileTransfer,
-    'juniper_junos': JuniperFileTransfer,
-    'linux': LinuxFileTransfer,
+    "arista_eos": AristaFileTransfer,
+    "cisco_asa": CiscoAsaFileTransfer,
+    "cisco_ios": CiscoIosFileTransfer,
+    "dell_os10": DellOS10FileTransfer,
+    "cisco_nxos": CiscoNxosFileTransfer,
+    "cisco_xe": CiscoIosFileTransfer,
+    "cisco_xr": CiscoXrFileTransfer,
+    "juniper_junos": JuniperFileTransfer,
+    "linux": LinuxFileTransfer,
 }
 
 # Also support keys that end in _ssh
 new_mapper = {}
 for k, v in CLASS_MAPPER_BASE.items():
     new_mapper[k] = v
-    alt_key = k + u"_ssh"
+    alt_key = k + "_ssh"
     new_mapper[alt_key] = v
 CLASS_MAPPER = new_mapper
 
 new_mapper = {}
 for k, v in FILE_TRANSFER_MAP.items():
     new_mapper[k] = v
-    alt_key = k + u"_ssh"
+    alt_key = k + "_ssh"
     new_mapper[alt_key] = v
 FILE_TRANSFER_MAP = new_mapper
 
@@ -207,11 +212,11 @@ CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 
 # Add serial drivers
-CLASS_MAPPER['cisco_ios_serial'] = CiscoIosSerial
+CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
 
 # Add general terminal_server driver and autodetect
-CLASS_MAPPER['terminal_server'] = TerminalServerSSH
-CLASS_MAPPER['autodetect'] = TerminalServerSSH
+CLASS_MAPPER["terminal_server"] = TerminalServerSSH
+CLASS_MAPPER["autodetect"] = TerminalServerSSH
 
 platforms = list(CLASS_MAPPER.keys())
 platforms.sort()
@@ -228,10 +233,12 @@ scp_platforms_str = "\n" + scp_platforms_str
 
 def ConnectHandler(*args, **kwargs):
     """Factory function selects the proper class and creates object based on device_type."""
-    if kwargs['device_type'] not in platforms:
-        raise ValueError('Unsupported device_type: '
-                         'currently supported platforms are: {}'.format(platforms_str))
-    ConnectionClass = ssh_dispatcher(kwargs['device_type'])
+    if kwargs["device_type"] not in platforms:
+        raise ValueError(
+            "Unsupported device_type: "
+            "currently supported platforms are: {}".format(platforms_str)
+        )
+    ConnectionClass = ssh_dispatcher(kwargs["device_type"])
     return ConnectionClass(*args, **kwargs)
 
 
@@ -257,9 +264,11 @@ def FileTransfer(*args, **kwargs):
     if len(args) >= 1:
         device_type = args[0].device_type
     else:
-        device_type = kwargs['ssh_conn'].device_type
+        device_type = kwargs["ssh_conn"].device_type
     if device_type not in scp_platforms:
-        raise ValueError('Unsupported SCP device_type: '
-                         'currently supported platforms are: {}'.format(scp_platforms_str))
+        raise ValueError(
+            "Unsupported SCP device_type: "
+            "currently supported platforms are: {}".format(scp_platforms_str)
+        )
     FileTransferClass = FILE_TRANSFER_MAP[device_type]
     return FileTransferClass(*args, **kwargs)
