@@ -104,6 +104,7 @@ def find_cfg_file(file_name=None):
         "directory, or home directory."
     )
 
+
 def display_inventory(my_devices):
     """Print out inventory devices and groups."""
     inventory_groups = ["all"]

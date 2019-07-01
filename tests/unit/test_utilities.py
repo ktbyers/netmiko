@@ -62,7 +62,7 @@ def test_find_cfg_file():
 
         #  Delete env var and verify current dir is returned
         del os.environ["NETMIKO_TOOLS_CFG"]
-        assert utilities.find_cfg_file() == './.netmiko.yml'
+        assert utilities.find_cfg_file() == "./.netmiko.yml"
     finally:
         # Change directory back to previous state
         os.chdir(cwd)
