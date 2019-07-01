@@ -2,6 +2,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from glob import glob
 import sys
 import io
 import os
@@ -72,15 +73,36 @@ def load_devices(file_name=None):
 
 
 def find_cfg_file(file_name=None):
-    """Look for .netmiko.yml in current dir, then ~/.netmiko.yml."""
-    base_file = ".netmiko.yml"
-    check_files = [base_file, os.path.expanduser("~") + "/" + base_file]
+    """
+    Search for netmiko_tools inventory file in the following order:
+
+    NETMIKO_TOOLS_CFG environment variable
+    Current directory
+    Home directory
+
+    Look for file named: .netmiko.yml or netmiko.yml
+
+    Also allow NETMIKO_TOOLS_CFG to point directly at a file
+    """
     if file_name:
-        check_files.insert(0, file_name)
-    for test_file in check_files:
-        if os.path.isfile(test_file):
-            return test_file
-    raise IOError("{}: file not found in current dir or home dir.".format(base_file))
+        if os.path.isfile(file_name):
+            return file_name
+    optional_path = os.environ.get("NETMIKO_TOOLS_CFG", "")
+    if os.path.isfile(optional_path):
+        return optional_path
+    search_paths = [optional_path, ".", os.path.expanduser("~")]
+    # Filter optional_path if null
+    search_paths = [path for path in search_paths if path]
+    for path in search_paths:
+        files = glob("{}/.netmiko.yml".format(path)) + glob(
+            "{}/netmiko.yml".format(path)
+        )
+        if files:
+            return files[0]
+    raise IOError(
+        ".netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current "
+        "directory, or home directory."
+    )
 
 
 def display_inventory(my_devices):
