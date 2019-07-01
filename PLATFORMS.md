@@ -63,6 +63,7 @@
 - Fortinet
 - Mikrotik
 - MRV Communications OptiSwitch
+- MRV LX
 - Nokia/Alcatel SR-OS
 - QuantaMesh
 - Rad ETX
