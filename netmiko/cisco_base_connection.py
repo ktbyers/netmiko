@@ -175,8 +175,8 @@ class CiscoBaseConnection(BaseConnection):
         try:
             self.exit_config_mode()
         except Exception:
-            # Always try to send 'exit' regardless of whether exit_config_mode works or not.
             pass
+        # Always try to send final 'exit' regardless of whether exit_config_mode works or not.
         self._session_log_fin = True
         self.write_channel("exit" + self.RETURN)
 
