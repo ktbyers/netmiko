@@ -8,7 +8,6 @@ $ pdoc3 --html --output-dir docs netmiko --force
 # README.md is entry point at https://ktbyers.github.io/netmiko/ which then links to...
 # https://ktbyers.github.io/netmiko/docs/netmiko/index.html for full docs
 
-# NEED TO CONVERT OVER TO USE A WHEEL
 # python setup.py sdist bdist_wheel
 
 # Make sure you have rolled the version in __init__.py
