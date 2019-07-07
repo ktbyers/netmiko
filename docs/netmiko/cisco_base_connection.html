@@ -200,8 +200,8 @@ class CiscoBaseConnection(BaseConnection):
         try:
             self.exit_config_mode()
         except Exception:
-            # Always try to send &#39;exit&#39; regardless of whether exit_config_mode works or not.
             pass
+        # Always try to send final &#39;exit&#39; regardless of whether exit_config_mode works or not.
         self._session_log_fin = True
         self.write_channel(&#34;exit&#34; + self.RETURN)
 
@@ -560,8 +560,8 @@ class CiscoFileTransfer(BaseFileTransfer):
         try:
             self.exit_config_mode()
         except Exception:
-            # Always try to send &#39;exit&#39; regardless of whether exit_config_mode works or not.
             pass
+        # Always try to send final &#39;exit&#39; regardless of whether exit_config_mode works or not.
         self._session_log_fin = True
         self.write_channel(&#34;exit&#34; + self.RETURN)
 
@@ -670,8 +670,8 @@ class CiscoFileTransfer(BaseFileTransfer):
     try:
         self.exit_config_mode()
     except Exception:
-        # Always try to send &#39;exit&#39; regardless of whether exit_config_mode works or not.
         pass
+    # Always try to send final &#39;exit&#39; regardless of whether exit_config_mode works or not.
     self._session_log_fin = True
     self.write_channel(&#34;exit&#34; + self.RETURN)</code></pre>
 </details>
@@ -1139,6 +1139,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.dell.dell_force10_ssh.DellForce10SSH" href="dell/dell_force10_ssh.html#netmiko.dell.dell_force10_ssh.DellForce10SSH">DellForce10SSH</a></li>
 <li><a title="netmiko.dell.dell_os10_ssh.DellOS10SSH" href="dell/dell_os10_ssh.html#netmiko.dell.dell_os10_ssh.DellOS10SSH">DellOS10SSH</a></li>
 <li><a title="netmiko.eltex.eltex_ssh.EltexSSH" href="eltex/eltex_ssh.html#netmiko.eltex.eltex_ssh.EltexSSH">EltexSSH</a></li>
+<li><a title="netmiko.endace.endace_ssh.EndaceSSH" href="endace/endace_ssh.html#netmiko.endace.endace_ssh.EndaceSSH">EndaceSSH</a></li>
 <li><a title="netmiko.enterasys.enterasys_ssh.EnterasysSSH" href="enterasys/enterasys_ssh.html#netmiko.enterasys.enterasys_ssh.EnterasysSSH">EnterasysSSH</a></li>
 <li><a title="netmiko.extreme.extreme_ers_ssh.ExtremeErsSSH" href="extreme/extreme_ers_ssh.html#netmiko.extreme.extreme_ers_ssh.ExtremeErsSSH">ExtremeErsSSH</a></li>
 <li><a title="netmiko.extreme.extreme_exos.ExtremeExosBase" href="extreme/extreme_exos.html#netmiko.extreme.extreme_exos.ExtremeExosBase">ExtremeExosBase</a></li>
@@ -1153,6 +1154,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.hp.hp_comware.HPComwareBase" href="hp/hp_comware.html#netmiko.hp.hp_comware.HPComwareBase">HPComwareBase</a></li>
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase" href="mikrotik/mikrotik_ssh.html#netmiko.mikrotik.mikrotik_ssh.MikrotikBase">MikrotikBase</a></li>
 <li><a title="netmiko.mellanox.mellanox_ssh.MellanoxSSH" href="mellanox/mellanox_ssh.html#netmiko.mellanox.mellanox_ssh.MellanoxSSH">MellanoxSSH</a></li>
+<li><a title="netmiko.mrv.mrv_lx.MrvLxSSH" href="mrv/mrv_lx.html#netmiko.mrv.mrv_lx.MrvLxSSH">MrvLxSSH</a></li>
 <li><a title="netmiko.mrv.mrv_ssh.MrvOptiswitchSSH" href="mrv/mrv_ssh.html#netmiko.mrv.mrv_ssh.MrvOptiswitchSSH">MrvOptiswitchSSH</a></li>
 <li><a title="netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH" href="quanta/quanta_mesh_ssh.html#netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH">QuantaMeshSSH</a></li>
 <li><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase" href="ruckus/ruckus_fastiron.html#netmiko.ruckus.ruckus_fastiron.RuckusFastironBase">RuckusFastironBase</a></li>

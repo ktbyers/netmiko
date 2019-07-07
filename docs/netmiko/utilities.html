@@ -27,6 +27,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from glob import glob
 import sys
 import io
 import os
@@ -97,15 +98,36 @@ def load_devices(file_name=None):
 
 
 def find_cfg_file(file_name=None):
-    &#34;&#34;&#34;Look for .netmiko.yml in current dir, then ~/.netmiko.yml.&#34;&#34;&#34;
-    base_file = &#34;.netmiko.yml&#34;
-    check_files = [base_file, os.path.expanduser(&#34;~&#34;) + &#34;/&#34; + base_file]
+    &#34;&#34;&#34;
+    Search for netmiko_tools inventory file in the following order:
+
+    NETMIKO_TOOLS_CFG environment variable
+    Current directory
+    Home directory
+
+    Look for file named: .netmiko.yml or netmiko.yml
+
+    Also allow NETMIKO_TOOLS_CFG to point directly at a file
+    &#34;&#34;&#34;
     if file_name:
-        check_files.insert(0, file_name)
-    for test_file in check_files:
-        if os.path.isfile(test_file):
-            return test_file
-    raise IOError(&#34;{}: file not found in current dir or home dir.&#34;.format(base_file))
+        if os.path.isfile(file_name):
+            return file_name
+    optional_path = os.environ.get(&#34;NETMIKO_TOOLS_CFG&#34;, &#34;&#34;)
+    if os.path.isfile(optional_path):
+        return optional_path
+    search_paths = [optional_path, &#34;.&#34;, os.path.expanduser(&#34;~&#34;)]
+    # Filter optional_path if null
+    search_paths = [path for path in search_paths if path]
+    for path in search_paths:
+        files = glob(&#34;{}/.netmiko.yml&#34;.format(path)) + glob(
+            &#34;{}/netmiko.yml&#34;.format(path)
+        )
+        if files:
+            return files[0]
+    raise IOError(
+        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current &#34;
+        &#34;directory, or home directory.&#34;
+    )
 
 
 def display_inventory(my_devices):
@@ -368,19 +390,45 @@ def get_structured_data(raw_output, platform, command):
 <span>def <span class="ident">find_cfg_file</span></span>(<span>file_name=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Look for .netmiko.yml in current dir, then ~/.netmiko.yml.</p></section>
+<section class="desc"><p>Search for netmiko_tools inventory file in the following order:</p>
+<p>NETMIKO_TOOLS_CFG environment variable
+Current directory
+Home directory</p>
+<p>Look for file named: .netmiko.yml or netmiko.yml</p>
+<p>Also allow NETMIKO_TOOLS_CFG to point directly at a file</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def find_cfg_file(file_name=None):
-    &#34;&#34;&#34;Look for .netmiko.yml in current dir, then ~/.netmiko.yml.&#34;&#34;&#34;
-    base_file = &#34;.netmiko.yml&#34;
-    check_files = [base_file, os.path.expanduser(&#34;~&#34;) + &#34;/&#34; + base_file]
+    &#34;&#34;&#34;
+    Search for netmiko_tools inventory file in the following order:
+
+    NETMIKO_TOOLS_CFG environment variable
+    Current directory
+    Home directory
+
+    Look for file named: .netmiko.yml or netmiko.yml
+
+    Also allow NETMIKO_TOOLS_CFG to point directly at a file
+    &#34;&#34;&#34;
     if file_name:
-        check_files.insert(0, file_name)
-    for test_file in check_files:
-        if os.path.isfile(test_file):
-            return test_file
-    raise IOError(&#34;{}: file not found in current dir or home dir.&#34;.format(base_file))</code></pre>
+        if os.path.isfile(file_name):
+            return file_name
+    optional_path = os.environ.get(&#34;NETMIKO_TOOLS_CFG&#34;, &#34;&#34;)
+    if os.path.isfile(optional_path):
+        return optional_path
+    search_paths = [optional_path, &#34;.&#34;, os.path.expanduser(&#34;~&#34;)]
+    # Filter optional_path if null
+    search_paths = [path for path in search_paths if path]
+    for path in search_paths:
+        files = glob(&#34;{}/.netmiko.yml&#34;.format(path)) + glob(
+            &#34;{}/netmiko.yml&#34;.format(path)
+        )
+        if files:
+            return files[0]
+    raise IOError(
+        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current &#34;
+        &#34;directory, or home directory.&#34;
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.utilities.find_netmiko_dir"><code class="name flex">
