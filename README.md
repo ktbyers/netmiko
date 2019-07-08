@@ -12,14 +12,14 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 
 ## Quick Links
 
-- [Supported Platforms](#SupportedPlatforms)
-- [Installation](#Installation)
-- [Tutorials/Examples/Getting Started](#TutorialsExamplesGetting-Started)
-- [Common Issues/FAQ](#Common-IssuesFAQ)
-- [API-Documentation](#API-Documentation)
-- [TextFSM Integration](#TextFSM-Integration)
-- [Contributing](#Contributing)
-- [Questions/Discussion](#QuestionsDiscussion)
+- [Supported Platforms](https://ktbyers.github.io/netmiko/#supported-platforms)
+- [Installation](https://ktbyers.github.io/netmiko/#installation)
+- [Tutorials/Examples/Getting Started](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
+- [Common Issues/FAQ](https://ktbyers.github.io/netmiko/#common-issuesfaq)
+- [API-Documentation](https://ktbyers.github.io/netmiko/#api-documentation)
+- [TextFSM Integration](https://ktbyers.github.io/netmiko/#textfsm-integration)
+- [Contributing](https://ktbyers.github.io/netmiko/#contributing)
+- [Questions/Discussion](https://ktbyers.github.io/netmiko/#questionsdiscussion)
 
 
 ## Supported Platforms
