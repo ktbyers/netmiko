@@ -4,7 +4,6 @@ import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
-
 class FortinetSSH(CiscoSSHConnection):
     def _modify_connection_params(self):
         """Modify connection parameters prior to SSH connection."""
@@ -14,6 +13,51 @@ class FortinetSSH(CiscoSSHConnection):
             "diffie-hellman-group-exchange-sha256",
             "diffie-hellman-group1-sha1",
         )
+
+    def special_login_handler(self, delay_factor=1, count=10):
+        """
+        Handle Fortinet devices when they are configured with pre-login
+        banner:
+            FG621B # config system global
+            FG621B (global) # set pre-login-banner enable
+            FG621B (global) # end
+        """
+        pattern = '\(Press \'a\' to accept\):'
+        
+        def _increment_delay(main_delay, increment=1.1, maximum=8):
+            """Increment sleep time to a maximum value."""
+            main_delay = main_delay * increment
+            if main_delay >= maximum:
+                main_delay = maximum
+            return main_delay
+
+        i = 0
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        main_delay = delay_factor * 0.1
+        time.sleep(main_delay * 10)
+        new_data = ""
+        while i <= count:
+            new_data += self._read_channel_timing()
+            if new_data and pattern:
+                if re.search(pattern, new_data):
+                    break
+            elif new_data:
+                self.write_channel('a') # Send 'a' to accept banner
+                break
+            else:
+                self.write_channel(self.RETURN)
+            main_delay = _increment_delay(main_delay)
+            time.sleep(main_delay)
+            i += 1
+
+        # check if data was ever present
+        if new_data:
+            return ""
+        else:
+            msg = f'Timeout waiting for pre-login banner'
+            logger.info(msg)
+            print(msg)
+
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
