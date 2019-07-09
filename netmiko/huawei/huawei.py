@@ -122,28 +122,43 @@ class HuaweiTelnet(HuaweiBase):
         i = 1
         while i <= max_loops:
             try:
+                output = self.read_channel()
+                return_msg += output
+
                 # Search for username pattern / send username
-                output = self.read_until_pattern(pattern=username_pattern)
-                return_msg += output
+                if re.search(username_pattern, output, flags=re.I):
+                    self.write_channel(self.username + self.TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel()
+                    return_msg += output
 
-                self.write_channel(self.username + self.TELNET_RETURN)
+                # Search for password pattern / send password
+                if re.search(pwd_pattern, output, flags=re.I):
+                    self.write_channel(self.password + self.TELNET_RETURN)
+                    time.sleep(0.5 * delay_factor)
+                    output = self.read_channel()
+                    return_msg += output
+                    if re.search(
+                        pri_prompt_terminator, output, flags=re.M
+                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                        return return_msg
 
-                # Search for password pattern, / send password
-                output = self.read_until_pattern(pattern=pwd_pattern)
-                return_msg += output
-
-                self.write_channel(self.password + self.TELNET_RETURN)
-
-                # Search for router prompt, OR password_change prompt
-                output = self.read_until_pattern(pattern=combined_pattern)
-                return_msg += output
-
+                # Search for password change prompt, send "N"
                 if re.search(password_change_prompt, output):
                     self.write_channel("N" + self.TELNET_RETURN)
                     output = self.read_until_pattern(pattern=combined_pattern)
                     return_msg += output
 
-                return return_msg
+                # Check if proper data received
+                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                    alt_prompt_terminator, output, flags=re.M
+                ):
+                    return return_msg
+
+                self.write_channel(self.TELNET_RETURN)
+                time.sleep(0.5 * delay_factor)
+                i += 1
+
             except EOFError:
                 self.remote_conn.close()
                 msg = "Login failed: {}".format(self.host)
