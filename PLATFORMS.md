@@ -62,6 +62,7 @@
 - F5 TMSH
 - F5 Linux
 - Fortinet
+- Pica8
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS

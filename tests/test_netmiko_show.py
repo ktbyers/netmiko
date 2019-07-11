@@ -106,18 +106,18 @@ def test_clear_buffer(net_connect, commands, expected_responses):
     assert clear_buffer_check is None
 
 
-def test_enable_mode(net_connect, commands, expected_responses):
-    """
-    Test entering enable mode
+# def test_enable_mode(net_connect, commands, expected_responses):
+#     """
+#     Test entering enable mode
 
-    Catch exception for devices that don't support enable
-    """
-    try:
-        net_connect.enable()
-        enable_prompt = net_connect.find_prompt()
-        assert enable_prompt == expected_responses["enable_prompt"]
-    except AttributeError:
-        assert True == True
+#     Catch exception for devices that don't support enable
+#     """
+#     try:
+#         net_connect.enable()
+#         enable_prompt = net_connect.find_prompt()
+#         assert enable_prompt == expected_responses["enable_prompt"]
+#     except AttributeError:
+#         assert True == True
 
 
 def test_disconnect(net_connect, commands, expected_responses):
