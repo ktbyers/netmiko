@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from os import environ
+import os
 from os.path import dirname, join, relpath
 import sys
 
@@ -118,7 +118,7 @@ def test_obtain_all_devices():
 def test_find_netmiko_dir():
     """Try to get the netmiko_dir"""
     folder = dirname(__file__)
-    environ["NETMIKO_DIR"] = folder
+    os.environ["NETMIKO_DIR"] = folder
     result = utilities.find_netmiko_dir()
     assert result[0] == folder
     assert result[1].endswith("/tmp")
@@ -126,7 +126,7 @@ def test_find_netmiko_dir():
 
 def test_invalid_netmiko_dir():
     """Try with an invalid netmiko_base_dir"""
-    environ["NETMIKO_DIR"] = "/"
+    os.environ["NETMIKO_DIR"] = "/"
     try:
         utilities.find_netmiko_dir()
     except ValueError as exc:
@@ -189,7 +189,7 @@ def test_clitable_to_dict():
 
 def test_get_structured_data():
     """Convert raw CLI output to structured data using TextFSM template"""
-    environ["NET_TEXTFSM"] = RESOURCE_FOLDER
+    os.environ["NET_TEXTFSM"] = RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
     result = utilities.get_structured_data(
         raw_output, platform="cisco_ios", command="show version"
@@ -199,7 +199,7 @@ def test_get_structured_data():
 
 def test_get_structured_data_relative_path():
     """Test relative path for textfsm ntc directory"""
-    environ["NET_TEXTFSM"] = RELATIVE_RESOURCE_FOLDER
+    os.environ["NET_TEXTFSM"] = RELATIVE_RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
     result = utilities.get_structured_data(
         raw_output, platform="cisco_ios", command="show version"
