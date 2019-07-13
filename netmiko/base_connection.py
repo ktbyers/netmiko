@@ -1154,20 +1154,17 @@ class BaseConnection(object):
             strip_prompt=strip_prompt,
         )
         # If both TextFSM and Genie are set, try TextFSM then Genie
-        if use_textfsm:
-            structured_output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
-            # If we have structured data; return it.
-            if not isinstance(structured_output, string_types):
-                return structured_output
-        if use_genie:
-            structured_output = get_structured_data_genie(
-                output, platform=self.device_type, command=command_string.strip()
-            )
-            # If we have structured data; return it.
-            if not isinstance(structured_output, string_types):
-                return structured_output
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
         return output
 
     def strip_prompt(self, a_string):
@@ -1332,21 +1329,20 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
+
         # If both TextFSM and Genie are set, try TextFSM then Genie
-        if use_textfsm:
-            structured_output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
-            # If we have structured data; return it.
-            if not isinstance(structured_output, string_types):
-                return structured_output
-        if use_genie:
-            structured_output = get_structured_data_genie(
-                output, platform=self.device_type, command=command_string.strip()
-            )   
-            # If we have structured data; return it.
-            if not isinstance(structured_output, string_types):
-                return structured_output
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
+        return output
 
     def send_command_expect(self, *args, **kwargs):
         """Support previous name of send_command method.
