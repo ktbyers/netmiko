@@ -1153,17 +1153,21 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm and use_genie:
-            print("TextFSM and Genie are mutually exclusive. Using TextFSM as default.")
-            use_genie = False
+        # If both TextFSM and Genie are set, try TextFSM then Genie
         if use_textfsm:
-            output = get_structured_data(
+            structured_output = get_structured_data(
                 output, platform=self.device_type, command=command_string.strip()
             )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, string_types):
+                return structured_output
         if use_genie:
-            output = get_structured_data_genie(
+            structured_output = get_structured_data_genie(
                 output, platform=self.device_type, command=command_string.strip()
             )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, string_types):
+                return structured_output
         return output
 
     def strip_prompt(self, a_string):
@@ -1328,18 +1332,21 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm and use_genie:
-            print("TextFSM and Genie are mutually exclusive. Using TextFSM as default.")
-            use_genie = False
+        # If both TextFSM and Genie are set, try TextFSM then Genie
         if use_textfsm:
-            output = get_structured_data(
+            structured_output = get_structured_data(
                 output, platform=self.device_type, command=command_string.strip()
             )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, string_types):
+                return structured_output
         if use_genie:
-            output = get_structured_data_genie(
+            structured_output = get_structured_data_genie(
                 output, platform=self.device_type, command=command_string.strip()
-            )
-        return output
+            )   
+            # If we have structured data; return it.
+            if not isinstance(structured_output, string_types):
+                return structured_output
 
     def send_command_expect(self, *args, **kwargs):
         """Support previous name of send_command method.
