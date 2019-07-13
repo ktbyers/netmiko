@@ -11,6 +11,14 @@ from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 from netmiko.py23_compat import text_type
 
+try:
+    from genie.conf.base import Device
+    from genie.libs.parser.utils import get_parser
+    from pyats.datastructures import AttrDict
+
+    GENIE_INSTALLED = True
+except ImportError:
+    GENIE_INSTALLED = False
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -267,19 +275,15 @@ def get_structured_data(raw_output, platform, command):
 
 def get_structured_data_genie(raw_output, platform, command):
     if not sys.version_info >= (3, 4):
-        print("Genie requires Python3.4 or greater")
-        return raw_output
-    try:
-        from genie.conf.base import Device
-        from genie.libs.parser.utils import get_parser
-        from pyats.datastructures import AttrDict
-    except ImportError as e:
-        print("Failed to import {}.".format(e))
-        print(
-            "pyATS and Genie are required to use 'get_structured_data_genie'."
-            "Install these packages with pip: 'pip install pyats genie'"
+        raise ValueError("Genie requires Python >= 3.4")
+
+    if not GENIE_INSTALLED:
+        msg = (
+            "\nGenie and PyATS are not installed. Please PIP install both Genie and PyATS:\n"
+            "pip install genie\npip install pyats\n"
         )
-        return raw_output
+        raise ValueError(msg)
+
     if "cisco" not in platform:
         return raw_output
 
@@ -289,21 +293,34 @@ def get_structured_data_genie(raw_output, platform, command):
         "iosxr": ["cisco_xr", "cisco_xr_telnet"],
         "nxos": ["cisco_nxos"],
     }
+    genie_device_mapper = {
+        "cisco_ios": "ios",
+        "cisco_xe": "iosxe",
+        "cisco_xr": "iosxr",
+        "cisco_nxos": "nxos",
+    }
+
     os = None
-    for genie_os, netmiko_device_types in genie_device_mapper.items():
-        if platform in netmiko_device_types:
-            os = genie_os
-            break
+    # platform might be _ssh, _telnet, _serial strip that off
+    if platform.count("_") > 1:
+        base_platform = platform.split("_")[:-1]
+        base_platform = "_".join(base_platform)
+    else:
+        base_platform = platform
+
+    os = genie_device_mapper.get(base_platform)
     if os is None:
         return raw_output
 
+    # Genie specific construct for doing parsing (based on Genie in Ansible)
     device = Device("new_device", os=os)
-    device.custom.setdefault("abstraction", {})["order"] = ["os"]
+    device.custom.setdefault("abstraction", {})
+    device.custom["abstraction"]["order"] = ["os"]
     device.cli = AttrDict({"execute": None})
     try:
+        # Test of whether their is a parser for the given command (will return Exception if fails)
         get_parser(command, device)
         parsed_output = device.parse(command, output=raw_output)
         return parsed_output
-    except Exception as e:
-        print("Failed to parse with genie, error: {}".format(e))
+    except Exception:
         return raw_output
