@@ -62,6 +62,7 @@ def test_send_command(net_connect, commands, expected_responses):
     show_ip_alt = net_connect.send_command(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip_alt
 
+
 def test_send_command_textfsm(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully using send_command method."""
 
@@ -72,8 +73,14 @@ def test_send_command_textfsm(net_connect, commands, expected_responses):
         base_platform = "_".join(base_platform)
 
     if base_platform not in [
-        "cisco_ios", "cisco_xe", "cisco_xr", "cisco_nxos",
-        "arista_eos", "cisco_asa", "juniper_junos", "hp_procurve",
+        "cisco_ios",
+        "cisco_xe",
+        "cisco_xr",
+        "cisco_nxos",
+        "arista_eos",
+        "cisco_asa",
+        "juniper_junos",
+        "hp_procurve",
     ]:
         assert pytest.skip("TextFSM/ntc-templates not supported on this platform")
     else:
@@ -83,6 +90,33 @@ def test_send_command_textfsm(net_connect, commands, expected_responses):
         command = commands.get("basic_textfsm", fallback_cmd)
         show_ip_alt = net_connect.send_command(command, use_textfsm=True)
         assert isinstance(show_ip_alt, list)
+
+
+def test_send_command_genie(net_connect, commands, expected_responses):
+    """Verify a command can be sent down the channel successfully using send_command method."""
+
+    base_platform = net_connect.device_type
+    if base_platform.count("_") >= 2:
+        # Strip off the _ssh, _telnet, _serial
+        base_platform = base_platform.split("_")[:-1]
+        base_platform = "_".join(base_platform)
+
+    if base_platform not in [
+        "cisco_ios",
+        "cisco_xe",
+        "cisco_xr",
+        "cisco_nxos",
+        "cisco_asa",
+    ]:
+        assert pytest.skip("TextFSM/ntc-templates not supported on this platform")
+    else:
+        time.sleep(1)
+        net_connect.clear_buffer()
+        fallback_cmd = commands.get("basic")
+        command = commands.get("basic_textfsm", fallback_cmd)
+        show_ip_alt = net_connect.send_command(command, use_genie=True)
+        assert isinstance(show_ip_alt, dict)
+
 
 def test_base_prompt(net_connect, commands, expected_responses):
     """Verify the router prompt is detected correctly."""
