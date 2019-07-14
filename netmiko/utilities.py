@@ -288,16 +288,11 @@ def get_structured_data_genie(raw_output, platform, command):
         return raw_output
 
     genie_device_mapper = {
-        "ios": ["cisco_ios", "cisco_ios_telnet"],
-        "iosxe": ["cisco_xe"],
-        "iosxr": ["cisco_xr", "cisco_xr_telnet"],
-        "nxos": ["cisco_nxos"],
-    }
-    genie_device_mapper = {
         "cisco_ios": "ios",
         "cisco_xe": "iosxe",
         "cisco_xr": "iosxr",
         "cisco_nxos": "nxos",
+        "cisco_asa": "asa",
     }
 
     os = None
