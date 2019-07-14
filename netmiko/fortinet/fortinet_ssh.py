@@ -4,7 +4,18 @@ import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class LowPriviledgeAccessError(Exception):
+    pass
+
+
 class FortinetSSH(CiscoSSHConnection):
+
+    access_profile = None
     def _modify_connection_params(self):
         """Modify connection parameters prior to SSH connection."""
         paramiko.Transport._preferred_kex = (
@@ -14,7 +25,7 @@ class FortinetSSH(CiscoSSHConnection):
             "diffie-hellman-group1-sha1",
         )
 
-    def special_login_handler(self, delay_factor=1, count=10):
+    def special_login_handler(self, delay_factor=1, count=7):
         """
         Handle Fortinet devices when they are configured with pre-login
         banner:
@@ -40,9 +51,9 @@ class FortinetSSH(CiscoSSHConnection):
             new_data += self._read_channel_timing()
             if new_data and pattern:
                 if re.search(pattern, new_data):
+                    self.write_channel('a') # Send 'a' to accept banner
                     break
             elif new_data:
-                self.write_channel('a') # Send 'a' to accept banner
                 break
             else:
                 self.write_channel(self.RETURN)
@@ -52,58 +63,91 @@ class FortinetSSH(CiscoSSHConnection):
 
         # check if data was ever present
         if new_data:
+            logger.info(new_data)
             return ""
         else:
             msg = f'Timeout waiting for pre-login banner'
             logger.info(msg)
             print(msg)
 
+    def _get_access_profile(self):
+        """ 
+            - Execute "get system admin status" on Fortinet device
+            - parse and return "login access profile:"
+                access profiles: super_admin, read_only
+            NOTE: If you don't have access to super_admin most of the config
+            commands will fail.
+        """
+        output_res = ''
+        output_1 = self.send_command_timing('config global')
+        # output_1 = self.send_command('config global', expect_string='\S+\s+\(global\)\s+#')
+        if 'Command fail' in output_1 or 'Unknown action'  in output_1:
+            output_res = self.send_command_timing('get system admin status')
+        else:
+            output_res = self.send_command_timing('get system admin status')
+            output_end = self.send_command_timing('end')
+        
+        if 'login access profile: super_admin' in output_res:
+            self.access_profile = 'super_admin'
+        elif 'login access profile: read_only' in output_res:
+            self.access_profile = 'read_only'
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt(alt_prompt_terminator="$")
-        self.disable_paging()
+        self._get_access_profile()
+        try:
+            self.disable_paging()
+        except LowPriviledgeAccessError as e:
+            msg = f'Some CLI commands will not be available {str(e)}'
+            print(msg)
+            logger.info(msg)
+        except Exception as e:
+            raise e
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def disable_paging(self, delay_factor=1):
         """Disable paging is only available with specific roles so it may fail."""
-        check_command = "get system status | grep Virtual"
-        output = self.send_command_timing(check_command)
-        self.allow_disable_global = True
-        self.vdoms = False
-        self._output_mode = "more"
+        if self.access_profile == 'read_only':
+            raise LowPriviledgeAccessError('Access profile read_only')
+        elif self.access_profile == 'super_admin': 
+            check_command = "get system status | grep Virtual"
+            output = self.send_command_timing(check_command)
+            self.allow_disable_global = True
+            self.vdoms = False
+            self._output_mode = "more"
 
-        if "Virtual domain configuration: enable" in output:
-            self.vdoms = True
-            vdom_additional_command = "config global"
-            output = self.send_command_timing(vdom_additional_command, delay_factor=2)
-            if "Command fail" in output:
-                self.allow_disable_global = False
-                self.remote_conn.close()
-                self.establish_connection(width=100, height=1000)
+            if "Virtual domain configuration: enable" in output:
+                self.vdoms = True
+                vdom_additional_command = "config global"
+                output = self.send_command_timing(vdom_additional_command, delay_factor=2)
+                if "Command fail" in output:
+                    self.allow_disable_global = False
+                    self.remote_conn.close()
+                    self.establish_connection(width=100, height=1000)
 
-        new_output = ""
-        if self.allow_disable_global:
-            self._retrieve_output_mode()
-            disable_paging_commands = [
-                "config system console",
-                "set output standard",
-                "end",
-            ]
-            # There is an extra 'end' required if in multi-vdoms are enabled
-            if self.vdoms:
-                disable_paging_commands.append("end")
-            outputlist = [
-                self.send_command_timing(command, delay_factor=2)
-                for command in disable_paging_commands
-            ]
-            # Should test output is valid
-            new_output = self.RETURN.join(outputlist)
+            new_output = ""
+            if self.allow_disable_global:
+                self._retrieve_output_mode()
+                disable_paging_commands = [
+                    "config system console",
+                    "set output standard",
+                    "end",
+                ]
+                # There is an extra 'end' required if in multi-vdoms are enabled
+                if self.vdoms:
+                    disable_paging_commands.append("end")
+                outputlist = [
+                    self.send_command_timing(command, delay_factor=2)
+                    for command in disable_paging_commands
+                ]
+                # Should test output is valid
+                new_output = self.RETURN.join(outputlist)
 
-        return output + new_output
+            return output + new_output
 
     def _retrieve_output_mode(self):
         """Save the state of the output mode so it can be reset at the end of the session."""
