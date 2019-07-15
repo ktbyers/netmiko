@@ -29,7 +29,12 @@ from netmiko.ssh_exception import (
     NetMikoTimeoutException,
     NetMikoAuthenticationException,
 )
-from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
+from netmiko.utilities import (
+    write_bytes,
+    check_serial_port,
+    get_structured_data,
+    get_structured_data_genie,
+)
 
 
 class BaseConnection(object):
@@ -1102,6 +1107,7 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        use_genie=False,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1127,6 +1133,9 @@ class BaseConnection(object):
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
+
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
+        :type normalize: bool
         """
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -1144,10 +1153,18 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm:
-            output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
+        # If both TextFSM and Genie are set, try TextFSM then Genie
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
         return output
 
     def strip_prompt(self, a_string):
@@ -1201,6 +1218,7 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        use_genie=False,
     ):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1231,6 +1249,9 @@ class BaseConnection(object):
         :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
+        :type normalize: bool
+
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
         """
         # Time to delay in each read loop
@@ -1308,10 +1329,19 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm:
-            output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
+
+        # If both TextFSM and Genie are set, try TextFSM then Genie
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
         return output
 
     def send_command_expect(self, *args, **kwargs):
