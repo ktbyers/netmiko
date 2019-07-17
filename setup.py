@@ -51,11 +51,10 @@ setup(
         "setuptools>=38.4.0",
         "paramiko>=2.4.3",
         "scp>=0.13.2",
-        "pyyaml",
         "pyserial",
         "textfsm",
         'enum34; python_version == "2.7"',
         'ipaddress; python_version == "2.7"',
     ],
-    extras_require={"test": ["pytest>=4.6.3"]},
+    extras_require={"test": ["pyyaml==5.1", "pytest>=4.6.3"]},
 )
