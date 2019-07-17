@@ -49,7 +49,6 @@ $ pip install netmiko
 Netmiko has the following requirements (which pip will install for you)
 - Paramiko >= 2.4.3
 - scp >= 0.13.2
-- pyyaml
 - pyserial
 - textfsm
 
@@ -186,6 +185,6 @@ If you have questions or would like to discuss Netmiko, a #netmiko channel exist
 
 
 ---
-Kirk Byers  
-Python for Network Engineers  
-https://pynet.twb-tech.com  
+Kirk Byers
+Python for Network Engineers
+https://pynet.twb-tech.com
