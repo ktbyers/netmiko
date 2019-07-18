@@ -82,7 +82,8 @@ class pica8Base(BaseConnection):
         if self.check_config_mode():
             output = self.send_command_timing(exit_config, strip_prompt=False, strip_command=False)
             if 'There are uncommitted changes?' in output:
-                output += self.send_command_timing('exit discard', strip_prompt=False, strip_command=False)
+                output += self.send_command_timing('exit discard', strip_prompt=False,
+                                                   strip_command=False)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
@@ -209,10 +210,10 @@ class pica8FileTransfer(BaseFileTransfer):
     """pica8 SCP File Transfer driver."""
     def __init__(self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction='put'):
         return super(pica8FileTransfer, self).__init__(ssh_conn=ssh_conn,
-                                                         source_file=source_file,
-                                                         dest_file=dest_file,
-                                                         file_system=file_system,
-                                                         direction=direction)
+                                                       source_file=source_file,
+                                                       dest_file=dest_file,
+                                                       file_system=file_system,
+                                                       direction=direction)
 
     def remote_space_available(self, search_pattern=""):
         """Return space available on remote device."""
@@ -228,7 +229,7 @@ class pica8FileTransfer(BaseFileTransfer):
 
     def remote_md5(self, base_cmd='file checksum md5', remote_file=None):
         return super(pica8FileTransfer, self).remote_md5(base_cmd=base_cmd,
-                                                           remote_file=remote_file)
+                                                         remote_file=remote_file)
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError
