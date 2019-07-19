@@ -31,7 +31,10 @@ import copy
 import os
 import re
 import threading
-import copyable_regex_object
+try:
+    from textfsm import copyable_regex_object
+except ImportError:
+    import copyable_regex_object
 import textfsm
 from netmiko._textfsm import _texttable as texttable
 

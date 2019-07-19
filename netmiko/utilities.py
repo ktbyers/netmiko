@@ -8,13 +8,8 @@ import io
 import os
 import serial.tools.list_ports
 from netmiko.py23_compat import text_type
-
-try:
-    from textfsm import clitable
-    from textfsm.clitable import CliTableError
-except ImportError:
-    from netmiko._textfsm import _clitable as clitable
-    from netmiko._textfsm._clitable import CliTableError
+from netmiko._textfsm import _clitable as clitable
+from netmiko._textfsm._clitable import CliTableError
 
 try:
     from genie.conf.base import Device
