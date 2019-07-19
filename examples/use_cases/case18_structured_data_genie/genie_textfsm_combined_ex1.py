@@ -11,7 +11,7 @@ def main():
         host="cisco1.lasthop.io",
         # "cisco_xe" device type will cause textfsm to not return structured data
         device_type="cisco_xe",
-        username="pyclass",
+        username="username",
         password=PASSWORD,
     )
     # Setting both `use_textfsm` and `use_genie` to True will try textfsm first
