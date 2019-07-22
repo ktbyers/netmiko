@@ -33,14 +33,6 @@ class JuniperBase(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def _enter_shell(self):
-        """Enter the Bourne Shell."""
-        return self.send_command("start shell sh", expect_string=r"[\$#]")
-
-    def _return_cli(self):
-        """Return to the Juniper CLI."""
-        return self.send_command("exit", expect_string=r"[#>]")
-
     def enter_cli_mode(self):
         """Check if at shell prompt root@ and go into CLI."""
         delay_factor = self.select_delay_factor(delay_factor=0)
