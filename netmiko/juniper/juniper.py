@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import re
 import time
+import os
 
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
@@ -245,17 +246,64 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def remote_space_available(self, search_pattern=""):
         """Return space available on remote device."""
-        return self._remote_space_available_unix(search_pattern=search_pattern)
+        remote_cmd = "show system storage detail"
+        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+
+        output_lines = remote_output.strip().splitlines()
+
+        header_line = output_lines[0]
+
+        if "Filesystem" not in header_line or "Avail" not in header_line.split()[3]:
+            msg = "Parsing error, unexpected output from {};\n{}".format(
+                remote_cmd, remote_output
+            )
+            raise ValueError(msg)
+
+        header_line = header_line.split()
+        mounted = [dict(zip(header_line, line.split())) for line in output_lines[1:]]
+
+        mounted_on = max(
+            mounted,
+            key=lambda x: len(os.path.commonprefix([self.file_system, x["Mounted"]])),
+        )
+
+        return mounted_on["Avail"] * 1024
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
-        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+        if self.direction == "put":
+            full_path = "{}/{}".format(self.file_system, self.dest_file)
+            if not remote_cmd:
+                remote_cmd = "file list {}".format(full_path)
+            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            if "No such file or directory" in remote_out:
+                return False
+            elif full_path in remote_out:
+                return True
+            else:
+                raise ValueError("Unexpected output from check_file_exists")
+        elif self.direction == "get":
+            return os.path.exists(self.dest_file)
 
     def remote_file_size(self, remote_cmd="", remote_file=None):
         """Get the file size of the remote file."""
-        return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
-        )
+        if remote_file is None:
+            if self.direction == "put":
+                remote_file = self.dest_file
+            elif self.direction == "get":
+                remote_file = self.source_file
+        if not remote_cmd:
+            remote_cmd = "file list detail {}/{}".format(self.file_system, remote_file)
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        output_lines = remote_out.strip().splitlines()
+        if remote_file in output_lines[0]:
+            # Format will be:
+            # -rw-r--r--  1 juniper 20      145222 Jul 2  15:09 /var/home/juniper/filename
+            file_size = output_lines[0].split()[4]
+        if "No such file or directory" in remote_out:
+            raise IOError("Unable to find file on remote system")
+        else:
+            return int(file_size)
 
     def remote_md5(self, base_cmd="file checksum md5", remote_file=None):
         return super(JuniperFileTransfer, self).remote_md5(
