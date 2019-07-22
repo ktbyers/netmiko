@@ -238,28 +238,36 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def remote_space_available(self, search_pattern=""):
         """Return space available on remote device."""
-        remote_cmd = "show system storage detail"
-        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
 
-        output_lines = remote_output.strip().splitlines()
+        remote_cmds = ["show system storage detail local", "show system storage detail"]
+        for remote_cmd in remote_cmds:
+            remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
 
-        header_line = output_lines[0]
+            output_lines = remote_output.strip().splitlines()
 
-        if "Filesystem" not in header_line or "Avail" not in header_line.split()[3]:
-            msg = "Parsing error, unexpected output from {};\n{}".format(
-                remote_cmd, remote_output
+            header_line = output_lines[0]
+            if "Filesystem" not in header_line or "Avail" not in header_line.split()[3]:
+                continue
+            break
+        else:
+            msg = "Parsing error, unexpected output from {};".format(
+                ",".join(remote_cmds)
             )
             raise ValueError(msg)
 
-        header_line = header_line.split()
-        mounted = [dict(zip(header_line, line.split())) for line in output_lines[1:]]
+        header_line = header_line.split(maxsplit=5)
+        mounted = [
+            dict(zip(header_line, line.split(maxsplit=5))) for line in output_lines[1:]
+        ]
 
         mounted_on = max(
             mounted,
-            key=lambda x: len(os.path.commonprefix([self.file_system, x["Mounted"]])),
+            key=lambda x: len(
+                os.path.commonprefix([self.file_system, x["Mounted on"]])
+            ),
         )
 
-        return mounted_on["Avail"] * 1024
+        return int(mounted_on["Avail"]) * 1024
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
