@@ -163,6 +163,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "ubiquiti_edgeswitch": {
+        "cmd": "show version",
+        "search_patterns": [r"EdgeSwitch"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 
@@ -181,7 +187,7 @@ class SSHDetect(object):
 
     Attributes
     ----------
-    connection : netmiko.terminal_server.TerminalServer
+    connection : netmiko.terminal_server.TerminalServerSSH
         A basic connection to the remote SSH end.
     potential_matches: dict
         Dict of (device_type, accuracy) that is populated through an interaction with the

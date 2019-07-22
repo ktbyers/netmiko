@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import time
 import re
 
+from netmiko.ssh_exception import NetMikoAuthenticationException
 from netmiko.base_connection import BaseConnection
 from netmiko.py23_compat import string_types
 from netmiko import log
@@ -30,7 +31,7 @@ class CiscoWlcSSH(BaseConnection):
         while i <= 12:
             output = self.read_channel()
             if output:
-                if "login as" in output or "User" in output:
+                if "login as" in output or "User:" in output:
                     self.write_channel(self.username + self.RETURN)
                 elif "Password" in output:
                     self.write_channel(self.password + self.RETURN)
@@ -100,7 +101,13 @@ class CiscoWlcSSH(BaseConnection):
         Cisco WLC uses "config paging disable" to disable paging
         """
         self._test_channel_read()
-        self.set_base_prompt()
+
+        try:
+            self.set_base_prompt()
+        except ValueError:
+            msg = "Authentication failed: {}".format(self.host)
+            raise NetMikoAuthenticationException(msg)
+
         self.disable_paging(command="config paging disable")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)

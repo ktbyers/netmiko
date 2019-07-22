@@ -38,6 +38,8 @@ class ExtremeErsSSH(CiscoSSHConnection):
                 time.sleep(1 * delay_factor)
             i += 1
 
-    def save_config(self, cmd="save config", confirm=False):
+    def save_config(self, cmd="save config", confirm=False, confirm_response=""):
         """Save Config"""
-        return super(ExtremeErsSSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(ExtremeErsSSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )

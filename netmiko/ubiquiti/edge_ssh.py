@@ -40,6 +40,8 @@ class UbiquitiEdgeSSH(CiscoSSHConnection):
         """Exit enable mode."""
         return super(UbiquitiEdgeSSH, self).exit_enable_mode(exit_command=exit_command)
 
-    def save_config(self, cmd="write memory", confirm=False):
+    def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
         """Saves configuration."""
-        return super(UbiquitiEdgeSSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(UbiquitiEdgeSSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )

@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>netmiko.snmp_autodetect API documentation</title>
+<meta name="description" content="This module is used to auto-detect the type of a device in order to automatically create a
+Netmiko connection …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>netmiko.snmp_autodetect</code></h1>
+</header>
+<section id="section-intro">
+<p>This module is used to auto-detect the type of a device in order to automatically create a
+Netmiko connection.</p>
+<p>The will avoid to hard coding the 'device_type' when using the ConnectHandler factory function
+from Netmiko.</p>
+<h2 id="example">Example:</h2>
+<p>from netmiko.snmp_autodetect import SNMPDetect</p>
+<p>my_snmp = SNMPDetect(hostname='1.1.1.70', user='pysnmp', auth_key='key1', encrypt_key='key2')
+device_type = my_snmp.autodetect()</p>
+<hr>
+<p>autodetect will return None if no match.</p>
+<p>SNMPDetect class defaults to SNMPv3</p>
+<p>Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
+netmiko requirements. So installation of pysnmp might be required.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;
+This module is used to auto-detect the type of a device in order to automatically create a
+Netmiko connection.
+
+The will avoid to hard coding the &#39;device_type&#39; when using the ConnectHandler factory function
+from Netmiko.
+
+Example:
+------------------
+from netmiko.snmp_autodetect import SNMPDetect
+
+my_snmp = SNMPDetect(hostname=&#39;1.1.1.70&#39;, user=&#39;pysnmp&#39;, auth_key=&#39;key1&#39;, encrypt_key=&#39;key2&#39;)
+device_type = my_snmp.autodetect()
+------------------
+
+autodetect will return None if no match.
+
+SNMPDetect class defaults to SNMPv3
+
+Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
+netmiko requirements. So installation of pysnmp might be required.
+&#34;&#34;&#34;
+from __future__ import unicode_literals
+
+import re
+
+try:
+    from pysnmp.entity.rfc3413.oneliner import cmdgen
+except ImportError:
+    raise ImportError(&#34;pysnmp not installed; please install it: &#39;pip install pysnmp&#39;&#34;)
+
+from netmiko.ssh_dispatcher import CLASS_MAPPER
+from netmiko.py23_compat import text_type
+
+
+# Higher priority indicates a better match.
+SNMP_MAPPER_BASE = {
+    &#34;arista_eos&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*Arista Networks EOS.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;paloalto_panos&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*Palo Alto Networks.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;hp_comware&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*HP Comware.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;hp_procurve&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.ProCurve&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;cisco_ios&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*Cisco IOS Software,.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 60,
+    },
+    &#34;cisco_xe&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*IOS-XE Software,.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;cisco_xr&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*Cisco IOS XR Software.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;cisco_asa&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*Cisco Adaptive Security Appliance.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;cisco_nxos&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*Cisco NX-OS.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;cisco_wlc&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*Cisco Controller.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;f5_tmsh&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.4.1.3375.2.1.4.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*BIG-IP.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 99,
+    },
+    &#34;fortinet&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;Forti.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 80,
+    },
+    &#34;checkpoint&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.4.1.2620.1.6.16.9.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;CheckPoint&#34;),
+        &#34;priority&#34;: 79,
+    },
+    &#34;juniper_junos&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*Juniper.*&#34;),
+        &#34;priority&#34;: 99,
+    },
+}
+
+# Ensure all SNMP device types are supported by Netmiko
+SNMP_MAPPER = {}
+std_device_types = list(CLASS_MAPPER.keys())
+for device_type in std_device_types:
+    if SNMP_MAPPER_BASE.get(device_type):
+        SNMP_MAPPER[device_type] = SNMP_MAPPER_BASE[device_type]
+
+
+class SNMPDetect(object):
+    &#34;&#34;&#34;
+    The SNMPDetect class tries to automatically determine the device type.
+
+    Typically this will use the MIB-2 SysDescr and regular expressions.
+
+    Parameters
+    ----------
+    hostname: str
+        The name or IP address of the hostname we want to guess the type
+    snmp_version : str, optional (&#39;v1&#39;, &#39;v2c&#39; or &#39;v3&#39;)
+        The SNMP version that is running on the device (default: &#39;v3&#39;)
+    snmp_port : int, optional
+        The UDP port on which SNMP is listening (default: 161)
+    community : str, optional
+        The SNMP read community when using SNMPv2 (default: None)
+    user : str, optional
+        The SNMPv3 user for authentication (default: &#39;&#39;)
+    auth_key : str, optional
+        The SNMPv3 authentication key (default: &#39;&#39;)
+    encrypt_key : str, optional
+        The SNMPv3 encryption key (default: &#39;&#39;)
+    auth_proto : str, optional (&#39;des&#39;, &#39;3des&#39;, &#39;aes128&#39;, &#39;aes192&#39;, &#39;aes256&#39;)
+        The SNMPv3 authentication protocol (default: &#39;aes128&#39;)
+    encrypt_proto : str, optional (&#39;sha&#39;, &#39;md5&#39;)
+        The SNMPv3 encryption protocol (default: &#39;sha&#39;)
+
+    Attributes
+    ----------
+    hostname: str
+        The name or IP address of the device we want to guess the type
+    snmp_version : str
+        The SNMP version that is running on the device
+    snmp_port : int
+        The UDP port on which SNMP is listening
+    community : str
+        The SNMP read community when using SNMPv2
+    user : str
+        The SNMPv3 user for authentication
+    auth_key : str
+        The SNMPv3 authentication key
+    encrypt_key : str
+        The SNMPv3 encryption key
+    auth_proto : str
+        The SNMPv3 authentication protocol
+    encrypt_proto : str
+        The SNMPv3 encryption protocol
+
+
+    Methods
+    -------
+    autodetect()
+        Try to determine the device type.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        hostname,
+        snmp_version=&#34;v3&#34;,
+        snmp_port=161,
+        community=None,
+        user=&#34;&#34;,
+        auth_key=&#34;&#34;,
+        encrypt_key=&#34;&#34;,
+        auth_proto=&#34;sha&#34;,
+        encrypt_proto=&#34;aes128&#34;,
+    ):
+
+        # Check that the SNMP version is matching predefined type or raise ValueError
+        if snmp_version == &#34;v1&#34; or snmp_version == &#34;v2c&#34;:
+            if not community:
+                raise ValueError(&#34;SNMP version v1/v2c community must be set.&#34;)
+        elif snmp_version == &#34;v3&#34;:
+            if not user:
+                raise ValueError(&#34;SNMP version v3 user and password must be set&#34;)
+        else:
+            raise ValueError(&#34;SNMP version must be set to &#39;v1&#39;, &#39;v2c&#39; or &#39;v3&#39;&#34;)
+
+        # Check that the SNMPv3 auth &amp; priv parameters match allowed types
+        self._snmp_v3_authentication = {
+            &#34;sha&#34;: cmdgen.usmHMACSHAAuthProtocol,
+            &#34;md5&#34;: cmdgen.usmHMACMD5AuthProtocol,
+        }
+        self._snmp_v3_encryption = {
+            &#34;des&#34;: cmdgen.usmDESPrivProtocol,
+            &#34;3des&#34;: cmdgen.usm3DESEDEPrivProtocol,
+            &#34;aes128&#34;: cmdgen.usmAesCfb128Protocol,
+            &#34;aes192&#34;: cmdgen.usmAesCfb192Protocol,
+            &#34;aes256&#34;: cmdgen.usmAesCfb256Protocol,
+        }
+        if auth_proto not in self._snmp_v3_authentication.keys():
+            raise ValueError(
+                &#34;SNMP V3 &#39;auth_proto&#39; argument must be one of the following: {}&#34;.format(
+                    self._snmp_v3_authentication.keys()
+                )
+            )
+        if encrypt_proto not in self._snmp_v3_encryption.keys():
+            raise ValueError(
+                &#34;SNMP V3 &#39;encrypt_proto&#39; argument must be one of the following: {}&#34;.format(
+                    self._snmp_v3_encryption.keys()
+                )
+            )
+
+        self.hostname = hostname
+        self.snmp_version = snmp_version
+        self.snmp_port = snmp_port
+        self.community = community
+        self.user = user
+        self.auth_key = auth_key
+        self.encrypt_key = encrypt_key
+        self.auth_proto = self._snmp_v3_authentication[auth_proto]
+        self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
+        self._response_cache = {}
+
+    def _get_snmpv3(self, oid):
+        &#34;&#34;&#34;
+        Try to send an SNMP GET operation using SNMPv3 for the specified OID.
+
+        Parameters
+        ----------
+        oid : str
+            The SNMP OID that you want to get.
+
+        Returns
+        -------
+        string : str
+            The string as part of the value from the OID you are trying to retrieve.
+        &#34;&#34;&#34;
+        snmp_target = (self.hostname, self.snmp_port)
+        cmd_gen = cmdgen.CommandGenerator()
+
+        (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
+            cmdgen.UsmUserData(
+                self.user,
+                self.auth_key,
+                self.encrypt_key,
+                authProtocol=self.auth_proto,
+                privProtocol=self.encryp_proto,
+            ),
+            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            oid,
+            lookupNames=True,
+            lookupValues=True,
+        )
+
+        if not error_detected and snmp_data[0][1]:
+            return text_type(snmp_data[0][1])
+        return &#34;&#34;
+
+    def _get_snmpv2c(self, oid):
+        &#34;&#34;&#34;
+        Try to send an SNMP GET operation using SNMPv2 for the specified OID.
+
+        Parameters
+        ----------
+        oid : str
+            The SNMP OID that you want to get.
+
+        Returns
+        -------
+        string : str
+            The string as part of the value from the OID you are trying to retrieve.
+        &#34;&#34;&#34;
+        snmp_target = (self.hostname, self.snmp_port)
+        cmd_gen = cmdgen.CommandGenerator()
+
+        (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
+            cmdgen.CommunityData(self.community),
+            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            oid,
+            lookupNames=True,
+            lookupValues=True,
+        )
+
+        if not error_detected and snmp_data[0][1]:
+            return text_type(snmp_data[0][1])
+        return &#34;&#34;
+
+    def _get_snmp(self, oid):
+        &#34;&#34;&#34;Wrapper for generic SNMP call.&#34;&#34;&#34;
+        if self.snmp_version in [&#34;v1&#34;, &#34;v2c&#34;]:
+            return self._get_snmpv2c(oid)
+        else:
+            return self._get_snmpv3(oid)
+
+    def autodetect(self):
+        &#34;&#34;&#34;
+        Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
+        is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
+        dict.
+
+        Thus you can use this name to retrieve automatically the right ConnectionClass
+
+        Returns
+        -------
+        potential_type : str
+            The name of the device_type that must be running.
+        &#34;&#34;&#34;
+        # Convert SNMP_MAPPER to a list and sort by priority
+        snmp_mapper_list = []
+        for k, v in SNMP_MAPPER.items():
+            snmp_mapper_list.append({k: v})
+        snmp_mapper_list = sorted(
+            snmp_mapper_list, key=lambda x: list(x.values())[0][&#34;priority&#34;]
+        )
+        snmp_mapper_list.reverse()
+
+        for entry in snmp_mapper_list:
+            for device_type, v in entry.items():
+                oid = v[&#34;oid&#34;]
+                regex = v[&#34;expr&#34;]
+
+            # Used cache data if we already queryied this OID
+            if self._response_cache.get(oid):
+                snmp_response = self._response_cache.get(oid)
+            else:
+                snmp_response = self._get_snmp(oid)
+                self._response_cache[oid] = snmp_response
+
+            # See if we had a match
+            if re.search(regex, snmp_response):
+                return device_type
+
+        return None</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="netmiko.snmp_autodetect.SNMPDetect"><code class="flex name class">
+<span>class <span class="ident">SNMPDetect</span></span>
+<span>(</span><span>hostname, snmp_version='v3', snmp_port=161, community=None, user='', auth_key='', encrypt_key='', auth_proto='sha', encrypt_proto='aes128')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The SNMPDetect class tries to automatically determine the device type.</p>
+<p>Typically this will use the MIB-2 SysDescr and regular expressions.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>hostname</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name or IP address of the hostname we want to guess the type</dd>
+<dt><strong><code>snmp_version</code></strong> :&ensp;<code>str</code>, optional (<code>'v1'</code>, <code>'v2c'</code> or <code>'v3'</code>)</dt>
+<dd>The SNMP version that is running on the device (default: 'v3')</dd>
+<dt><strong><code>snmp_port</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The UDP port on which SNMP is listening (default: 161)</dd>
+<dt><strong><code>community</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The SNMP read community when using SNMPv2 (default: None)</dd>
+<dt><strong><code>user</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The SNMPv3 user for authentication (default: '')</dd>
+<dt><strong><code>auth_key</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The SNMPv3 authentication key (default: '')</dd>
+<dt><strong><code>encrypt_key</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The SNMPv3 encryption key (default: '')</dd>
+<dt><strong><code>auth_proto</code></strong> :&ensp;<code>str</code>, optional (<code>'des'</code>, <code>'3des'</code>, <code>'aes128'</code>, <code>'aes192'</code>, <code>'aes256'</code>)</dt>
+<dd>The SNMPv3 authentication protocol (default: 'aes128')</dd>
+<dt><strong><code>encrypt_proto</code></strong> :&ensp;<code>str</code>, optional (<code>'sha'</code>, <code>'md5'</code>)</dt>
+<dd>The SNMPv3 encryption protocol (default: 'sha')</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>hostname</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name or IP address of the device we want to guess the type</dd>
+<dt><strong><code>snmp_version</code></strong> :&ensp;<code>str</code></dt>
+<dd>The SNMP version that is running on the device</dd>
+<dt><strong><code>snmp_port</code></strong> :&ensp;<code>int</code></dt>
+<dd>The UDP port on which SNMP is listening</dd>
+<dt><strong><code>community</code></strong> :&ensp;<code>str</code></dt>
+<dd>The SNMP read community when using SNMPv2</dd>
+<dt><strong><code>user</code></strong> :&ensp;<code>str</code></dt>
+<dd>The SNMPv3 user for authentication</dd>
+<dt><strong><code>auth_key</code></strong> :&ensp;<code>str</code></dt>
+<dd>The SNMPv3 authentication key</dd>
+<dt><strong><code>encrypt_key</code></strong> :&ensp;<code>str</code></dt>
+<dd>The SNMPv3 encryption key</dd>
+<dt><strong><code>auth_proto</code></strong> :&ensp;<code>str</code></dt>
+<dd>The SNMPv3 authentication protocol</dd>
+<dt><strong><code>encrypt_proto</code></strong> :&ensp;<code>str</code></dt>
+<dd>The SNMPv3 encryption protocol</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p>autodetect()
+Try to determine the device type.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class SNMPDetect(object):
+    &#34;&#34;&#34;
+    The SNMPDetect class tries to automatically determine the device type.
+
+    Typically this will use the MIB-2 SysDescr and regular expressions.
+
+    Parameters
+    ----------
+    hostname: str
+        The name or IP address of the hostname we want to guess the type
+    snmp_version : str, optional (&#39;v1&#39;, &#39;v2c&#39; or &#39;v3&#39;)
+        The SNMP version that is running on the device (default: &#39;v3&#39;)
+    snmp_port : int, optional
+        The UDP port on which SNMP is listening (default: 161)
+    community : str, optional
+        The SNMP read community when using SNMPv2 (default: None)
+    user : str, optional
+        The SNMPv3 user for authentication (default: &#39;&#39;)
+    auth_key : str, optional
+        The SNMPv3 authentication key (default: &#39;&#39;)
+    encrypt_key : str, optional
+        The SNMPv3 encryption key (default: &#39;&#39;)
+    auth_proto : str, optional (&#39;des&#39;, &#39;3des&#39;, &#39;aes128&#39;, &#39;aes192&#39;, &#39;aes256&#39;)
+        The SNMPv3 authentication protocol (default: &#39;aes128&#39;)
+    encrypt_proto : str, optional (&#39;sha&#39;, &#39;md5&#39;)
+        The SNMPv3 encryption protocol (default: &#39;sha&#39;)
+
+    Attributes
+    ----------
+    hostname: str
+        The name or IP address of the device we want to guess the type
+    snmp_version : str
+        The SNMP version that is running on the device
+    snmp_port : int
+        The UDP port on which SNMP is listening
+    community : str
+        The SNMP read community when using SNMPv2
+    user : str
+        The SNMPv3 user for authentication
+    auth_key : str
+        The SNMPv3 authentication key
+    encrypt_key : str
+        The SNMPv3 encryption key
+    auth_proto : str
+        The SNMPv3 authentication protocol
+    encrypt_proto : str
+        The SNMPv3 encryption protocol
+
+
+    Methods
+    -------
+    autodetect()
+        Try to determine the device type.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        hostname,
+        snmp_version=&#34;v3&#34;,
+        snmp_port=161,
+        community=None,
+        user=&#34;&#34;,
+        auth_key=&#34;&#34;,
+        encrypt_key=&#34;&#34;,
+        auth_proto=&#34;sha&#34;,
+        encrypt_proto=&#34;aes128&#34;,
+    ):
+
+        # Check that the SNMP version is matching predefined type or raise ValueError
+        if snmp_version == &#34;v1&#34; or snmp_version == &#34;v2c&#34;:
+            if not community:
+                raise ValueError(&#34;SNMP version v1/v2c community must be set.&#34;)
+        elif snmp_version == &#34;v3&#34;:
+            if not user:
+                raise ValueError(&#34;SNMP version v3 user and password must be set&#34;)
+        else:
+            raise ValueError(&#34;SNMP version must be set to &#39;v1&#39;, &#39;v2c&#39; or &#39;v3&#39;&#34;)
+
+        # Check that the SNMPv3 auth &amp; priv parameters match allowed types
+        self._snmp_v3_authentication = {
+            &#34;sha&#34;: cmdgen.usmHMACSHAAuthProtocol,
+            &#34;md5&#34;: cmdgen.usmHMACMD5AuthProtocol,
+        }
+        self._snmp_v3_encryption = {
+            &#34;des&#34;: cmdgen.usmDESPrivProtocol,
+            &#34;3des&#34;: cmdgen.usm3DESEDEPrivProtocol,
+            &#34;aes128&#34;: cmdgen.usmAesCfb128Protocol,
+            &#34;aes192&#34;: cmdgen.usmAesCfb192Protocol,
+            &#34;aes256&#34;: cmdgen.usmAesCfb256Protocol,
+        }
+        if auth_proto not in self._snmp_v3_authentication.keys():
+            raise ValueError(
+                &#34;SNMP V3 &#39;auth_proto&#39; argument must be one of the following: {}&#34;.format(
+                    self._snmp_v3_authentication.keys()
+                )
+            )
+        if encrypt_proto not in self._snmp_v3_encryption.keys():
+            raise ValueError(
+                &#34;SNMP V3 &#39;encrypt_proto&#39; argument must be one of the following: {}&#34;.format(
+                    self._snmp_v3_encryption.keys()
+                )
+            )
+
+        self.hostname = hostname
+        self.snmp_version = snmp_version
+        self.snmp_port = snmp_port
+        self.community = community
+        self.user = user
+        self.auth_key = auth_key
+        self.encrypt_key = encrypt_key
+        self.auth_proto = self._snmp_v3_authentication[auth_proto]
+        self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
+        self._response_cache = {}
+
+    def _get_snmpv3(self, oid):
+        &#34;&#34;&#34;
+        Try to send an SNMP GET operation using SNMPv3 for the specified OID.
+
+        Parameters
+        ----------
+        oid : str
+            The SNMP OID that you want to get.
+
+        Returns
+        -------
+        string : str
+            The string as part of the value from the OID you are trying to retrieve.
+        &#34;&#34;&#34;
+        snmp_target = (self.hostname, self.snmp_port)
+        cmd_gen = cmdgen.CommandGenerator()
+
+        (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
+            cmdgen.UsmUserData(
+                self.user,
+                self.auth_key,
+                self.encrypt_key,
+                authProtocol=self.auth_proto,
+                privProtocol=self.encryp_proto,
+            ),
+            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            oid,
+            lookupNames=True,
+            lookupValues=True,
+        )
+
+        if not error_detected and snmp_data[0][1]:
+            return text_type(snmp_data[0][1])
+        return &#34;&#34;
+
+    def _get_snmpv2c(self, oid):
+        &#34;&#34;&#34;
+        Try to send an SNMP GET operation using SNMPv2 for the specified OID.
+
+        Parameters
+        ----------
+        oid : str
+            The SNMP OID that you want to get.
+
+        Returns
+        -------
+        string : str
+            The string as part of the value from the OID you are trying to retrieve.
+        &#34;&#34;&#34;
+        snmp_target = (self.hostname, self.snmp_port)
+        cmd_gen = cmdgen.CommandGenerator()
+
+        (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
+            cmdgen.CommunityData(self.community),
+            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            oid,
+            lookupNames=True,
+            lookupValues=True,
+        )
+
+        if not error_detected and snmp_data[0][1]:
+            return text_type(snmp_data[0][1])
+        return &#34;&#34;
+
+    def _get_snmp(self, oid):
+        &#34;&#34;&#34;Wrapper for generic SNMP call.&#34;&#34;&#34;
+        if self.snmp_version in [&#34;v1&#34;, &#34;v2c&#34;]:
+            return self._get_snmpv2c(oid)
+        else:
+            return self._get_snmpv3(oid)
+
+    def autodetect(self):
+        &#34;&#34;&#34;
+        Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
+        is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
+        dict.
+
+        Thus you can use this name to retrieve automatically the right ConnectionClass
+
+        Returns
+        -------
+        potential_type : str
+            The name of the device_type that must be running.
+        &#34;&#34;&#34;
+        # Convert SNMP_MAPPER to a list and sort by priority
+        snmp_mapper_list = []
+        for k, v in SNMP_MAPPER.items():
+            snmp_mapper_list.append({k: v})
+        snmp_mapper_list = sorted(
+            snmp_mapper_list, key=lambda x: list(x.values())[0][&#34;priority&#34;]
+        )
+        snmp_mapper_list.reverse()
+
+        for entry in snmp_mapper_list:
+            for device_type, v in entry.items():
+                oid = v[&#34;oid&#34;]
+                regex = v[&#34;expr&#34;]
+
+            # Used cache data if we already queryied this OID
+            if self._response_cache.get(oid):
+                snmp_response = self._response_cache.get(oid)
+            else:
+                snmp_response = self._get_snmp(oid)
+                self._response_cache[oid] = snmp_response
+
+            # See if we had a match
+            if re.search(regex, snmp_response):
+                return device_type
+
+        return None</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="netmiko.snmp_autodetect.SNMPDetect.autodetect"><code class="name flex">
+<span>def <span class="ident">autodetect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
+is returned is directly matching the name in <em>netmiko.ssh_dispatcher.CLASS_MAPPER_BASE</em>
+dict.</p>
+<p>Thus you can use this name to retrieve automatically the right ConnectionClass</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>potential_type</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the device_type that must be running.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def autodetect(self):
+    &#34;&#34;&#34;
+    Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
+    is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
+    dict.
+
+    Thus you can use this name to retrieve automatically the right ConnectionClass
+
+    Returns
+    -------
+    potential_type : str
+        The name of the device_type that must be running.
+    &#34;&#34;&#34;
+    # Convert SNMP_MAPPER to a list and sort by priority
+    snmp_mapper_list = []
+    for k, v in SNMP_MAPPER.items():
+        snmp_mapper_list.append({k: v})
+    snmp_mapper_list = sorted(
+        snmp_mapper_list, key=lambda x: list(x.values())[0][&#34;priority&#34;]
+    )
+    snmp_mapper_list.reverse()
+
+    for entry in snmp_mapper_list:
+        for device_type, v in entry.items():
+            oid = v[&#34;oid&#34;]
+            regex = v[&#34;expr&#34;]
+
+        # Used cache data if we already queryied this OID
+        if self._response_cache.get(oid):
+            snmp_response = self._response_cache.get(oid)
+        else:
+            snmp_response = self._get_snmp(oid)
+            self._response_cache[oid] = snmp_response
+
+        # See if we had a match
+        if re.search(regex, snmp_response):
+            return device_type
+
+    return None</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#example">Example:</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="netmiko" href="index.html">netmiko</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="netmiko.snmp_autodetect.SNMPDetect" href="#netmiko.snmp_autodetect.SNMPDetect">SNMPDetect</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.snmp_autodetect.SNMPDetect.autodetect" href="#netmiko.snmp_autodetect.SNMPDetect.autodetect">autodetect</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
