@@ -1,4 +1,3 @@
-import re
 import time
 
 from netmiko.cisco.cisco_ios import CiscoIosBase
@@ -17,32 +16,32 @@ class KeymileSSH(CiscoIosBase):
         self.clear_buffer()
 
     def disable_paging(self, *args, **kwargs):
-        """Keymile doesn't use paging."""
+        """Keymile does not use paging."""
         return ""
 
-    def check_config_mode(self, check_string="", pattern=""):
-        """Keymile doesn't use config mode."""
+    def check_config_mode(self, *args, **kwargs):
+        """Keymile does not use config mode."""
         return False
 
-    def config_mode(self, config_command="", pattern=""):
-        """Keymile doesn't use config mode."""
-        pass
+    def config_mode(self, *args, **kwargs):
+        """Keymile does not use config mode."""
+        return ""
 
-    def exit_config_mode(self, exit_config="", pattern=""):
-        """Keymile doesn't use config mode."""
-        pass
+    def exit_config_mode(self, *args, **kwargs):
+        """Keymile does not use config mode."""
+        return ""
 
-    def check_enable_mode(self, check_string=""):
-        """Keymile doesn't use enable mode."""
+    def check_enable_mode(self, *args, **kwargs):
+        """Keymile does not use enable mode."""
         return False
 
-    def enable(self, cmd="", pattern="", re_flags=re.IGNORECASE):
-        """Keymile doesn't use enable mode."""
-        pass
+    def enable(self, *args, **kwargs):
+        """Keymile does not use enable mode."""
+        return ""
 
-    def exit_enable_mode(self, exit_command="exit"):
-        """Keymile doesn't use enable mode."""
-        pass
+    def exit_enable_mode(self, *args, **kwargs):
+        """Keymile does not use enable mode."""
+        return ""
 
     def strip_prompt(self, a_string):
         """Remove appending empty line and prompt from output"""
@@ -51,7 +50,7 @@ class KeymileSSH(CiscoIosBase):
         return super(KeymileSSH, self).strip_prompt(a_string=a_string)
 
     def send_command(self, *args, **kwargs):
-        """make "cd /path" work"""
+        """make cd /path work"""
         if len(args) >= 1:
             command_string = args[0]
         else:
@@ -65,10 +64,8 @@ class KeymileSSH(CiscoIosBase):
         output = super(KeymileSSH, self).send_command(*args, **kwargs)
         return output
 
-    def set_base_prompt(self, pri_prompt_terminator=">"):
+    def set_base_prompt(self, pri_prompt_terminator=">", **kwargs):
         """ set prompt termination  to >"""
-        prompt = super(KeymileSSH, self).set_base_prompt(
+        return super(KeymileSSH, self).set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator
         )
-        self.base_prompt = prompt
-        return self.base_prompt
