@@ -643,7 +643,7 @@ class BaseConnection(object):
         self,
         pri_prompt_terminator=r"#\s*$",
         alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
+        username_pattern=r"(?:user:|username|login|user name|Username)",
         pwd_pattern=r"assword",
         delay_factor=1,
         max_loops=20,
