@@ -1,5 +1,4 @@
 """Ciena SAOS support."""
-"""server:/usr/local/lib/python3.6/dist-packages/netmiko/ciena$ sudo cp /home/netauto/nornir-dev/ciena_saos_ssh-dev.py ciena_saos_ssh.py"""
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -25,8 +24,8 @@ class CienaSaosSSH(CiscoSSHConnection):
         pass
 
     def _enter_shell(self):
-        """Enter the Bourne Shell."""
-        return self.send_command("start shell sh", expect_string=r"[\$#]")
+        """No Shell Mode"""
+        pass
 
     def _return_cli(self):
         """Return to the Ciena SAOS CLI."""
@@ -38,7 +37,7 @@ class CienaSaosSSH(CiscoSSHConnection):
         output = self.send_command("config save")
         return output
 
-    def check_config_mode(self, check_string=">", pattern=""):
+    def check_config_mode(self, check_string=")>", pattern=""):
         """Checks if the device is in configuration mode or not."""
         return super(CienaSaosSSH, self).check_config_mode(check_string=check_string)
 
