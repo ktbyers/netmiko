@@ -1,5 +1,4 @@
 """Ciena SAOS support."""
-
 from __future__ import print_function
 from __future__ import unicode_literals
 import time
@@ -24,18 +23,17 @@ class CienaSaosSSH(CiscoSSHConnection):
         pass
 
     def _enter_shell(self):
-        """No Shell Mode"""
+        """No Shell."""
         pass
 
     def _return_cli(self):
         """Return to the Ciena SAOS CLI."""
         return self.send_command("exit", expect_string=r"[>]")
 
-    def save_config(self):
+    def save_config(self, cmd="config save", confirm=False, confirm_response=""):
         """Save Configuration"""
-        # raise NotImplementedError
-        output = self.send_command("config save")
-        return output
+        #output = self.send_command(command_string=cmd)
+        return super(CienaSaosSSH, self).save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def check_config_mode(self, check_string=")>", pattern=""):
         """Checks if the device is in configuration mode or not."""
@@ -54,9 +52,6 @@ class CienaSaosSSH(CiscoSSHConnection):
             )
         return output
     
-    def commit(self):
-        """Commit or Otherwise Save Ciena"""
-        return self.send_command("config save")
 
 class CienaSaosFileTransfer(BaseFileTransfer):
     """Ciena SAOS SCP File Transfer driver."""
