@@ -49,7 +49,6 @@ $ pip install netmiko
 Netmiko has the following requirements (which pip will install for you)
 - Paramiko >= 2.4.3
 - scp >= 0.13.2
-- pyyaml
 - pyserial
 - textfsm
 
@@ -74,6 +73,7 @@ See the following directory for [example scripts](https://github.com/ktbyers/net
 - [Sending Configuration Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case6_config_change)
 - [Handling Additional Prompting](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case5_prompting/send_command_prompting.py)
 - [Connecting with SSH Keys](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case9_ssh_keys/conn_ssh_keys.py)
+- [Cisco Genie Integration](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case18_structured_data_genie)
 
 
 ### Getting Started:
