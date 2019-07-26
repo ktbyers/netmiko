@@ -136,10 +136,10 @@ class BaseConnection(object):
                 means unknown SSH host keys will be accepted).
         :type ssh_strict: bool
 
-        :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+        :param system_host_keys: Load host keys from the users known_hosts file.
         :type system_host_keys: bool
         :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-                'alt_key_file'.
+                alt_key_file.
         :type alt_host_keys: bool
 
         :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -165,11 +165,11 @@ class BaseConnection(object):
                 to keep the connection alive).
         :type keepalive: int
 
-        :param default_enter: Character(s) to send to correspond to enter key (default: '\n').
+        :param default_enter: Character(s) to send to correspond to enter key (default: \n).
         :type default_enter: str
 
         :param response_return: Character(s) to use in normalized return data to represent
-                enter key (default: '\n')
+                enter key (default: \n)
         :type response_return: str
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
@@ -194,7 +194,7 @@ class BaseConnection(object):
         :type allow_auto_change: bool
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: 'ascii')
+                (default: ascii)
         :type encoding: str
         """
         self.remote_conn = None
@@ -726,7 +726,7 @@ class BaseConnection(object):
         """
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
-        to do since they don't have a reference to the object. This is possibly related
+        to do since they do not have a reference to the object. This is possibly related
         to threads used in Paramiko.
         """
         try:
@@ -759,7 +759,7 @@ class BaseConnection(object):
         self.clear_buffer()
 
     def _use_ssh_config(self, dict_arg):
-        """Update SSH connection parameters based on contents of SSH 'config' file.
+        """Update SSH connection parameters based on contents of SSH config file.
 
         :param dict_arg: Dictionary of SSH connection parameters
         :type dict_arg: dict
@@ -1034,7 +1034,7 @@ class BaseConnection(object):
         Used as delimiter for stripping of trailing prompt in output.
 
         Should be set to something that is general and applies in multiple contexts. For Cisco
-        devices this will be set to router hostname (i.e. prompt without '>' or '#').
+        devices this will be set to router hostname (i.e. prompt without > or #).
 
         This will be set on entering user exec or privileged exec on Cisco, but not when
         entering/exiting config mode.

@@ -32,10 +32,18 @@ import sys
 import io
 import os
 import serial.tools.list_ports
+from netmiko.py23_compat import text_type
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
-from netmiko.py23_compat import text_type
 
+try:
+    from genie.conf.base import Device
+    from genie.libs.parser.utils import get_parser
+    from pyats.datastructures import AttrDict
+
+    GENIE_INSTALLED = True
+except ImportError:
+    GENIE_INSTALLED = False
 
 # Dictionary mapping &#39;show run&#39; for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -287,6 +295,54 @@ def get_structured_data(raw_output, platform, command):
         output = raw_output if structured_data == [] else structured_data
         return output
     except CliTableError:
+        return raw_output
+
+
+def get_structured_data_genie(raw_output, platform, command):
+    if not sys.version_info &gt;= (3, 4):
+        raise ValueError(&#34;Genie requires Python &gt;= 3.4&#34;)
+
+    if not GENIE_INSTALLED:
+        msg = (
+            &#34;\nGenie and PyATS are not installed. Please PIP install both Genie and PyATS:\n&#34;
+            &#34;pip install genie\npip install pyats\n&#34;
+        )
+        raise ValueError(msg)
+
+    if &#34;cisco&#34; not in platform:
+        return raw_output
+
+    genie_device_mapper = {
+        &#34;cisco_ios&#34;: &#34;ios&#34;,
+        &#34;cisco_xe&#34;: &#34;iosxe&#34;,
+        &#34;cisco_xr&#34;: &#34;iosxr&#34;,
+        &#34;cisco_nxos&#34;: &#34;nxos&#34;,
+        &#34;cisco_asa&#34;: &#34;asa&#34;,
+    }
+
+    os = None
+    # platform might be _ssh, _telnet, _serial strip that off
+    if platform.count(&#34;_&#34;) &gt; 1:
+        base_platform = platform.split(&#34;_&#34;)[:-1]
+        base_platform = &#34;_&#34;.join(base_platform)
+    else:
+        base_platform = platform
+
+    os = genie_device_mapper.get(base_platform)
+    if os is None:
+        return raw_output
+
+    # Genie specific construct for doing parsing (based on Genie in Ansible)
+    device = Device(&#34;new_device&#34;, os=os)
+    device.custom.setdefault(&#34;abstraction&#34;, {})
+    device.custom[&#34;abstraction&#34;][&#34;order&#34;] = [&#34;os&#34;]
+    device.cli = AttrDict({&#34;execute&#34;: None})
+    try:
+        # Test of whether their is a parser for the given command (will return Exception if fails)
+        get_parser(command, device)
+        parsed_output = device.parse(command, output=raw_output)
+        return parsed_output
+    except Exception:
         return raw_output</code></pre>
 </details>
 </section>
@@ -474,6 +530,61 @@ Home directory</p>
         return raw_output</code></pre>
 </details>
 </dd>
+<dt id="netmiko.utilities.get_structured_data_genie"><code class="name flex">
+<span>def <span class="ident">get_structured_data_genie</span></span>(<span>raw_output, platform, command)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_structured_data_genie(raw_output, platform, command):
+    if not sys.version_info &gt;= (3, 4):
+        raise ValueError(&#34;Genie requires Python &gt;= 3.4&#34;)
+
+    if not GENIE_INSTALLED:
+        msg = (
+            &#34;\nGenie and PyATS are not installed. Please PIP install both Genie and PyATS:\n&#34;
+            &#34;pip install genie\npip install pyats\n&#34;
+        )
+        raise ValueError(msg)
+
+    if &#34;cisco&#34; not in platform:
+        return raw_output
+
+    genie_device_mapper = {
+        &#34;cisco_ios&#34;: &#34;ios&#34;,
+        &#34;cisco_xe&#34;: &#34;iosxe&#34;,
+        &#34;cisco_xr&#34;: &#34;iosxr&#34;,
+        &#34;cisco_nxos&#34;: &#34;nxos&#34;,
+        &#34;cisco_asa&#34;: &#34;asa&#34;,
+    }
+
+    os = None
+    # platform might be _ssh, _telnet, _serial strip that off
+    if platform.count(&#34;_&#34;) &gt; 1:
+        base_platform = platform.split(&#34;_&#34;)[:-1]
+        base_platform = &#34;_&#34;.join(base_platform)
+    else:
+        base_platform = platform
+
+    os = genie_device_mapper.get(base_platform)
+    if os is None:
+        return raw_output
+
+    # Genie specific construct for doing parsing (based on Genie in Ansible)
+    device = Device(&#34;new_device&#34;, os=os)
+    device.custom.setdefault(&#34;abstraction&#34;, {})
+    device.custom[&#34;abstraction&#34;][&#34;order&#34;] = [&#34;os&#34;]
+    device.cli = AttrDict({&#34;execute&#34;: None})
+    try:
+        # Test of whether their is a parser for the given command (will return Exception if fails)
+        get_parser(command, device)
+        parsed_output = device.parse(command, output=raw_output)
+        return parsed_output
+    except Exception:
+        return raw_output</code></pre>
+</details>
+</dd>
 <dt id="netmiko.utilities.get_template_dir"><code class="name flex">
 <span>def <span class="ident">get_template_dir</span></span>(<span>)</span>
 </code></dt>
@@ -637,6 +748,7 @@ directory.&#34;&#34;&#34;
 <li><code><a title="netmiko.utilities.find_cfg_file" href="#netmiko.utilities.find_cfg_file">find_cfg_file</a></code></li>
 <li><code><a title="netmiko.utilities.find_netmiko_dir" href="#netmiko.utilities.find_netmiko_dir">find_netmiko_dir</a></code></li>
 <li><code><a title="netmiko.utilities.get_structured_data" href="#netmiko.utilities.get_structured_data">get_structured_data</a></code></li>
+<li><code><a title="netmiko.utilities.get_structured_data_genie" href="#netmiko.utilities.get_structured_data_genie">get_structured_data_genie</a></code></li>
 <li><code><a title="netmiko.utilities.get_template_dir" href="#netmiko.utilities.get_template_dir">get_template_dir</a></code></li>
 <li><code><a title="netmiko.utilities.load_devices" href="#netmiko.utilities.load_devices">load_devices</a></code></li>
 <li><code><a title="netmiko.utilities.load_yaml_file" href="#netmiko.utilities.load_yaml_file">load_yaml_file</a></code></li>

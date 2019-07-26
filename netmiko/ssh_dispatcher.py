@@ -59,7 +59,7 @@ from netmiko.keymile import KeymileSSH, KeymileNOSSSH
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.mikrotik import MikrotikRouterOsSSH
 from netmiko.mikrotik import MikrotikSwitchOsSSH
-from netmiko.mellanox import MellanoxSSH
+from netmiko.mellanox import MellanoxMlnxosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
@@ -145,7 +145,8 @@ CLASS_MAPPER_BASE = {
     "linux": LinuxSSH,
     "mikrotik_routeros": MikrotikRouterOsSSH,
     "mikrotik_switchos": MikrotikSwitchOsSSH,
-    "mellanox": MellanoxSSH,
+    "mellanox": MellanoxMlnxosSSH,
+    "mellanox_mlnxos": MellanoxMlnxosSSH,
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "netapp_cdot": NetAppcDotSSH,
