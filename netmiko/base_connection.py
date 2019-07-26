@@ -939,7 +939,7 @@ class BaseConnection(object):
 
         # check if data was ever present
         if new_data:
-            return ""
+            return new_data
         else:
             raise NetMikoTimeoutException("Timed out waiting for data")
 
