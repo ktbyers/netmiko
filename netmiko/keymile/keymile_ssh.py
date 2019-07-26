@@ -49,21 +49,6 @@ class KeymileSSH(CiscoIosBase):
         a_string = a_string[:-1]
         return super(KeymileSSH, self).strip_prompt(a_string=a_string)
 
-    def send_command(self, *args, **kwargs):
-        """make cd /path work"""
-        if len(args) >= 1:
-            command_string = args[0]
-        else:
-            command_string = kwargs["command_string"]
-
-        if "cd" in command_string:
-            dest = command_string.split(" ", 1)[1]
-            self.base_prompt = dest
-            kwargs["expect_string"] = dest
-
-        output = super(KeymileSSH, self).send_command(*args, **kwargs)
-        return output
-
     def set_base_prompt(self, pri_prompt_terminator=">", **kwargs):
         """ set prompt termination  to >"""
         return super(KeymileSSH, self).set_base_prompt(
