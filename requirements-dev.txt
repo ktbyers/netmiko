@@ -1,6 +1,8 @@
-pytest==3.10.0
-pylama==7.6.6
-tox==3.5.3
-twine==1.12.1
-pysnmp
+PyYAML==5.1
+pytest==4.6.3
+pylama==7.7.1
+tox==3.13.1
+twine==1.13.0
+pysnmp==4.4.9
+pdoc3==0.6.2; python_version >= '3.6'
 -r requirements.txt

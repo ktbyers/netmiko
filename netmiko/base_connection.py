@@ -29,7 +29,12 @@ from netmiko.ssh_exception import (
     NetMikoTimeoutException,
     NetMikoAuthenticationException,
 )
-from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
+from netmiko.utilities import (
+    write_bytes,
+    check_serial_port,
+    get_structured_data,
+    get_structured_data_genie,
+)
 
 
 class BaseConnection(object):
@@ -44,7 +49,7 @@ class BaseConnection(object):
         ip="",
         host="",
         username="",
-        password="",
+        password=None,
         secret="",
         port=None,
         device_type="",
@@ -64,6 +69,7 @@ class BaseConnection(object):
         session_timeout=60,
         auth_timeout=None,
         blocking_timeout=8,
+        banner_timeout=5,
         keepalive=0,
         default_enter=None,
         response_return=None,
@@ -130,10 +136,10 @@ class BaseConnection(object):
                 means unknown SSH host keys will be accepted).
         :type ssh_strict: bool
 
-        :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+        :param system_host_keys: Load host keys from the users known_hosts file.
         :type system_host_keys: bool
         :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-                'alt_key_file'.
+                alt_key_file.
         :type alt_host_keys: bool
 
         :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -151,16 +157,19 @@ class BaseConnection(object):
         :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
         :type auth_timeout: float
 
+        :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+        :type banner_timeout: float
+
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
                 to keep the connection alive).
         :type keepalive: int
 
-        :param default_enter: Character(s) to send to correspond to enter key (default: '\n').
+        :param default_enter: Character(s) to send to correspond to enter key (default: \n).
         :type default_enter: str
 
         :param response_return: Character(s) to use in normalized return data to represent
-                enter key (default: '\n')
+                enter key (default: \n)
         :type response_return: str
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
@@ -185,7 +194,7 @@ class BaseConnection(object):
         :type allow_auto_change: bool
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: 'ascii')
+                (default: ascii)
         :type encoding: str
         """
         self.remote_conn = None
@@ -202,10 +211,9 @@ class BaseConnection(object):
         # Line Separator in response lines
         self.RESPONSE_RETURN = "\n" if response_return is None else response_return
         if ip:
-            self.host = ip
-            self.ip = ip
+            self.host = ip.strip()
         elif host:
-            self.host = host
+            self.host = host.strip()
         if not ip and not host and "serial" not in device_type:
             raise ValueError("Either ip or host must be set")
         if port is None:
@@ -223,6 +231,7 @@ class BaseConnection(object):
         self.verbose = verbose
         self.timeout = timeout
         self.auth_timeout = auth_timeout
+        self.banner_timeout = banner_timeout
         self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
         self.keepalive = keepalive
@@ -279,14 +288,10 @@ class BaseConnection(object):
         # determine if telnet or SSH
         if "_telnet" in device_type:
             self.protocol = "telnet"
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
+            self.password = password or ""
         elif "_serial" in device_type:
             self.protocol = "serial"
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
+            self.password = password or ""
         else:
             self.protocol = "ssh"
 
@@ -308,9 +313,14 @@ class BaseConnection(object):
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
 
-            self._modify_connection_params()
-            self.establish_connection()
-            self._try_session_preparation()
+        # Establish the remote connection
+        self._open()
+
+    def _open(self):
+        """Decouple connection creation from __init__ for mocking."""
+        self._modify_connection_params()
+        self.establish_connection()
+        self._try_session_preparation()
 
     def __enter__(self):
         """Establish a session using a Context Manager."""
@@ -510,7 +520,7 @@ class BaseConnection(object):
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # argument for backwards compatibility).
         if max_loops == 150:
-            max_loops = self.timeout / loop_delay
+            max_loops = int(self.timeout / loop_delay)
         while i < max_loops:
             if self.protocol == "ssh":
                 try:
@@ -716,7 +726,7 @@ class BaseConnection(object):
         """
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
-        to do since they don't have a reference to the object. This is possibly related
+        to do since they do not have a reference to the object. This is possibly related
         to threads used in Paramiko.
         """
         try:
@@ -749,7 +759,7 @@ class BaseConnection(object):
         self.clear_buffer()
 
     def _use_ssh_config(self, dict_arg):
-        """Update SSH connection parameters based on contents of SSH 'config' file.
+        """Update SSH connection parameters based on contents of SSH config file.
 
         :param dict_arg: Dictionary of SSH connection parameters
         :type dict_arg: dict
@@ -799,6 +809,7 @@ class BaseConnection(object):
             "passphrase": self.passphrase,
             "timeout": self.timeout,
             "auth_timeout": self.auth_timeout,
+            "banner_timeout": self.banner_timeout,
         }
 
         # Check if using SSH 'config' file mainly for SSH proxy support
@@ -1023,7 +1034,7 @@ class BaseConnection(object):
         Used as delimiter for stripping of trailing prompt in output.
 
         Should be set to something that is general and applies in multiple contexts. For Cisco
-        devices this will be set to router hostname (i.e. prompt without '>' or '#').
+        devices this will be set to router hostname (i.e. prompt without > or #).
 
         This will be set on entering user exec or privileged exec on Cisco, but not when
         entering/exiting config mode.
@@ -1096,6 +1107,7 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        use_genie=False,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1121,6 +1133,9 @@ class BaseConnection(object):
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
+
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
+        :type normalize: bool
         """
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -1138,10 +1153,18 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm:
-            output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
+        # If both TextFSM and Genie are set, try TextFSM then Genie
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
         return output
 
     def strip_prompt(self, a_string):
@@ -1195,6 +1218,7 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        use_genie=False,
     ):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1225,6 +1249,9 @@ class BaseConnection(object):
         :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
+        :type normalize: bool
+
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
         """
         # Time to delay in each read loop
@@ -1302,10 +1329,19 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm:
-            output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
+
+        # If both TextFSM and Genie are set, try TextFSM then Genie
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
         return output
 
     def send_command_expect(self, *args, **kwargs):
@@ -1365,6 +1401,8 @@ class BaseConnection(object):
         if self.RESPONSE_RETURN == "\n":
             # Convert any remaining \r to \n
             return re.sub("\r", self.RESPONSE_RETURN, a_string)
+        else:
+            return a_string
 
     def normalize_cmd(self, command):
         """Normalize CLI commands to have a single trailing newline.
@@ -1617,9 +1655,13 @@ class BaseConnection(object):
         code_erase_display = chr(27) + r"\[2J"
         code_graphics_mode = chr(27) + r"\[\d\d;\d\dm"
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
+        code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
+        code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
         code_erase_display = chr(27) + r"\[J"
+        code_attrs_off = chr(27) + r"\[0m"
+        code_reverse = chr(27) + r"\[7m"
 
         code_set = [
             code_position_cursor,
@@ -1636,9 +1678,13 @@ class BaseConnection(object):
             code_erase_display,
             code_graphics_mode,
             code_graphics_mode2,
+            code_graphics_mode3,
+            code_graphics_mode4,
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_attrs_off,
+            code_reverse,
         ]
 
         output = string_buffer
@@ -1684,7 +1730,7 @@ class BaseConnection(object):
         """Commit method for platforms that support this."""
         raise AttributeError("Network device does not support 'commit()' method")
 
-    def save_config(self, cmd="", confirm=True, confirm_response=""):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError
 

@@ -1,7 +1,14 @@
 
 # Use pynetcio machine
+# Use virtual environment = py36_netmiko
 
-# NEED TO CONVERT OVER TO USE A WHEEL
+# Run the following command to update docs: 
+$ pdoc3 --html --output-dir docs netmiko --force
+
+# Docs will be hosted via GitHub Pages in the master branch...
+# README.md is entry point at https://ktbyers.github.io/netmiko/ which then links to...
+# https://ktbyers.github.io/netmiko/docs/netmiko/index.html for full docs
+
 # python setup.py sdist bdist_wheel
 
 # Make sure you have rolled the version in __init__.py

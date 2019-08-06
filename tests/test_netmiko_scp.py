@@ -116,7 +116,6 @@ def test_file_transfer(scp_file_transfer):
     source_file = "test9.txt"
     dest_file = "test9.txt"
     direction = "put"
-    print(file_system)
 
     transfer_dict = file_transfer(
         ssh_conn,
