@@ -23,17 +23,17 @@
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">from __future__ import unicode_literals
-from netmiko.mellanox.mellanox_ssh import MellanoxSSH
+from netmiko.mellanox.mellanox_mlnxos_ssh import MellanoxMlnxosSSH
 
-__all__ = [&#34;MellanoxSSH&#34;]</code></pre>
+__all__ = [&#34;MellanoxMlnxosSSH&#34;]</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="netmiko.mellanox.mellanox_ssh" href="mellanox_ssh.html">netmiko.mellanox.mellanox_ssh</a></code></dt>
+<dt><code class="name"><a title="netmiko.mellanox.mellanox_mlnxos_ssh" href="mellanox_mlnxos_ssh.html">netmiko.mellanox.mellanox_mlnxos_ssh</a></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Mellanox MLNX-OS Switch support.</p></section>
 </dd>
 </dl>
 </section>
@@ -44,12 +44,12 @@ __all__ = [&#34;MellanoxSSH&#34;]</code></pre>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="netmiko.mellanox.MellanoxSSH"><code class="flex name class">
-<span>class <span class="ident">MellanoxSSH</span></span>
+<dt id="netmiko.mellanox.MellanoxMlnxosSSH"><code class="flex name class">
+<span>class <span class="ident">MellanoxMlnxosSSH</span></span>
 <span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base Class for cisco-like behavior.</p>
+<section class="desc"><p>Mellanox MLNX-OS Switch support.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
     :param ip: IP address of target device. Not required if `host` is
@@ -104,10 +104,10 @@ __all__ = [&#34;MellanoxSSH&#34;]</code></pre>
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -133,14 +133,14 @@ __all__ = [&#34;MellanoxSSH&#34;]</code></pre>
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -164,52 +164,61 @@ __all__ = [&#34;MellanoxSSH&#34;]</code></pre>
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class MellanoxSSH(CiscoSSHConnection):
-    def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;#&#34;):
-        &#34;&#34;&#34;Enter into config_mode.&#34;&#34;&#34;
+<pre><code class="python">class MellanoxMlnxosSSH(CiscoSSHConnection):
+    &#34;&#34;&#34;Mellanox MLNX-OS Switch support.&#34;&#34;&#34;
+
+    def enable(self, cmd=&#34;enable&#34;, pattern=&#34;#&#34;, re_flags=re.IGNORECASE):
+        &#34;&#34;&#34;Enter into enable mode.&#34;&#34;&#34;
         output = &#34;&#34;
-        if not self.check_config_mode():
-            self.write_channel(self.normalize_cmd(config_command))
-            output = self.read_until_pattern(pattern=pattern)
-            if not self.check_config_mode():
-                raise ValueError(&#34;Failed to enter configuration mode.&#34;)
+        if not self.check_enable_mode():
+            self.write_channel(self.normalize_cmd(cmd))
+            output += self.read_until_prompt_or_pattern(
+                pattern=pattern, re_flags=re_flags
+            )
+            if not self.check_enable_mode():
+                raise ValueError(&#34;Failed to enter enable mode.&#34;)
         return output
 
-    def check_config_mode(self, check_string=&#34;(config)&#34;, pattern=r&#34;[&gt;|#]&#34;):
-        return super(MellanoxSSH, self).check_config_mode(
+    def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;#&#34;):
+        return super(MellanoxMlnxosSSH, self).config_mode(
+            config_command=config_command, pattern=pattern
+        )
+
+    def check_config_mode(self, check_string=&#34;(config&#34;, pattern=r&#34;#&#34;):
+        return super(MellanoxMlnxosSSH, self).check_config_mode(
             check_string=check_string, pattern=pattern
         )
 
-    def disable_paging(self, command=&#34;terminal length 999&#34;, delay_factor=1):
-        &#34;&#34;&#34;Disable paging default to a Cisco CLI method.&#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
-        command = self.normalize_cmd(command)
-        log.debug(&#34;In disable_paging&#34;)
-        log.debug(&#34;Command: {0}&#34;.format(command))
-        self.write_channel(command)
-        output = self.read_until_prompt()
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
-        log.debug(&#34;{0}&#34;.format(output))
-        log.debug(&#34;Exiting disable_paging&#34;)
-        return output
+    def disable_paging(self, command=&#34;no cli session paging enable&#34;, delay_factor=1):
+        return super(MellanoxMlnxosSSH, self).disable_paging(
+            command=command, delay_factor=delay_factor
+        )
 
     def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=&#34;#&#34;):
-        &#34;&#34;&#34;Exit from configuration mode.&#34;&#34;&#34;
+        &#34;&#34;&#34;Mellanox does not support a single command to completely exit configuration mode.
+
+        Consequently, need to keep checking and sending &#34;exit&#34;.
+        &#34;&#34;&#34;
         output = &#34;&#34;
-        if self.check_config_mode():
-            self.write_channel(self.normalize_cmd(exit_config))
-            output = self.read_until_pattern(pattern=pattern)
+        check_count = 12
+        while check_count &gt;= 0:
             if self.check_config_mode():
-                raise ValueError(&#34;Failed to exit configuration mode&#34;)
-        log.debug(&#34;exit_config_mode: {0}&#34;.format(output))
+                self.write_channel(self.normalize_cmd(exit_config))
+                output += self.read_until_pattern(pattern=pattern)
+            else:
+                break
+            check_count -= 1
+
+        # One last check for whether we successfully exited config mode
+        if self.check_config_mode():
+            raise ValueError(&#34;Failed to exit configuration mode&#34;)
+
+        log.debug(&#34;exit_config_mode: {}&#34;.format(output))
         return output
 
     def save_config(
@@ -230,49 +239,58 @@ __all__ = [&#34;MellanoxSSH&#34;]</code></pre>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.mellanox.MellanoxSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='config term', pattern='#')</span>
+<dt id="netmiko.mellanox.MellanoxMlnxosSSH.enable"><code class="name flex">
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='#', re_flags=<RegexFlag.IGNORECASE: 2>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Enter into config_mode.</p></section>
+<section class="desc"><p>Enter into enable mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;#&#34;):
-    &#34;&#34;&#34;Enter into config_mode.&#34;&#34;&#34;
+<pre><code class="python">def enable(self, cmd=&#34;enable&#34;, pattern=&#34;#&#34;, re_flags=re.IGNORECASE):
+    &#34;&#34;&#34;Enter into enable mode.&#34;&#34;&#34;
     output = &#34;&#34;
-    if not self.check_config_mode():
-        self.write_channel(self.normalize_cmd(config_command))
-        output = self.read_until_pattern(pattern=pattern)
-        if not self.check_config_mode():
-            raise ValueError(&#34;Failed to enter configuration mode.&#34;)
+    if not self.check_enable_mode():
+        self.write_channel(self.normalize_cmd(cmd))
+        output += self.read_until_prompt_or_pattern(
+            pattern=pattern, re_flags=re_flags
+        )
+        if not self.check_enable_mode():
+            raise ValueError(&#34;Failed to enter enable mode.&#34;)
     return output</code></pre>
 </details>
 </dd>
-<dt id="netmiko.mellanox.MellanoxSSH.disable_paging"><code class="name flex">
-<span>def <span class="ident">disable_paging</span></span>(<span>self, command='terminal length 999', delay_factor=1)</span>
+<dt id="netmiko.mellanox.MellanoxMlnxosSSH.exit_config_mode"><code class="name flex">
+<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='exit', pattern='#')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Disable paging default to a Cisco CLI method.</p></section>
+<section class="desc"><p>Mellanox does not support a single command to completely exit configuration mode.</p>
+<p>Consequently, need to keep checking and sending "exit".</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def disable_paging(self, command=&#34;terminal length 999&#34;, delay_factor=1):
-    &#34;&#34;&#34;Disable paging default to a Cisco CLI method.&#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor)
-    time.sleep(delay_factor * 0.1)
-    self.clear_buffer()
-    command = self.normalize_cmd(command)
-    log.debug(&#34;In disable_paging&#34;)
-    log.debug(&#34;Command: {0}&#34;.format(command))
-    self.write_channel(command)
-    output = self.read_until_prompt()
-    if self.ansi_escape_codes:
-        output = self.strip_ansi_escape_codes(output)
-    log.debug(&#34;{0}&#34;.format(output))
-    log.debug(&#34;Exiting disable_paging&#34;)
+<pre><code class="python">def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=&#34;#&#34;):
+    &#34;&#34;&#34;Mellanox does not support a single command to completely exit configuration mode.
+
+    Consequently, need to keep checking and sending &#34;exit&#34;.
+    &#34;&#34;&#34;
+    output = &#34;&#34;
+    check_count = 12
+    while check_count &gt;= 0:
+        if self.check_config_mode():
+            self.write_channel(self.normalize_cmd(exit_config))
+            output += self.read_until_pattern(pattern=pattern)
+        else:
+            break
+        check_count -= 1
+
+    # One last check for whether we successfully exited config mode
+    if self.check_config_mode():
+        raise ValueError(&#34;Failed to exit configuration mode&#34;)
+
+    log.debug(&#34;exit_config_mode: {}&#34;.format(output))
     return output</code></pre>
 </details>
 </dd>
-<dt id="netmiko.mellanox.MellanoxSSH.save_config"><code class="name flex">
+<dt id="netmiko.mellanox.MellanoxMlnxosSSH.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd='configuration write', confirm=False, confirm_response='')</span>
 </code></dt>
 <dd>
@@ -301,10 +319,10 @@ __all__ = [&#34;MellanoxSSH&#34;]</code></pre>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
@@ -352,17 +370,17 @@ __all__ = [&#34;MellanoxSSH&#34;]</code></pre>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="netmiko.mellanox.mellanox_ssh" href="mellanox_ssh.html">netmiko.mellanox.mellanox_ssh</a></code></li>
+<li><code><a title="netmiko.mellanox.mellanox_mlnxos_ssh" href="mellanox_mlnxos_ssh.html">netmiko.mellanox.mellanox_mlnxos_ssh</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="netmiko.mellanox.MellanoxSSH" href="#netmiko.mellanox.MellanoxSSH">MellanoxSSH</a></code></h4>
+<h4><code><a title="netmiko.mellanox.MellanoxMlnxosSSH" href="#netmiko.mellanox.MellanoxMlnxosSSH">MellanoxMlnxosSSH</a></code></h4>
 <ul class="">
-<li><code><a title="netmiko.mellanox.MellanoxSSH.config_mode" href="#netmiko.mellanox.MellanoxSSH.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.mellanox.MellanoxSSH.disable_paging" href="#netmiko.mellanox.MellanoxSSH.disable_paging">disable_paging</a></code></li>
-<li><code><a title="netmiko.mellanox.MellanoxSSH.save_config" href="#netmiko.mellanox.MellanoxSSH.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.mellanox.MellanoxMlnxosSSH.enable" href="#netmiko.mellanox.MellanoxMlnxosSSH.enable">enable</a></code></li>
+<li><code><a title="netmiko.mellanox.MellanoxMlnxosSSH.exit_config_mode" href="#netmiko.mellanox.MellanoxMlnxosSSH.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.mellanox.MellanoxMlnxosSSH.save_config" href="#netmiko.mellanox.MellanoxMlnxosSSH.save_config">save_config</a></code></li>
 </ul>
 </li>
 </ul>
