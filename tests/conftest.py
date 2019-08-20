@@ -6,7 +6,7 @@ import os
 import pytest
 
 from netmiko import ConnectHandler, FileTransfer, InLineTransfer, SSHDetect
-from tests.test_utils import parse_yaml
+from test_utils import parse_yaml
 
 
 PWD = path.dirname(path.realpath(__file__))

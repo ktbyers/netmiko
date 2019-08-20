@@ -197,19 +197,3 @@ cloudgenix_ion:
   interface_ip: "192.168.1.16/24"
   cmd_response_init: "172.16.16.15/24"
   cmd_response_final: "172.16.16.16/24"
-
-keymile:
-  base_prompt: /
-  router_prompt: /> 
-  enable_prompt: /> 
-  interface_ip: 1.2.3.4
-  version_banner: "---===### CLI Release R2A21, Build 2018-12-21 ###===---"
-  multiple_line_output: "Equipment State"
-
-keymile_nos:
-  base_prompt: KDKB1251
-  router_prompt: KDKB1251> 
-  enable_prompt: KDKB1251# 
-  interface_ip: 1.2.3.5 
-  version_banner: "NOS version 2.09 #0001"
-  multiple_line_output: "Interface br328"

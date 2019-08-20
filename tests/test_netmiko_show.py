@@ -73,6 +73,7 @@ def test_send_command_textfsm(net_connect, commands, expected_responses):
         base_platform = "_".join(base_platform)
 
     if base_platform not in [
+        "ciena_saos",
         "cisco_ios",
         "cisco_xe",
         "cisco_xr",
@@ -102,6 +103,7 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         base_platform = "_".join(base_platform)
 
     if base_platform not in [
+        "ciena_saos",
         "cisco_ios",
         "cisco_xe",
         "cisco_xr",
