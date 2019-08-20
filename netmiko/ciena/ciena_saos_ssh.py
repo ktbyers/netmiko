@@ -30,7 +30,7 @@ class CienaSaosSSH(CiscoSSHConnection):
         """Return to the Ciena SAOS CLI."""
         return self.send_command("exit", expect_string=r"[>]")
 
-    def save_config(self, cmd="config save", confirm=False, confirm_response=""):
+    def save_config(self, cmd="configuration save", confirm=False, confirm_response=""):
         """Save Configuration"""
         #output = self.send_command(command_string=cmd)
         return super(CienaSaosSSH, self).save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
@@ -39,7 +39,7 @@ class CienaSaosSSH(CiscoSSHConnection):
         """Checks if the device is in configuration mode or not."""
         return super(CienaSaosSSH, self).check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="config"):
+    def config_mode(self, config_command="configuration"):
         """Enter configuration mode."""
         return super(CienaSaosSSH, self).config_mode(config_command=config_command)
 
