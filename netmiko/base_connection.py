@@ -783,6 +783,16 @@ class BaseConnection(object):
             proxy = paramiko.ProxyCommand(source["proxycommand"])
         elif "ProxyCommand" in source:
             proxy = paramiko.ProxyCommand(source["ProxyCommand"])
+        elif "proxyjump" in source:
+            hops = list(reversed(source["proxyjump"].split(",")))
+            if len(hops) > 1:
+                raise ValueError(
+                    "ProxyJump with more than one proxy server is not supported."
+                )
+            port = source.get("port", "22")
+            cmd = "ssh -W {}:{} {}".format(source["hostname"], port, hops[0])
+            source["proxycommand"] = cmd
+            proxy = paramiko.ProxyCommand(source["proxycommand"])
         else:
             proxy = None
 
