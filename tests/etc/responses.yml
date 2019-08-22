@@ -1,0 +1,10 @@
+---
+
+cienalab:
+  base_prompt: nornir-ll
+  router_prompt : nornir-ll>
+  enable_prompt: nornir-ll>
+  interface_ip: 172.16.233.214
+  version_banner: "| Running Package     :"
+  multiple_line_output: "dhcp client disable"
+  

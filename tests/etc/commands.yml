@@ -1,0 +1,15 @@
+---
+
+ciena_saos:
+  version: "software show"
+  basic: "interface show local"
+  extended_output: "config show brief"   # requires paging to be disabled
+  config:
+    - "system shell set global-more off"      # base command
+    - "system shell set global-more on"
+    - "system shell set global-more off"      # something you can verify has changed
+  config_verification: "system shell show"
+  config_file: 'ciena_saos_commands.txt'
+  save_config_cmd: 'config save'
+  save_config_confirm: False
+
