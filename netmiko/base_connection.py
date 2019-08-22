@@ -403,6 +403,9 @@ class BaseConnection(object):
 
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) > 0:
+            data = data.replace(self.password, "********").replace(
+                self.secret, "********"
+            )
             self.session_log.write(write_bytes(data, encoding=self.encoding))
             self.session_log.flush()
 

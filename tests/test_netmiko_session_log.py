@@ -112,3 +112,16 @@ def test_session_log_bytesio(device_slog, commands, expected_responses):
     log_content = s_log.getvalue()
     session_log_md5 = calc_md5(contents=log_content)
     assert session_log_md5 == compare_log_md5
+
+
+def test_session_log_secrets(device_slog):
+    """Verify session_log does not contain password or secret."""
+    conn = ConnectHandler(**device_slog)
+    conn._write_session_log("\nTesting password and secret replacement\n")
+    conn._write_session_log("This is my password {}\n".format(conn.password))
+    conn._write_session_log("This is my secret {}\n".format(conn.secret))
+
+    with open(conn.session_log.name, "r") as f:
+        session_log = f.read()
+    assert conn.password not in session_log
+    assert conn.secret not in session_log
