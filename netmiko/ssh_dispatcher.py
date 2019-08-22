@@ -11,7 +11,7 @@ from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.checkpoint import CheckPointGaiaSSH
-from netmiko.ciena import CienaSaosSSH
+from netmiko.ciena import CienaSaosSSH, CienaSaosFileTransfer
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
 from netmiko.cisco import (
     CiscoIosSSH,
@@ -55,11 +55,10 @@ from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet
 from netmiko.juniper import JuniperFileTransfer
-from netmiko.keymile import KeymileSSH, KeymileNOSSSH
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.mikrotik import MikrotikRouterOsSSH
 from netmiko.mikrotik import MikrotikSwitchOsSSH
-from netmiko.mellanox import MellanoxMlnxosSSH
+from netmiko.mellanox import MellanoxSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
@@ -140,13 +139,10 @@ CLASS_MAPPER_BASE = {
     "ipinfusion_ocnos": IpInfusionOcNOSSSH,
     "juniper": JuniperSSH,
     "juniper_junos": JuniperSSH,
-    "keymile": KeymileSSH,
-    "keymile_nos": KeymileNOSSSH,
     "linux": LinuxSSH,
     "mikrotik_routeros": MikrotikRouterOsSSH,
     "mikrotik_switchos": MikrotikSwitchOsSSH,
-    "mellanox": MellanoxMlnxosSSH,
-    "mellanox_mlnxos": MellanoxMlnxosSSH,
+    "mellanox": MellanoxSSH,
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "netapp_cdot": NetAppcDotSSH,
@@ -166,6 +162,7 @@ CLASS_MAPPER_BASE = {
 
 FILE_TRANSFER_MAP = {
     "arista_eos": AristaFileTransfer,
+    "ciena_saos": CienaSaosFileTransfer,
     "cisco_asa": CiscoAsaFileTransfer,
     "cisco_ios": CiscoIosFileTransfer,
     "dell_os10": DellOS10FileTransfer,

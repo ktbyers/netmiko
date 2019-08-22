@@ -20,26 +20,39 @@ class CienaSaosSSH(CiscoSSHConnection):
         self.clear_buffer()
 
     def enable(self, *args, **kwargs):
-        pass
+        """Enter the Bourne Shell."""
+        return self.send_command("diag shell", expect_string=r"[\$#]")
 
     def _enter_shell(self):
-        """No Shell."""
+        """No enable mode on Ciena."""
         pass
 
     def _return_cli(self):
-        """Return to the Ciena SAOS CLI."""
-        return self.send_command("exit", expect_string=r"[>]")
+        """No enable mode on Ciena."""
+        pass
 
-    def save_config(self, cmd="configuration save", confirm=False, confirm_response=""):
+    def save_config(self, cmd="config save", confirm=False, confirm_response=""):
         """Save Configuration"""
         #output = self.send_command(command_string=cmd)
         return super(CienaSaosSSH, self).save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
-    def check_config_mode(self, check_string=")>", pattern=""):
+    def check_enable_mode(self, *args, **kwargs):
+        """No enable mode on Ciena."""
+        pass
+
+    def enable(self, *args, **kwargs):
+        """No enable mode on Ciena."""
+        pass
+
+    def exit_enable_mode(self, *args, **kwargs):
+        """No enable mode on Ciena."""
+        pass        
+
+    def check_config_mode(self, check_string=">", pattern=""):
         """Checks if the device is in configuration mode or not."""
         return super(CienaSaosSSH, self).check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configuration"):
+    def config_mode(self, config_command="config"):
         """Enter configuration mode."""
         return super(CienaSaosSSH, self).config_mode(config_command=config_command)
 
@@ -51,7 +64,6 @@ class CienaSaosSSH(CiscoSSHConnection):
                 exit_config, strip_prompt=False, strip_command=False
             )
         return output
-    
 
 class CienaSaosFileTransfer(BaseFileTransfer):
     """Ciena SAOS SCP File Transfer driver."""
@@ -84,7 +96,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         header_line = output_lines[0]
         filesystem_line = output_lines[1]
 
-        if "Filesystem" not in header_line or "Avail" not in header_line.split()[3]:
+        if "Filesystem" not in header_line or "Available" not in header_line.split()[3]:
             # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
             msg = "Parsing error, unexpected output from {}:\n{}".format(
                 remote_cmd, remote_output
@@ -154,11 +166,10 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
         raise ValueError(
             "Search pattern not found for remote file size during SCP transfer."
-        )
+        )        
 
     def remote_md5(self, base_cmd="", remote_file=None):
         """Calculate remote MD5 and returns the hash.
-
         This command can be CPU intensive on the remote device.
         """
         if base_cmd == "":
@@ -184,3 +195,6 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
     def disable_scp(self, cmd="system server scp disable"):
         return super(CienaSaosFileTransfer, self).disable_scp(cmd=cmd)
+    
+    def get_file(self, *args, **kwargs):
+        pass
