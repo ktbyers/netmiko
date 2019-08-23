@@ -86,6 +86,49 @@ def test_use_ssh_file():
     assert result == expected
 
 
+def test_use_ssh_file_proxyjump():
+    """Update SSH connection parameters based on the SSH "config" file"""
+    connection = FakeBaseConnection(
+        host="localhost",
+        port=22,
+        username="",
+        password="secret",
+        use_keys=True,
+        allow_agent=False,
+        key_file="/home/user/.ssh/id_rsa",
+        timeout=60,
+        pkey=None,
+        passphrase=None,
+        auth_timeout=None,
+        banner_timeout=10,
+        ssh_config_file=join(RESOURCE_FOLDER, "ssh_config_proxyjump"),
+    )
+
+    connect_dict = connection._connect_params_dict()
+
+    expected = {
+        "hostname": "10.10.10.70",
+        "port": 8022,
+        "username": "admin",
+        "password": "secret",
+        "look_for_keys": True,
+        "allow_agent": False,
+        "key_filename": "/home/user/.ssh/id_rsa",
+        "timeout": 60,
+        "pkey": None,
+        "passphrase": None,
+        "auth_timeout": None,
+        "banner_timeout": 10,
+    }
+
+    result = connection._use_ssh_config(connect_dict)
+    assert "sock" in result
+    assert len(result["sock"].cmd) == 4
+    assert "-W" in result["sock"].cmd
+    del result["sock"]
+    assert result == expected
+
+
 def test_connect_params_dict():
     """Generate dictionary of Paramiko connection parameters"""
     connection = FakeBaseConnection(
