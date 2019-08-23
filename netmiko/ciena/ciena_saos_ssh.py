@@ -19,17 +19,14 @@ class CienaSaosSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def enable(self, *args, **kwargs):
+    def _enter_shell(self):
         """Enter the Bourne Shell."""
         return self.send_command("diag shell", expect_string=r"[\$#]")
 
-    def _enter_shell(self):
-        """No enable mode on Ciena."""
-        pass
-
     def _return_cli(self):
-        """No enable mode on Ciena."""
-        pass
+        """Return to the Ciena SAOS CLI."""
+        return self.send_command("exit", expect_string=r"[>]")
+
 
     def save_config(self, cmd="config save", confirm=False, confirm_response=""):
         """Save Configuration"""
@@ -96,7 +93,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         header_line = output_lines[0]
         filesystem_line = output_lines[1]
 
-        if "Filesystem" not in header_line or "Available" not in header_line.split()[3]:
+        if "Filesystem" not in header_line or "Avail" not in header_line.split()[3]:
             # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
             msg = "Parsing error, unexpected output from {}:\n{}".format(
                 remote_cmd, remote_output
@@ -125,9 +122,9 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             if not remote_cmd:
-                remote_cmd = "file ls {}/{}".format(self.file_system, self.dest_file)
+                remote_cmd = "file ls {}{}".format(self.file_system, self.dest_file)
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
-            search_string = r"{}/{}".format(self.file_system, self.dest_file)
+            search_string = r"{}{}".format(self.file_system, self.dest_file)
             if "ERROR" in remote_out:
                 return False
             elif re.search(search_string, remote_out, flags=re.DOTALL):
@@ -145,7 +142,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
 
-        remote_file = "{}/{}".format(self.file_system, remote_file)
+        remote_file = "{}{}".format(self.file_system, remote_file)
 
         if not remote_cmd:
             remote_cmd = "file ls -l {}".format(remote_file)
@@ -180,7 +177,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
 
-        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = "{} {}{}".format(base_cmd, self.file_system, remote_file)
 
         self.ssh_ctl_chan._enter_shell()
         dest_md5 = self.ssh_ctl_chan.send_command(
@@ -196,5 +193,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
     def disable_scp(self, cmd="system server scp disable"):
         return super(CienaSaosFileTransfer, self).disable_scp(cmd=cmd)
     
-    def get_file(self, *args, **kwargs):
-        pass
+    def scp_get_file(self, source_file, dest_file):
+        #pass
+        scp_cmd = "file scp "
+        remote_cmd = "{} {} ".format(scp_cmd, source_file)
+        return super(CienaSaosFileTransger, self).scp_get_file(source_file=remote_cmd)
