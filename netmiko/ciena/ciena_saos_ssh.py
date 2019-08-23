@@ -197,4 +197,4 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         #pass
         scp_cmd = "file scp "
         remote_cmd = "{} {} ".format(scp_cmd, source_file)
-        return super(CienaSaosFileTransger, self).scp_get_file(source_file=remote_cmd)
+        return super(CienaSaosFileTransfer, self).scp_get_file(source_file=remote_cmd)
