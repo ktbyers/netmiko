@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import os
 import re
 import socket
 import time
@@ -7,6 +8,9 @@ import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 from netmiko.ssh_exception import NetMikoTimeoutException
+
+LINUX_PRIMARY_PROMPT_TERMINATOR = os.getenv('NETMIKO_LINUX_PRI_PROMPT_TERMINATOR', '$')
+LINUX_ALTERNATE_PROMPT_TERMINATOR = os.getenv('NETMIKO_LINUX_ALT_PROMPT_TERMINATOR', '#')
 
 
 class LinuxSSH(CiscoSSHConnection):
@@ -28,7 +32,10 @@ class LinuxSSH(CiscoSSHConnection):
         return ""
 
     def set_base_prompt(
-        self, pri_prompt_terminator="$", alt_prompt_terminator="#", delay_factor=1
+        self,
+        pri_prompt_terminator=LINUX_PRIMARY_PROMPT_TERMINATOR,
+        alt_prompt_terminator=LINUX_ALTERNATE_PROMPT_TERMINATOR,
+        delay_factor=1
     ):
         """Determine base prompt."""
         return super(LinuxSSH, self).set_base_prompt(
