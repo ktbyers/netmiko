@@ -140,7 +140,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         for pattern in cmd_failed:
             if pattern in output:
                 raise ValueError(
-                    "Failed to enter tclsh mode on router: {}".format(output)
+                    f"Failed to enter tclsh mode on router: {output}"
                 )
         return output
 

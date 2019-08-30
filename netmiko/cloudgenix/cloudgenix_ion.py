@@ -76,5 +76,5 @@ class CloudGenixIonSSH(CiscoSSHConnection):
                 time.sleep(delay_factor * 0.05)
 
         output = self._sanitize_output(output)
-        log.debug("{}".format(output))
+        log.debug(f"{output}")
         return output

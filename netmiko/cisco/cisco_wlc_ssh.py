@@ -105,7 +105,7 @@ class CiscoWlcSSH(BaseConnection):
         try:
             self.set_base_prompt()
         except ValueError:
-            msg = "Authentication failed: {}".format(self.host)
+            msg = f"Authentication failed: {self.host}"
             raise NetMikoAuthenticationException(msg)
 
         self.disable_paging(command="config paging disable")
@@ -172,7 +172,7 @@ class CiscoWlcSSH(BaseConnection):
             delay_factor=delay_factor, max_loops=max_loops
         )
         output = self._sanitize_output(output)
-        log.debug("{}".format(output))
+        log.debug(f"{output}")
         return output
 
     def save_config(self, cmd="save config", confirm=True, confirm_response="y"):

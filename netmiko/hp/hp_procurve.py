@@ -53,7 +53,7 @@ class HPProcurveBase(CiscoSSHConnection):
             output += self.send_command_timing(default_username)
         if "password" in output.lower():
             output += self.send_command_timing(self.secret)
-        log.debug("{}".format(output))
+        log.debug(f"{output}")
         self.clear_buffer()
         return output
 

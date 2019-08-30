@@ -97,7 +97,7 @@ class PaloAltoPanosBase(BaseConnection):
         if partial:
             command_string += " partial"
             if vsys:
-                command_string += " {0}".format(vsys)
+                command_string += f" {vsys}"
             if device_and_network:
                 command_string += " device-and-network"
             if policy_and_objects:
@@ -118,7 +118,7 @@ class PaloAltoPanosBase(BaseConnection):
 
         if commit_marker not in output.lower():
             raise ValueError(
-                "Commit failed with the following errors:\n\n{0}".format(output)
+                f"Commit failed with the following errors:\n\n{output}"
             )
         return output
 
