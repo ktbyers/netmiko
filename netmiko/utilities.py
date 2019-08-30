@@ -102,9 +102,7 @@ def find_cfg_file(file_name=None):
     # Filter optional_path if null
     search_paths = [path for path in search_paths if path]
     for path in search_paths:
-        files = glob(f"{path}/.netmiko.yml") + glob(
-            f"{path}/netmiko.yml"
-        )
+        files = glob(f"{path}/.netmiko.yml") + glob(f"{path}/netmiko.yml")
         if files:
             return files[0]
     raise IOError(

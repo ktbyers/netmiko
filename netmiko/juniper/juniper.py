@@ -178,9 +178,7 @@ class JuniperBase(BaseConnection):
             )
 
         if commit_marker not in output:
-            raise ValueError(
-                f"Commit failed with the following errors:\n\n{output}"
-            )
+            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
         return output
 

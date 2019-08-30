@@ -117,9 +117,7 @@ class PaloAltoPanosBase(BaseConnection):
         )
 
         if commit_marker not in output.lower():
-            raise ValueError(
-                f"Commit failed with the following errors:\n\n{output}"
-            )
+            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         return output
 
     def strip_command(self, command_string, output):
