@@ -1,8 +1,6 @@
 ---
 language: python
 python:
-  - "2.7"
-  - "3.5"
   - "3.6"
   - "3.7"
 matrix:
@@ -12,6 +10,6 @@ matrix:
   - python: 3.6
     env: TOXENV=pylama
 install: 
-  - pip install tox==3.13.1 tox-travis==0.12
+  - pip install tox==3.13.2 tox-travis==0.12
 script: 
   - tox
