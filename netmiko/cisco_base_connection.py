@@ -1,7 +1,7 @@
 """CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
-from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko.ssh_exception import NetmikoAuthenticationException
 import re
 import time
 
@@ -139,7 +139,7 @@ class CiscoBaseConnection(BaseConnection):
                     msg = "Login failed - Password required, but none set: {}".format(
                         self.host
                     )
-                    raise NetMikoAuthenticationException(msg)
+                    raise NetmikoAuthenticationException(msg)
 
                 # Check if proper data received
                 if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
@@ -153,7 +153,7 @@ class CiscoBaseConnection(BaseConnection):
             except EOFError:
                 self.remote_conn.close()
                 msg = f"Login failed: {self.host}"
-                raise NetMikoAuthenticationException(msg)
+                raise NetmikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -167,7 +167,7 @@ class CiscoBaseConnection(BaseConnection):
 
         self.remote_conn.close()
         msg = f"Login failed: {self.host}"
-        raise NetMikoAuthenticationException(msg)
+        raise NetmikoAuthenticationException(msg)
 
     def cleanup(self):
         """Gracefully exit the SSH session."""

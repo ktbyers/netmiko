@@ -22,8 +22,8 @@ from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.py23_compat import string_types, bufferedio_types, text_type
 from netmiko.ssh_exception import (
-    NetMikoTimeoutException,
-    NetMikoAuthenticationException,
+    NetmikoTimeoutException,
+    NetmikoAuthenticationException,
 )
 from netmiko.utilities import (
     write_bytes,
@@ -331,7 +331,7 @@ class BaseConnection(object):
         pass
 
     def _timeout_exceeded(self, start, msg="Timeout exceeded!"):
-        """Raise NetMikoTimeoutException if waiting too much in the serving queue.
+        """Raise NetmikoTimeoutException if waiting too much in the serving queue.
 
         :param start: Initial start time to see if session lock timeout has been exceeded
         :type start: float (from time.time() call i.e. epoch time)
@@ -344,7 +344,7 @@ class BaseConnection(object):
             return False
         if time.time() - start > self.session_timeout:
             # session_timeout exceeded
-            raise NetMikoTimeoutException(msg)
+            raise NetmikoTimeoutException(msg)
         return False
 
     def _lock_netmiko_session(self, start=None):
@@ -533,7 +533,7 @@ class BaseConnection(object):
                     output += new_data
                     self._write_session_log(new_data)
                 except socket.timeout:
-                    raise NetMikoTimeoutException(
+                    raise NetmikoTimeoutException(
                         "Timed-out reading channel, data not available."
                     )
                 finally:
@@ -545,7 +545,7 @@ class BaseConnection(object):
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
             i += 1
-        raise NetMikoTimeoutException(
+        raise NetmikoTimeoutException(
             f"Timed-out reading channel, pattern not found in output: {pattern}"
         )
 
@@ -705,7 +705,7 @@ class BaseConnection(object):
             except EOFError:
                 self.remote_conn.close()
                 msg = f"Login failed: {self.host}"
-                raise NetMikoAuthenticationException(msg)
+                raise NetmikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -719,7 +719,7 @@ class BaseConnection(object):
 
         msg = f"Login failed: {self.host}"
         self.remote_conn.close()
-        raise NetMikoAuthenticationException(msg)
+        raise NetmikoAuthenticationException(msg)
 
     def _try_session_preparation(self):
         """
@@ -840,8 +840,8 @@ class BaseConnection(object):
     def establish_connection(self, width=None, height=None):
         """Establish SSH connection to the network device
 
-        Timeout will generate a NetMikoTimeoutException
-        Authentication failure will generate a NetMikoAuthenticationException
+        Timeout will generate a NetmikoTimeoutException
+        Authentication failure will generate a NetmikoAuthenticationException
 
         width and height are needed for Fortinet paging setting.
 
@@ -871,14 +871,14 @@ class BaseConnection(object):
                 msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port
                 )
-                raise NetMikoTimeoutException(msg)
+                raise NetmikoTimeoutException(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port
                 )
                 msg += self.RETURN + text_type(auth_err)
-                raise NetMikoAuthenticationException(msg)
+                raise NetmikoAuthenticationException(msg)
 
             if self.verbose:
                 print(f"SSH connection established to {self.host}:{self.port}")
@@ -938,7 +938,7 @@ class BaseConnection(object):
         if new_data:
             return new_data
         else:
-            raise NetMikoTimeoutException("Timed out waiting for data")
+            raise NetmikoTimeoutException("Timed out waiting for data")
 
     def _build_ssh_client(self):
         """Prepare for Paramiko SSH connection."""
@@ -1446,7 +1446,7 @@ class BaseConnection(object):
                 )
                 self.write_channel(self.normalize_cmd(self.secret))
                 output += self.read_until_prompt()
-            except NetMikoTimeoutException:
+            except NetmikoTimeoutException:
                 raise ValueError(msg)
             if not self.check_enable_mode():
                 raise ValueError(msg)

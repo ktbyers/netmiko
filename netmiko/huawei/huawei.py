@@ -1,7 +1,7 @@
 import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection
-from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko import log
 
 
@@ -160,7 +160,7 @@ class HuaweiTelnet(HuaweiBase):
             except EOFError:
                 self.remote_conn.close()
                 msg = f"Login failed: {self.host}"
-                raise NetMikoAuthenticationException(msg)
+                raise NetmikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -174,7 +174,7 @@ class HuaweiTelnet(HuaweiBase):
 
         self.remote_conn.close()
         msg = f"Login failed: {self.host}"
-        raise NetMikoAuthenticationException(msg)
+        raise NetmikoAuthenticationException(msg)
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):

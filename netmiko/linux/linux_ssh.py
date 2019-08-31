@@ -5,7 +5,7 @@ import time
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
-from netmiko.ssh_exception import NetMikoTimeoutException
+from netmiko.ssh_exception import NetmikoTimeoutException
 
 LINUX_PROMPT_PRI = os.getenv("NETMIKO_LINUX_PROMPT_PRI", "$")
 LINUX_PROMPT_ALT = os.getenv("NETMIKO_LINUX_PROMPT_ALT", "#")
@@ -91,7 +91,7 @@ class LinuxSSH(CiscoSSHConnection):
                     self.write_channel(self.normalize_cmd(self.secret))
                 self.set_base_prompt()
             except socket.timeout:
-                raise NetMikoTimeoutException(
+                raise NetmikoTimeoutException(
                     "Timed-out reading channel, data not available."
                 )
             if not self.check_enable_mode():

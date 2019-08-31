@@ -3,7 +3,7 @@ import re
 
 
 from netmiko.cisco.cisco_ios import CiscoIosBase
-from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
 class KeymileNOSSSH(CiscoIosBase):
@@ -26,7 +26,7 @@ class KeymileNOSSSH(CiscoIosBase):
             msg = "Authentication failure: unable to connect"
             msg += f"{self.device_type} {self.host}:{self.port}"
             msg += self.RESPONSE_RETURN + "Login incorrect"
-            raise NetMikoAuthenticationException(msg)
+            raise NetmikoAuthenticationException(msg)
         else:
             return output
 

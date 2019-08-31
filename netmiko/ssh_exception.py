@@ -12,3 +12,7 @@ class NetmikoAuthenticationException(AuthenticationException):
     """SSH authentication exception based on Paramiko AuthenticationException."""
 
     pass
+
+
+NetMikoTimeoutException = NetmikoTimeoutException
+NetMikoAuthenticationException = NetmikoAuthenticationException

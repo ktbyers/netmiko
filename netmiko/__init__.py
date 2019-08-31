@@ -11,15 +11,13 @@ from netmiko.ssh_dispatcher import platforms
 from netmiko.ssh_dispatcher import FileTransfer
 from netmiko.scp_handler import SCPConn
 from netmiko.cisco.cisco_ios import InLineTransfer
-from netmiko.ssh_exception import NetmikoTimeoutException
-from netmiko.ssh_exception import NetmikoAuthenticationException
+from netmiko.ssh_exception import NetmikoTimeoutException, NetMikoTimeoutException
+from netmiko.ssh_exception import NetmikoAuthenticationException, NetMikoAuthenticationException
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_functions import file_transfer
 
 # Alternate naming
-NetMikoTimeoutException = NetmikoTimeoutException
-NetMikoAuthenticationException = NetmikoAuthenticationException
 Netmiko = ConnectHandler
 
 __version__ = "3.0.0"
@@ -29,6 +27,8 @@ __all__ = (
     "platforms",
     "SCPConn",
     "FileTransfer",
+    "NetmikoTimeoutException",
+    "NetmikoAuthenticationException",
     "NetMikoTimeoutException",
     "NetMikoAuthenticationException",
     "NetmikoTimeoutError",
