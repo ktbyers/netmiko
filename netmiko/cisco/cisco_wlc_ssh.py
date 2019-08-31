@@ -4,7 +4,6 @@ import re
 
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko.base_connection import BaseConnection
-from netmiko.py23_compat import string_types
 from netmiko import log
 
 
@@ -154,7 +153,7 @@ class CiscoWlcSSH(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ""
-        elif isinstance(config_commands, string_types):
+        elif isinstance(config_commands, str):
             config_commands = (config_commands,)
 
         if not hasattr(config_commands, "__iter__"):

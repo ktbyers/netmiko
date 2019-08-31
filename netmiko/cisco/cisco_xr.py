@@ -1,7 +1,6 @@
 import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
-from netmiko.py23_compat import text_type
 
 
 class CiscoXrBase(CiscoBaseConnection):
@@ -71,7 +70,7 @@ class CiscoXrBase(CiscoBaseConnection):
                 raise ValueError("Invalid comment contains double quote")
             comment = f'"{comment}"'
 
-        label = text_type(label)
+        label = str(label)
         error_marker = "Failed to"
         alt_error_marker = "One or more commits have occurred from other"
 
@@ -81,12 +80,12 @@ class CiscoXrBase(CiscoBaseConnection):
                 command_string = f"commit label {label} comment {comment}"
             elif confirm:
                 command_string = "commit label {} confirmed {}".format(
-                    label, text_type(confirm_delay)
+                    label, str(confirm_delay)
                 )
             else:
                 command_string = f"commit label {label}"
         elif confirm:
-            command_string = f"commit confirmed {text_type(confirm_delay)}"
+            command_string = f"commit confirmed {str(confirm_delay)}"
         elif comment:
             command_string = f"commit comment {comment}"
         else:
