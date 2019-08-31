@@ -3,6 +3,7 @@ import time
 import hashlib
 import io
 from netmiko import ConnectHandler
+from netmiko.py23_compat import bufferedio_types
 
 
 def calc_md5(file_name=None, contents=None):
@@ -119,7 +120,12 @@ def test_session_log_secrets(device_slog):
     conn._write_session_log("This is my password {}\n".format(conn.password))
     conn._write_session_log("This is my secret {}\n".format(conn.secret))
 
-    with open(conn.session_log.name, "r") as f:
-        session_log = f.read()
-    assert conn.password not in session_log
-    assert conn.secret not in session_log
+    if not isinstance(conn.session_log, bufferedio_types):
+        with open(conn.session_log.name, "r") as f:
+            session_log = f.read()
+        if conn.password:
+            assert conn.password not in session_log
+        if conn.secret:
+            assert conn.secret not in session_log
+    else:
+        assert True
