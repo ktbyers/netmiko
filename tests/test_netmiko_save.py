@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 def test_save_base(net_connect, commands, expected_responses):
     """
     Test save config with no options.

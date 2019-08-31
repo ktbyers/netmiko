@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 def test_ssh_connect(net_connect, commands, expected_responses):
     """
     Verify the connection was established successfully
