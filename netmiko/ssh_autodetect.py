@@ -38,8 +38,6 @@ Examples
 >>> remote_device['device_type'] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
-from __future__ import unicode_literals
-
 import re
 import time
 from netmiko.ssh_dispatcher import ConnectHandler

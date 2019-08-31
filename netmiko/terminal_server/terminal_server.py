@@ -1,5 +1,4 @@
 """Generic Terminal Server driver."""
-from __future__ import unicode_literals
 from netmiko.base_connection import BaseConnection
 
 

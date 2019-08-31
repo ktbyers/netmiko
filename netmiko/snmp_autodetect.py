@@ -20,8 +20,6 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 """
-from __future__ import unicode_literals
-
 import re
 
 try:

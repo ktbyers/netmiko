@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-from __future__ import print_function
 from netmiko import ConnectHandler
 from os import path
 

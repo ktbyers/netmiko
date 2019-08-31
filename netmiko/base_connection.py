@@ -6,10 +6,6 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import io
 import re
 import socket

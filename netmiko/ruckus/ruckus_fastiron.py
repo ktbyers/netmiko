@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import re
 import time
 from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT

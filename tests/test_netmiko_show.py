@@ -14,9 +14,6 @@ test_clear_buffer: clear text buffer
 test_enable_mode: verify enter enable mode
 test_disconnect: cleanly disconnect the SSH session
 """
-
-from __future__ import print_function
-from __future__ import unicode_literals
 import pytest
 import time
 

@@ -1,5 +1,4 @@
 """Dell PowerConnect Driver."""
-from __future__ import unicode_literals
 from paramiko import SSHClient
 import time
 from os import path
