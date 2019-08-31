@@ -28,7 +28,6 @@ except ImportError:
     raise ImportError("pysnmp not installed; please install it: 'pip install pysnmp'")
 
 from netmiko.ssh_dispatcher import CLASS_MAPPER
-from netmiko.py23_compat import text_type
 
 
 # Higher priority indicates a better match.
@@ -260,7 +259,7 @@ class SNMPDetect(object):
         )
 
         if not error_detected and snmp_data[0][1]:
-            return text_type(snmp_data[0][1])
+            return str(snmp_data[0][1])
         return ""
 
     def _get_snmpv2c(self, oid):
@@ -289,7 +288,7 @@ class SNMPDetect(object):
         )
 
         if not error_detected and snmp_data[0][1]:
-            return text_type(snmp_data[0][1])
+            return str(snmp_data[0][1])
         return ""
 
     def _get_snmp(self, oid):

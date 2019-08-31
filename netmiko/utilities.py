@@ -4,7 +4,6 @@ import sys
 import io
 import os
 import serial.tools.list_ports
-from netmiko.py23_compat import text_type
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 
@@ -214,7 +213,7 @@ def check_serial_port(name):
         msg += "available devices are: "
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
-            msg += f"{text_type(p)},"
+            msg += f"{str(p)},"
         raise ValueError(msg)
 
 

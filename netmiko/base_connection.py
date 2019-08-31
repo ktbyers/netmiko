@@ -20,7 +20,6 @@ import serial
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
-from netmiko.py23_compat import string_types, bufferedio_types, text_type
 from netmiko.ssh_exception import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
@@ -241,10 +240,10 @@ class BaseConnection(object):
         # Ensures last write operations prior to disconnect are recorded.
         self._session_log_fin = False
         if session_log is not None:
-            if isinstance(session_log, string_types):
+            if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
                 self.open_session_log(filename=session_log, mode=session_log_file_mode)
-            elif isinstance(session_log, bufferedio_types):
+            elif isinstance(session_log, io.BufferedIOBase):
                 # In-memory buffer or an already open file handle
                 self.session_log = session_log
             else:
@@ -877,7 +876,7 @@ class BaseConnection(object):
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port
                 )
-                msg += self.RETURN + text_type(auth_err)
+                msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
 
             if self.verbose:
@@ -1160,7 +1159,7 @@ class BaseConnection(object):
                     output, platform=self.device_type, command=command_string.strip()
                 )
                 # If we have structured data; return it.
-                if not isinstance(structured_output, string_types):
+                if not isinstance(structured_output, str):
                     return structured_output
         return output
 
@@ -1337,7 +1336,7 @@ class BaseConnection(object):
                     output, platform=self.device_type, command=command_string.strip()
                 )
                 # If we have structured data; return it.
-                if not isinstance(structured_output, string_types):
+                if not isinstance(structured_output, str):
                     return structured_output
         return output
 
@@ -1578,7 +1577,7 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ""
-        elif isinstance(config_commands, string_types):
+        elif isinstance(config_commands, str):
             config_commands = (config_commands,)
 
         if not hasattr(config_commands, "__iter__"):
