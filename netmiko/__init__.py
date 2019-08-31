@@ -12,7 +12,10 @@ from netmiko.ssh_dispatcher import FileTransfer
 from netmiko.scp_handler import SCPConn
 from netmiko.cisco.cisco_ios import InLineTransfer
 from netmiko.ssh_exception import NetmikoTimeoutException, NetMikoTimeoutException
-from netmiko.ssh_exception import NetmikoAuthenticationException, NetMikoAuthenticationException
+from netmiko.ssh_exception import (
+    NetmikoAuthenticationException,
+    NetMikoAuthenticationException,
+)
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_functions import file_transfer
