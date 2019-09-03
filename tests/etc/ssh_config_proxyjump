@@ -7,4 +7,4 @@ host * !jumphost
   User admin
   HostName 10.10.10.70
   Port 8022
-  proxyjump jumphost
+  ProxyJump jumphost

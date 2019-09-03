@@ -779,20 +779,20 @@ class BaseConnection(object):
         else:
             source = {}
 
+        # Keys get normalized to lower-case
         if "proxycommand" in source:
             proxy = paramiko.ProxyCommand(source["proxycommand"])
-        elif "ProxyCommand" in source:
-            proxy = paramiko.ProxyCommand(source["ProxyCommand"])
         elif "proxyjump" in source:
             hops = list(reversed(source["proxyjump"].split(",")))
             if len(hops) > 1:
                 raise ValueError(
                     "ProxyJump with more than one proxy server is not supported."
                 )
-            port = source.get("port", "22")
-            cmd = "ssh -W {}:{} {}".format(source["hostname"], port, hops[0])
-            source["proxycommand"] = cmd
-            proxy = paramiko.ProxyCommand(source["proxycommand"])
+            port = source.get("port", self.port)
+            host = source.get("hostname", self.host)
+            # -F {full_path} forces the continued use of the same SSH config file
+            cmd = "ssh -F {} -W {}:{} {}".format(full_path, host, port, hops[0])
+            proxy = paramiko.ProxyCommand(cmd)
         else:
             proxy = None
 
