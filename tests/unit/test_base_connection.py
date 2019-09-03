@@ -123,7 +123,6 @@ def test_use_ssh_file_proxyjump():
 
     result = connection._use_ssh_config(connect_dict)
     assert "sock" in result
-    assert len(result["sock"].cmd) == 4
     assert "-W" in result["sock"].cmd
     del result["sock"]
     assert result == expected
