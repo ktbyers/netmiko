@@ -89,7 +89,7 @@ def test_use_ssh_file():
 def test_use_ssh_file_proxyjump():
     """Update SSH connection parameters based on the SSH "config" file"""
     connection = FakeBaseConnection(
-        host="localhost",
+        host="10.10.10.70",
         port=22,
         username="",
         password="secret",

@@ -6,4 +6,5 @@ host jumphost
 
 host * !jumphost
   User admin
+  Port 8022
   ProxyJump jumphost
