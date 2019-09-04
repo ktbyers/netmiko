@@ -1,3 +1,4 @@
+"""Multi-vendor library to simplify Paramiko SSH connections to network devices"""
 from __future__ import unicode_literals
 import logging
 

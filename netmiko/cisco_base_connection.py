@@ -65,6 +65,7 @@ class CiscoBaseConnection(BaseConnection):
         delay_factor=1,
         max_loops=20,
     ):
+        """Login via serial connection"""
         self.write_channel(self.TELNET_RETURN)
         output = self.read_channel()
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(

@@ -25,6 +25,7 @@ class SCPConn(object):
     """
 
     def __init__(self, ssh_conn):
+        """Instantiate SCPConn class"""
         self.ssh_ctl_chan = ssh_conn
         self.establish_scp_conn()
 
@@ -58,6 +59,7 @@ class BaseFileTransfer(object):
     def __init__(
         self, ssh_conn, source_file, dest_file, file_system=None, direction="put"
     ):
+        """Instantiate BaseFileTransfer class"""
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
@@ -284,7 +286,8 @@ class BaseFileTransfer(object):
             return self.source_md5 == local_md5
 
     def remote_md5(self, base_cmd="verify /md5", remote_file=None):
-        """Calculate remote MD5 and returns the hash.
+        """
+        Calculate remote MD5 and returns the hash.
 
         This command can be CPU intensive on the remote device.
         """

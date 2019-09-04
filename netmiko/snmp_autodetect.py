@@ -1,6 +1,5 @@
 """
-This module is used to auto-detect the type of a device in order to automatically create a
-Netmiko connection.
+Module used to auto-detect the type of device in order to automatically create Netmiko connection.
 
 The will avoid to hard coding the 'device_type' when using the ConnectHandler factory function
 from Netmiko.
@@ -19,6 +18,7 @@ SNMPDetect class defaults to SNMPv3
 
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
+
 """
 from __future__ import unicode_literals
 
@@ -121,7 +121,7 @@ class SNMPDetect(object):
 
     Typically this will use the MIB-2 SysDescr and regular expressions.
 
-    Parameters
+    Parameters:
     ----------
     hostname: str
         The name or IP address of the hostname we want to guess the type
@@ -142,7 +142,7 @@ class SNMPDetect(object):
     encrypt_proto : str, optional ('sha', 'md5')
         The SNMPv3 encryption protocol (default: 'sha')
 
-    Attributes
+    Attributes:
     ----------
     hostname: str
         The name or IP address of the device we want to guess the type
@@ -164,7 +164,7 @@ class SNMPDetect(object):
         The SNMPv3 encryption protocol
 
 
-    Methods
+    Methods:
     -------
     autodetect()
         Try to determine the device type.
@@ -183,7 +183,7 @@ class SNMPDetect(object):
         auth_proto="sha",
         encrypt_proto="aes128",
     ):
-
+        """Instantiate SNMPDetect class"""
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == "v1" or snmp_version == "v2c":
             if not community:
@@ -234,15 +234,16 @@ class SNMPDetect(object):
         """
         Try to send an SNMP GET operation using SNMPv3 for the specified OID.
 
-        Parameters
+        Parameters:
         ----------
         oid : str
             The SNMP OID that you want to get.
 
-        Returns
+        Returns:
         -------
         string : str
             The string as part of the value from the OID you are trying to retrieve.
+
         """
         snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
@@ -269,15 +270,16 @@ class SNMPDetect(object):
         """
         Try to send an SNMP GET operation using SNMPv2 for the specified OID.
 
-        Parameters
+        Parameters:
         ----------
         oid : str
             The SNMP OID that you want to get.
 
-        Returns
+        Returns:
         -------
         string : str
             The string as part of the value from the OID you are trying to retrieve.
+
         """
         snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
@@ -303,16 +305,18 @@ class SNMPDetect(object):
 
     def autodetect(self):
         """
-        Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
-        is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
-        dict.
+        Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict.
+
+        The type which is returned is directly matching the name in
+        *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE* dict.
 
         Thus you can use this name to retrieve automatically the right ConnectionClass
 
-        Returns
+        Returns:
         -------
         potential_type : str
             The name of the device_type that must be running.
+
         """
         # Convert SNMP_MAPPER to a list and sort by priority
         snmp_mapper_list = []

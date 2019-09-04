@@ -1,11 +1,12 @@
 """
+Netmiko ssh auto detect
+
 The ssh_autodetect module is used to auto-detect the netmiko device_type to use to further initiate
 a new SSH connection with a remote host. This auto-detection is based on a unique class called
 **SSHDetect**.
 
-Notes
+Notes:
 -----
-
 The **SSHDetect** class is instantiated using the same parameters than a standard Netmiko
 connection (see the *netmiko.ssh_dispatacher.ConnectHandler* function). The only acceptable value
 for the 'device_type' argument is 'autodetect'.
@@ -19,9 +20,8 @@ to handle the auto-detection.
 * "priority" : An integer (0-99) which specifies the confidence of the match above
 * "dispatch" : The function to call to try the autodetection (per default SSHDetect._autodetect_std)
 
-Examples
+Examples:
 --------
-
 # Auto-detection section
 >>> from netmiko.ssh_autodetect import SSHDetect
 >>> from netmiko.ssh_dispatcher import ConnectHandler
@@ -37,6 +37,7 @@ Examples
 # Netmiko connection creation section
 >>> remote_device['device_type'] = best_match
 >>> connection = ConnectHandler(**remote_device)
+
 """
 from __future__ import unicode_literals
 
@@ -174,18 +175,20 @@ SSH_MAPPER_BASE = {
 
 class SSHDetect(object):
     """
-    The SSHDetect class tries to automatically guess the device type running on the SSH remote end.
+    The SSHDetect class
+
+    Tries to automatically guess the device type running on the SSH remote end.
     Be careful that the kwargs 'device_type' must be set to 'autodetect', otherwise it won't work at
     all.
 
-    Parameters
+    Parameters:
     ----------
     *args : list
         The same *args that you might provide to the netmiko.ssh_dispatcher.ConnectHandler.
     *kwargs : dict
         The same *kwargs that you might provide to the netmiko.ssh_dispatcher.ConnectHandler.
 
-    Attributes
+    Attributes:
     ----------
     connection : netmiko.terminal_server.TerminalServerSSH
         A basic connection to the remote SSH end.
@@ -193,16 +196,15 @@ class SSHDetect(object):
         Dict of (device_type, accuracy) that is populated through an interaction with the
         remote end.
 
-    Methods
+    Methods:
     -------
     autodetect()
         Try to determine the device type.
+
     """
 
     def __init__(self, *args, **kwargs):
-        """
-        Constructor of the SSHDetect class
-        """
+        """Constructor of the SSHDetect class"""
         if kwargs["device_type"] != "autodetect":
             raise ValueError("The connection device_type must be 'autodetect'")
         self.connection = ConnectHandler(*args, **kwargs)
@@ -216,10 +218,11 @@ class SSHDetect(object):
         """
         Try to guess the best 'device_type' based on patterns defined in SSH_MAPPER_BASE
 
-        Returns
+        Returns:
         -------
         best_match : str or None
             The device type that is currently the best to use to interact with the device
+
         """
         for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
             tmp_dict = autodetect_dict.copy()
@@ -249,15 +252,16 @@ class SSHDetect(object):
         """
         Handle reading/writing channel directly. It is also sanitizing the output received.
 
-        Parameters
+        Parameters:
         ----------
         cmd : str, optional
             The command to send to the remote device (default : "", just send a new line)
 
-        Returns
+        Returns:
         -------
         output : str
             The output from the command sent
+
         """
         self.connection.write_channel(cmd + "\n")
         time.sleep(1)
@@ -268,18 +272,21 @@ class SSHDetect(object):
 
     def _send_command_wrapper(self, cmd):
         """
+        Wrapper for send command.
+
         Send command to the remote device with a caching feature to avoid sending the same command
         twice based on the SSH_MAPPER_BASE dict cmd key.
 
-        Parameters
+        Parameters:
         ----------
         cmd : str
             The command to send to the remote device after checking cache.
 
-        Returns
+        Returns:
         -------
         response : str
             The response from the remote device.
+
         """
         cached_results = self._results_cache.get(cmd)
         if not cached_results:
@@ -291,12 +298,13 @@ class SSHDetect(object):
 
     def _autodetect_std(self, cmd="", search_patterns=None, re_flags=re.I, priority=99):
         """
-        Standard method to try to auto-detect the device type. This method will be called for each
-        device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
-        command and match some regular expression from the ouput for each entry in SSH_MAPPER_BASE
-        ('cmd' and 'search_pattern' keys).
+        Standard method to try to auto-detect the device type.
 
-        Parameters
+        This method will be called for each device_type present in SSH_MAPPER_BASE dict
+        ('dispatch' key). It will attempt to send a command and match some regular expression
+        from the ouput for each entry in SSH_MAPPER_BASE ('cmd' and 'search_pattern' keys).
+
+        Parameters:
         ----------
         cmd : str
             The command to send to the remote device after checking cache.
@@ -306,6 +314,7 @@ class SSHDetect(object):
             Any flags from the python re module to modify the regular expression (default: re.I).
         priority: int, optional
             The confidence the match is right between 0 and 99 (default: 99).
+
         """
         invalid_responses = [
             r"% Invalid input detected",

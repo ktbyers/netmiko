@@ -1,3 +1,4 @@
+"""Multi-vendor library to simplify Paramiko SSH connections to network devices"""
 from setuptools import setup
 from setuptools import find_packages
 import os
@@ -10,6 +11,8 @@ with open("README.md", "r") as fs:
 
 def find_version(*file_paths):
     """
+    Get version from __init__.py
+
     This pattern was modeled on a method from the Python Packaging User Guide:
         https://packaging.python.org/en/latest/single_source_version.html
 

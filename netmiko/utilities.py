@@ -154,6 +154,7 @@ def obtain_netmiko_filename(device_name):
 
 
 def write_tmp_file(device_name, output):
+    """Write to temporary file."""
     file_name = obtain_netmiko_filename(device_name)
     with open(file_name, "w") as f:
         f.write(output)
@@ -210,7 +211,7 @@ def write_bytes(out_data, encoding="ascii"):
 
 
 def check_serial_port(name):
-    """returns valid COM Port."""
+    """Returns valid COM Port."""
     try:
         cdc = next(serial.tools.list_ports.grep(name))
         return cdc[0]
@@ -274,6 +275,7 @@ def get_structured_data(raw_output, platform, command):
 
 
 def get_structured_data_genie(raw_output, platform, command):
+    """Convert raw CLI output to structured data using Genie parsers."""
     if not sys.version_info >= (3, 4):
         raise ValueError("Genie requires Python >= 3.4")
 

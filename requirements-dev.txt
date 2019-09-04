@@ -5,4 +5,5 @@ tox==3.13.1
 twine==1.13.0
 pysnmp==4.4.9
 pdoc3==0.6.2; python_version >= '3.6'
+pydocstyle==4.0.1
 -r requirements.txt

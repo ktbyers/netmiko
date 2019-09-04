@@ -81,7 +81,7 @@ class BaseConnection(object):
         allow_auto_change=False,
         encoding="ascii",
     ):
-        """
+        r"""
         Initialize attributes for establishing connection to target device.
 
         :param ip: IP address of target device. Not required if `host` is
@@ -335,7 +335,8 @@ class BaseConnection(object):
         pass
 
     def _timeout_exceeded(self, start, msg="Timeout exceeded!"):
-        """Raise NetMikoTimeoutException if waiting too much in the serving queue.
+        """
+        Raise NetMikoTimeoutException if waiting too much in the serving queue.
 
         :param start: Initial start time to see if session lock timeout has been exceeded
         :type start: float (from time.time() call i.e. epoch time)
@@ -352,7 +353,10 @@ class BaseConnection(object):
         return False
 
     def _lock_netmiko_session(self, start=None):
-        """Try to acquire the Netmiko session lock. If not available, wait in the queue until
+        """
+        Acquire session lock.
+
+        Try to acquire the Netmiko session lock. If not available, wait in the queue until
         the channel is available again.
 
         :param start: Initial start time to measure the session timeout
@@ -368,14 +372,13 @@ class BaseConnection(object):
         return True
 
     def _unlock_netmiko_session(self):
-        """
-        Release the channel at the end of the task.
-        """
+        """Release the channel at the end of the task."""
         if self._session_locker.locked():
             self._session_locker.release()
 
     def _write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel.
+        """
+        Generic handler that will write to both SSH and telnet channel.
 
         :param out_data: data to be written to the channel
         :type out_data: str (can be either unicode/byte string)
@@ -412,7 +415,8 @@ class BaseConnection(object):
             self.session_log.flush()
 
     def write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel.
+        """
+        Generic handler that will write to both SSH and telnet channel.
 
         :param out_data: data to be written to the channel
         :type out_data: str (can be either unicode/byte string)
@@ -491,7 +495,8 @@ class BaseConnection(object):
         return output
 
     def _read_channel_expect(self, pattern="", re_flags=0, max_loops=150):
-        """Function that reads channel until pattern is detected.
+        """
+        Function that reads channel until pattern is detected.
 
         pattern takes a regular expression.
 
@@ -503,12 +508,12 @@ class BaseConnection(object):
         There are dependencies here like determining whether in config_mode that are actually
         depending on reading beyond pattern.
 
-        :param pattern: Regular expression pattern used to identify the command is done \
-        (defaults to self.base_prompt)
+        :param pattern: Regular expression pattern used to identify the command is done
+            (defaults to self.base_prompt)
         :type pattern: str (regular expression)
 
-        :param re_flags: regex flags used in conjunction with pattern to search for prompt \
-        (defaults to no flags)
+        :param re_flags: regex flags used in conjunction with pattern to search for prompt
+            (defaults to no flags)
         :type re_flags: int
 
         :param max_loops: max number of iterations to read the channel before raising exception.
@@ -556,7 +561,8 @@ class BaseConnection(object):
         )
 
     def _read_channel_timing(self, delay_factor=1, max_loops=150):
-        """Read data on the channel based on timing delays.
+        """
+        Read data on the channel based on timing delays.
 
         Attempt to read channel max_loops number of times. If no data this will cause a 15 second
         delay.
@@ -609,15 +615,16 @@ class BaseConnection(object):
         return self._read_channel_expect(*args, **kwargs)
 
     def read_until_prompt_or_pattern(self, pattern="", re_flags=0):
-        """Read until either self.base_prompt or pattern is detected.
+        """
+        Read until either self.base_prompt or pattern is detected.
 
-        :param pattern: the pattern used to identify that the output is complete (i.e. stop \
-        reading when pattern is detected). pattern will be combined with self.base_prompt to \
-        terminate output reading when the first of self.base_prompt or pattern is detected.
+        :param pattern: the pattern used to identify that the output is complete (i.e. stop
+            reading when pattern is detected). pattern will be combined with self.base_prompt to
+            terminate output reading when the first of self.base_prompt or pattern is detected.
         :type pattern: regular expression string
 
-        :param re_flags: regex flags used in conjunction with pattern to search for prompt \
-        (defaults to no flags)
+        :param re_flags: regex flags used in conjunction with pattern to search for prompt
+            (defaults to no flags)
         :type re_flags: int
 
         """
@@ -635,6 +642,7 @@ class BaseConnection(object):
         delay_factor=1,
         max_loops=20,
     ):
+        """Serial login."""
         self.telnet_login(
             pri_prompt_terminator,
             alt_prompt_terminator,
@@ -653,7 +661,8 @@ class BaseConnection(object):
         delay_factor=1,
         max_loops=20,
     ):
-        """Telnet login. Can be username/password or just password.
+        """
+        Telnet login. Can be username/password or just password.
 
         :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
         :type pri_prompt_terminator: str
@@ -729,6 +738,8 @@ class BaseConnection(object):
 
     def _try_session_preparation(self):
         """
+        Try to perform session preperation.
+
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
         to do since they do not have a reference to the object. This is possibly related
@@ -764,7 +775,8 @@ class BaseConnection(object):
         self.clear_buffer()
 
     def _use_ssh_config(self, dict_arg):
-        """Update SSH connection parameters based on contents of SSH config file.
+        """
+        Update SSH connection parameters based on contents of SSH config file.
 
         :param dict_arg: Dictionary of SSH connection parameters
         :type dict_arg: dict
@@ -835,7 +847,8 @@ class BaseConnection(object):
     def _sanitize_output(
         self, output, strip_command=False, command_string=None, strip_prompt=False
     ):
-        """Strip out command echo, trailing router prompt and ANSI escape codes.
+        """
+        Strip out command echo, trailing router prompt and ANSI escape codes.
 
         :param output: Output from a remote network device
         :type output: unicode string
@@ -854,7 +867,8 @@ class BaseConnection(object):
         return output
 
     def establish_connection(self, width=None, height=None):
-        """Establish SSH connection to the network device
+        """
+        Establish SSH connection to the network device
 
         Timeout will generate a NetMikoTimeoutException
         Authentication failure will generate a NetMikoAuthenticationException
@@ -918,7 +932,8 @@ class BaseConnection(object):
         return ""
 
     def _test_channel_read(self, count=40, pattern=""):
-        """Try to read the channel (generally post login) verify you receive data back.
+        """
+        Try to read the channel (generally post login) verify you receive data back.
 
         :param count: the number of times to check the channel for data
         :type count: int
@@ -975,6 +990,8 @@ class BaseConnection(object):
 
     def select_delay_factor(self, delay_factor):
         """
+        Set delay factor.
+
         Choose the greater of delay_factor or self.global_delay_factor (default).
         In fast_cli choose the lesser of delay_factor of self.global_delay_factor.
 
@@ -997,7 +1014,8 @@ class BaseConnection(object):
         pass
 
     def disable_paging(self, command="terminal length 0", delay_factor=1):
-        """Disable paging default to a Cisco CLI method.
+        """
+        Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
         :type command: str
@@ -1020,7 +1038,10 @@ class BaseConnection(object):
         return output
 
     def set_terminal_width(self, command="", delay_factor=1):
-        """CLI terminals try to automatically adjust the line based on the width of the terminal.
+        """
+        Set terminal width.
+
+        CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
         Set terminal width to 511 which works on a broad set of devices.
@@ -1044,7 +1065,8 @@ class BaseConnection(object):
     def set_base_prompt(
         self, pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
     ):
-        """Sets self.base_prompt
+        """
+        Sets self.base_prompt
 
         Used as delimiter for stripping of trailing prompt in output.
 
@@ -1071,7 +1093,8 @@ class BaseConnection(object):
         return self.base_prompt
 
     def find_prompt(self, delay_factor=1):
-        """Finds the current network device prompt, last line only.
+        """
+        Finds the current network device prompt, last line only.
 
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
@@ -1124,8 +1147,10 @@ class BaseConnection(object):
         use_textfsm=False,
         use_genie=False,
     ):
-        """Execute command_string on the SSH channel using a delay-based mechanism. Generally
-        used for show commands.
+        """
+        Execute command_string on the SSH channel using a delay-based mechanism.
+
+        Generally used for show commands.
 
         :param command_string: The command to be executed on the remote device.
         :type command_string: str
@@ -1183,7 +1208,8 @@ class BaseConnection(object):
         return output
 
     def strip_prompt(self, a_string):
-        """Strip the trailing router prompt from the output.
+        """
+        Strip the trailing router prompt from the output.
 
         :param a_string: Returned string from device
         :type a_string: str
@@ -1197,10 +1223,10 @@ class BaseConnection(object):
 
     def _first_line_handler(self, data, search_pattern):
         """
-        In certain situations the first line will get repainted which causes a false
-        match on the terminating pattern.
+        Filter repainted first lines.
 
-        Filter this out.
+        In certain situations the first line will get repainted which causes a false
+        match on the terminating pattern -- Filter this out.
 
         returns a tuple of (data, first_line_processed)
 
@@ -1235,10 +1261,12 @@ class BaseConnection(object):
         use_textfsm=False,
         use_genie=False,
     ):
-        """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
-        used for show commands. By default this method will keep waiting to receive data until the
-        network device prompt is detected. The current network device prompt will be determined
-        automatically.
+        """
+        Execute command_string on the SSH channel using a pattern-based mechanism.
+
+        Generally used for show commands. By default this method will keep waiting to receive data
+        until the network device prompt is detected. The current network device prompt will be
+        determined automatically.
 
         :param command_string: The command to be executed on the remote device.
         :type command_string: str
@@ -1360,7 +1388,8 @@ class BaseConnection(object):
         return output
 
     def send_command_expect(self, *args, **kwargs):
-        """Support previous name of send_command method.
+        """
+        Support previous name of send_command method.
 
         :param args: Positional arguments to send to send_command()
         :type args: list
@@ -1372,7 +1401,8 @@ class BaseConnection(object):
 
     @staticmethod
     def strip_backspaces(output):
-        """Strip any backspace characters out of the output.
+        """
+        Strip any backspace characters out of the output.
 
         :param output: Output obtained from a remote network device.
         :type output: str
@@ -1405,7 +1435,8 @@ class BaseConnection(object):
             return output[command_length:]
 
     def normalize_linefeeds(self, a_string):
-        """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
+        r"""
+        Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
 
         :param a_string: A string that may have non-normalized line feeds
             i.e. output returned from device, or a device prompt
@@ -1420,7 +1451,8 @@ class BaseConnection(object):
             return a_string
 
     def normalize_cmd(self, command):
-        """Normalize CLI commands to have a single trailing newline.
+        """
+        Normalize CLI commands to have a single trailing newline.
 
         :param command: Command that may require line feed to be normalized
         :type command: str
@@ -1430,7 +1462,8 @@ class BaseConnection(object):
         return command
 
     def check_enable_mode(self, check_string=""):
-        """Check if in enable mode. Return boolean.
+        """
+        Check if in enable mode. Return boolean.
 
         :param check_string: Identification of privilege mode from device
         :type check_string: str
@@ -1440,7 +1473,8 @@ class BaseConnection(object):
         return check_string in output
 
     def enable(self, cmd="", pattern="ssword", re_flags=re.IGNORECASE):
-        """Enter enable mode.
+        """
+        Enter enable mode.
 
         :param cmd: Device command to enter enable mode
         :type cmd: str
@@ -1471,7 +1505,8 @@ class BaseConnection(object):
         return output
 
     def exit_enable_mode(self, exit_command=""):
-        """Exit enable mode.
+        """
+        Exit enable mode.
 
         :param exit_command: Command that exits the session from privileged mode
         :type exit_command: str
@@ -1485,7 +1520,8 @@ class BaseConnection(object):
         return output
 
     def check_config_mode(self, check_string="", pattern=""):
-        """Checks if the device is in configuration mode or not.
+        """
+        Checks if the device is in configuration mode or not.
 
         :param check_string: Identification of configuration mode from the device
         :type check_string: str
@@ -1502,7 +1538,8 @@ class BaseConnection(object):
         return check_string in output
 
     def config_mode(self, config_command="", pattern=""):
-        """Enter into config_mode.
+        """
+        Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
         :type config_command: str
@@ -1519,7 +1556,8 @@ class BaseConnection(object):
         return output
 
     def exit_config_mode(self, exit_config="", pattern=""):
-        """Exit from configuration mode.
+        """
+        Exit from configuration mode.
 
         :param exit_config: Command to exit configuration mode
         :type exit_config: str
@@ -1623,7 +1661,7 @@ class BaseConnection(object):
         return output
 
     def strip_ansi_escape_codes(self, string_buffer):
-        """
+        r"""
         Remove any ANSI (VT100) ESC codes from the output
 
         http://en.wikipedia.org/wiki/ANSI_escape_code
