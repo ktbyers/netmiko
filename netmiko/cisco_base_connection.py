@@ -212,15 +212,23 @@ class CiscoBaseConnection(BaseConnection):
         """Saves Config."""
         self.enable()
         if confirm:
-            output = self.send_command_timing(command_string=cmd)
+            output = self.send_command_timing(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
             if confirm_response:
-                output += self.send_command_timing(confirm_response)
+                output += self.send_command_timing(
+                    confirm_response, strip_prompt=False, strip_command=False
+                )
             else:
                 # Send enter by default
-                output += self.send_command_timing(self.RETURN)
+                output += self.send_command_timing(
+                    self.RETURN, strip_prompt=False, strip_command=False
+                )
         else:
             # Some devices are slow so match on trailing-prompt if you can
-            output = self.send_command(command_string=cmd)
+            output = self.send_command(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
         return output
 
 
