@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from netmiko.extreme.extreme_ers_ssh import ExtremeErsSSH
 from netmiko.extreme.extreme_exos import ExtremeExosSSH
 from netmiko.extreme.extreme_exos import ExtremeExosTelnet

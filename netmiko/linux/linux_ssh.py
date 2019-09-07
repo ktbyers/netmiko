@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import os
 import re
 import socket
@@ -7,7 +5,7 @@ import time
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
-from netmiko.ssh_exception import NetMikoTimeoutException
+from netmiko.ssh_exception import NetmikoTimeoutException
 
 LINUX_PROMPT_PRI = os.getenv("NETMIKO_LINUX_PROMPT_PRI", "$")
 LINUX_PROMPT_ALT = os.getenv("NETMIKO_LINUX_PROMPT_ALT", "#")
@@ -93,7 +91,7 @@ class LinuxSSH(CiscoSSHConnection):
                     self.write_channel(self.normalize_cmd(self.secret))
                 self.set_base_prompt()
             except socket.timeout:
-                raise NetMikoTimeoutException(
+                raise NetmikoTimeoutException(
                     "Timed-out reading channel, data not available."
                 )
             if not self.check_enable_mode():
@@ -152,7 +150,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
         dest_md5 = self.ssh_ctl_chan.send_command(
             remote_md5_cmd, max_loops=750, delay_factor=2
         )

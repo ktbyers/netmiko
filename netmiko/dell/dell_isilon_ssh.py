@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import time
 import re
 
@@ -43,7 +41,7 @@ class DellIsilonSSH(BaseConnection):
         self.clear_buffer()
 
     def set_prompt(self, prompt_terminator="$"):
-        prompt = "PROMPT='%m{}'".format(prompt_terminator)
+        prompt = f"PROMPT='%m{prompt_terminator}'"
         command = self.RETURN + prompt + self.RETURN
         self.write_channel(command)
 

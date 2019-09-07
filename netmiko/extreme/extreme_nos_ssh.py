@@ -1,5 +1,4 @@
 """Support for Extreme NOS/VDX."""
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 

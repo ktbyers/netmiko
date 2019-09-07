@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import re
 import time
 
@@ -137,7 +135,7 @@ class FlexvnfSSH(BaseConnection):
         if comment:
             if '"' in comment:
                 raise ValueError("Invalid comment contains double quote")
-            comment = '"{0}"'.format(comment)
+            comment = f'"{comment}"'
             command_string += " comment " + comment
 
         if and_quit:
@@ -164,9 +162,7 @@ class FlexvnfSSH(BaseConnection):
             )
 
         if commit_marker not in output:
-            raise ValueError(
-                "Commit failed with the following errors:\n\n{0}".format(output)
-            )
+            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
         return output
 

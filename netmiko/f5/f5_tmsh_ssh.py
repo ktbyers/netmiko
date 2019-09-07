@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import time
 from netmiko.base_connection import BaseConnection
 
@@ -21,7 +20,7 @@ class F5TmshSSH(BaseConnection):
         """tmsh command is equivalent to config command on F5."""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
-        command = "{}tmsh{}".format(self.RETURN, self.RETURN)
+        command = f"{self.RETURN}tmsh{self.RETURN}"
         self.write_channel(command)
         time.sleep(1 * delay_factor)
         self.clear_buffer()

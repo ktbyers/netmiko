@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from netmiko.dell.dell_dnos6 import DellDNOS6SSH
 from netmiko.dell.dell_dnos6 import DellDNOS6Telnet
 from netmiko.dell.dell_force10_ssh import DellForce10SSH

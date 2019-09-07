@@ -1,11 +1,8 @@
-from __future__ import unicode_literals
-
 import re
 import time
 
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
-from netmiko.py23_compat import text_type
 
 
 class JuniperBase(BaseConnection):
@@ -142,7 +139,7 @@ class JuniperBase(BaseConnection):
             commit_marker = "configuration check succeeds"
         elif confirm:
             if confirm_delay:
-                command_string = "commit confirmed " + text_type(confirm_delay)
+                command_string = "commit confirmed " + str(confirm_delay)
             else:
                 command_string = "commit confirmed"
             commit_marker = "commit confirmed will be automatically rolled back in"
@@ -151,7 +148,7 @@ class JuniperBase(BaseConnection):
         if comment:
             if '"' in comment:
                 raise ValueError("Invalid comment contains double quote")
-            comment = '"{0}"'.format(comment)
+            comment = f'"{comment}"'
             command_string += " comment " + comment
 
         if and_quit:
@@ -178,9 +175,7 @@ class JuniperBase(BaseConnection):
             )
 
         if commit_marker not in output:
-            raise ValueError(
-                "Commit failed with the following errors:\n\n{0}".format(output)
-            )
+            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
         return output
 

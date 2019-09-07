@@ -4,7 +4,7 @@ import time
 from os.path import dirname, join
 from threading import Lock
 
-from netmiko import NetMikoTimeoutException
+from netmiko import NetmikoTimeoutException
 from netmiko.base_connection import BaseConnection
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
@@ -18,20 +18,20 @@ class FakeBaseConnection(BaseConnection):
 
 
 def test_timeout_exceeded():
-    """Raise NetMikoTimeoutException if waiting too much"""
+    """Raise NetmikoTimeoutException if waiting too much"""
     connection = FakeBaseConnection(session_timeout=10)
     start = time.time() - 11
     try:
         connection._timeout_exceeded(start)
-    except NetMikoTimeoutException as exc:
-        assert isinstance(exc, NetMikoTimeoutException)
+    except NetmikoTimeoutException as exc:
+        assert isinstance(exc, NetmikoTimeoutException)
         return
 
     assert False
 
 
 def test_timeout_not_exceeded():
-    """Do not raise NetMikoTimeoutException if not waiting too much"""
+    """Do not raise NetmikoTimeoutException if not waiting too much"""
     connection = FakeBaseConnection(session_timeout=10)
     start = time.time()
     assert not connection._timeout_exceeded(start)
@@ -382,7 +382,7 @@ def lock_unlock_timeout(timeout=0):
 
     try:
         connection._lock_netmiko_session()
-    except NetMikoTimeoutException:
+    except NetmikoTimeoutException:
         return
     finally:
         assert connection._session_locker.locked()
