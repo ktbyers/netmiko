@@ -3,8 +3,18 @@ from __future__ import unicode_literals
 import re
 import time
 import socket
+from os import path
+from paramiko import SSHClient
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
+
+
+class SSHClient_noauth(SSHClient):
+    """Set noauth when manually handling SSH authentication."""
+
+    def _auth(self, username, *args):
+        self._transport.auth_none(username)
+        return
 
 
 class HPProcurveBase(CiscoSSHConnection):
@@ -98,6 +108,25 @@ class HPProcurveSSH(HPProcurveBase):
         self.write_channel(self.RETURN)
 
         super(HPProcurveSSH, self).session_preparation()
+
+    def _build_ssh_client(self):
+        """Allow passwordless authentication for HP devices being provisioned."""
+
+        # Create instance of SSHClient object. If no SSH keys and no password, then use noauth
+        if not self.use_keys and not self.password:
+            remote_conn_pre = SSHClient_noauth()
+        else:
+            remote_conn_pre = SSHClient()
+
+        # Load host_keys for better SSH security
+        if self.system_host_keys:
+            remote_conn_pre.load_system_host_keys()
+        if self.alt_host_keys and path.isfile(self.alt_key_file):
+            remote_conn_pre.load_host_keys(self.alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+        return remote_conn_pre
 
 
 class HPProcurveTelnet(HPProcurveBase):

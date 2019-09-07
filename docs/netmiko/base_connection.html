@@ -431,6 +431,11 @@ class BaseConnection(object):
 
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) &gt; 0:
+            # Hide the password and secret in the session_log
+            if self.password:
+                data = data.replace(self.password, &#34;********&#34;)
+            if self.secret:
+                data = data.replace(self.secret, &#34;********&#34;)
             self.session_log.write(write_bytes(data, encoding=self.encoding))
             self.session_log.flush()
 
@@ -804,10 +809,20 @@ class BaseConnection(object):
         else:
             source = {}
 
+        # Keys get normalized to lower-case
         if &#34;proxycommand&#34; in source:
             proxy = paramiko.ProxyCommand(source[&#34;proxycommand&#34;])
-        elif &#34;ProxyCommand&#34; in source:
-            proxy = paramiko.ProxyCommand(source[&#34;ProxyCommand&#34;])
+        elif &#34;proxyjump&#34; in source:
+            hops = list(reversed(source[&#34;proxyjump&#34;].split(&#34;,&#34;)))
+            if len(hops) &gt; 1:
+                raise ValueError(
+                    &#34;ProxyJump with more than one proxy server is not supported.&#34;
+                )
+            port = source.get(&#34;port&#34;, self.port)
+            host = source.get(&#34;hostname&#34;, self.host)
+            # -F {full_path} forces the continued use of the same SSH config file
+            cmd = &#34;ssh -F {} -W {}:{} {}&#34;.format(full_path, host, port, hops[0])
+            proxy = paramiko.ProxyCommand(cmd)
         else:
             proxy = None
 
@@ -967,7 +982,7 @@ class BaseConnection(object):
 
         # check if data was ever present
         if new_data:
-            return &#34;&#34;
+            return new_data
         else:
             raise NetMikoTimeoutException(&#34;Timed out waiting for data&#34;)
 
@@ -2282,6 +2297,11 @@ class TelnetConnection(BaseConnection):
 
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) &gt; 0:
+            # Hide the password and secret in the session_log
+            if self.password:
+                data = data.replace(self.password, &#34;********&#34;)
+            if self.secret:
+                data = data.replace(self.secret, &#34;********&#34;)
             self.session_log.write(write_bytes(data, encoding=self.encoding))
             self.session_log.flush()
 
@@ -2655,10 +2675,20 @@ class TelnetConnection(BaseConnection):
         else:
             source = {}
 
+        # Keys get normalized to lower-case
         if &#34;proxycommand&#34; in source:
             proxy = paramiko.ProxyCommand(source[&#34;proxycommand&#34;])
-        elif &#34;ProxyCommand&#34; in source:
-            proxy = paramiko.ProxyCommand(source[&#34;ProxyCommand&#34;])
+        elif &#34;proxyjump&#34; in source:
+            hops = list(reversed(source[&#34;proxyjump&#34;].split(&#34;,&#34;)))
+            if len(hops) &gt; 1:
+                raise ValueError(
+                    &#34;ProxyJump with more than one proxy server is not supported.&#34;
+                )
+            port = source.get(&#34;port&#34;, self.port)
+            host = source.get(&#34;hostname&#34;, self.host)
+            # -F {full_path} forces the continued use of the same SSH config file
+            cmd = &#34;ssh -F {} -W {}:{} {}&#34;.format(full_path, host, port, hops[0])
+            proxy = paramiko.ProxyCommand(cmd)
         else:
             proxy = None
 
@@ -2818,7 +2848,7 @@ class TelnetConnection(BaseConnection):
 
         # check if data was ever present
         if new_data:
-            return &#34;&#34;
+            return new_data
         else:
             raise NetMikoTimeoutException(&#34;Timed out waiting for data&#34;)
 

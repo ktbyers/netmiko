@@ -1,0 +1,10 @@
+host jumphost
+  IdentitiesOnly yes
+  IdentityFile ~/.ssh/test_rsa
+  user myuser
+  hostname host1.domain.com
+
+host * !jumphost
+  User admin
+  Port 8022
+  ProxyJump jumphost

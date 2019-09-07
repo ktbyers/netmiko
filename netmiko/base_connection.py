@@ -403,6 +403,11 @@ class BaseConnection(object):
 
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) > 0:
+            # Hide the password and secret in the session_log
+            if self.password:
+                data = data.replace(self.password, "********")
+            if self.secret:
+                data = data.replace(self.secret, "********")
             self.session_log.write(write_bytes(data, encoding=self.encoding))
             self.session_log.flush()
 
@@ -776,10 +781,20 @@ class BaseConnection(object):
         else:
             source = {}
 
+        # Keys get normalized to lower-case
         if "proxycommand" in source:
             proxy = paramiko.ProxyCommand(source["proxycommand"])
-        elif "ProxyCommand" in source:
-            proxy = paramiko.ProxyCommand(source["ProxyCommand"])
+        elif "proxyjump" in source:
+            hops = list(reversed(source["proxyjump"].split(",")))
+            if len(hops) > 1:
+                raise ValueError(
+                    "ProxyJump with more than one proxy server is not supported."
+                )
+            port = source.get("port", self.port)
+            host = source.get("hostname", self.host)
+            # -F {full_path} forces the continued use of the same SSH config file
+            cmd = "ssh -F {} -W {}:{} {}".format(full_path, host, port, hops[0])
+            proxy = paramiko.ProxyCommand(cmd)
         else:
             proxy = None
 
@@ -939,7 +954,7 @@ class BaseConnection(object):
 
         # check if data was ever present
         if new_data:
-            return ""
+            return new_data
         else:
             raise NetMikoTimeoutException("Timed out waiting for data")
 
