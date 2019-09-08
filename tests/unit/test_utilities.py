@@ -4,6 +4,8 @@ import os
 from os.path import dirname, join, relpath
 import sys
 
+import pytest
+
 from netmiko import utilities
 from netmiko._textfsm import _clitable as clitable
 
@@ -207,11 +209,13 @@ def test_get_structured_data_relative_path():
     assert result == [{"model": "4500"}]
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 8),
+    reason="The genie package is not available for Python 3.8 yet",
+)
 def test_get_structured_data_genie():
     """Convert raw CLI output to structured data using Genie"""
-    if not sys.version_info >= (3, 4):
-        assert True
-        return
+
     raw_output = """Cisco IOS Software, C3560CX Software (C3560CX-UNIVERSALK9-M), Version 15.2(4)E7, RELEASE SOFTWARE (fc2)
 Technical Support: http://www.cisco.com/techsupport
 Copyright (c) 1986-2018 by Cisco Systems, Inc.
