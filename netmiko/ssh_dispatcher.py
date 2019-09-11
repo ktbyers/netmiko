@@ -74,7 +74,7 @@ from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 # import customize class
 from netmiko.cisco import CiscoNxosTelnet, CiscoNxosSerial
 from netmiko.huawei import HuaweiTelnet, HuaweiSerial
-
+from netmiko.hp import HPComwareSerial
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -207,6 +207,7 @@ CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
 CLASS_MAPPER["cisco_nxos_serial"] = CiscoNxosSerial
 CLASS_MAPPER["huawei_serial"] = HuaweiSerial
+CLASS_MAPPER["hp_comware_serial"] = HPComwareSerial
 
 # Add general terminal_server driver and autodetect
 CLASS_MAPPER["terminal_server"] = TerminalServerSSH

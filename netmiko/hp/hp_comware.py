@@ -94,3 +94,7 @@ class HPComwareTelnet(HPComwareBase):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super(HPComwareTelnet, self).__init__(*args, **kwargs)
+
+
+class HPComwareSerial(HPComwareBase):
+    pass
