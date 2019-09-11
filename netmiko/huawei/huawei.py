@@ -51,12 +51,12 @@ class HuaweiBase(CiscoBaseConnection):
 
         Used as delimiter for stripping of trailing prompt in output.
 
-        Should be set to something that is general and applies in multiple contexts. For Comware
-        this will be the router prompt with < > or [ ] stripped off.
+        Should be set to something that is general and applies in multiple contexts.
+        For Huawei this will be the router prompt with < > or [ ] stripped off.
 
         This will be set on logging in, but not when entering system-view
         """
-        log.debug("In set_base_prompt")
+        # log.debug("In set_base_prompt")
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
@@ -123,7 +123,9 @@ class HuaweiTelnet(HuaweiBase):
         while i <= max_loops:
             try:
                 # Search for username pattern / send username
-                output = self.read_until_pattern(pattern=username_pattern, re_flags=re.I)
+                output = self.read_until_pattern(
+                    pattern=username_pattern, re_flags=re.I
+                )
                 return_msg += output
                 self.write_channel(self.username + self.TELNET_RETURN)
 
@@ -137,15 +139,13 @@ class HuaweiTelnet(HuaweiBase):
                 return_msg += output
 
                 # If received prompt, login is completed
-                if re.search(
-                    pri_prompt_terminator, output, flags=re.M
-                ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                    alt_prompt_terminator, output, flags=re.M
+                ):
                     return return_msg
 
                 # Search for password change prompt, send "N"
-                log.debug(f"Searching for [{password_change_prompt}]... delay_factor: {delay_factor}")
                 if re.search(password_change_prompt, output):
-                    log.debug(f"Found [{password_change_prompt}]...")
                     self.write_channel("N" + self.TELNET_RETURN)
                     output = self.read_until_pattern(pattern=combined_pattern)
                     return_msg += output
