@@ -83,9 +83,37 @@ class HuaweiSSH(CiscoSSHConnection):
 
         return self.base_prompt
 
-    def save_config(self, cmd="save", confirm=False, confirm_response=""):
+    def save_config(self, cmd="save", confirm=True, confirm_response="Y"):
         """ Save Config for HuaweiSSH"""
-        return super(HuaweiSSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(HuaweiSSH, self).save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
+        
+        
+    def serial_login(
+        self,
+        pri_prompt_terminator=r">\s*$",
+        alt_prompt_terminator=r"]\s*$",
+        username_pattern=r"(?:user:|username|login)",
+        pwd_pattern=r"assword",
+        delay_factor=1,
+        max_loops=20,
+    ):
+        self.write_channel(self.TELNET_RETURN)
+        output = self.read_channel()
+        if re.search(r"Continue to set it? \[Y/N\]:",output):
+            self.write_channel("N" + self.TELNET_RETURN)
+        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+            alt_prompt_terminator, output, flags=re.M
+        ):
+            return output
+        else:
+            return self.telnet_login(
+                pri_prompt_terminator,
+                alt_prompt_terminator,
+                username_pattern,
+                pwd_pattern,
+                delay_factor,
+                max_loops,
+            )
 
 
 class HuaweiTelnet(HuaweiSSH):
