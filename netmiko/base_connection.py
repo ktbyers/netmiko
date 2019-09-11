@@ -1266,6 +1266,14 @@ class BaseConnection(object):
         while i <= max_loops:
             new_data = self.read_channel()
             if new_data:
+            
+                # to deal with paging,if "disable_paging" isn't effective ,such as user has no privilege
+                if re.search(r'-+\s*More\s*-+', new_data, re.I):
+                    new_data = re.sub(r'-+\s*More\s*-+', repl="", new_data)
+                    new_data = self.strip_ansi_escape_codes(new_data)
+                    self.write_channel(chr(32))
+                # end 
+                
                 if self.ansi_escape_codes:
                     new_data = self.strip_ansi_escape_codes(new_data)
 
@@ -1593,6 +1601,8 @@ class BaseConnection(object):
         ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
+        
+        ESC[7m       Color White in Cisco Nexus93180
 
         HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -1620,6 +1630,7 @@ class BaseConnection(object):
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
         code_erase_display = chr(27) + r"\[J"
+        code_defined_self = chr(27) + r"\[\d*m"
 
         code_set = [
             code_position_cursor,
@@ -1639,6 +1650,7 @@ class BaseConnection(object):
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_defined_self,
         ]
 
         output = string_buffer
