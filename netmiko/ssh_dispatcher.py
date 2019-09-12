@@ -74,6 +74,7 @@ from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
+from netmiko.ubiquiti import UnifiSwitchSSH
 from netmiko.vyos import VyOSSSH
 
 
@@ -158,6 +159,7 @@ CLASS_MAPPER_BASE = {
     "ruckus_fastiron": RuckusFastironSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
+    "ubiquiti_unifi": UnifiSwitchSSH,
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
 }
