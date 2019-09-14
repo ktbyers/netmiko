@@ -7,9 +7,6 @@ SCP requires a separate SSH connection for a control channel.
 
 Currently only supports Cisco IOS and Cisco ASA.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from netmiko import FileTransfer, InLineTransfer
 
 

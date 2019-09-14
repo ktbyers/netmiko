@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -80,9 +78,11 @@ class HPComwareBase(CiscoSSHConnection):
         """enable mode on Comware is system-view."""
         return self.check_config_mode(check_string=check_string)
 
-    def save_config(self, cmd="save force", confirm=False):
+    def save_config(self, cmd="save force", confirm=False, confirm_response=""):
         """Save Config."""
-        return super(HPComwareBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(HPComwareBase, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class HPComwareSSH(HPComwareBase):

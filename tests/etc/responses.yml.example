@@ -178,4 +178,38 @@ oneaccess_oneos_telnet:
   file_check_cmd: "logging buffered 20010"
   save_config: '[OK]'
 
+mikrotik_routeros:
+  base_prompt: '[admin@KLWNBC12RB01] '
+  enable_prompt: '[admin@KLWNBC12RB01] >'
+  config_prompt: '[admin@KLWNBC12RB01] >'
+  version_banner: "version: "
+  multiple_line_output: "out=.1.3.6.1.2.1.2.2.1.20.8"
+  interface_ip: "0 D "
+  cmd_response_init: "Flags: X "
+  cmd_response_final: "0   bridge1"
 
+cloudgenix_ion:
+  base_prompt: 'US-0002-ION-01'
+  enable_prompt: 'US-0002-ION-01#'
+  config_prompt: 'US-0002-ION-01#'
+  version_banner: "CurrentVersion"
+  multiple_line_output: "eth3.207@eth3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT gr\noup default qlen 1000\n    link/ether ec:b9:07:00:91:09 brd ff:ff:ff:ff:ff"
+  interface_ip: "192.168.1.16/24"
+  cmd_response_init: "172.16.16.15/24"
+  cmd_response_final: "172.16.16.16/24"
+
+keymile:
+  base_prompt: /
+  router_prompt: /> 
+  enable_prompt: /> 
+  interface_ip: 1.2.3.4
+  version_banner: "---===### CLI Release R2A21, Build 2018-12-21 ###===---"
+  multiple_line_output: "Equipment State"
+
+keymile_nos:
+  base_prompt: KDKB1251
+  router_prompt: KDKB1251> 
+  enable_prompt: KDKB1251# 
+  interface_ip: 1.2.3.5 
+  version_banner: "NOS version 2.09 #0001"
+  multiple_line_output: "Interface br328"

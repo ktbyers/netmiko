@@ -106,7 +106,7 @@ alcatel_aos:
   ip: 192.168.1.154
   username: admin
   password: switch
-  
+
 netscaler:
   device_type: netscaler
   ip: 192.168.10.10
@@ -148,3 +148,26 @@ oneaccess_oneos_telnet:
   password: TEST
   secret: TEST
 
+mikrotik_routeros:
+  device_type: mikrotik_routeros
+  ip: 192.168.88.1
+  username: admin
+  password: ""
+
+cloudgenix_ion:
+  device_type: cloudgenix_ion
+  ip: 1.1.1.1
+  username: TEST
+  password: TEST
+
+keymile:
+  device_type: keymile
+  ip: 1.2.3.4
+  username: TEST
+  password: TEST
+
+keymile_nos:
+  device_type: keymile_nos
+  ip: 1.2.3.5
+  username: TEST
+  password: TEST

@@ -166,7 +166,7 @@ alcatel_aos:
   config:
     - 'VLAN 666'
   config_verification: "show vlan"
-  
+
 netscaler:
   version: "show version"
   basic: "show ip -summary"
@@ -209,7 +209,6 @@ ipinfusion_ocnos_telnet:
   save_config_confirm: False
   save_config_response: "[OK]"
 
-
 oneaccess_oneos:
   version: "show version"
   basic: "show ip interface brief"
@@ -236,4 +235,42 @@ oneaccess_oneos_telnet:
   save_config_confirm: False
   save_config_response: "[OK]"
 
+mikrotik_routeros:
+  version: "/system resource print"
+  basic: "/ip address print"
+  extended_output: "/interface print oid"
+  config:
+    - "/ip upnp interfaces remove numbers=0"      # base command
+    - "/ip upnp interfaces add interface=bridge1 type=external"
+    - "/ip upnp interfaces add interface=bridge1 type=external"
+  config_verification: '/ip upnp interfaces print'
+  save_config_confirm: False
+  save_config_response: ">"
+
+cloudgenix_ion:
+  version: "dump software status"
+  basic: "dump interface status 1"
+  extended_output: "inspect interface stats all"
+  config:
+    - "config interface 2 ip static address=172.16.16.15/24 gw=172.16.16.1 dns=8.8.8.8"
+    - "config interface 2 ip static address=172.16.16.16/24 gw=172.16.16.1 dns=8.8.8.8"
+  config_verification: "dump interface status 2"
+  save_config_confirm: False
+  save_config_response: "#"
+
+keymile:
+  version: "show version"
+  basic: "get /cfgm/IP_Address"
+  extended_output: "ls"
+
+keymile_nos:
+  version: "show version"
+  basic: "show ip interface brief | include br328"
+  extended_output: "show interface"
+  config:
+      - "log login enable"
+  config_verification: "show running-config | include log"
+  save_config_cmd: 'write memory'
+  save_config_confirm: True
+  save_config_response: '[OK]'
 

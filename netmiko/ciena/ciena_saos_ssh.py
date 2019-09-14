@@ -1,6 +1,4 @@
 """Ciena SAOS support."""
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -19,6 +17,6 @@ class CienaSaosSSH(CiscoSSHConnection):
     def enable(self, *args, **kwargs):
         pass
 
-    def save_config(self, cmd="", confirm=True, confirm_response=""):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError

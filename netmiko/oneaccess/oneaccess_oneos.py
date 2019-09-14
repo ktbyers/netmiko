@@ -1,8 +1,4 @@
 """Netmiko driver for OneAccess ONEOS"""
-
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from netmiko.cisco_base_connection import CiscoBaseConnection
 import time
 
@@ -24,9 +20,11 @@ class OneaccessOneOSBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd="write mem", confirm=False):
+    def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Save config: write mem"""
-        return super(OneaccessOneOSBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(OneaccessOneOSBase, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class OneaccessOneOSSSH(OneaccessOneOSBase):

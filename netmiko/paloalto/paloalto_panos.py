@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import time
 import re
 from netmiko.base_connection import BaseConnection
@@ -97,7 +96,7 @@ class PaloAltoPanosBase(BaseConnection):
         if partial:
             command_string += " partial"
             if vsys:
-                command_string += " {0}".format(vsys)
+                command_string += f" {vsys}"
             if device_and_network:
                 command_string += " device-and-network"
             if policy_and_objects:
@@ -117,9 +116,7 @@ class PaloAltoPanosBase(BaseConnection):
         )
 
         if commit_marker not in output.lower():
-            raise ValueError(
-                "Commit failed with the following errors:\n\n{0}".format(output)
-            )
+            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         return output
 
     def strip_command(self, command_string, output):
@@ -165,6 +162,16 @@ class PaloAltoPanosBase(BaseConnection):
         """Palo Alto requires an extra delay"""
         kwargs["delay_factor"] = kwargs.get("delay_factor", 2.5)
         return super(PaloAltoPanosBase, self).send_command(*args, **kwargs)
+
+    def cleanup(self):
+        """Gracefully exit the SSH session."""
+        try:
+            self.exit_config_mode()
+        except Exception:
+            # Always try to send 'exit' regardless of whether exit_config_mode works or not.
+            pass
+        self._session_log_fin = True
+        self.write_channel("exit" + self.RETURN)
 
 
 class PaloAltoPanosSSH(PaloAltoPanosBase):

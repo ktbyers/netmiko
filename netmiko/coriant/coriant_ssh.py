@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -39,6 +38,6 @@ class CoriantSSH(CiscoSSHConnection):
         )
         return self.base_prompt
 
-    def save_config(self, cmd="", confirm=True, confirm_response=""):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError

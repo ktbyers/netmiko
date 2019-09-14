@@ -10,10 +10,15 @@ class DellOS10SSH(CiscoSSHConnection):
     """Dell EMC Networking OS10 Driver - supports dellos10."""
 
     def save_config(
-        self, cmd="copy running-configuration startup-configuration", confirm=False
+        self,
+        cmd="copy running-configuration startup-configuration",
+        confirm=False,
+        confirm_response="",
     ):
         """Saves Config"""
-        return super(DellOS10SSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(DellOS10SSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class DellOS10FileTransfer(BaseFileTransfer):
@@ -40,7 +45,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_cmd = 'system "ls -l {}/{}"'.format(self.file_system, remote_file)
+        remote_cmd = f'system "ls -l {self.file_system}/{remote_file}"'
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
         for line in remote_out.splitlines():
             if remote_file in line:
@@ -53,7 +58,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
 
     def remote_space_available(self, search_pattern=r"(\d+) bytes free"):
         """Return space available on remote device."""
-        remote_cmd = 'system "df {}"'.format(self.folder_name)
+        remote_cmd = f'system "df {self.folder_name}"'
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         for line in remote_output.splitlines():
             if self.folder_name in line:
@@ -74,7 +79,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_md5_cmd = 'system "md5sum {}/{}"'.format(self.file_system, remote_file)
+        remote_md5_cmd = f'system "md5sum {self.file_system}/{remote_file}"'
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5.strip()
@@ -90,13 +95,13 @@ class DellOS10FileTransfer(BaseFileTransfer):
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
-        destination = "{}".format(self.dest_file)
+        destination = f"{self.dest_file}"
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()
 
     def get_file(self):
         """SCP copy the file from the remote device to local system."""
-        source_file = "{}".format(self.source_file)
+        source_file = f"{self.source_file}"
         self.scp_conn.scp_get_file(source_file, self.dest_file)
         self.scp_conn.close()

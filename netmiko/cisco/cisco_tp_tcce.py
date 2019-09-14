@@ -5,7 +5,6 @@ Expressway/VCS
 
 Written by Ahmad Barrin
 """
-from __future__ import unicode_literals
 import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -86,6 +85,6 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         output = super(CiscoSSHConnection, self).send_command(*args, **kwargs)
         return output
 
-    def save_config(self):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError

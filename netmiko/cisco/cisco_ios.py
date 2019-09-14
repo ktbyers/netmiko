@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import time
 import re
 import os
@@ -32,9 +30,11 @@ class CiscoIosBase(CiscoBaseConnection):
             check_string=check_string, pattern=pattern
         )
 
-    def save_config(self, cmd="write mem", confirm=False):
+    def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves Config Using Copy Run Start"""
-        return super(CiscoIosBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(CiscoIosBase, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class CiscoIosSSH(CiscoIosBase):
@@ -137,9 +137,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         )
         for pattern in cmd_failed:
             if pattern in output:
-                raise ValueError(
-                    "Failed to enter tclsh mode on router: {}".format(output)
-                )
+                raise ValueError(f"Failed to enter tclsh mode on router: {output}")
         return output
 
     def _exit_tcl_mode(self):

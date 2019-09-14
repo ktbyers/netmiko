@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>netmiko.ssh_autodetect API documentation</title>
+<meta name="description" content="The ssh_autodetect module is used to auto-detect the netmiko device_type to use to further initiate
+a new SSH connection with a remote host. This …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>netmiko.ssh_autodetect</code></h1>
+</header>
+<section id="section-intro">
+<p>The ssh_autodetect module is used to auto-detect the netmiko device_type to use to further initiate
+a new SSH connection with a remote host. This auto-detection is based on a unique class called
+<strong>SSHDetect</strong>.</p>
+<h2 id="notes">Notes</h2>
+<p>The <strong>SSHDetect</strong> class is instantiated using the same parameters than a standard Netmiko
+connection (see the <em>netmiko.ssh_dispatacher.ConnectHandler</em> function). The only acceptable value
+for the 'device_type' argument is 'autodetect'.</p>
+<p>The auto-detection is solely based on the <em>SSH_MAPPER_BASE</em> dictionary. The keys are the name of
+the 'device_type' supported for auto-detection and the value is another dictionary describing how
+to handle the auto-detection.</p>
+<ul>
+<li>"cmd" : The command to send to the remote device. <strong>The command output must not require paging.</strong></li>
+<li>"search_patterns" : A list of regex to compare with the output of the command</li>
+<li>"priority" : An integer (0-99) which specifies the confidence of the match above</li>
+<li>"dispatch" : The function to call to try the autodetection (per default SSHDetect._autodetect_std)</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<h1 id="auto-detection-section">Auto-detection section</h1>
+<pre><code>&gt;&gt;&gt; from netmiko.ssh_autodetect import SSHDetect
+&gt;&gt;&gt; from netmiko.ssh_dispatcher import ConnectHandler
+&gt;&gt;&gt; remote_device = {'device_type': 'autodetect',
+                     'host': 'remote.host',
+
+
+                 'username': 'test',
+                 'password': 'foo'}
+
+&gt;&gt;&gt; guesser = SSHDetect(**remote_device)
+&gt;&gt;&gt; best_match = guesser.autodetect()
+&gt;&gt;&gt; print(best_match) # Name of the best device_type to use further
+&gt;&gt;&gt; print(guesser.potential_matches) # Dictionary of the whole matching result
+</code></pre>
+<h1 id="netmiko-connection-creation-section">Netmiko connection creation section</h1>
+<pre><code>&gt;&gt;&gt; remote_device['device_type'] = best_match
+</code></pre>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>connection = ConnectHandler(**remote_device)</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;
+The ssh_autodetect module is used to auto-detect the netmiko device_type to use to further initiate
+a new SSH connection with a remote host. This auto-detection is based on a unique class called
+**SSHDetect**.
+
+Notes
+-----
+
+The **SSHDetect** class is instantiated using the same parameters than a standard Netmiko
+connection (see the *netmiko.ssh_dispatacher.ConnectHandler* function). The only acceptable value
+for the &#39;device_type&#39; argument is &#39;autodetect&#39;.
+
+The auto-detection is solely based on the *SSH_MAPPER_BASE* dictionary. The keys are the name of
+the &#39;device_type&#39; supported for auto-detection and the value is another dictionary describing how
+to handle the auto-detection.
+
+* &#34;cmd&#34; : The command to send to the remote device. **The command output must not require paging.**
+* &#34;search_patterns&#34; : A list of regex to compare with the output of the command
+* &#34;priority&#34; : An integer (0-99) which specifies the confidence of the match above
+* &#34;dispatch&#34; : The function to call to try the autodetection (per default SSHDetect._autodetect_std)
+
+Examples
+--------
+
+# Auto-detection section
+&gt;&gt;&gt; from netmiko.ssh_autodetect import SSHDetect
+&gt;&gt;&gt; from netmiko.ssh_dispatcher import ConnectHandler
+&gt;&gt;&gt; remote_device = {&#39;device_type&#39;: &#39;autodetect&#39;,
+                     &#39;host&#39;: &#39;remote.host&#39;,
+                     &#39;username&#39;: &#39;test&#39;,
+                     &#39;password&#39;: &#39;foo&#39;}
+&gt;&gt;&gt; guesser = SSHDetect(**remote_device)
+&gt;&gt;&gt; best_match = guesser.autodetect()
+&gt;&gt;&gt; print(best_match) # Name of the best device_type to use further
+&gt;&gt;&gt; print(guesser.potential_matches) # Dictionary of the whole matching result
+
+# Netmiko connection creation section
+&gt;&gt;&gt; remote_device[&#39;device_type&#39;] = best_match
+&gt;&gt;&gt; connection = ConnectHandler(**remote_device)
+&#34;&#34;&#34;
+from __future__ import unicode_literals
+
+import re
+import time
+from netmiko.ssh_dispatcher import ConnectHandler
+from netmiko.base_connection import BaseConnection
+
+
+# &#39;dispatch&#39; key is the SSHDetect method to call. dispatch key will be popped off dictionary
+# remaining keys indicate kwargs that will be passed to dispatch method.
+# Note, the &#39;cmd&#39; needs to avoid output paging.
+SSH_MAPPER_BASE = {
+    &#34;alcatel_aos&#34;: {
+        &#34;cmd&#34;: &#34;show system&#34;,
+        &#34;search_patterns&#34;: [r&#34;Alcatel-Lucent&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;alcatel_sros&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [&#34;Nokia&#34;, &#34;Alcatel&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;apresia_aeos&#34;: {
+        &#34;cmd&#34;: &#34;show system&#34;,
+        &#34;search_patterns&#34;: [&#34;Apresia&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;arista_eos&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Arista&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;cisco_asa&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Cisco Adaptive Security Appliance&#34;, r&#34;Cisco ASA&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;cisco_ios&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [
+            &#34;Cisco IOS Software&#34;,
+            &#34;Cisco Internetwork Operating System Software&#34;,
+        ],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;cisco_nxos&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Cisco Nexus Operating System&#34;, r&#34;NX-OS&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;cisco_xr&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Cisco IOS XR&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;dell_force10&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;S4048-ON&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;dell_os10&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Dell EMC Networking OS10-Enterprise&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;f5_tmsh&#34;: {
+        &#34;cmd&#34;: &#34;show sys version&#34;,
+        &#34;search_patterns&#34;: [r&#34;BIG-IP&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;f5_linux&#34;: {
+        &#34;cmd&#34;: &#34;cat /etc/issue&#34;,
+        &#34;search_patterns&#34;: [r&#34;BIG-IP&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;huawei&#34;: {
+        &#34;cmd&#34;: &#34;display version&#34;,
+        &#34;search_patterns&#34;: [
+            r&#34;Huawei Technologies&#34;,
+            r&#34;Huawei Versatile Routing Platform Software&#34;,
+        ],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;juniper_junos&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [
+            r&#34;JUNOS Software Release&#34;,
+            r&#34;JUNOS .+ Software&#34;,
+            r&#34;JUNOS OS Kernel&#34;,
+            r&#34;JUNOS Base Version&#34;,
+        ],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;linux&#34;: {
+        &#34;cmd&#34;: &#34;uname -a&#34;,
+        &#34;search_patterns&#34;: [r&#34;Linux&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;brocade_netiron&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;NetIron&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;extreme_slx&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;SLX-OS Operating System Software&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;ubiquiti_edgeswitch&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;EdgeSwitch&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+}
+
+
+class SSHDetect(object):
+    &#34;&#34;&#34;
+    The SSHDetect class tries to automatically guess the device type running on the SSH remote end.
+    Be careful that the kwargs &#39;device_type&#39; must be set to &#39;autodetect&#39;, otherwise it won&#39;t work at
+    all.
+
+    Parameters
+    ----------
+    *args : list
+        The same *args that you might provide to the netmiko.ssh_dispatcher.ConnectHandler.
+    *kwargs : dict
+        The same *kwargs that you might provide to the netmiko.ssh_dispatcher.ConnectHandler.
+
+    Attributes
+    ----------
+    connection : netmiko.terminal_server.TerminalServerSSH
+        A basic connection to the remote SSH end.
+    potential_matches: dict
+        Dict of (device_type, accuracy) that is populated through an interaction with the
+        remote end.
+
+    Methods
+    -------
+    autodetect()
+        Try to determine the device type.
+    &#34;&#34;&#34;
+
+    def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Constructor of the SSHDetect class
+        &#34;&#34;&#34;
+        if kwargs[&#34;device_type&#34;] != &#34;autodetect&#34;:
+            raise ValueError(&#34;The connection device_type must be &#39;autodetect&#39;&#34;)
+        self.connection = ConnectHandler(*args, **kwargs)
+        # Call the _test_channel_read() in base to clear initial data
+        output = BaseConnection._test_channel_read(self.connection)
+        self.initial_buffer = output
+        self.potential_matches = {}
+        self._results_cache = {}
+
+    def autodetect(self):
+        &#34;&#34;&#34;
+        Try to guess the best &#39;device_type&#39; based on patterns defined in SSH_MAPPER_BASE
+
+        Returns
+        -------
+        best_match : str or None
+            The device type that is currently the best to use to interact with the device
+        &#34;&#34;&#34;
+        for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+            tmp_dict = autodetect_dict.copy()
+            call_method = tmp_dict.pop(&#34;dispatch&#34;)
+            autodetect_method = getattr(self, call_method)
+            accuracy = autodetect_method(**tmp_dict)
+            if accuracy:
+                self.potential_matches[device_type] = accuracy
+                if accuracy &gt;= 99:  # Stop the loop as we are sure of our match
+                    best_match = sorted(
+                        self.potential_matches.items(), key=lambda t: t[1], reverse=True
+                    )
+                    self.connection.disconnect()
+                    return best_match[0][0]
+
+        if not self.potential_matches:
+            self.connection.disconnect()
+            return None
+
+        best_match = sorted(
+            self.potential_matches.items(), key=lambda t: t[1], reverse=True
+        )
+        self.connection.disconnect()
+        return best_match[0][0]
+
+    def _send_command(self, cmd=&#34;&#34;):
+        &#34;&#34;&#34;
+        Handle reading/writing channel directly. It is also sanitizing the output received.
+
+        Parameters
+        ----------
+        cmd : str, optional
+            The command to send to the remote device (default : &#34;&#34;, just send a new line)
+
+        Returns
+        -------
+        output : str
+            The output from the command sent
+        &#34;&#34;&#34;
+        self.connection.write_channel(cmd + &#34;\n&#34;)
+        time.sleep(1)
+        output = self.connection._read_channel_timing()
+        output = self.connection.strip_ansi_escape_codes(output)
+        output = self.connection.strip_backspaces(output)
+        return output
+
+    def _send_command_wrapper(self, cmd):
+        &#34;&#34;&#34;
+        Send command to the remote device with a caching feature to avoid sending the same command
+        twice based on the SSH_MAPPER_BASE dict cmd key.
+
+        Parameters
+        ----------
+        cmd : str
+            The command to send to the remote device after checking cache.
+
+        Returns
+        -------
+        response : str
+            The response from the remote device.
+        &#34;&#34;&#34;
+        cached_results = self._results_cache.get(cmd)
+        if not cached_results:
+            response = self._send_command(cmd)
+            self._results_cache[cmd] = response
+            return response
+        else:
+            return cached_results
+
+    def _autodetect_std(self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.I, priority=99):
+        &#34;&#34;&#34;
+        Standard method to try to auto-detect the device type. This method will be called for each
+        device_type present in SSH_MAPPER_BASE dict (&#39;dispatch&#39; key). It will attempt to send a
+        command and match some regular expression from the ouput for each entry in SSH_MAPPER_BASE
+        (&#39;cmd&#39; and &#39;search_pattern&#39; keys).
+
+        Parameters
+        ----------
+        cmd : str
+            The command to send to the remote device after checking cache.
+        search_patterns : list
+            A list of regular expression to look for in the command&#39;s output (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression (default: re.I).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        &#34;&#34;&#34;
+        invalid_responses = [
+            r&#34;% Invalid input detected&#34;,
+            r&#34;syntax error, expecting&#34;,
+            r&#34;Error: Unrecognized command&#34;,
+            r&#34;%Error&#34;,
+            r&#34;command not found&#34;,
+            r&#34;Syntax Error: unexpected argument&#34;,
+        ]
+        if not cmd or not search_patterns:
+            return 0
+        try:
+            # _send_command_wrapper will use already cached results if available
+            response = self._send_command_wrapper(cmd)
+            # Look for error conditions in output
+            for pattern in invalid_responses:
+                match = re.search(pattern, response, flags=re.I)
+                if match:
+                    return 0
+            for pattern in search_patterns:
+                match = re.search(pattern, response, flags=re_flags)
+                if match:
+                    return priority
+        except Exception:
+            return 0
+        return 0</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="netmiko.ssh_autodetect.SSHDetect"><code class="flex name class">
+<span>class <span class="ident">SSHDetect</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The SSHDetect class tries to automatically guess the device type running on the SSH remote end.
+Be careful that the kwargs 'device_type' must be set to 'autodetect', otherwise it won't work at
+all.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>*args</code></strong> :&ensp;<code>list</code></dt>
+<dd>The same *args that you might provide to the netmiko.ssh_dispatcher.ConnectHandler.</dd>
+<dt><strong><code>*kwargs</code></strong> :&ensp;<code>dict</code></dt>
+<dd>The same *kwargs that you might provide to the netmiko.ssh_dispatcher.ConnectHandler.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>connection</code></strong> :&ensp;<a title="netmiko.terminal_server.TerminalServerSSH" href="terminal_server/index.html#netmiko.terminal_server.TerminalServerSSH"><code>TerminalServerSSH</code></a></dt>
+<dd>A basic connection to the remote SSH end.</dd>
+<dt><strong><code>potential_matches</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dict of (device_type, accuracy) that is populated through an interaction with the
+remote end.</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p>autodetect()
+Try to determine the device type.</p>
+<p>Constructor of the SSHDetect class</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class SSHDetect(object):
+    &#34;&#34;&#34;
+    The SSHDetect class tries to automatically guess the device type running on the SSH remote end.
+    Be careful that the kwargs &#39;device_type&#39; must be set to &#39;autodetect&#39;, otherwise it won&#39;t work at
+    all.
+
+    Parameters
+    ----------
+    *args : list
+        The same *args that you might provide to the netmiko.ssh_dispatcher.ConnectHandler.
+    *kwargs : dict
+        The same *kwargs that you might provide to the netmiko.ssh_dispatcher.ConnectHandler.
+
+    Attributes
+    ----------
+    connection : netmiko.terminal_server.TerminalServerSSH
+        A basic connection to the remote SSH end.
+    potential_matches: dict
+        Dict of (device_type, accuracy) that is populated through an interaction with the
+        remote end.
+
+    Methods
+    -------
+    autodetect()
+        Try to determine the device type.
+    &#34;&#34;&#34;
+
+    def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Constructor of the SSHDetect class
+        &#34;&#34;&#34;
+        if kwargs[&#34;device_type&#34;] != &#34;autodetect&#34;:
+            raise ValueError(&#34;The connection device_type must be &#39;autodetect&#39;&#34;)
+        self.connection = ConnectHandler(*args, **kwargs)
+        # Call the _test_channel_read() in base to clear initial data
+        output = BaseConnection._test_channel_read(self.connection)
+        self.initial_buffer = output
+        self.potential_matches = {}
+        self._results_cache = {}
+
+    def autodetect(self):
+        &#34;&#34;&#34;
+        Try to guess the best &#39;device_type&#39; based on patterns defined in SSH_MAPPER_BASE
+
+        Returns
+        -------
+        best_match : str or None
+            The device type that is currently the best to use to interact with the device
+        &#34;&#34;&#34;
+        for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+            tmp_dict = autodetect_dict.copy()
+            call_method = tmp_dict.pop(&#34;dispatch&#34;)
+            autodetect_method = getattr(self, call_method)
+            accuracy = autodetect_method(**tmp_dict)
+            if accuracy:
+                self.potential_matches[device_type] = accuracy
+                if accuracy &gt;= 99:  # Stop the loop as we are sure of our match
+                    best_match = sorted(
+                        self.potential_matches.items(), key=lambda t: t[1], reverse=True
+                    )
+                    self.connection.disconnect()
+                    return best_match[0][0]
+
+        if not self.potential_matches:
+            self.connection.disconnect()
+            return None
+
+        best_match = sorted(
+            self.potential_matches.items(), key=lambda t: t[1], reverse=True
+        )
+        self.connection.disconnect()
+        return best_match[0][0]
+
+    def _send_command(self, cmd=&#34;&#34;):
+        &#34;&#34;&#34;
+        Handle reading/writing channel directly. It is also sanitizing the output received.
+
+        Parameters
+        ----------
+        cmd : str, optional
+            The command to send to the remote device (default : &#34;&#34;, just send a new line)
+
+        Returns
+        -------
+        output : str
+            The output from the command sent
+        &#34;&#34;&#34;
+        self.connection.write_channel(cmd + &#34;\n&#34;)
+        time.sleep(1)
+        output = self.connection._read_channel_timing()
+        output = self.connection.strip_ansi_escape_codes(output)
+        output = self.connection.strip_backspaces(output)
+        return output
+
+    def _send_command_wrapper(self, cmd):
+        &#34;&#34;&#34;
+        Send command to the remote device with a caching feature to avoid sending the same command
+        twice based on the SSH_MAPPER_BASE dict cmd key.
+
+        Parameters
+        ----------
+        cmd : str
+            The command to send to the remote device after checking cache.
+
+        Returns
+        -------
+        response : str
+            The response from the remote device.
+        &#34;&#34;&#34;
+        cached_results = self._results_cache.get(cmd)
+        if not cached_results:
+            response = self._send_command(cmd)
+            self._results_cache[cmd] = response
+            return response
+        else:
+            return cached_results
+
+    def _autodetect_std(self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.I, priority=99):
+        &#34;&#34;&#34;
+        Standard method to try to auto-detect the device type. This method will be called for each
+        device_type present in SSH_MAPPER_BASE dict (&#39;dispatch&#39; key). It will attempt to send a
+        command and match some regular expression from the ouput for each entry in SSH_MAPPER_BASE
+        (&#39;cmd&#39; and &#39;search_pattern&#39; keys).
+
+        Parameters
+        ----------
+        cmd : str
+            The command to send to the remote device after checking cache.
+        search_patterns : list
+            A list of regular expression to look for in the command&#39;s output (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression (default: re.I).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        &#34;&#34;&#34;
+        invalid_responses = [
+            r&#34;% Invalid input detected&#34;,
+            r&#34;syntax error, expecting&#34;,
+            r&#34;Error: Unrecognized command&#34;,
+            r&#34;%Error&#34;,
+            r&#34;command not found&#34;,
+            r&#34;Syntax Error: unexpected argument&#34;,
+        ]
+        if not cmd or not search_patterns:
+            return 0
+        try:
+            # _send_command_wrapper will use already cached results if available
+            response = self._send_command_wrapper(cmd)
+            # Look for error conditions in output
+            for pattern in invalid_responses:
+                match = re.search(pattern, response, flags=re.I)
+                if match:
+                    return 0
+            for pattern in search_patterns:
+                match = re.search(pattern, response, flags=re_flags)
+                if match:
+                    return priority
+        except Exception:
+            return 0
+        return 0</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="netmiko.ssh_autodetect.SSHDetect.autodetect"><code class="name flex">
+<span>def <span class="ident">autodetect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Try to guess the best 'device_type' based on patterns defined in SSH_MAPPER_BASE</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>best_match</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>The device type that is currently the best to use to interact with the device</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def autodetect(self):
+    &#34;&#34;&#34;
+    Try to guess the best &#39;device_type&#39; based on patterns defined in SSH_MAPPER_BASE
+
+    Returns
+    -------
+    best_match : str or None
+        The device type that is currently the best to use to interact with the device
+    &#34;&#34;&#34;
+    for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+        tmp_dict = autodetect_dict.copy()
+        call_method = tmp_dict.pop(&#34;dispatch&#34;)
+        autodetect_method = getattr(self, call_method)
+        accuracy = autodetect_method(**tmp_dict)
+        if accuracy:
+            self.potential_matches[device_type] = accuracy
+            if accuracy &gt;= 99:  # Stop the loop as we are sure of our match
+                best_match = sorted(
+                    self.potential_matches.items(), key=lambda t: t[1], reverse=True
+                )
+                self.connection.disconnect()
+                return best_match[0][0]
+
+    if not self.potential_matches:
+        self.connection.disconnect()
+        return None
+
+    best_match = sorted(
+        self.potential_matches.items(), key=lambda t: t[1], reverse=True
+    )
+    self.connection.disconnect()
+    return best_match[0][0]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#notes">Notes</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#auto-detection-section">Auto-detection section</a></li>
+<li><a href="#netmiko-connection-creation-section">Netmiko connection creation section</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="netmiko" href="index.html">netmiko</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="netmiko.ssh_autodetect.SSHDetect" href="#netmiko.ssh_autodetect.SSHDetect">SSHDetect</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.ssh_autodetect.SSHDetect.autodetect" href="#netmiko.ssh_autodetect.SSHDetect.autodetect">autodetect</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

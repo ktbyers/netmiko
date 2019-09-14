@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>netmiko.scp_handler API documentation</title>
+<meta name="description" content="Netmiko SCP operations …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>netmiko.scp_handler</code></h1>
+</header>
+<section id="section-intro">
+<p>Netmiko SCP operations.</p>
+<p>Supports file get and file put operations.</p>
+<p>SCP requires a separate SSH connection for a control channel.</p>
+<p>Currently only supports Cisco IOS and Cisco ASA.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Netmiko SCP operations.
+
+Supports file get and file put operations.
+
+SCP requires a separate SSH connection for a control channel.
+
+Currently only supports Cisco IOS and Cisco ASA.
+&#34;&#34;&#34;
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import re
+import os
+import hashlib
+
+import scp
+
+
+class SCPConn(object):
+    &#34;&#34;&#34;
+    Establish a secure copy channel to the remote network device.
+
+    Must close the SCP connection to get the file to write to the remote filesystem
+    &#34;&#34;&#34;
+
+    def __init__(self, ssh_conn):
+        self.ssh_ctl_chan = ssh_conn
+        self.establish_scp_conn()
+
+    def establish_scp_conn(self):
+        &#34;&#34;&#34;Establish the secure copy connection.&#34;&#34;&#34;
+        ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
+        self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
+        self.scp_conn.connect(**ssh_connect_params)
+        self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+
+    def scp_transfer_file(self, source_file, dest_file):
+        &#34;&#34;&#34;Put file using SCP (for backwards compatibility).&#34;&#34;&#34;
+        self.scp_client.put(source_file, dest_file)
+
+    def scp_get_file(self, source_file, dest_file):
+        &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
+        self.scp_client.get(source_file, dest_file)
+
+    def scp_put_file(self, source_file, dest_file):
+        &#34;&#34;&#34;Put file using SCP.&#34;&#34;&#34;
+        self.scp_client.put(source_file, dest_file)
+
+    def close(self):
+        &#34;&#34;&#34;Close the SCP connection.&#34;&#34;&#34;
+        self.scp_conn.close()
+
+
+class BaseFileTransfer(object):
+    &#34;&#34;&#34;Class to manage SCP file transfer and associated SSH control channel.&#34;&#34;&#34;
+
+    def __init__(
+        self, ssh_conn, source_file, dest_file, file_system=None, direction=&#34;put&#34;
+    ):
+        self.ssh_ctl_chan = ssh_conn
+        self.source_file = source_file
+        self.dest_file = dest_file
+        self.direction = direction
+
+        auto_flag = (
+            &#34;cisco_ios&#34; in ssh_conn.device_type
+            or &#34;cisco_xe&#34; in ssh_conn.device_type
+            or &#34;cisco_xr&#34; in ssh_conn.device_type
+        )
+        if not file_system:
+            if auto_flag:
+                self.file_system = self.ssh_ctl_chan._autodetect_fs()
+            else:
+                raise ValueError(&#34;Destination file system not specified&#34;)
+        else:
+            self.file_system = file_system
+
+        if direction == &#34;put&#34;:
+            self.source_md5 = self.file_md5(source_file)
+            self.file_size = os.stat(source_file).st_size
+        elif direction == &#34;get&#34;:
+            self.source_md5 = self.remote_md5(remote_file=source_file)
+            self.file_size = self.remote_file_size(remote_file=source_file)
+        else:
+            raise ValueError(&#34;Invalid direction specified&#34;)
+
+    def __enter__(self):
+        &#34;&#34;&#34;Context manager setup&#34;&#34;&#34;
+        self.establish_scp_conn()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        &#34;&#34;&#34;Context manager cleanup.&#34;&#34;&#34;
+        self.close_scp_chan()
+
+    def establish_scp_conn(self):
+        &#34;&#34;&#34;Establish SCP connection.&#34;&#34;&#34;
+        self.scp_conn = SCPConn(self.ssh_ctl_chan)
+
+    def close_scp_chan(self):
+        &#34;&#34;&#34;Close the SCP connection to the remote network device.&#34;&#34;&#34;
+        self.scp_conn.close()
+        self.scp_conn = None
+
+    def remote_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
+        &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        remote_cmd = &#34;dir {}&#34;.format(self.file_system)
+        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+        match = re.search(search_pattern, remote_output)
+        if &#34;kbytes&#34; in match.group(0) or &#34;Kbytes&#34; in match.group(0):
+            return int(match.group(1)) * 1000
+        return int(match.group(1))
+
+    def _remote_space_available_unix(self, search_pattern=&#34;&#34;):
+        &#34;&#34;&#34;Return space available on *nix system (BSD/Linux).&#34;&#34;&#34;
+        self.ssh_ctl_chan._enter_shell()
+        remote_cmd = &#34;/bin/df -k {}&#34;.format(self.file_system)
+        remote_output = self.ssh_ctl_chan.send_command(
+            remote_cmd, expect_string=r&#34;[\$#]&#34;
+        )
+
+        # Try to ensure parsing is correct:
+        # Filesystem   1K-blocks  Used   Avail Capacity  Mounted on
+        # /dev/bo0s3f    1264808 16376 1147248     1%    /cf/var
+        remote_output = remote_output.strip()
+        output_lines = remote_output.splitlines()
+
+        # First line is the header; second is the actual file system info
+        header_line = output_lines[0]
+        filesystem_line = output_lines[1]
+
+        if &#34;Filesystem&#34; not in header_line or &#34;Avail&#34; not in header_line.split()[3]:
+            # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
+            msg = &#34;Parsing error, unexpected output from {}:\n{}&#34;.format(
+                remote_cmd, remote_output
+            )
+            raise ValueError(msg)
+
+        space_available = filesystem_line.split()[3]
+        if not re.search(r&#34;^\d+$&#34;, space_available):
+            msg = &#34;Parsing error, unexpected output from {}:\n{}&#34;.format(
+                remote_cmd, remote_output
+            )
+            raise ValueError(msg)
+
+        self.ssh_ctl_chan._return_cli()
+        return int(space_available) * 1024
+
+    def local_space_available(self):
+        &#34;&#34;&#34;Return space available on local filesystem.&#34;&#34;&#34;
+        destination_stats = os.statvfs(&#34;.&#34;)
+        return destination_stats.f_bsize * destination_stats.f_bavail
+
+    def verify_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
+        &#34;&#34;&#34;Verify sufficient space is available on destination file system (return boolean).&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            space_avail = self.remote_space_available(search_pattern=search_pattern)
+        elif self.direction == &#34;get&#34;:
+            space_avail = self.local_space_available()
+        if space_avail &gt; self.file_size:
+            return True
+        return False
+
+    def check_file_exists(self, remote_cmd=&#34;&#34;):
+        &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            if not remote_cmd:
+                remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, self.dest_file)
+            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            search_string = r&#34;Directory of .*{0}&#34;.format(self.dest_file)
+            if (
+                &#34;Error opening&#34; in remote_out
+                or &#34;No such file or directory&#34; in remote_out
+                or &#34;Path does not exist&#34; in remote_out
+            ):
+                return False
+            elif re.search(search_string, remote_out, flags=re.DOTALL):
+                return True
+            else:
+                raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
+        elif self.direction == &#34;get&#34;:
+            return os.path.exists(self.dest_file)
+
+    def _check_file_exists_unix(self, remote_cmd=&#34;&#34;):
+        &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            self.ssh_ctl_chan._enter_shell()
+            remote_cmd = &#34;ls {}&#34;.format(self.file_system)
+            remote_out = self.ssh_ctl_chan.send_command(
+                remote_cmd, expect_string=r&#34;[\$#]&#34;
+            )
+            self.ssh_ctl_chan._return_cli()
+            return self.dest_file in remote_out
+        elif self.direction == &#34;get&#34;:
+            return os.path.exists(self.dest_file)
+
+    def remote_file_size(self, remote_cmd=&#34;&#34;, remote_file=None):
+        &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+        if not remote_cmd:
+            remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, remote_file)
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        # Strip out &#34;Directory of flash:/filename line
+        remote_out = re.split(r&#34;Directory of .*&#34;, remote_out)
+        remote_out = &#34;&#34;.join(remote_out)
+        # Match line containing file name
+        escape_file_name = re.escape(remote_file)
+        pattern = r&#34;.*({}).*&#34;.format(escape_file_name)
+        match = re.search(pattern, remote_out)
+        if match:
+            line = match.group(0)
+            # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
+            file_size = line.split()[2]
+        if &#34;Error opening&#34; in remote_out or &#34;No such file or directory&#34; in remote_out:
+            raise IOError(&#34;Unable to find file on remote system&#34;)
+        else:
+            return int(file_size)
+
+    def _remote_file_size_unix(self, remote_cmd=&#34;&#34;, remote_file=None):
+        &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+        remote_file = &#34;{}/{}&#34;.format(self.file_system, remote_file)
+        if not remote_cmd:
+            remote_cmd = &#34;ls -l {}&#34;.format(remote_file)
+
+        self.ssh_ctl_chan._enter_shell()
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r&#34;[\$#]&#34;)
+        self.ssh_ctl_chan._return_cli()
+
+        if &#34;No such file or directory&#34; in remote_out:
+            raise IOError(&#34;Unable to find file on remote system&#34;)
+
+        escape_file_name = re.escape(remote_file)
+        pattern = r&#34;^.* ({}).*$&#34;.format(escape_file_name)
+        match = re.search(pattern, remote_out, flags=re.M)
+        if match:
+            # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
+            line = match.group(0)
+            file_size = line.split()[4]
+            return int(file_size)
+
+        raise ValueError(
+            &#34;Search pattern not found for remote file size during SCP transfer.&#34;
+        )
+
+    def file_md5(self, file_name):
+        &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
+        with open(file_name, &#34;rb&#34;) as f:
+            file_contents = f.read()
+            file_hash = hashlib.md5(file_contents).hexdigest()
+        return file_hash
+
+    @staticmethod
+    def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
+        &#34;&#34;&#34;
+        Process the string to retrieve the MD5 hash
+
+        Output from Cisco IOS (ASA is similar)
+        .MD5 of flash:file_name Done!
+        verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
+        &#34;&#34;&#34;
+        match = re.search(pattern, md5_output)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError(&#34;Invalid output from MD5 command: {}&#34;.format(md5_output))
+
+    def compare_md5(self):
+        &#34;&#34;&#34;Compare md5 of file on network device to md5 of local file.&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            remote_md5 = self.remote_md5()
+            return self.source_md5 == remote_md5
+        elif self.direction == &#34;get&#34;:
+            local_md5 = self.file_md5(self.dest_file)
+            return self.source_md5 == local_md5
+
+    def remote_md5(self, base_cmd=&#34;verify /md5&#34;, remote_file=None):
+        &#34;&#34;&#34;Calculate remote MD5 and returns the hash.
+
+        This command can be CPU intensive on the remote device.
+        &#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+        remote_md5_cmd = &#34;{} {}/{}&#34;.format(base_cmd, self.file_system, remote_file)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
+        dest_md5 = self.process_md5(dest_md5)
+        return dest_md5
+
+    def transfer_file(self):
+        &#34;&#34;&#34;SCP transfer file.&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            self.put_file()
+        elif self.direction == &#34;get&#34;:
+            self.get_file()
+
+    def get_file(self):
+        &#34;&#34;&#34;SCP copy the file from the remote device to local system.&#34;&#34;&#34;
+        source_file = &#34;{}/{}&#34;.format(self.file_system, self.source_file)
+        self.scp_conn.scp_get_file(source_file, self.dest_file)
+        self.scp_conn.close()
+
+    def put_file(self):
+        &#34;&#34;&#34;SCP copy the file from the local system to the remote device.&#34;&#34;&#34;
+        destination = &#34;{}/{}&#34;.format(self.file_system, self.dest_file)
+        self.scp_conn.scp_transfer_file(self.source_file, destination)
+        # Must close the SCP connection to get the file written (flush)
+        self.scp_conn.close()
+
+    def verify_file(self):
+        &#34;&#34;&#34;Verify the file has been transferred correctly.&#34;&#34;&#34;
+        return self.compare_md5()
+
+    def enable_scp(self, cmd=None):
+        &#34;&#34;&#34;
+        Enable SCP on remote device.
+
+        Defaults to Cisco IOS command
+        &#34;&#34;&#34;
+        if cmd is None:
+            cmd = [&#34;ip scp server enable&#34;]
+        elif not hasattr(cmd, &#34;__iter__&#34;):
+            cmd = [cmd]
+        self.ssh_ctl_chan.send_config_set(cmd)
+
+    def disable_scp(self, cmd=None):
+        &#34;&#34;&#34;
+        Disable SCP on remote device.
+
+        Defaults to Cisco IOS command
+        &#34;&#34;&#34;
+        if cmd is None:
+            cmd = [&#34;no ip scp server enable&#34;]
+        elif not hasattr(cmd, &#34;__iter__&#34;):
+            cmd = [cmd]
+        self.ssh_ctl_chan.send_config_set(cmd)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="netmiko.scp_handler.BaseFileTransfer"><code class="flex name class">
+<span>class <span class="ident">BaseFileTransfer</span></span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Class to manage SCP file transfer and associated SSH control channel.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class BaseFileTransfer(object):
+    &#34;&#34;&#34;Class to manage SCP file transfer and associated SSH control channel.&#34;&#34;&#34;
+
+    def __init__(
+        self, ssh_conn, source_file, dest_file, file_system=None, direction=&#34;put&#34;
+    ):
+        self.ssh_ctl_chan = ssh_conn
+        self.source_file = source_file
+        self.dest_file = dest_file
+        self.direction = direction
+
+        auto_flag = (
+            &#34;cisco_ios&#34; in ssh_conn.device_type
+            or &#34;cisco_xe&#34; in ssh_conn.device_type
+            or &#34;cisco_xr&#34; in ssh_conn.device_type
+        )
+        if not file_system:
+            if auto_flag:
+                self.file_system = self.ssh_ctl_chan._autodetect_fs()
+            else:
+                raise ValueError(&#34;Destination file system not specified&#34;)
+        else:
+            self.file_system = file_system
+
+        if direction == &#34;put&#34;:
+            self.source_md5 = self.file_md5(source_file)
+            self.file_size = os.stat(source_file).st_size
+        elif direction == &#34;get&#34;:
+            self.source_md5 = self.remote_md5(remote_file=source_file)
+            self.file_size = self.remote_file_size(remote_file=source_file)
+        else:
+            raise ValueError(&#34;Invalid direction specified&#34;)
+
+    def __enter__(self):
+        &#34;&#34;&#34;Context manager setup&#34;&#34;&#34;
+        self.establish_scp_conn()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        &#34;&#34;&#34;Context manager cleanup.&#34;&#34;&#34;
+        self.close_scp_chan()
+
+    def establish_scp_conn(self):
+        &#34;&#34;&#34;Establish SCP connection.&#34;&#34;&#34;
+        self.scp_conn = SCPConn(self.ssh_ctl_chan)
+
+    def close_scp_chan(self):
+        &#34;&#34;&#34;Close the SCP connection to the remote network device.&#34;&#34;&#34;
+        self.scp_conn.close()
+        self.scp_conn = None
+
+    def remote_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
+        &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        remote_cmd = &#34;dir {}&#34;.format(self.file_system)
+        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+        match = re.search(search_pattern, remote_output)
+        if &#34;kbytes&#34; in match.group(0) or &#34;Kbytes&#34; in match.group(0):
+            return int(match.group(1)) * 1000
+        return int(match.group(1))
+
+    def _remote_space_available_unix(self, search_pattern=&#34;&#34;):
+        &#34;&#34;&#34;Return space available on *nix system (BSD/Linux).&#34;&#34;&#34;
+        self.ssh_ctl_chan._enter_shell()
+        remote_cmd = &#34;/bin/df -k {}&#34;.format(self.file_system)
+        remote_output = self.ssh_ctl_chan.send_command(
+            remote_cmd, expect_string=r&#34;[\$#]&#34;
+        )
+
+        # Try to ensure parsing is correct:
+        # Filesystem   1K-blocks  Used   Avail Capacity  Mounted on
+        # /dev/bo0s3f    1264808 16376 1147248     1%    /cf/var
+        remote_output = remote_output.strip()
+        output_lines = remote_output.splitlines()
+
+        # First line is the header; second is the actual file system info
+        header_line = output_lines[0]
+        filesystem_line = output_lines[1]
+
+        if &#34;Filesystem&#34; not in header_line or &#34;Avail&#34; not in header_line.split()[3]:
+            # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
+            msg = &#34;Parsing error, unexpected output from {}:\n{}&#34;.format(
+                remote_cmd, remote_output
+            )
+            raise ValueError(msg)
+
+        space_available = filesystem_line.split()[3]
+        if not re.search(r&#34;^\d+$&#34;, space_available):
+            msg = &#34;Parsing error, unexpected output from {}:\n{}&#34;.format(
+                remote_cmd, remote_output
+            )
+            raise ValueError(msg)
+
+        self.ssh_ctl_chan._return_cli()
+        return int(space_available) * 1024
+
+    def local_space_available(self):
+        &#34;&#34;&#34;Return space available on local filesystem.&#34;&#34;&#34;
+        destination_stats = os.statvfs(&#34;.&#34;)
+        return destination_stats.f_bsize * destination_stats.f_bavail
+
+    def verify_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
+        &#34;&#34;&#34;Verify sufficient space is available on destination file system (return boolean).&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            space_avail = self.remote_space_available(search_pattern=search_pattern)
+        elif self.direction == &#34;get&#34;:
+            space_avail = self.local_space_available()
+        if space_avail &gt; self.file_size:
+            return True
+        return False
+
+    def check_file_exists(self, remote_cmd=&#34;&#34;):
+        &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            if not remote_cmd:
+                remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, self.dest_file)
+            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            search_string = r&#34;Directory of .*{0}&#34;.format(self.dest_file)
+            if (
+                &#34;Error opening&#34; in remote_out
+                or &#34;No such file or directory&#34; in remote_out
+                or &#34;Path does not exist&#34; in remote_out
+            ):
+                return False
+            elif re.search(search_string, remote_out, flags=re.DOTALL):
+                return True
+            else:
+                raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
+        elif self.direction == &#34;get&#34;:
+            return os.path.exists(self.dest_file)
+
+    def _check_file_exists_unix(self, remote_cmd=&#34;&#34;):
+        &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            self.ssh_ctl_chan._enter_shell()
+            remote_cmd = &#34;ls {}&#34;.format(self.file_system)
+            remote_out = self.ssh_ctl_chan.send_command(
+                remote_cmd, expect_string=r&#34;[\$#]&#34;
+            )
+            self.ssh_ctl_chan._return_cli()
+            return self.dest_file in remote_out
+        elif self.direction == &#34;get&#34;:
+            return os.path.exists(self.dest_file)
+
+    def remote_file_size(self, remote_cmd=&#34;&#34;, remote_file=None):
+        &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+        if not remote_cmd:
+            remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, remote_file)
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        # Strip out &#34;Directory of flash:/filename line
+        remote_out = re.split(r&#34;Directory of .*&#34;, remote_out)
+        remote_out = &#34;&#34;.join(remote_out)
+        # Match line containing file name
+        escape_file_name = re.escape(remote_file)
+        pattern = r&#34;.*({}).*&#34;.format(escape_file_name)
+        match = re.search(pattern, remote_out)
+        if match:
+            line = match.group(0)
+            # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
+            file_size = line.split()[2]
+        if &#34;Error opening&#34; in remote_out or &#34;No such file or directory&#34; in remote_out:
+            raise IOError(&#34;Unable to find file on remote system&#34;)
+        else:
+            return int(file_size)
+
+    def _remote_file_size_unix(self, remote_cmd=&#34;&#34;, remote_file=None):
+        &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+        remote_file = &#34;{}/{}&#34;.format(self.file_system, remote_file)
+        if not remote_cmd:
+            remote_cmd = &#34;ls -l {}&#34;.format(remote_file)
+
+        self.ssh_ctl_chan._enter_shell()
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r&#34;[\$#]&#34;)
+        self.ssh_ctl_chan._return_cli()
+
+        if &#34;No such file or directory&#34; in remote_out:
+            raise IOError(&#34;Unable to find file on remote system&#34;)
+
+        escape_file_name = re.escape(remote_file)
+        pattern = r&#34;^.* ({}).*$&#34;.format(escape_file_name)
+        match = re.search(pattern, remote_out, flags=re.M)
+        if match:
+            # Format: -rw-r--r--  1 pyclass  wheel  12 Nov  5 19:07 /var/tmp/test3.txt
+            line = match.group(0)
+            file_size = line.split()[4]
+            return int(file_size)
+
+        raise ValueError(
+            &#34;Search pattern not found for remote file size during SCP transfer.&#34;
+        )
+
+    def file_md5(self, file_name):
+        &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
+        with open(file_name, &#34;rb&#34;) as f:
+            file_contents = f.read()
+            file_hash = hashlib.md5(file_contents).hexdigest()
+        return file_hash
+
+    @staticmethod
+    def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
+        &#34;&#34;&#34;
+        Process the string to retrieve the MD5 hash
+
+        Output from Cisco IOS (ASA is similar)
+        .MD5 of flash:file_name Done!
+        verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
+        &#34;&#34;&#34;
+        match = re.search(pattern, md5_output)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError(&#34;Invalid output from MD5 command: {}&#34;.format(md5_output))
+
+    def compare_md5(self):
+        &#34;&#34;&#34;Compare md5 of file on network device to md5 of local file.&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            remote_md5 = self.remote_md5()
+            return self.source_md5 == remote_md5
+        elif self.direction == &#34;get&#34;:
+            local_md5 = self.file_md5(self.dest_file)
+            return self.source_md5 == local_md5
+
+    def remote_md5(self, base_cmd=&#34;verify /md5&#34;, remote_file=None):
+        &#34;&#34;&#34;Calculate remote MD5 and returns the hash.
+
+        This command can be CPU intensive on the remote device.
+        &#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+        remote_md5_cmd = &#34;{} {}/{}&#34;.format(base_cmd, self.file_system, remote_file)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
+        dest_md5 = self.process_md5(dest_md5)
+        return dest_md5
+
+    def transfer_file(self):
+        &#34;&#34;&#34;SCP transfer file.&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            self.put_file()
+        elif self.direction == &#34;get&#34;:
+            self.get_file()
+
+    def get_file(self):
+        &#34;&#34;&#34;SCP copy the file from the remote device to local system.&#34;&#34;&#34;
+        source_file = &#34;{}/{}&#34;.format(self.file_system, self.source_file)
+        self.scp_conn.scp_get_file(source_file, self.dest_file)
+        self.scp_conn.close()
+
+    def put_file(self):
+        &#34;&#34;&#34;SCP copy the file from the local system to the remote device.&#34;&#34;&#34;
+        destination = &#34;{}/{}&#34;.format(self.file_system, self.dest_file)
+        self.scp_conn.scp_transfer_file(self.source_file, destination)
+        # Must close the SCP connection to get the file written (flush)
+        self.scp_conn.close()
+
+    def verify_file(self):
+        &#34;&#34;&#34;Verify the file has been transferred correctly.&#34;&#34;&#34;
+        return self.compare_md5()
+
+    def enable_scp(self, cmd=None):
+        &#34;&#34;&#34;
+        Enable SCP on remote device.
+
+        Defaults to Cisco IOS command
+        &#34;&#34;&#34;
+        if cmd is None:
+            cmd = [&#34;ip scp server enable&#34;]
+        elif not hasattr(cmd, &#34;__iter__&#34;):
+            cmd = [cmd]
+        self.ssh_ctl_chan.send_config_set(cmd)
+
+    def disable_scp(self, cmd=None):
+        &#34;&#34;&#34;
+        Disable SCP on remote device.
+
+        Defaults to Cisco IOS command
+        &#34;&#34;&#34;
+        if cmd is None:
+            cmd = [&#34;no ip scp server enable&#34;]
+        elif not hasattr(cmd, &#34;__iter__&#34;):
+            cmd = [cmd]
+        self.ssh_ctl_chan.send_config_set(cmd)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="netmiko.cisco_base_connection.CiscoFileTransfer" href="cisco_base_connection.html#netmiko.cisco_base_connection.CiscoFileTransfer">CiscoFileTransfer</a></li>
+<li><a title="netmiko.dell.dell_os10_ssh.DellOS10FileTransfer" href="dell/dell_os10_ssh.html#netmiko.dell.dell_os10_ssh.DellOS10FileTransfer">DellOS10FileTransfer</a></li>
+<li><a title="netmiko.juniper.juniper.JuniperFileTransfer" href="juniper/juniper.html#netmiko.juniper.juniper.JuniperFileTransfer">JuniperFileTransfer</a></li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="netmiko.scp_handler.BaseFileTransfer.process_md5"><code class="name flex">
+<span>def <span class="ident">process_md5</span></span>(<span>md5_output, pattern='=\\s+(\\S+)')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Process the string to retrieve the MD5 hash</p>
+<p>Output from Cisco IOS (ASA is similar)
+.MD5 of flash:file_name Done!
+verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@staticmethod
+def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
+    &#34;&#34;&#34;
+    Process the string to retrieve the MD5 hash
+
+    Output from Cisco IOS (ASA is similar)
+    .MD5 of flash:file_name Done!
+    verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2
+    &#34;&#34;&#34;
+    match = re.search(pattern, md5_output)
+    if match:
+        return match.group(1)
+    else:
+        raise ValueError(&#34;Invalid output from MD5 command: {}&#34;.format(md5_output))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="netmiko.scp_handler.BaseFileTransfer.check_file_exists"><code class="name flex">
+<span>def <span class="ident">check_file_exists</span></span>(<span>self, remote_cmd='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check if the dest_file already exists on the file system (return boolean).</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def check_file_exists(self, remote_cmd=&#34;&#34;):
+    &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
+    if self.direction == &#34;put&#34;:
+        if not remote_cmd:
+            remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, self.dest_file)
+        remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+        search_string = r&#34;Directory of .*{0}&#34;.format(self.dest_file)
+        if (
+            &#34;Error opening&#34; in remote_out
+            or &#34;No such file or directory&#34; in remote_out
+            or &#34;Path does not exist&#34; in remote_out
+        ):
+            return False
+        elif re.search(search_string, remote_out, flags=re.DOTALL):
+            return True
+        else:
+            raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
+    elif self.direction == &#34;get&#34;:
+        return os.path.exists(self.dest_file)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.close_scp_chan"><code class="name flex">
+<span>def <span class="ident">close_scp_chan</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Close the SCP connection to the remote network device.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def close_scp_chan(self):
+    &#34;&#34;&#34;Close the SCP connection to the remote network device.&#34;&#34;&#34;
+    self.scp_conn.close()
+    self.scp_conn = None</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.compare_md5"><code class="name flex">
+<span>def <span class="ident">compare_md5</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Compare md5 of file on network device to md5 of local file.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def compare_md5(self):
+    &#34;&#34;&#34;Compare md5 of file on network device to md5 of local file.&#34;&#34;&#34;
+    if self.direction == &#34;put&#34;:
+        remote_md5 = self.remote_md5()
+        return self.source_md5 == remote_md5
+    elif self.direction == &#34;get&#34;:
+        local_md5 = self.file_md5(self.dest_file)
+        return self.source_md5 == local_md5</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.disable_scp"><code class="name flex">
+<span>def <span class="ident">disable_scp</span></span>(<span>self, cmd=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Disable SCP on remote device.</p>
+<p>Defaults to Cisco IOS command</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def disable_scp(self, cmd=None):
+    &#34;&#34;&#34;
+    Disable SCP on remote device.
+
+    Defaults to Cisco IOS command
+    &#34;&#34;&#34;
+    if cmd is None:
+        cmd = [&#34;no ip scp server enable&#34;]
+    elif not hasattr(cmd, &#34;__iter__&#34;):
+        cmd = [cmd]
+    self.ssh_ctl_chan.send_config_set(cmd)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.enable_scp"><code class="name flex">
+<span>def <span class="ident">enable_scp</span></span>(<span>self, cmd=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Enable SCP on remote device.</p>
+<p>Defaults to Cisco IOS command</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def enable_scp(self, cmd=None):
+    &#34;&#34;&#34;
+    Enable SCP on remote device.
+
+    Defaults to Cisco IOS command
+    &#34;&#34;&#34;
+    if cmd is None:
+        cmd = [&#34;ip scp server enable&#34;]
+    elif not hasattr(cmd, &#34;__iter__&#34;):
+        cmd = [cmd]
+    self.ssh_ctl_chan.send_config_set(cmd)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.establish_scp_conn"><code class="name flex">
+<span>def <span class="ident">establish_scp_conn</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Establish SCP connection.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def establish_scp_conn(self):
+    &#34;&#34;&#34;Establish SCP connection.&#34;&#34;&#34;
+    self.scp_conn = SCPConn(self.ssh_ctl_chan)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.file_md5"><code class="name flex">
+<span>def <span class="ident">file_md5</span></span>(<span>self, file_name)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Compute MD5 hash of file.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def file_md5(self, file_name):
+    &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
+    with open(file_name, &#34;rb&#34;) as f:
+        file_contents = f.read()
+        file_hash = hashlib.md5(file_contents).hexdigest()
+    return file_hash</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.get_file"><code class="name flex">
+<span>def <span class="ident">get_file</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>SCP copy the file from the remote device to local system.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_file(self):
+    &#34;&#34;&#34;SCP copy the file from the remote device to local system.&#34;&#34;&#34;
+    source_file = &#34;{}/{}&#34;.format(self.file_system, self.source_file)
+    self.scp_conn.scp_get_file(source_file, self.dest_file)
+    self.scp_conn.close()</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.local_space_available"><code class="name flex">
+<span>def <span class="ident">local_space_available</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return space available on local filesystem.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def local_space_available(self):
+    &#34;&#34;&#34;Return space available on local filesystem.&#34;&#34;&#34;
+    destination_stats = os.statvfs(&#34;.&#34;)
+    return destination_stats.f_bsize * destination_stats.f_bavail</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.put_file"><code class="name flex">
+<span>def <span class="ident">put_file</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>SCP copy the file from the local system to the remote device.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def put_file(self):
+    &#34;&#34;&#34;SCP copy the file from the local system to the remote device.&#34;&#34;&#34;
+    destination = &#34;{}/{}&#34;.format(self.file_system, self.dest_file)
+    self.scp_conn.scp_transfer_file(self.source_file, destination)
+    # Must close the SCP connection to get the file written (flush)
+    self.scp_conn.close()</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.remote_file_size"><code class="name flex">
+<span>def <span class="ident">remote_file_size</span></span>(<span>self, remote_cmd='', remote_file=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get the file size of the remote file.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def remote_file_size(self, remote_cmd=&#34;&#34;, remote_file=None):
+    &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+    if remote_file is None:
+        if self.direction == &#34;put&#34;:
+            remote_file = self.dest_file
+        elif self.direction == &#34;get&#34;:
+            remote_file = self.source_file
+    if not remote_cmd:
+        remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, remote_file)
+    remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+    # Strip out &#34;Directory of flash:/filename line
+    remote_out = re.split(r&#34;Directory of .*&#34;, remote_out)
+    remote_out = &#34;&#34;.join(remote_out)
+    # Match line containing file name
+    escape_file_name = re.escape(remote_file)
+    pattern = r&#34;.*({}).*&#34;.format(escape_file_name)
+    match = re.search(pattern, remote_out)
+    if match:
+        line = match.group(0)
+        # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
+        file_size = line.split()[2]
+    if &#34;Error opening&#34; in remote_out or &#34;No such file or directory&#34; in remote_out:
+        raise IOError(&#34;Unable to find file on remote system&#34;)
+    else:
+        return int(file_size)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.remote_md5"><code class="name flex">
+<span>def <span class="ident">remote_md5</span></span>(<span>self, base_cmd='verify /md5', remote_file=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Calculate remote MD5 and returns the hash.</p>
+<p>This command can be CPU intensive on the remote device.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def remote_md5(self, base_cmd=&#34;verify /md5&#34;, remote_file=None):
+    &#34;&#34;&#34;Calculate remote MD5 and returns the hash.
+
+    This command can be CPU intensive on the remote device.
+    &#34;&#34;&#34;
+    if remote_file is None:
+        if self.direction == &#34;put&#34;:
+            remote_file = self.dest_file
+        elif self.direction == &#34;get&#34;:
+            remote_file = self.source_file
+    remote_md5_cmd = &#34;{} {}/{}&#34;.format(base_cmd, self.file_system, remote_file)
+    dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
+    dest_md5 = self.process_md5(dest_md5)
+    return dest_md5</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.remote_space_available"><code class="name flex">
+<span>def <span class="ident">remote_space_available</span></span>(<span>self, search_pattern='(\\d+) \\w+ free')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return space available on remote device.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def remote_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
+    &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+    remote_cmd = &#34;dir {}&#34;.format(self.file_system)
+    remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+    match = re.search(search_pattern, remote_output)
+    if &#34;kbytes&#34; in match.group(0) or &#34;Kbytes&#34; in match.group(0):
+        return int(match.group(1)) * 1000
+    return int(match.group(1))</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.transfer_file"><code class="name flex">
+<span>def <span class="ident">transfer_file</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>SCP transfer file.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def transfer_file(self):
+    &#34;&#34;&#34;SCP transfer file.&#34;&#34;&#34;
+    if self.direction == &#34;put&#34;:
+        self.put_file()
+    elif self.direction == &#34;get&#34;:
+        self.get_file()</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.verify_file"><code class="name flex">
+<span>def <span class="ident">verify_file</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Verify the file has been transferred correctly.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def verify_file(self):
+    &#34;&#34;&#34;Verify the file has been transferred correctly.&#34;&#34;&#34;
+    return self.compare_md5()</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.BaseFileTransfer.verify_space_available"><code class="name flex">
+<span>def <span class="ident">verify_space_available</span></span>(<span>self, search_pattern='(\\d+) \\w+ free')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Verify sufficient space is available on destination file system (return boolean).</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def verify_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
+    &#34;&#34;&#34;Verify sufficient space is available on destination file system (return boolean).&#34;&#34;&#34;
+    if self.direction == &#34;put&#34;:
+        space_avail = self.remote_space_available(search_pattern=search_pattern)
+    elif self.direction == &#34;get&#34;:
+        space_avail = self.local_space_available()
+    if space_avail &gt; self.file_size:
+        return True
+    return False</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="netmiko.scp_handler.SCPConn"><code class="flex name class">
+<span>class <span class="ident">SCPConn</span></span>
+<span>(</span><span>ssh_conn)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Establish a secure copy channel to the remote network device.</p>
+<p>Must close the SCP connection to get the file to write to the remote filesystem</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class SCPConn(object):
+    &#34;&#34;&#34;
+    Establish a secure copy channel to the remote network device.
+
+    Must close the SCP connection to get the file to write to the remote filesystem
+    &#34;&#34;&#34;
+
+    def __init__(self, ssh_conn):
+        self.ssh_ctl_chan = ssh_conn
+        self.establish_scp_conn()
+
+    def establish_scp_conn(self):
+        &#34;&#34;&#34;Establish the secure copy connection.&#34;&#34;&#34;
+        ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
+        self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
+        self.scp_conn.connect(**ssh_connect_params)
+        self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+
+    def scp_transfer_file(self, source_file, dest_file):
+        &#34;&#34;&#34;Put file using SCP (for backwards compatibility).&#34;&#34;&#34;
+        self.scp_client.put(source_file, dest_file)
+
+    def scp_get_file(self, source_file, dest_file):
+        &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
+        self.scp_client.get(source_file, dest_file)
+
+    def scp_put_file(self, source_file, dest_file):
+        &#34;&#34;&#34;Put file using SCP.&#34;&#34;&#34;
+        self.scp_client.put(source_file, dest_file)
+
+    def close(self):
+        &#34;&#34;&#34;Close the SCP connection.&#34;&#34;&#34;
+        self.scp_conn.close()</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="netmiko.scp_handler.SCPConn.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Close the SCP connection.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def close(self):
+    &#34;&#34;&#34;Close the SCP connection.&#34;&#34;&#34;
+    self.scp_conn.close()</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.SCPConn.establish_scp_conn"><code class="name flex">
+<span>def <span class="ident">establish_scp_conn</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Establish the secure copy connection.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def establish_scp_conn(self):
+    &#34;&#34;&#34;Establish the secure copy connection.&#34;&#34;&#34;
+    ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
+    self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
+    self.scp_conn.connect(**ssh_connect_params)
+    self.scp_client = scp.SCPClient(self.scp_conn.get_transport())</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.SCPConn.scp_get_file"><code class="name flex">
+<span>def <span class="ident">scp_get_file</span></span>(<span>self, source_file, dest_file)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get file using SCP.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def scp_get_file(self, source_file, dest_file):
+    &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
+    self.scp_client.get(source_file, dest_file)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.SCPConn.scp_put_file"><code class="name flex">
+<span>def <span class="ident">scp_put_file</span></span>(<span>self, source_file, dest_file)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Put file using SCP.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def scp_put_file(self, source_file, dest_file):
+    &#34;&#34;&#34;Put file using SCP.&#34;&#34;&#34;
+    self.scp_client.put(source_file, dest_file)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.scp_handler.SCPConn.scp_transfer_file"><code class="name flex">
+<span>def <span class="ident">scp_transfer_file</span></span>(<span>self, source_file, dest_file)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Put file using SCP (for backwards compatibility).</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def scp_transfer_file(self, source_file, dest_file):
+    &#34;&#34;&#34;Put file using SCP (for backwards compatibility).&#34;&#34;&#34;
+    self.scp_client.put(source_file, dest_file)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="netmiko" href="index.html">netmiko</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="netmiko.scp_handler.BaseFileTransfer" href="#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.check_file_exists" href="#netmiko.scp_handler.BaseFileTransfer.check_file_exists">check_file_exists</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.close_scp_chan" href="#netmiko.scp_handler.BaseFileTransfer.close_scp_chan">close_scp_chan</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.compare_md5" href="#netmiko.scp_handler.BaseFileTransfer.compare_md5">compare_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.disable_scp" href="#netmiko.scp_handler.BaseFileTransfer.disable_scp">disable_scp</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.enable_scp" href="#netmiko.scp_handler.BaseFileTransfer.enable_scp">enable_scp</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.establish_scp_conn" href="#netmiko.scp_handler.BaseFileTransfer.establish_scp_conn">establish_scp_conn</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.file_md5" href="#netmiko.scp_handler.BaseFileTransfer.file_md5">file_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.get_file" href="#netmiko.scp_handler.BaseFileTransfer.get_file">get_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.local_space_available" href="#netmiko.scp_handler.BaseFileTransfer.local_space_available">local_space_available</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.process_md5" href="#netmiko.scp_handler.BaseFileTransfer.process_md5">process_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.put_file" href="#netmiko.scp_handler.BaseFileTransfer.put_file">put_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_file_size" href="#netmiko.scp_handler.BaseFileTransfer.remote_file_size">remote_file_size</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_md5" href="#netmiko.scp_handler.BaseFileTransfer.remote_md5">remote_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_space_available" href="#netmiko.scp_handler.BaseFileTransfer.remote_space_available">remote_space_available</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.transfer_file" href="#netmiko.scp_handler.BaseFileTransfer.transfer_file">transfer_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.verify_file" href="#netmiko.scp_handler.BaseFileTransfer.verify_file">verify_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.verify_space_available" href="#netmiko.scp_handler.BaseFileTransfer.verify_space_available">verify_space_available</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="netmiko.scp_handler.SCPConn" href="#netmiko.scp_handler.SCPConn">SCPConn</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.scp_handler.SCPConn.close" href="#netmiko.scp_handler.SCPConn.close">close</a></code></li>
+<li><code><a title="netmiko.scp_handler.SCPConn.establish_scp_conn" href="#netmiko.scp_handler.SCPConn.establish_scp_conn">establish_scp_conn</a></code></li>
+<li><code><a title="netmiko.scp_handler.SCPConn.scp_get_file" href="#netmiko.scp_handler.SCPConn.scp_get_file">scp_get_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.SCPConn.scp_put_file" href="#netmiko.scp_handler.SCPConn.scp_put_file">scp_put_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.SCPConn.scp_transfer_file" href="#netmiko.scp_handler.SCPConn.scp_transfer_file">scp_transfer_file</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

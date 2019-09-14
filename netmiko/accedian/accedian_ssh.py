@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -43,6 +42,6 @@ class AccedianSSH(CiscoSSHConnection):
         )
         return self.base_prompt
 
-    def save_config(self, cmd="", confirm=True, confirm_response=""):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError

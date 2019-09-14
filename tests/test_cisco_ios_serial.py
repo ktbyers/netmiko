@@ -3,8 +3,6 @@
 This will run an command via serial on an cisco ios switch and so
 serial cable must be attached to the device
 """
-
-from __future__ import print_function
 from netmiko import ConnectHandler
 import serial
 

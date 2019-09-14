@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import re
 import time
 from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT
@@ -60,7 +59,9 @@ class RuckusFastironBase(CiscoSSHConnection):
 
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves configuration."""
-        return super(RuckusFastironBase, self).save_config(cmd=cmd, confirm=confirm)
+        return super(RuckusFastironBase, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class RuckusFastironTelnet(RuckusFastironBase):

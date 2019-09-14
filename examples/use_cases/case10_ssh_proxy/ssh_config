@@ -1,7 +1,7 @@
 host jumphost
   IdentityFile ~/.ssh/test_rsa
   user gituser
-  hostname 54.241.72.159
+  hostname 10.10.10.159
 
 host * !jumphost
   ProxyCommand ssh jumphost nc %h %p

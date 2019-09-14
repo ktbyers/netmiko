@@ -1,5 +1,4 @@
 """MRV Communications Driver (OptiSwitch)."""
-from __future__ import unicode_literals
 import time
 import re
 
@@ -36,6 +35,8 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
                 raise ValueError(msg)
         return output
 
-    def save_config(self, cmd="save config flash", confirm=False):
+    def save_config(self, cmd="save config flash", confirm=False, confirm_response=""):
         """Saves configuration."""
-        return super(MrvOptiswitchSSH, self).save_config(cmd=cmd, confirm=confirm)
+        return super(MrvOptiswitchSSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )

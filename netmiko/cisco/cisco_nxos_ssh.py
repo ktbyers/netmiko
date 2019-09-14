@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import unicode_literals
 import re
 import time
 import os
@@ -21,7 +19,8 @@ class CiscoNxosSSH(CiscoSSHConnection):
     def normalize_linefeeds(self, a_string):
         """Convert '\r\n' or '\r\r\n' to '\n, and remove extra '\r's in the text."""
         newline = re.compile(r"(\r\r\n|\r\n)")
-        return newline.sub(self.RESPONSE_RETURN, a_string).replace("\r", "")
+        # NX-OS fix for incorrect MD5 on 9K (due to strange <enter> patterns on NX-OS)
+        return newline.sub(self.RESPONSE_RETURN, a_string).replace("\r", "\n")
 
     def check_config_mode(self, check_string=")#", pattern="#"):
         """Checks if the device is in configuration mode or not."""
@@ -64,7 +63,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             if not remote_cmd:
-                remote_cmd = "dir {}{}".format(self.file_system, self.dest_file)
+                remote_cmd = f"dir {self.file_system}{self.dest_file}"
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"{}.*Usage for".format(self.dest_file)
             if "No such file or directory" in remote_out:
@@ -85,7 +84,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
                 remote_file = self.source_file
 
         if not remote_cmd:
-            remote_cmd = "dir {}/{}".format(self.file_system, remote_file)
+            remote_cmd = f"dir {self.file_system}/{remote_file}"
 
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
         # Match line containing file name
@@ -112,10 +111,8 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_md5_cmd = "{} {}{} md5sum".format(
-            base_cmd, self.file_system, remote_file
-        )
-        return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
+        remote_md5_cmd = f"{base_cmd} {self.file_system}{remote_file} md5sum"
+        return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500).strip()
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError

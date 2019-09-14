@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>netmiko.utilities API documentation</title>
+<meta name="description" content="Miscellaneous utility functions." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>netmiko.utilities</code></h1>
+</header>
+<section id="section-intro">
+<p>Miscellaneous utility functions.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;Miscellaneous utility functions.&#34;&#34;&#34;
+from __future__ import print_function
+from __future__ import unicode_literals
+
+from glob import glob
+import sys
+import io
+import os
+import serial.tools.list_ports
+from netmiko.py23_compat import text_type
+from netmiko._textfsm import _clitable as clitable
+from netmiko._textfsm._clitable import CliTableError
+
+try:
+    from genie.conf.base import Device
+    from genie.libs.parser.utils import get_parser
+    from pyats.datastructures import AttrDict
+
+    GENIE_INSTALLED = True
+except ImportError:
+    GENIE_INSTALLED = False
+
+# Dictionary mapping &#39;show run&#39; for vendors with different command
+SHOW_RUN_MAPPER = {
+    &#34;juniper&#34;: &#34;show configuration&#34;,
+    &#34;juniper_junos&#34;: &#34;show configuration&#34;,
+    &#34;extreme&#34;: &#34;show configuration&#34;,
+    &#34;extreme_ers&#34;: &#34;show running-config&#34;,
+    &#34;extreme_exos&#34;: &#34;show configuration&#34;,
+    &#34;extreme_netiron&#34;: &#34;show running-config&#34;,
+    &#34;extreme_nos&#34;: &#34;show running-config&#34;,
+    &#34;extreme_slx&#34;: &#34;show running-config&#34;,
+    &#34;extreme_vdx&#34;: &#34;show running-config&#34;,
+    &#34;extreme_vsp&#34;: &#34;show running-config&#34;,
+    &#34;extreme_wing&#34;: &#34;show running-config&#34;,
+    &#34;hp_comware&#34;: &#34;display current-configuration&#34;,
+    &#34;huawei&#34;: &#34;display current-configuration&#34;,
+    &#34;fortinet&#34;: &#34;show full-configuration&#34;,
+    &#34;checkpoint&#34;: &#34;show configuration&#34;,
+    &#34;cisco_wlc&#34;: &#34;show run-config&#34;,
+    &#34;enterasys&#34;: &#34;show running-config&#34;,
+    &#34;dell_force10&#34;: &#34;show running-config&#34;,
+    &#34;avaya_vsp&#34;: &#34;show running-config&#34;,
+    &#34;avaya_ers&#34;: &#34;show running-config&#34;,
+    &#34;brocade_vdx&#34;: &#34;show running-config&#34;,
+    &#34;brocade_nos&#34;: &#34;show running-config&#34;,
+    &#34;brocade_fastiron&#34;: &#34;show running-config&#34;,
+    &#34;brocade_netiron&#34;: &#34;show running-config&#34;,
+    &#34;alcatel_aos&#34;: &#34;show configuration snapshot&#34;,
+}
+
+# Expand SHOW_RUN_MAPPER to include &#39;_ssh&#39; key
+new_dict = {}
+for k, v in SHOW_RUN_MAPPER.items():
+    new_key = k + &#34;_ssh&#34;
+    new_dict[k] = v
+    new_dict[new_key] = v
+SHOW_RUN_MAPPER = new_dict
+
+# Default location of netmiko temp directory for netmiko tools
+NETMIKO_BASE_DIR = &#34;~/.netmiko&#34;
+
+
+def load_yaml_file(yaml_file):
+    &#34;&#34;&#34;Read YAML file.&#34;&#34;&#34;
+    try:
+        import yaml
+    except ImportError:
+        sys.exit(&#34;Unable to import yaml module.&#34;)
+    try:
+        with io.open(yaml_file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as fname:
+            return yaml.safe_load(fname)
+    except IOError:
+        sys.exit(&#34;Unable to open YAML file: {0}&#34;.format(yaml_file))
+
+
+def load_devices(file_name=None):
+    &#34;&#34;&#34;Find and load .netmiko.yml file.&#34;&#34;&#34;
+    yaml_devices_file = find_cfg_file(file_name)
+    return load_yaml_file(yaml_devices_file)
+
+
+def find_cfg_file(file_name=None):
+    &#34;&#34;&#34;
+    Search for netmiko_tools inventory file in the following order:
+
+    NETMIKO_TOOLS_CFG environment variable
+    Current directory
+    Home directory
+
+    Look for file named: .netmiko.yml or netmiko.yml
+
+    Also allow NETMIKO_TOOLS_CFG to point directly at a file
+    &#34;&#34;&#34;
+    if file_name:
+        if os.path.isfile(file_name):
+            return file_name
+    optional_path = os.environ.get(&#34;NETMIKO_TOOLS_CFG&#34;, &#34;&#34;)
+    if os.path.isfile(optional_path):
+        return optional_path
+    search_paths = [optional_path, &#34;.&#34;, os.path.expanduser(&#34;~&#34;)]
+    # Filter optional_path if null
+    search_paths = [path for path in search_paths if path]
+    for path in search_paths:
+        files = glob(&#34;{}/.netmiko.yml&#34;.format(path)) + glob(
+            &#34;{}/netmiko.yml&#34;.format(path)
+        )
+        if files:
+            return files[0]
+    raise IOError(
+        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current &#34;
+        &#34;directory, or home directory.&#34;
+    )
+
+
+def display_inventory(my_devices):
+    &#34;&#34;&#34;Print out inventory devices and groups.&#34;&#34;&#34;
+    inventory_groups = [&#34;all&#34;]
+    inventory_devices = []
+    for k, v in my_devices.items():
+        if isinstance(v, list):
+            inventory_groups.append(k)
+        elif isinstance(v, dict):
+            inventory_devices.append((k, v[&#34;device_type&#34;]))
+
+    inventory_groups.sort()
+    inventory_devices.sort(key=lambda x: x[0])
+    print(&#34;\nDevices:&#34;)
+    print(&#34;-&#34; * 40)
+    for a_device, device_type in inventory_devices:
+        device_type = &#34;  ({})&#34;.format(device_type)
+        print(&#34;{:&lt;25}{:&gt;15}&#34;.format(a_device, device_type))
+    print(&#34;\n\nGroups:&#34;)
+    print(&#34;-&#34; * 40)
+    for a_group in inventory_groups:
+        print(a_group)
+    print()
+
+
+def obtain_all_devices(my_devices):
+    &#34;&#34;&#34;Dynamically create &#39;all&#39; group.&#34;&#34;&#34;
+    new_devices = {}
+    for device_name, device_or_group in my_devices.items():
+        # Skip any groups
+        if not isinstance(device_or_group, list):
+            new_devices[device_name] = device_or_group
+    return new_devices
+
+
+def obtain_netmiko_filename(device_name):
+    &#34;&#34;&#34;Create file name based on device_name.&#34;&#34;&#34;
+    _, netmiko_full_dir = find_netmiko_dir()
+    return &#34;{}/{}.txt&#34;.format(netmiko_full_dir, device_name)
+
+
+def write_tmp_file(device_name, output):
+    file_name = obtain_netmiko_filename(device_name)
+    with open(file_name, &#34;w&#34;) as f:
+        f.write(output)
+    return file_name
+
+
+def ensure_dir_exists(verify_dir):
+    &#34;&#34;&#34;Ensure directory exists. Create if necessary.&#34;&#34;&#34;
+    if not os.path.exists(verify_dir):
+        # Doesn&#39;t exist create dir
+        os.makedirs(verify_dir)
+    else:
+        # Exists
+        if not os.path.isdir(verify_dir):
+            # Not a dir, raise an exception
+            raise ValueError(&#34;{} is not a directory&#34;.format(verify_dir))
+
+
+def find_netmiko_dir():
+    &#34;&#34;&#34;Check environment first, then default dir&#34;&#34;&#34;
+    try:
+        netmiko_base_dir = os.environ[&#34;NETMIKO_DIR&#34;]
+    except KeyError:
+        netmiko_base_dir = NETMIKO_BASE_DIR
+    netmiko_base_dir = os.path.expanduser(netmiko_base_dir)
+    if netmiko_base_dir == &#34;/&#34;:
+        raise ValueError(&#34;/ cannot be netmiko_base_dir&#34;)
+    netmiko_full_dir = &#34;{}/tmp&#34;.format(netmiko_base_dir)
+    return (netmiko_base_dir, netmiko_full_dir)
+
+
+def write_bytes(out_data, encoding=&#34;ascii&#34;):
+    &#34;&#34;&#34;Write Python2 and Python3 compatible byte stream.&#34;&#34;&#34;
+    if sys.version_info[0] &gt;= 3:
+        if isinstance(out_data, type(&#34;&#34;)):
+            if encoding == &#34;utf-8&#34;:
+                return out_data.encode(&#34;utf-8&#34;)
+            else:
+                return out_data.encode(&#34;ascii&#34;, &#34;ignore&#34;)
+        elif isinstance(out_data, type(b&#34;&#34;)):
+            return out_data
+    else:
+        if isinstance(out_data, type(&#34;&#34;)):
+            if encoding == &#34;utf-8&#34;:
+                return out_data.encode(&#34;utf-8&#34;)
+            else:
+                return out_data.encode(&#34;ascii&#34;, &#34;ignore&#34;)
+        elif isinstance(out_data, type(str(&#34;&#34;))):
+            return out_data
+    msg = &#34;Invalid value for out_data neither unicode nor byte string: {}&#34;.format(
+        out_data
+    )
+    raise ValueError(msg)
+
+
+def check_serial_port(name):
+    &#34;&#34;&#34;returns valid COM Port.&#34;&#34;&#34;
+    try:
+        cdc = next(serial.tools.list_ports.grep(name))
+        return cdc[0]
+    except StopIteration:
+        msg = &#34;device {} not found. &#34;.format(name)
+        msg += &#34;available devices are: &#34;
+        ports = list(serial.tools.list_ports.comports())
+        for p in ports:
+            msg += &#34;{},&#34;.format(text_type(p))
+        raise ValueError(msg)
+
+
+def get_template_dir():
+    &#34;&#34;&#34;Find and return the ntc-templates/templates dir.&#34;&#34;&#34;
+    try:
+        template_dir = os.path.expanduser(os.environ[&#34;NET_TEXTFSM&#34;])
+        index = os.path.join(template_dir, &#34;index&#34;)
+        if not os.path.isfile(index):
+            # Assume only base ./ntc-templates specified
+            template_dir = os.path.join(template_dir, &#34;templates&#34;)
+    except KeyError:
+        # Construct path ~/ntc-templates/templates
+        home_dir = os.path.expanduser(&#34;~&#34;)
+        template_dir = os.path.join(home_dir, &#34;ntc-templates&#34;, &#34;templates&#34;)
+
+    index = os.path.join(template_dir, &#34;index&#34;)
+    if not os.path.isdir(template_dir) or not os.path.isfile(index):
+        msg = &#34;&#34;&#34;
+Valid ntc-templates not found, please install https://github.com/networktocode/ntc-templates
+and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
+directory.&#34;&#34;&#34;
+        raise ValueError(msg)
+    return os.path.abspath(template_dir)
+
+
+def clitable_to_dict(cli_table):
+    &#34;&#34;&#34;Converts TextFSM cli_table object to list of dictionaries.&#34;&#34;&#34;
+    objs = []
+    for row in cli_table:
+        temp_dict = {}
+        for index, element in enumerate(row):
+            temp_dict[cli_table.header[index].lower()] = element
+        objs.append(temp_dict)
+    return objs
+
+
+def get_structured_data(raw_output, platform, command):
+    &#34;&#34;&#34;Convert raw CLI output to structured data using TextFSM template.&#34;&#34;&#34;
+    template_dir = get_template_dir()
+    index_file = os.path.join(template_dir, &#34;index&#34;)
+    textfsm_obj = clitable.CliTable(index_file, template_dir)
+    attrs = {&#34;Command&#34;: command, &#34;Platform&#34;: platform}
+    try:
+        # Parse output through template
+        textfsm_obj.ParseCmd(raw_output, attrs)
+        structured_data = clitable_to_dict(textfsm_obj)
+        output = raw_output if structured_data == [] else structured_data
+        return output
+    except CliTableError:
+        return raw_output
+
+
+def get_structured_data_genie(raw_output, platform, command):
+    if not sys.version_info &gt;= (3, 4):
+        raise ValueError(&#34;Genie requires Python &gt;= 3.4&#34;)
+
+    if not GENIE_INSTALLED:
+        msg = (
+            &#34;\nGenie and PyATS are not installed. Please PIP install both Genie and PyATS:\n&#34;
+            &#34;pip install genie\npip install pyats\n&#34;
+        )
+        raise ValueError(msg)
+
+    if &#34;cisco&#34; not in platform:
+        return raw_output
+
+    genie_device_mapper = {
+        &#34;cisco_ios&#34;: &#34;ios&#34;,
+        &#34;cisco_xe&#34;: &#34;iosxe&#34;,
+        &#34;cisco_xr&#34;: &#34;iosxr&#34;,
+        &#34;cisco_nxos&#34;: &#34;nxos&#34;,
+        &#34;cisco_asa&#34;: &#34;asa&#34;,
+    }
+
+    os = None
+    # platform might be _ssh, _telnet, _serial strip that off
+    if platform.count(&#34;_&#34;) &gt; 1:
+        base_platform = platform.split(&#34;_&#34;)[:-1]
+        base_platform = &#34;_&#34;.join(base_platform)
+    else:
+        base_platform = platform
+
+    os = genie_device_mapper.get(base_platform)
+    if os is None:
+        return raw_output
+
+    # Genie specific construct for doing parsing (based on Genie in Ansible)
+    device = Device(&#34;new_device&#34;, os=os)
+    device.custom.setdefault(&#34;abstraction&#34;, {})
+    device.custom[&#34;abstraction&#34;][&#34;order&#34;] = [&#34;os&#34;]
+    device.cli = AttrDict({&#34;execute&#34;: None})
+    try:
+        # Test of whether their is a parser for the given command (will return Exception if fails)
+        get_parser(command, device)
+        parsed_output = device.parse(command, output=raw_output)
+        return parsed_output
+    except Exception:
+        return raw_output</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="netmiko.utilities.check_serial_port"><code class="name flex">
+<span>def <span class="ident">check_serial_port</span></span>(<span>name)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>returns valid COM Port.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def check_serial_port(name):
+    &#34;&#34;&#34;returns valid COM Port.&#34;&#34;&#34;
+    try:
+        cdc = next(serial.tools.list_ports.grep(name))
+        return cdc[0]
+    except StopIteration:
+        msg = &#34;device {} not found. &#34;.format(name)
+        msg += &#34;available devices are: &#34;
+        ports = list(serial.tools.list_ports.comports())
+        for p in ports:
+            msg += &#34;{},&#34;.format(text_type(p))
+        raise ValueError(msg)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.clitable_to_dict"><code class="name flex">
+<span>def <span class="ident">clitable_to_dict</span></span>(<span>cli_table)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Converts TextFSM cli_table object to list of dictionaries.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def clitable_to_dict(cli_table):
+    &#34;&#34;&#34;Converts TextFSM cli_table object to list of dictionaries.&#34;&#34;&#34;
+    objs = []
+    for row in cli_table:
+        temp_dict = {}
+        for index, element in enumerate(row):
+            temp_dict[cli_table.header[index].lower()] = element
+        objs.append(temp_dict)
+    return objs</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.display_inventory"><code class="name flex">
+<span>def <span class="ident">display_inventory</span></span>(<span>my_devices)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Print out inventory devices and groups.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def display_inventory(my_devices):
+    &#34;&#34;&#34;Print out inventory devices and groups.&#34;&#34;&#34;
+    inventory_groups = [&#34;all&#34;]
+    inventory_devices = []
+    for k, v in my_devices.items():
+        if isinstance(v, list):
+            inventory_groups.append(k)
+        elif isinstance(v, dict):
+            inventory_devices.append((k, v[&#34;device_type&#34;]))
+
+    inventory_groups.sort()
+    inventory_devices.sort(key=lambda x: x[0])
+    print(&#34;\nDevices:&#34;)
+    print(&#34;-&#34; * 40)
+    for a_device, device_type in inventory_devices:
+        device_type = &#34;  ({})&#34;.format(device_type)
+        print(&#34;{:&lt;25}{:&gt;15}&#34;.format(a_device, device_type))
+    print(&#34;\n\nGroups:&#34;)
+    print(&#34;-&#34; * 40)
+    for a_group in inventory_groups:
+        print(a_group)
+    print()</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.ensure_dir_exists"><code class="name flex">
+<span>def <span class="ident">ensure_dir_exists</span></span>(<span>verify_dir)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Ensure directory exists. Create if necessary.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def ensure_dir_exists(verify_dir):
+    &#34;&#34;&#34;Ensure directory exists. Create if necessary.&#34;&#34;&#34;
+    if not os.path.exists(verify_dir):
+        # Doesn&#39;t exist create dir
+        os.makedirs(verify_dir)
+    else:
+        # Exists
+        if not os.path.isdir(verify_dir):
+            # Not a dir, raise an exception
+            raise ValueError(&#34;{} is not a directory&#34;.format(verify_dir))</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.find_cfg_file"><code class="name flex">
+<span>def <span class="ident">find_cfg_file</span></span>(<span>file_name=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Search for netmiko_tools inventory file in the following order:</p>
+<p>NETMIKO_TOOLS_CFG environment variable
+Current directory
+Home directory</p>
+<p>Look for file named: .netmiko.yml or netmiko.yml</p>
+<p>Also allow NETMIKO_TOOLS_CFG to point directly at a file</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def find_cfg_file(file_name=None):
+    &#34;&#34;&#34;
+    Search for netmiko_tools inventory file in the following order:
+
+    NETMIKO_TOOLS_CFG environment variable
+    Current directory
+    Home directory
+
+    Look for file named: .netmiko.yml or netmiko.yml
+
+    Also allow NETMIKO_TOOLS_CFG to point directly at a file
+    &#34;&#34;&#34;
+    if file_name:
+        if os.path.isfile(file_name):
+            return file_name
+    optional_path = os.environ.get(&#34;NETMIKO_TOOLS_CFG&#34;, &#34;&#34;)
+    if os.path.isfile(optional_path):
+        return optional_path
+    search_paths = [optional_path, &#34;.&#34;, os.path.expanduser(&#34;~&#34;)]
+    # Filter optional_path if null
+    search_paths = [path for path in search_paths if path]
+    for path in search_paths:
+        files = glob(&#34;{}/.netmiko.yml&#34;.format(path)) + glob(
+            &#34;{}/netmiko.yml&#34;.format(path)
+        )
+        if files:
+            return files[0]
+    raise IOError(
+        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current &#34;
+        &#34;directory, or home directory.&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.find_netmiko_dir"><code class="name flex">
+<span>def <span class="ident">find_netmiko_dir</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check environment first, then default dir</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def find_netmiko_dir():
+    &#34;&#34;&#34;Check environment first, then default dir&#34;&#34;&#34;
+    try:
+        netmiko_base_dir = os.environ[&#34;NETMIKO_DIR&#34;]
+    except KeyError:
+        netmiko_base_dir = NETMIKO_BASE_DIR
+    netmiko_base_dir = os.path.expanduser(netmiko_base_dir)
+    if netmiko_base_dir == &#34;/&#34;:
+        raise ValueError(&#34;/ cannot be netmiko_base_dir&#34;)
+    netmiko_full_dir = &#34;{}/tmp&#34;.format(netmiko_base_dir)
+    return (netmiko_base_dir, netmiko_full_dir)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.get_structured_data"><code class="name flex">
+<span>def <span class="ident">get_structured_data</span></span>(<span>raw_output, platform, command)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Convert raw CLI output to structured data using TextFSM template.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_structured_data(raw_output, platform, command):
+    &#34;&#34;&#34;Convert raw CLI output to structured data using TextFSM template.&#34;&#34;&#34;
+    template_dir = get_template_dir()
+    index_file = os.path.join(template_dir, &#34;index&#34;)
+    textfsm_obj = clitable.CliTable(index_file, template_dir)
+    attrs = {&#34;Command&#34;: command, &#34;Platform&#34;: platform}
+    try:
+        # Parse output through template
+        textfsm_obj.ParseCmd(raw_output, attrs)
+        structured_data = clitable_to_dict(textfsm_obj)
+        output = raw_output if structured_data == [] else structured_data
+        return output
+    except CliTableError:
+        return raw_output</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.get_structured_data_genie"><code class="name flex">
+<span>def <span class="ident">get_structured_data_genie</span></span>(<span>raw_output, platform, command)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_structured_data_genie(raw_output, platform, command):
+    if not sys.version_info &gt;= (3, 4):
+        raise ValueError(&#34;Genie requires Python &gt;= 3.4&#34;)
+
+    if not GENIE_INSTALLED:
+        msg = (
+            &#34;\nGenie and PyATS are not installed. Please PIP install both Genie and PyATS:\n&#34;
+            &#34;pip install genie\npip install pyats\n&#34;
+        )
+        raise ValueError(msg)
+
+    if &#34;cisco&#34; not in platform:
+        return raw_output
+
+    genie_device_mapper = {
+        &#34;cisco_ios&#34;: &#34;ios&#34;,
+        &#34;cisco_xe&#34;: &#34;iosxe&#34;,
+        &#34;cisco_xr&#34;: &#34;iosxr&#34;,
+        &#34;cisco_nxos&#34;: &#34;nxos&#34;,
+        &#34;cisco_asa&#34;: &#34;asa&#34;,
+    }
+
+    os = None
+    # platform might be _ssh, _telnet, _serial strip that off
+    if platform.count(&#34;_&#34;) &gt; 1:
+        base_platform = platform.split(&#34;_&#34;)[:-1]
+        base_platform = &#34;_&#34;.join(base_platform)
+    else:
+        base_platform = platform
+
+    os = genie_device_mapper.get(base_platform)
+    if os is None:
+        return raw_output
+
+    # Genie specific construct for doing parsing (based on Genie in Ansible)
+    device = Device(&#34;new_device&#34;, os=os)
+    device.custom.setdefault(&#34;abstraction&#34;, {})
+    device.custom[&#34;abstraction&#34;][&#34;order&#34;] = [&#34;os&#34;]
+    device.cli = AttrDict({&#34;execute&#34;: None})
+    try:
+        # Test of whether their is a parser for the given command (will return Exception if fails)
+        get_parser(command, device)
+        parsed_output = device.parse(command, output=raw_output)
+        return parsed_output
+    except Exception:
+        return raw_output</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.get_template_dir"><code class="name flex">
+<span>def <span class="ident">get_template_dir</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Find and return the ntc-templates/templates dir.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_template_dir():
+    &#34;&#34;&#34;Find and return the ntc-templates/templates dir.&#34;&#34;&#34;
+    try:
+        template_dir = os.path.expanduser(os.environ[&#34;NET_TEXTFSM&#34;])
+        index = os.path.join(template_dir, &#34;index&#34;)
+        if not os.path.isfile(index):
+            # Assume only base ./ntc-templates specified
+            template_dir = os.path.join(template_dir, &#34;templates&#34;)
+    except KeyError:
+        # Construct path ~/ntc-templates/templates
+        home_dir = os.path.expanduser(&#34;~&#34;)
+        template_dir = os.path.join(home_dir, &#34;ntc-templates&#34;, &#34;templates&#34;)
+
+    index = os.path.join(template_dir, &#34;index&#34;)
+    if not os.path.isdir(template_dir) or not os.path.isfile(index):
+        msg = &#34;&#34;&#34;
+Valid ntc-templates not found, please install https://github.com/networktocode/ntc-templates
+and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
+directory.&#34;&#34;&#34;
+        raise ValueError(msg)
+    return os.path.abspath(template_dir)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.load_devices"><code class="name flex">
+<span>def <span class="ident">load_devices</span></span>(<span>file_name=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Find and load .netmiko.yml file.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load_devices(file_name=None):
+    &#34;&#34;&#34;Find and load .netmiko.yml file.&#34;&#34;&#34;
+    yaml_devices_file = find_cfg_file(file_name)
+    return load_yaml_file(yaml_devices_file)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.load_yaml_file"><code class="name flex">
+<span>def <span class="ident">load_yaml_file</span></span>(<span>yaml_file)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Read YAML file.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load_yaml_file(yaml_file):
+    &#34;&#34;&#34;Read YAML file.&#34;&#34;&#34;
+    try:
+        import yaml
+    except ImportError:
+        sys.exit(&#34;Unable to import yaml module.&#34;)
+    try:
+        with io.open(yaml_file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as fname:
+            return yaml.safe_load(fname)
+    except IOError:
+        sys.exit(&#34;Unable to open YAML file: {0}&#34;.format(yaml_file))</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.obtain_all_devices"><code class="name flex">
+<span>def <span class="ident">obtain_all_devices</span></span>(<span>my_devices)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Dynamically create 'all' group.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def obtain_all_devices(my_devices):
+    &#34;&#34;&#34;Dynamically create &#39;all&#39; group.&#34;&#34;&#34;
+    new_devices = {}
+    for device_name, device_or_group in my_devices.items():
+        # Skip any groups
+        if not isinstance(device_or_group, list):
+            new_devices[device_name] = device_or_group
+    return new_devices</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.obtain_netmiko_filename"><code class="name flex">
+<span>def <span class="ident">obtain_netmiko_filename</span></span>(<span>device_name)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Create file name based on device_name.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def obtain_netmiko_filename(device_name):
+    &#34;&#34;&#34;Create file name based on device_name.&#34;&#34;&#34;
+    _, netmiko_full_dir = find_netmiko_dir()
+    return &#34;{}/{}.txt&#34;.format(netmiko_full_dir, device_name)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.write_bytes"><code class="name flex">
+<span>def <span class="ident">write_bytes</span></span>(<span>out_data, encoding='ascii')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Write Python2 and Python3 compatible byte stream.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def write_bytes(out_data, encoding=&#34;ascii&#34;):
+    &#34;&#34;&#34;Write Python2 and Python3 compatible byte stream.&#34;&#34;&#34;
+    if sys.version_info[0] &gt;= 3:
+        if isinstance(out_data, type(&#34;&#34;)):
+            if encoding == &#34;utf-8&#34;:
+                return out_data.encode(&#34;utf-8&#34;)
+            else:
+                return out_data.encode(&#34;ascii&#34;, &#34;ignore&#34;)
+        elif isinstance(out_data, type(b&#34;&#34;)):
+            return out_data
+    else:
+        if isinstance(out_data, type(&#34;&#34;)):
+            if encoding == &#34;utf-8&#34;:
+                return out_data.encode(&#34;utf-8&#34;)
+            else:
+                return out_data.encode(&#34;ascii&#34;, &#34;ignore&#34;)
+        elif isinstance(out_data, type(str(&#34;&#34;))):
+            return out_data
+    msg = &#34;Invalid value for out_data neither unicode nor byte string: {}&#34;.format(
+        out_data
+    )
+    raise ValueError(msg)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.write_tmp_file"><code class="name flex">
+<span>def <span class="ident">write_tmp_file</span></span>(<span>device_name, output)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def write_tmp_file(device_name, output):
+    file_name = obtain_netmiko_filename(device_name)
+    with open(file_name, &#34;w&#34;) as f:
+        f.write(output)
+    return file_name</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="netmiko" href="index.html">netmiko</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="netmiko.utilities.check_serial_port" href="#netmiko.utilities.check_serial_port">check_serial_port</a></code></li>
+<li><code><a title="netmiko.utilities.clitable_to_dict" href="#netmiko.utilities.clitable_to_dict">clitable_to_dict</a></code></li>
+<li><code><a title="netmiko.utilities.display_inventory" href="#netmiko.utilities.display_inventory">display_inventory</a></code></li>
+<li><code><a title="netmiko.utilities.ensure_dir_exists" href="#netmiko.utilities.ensure_dir_exists">ensure_dir_exists</a></code></li>
+<li><code><a title="netmiko.utilities.find_cfg_file" href="#netmiko.utilities.find_cfg_file">find_cfg_file</a></code></li>
+<li><code><a title="netmiko.utilities.find_netmiko_dir" href="#netmiko.utilities.find_netmiko_dir">find_netmiko_dir</a></code></li>
+<li><code><a title="netmiko.utilities.get_structured_data" href="#netmiko.utilities.get_structured_data">get_structured_data</a></code></li>
+<li><code><a title="netmiko.utilities.get_structured_data_genie" href="#netmiko.utilities.get_structured_data_genie">get_structured_data_genie</a></code></li>
+<li><code><a title="netmiko.utilities.get_template_dir" href="#netmiko.utilities.get_template_dir">get_template_dir</a></code></li>
+<li><code><a title="netmiko.utilities.load_devices" href="#netmiko.utilities.load_devices">load_devices</a></code></li>
+<li><code><a title="netmiko.utilities.load_yaml_file" href="#netmiko.utilities.load_yaml_file">load_yaml_file</a></code></li>
+<li><code><a title="netmiko.utilities.obtain_all_devices" href="#netmiko.utilities.obtain_all_devices">obtain_all_devices</a></code></li>
+<li><code><a title="netmiko.utilities.obtain_netmiko_filename" href="#netmiko.utilities.obtain_netmiko_filename">obtain_netmiko_filename</a></code></li>
+<li><code><a title="netmiko.utilities.write_bytes" href="#netmiko.utilities.write_bytes">write_bytes</a></code></li>
+<li><code><a title="netmiko.utilities.write_tmp_file" href="#netmiko.utilities.write_tmp_file">write_tmp_file</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

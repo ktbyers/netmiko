@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import paramiko
 import time
 import re
@@ -75,7 +74,7 @@ class FortinetSSH(CiscoSSHConnection):
         """Re-enable paging globally."""
         if self.allow_disable_global:
             # Return paging state
-            output_mode_cmd = "set output {}".format(self._output_mode)
+            output_mode_cmd = f"set output {self._output_mode}"
             enable_paging_commands = ["config system console", output_mode_cmd, "end"]
             if self.vdoms:
                 enable_paging_commands.insert(0, "config global")
@@ -91,6 +90,6 @@ class FortinetSSH(CiscoSSHConnection):
         """No config mode for Fortinet devices."""
         return ""
 
-    def save_config(self, cmd="", confirm=True, confirm_response=""):
+    def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError

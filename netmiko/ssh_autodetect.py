@@ -38,8 +38,6 @@ Examples
 >>> remote_device['device_type'] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
-from __future__ import unicode_literals
-
 import re
 import time
 from netmiko.ssh_dispatcher import ConnectHandler
@@ -140,6 +138,7 @@ SSH_MAPPER_BASE = {
             r"JUNOS Software Release",
             r"JUNOS .+ Software",
             r"JUNOS OS Kernel",
+            r"JUNOS Base Version",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -147,6 +146,24 @@ SSH_MAPPER_BASE = {
     "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "brocade_netiron": {
+        "cmd": "show version",
+        "search_patterns": [r"NetIron"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_slx": {
+        "cmd": "show version",
+        "search_patterns": [r"SLX-OS Operating System Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "ubiquiti_edgeswitch": {
+        "cmd": "show version",
+        "search_patterns": [r"EdgeSwitch"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -168,7 +185,7 @@ class SSHDetect(object):
 
     Attributes
     ----------
-    connection : netmiko.terminal_server.TerminalServer
+    connection : netmiko.terminal_server.TerminalServerSSH
         A basic connection to the remote SSH end.
     potential_matches: dict
         Dict of (device_type, accuracy) that is populated through an interaction with the

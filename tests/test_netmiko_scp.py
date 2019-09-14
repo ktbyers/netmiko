@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 import sys
 import os
@@ -116,7 +114,6 @@ def test_file_transfer(scp_file_transfer):
     source_file = "test9.txt"
     dest_file = "test9.txt"
     direction = "put"
-    print(file_system)
 
     transfer_dict = file_transfer(
         ssh_conn,
