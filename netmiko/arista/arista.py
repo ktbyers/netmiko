@@ -64,7 +64,6 @@ class AristaFileTransfer(CiscoFileTransfer):
         file_system="/mnt/flash",
         direction="put",
         copy_protocol="scp1",
-
     ):
         return super(AristaFileTransfer, self).__init__(
             ssh_conn=ssh_conn,

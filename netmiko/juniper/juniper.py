@@ -228,7 +228,13 @@ class JuniperFileTransfer(BaseFileTransfer):
     """Juniper SCP File Transfer driver."""
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction="put", copy_protocol="scp1"
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system="/var/tmp",
+        direction="put",
+        copy_protocol="scp1",
     ):
         return super(JuniperFileTransfer, self).__init__(
             ssh_conn=ssh_conn,

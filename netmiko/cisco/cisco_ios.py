@@ -73,7 +73,6 @@ class InLineTransfer(CiscoIosFileTransfer):
         direction="put",
         source_config=None,
         copy_protocol="scp1",
-
     ):
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."

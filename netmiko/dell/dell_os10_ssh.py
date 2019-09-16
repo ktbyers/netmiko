@@ -25,7 +25,13 @@ class DellOS10FileTransfer(BaseFileTransfer):
     """Dell EMC Networking OS10 SCP File Transfer driver."""
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system=None, direction="put", copy_protocol="scp1"
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system=None,
+        direction="put",
+        copy_protocol="scp1",
     ):
         if file_system is None:
             file_system = "/home/admin"

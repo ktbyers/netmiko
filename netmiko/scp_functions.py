@@ -66,7 +66,7 @@ def file_transfer(
         "source_file": source_file,
         "dest_file": dest_file,
         "direction": direction,
-        "copy_protocol": copy_protocol
+        "copy_protocol": copy_protocol,
     }
     if file_system is not None:
         scp_args["file_system"] = file_system

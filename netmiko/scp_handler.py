@@ -59,7 +59,13 @@ class BaseFileTransfer(object):
     """Class to manage SCP file transfer and associated SSH control channel."""
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system=None, direction="put", copy_protocol="scp1"
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system=None,
+        direction="put",
+        copy_protocol="scp1",
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
