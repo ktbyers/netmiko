@@ -75,6 +75,7 @@ from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
+from netmiko.watchguard import WatchguardFireboxSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -160,6 +161,7 @@ CLASS_MAPPER_BASE = {
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
+    "watchguard_firebox": WatchguardFireboxSSH,
 }
 
 FILE_TRANSFER_MAP = {
