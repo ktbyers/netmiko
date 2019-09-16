@@ -120,7 +120,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
     """
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction="put"
+        self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction="put", copy_protocol="scp1"
     ):
         return super(LinuxFileTransfer, self).__init__(
             ssh_conn=ssh_conn,
@@ -128,6 +128,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
+            copy_protocol=copy_protocol,
         )
 
     def remote_space_available(self, search_pattern=""):

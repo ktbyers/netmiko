@@ -21,8 +21,9 @@ class SCPConn(object):
     Must close the SCP connection to get the file to write to the remote filesystem
     """
 
-    def __init__(self, ssh_conn):
+    def __init__(self, ssh_conn, copy_protocol="scp1"):
         self.ssh_ctl_chan = ssh_conn
+        self.copy_protocol = copy_protocol
         self.establish_scp_conn()
 
     def establish_scp_conn(self):
@@ -30,7 +31,12 @@ class SCPConn(object):
         ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
-        self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+        if self.copy_protocol == "scp1":
+            self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+        elif self.copy_protocol in ["sftp", "scp2"]:
+            self.scp_client = self.scp_conn.open_sftp()
+        else:
+            raise ValueError("Unrecognized SCP protocol specified")
 
     def scp_transfer_file(self, source_file, dest_file):
         """Put file using SCP (for backwards compatibility)."""
@@ -53,12 +59,13 @@ class BaseFileTransfer(object):
     """Class to manage SCP file transfer and associated SSH control channel."""
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system=None, direction="put"
+        self, ssh_conn, source_file, dest_file, file_system=None, direction="put", copy_protocol="scp1"
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+        self.copy_protocol = copy_protocol
 
         auto_flag = (
             "cisco_ios" in ssh_conn.device_type
@@ -93,7 +100,7 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         """Establish SCP connection."""
-        self.scp_conn = SCPConn(self.ssh_ctl_chan)
+        self.scp_conn = SCPConn(self.ssh_ctl_chan, self.copy_protocol)
 
     def close_scp_chan(self):
         """Close the SCP connection to the remote network device."""

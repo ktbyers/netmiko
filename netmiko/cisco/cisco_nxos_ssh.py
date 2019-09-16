@@ -39,11 +39,13 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         dest_file,
         file_system="bootflash:",
         direction="put",
+        copy_protocol="scp1",
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+        self.copy_protocol = copy_protocol
 
         if file_system:
             self.file_system = file_system

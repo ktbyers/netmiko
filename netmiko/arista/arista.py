@@ -63,6 +63,8 @@ class AristaFileTransfer(CiscoFileTransfer):
         dest_file,
         file_system="/mnt/flash",
         direction="put",
+        copy_protocol="scp1",
+
     ):
         return super(AristaFileTransfer, self).__init__(
             ssh_conn=ssh_conn,
@@ -70,6 +72,7 @@ class AristaFileTransfer(CiscoFileTransfer):
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
+            copy_protocol=copy_protocol,
         )
 
     def remote_space_available(self, search_pattern=""):

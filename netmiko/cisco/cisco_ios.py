@@ -72,6 +72,8 @@ class InLineTransfer(CiscoIosFileTransfer):
         file_system=None,
         direction="put",
         source_config=None,
+        copy_protocol="scp1",
+
     ):
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
@@ -92,6 +94,7 @@ class InLineTransfer(CiscoIosFileTransfer):
             self.file_size = len(source_config.encode("UTF-8"))
         self.dest_file = dest_file
         self.direction = direction
+        self.copy_protocol = copy_protocol
 
         if not file_system:
             self.file_system = self.ssh_ctl_chan._autodetect_fs()
