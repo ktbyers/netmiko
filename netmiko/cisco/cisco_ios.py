@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import time
 import re
 import os
@@ -139,9 +137,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         )
         for pattern in cmd_failed:
             if pattern in output:
-                raise ValueError(
-                    "Failed to enter tclsh mode on router: {}".format(output)
-                )
+                raise ValueError(f"Failed to enter tclsh mode on router: {output}")
         return output
 
     def _exit_tcl_mode(self):

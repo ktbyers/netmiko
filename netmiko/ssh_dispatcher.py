@@ -1,6 +1,4 @@
 """Controls selection of proper class based on the device type."""
-from __future__ import unicode_literals
-
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.alcatel import AlcatelAosSSH

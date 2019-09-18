@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
 import time
 from netmiko.base_connection import BaseConnection
 

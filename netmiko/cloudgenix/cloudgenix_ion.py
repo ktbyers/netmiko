@@ -2,7 +2,6 @@ import time
 
 from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.py23_compat import string_types
 
 
 class CloudGenixIonSSH(CiscoSSHConnection):
@@ -60,7 +59,7 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ""
-        elif isinstance(config_commands, string_types):
+        elif isinstance(config_commands, str):
             config_commands = (config_commands,)
 
         if not hasattr(config_commands, "__iter__"):
@@ -76,5 +75,5 @@ class CloudGenixIonSSH(CiscoSSHConnection):
                 time.sleep(delay_factor * 0.05)
 
         output = self._sanitize_output(output)
-        log.debug("{}".format(output))
+        log.debug(f"{output}")
         return output

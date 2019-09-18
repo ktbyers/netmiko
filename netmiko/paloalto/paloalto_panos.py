@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import time
 import re
 from netmiko.base_connection import BaseConnection
@@ -97,7 +96,7 @@ class PaloAltoPanosBase(BaseConnection):
         if partial:
             command_string += " partial"
             if vsys:
-                command_string += " {0}".format(vsys)
+                command_string += f" {vsys}"
             if device_and_network:
                 command_string += " device-and-network"
             if policy_and_objects:
@@ -117,9 +116,7 @@ class PaloAltoPanosBase(BaseConnection):
         )
 
         if commit_marker not in output.lower():
-            raise ValueError(
-                "Commit failed with the following errors:\n\n{0}".format(output)
-            )
+            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         return output
 
     def strip_command(self, command_string, output):

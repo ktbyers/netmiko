@@ -1,8 +1,7 @@
 """CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
-from __future__ import unicode_literals
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
-from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko.ssh_exception import NetmikoAuthenticationException
 import re
 import time
 
@@ -140,7 +139,7 @@ class CiscoBaseConnection(BaseConnection):
                     msg = "Login failed - Password required, but none set: {}".format(
                         self.host
                     )
-                    raise NetMikoAuthenticationException(msg)
+                    raise NetmikoAuthenticationException(msg)
 
                 # Check if proper data received
                 if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
@@ -153,8 +152,8 @@ class CiscoBaseConnection(BaseConnection):
                 i += 1
             except EOFError:
                 self.remote_conn.close()
-                msg = "Login failed: {}".format(self.host)
-                raise NetMikoAuthenticationException(msg)
+                msg = f"Login failed: {self.host}"
+                raise NetmikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -167,8 +166,8 @@ class CiscoBaseConnection(BaseConnection):
             return return_msg
 
         self.remote_conn.close()
-        msg = "Login failed: {}".format(self.host)
-        raise NetMikoAuthenticationException(msg)
+        msg = f"Login failed: {self.host}"
+        raise NetmikoAuthenticationException(msg)
 
     def cleanup(self):
         """Gracefully exit the SSH session."""
@@ -189,7 +188,7 @@ class CiscoBaseConnection(BaseConnection):
         if match:
             file_system = match.group(1)
             # Test file_system
-            cmd = "dir {}".format(file_system)
+            cmd = f"dir {file_system}"
             output = self.send_command_expect(cmd)
             if "% Invalid" in output or "%Error:" in output:
                 raise ValueError(
@@ -213,15 +212,23 @@ class CiscoBaseConnection(BaseConnection):
         """Saves Config."""
         self.enable()
         if confirm:
-            output = self.send_command_timing(command_string=cmd)
+            output = self.send_command_timing(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
             if confirm_response:
-                output += self.send_command_timing(confirm_response)
+                output += self.send_command_timing(
+                    confirm_response, strip_prompt=False, strip_command=False
+                )
             else:
                 # Send enter by default
-                output += self.send_command_timing(self.RETURN)
+                output += self.send_command_timing(
+                    self.RETURN, strip_prompt=False, strip_command=False
+                )
         else:
             # Some devices are slow so match on trailing-prompt if you can
-            output = self.send_command(command_string=cmd)
+            output = self.send_command(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
         return output
 
 

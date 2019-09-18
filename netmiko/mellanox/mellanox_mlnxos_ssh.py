@@ -1,5 +1,4 @@
 """Mellanox MLNX-OS Switch support."""
-from __future__ import unicode_literals
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
@@ -54,7 +53,7 @@ class MellanoxMlnxosSSH(CiscoSSHConnection):
         if self.check_config_mode():
             raise ValueError("Failed to exit configuration mode")
 
-        log.debug("exit_config_mode: {}".format(output))
+        log.debug(f"exit_config_mode: {output}")
         return output
 
     def save_config(

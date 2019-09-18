@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
 
 
 def test_save_base(net_connect, commands, expected_responses):

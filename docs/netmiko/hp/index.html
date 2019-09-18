@@ -564,7 +564,26 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
         # Try one last time to past &#34;Press any key to continue
         self.write_channel(self.RETURN)
 
-        super(HPProcurveSSH, self).session_preparation()</code></pre>
+        super(HPProcurveSSH, self).session_preparation()
+
+    def _build_ssh_client(self):
+        &#34;&#34;&#34;Allow passwordless authentication for HP devices being provisioned.&#34;&#34;&#34;
+
+        # Create instance of SSHClient object. If no SSH keys and no password, then use noauth
+        if not self.use_keys and not self.password:
+            remote_conn_pre = SSHClient_noauth()
+        else:
+            remote_conn_pre = SSHClient()
+
+        # Load host_keys for better SSH security
+        if self.system_host_keys:
+            remote_conn_pre.load_system_host_keys()
+        if self.alt_host_keys and path.isfile(self.alt_key_file):
+            remote_conn_pre.load_host_keys(self.alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+        return remote_conn_pre</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

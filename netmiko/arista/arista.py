@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
@@ -25,13 +24,13 @@ class AristaBase(CiscoSSHConnection):
 
         Can also be (s2)
         """
-        log.debug("pattern: {0}".format(pattern))
+        log.debug(f"pattern: {pattern}")
         self.write_channel(self.RETURN)
         output = self.read_until_pattern(pattern=pattern)
-        log.debug("check_config_mode: {0}".format(repr(output)))
+        log.debug(f"check_config_mode: {repr(output)}")
         output = output.replace("(s1)", "")
         output = output.replace("(s2)", "")
-        log.debug("check_config_mode: {0}".format(repr(output)))
+        log.debug(f"check_config_mode: {repr(output)}")
         return check_string in output
 
     def _enter_shell(self):
@@ -93,7 +92,7 @@ class AristaFileTransfer(CiscoFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_md5_cmd = "{} file:{}/{}".format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = f"{base_cmd} file:{self.file_system}/{remote_file}"
         dest_md5 = self.ssh_ctl_chan.send_command(
             remote_md5_cmd, max_loops=750, delay_factor=4
         )

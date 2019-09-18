@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import time
 from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, TTYPE
 from netmiko.cisco_base_connection import CiscoBaseConnection

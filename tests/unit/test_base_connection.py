@@ -4,7 +4,7 @@ import time
 from os.path import dirname, join
 from threading import Lock
 
-from netmiko import NetMikoTimeoutException
+from netmiko import NetmikoTimeoutException
 from netmiko.base_connection import BaseConnection
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
@@ -18,20 +18,20 @@ class FakeBaseConnection(BaseConnection):
 
 
 def test_timeout_exceeded():
-    """Raise NetMikoTimeoutException if waiting too much"""
+    """Raise NetmikoTimeoutException if waiting too much"""
     connection = FakeBaseConnection(session_timeout=10)
     start = time.time() - 11
     try:
         connection._timeout_exceeded(start)
-    except NetMikoTimeoutException as exc:
-        assert isinstance(exc, NetMikoTimeoutException)
+    except NetmikoTimeoutException as exc:
+        assert isinstance(exc, NetmikoTimeoutException)
         return
 
     assert False
 
 
 def test_timeout_not_exceeded():
-    """Do not raise NetMikoTimeoutException if not waiting too much"""
+    """Do not raise NetmikoTimeoutException if not waiting too much"""
     connection = FakeBaseConnection(session_timeout=10)
     start = time.time()
     assert not connection._timeout_exceeded(start)
@@ -82,6 +82,48 @@ def test_use_ssh_file():
     assert "sock" in result
     assert len(result["sock"].cmd) == 5
     assert "nc" in result["sock"].cmd
+    del result["sock"]
+    assert result == expected
+
+
+def test_use_ssh_file_proxyjump():
+    """Update SSH connection parameters based on the SSH "config" file"""
+    connection = FakeBaseConnection(
+        host="10.10.10.70",
+        port=22,
+        username="",
+        password="secret",
+        use_keys=True,
+        allow_agent=False,
+        key_file="/home/user/.ssh/id_rsa",
+        timeout=60,
+        pkey=None,
+        passphrase=None,
+        auth_timeout=None,
+        banner_timeout=10,
+        ssh_config_file=join(RESOURCE_FOLDER, "ssh_config_proxyjump"),
+    )
+
+    connect_dict = connection._connect_params_dict()
+
+    expected = {
+        "hostname": "10.10.10.70",
+        "port": 8022,
+        "username": "admin",
+        "password": "secret",
+        "look_for_keys": True,
+        "allow_agent": False,
+        "key_filename": "/home/user/.ssh/id_rsa",
+        "timeout": 60,
+        "pkey": None,
+        "passphrase": None,
+        "auth_timeout": None,
+        "banner_timeout": 10,
+    }
+
+    result = connection._use_ssh_config(connect_dict)
+    assert "sock" in result
+    assert "-W" in result["sock"].cmd
     del result["sock"]
     assert result == expected
 
@@ -340,7 +382,7 @@ def lock_unlock_timeout(timeout=0):
 
     try:
         connection._lock_netmiko_session()
-    except NetMikoTimeoutException:
+    except NetmikoTimeoutException:
         return
     finally:
         assert connection._session_locker.locked()

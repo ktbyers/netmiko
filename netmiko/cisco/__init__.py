@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from netmiko.cisco.cisco_ios import (
     CiscoIosBase,
     CiscoIosSSH,

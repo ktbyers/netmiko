@@ -1,12 +1,9 @@
 """Netmiko Cisco WLC support."""
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 import re
 
-from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko.base_connection import BaseConnection
-from netmiko.py23_compat import string_types
 from netmiko import log
 
 
@@ -105,8 +102,8 @@ class CiscoWlcSSH(BaseConnection):
         try:
             self.set_base_prompt()
         except ValueError:
-            msg = "Authentication failed: {}".format(self.host)
-            raise NetMikoAuthenticationException(msg)
+            msg = f"Authentication failed: {self.host}"
+            raise NetmikoAuthenticationException(msg)
 
         self.disable_paging(command="config paging disable")
         # Clear the read buffer
@@ -156,7 +153,7 @@ class CiscoWlcSSH(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ""
-        elif isinstance(config_commands, string_types):
+        elif isinstance(config_commands, str):
             config_commands = (config_commands,)
 
         if not hasattr(config_commands, "__iter__"):
@@ -172,7 +169,7 @@ class CiscoWlcSSH(BaseConnection):
             delay_factor=delay_factor, max_loops=max_loops
         )
         output = self._sanitize_output(output)
-        log.debug("{}".format(output))
+        log.debug(f"{output}")
         return output
 
     def save_config(self, cmd="save config", confirm=True, confirm_response="y"):

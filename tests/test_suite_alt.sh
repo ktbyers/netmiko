@@ -18,7 +18,7 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_tcl.py --test_device cisco881 \
 && py.test -v test_netmiko_show.py --test_device cisco881 \
 && py.test -v test_netmiko_config.py --test_device cisco881 \
-&& py.test -v test_netmiko_sesssion_log.py --test_device cisco881_slog \
+&& py.test -v test_netmiko_session_log.py --test_device cisco881_slog \
 \
 && echo "Cisco IOS SSH fast_cli (including SCP)" \
 && py.test -v test_netmiko_tcl.py --test_device cisco881_fast \
@@ -28,6 +28,10 @@ echo "Starting tests...good luck:" \
 && echo "Cisco IOS using SSH config with SSH Proxy" \
 && py.test -v test_netmiko_show.py --test_device cisco881_ssh_config \
 && py.test -v test_netmiko_config.py --test_device cisco881_ssh_config \
+\
+&& echo "Cisco IOS using SSH config with SSH Proxy using ProxyJump" \
+&& py.test -v test_netmiko_show.py --test_device cisco881_ssh_proxyjump \
+&& py.test -v test_netmiko_config.py --test_device cisco881_ssh_proxyjump \
 \
 && echo "Cisco IOS telnet" \
 && py.test -v test_netmiko_show.py --test_device cisco881_telnet \

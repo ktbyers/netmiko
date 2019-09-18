@@ -47,7 +47,7 @@ NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
 Netmiko = ConnectHandler
 
-__version__ = &#34;2.4.1&#34;
+__version__ = &#34;2.4.2&#34;
 __all__ = (
     &#34;ConnectHandler&#34;,
     &#34;ssh_dispatcher&#34;,
@@ -178,6 +178,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <section class="desc"></section>
 </dd>
 <dt><code class="name"><a title="netmiko.juniper" href="juniper/index.html">netmiko.juniper</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="netmiko.keymile" href="keymile/index.html">netmiko.keymile</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -975,6 +979,11 @@ with terminal server.</p></section>
 
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) &gt; 0:
+            # Hide the password and secret in the session_log
+            if self.password:
+                data = data.replace(self.password, &#34;********&#34;)
+            if self.secret:
+                data = data.replace(self.secret, &#34;********&#34;)
             self.session_log.write(write_bytes(data, encoding=self.encoding))
             self.session_log.flush()
 
@@ -1348,10 +1357,20 @@ with terminal server.</p></section>
         else:
             source = {}
 
+        # Keys get normalized to lower-case
         if &#34;proxycommand&#34; in source:
             proxy = paramiko.ProxyCommand(source[&#34;proxycommand&#34;])
-        elif &#34;ProxyCommand&#34; in source:
-            proxy = paramiko.ProxyCommand(source[&#34;ProxyCommand&#34;])
+        elif &#34;proxyjump&#34; in source:
+            hops = list(reversed(source[&#34;proxyjump&#34;].split(&#34;,&#34;)))
+            if len(hops) &gt; 1:
+                raise ValueError(
+                    &#34;ProxyJump with more than one proxy server is not supported.&#34;
+                )
+            port = source.get(&#34;port&#34;, self.port)
+            host = source.get(&#34;hostname&#34;, self.host)
+            # -F {full_path} forces the continued use of the same SSH config file
+            cmd = &#34;ssh -F {} -W {}:{} {}&#34;.format(full_path, host, port, hops[0])
+            proxy = paramiko.ProxyCommand(cmd)
         else:
             proxy = None
 
@@ -1511,7 +1530,7 @@ with terminal server.</p></section>
 
         # check if data was ever present
         if new_data:
-            return &#34;&#34;
+            return new_data
         else:
             raise NetMikoTimeoutException(&#34;Timed out waiting for data&#34;)
 
@@ -4603,6 +4622,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.huawei" href="huawei/index.html">netmiko.huawei</a></code></li>
 <li><code><a title="netmiko.ipinfusion" href="ipinfusion/index.html">netmiko.ipinfusion</a></code></li>
 <li><code><a title="netmiko.juniper" href="juniper/index.html">netmiko.juniper</a></code></li>
+<li><code><a title="netmiko.keymile" href="keymile/index.html">netmiko.keymile</a></code></li>
 <li><code><a title="netmiko.linux" href="linux/index.html">netmiko.linux</a></code></li>
 <li><code><a title="netmiko.mellanox" href="mellanox/index.html">netmiko.mellanox</a></code></li>
 <li><code><a title="netmiko.mikrotik" href="mikrotik/index.html">netmiko.mikrotik</a></code></li>
