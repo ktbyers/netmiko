@@ -28,12 +28,12 @@ class WatchguardFireboxSSH(BaseConnection):
         )
 
     def config_mode(self, config_command="configure", pattern="#"):
-        return super(MellanoxMlnxosSSH, self).config_mode(
+        return super(WatchguardFireboxSSH, self).config_mode(
             config_command=config_command, pattern=pattern
         )
 
     def exit_config_mode(self, exit_config="exit", pattern="#"):
-        return super(MellanoxMlnxosSSH, self).exit_config_mode(
+        return super(WatchguardFireboxSSH, self).exit_config_mode(
             exit_config=exit_config, pattern=pattern
         )
 
