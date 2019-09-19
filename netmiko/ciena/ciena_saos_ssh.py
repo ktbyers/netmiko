@@ -24,9 +24,11 @@ class CienaSaosSSH(CiscoSSHConnection):
         """Return to the Ciena SAOS CLI."""
         return self.send_command("exit", expect_string=r"[>]")
 
-    def save_config(self, cmd="config save", confirm=False, confirm_response=""):
+    def save_config(self, cmd="configuration save", confirm=False, confirm_response=""):
         """Save Configuration"""
-        return super(CienaSaosSSH, self).save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
+        return super(CienaSaosSSH, self).save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on Ciena."""
@@ -38,9 +40,9 @@ class CienaSaosSSH(CiscoSSHConnection):
 
     def exit_enable_mode(self, *args, **kwargs):
         """No enable mode on Ciena."""
-        pass        
+        pass
 
-    def check_config_mode(self, check_string=">", pattern=""):
+    def check_config_mode(self, check_string="(configuration)>", pattern=""):
         """Checks if the device is in configuration mode or not."""
         return super(CienaSaosSSH, self).check_config_mode(check_string=check_string)
 
@@ -56,6 +58,7 @@ class CienaSaosSSH(CiscoSSHConnection):
                 exit_config, strip_prompt=False, strip_command=False
             )
         return output
+
 
 class CienaSaosFileTransfer(BaseFileTransfer):
     """Ciena SAOS SCP File Transfer driver."""
@@ -158,7 +161,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
         raise ValueError(
             "Search pattern not found for remote file size during SCP transfer."
-        )        
+        )
 
     def remote_md5(self, base_cmd="", remote_file=None):
         """Calculate remote MD5 and returns the hash.
@@ -187,7 +190,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
     def disable_scp(self, cmd="system server scp disable"):
         return super(CienaSaosFileTransfer, self).disable_scp(cmd=cmd)
-    
+
     def scp_get_file(self, source_file, dest_file):
         scp_cmd = "file scp "
         remote_cmd = "{} {} ".format(scp_cmd, source_file)
