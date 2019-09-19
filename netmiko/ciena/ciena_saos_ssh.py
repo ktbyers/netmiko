@@ -42,7 +42,7 @@ class CienaSaosSSH(CiscoSSHConnection):
         """No enable mode on Ciena."""
         pass
 
-    def check_config_mode(self, check_string="(configuration)>", pattern=""):
+    def check_config_mode(self, check_string=">", pattern=""):
         """Checks if the device is in configuration mode or not."""
         return super(CienaSaosSSH, self).check_config_mode(check_string=check_string)
 
