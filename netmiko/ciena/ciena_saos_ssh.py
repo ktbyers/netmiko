@@ -192,7 +192,6 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         return super(CienaSaosFileTransfer, self).disable_scp(cmd=cmd)
     
     def scp_get_file(self, source_file, dest_file):
-        #pass
         scp_cmd = "file scp "
         remote_cmd = "{} {} ".format(scp_cmd, source_file)
         return super(CienaSaosFileTransfer, self).scp_get_file(source_file=remote_cmd)
