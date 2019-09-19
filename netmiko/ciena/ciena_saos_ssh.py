@@ -13,7 +13,6 @@ class CienaSaosSSH(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="system shell session set more off")
-        # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
@@ -25,10 +24,8 @@ class CienaSaosSSH(CiscoSSHConnection):
         """Return to the Ciena SAOS CLI."""
         return self.send_command("exit", expect_string=r"[>]")
 
-
     def save_config(self, cmd="config save", confirm=False, confirm_response=""):
         """Save Configuration"""
-        #output = self.send_command(command_string=cmd)
         return super(CienaSaosSSH, self).save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def check_enable_mode(self, *args, **kwargs):
