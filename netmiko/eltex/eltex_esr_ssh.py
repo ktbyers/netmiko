@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -18,43 +16,17 @@ class EltexEsrSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command="configure", pattern=r"\S+:\S+\(config\)#"):
-
+    def config_mode(self, config_command="configure", pattern=r")#"):
         """Enter configuration mode."""
-
         return super().config_mode(config_command=config_command, pattern=pattern)
-
-    def exit_config_mode(self, exit_config="end"):
-        """Exit configuration mode."""
-        output = ""
-        if self.check_config_mode():
-            output = super().send_command_timing(
-                exit_config, strip_prompt=False, strip_command=False
-            )
-            if self.check_config_mode():
-                raise ValueError("Failed to exit configuration mode")
-        return output
 
     def check_config_mode(self, check_string="(config", pattern=""):
         """Checks whether in configuration mode. Returns a boolean."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, cmd="save", commit=False, confirm=False, delay_factor=1):
-        """
-        Saves Config for ESR
-        """
-
-        if self.check_config_mode():
-            self.exit_config_mode()
-
-        output = self.send_command(command_string=cmd, delay_factor=delay_factor)
-
-        if commit:
-            self.commit()
-        if confirm:
-            self.confirm()
-
-        return output
+    def save_config(self, *args, **kwargs):
+        """Not Implemented (use commit() method)"""
+        raise NotImplementedError
 
     def commit(self, delay_factor=1):
         """
@@ -66,6 +38,7 @@ class EltexEsrSSH(CiscoSSHConnection):
            command_string = commit
         """
 
+        delay_factor = self.select_delay_factor(delay_factor)
         error_marker = "Can't commit configuration"
         command_string = "commit"
 
@@ -82,15 +55,13 @@ class EltexEsrSSH(CiscoSSHConnection):
             )
         return output
 
-    def confirm(self, delay_factor=1):
+    def _confirm(self, delay_factor=1):
         """
         Confirm the candidate configuration.
-        Raise an error and return the failure
-        if the confirm fails.
-        default:
-           command_string = confirm
+        Raise an error and return the failure if the confirm fails.
         """
 
+        delay_factor = self.select_delay_factor(delay_factor)
         error_marker = "Nothing to confirm in configuration"
         command_string = "confirm"
 
@@ -107,16 +78,14 @@ class EltexEsrSSH(CiscoSSHConnection):
             )
         return output
 
-    def restore(self, delay_factor=1):
+    def _restore(self, delay_factor=1):
         """
         Restore the candidate configuration.
-        it is executed only if commited.
-        Raise an error and return the failure
-        if the restore fails.
-        default:
-           command_string = restore
+
+        Raise an error and return the failure if the restore fails.
         """
 
+        delay_factor = self.select_delay_factor(delay_factor)
         error_marker = "Can't find backup of previous configuration!"
         command_string = "restore"
 
