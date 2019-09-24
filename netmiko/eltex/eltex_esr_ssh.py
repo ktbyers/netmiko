@@ -18,14 +18,11 @@ class EltexEsrSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(
-            self, config_command="configure", pattern=r"\S+:\S+\(config\)#"):
+    def config_mode(self, config_command="configure", pattern=r"\S+:\S+\(config\)#"):
 
         """Enter configuration mode."""
 
-        return super().config_mode(
-            config_command=config_command, pattern=pattern
-        )
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
     def exit_config_mode(self, exit_config="end"):
         """Exit configuration mode."""
@@ -40,12 +37,9 @@ class EltexEsrSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string="(config", pattern=""):
         """Checks whether in configuration mode. Returns a boolean."""
-        return super().check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(
-            self, cmd="save", commit=False, confirm=False, delay_factor=1):
+    def save_config(self, cmd="save", commit=False, confirm=False, delay_factor=1):
         """
         Saves Config for ESR
         """
@@ -53,9 +47,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         if self.check_config_mode():
             self.exit_config_mode()
 
-        output = self.send_command(
-            command_string=cmd, delay_factor=delay_factor
-            )
+        output = self.send_command(command_string=cmd, delay_factor=delay_factor)
 
         if commit:
             self.commit()
@@ -82,7 +74,7 @@ class EltexEsrSSH(CiscoSSHConnection):
 
         output = self.send_command(
             command_string=command_string, delay_factor=delay_factor
-            )
+        )
 
         if error_marker in output:
             raise ValueError(
@@ -107,7 +99,7 @@ class EltexEsrSSH(CiscoSSHConnection):
 
         output = self.send_command(
             command_string=command_string, delay_factor=delay_factor
-            )
+        )
 
         if error_marker in output:
             raise ValueError(
@@ -133,7 +125,7 @@ class EltexEsrSSH(CiscoSSHConnection):
 
         output = self.send_command(
             command_string=command_string, delay_factor=delay_factor
-            )
+        )
 
         if error_marker in output:
             raise ValueError(
