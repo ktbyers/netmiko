@@ -221,3 +221,4 @@ dlink_ds:
   version_banner: "D-Link Corporation"
   multiple_line_output: "End of configuration file"
   interface_ip: 192.168.50.10
+

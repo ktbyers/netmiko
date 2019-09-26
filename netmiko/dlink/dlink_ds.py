@@ -1,35 +1,38 @@
-from __future__ import unicode_literals
-from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
 import time
-import re
 
 
 class DlinkDSBase(CiscoSSHConnection):
+    """Supports D-Link DGS/DES device series (there are some DGS/DES devices that are web-only)"""
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="disable clipaging")
+        self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    def disable_paging(self, command="disable clipaging", delay_factor=1):
+        return super().disable_paging(command=command, delay_factor=delay_factor)
+
     def enable(self, *args, **kwargs):
         """No implemented enable mode on D-Link yet"""
-        pass
+        return ""
 
     def check_enable_mode(self, *args, **kwargs):
         """No implemented enable mode on D-Link yet"""
-        pass
+        return True
 
     def exit_enable_mode(self, *args, **kwargs):
         """No implemented enable mode on D-Link yet"""
-        pass
+        return ""
 
     def check_config_mode(self, *args, **kwargs):
         """No config mode on D-Link"""
-        pass
+        return False
 
     def config_mode(self, *args, **kwargs):
         """No config mode on D-Link"""
@@ -39,18 +42,15 @@ class DlinkDSBase(CiscoSSHConnection):
         """No config mode on D-Link"""
         return ""
 
-    def save_config(self, cmd="save", confirm=False):
+    def save_config(self, cmd="save", confirm=False, confirm_response=""):
         """Saves configuration."""
-        log.debug("Saving all configurations to NV-RAM")
-        return self.send_command_timing("save")
+        return super().save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
     def cleanup(self):
         """Return paging before disconnect"""
         self.send_command_timing("enable clipaging")
-        log.debug("Exiting disable_paging")
-
-    def strip_command(self, command_string, output):
-        return re.sub(r"^.*?[\r\n]+Command:.*?[\n\r]+", "", output)
 
 
 class DlinkDSSSH(DlinkDSBase):
@@ -60,5 +60,5 @@ class DlinkDSSSH(DlinkDSBase):
 class DlinkDSTelnet(DlinkDSBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get("default_enter")
-        kwargs["default_enter"] = "\n" if default_enter is None else default_enter
-        super(DlinkDSTelnet, self).__init__(*args, **kwargs)
+        kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
+        super().__init__(*args, **kwargs)
