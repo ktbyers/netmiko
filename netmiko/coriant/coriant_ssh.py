@@ -31,7 +31,7 @@ class CoriantSSH(CiscoSSHConnection):
         self, pri_prompt_terminator=":", alt_prompt_terminator=">", delay_factor=2
     ):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        super(CoriantSSH, self).set_base_prompt(
+        super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,

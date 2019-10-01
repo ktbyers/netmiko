@@ -17,9 +17,7 @@ class KeymileNOSSSH(CiscoIosBase):
     def _test_channel_read(self, count=40, pattern=""):
         """Since Keymile NOS always returns True on paramiko.connect() we
         check the output for substring Login incorrect after connecting."""
-        output = super(KeymileNOSSSH, self)._test_channel_read(
-            count=count, pattern=pattern
-        )
+        output = super()._test_channel_read(count=count, pattern=pattern)
         pattern = r"Login incorrect"
         if re.search(pattern, output):
             self.paramiko_cleanup()

@@ -17,17 +17,15 @@ class HuaweiBase(CiscoBaseConnection):
 
     def config_mode(self, config_command="system-view"):
         """Enter configuration mode."""
-        return super(HuaweiBase, self).config_mode(config_command=config_command)
+        return super().config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config="return", pattern=r">"):
         """Exit configuration mode."""
-        return super(HuaweiBase, self).exit_config_mode(
-            exit_config=exit_config, pattern=pattern
-        )
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_config_mode(self, check_string="]"):
         """Checks whether in configuration mode. Returns a boolean."""
-        return super(HuaweiBase, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
     def check_enable_mode(self, *args, **kwargs):
         """Huawei has no enable mode."""
@@ -84,7 +82,7 @@ class HuaweiBase(CiscoBaseConnection):
 
     def save_config(self, cmd="save", confirm=True, confirm_response="y"):
         """ Save Config for HuaweiSSH"""
-        return super(HuaweiBase, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 

@@ -39,19 +39,15 @@ class PaloAltoPanosBase(BaseConnection):
 
     def check_config_mode(self, check_string="]"):
         """Checks if the device is in configuration mode or not."""
-        return super(PaloAltoPanosBase, self).check_config_mode(
-            check_string=check_string
-        )
+        return super().check_config_mode(check_string=check_string)
 
     def config_mode(self, config_command="configure"):
         """Enter configuration mode."""
-        return super(PaloAltoPanosBase, self).config_mode(config_command=config_command)
+        return super().config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config="exit", pattern=r">"):
         """Exit configuration mode."""
-        return super(PaloAltoPanosBase, self).exit_config_mode(
-            exit_config=exit_config, pattern=pattern
-        )
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def commit(
         self,
@@ -161,7 +157,7 @@ class PaloAltoPanosBase(BaseConnection):
     def send_command(self, *args, **kwargs):
         """Palo Alto requires an extra delay"""
         kwargs["delay_factor"] = kwargs.get("delay_factor", 2.5)
-        return super(PaloAltoPanosBase, self).send_command(*args, **kwargs)
+        return super().send_command(*args, **kwargs)
 
     def cleanup(self):
         """Gracefully exit the SSH session."""

@@ -16,7 +16,7 @@ class CiscoXrBase(CiscoBaseConnection):
 
     def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
-        return super(CiscoXrBase, self).send_config_set(
+        return super().send_config_set(
             config_commands=config_commands, exit_config_mode=False, **kwargs
         )
 

@@ -42,6 +42,6 @@ class AlcatelAosSSH(CiscoSSHConnection):
         self, cmd="write memory flash-synchro", confirm=False, confirm_response=""
     ):
         """Save Config"""
-        return super(AlcatelAosSSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

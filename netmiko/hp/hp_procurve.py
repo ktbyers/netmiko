@@ -79,7 +79,7 @@ class HPProcurveBase(CiscoSSHConnection):
 
     def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
         """Save Config."""
-        return super(HPProcurveBase, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
@@ -105,7 +105,7 @@ class HPProcurveSSH(HPProcurveBase):
         # Try one last time to past "Press any key to continue
         self.write_channel(self.RETURN)
 
-        super(HPProcurveSSH, self).session_preparation()
+        super().session_preparation()
 
     def _build_ssh_client(self):
         """Allow passwordless authentication for HP devices being provisioned."""
@@ -138,7 +138,7 @@ class HPProcurveTelnet(HPProcurveBase):
         max_loops=60,
     ):
         """Telnet login: can be username/password or just password."""
-        super(HPProcurveTelnet, self).telnet_login(
+        super().telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             username_pattern=username_pattern,
