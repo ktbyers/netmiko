@@ -197,7 +197,7 @@ class CliTable(texttable.TextTable):
       template_dir: String, directory where index file and templates reside.
     """
         # pylint: disable=E1002
-        super(CliTable, self).__init__()
+        super().__init__()
         self._keys = set()
         self.raw = None
         self.index_file = index_file
@@ -336,14 +336,14 @@ class CliTable(texttable.TextTable):
         """Return LabelValue with FSM derived keys."""
         keys = keys or self.superkey
         # pylint: disable=E1002
-        return super(CliTable, self).LabelValueTable(keys)
+        return super().LabelValueTable(keys)
 
     # pylint: disable=W0622,C6409
     def sort(self, cmp=None, key=None, reverse=False):
         """Overrides sort func to use the KeyValue for the key."""
         if not key and self._keys:
             key = self.KeyValue
-        super(CliTable, self).sort(cmp=cmp, key=key, reverse=reverse)
+        super().sort(cmp=cmp, key=key, reverse=reverse)
 
     # pylint: enable=W0622
 

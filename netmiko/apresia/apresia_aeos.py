@@ -35,4 +35,4 @@ class ApresiaAeosTelnet(ApresiaAeosBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
-        super(ApresiaAeosTelnet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)

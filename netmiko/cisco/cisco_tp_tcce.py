@@ -14,7 +14,7 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
-        super(CiscoTpTcCeSSH, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def disable_paging(self, *args, **kwargs):
         """Paging is disabled by default."""
@@ -82,7 +82,7 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
                 expect_string = self.RETURN + expect_string + self.RETURN
                 kwargs.setdefault("expect_string", expect_string)
 
-        output = super(CiscoSSHConnection, self).send_command(*args, **kwargs)
+        output = super().send_command(*args, **kwargs)
         return output
 
     def save_config(self, *args, **kwargs):

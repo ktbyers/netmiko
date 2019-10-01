@@ -28,4 +28,4 @@ class TerminalServerTelnet(TerminalServer):
         pass
 
     def std_login(self, *args, **kwargs):
-        return super(TerminalServerTelnet, self).telnet_login(*args, **kwargs)
+        return super().telnet_login(*args, **kwargs)

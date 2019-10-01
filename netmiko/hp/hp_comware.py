@@ -29,13 +29,11 @@ class HPComwareBase(CiscoSSHConnection):
 
     def config_mode(self, config_command="system-view"):
         """Enter configuration mode."""
-        return super(HPComwareBase, self).config_mode(config_command=config_command)
+        return super().config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config="return", pattern=r">"):
         """Exit config mode."""
-        return super(HPComwareBase, self).exit_config_mode(
-            exit_config=exit_config, pattern=pattern
-        )
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_config_mode(self, check_string="]"):
         """Check whether device is in configuration mode. Return a boolean."""
@@ -80,7 +78,7 @@ class HPComwareBase(CiscoSSHConnection):
 
     def save_config(self, cmd="save force", confirm=False, confirm_response=""):
         """Save Config."""
-        return super(HPComwareBase, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
@@ -93,4 +91,4 @@ class HPComwareTelnet(HPComwareBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
-        super(HPComwareTelnet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)

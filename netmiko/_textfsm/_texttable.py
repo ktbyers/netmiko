@@ -67,7 +67,7 @@ class Row(dict):
   """
 
     def __init__(self, *args, **kwargs):
-        super(Row, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._keys = list()
         self._values = list()
         self.row = None

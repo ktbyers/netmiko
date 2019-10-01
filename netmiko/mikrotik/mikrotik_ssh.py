@@ -10,7 +10,7 @@ class MikrotikBase(CiscoSSHConnection):
 
         self._in_config_mode = False
 
-        return super(MikrotikBase, self).__init__(**kwargs)
+        return super().__init__(**kwargs)
 
     def session_preparation(self, *args, **kwargs):
         """Prepare the session after the connection has been established."""

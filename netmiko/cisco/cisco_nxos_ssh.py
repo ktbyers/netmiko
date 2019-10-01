@@ -24,9 +24,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string=")#", pattern="#"):
         """Checks if the device is in configuration mode or not."""
-        return super(CiscoNxosSSH, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):

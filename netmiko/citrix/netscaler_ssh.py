@@ -52,7 +52,7 @@ class NetscalerSSH(BaseConnection):
 
     def strip_prompt(self, a_string):
         """ Strip 'Done' from command output """
-        output = super(NetscalerSSH, self).strip_prompt(a_string)
+        output = super().strip_prompt(a_string)
         lines = output.split(self.RESPONSE_RETURN)
         if "Done" in lines[-1]:
             return self.RESPONSE_RETURN.join(lines[:-1])

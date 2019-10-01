@@ -6,7 +6,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class CloudGenixIonSSH(CiscoSSHConnection):
     def establish_connection(self):
-        super(CloudGenixIonSSH, self).establish_connection(width=100, height=1000)
+        super().establish_connection(width=100, height=1000)
 
     def session_preparation(self, *args, **kwargs):
         """Prepare the session after the connection has been established."""
@@ -20,12 +20,12 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         return ""
 
     def find_prompt(self, delay_factor=1):
-        prompt = super(CloudGenixIonSSH, self).find_prompt()
+        prompt = super().find_prompt()
         prompt = self.strip_backspaces(prompt).strip()
         return prompt
 
     def strip_command(self, command_string, output):
-        output = super(CloudGenixIonSSH, self).strip_command(command_string, output)
+        output = super().strip_command(command_string, output)
         # command_string gets repainted potentially multiple times (grab everything after last one)
         output = output.split(command_string)[-1]
         return output
