@@ -89,56 +89,44 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         )
 
     def remote_space_available(self, search_pattern=""):
-        """Return space available on Ciena SAOS"""
-        remote_cmd = "file vols"
+        """
+        Return space available on Ciena SAOS
+
+        Output should only have the file-system that matches {self.file_system}
+
+        Filesystem           1K-blocks      Used Available Use% Mounted on
+        tmpfs                  1048576       648   1047928   0% /tmp
+        """
+        remote_cmd = f"file vols -P {self.file_system}"
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
-
-        # Try to ensure parsing is correct:
-        # Filesystem 1K-blocks Used Available Use% Mounted on
-        # ubi0:appA 121352 98688 22664 81% /
-        # devtmpfs 237492 0 237492 0% /dev
         remote_output = remote_output.strip()
+        err_msg = (
+            f"Parsing error, unexpected output from {remote_cmd}:\n{remote_output}"
+        )
 
-        # First line is the header; rest are the actual file system info
-        header_line, *filesystem_lines = remote_output.splitlines()
+        # First line is the header; file_system_line is the output we care about
+        header_line, filesystem_line = remote_output.splitlines()
 
         filesystem, _, _, space_avail, *_ = header_line.split()
         if "Filesystem" != filesystem or "Avail" not in space_avail:
             # Filesystem 1K-blocks Used Available Use% Mounted on
-            msg = (
-                f"Parsing error, unexpected output from {remote_cmd}:\n{remote_output}"
-            )
-            raise ValueError(msg)
-
-        # longest_match keeps track of the most specific match of self.file_system
-        longest_match = {"file_system": None, "match_length": 0, "space_available": ""}
+            raise ValueError(err_msg)
 
         # Normalize output - in certain outputs ciena will line wrap (this fixes that)
-        # e.g. (this strips the extra newline)
+        # Strip the extra newline
         # /dev/mapper/EN--VOL-config
         #                  4096      1476      2620  36% /etc/hosts
-        filesystem_lines = re.sub(r"(^\S+$)\n", r"\1", filesystem_lines, flags=re.M)
+        filesystem_line = re.sub(r"(^\S+$)\n", r"\1", filesystem_line, flags=re.M)
 
-        for filesystem_line in filesystem_lines:
-            filesystem, _, _, space_avail, _, mounted_on = filesystem_line.split()
-            if (
-                self.file_system.startswith(mounted_on)
-                and len(mounted_on) > longest_match["match_length"]
-            ):
-                longest_match = {
-                    "file_system": filesystem,
-                    "match_length": len(mounted_on),
-                    "space_available": space_avail,
-                }
+        # Checks to make sure what was returned is what we expect
+        _, k_blocks, used, space_avail, _, _ = filesystem_line.split()
+        for integer_check in (k_blocks, used, space_avail):
+            try:
+                int(integer_check)
+            except ValueError:
+                raise ValueError(err_msg)
 
-        space_available = longest_match["space_available"]
-        if not re.search(r"^\d+$", space_available):
-            msg = (
-                f"Parsing error, unexpected output from {remote_cmd}:\n{remote_output}"
-            )
-            raise ValueError(msg)
-
-        return int(space_available) * 1024
+        return int(space_avail) * 1024
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
