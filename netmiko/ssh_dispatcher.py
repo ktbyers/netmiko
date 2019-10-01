@@ -32,7 +32,7 @@ from netmiko.dell import DellOS10SSH, DellOS10FileTransfer
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
-from netmiko.eltex import EltexSSH
+from netmiko.eltex import EltexSSH, EltexEsrSSH
 from netmiko.endace import EndaceSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeErsSSH
@@ -115,6 +115,7 @@ CLASS_MAPPER_BASE = {
     "dell_isilon": DellIsilonSSH,
     "endace": EndaceSSH,
     "eltex": EltexSSH,
+    "eltex_esr": EltexEsrSSH,
     "enterasys": EnterasysSSH,
     "extreme": ExtremeExosSSH,
     "extreme_ers": ExtremeErsSSH,
