@@ -26,7 +26,7 @@ class CienaSaosBase(BaseConnection):
 
     def _enter_shell(self):
         """Enter the Bourne Shell."""
-        return self.send_command("diag shell", expect_string=r"[$#]")
+        return self.send_command("diag shell", expect_string=r"[$#>]")
 
     def _return_cli(self):
         """Return to the Ciena SAOS CLI."""
@@ -94,8 +94,9 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
 
         # Try to ensure parsing is correct:
-        # Filesystem           1K-blocks      Used Available Use% Mounted on
-        # var                       1024       528       496  52% /var
+        # Filesystem 1K-blocks Used Available Use% Mounted on
+        # ubi0:appA 121352 98688 22664 81% /
+        # devtmpfs 237492 0 237492 0% /dev
         remote_output = remote_output.strip()
 
         # First line is the header; rest are the actual file system info
@@ -103,7 +104,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
         filesystem, _, _, space_avail, *_ = header_line.split()
         if "Filesystem" != filesystem or "Avail" not in space_avail:
-            # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
+            # Filesystem 1K-blocks Used Available Use% Mounted on
             msg = (
                 f"Parsing error, unexpected output from {remote_cmd}:\n{remote_output}"
             )
@@ -111,6 +112,12 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
         # longest_match keeps track of the most specific match of self.file_system
         longest_match = {"file_system": None, "match_length": 0, "space_available": ""}
+
+        # Normalize output - in certain outputs ciena will line wrap (this fixes that)
+        # e.g. (this strips the extra newline)
+        # /dev/mapper/EN--VOL-config
+        #                  4096      1476      2620  36% /etc/hosts
+        filesystem_lines = re.sub(r"(^\S+$)\n", r"\1", filesystem_lines, flags=re.M)
 
         for filesystem_line in filesystem_lines:
             filesystem, _, _, space_avail, _, mounted_on = filesystem_line.split()
@@ -196,7 +203,9 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
 
         self.ssh_ctl_chan._enter_shell()
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, expect_string=r"[$#]")
+        dest_md5 = self.ssh_ctl_chan.send_command(
+            remote_md5_cmd, expect_string=r"[$#>]"
+        )
         self.ssh_ctl_chan._return_cli()
         dest_md5 = self.process_md5(dest_md5, pattern=r"([0-9a-f]+)\s+")
         return dest_md5
