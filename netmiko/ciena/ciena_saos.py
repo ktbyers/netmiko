@@ -26,7 +26,11 @@ class CienaSaosBase(BaseConnection):
 
     def _enter_shell(self):
         """Enter the Bourne Shell."""
-        return self.send_command("diag shell", expect_string=r"[$#>]")
+        output = self.send_command("diag shell", expect_string=r"[$#>]")
+        if "SHELL PARSER FAILURE" in output:
+            msg = "SCP support on Ciena SAOS requires 'diag shell' permissions"
+            raise ValueError(msg)
+        return output
 
     def _return_cli(self):
         """Return to the Ciena SAOS CLI."""
