@@ -1,0 +1,18 @@
+
+
+
+cisco3#
+cisco3#
+cisco3#
+cisco3#
+cisco3#
+cisco3#
+cisco3#
+cisco3#terminal length 0
+cisco3#terminal width 511
+cisco3#
+cisco3#
+cisco3#
+cisco3#
+cisco3#
+cisco3#

@@ -1005,7 +1005,9 @@ class BaseConnection(object):
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        output = self.read_until_prompt()
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         log.debug(f"{output}")
@@ -1029,7 +1031,8 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        output = self.read_until_prompt()
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         return output
@@ -1080,6 +1083,7 @@ class BaseConnection(object):
             prompt = self.strip_ansi_escape_codes(prompt)
 
         # Check if the only thing you received was a newline
+        sleep_time = delay_factor * .1
         count = 0
         prompt = prompt.strip()
         while count <= 10 and not prompt:
@@ -1089,7 +1093,10 @@ class BaseConnection(object):
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
                 self.write_channel(self.RETURN)
-                time.sleep(delay_factor * 0.1)
+                log.debug(f"Sleep time: {sleep_time}")
+                time.sleep(sleep_time)
+                # Double the sleep time each time through the loop
+                sleep_time *= 2
             count += 1
 
         # If multiple lines in the output take the last line
@@ -1100,6 +1107,7 @@ class BaseConnection(object):
             raise ValueError(f"Unable to find prompt: {prompt}")
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
+        log.debug(f"(find_prompt): prompt is {prompt}")
         return prompt
 
     def clear_buffer(self):

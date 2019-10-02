@@ -8,6 +8,10 @@ import pytest
 from netmiko import ConnectHandler, FileTransfer, InLineTransfer, SSHDetect
 from tests.test_utils import parse_yaml
 
+import logging
+logging.basicConfig(filename='test.log', level=logging.DEBUG)
+logger = logging.getLogger("netmiko")
+
 
 PWD = path.dirname(path.realpath(__file__))
 
