@@ -213,15 +213,10 @@ def scp_fixture(request):
     ssh_conn = ConnectHandler(**device)
 
     platform = device["device_type"]
-    import ipdb
-
-    ipdb.set_trace()
     dest_file_system = platform_args[platform]["file_system"]
-    import ipdb
-
-    ipdb.set_trace()
     if "ciena_saos" in platform and ssh_conn.username:
         dest_file_system = f"/tmp/users/{ssh_conn.username}"
+
     source_file = "test9.txt"
     dest_file = "test9.txt"
     local_file = "testx.txt"
