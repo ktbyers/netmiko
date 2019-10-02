@@ -37,7 +37,7 @@ class HPComwareBase(CiscoSSHConnection):
 
     def check_config_mode(self, check_string="]"):
         """Check whether device is in configuration mode. Return a boolean."""
-        return super(HPComwareBase, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
     def set_base_prompt(
         self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1
@@ -52,7 +52,7 @@ class HPComwareBase(CiscoSSHConnection):
 
         This will be set on logging in, but not when entering system-view
         """
-        prompt = super(HPComwareBase, self).set_base_prompt(
+        prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
