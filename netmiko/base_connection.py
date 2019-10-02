@@ -1083,10 +1083,10 @@ class BaseConnection(object):
             prompt = self.strip_ansi_escape_codes(prompt)
 
         # Check if the only thing you received was a newline
-        sleep_time = delay_factor * .1
+        sleep_time = delay_factor * 0.1
         count = 0
         prompt = prompt.strip()
-        while count <= 10 and not prompt:
+        while count <= 20 and not prompt:
             prompt = self.read_channel().strip()
             if prompt:
                 if self.ansi_escape_codes:
@@ -1112,7 +1112,15 @@ class BaseConnection(object):
 
     def clear_buffer(self):
         """Read any data available in the channel."""
-        self.read_channel()
+        sleep_time = 0.1 * self.global_delay_factor
+        for _ in range(100):
+            time.sleep(sleep_time)
+            data = self.read_channel()
+            if not data:
+                break
+            # Double sleep time each time we detect data
+            log.debug("Clear buffer detect items in channel")
+            sleep_time *= 2
 
     def send_command_timing(
         self,
@@ -1300,14 +1308,23 @@ class BaseConnection(object):
         self.clear_buffer()
         self.write_channel(command_string)
 
-        i = 1
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        cmd = command_string.strip()
+        new_data = self.read_until_pattern(pattern=re.escape(cmd))
+
+        # Strip off everything before the command echo
+        new_data = new_data.split(cmd)[1:]
+        new_data = "\n".join(new_data)
+        new_data = new_data.strip()
+        new_data = f"{cmd}\n{new_data}"
+
         output = ""
+        i = 1
         past_three_reads = deque(maxlen=3)
         first_line_processed = False
 
         # Keep reading data until search_pattern is found or until max_loops is reached.
         while i <= max_loops:
-            new_data = self.read_channel()
             if new_data:
                 if self.ansi_escape_codes:
                     new_data = self.strip_ansi_escape_codes(new_data)
@@ -1332,6 +1349,7 @@ class BaseConnection(object):
 
             time.sleep(delay_factor * loop_delay)
             i += 1
+            new_data = self.read_channel()
         else:  # nobreak
             raise IOError(
                 "Search pattern never detected in send_command_expect: {}".format(
@@ -1401,9 +1419,13 @@ class BaseConnection(object):
             output_lines = output.split(self.RESPONSE_RETURN)
             new_output = output_lines[1:]
             return self.RESPONSE_RETURN.join(new_output)
-        else:
+        elif output.startswith(command_string):
+            # Can't just split() the output as command_string might be in the actual output text
             command_length = len(command_string)
             return output[command_length:]
+        else:
+            # command_string isn't there; do nothing
+            return output
 
     def normalize_linefeeds(self, a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
