@@ -1552,7 +1552,8 @@ class BaseConnection(object):
         output = ""
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
-            output = self.read_until_pattern(pattern=pattern)
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            output += self.read_until_pattern(pattern=re.escape(config_command))
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode.")
         return output
@@ -1569,7 +1570,8 @@ class BaseConnection(object):
         output = ""
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
-            output = self.read_until_pattern(pattern=pattern)
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            output += self.read_until_pattern(pattern=re.escape(exit_config))
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         log.debug(f"exit_config_mode: {output}")
