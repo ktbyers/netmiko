@@ -9,7 +9,7 @@ class DellIsilonSSH(BaseConnection):
         self, pri_prompt_terminator="$", alt_prompt_terminator="#", delay_factor=1
     ):
         """Determine base prompt."""
-        return super(DellIsilonSSH, self).set_base_prompt(
+        return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
