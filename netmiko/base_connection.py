@@ -403,7 +403,7 @@ class BaseConnection(object):
                 data = data.replace(self.password, "********")
             if self.secret:
                 data = data.replace(self.secret, "********")
-            self.session_log.write(write_bytes(data, encoding=self.encoding))
+            self.session_log.write(self.normalize_linefeeds(data))
             self.session_log.flush()
 
     def write_channel(self, out_data):
@@ -1745,9 +1745,9 @@ class BaseConnection(object):
     def open_session_log(self, filename, mode="write"):
         """Open the session_log file."""
         if mode == "append":
-            self.session_log = open(filename, mode="ab")
+            self.session_log = open(filename, mode="a")
         else:
-            self.session_log = open(filename, mode="wb")
+            self.session_log = open(filename, mode="w")
         self._session_log_close = True
 
     def close_session_log(self):
