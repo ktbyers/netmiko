@@ -1078,7 +1078,8 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
-        time.sleep(delay_factor * 0.1)
+        sleep_time = delay_factor * 0.1
+        time.sleep(sleep_time)
 
         # Initial attempt to get prompt
         prompt = self.read_channel()
@@ -1088,14 +1089,17 @@ class BaseConnection(object):
         # Check if the only thing you received was a newline
         count = 0
         prompt = prompt.strip()
-        while count <= 10 and not prompt:
+        while count <= 20 and not prompt:
             prompt = self.read_channel().strip()
             if prompt:
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
                 self.write_channel(self.RETURN)
-                time.sleep(delay_factor * 0.1)
+                # log.debug(f"find_prompt sleep time: {sleep_time}")
+                time.sleep(sleep_time)
+                # Double the sleep_time each time through the loop
+                sleep_time *= 2
             count += 1
 
         # If multiple lines in the output take the last line
@@ -1106,6 +1110,7 @@ class BaseConnection(object):
             raise ValueError(f"Unable to find prompt: {prompt}")
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
+        log.debug(f"[find_prompt()]: prompt is {prompt}")
         return prompt
 
     def clear_buffer(self):

@@ -20,7 +20,7 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         return ""
 
     def find_prompt(self, delay_factor=1):
-        prompt = super().find_prompt()
+        prompt = super().find_prompt(delay_factor=delay_factor)
         prompt = self.strip_backspaces(prompt).strip()
         return prompt
 
