@@ -403,7 +403,11 @@ class BaseConnection(object):
                 data = data.replace(self.password, "********")
             if self.secret:
                 data = data.replace(self.secret, "********")
-            self.session_log.write(self.normalize_linefeeds(data))
+            if isinstance(self.session_log, io.BufferedIOBase):
+                data = self.normalize_linefeeds(data)
+                self.session_log.write(write_bytes(data, encoding=self.encoding))
+            else:
+                self.session_log.write(self.normalize_linefeeds(data))
             self.session_log.flush()
 
     def write_channel(self, out_data):
