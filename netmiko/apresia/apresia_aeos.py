@@ -8,7 +8,6 @@ class ApresiaAeosBase(CiscoSSHConnection):
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.disable_paging()
-        self.set_terminal_width(command="terminal width 511")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -21,10 +20,6 @@ class ApresiaAeosBase(CiscoSSHConnection):
         if self.allow_auto_change and "terminal length 0" not in output:
             self.send_config_set("terminal length 0")
         self.exit_enable_mode()
-
-    def set_terminal_width(self, command="", delay_factor=1):
-        """No terminal width command mode on AEOS"""
-        pass
 
 
 class ApresiaAeosSSH(ApresiaAeosBase):
