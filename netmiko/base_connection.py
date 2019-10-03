@@ -1009,7 +1009,8 @@ class BaseConnection(object):
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        output = self.read_until_prompt()
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         log.debug(f"{output}")

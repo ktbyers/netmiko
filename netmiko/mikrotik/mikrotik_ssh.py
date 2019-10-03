@@ -30,7 +30,7 @@ class MikrotikBase(CiscoSSHConnection):
         """
         self.username += "+cetw511h4098"
 
-    def disable_paging(self):
+    def disable_paging(self, *args, **kwargs):
         """Microtik does not have paging by default."""
         return ""
 
