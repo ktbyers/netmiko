@@ -21,7 +21,7 @@ class SCPConn(object):
     Must close the SCP connection to get the file to write to the remote filesystem
     """
 
-    def __init__(self, ssh_conn, socket_timeout=5):
+    def __init__(self, ssh_conn, socket_timeout=10.0):
         self.ssh_ctl_chan = ssh_conn
         self.socket_timeout = socket_timeout
         self.establish_scp_conn()
@@ -62,7 +62,7 @@ class BaseFileTransfer(object):
         dest_file,
         file_system=None,
         direction="put",
-        socket_timeout=5,
+        socket_timeout=10.0,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file

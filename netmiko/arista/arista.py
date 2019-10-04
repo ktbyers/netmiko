@@ -63,7 +63,7 @@ class AristaFileTransfer(CiscoFileTransfer):
         dest_file,
         file_system="/mnt/flash",
         direction="put",
-        socket_timeout=5,
+        socket_timeout=10.0,
     ):
         return super().__init__(
             ssh_conn=ssh_conn,
