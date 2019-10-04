@@ -1312,6 +1312,19 @@ class BaseConnection(object):
         time.sleep(delay_factor * loop_delay)
         self.clear_buffer()
         self.write_channel(command_string)
+        new_data = ""
+
+        cmd = command_string.strip()
+        # if cmd is just and "enter" skip this section
+        if cmd:
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            new_data = self.read_until_pattern(pattern=re.escape(cmd))
+            # Strip off everything before the command echo (to avoid false positives on the prompt)
+            if new_data.count(cmd) == 1:
+                new_data = new_data.split(cmd)[1:]
+                new_data = "\n".join(new_data)
+                new_data = new_data.strip()
+                new_data = f"{cmd}\n{new_data}"
 
         i = 1
         output = ""
@@ -1320,7 +1333,6 @@ class BaseConnection(object):
 
         # Keep reading data until search_pattern is found or until max_loops is reached.
         while i <= max_loops:
-            new_data = self.read_channel()
             if new_data:
                 if self.ansi_escape_codes:
                     new_data = self.strip_ansi_escape_codes(new_data)
@@ -1345,6 +1357,7 @@ class BaseConnection(object):
 
             time.sleep(delay_factor * loop_delay)
             i += 1
+            new_data = self.read_channel()
         else:  # nobreak
             raise IOError(
                 "Search pattern never detected in send_command_expect: {}".format(
@@ -1414,9 +1427,12 @@ class BaseConnection(object):
             output_lines = output.split(self.RESPONSE_RETURN)
             new_output = output_lines[1:]
             return self.RESPONSE_RETURN.join(new_output)
-        else:
+        elif output.startswith(command_string):
             command_length = len(command_string)
             return output[command_length:]
+        else:
+            # command_string isn't there; do nothing
+            return output
 
     def normalize_linefeeds(self, a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
