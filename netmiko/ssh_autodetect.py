@@ -167,6 +167,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "yamaha": {
+        "cmd": "show environment",
+        "search_patterns": [r"RTX", r"NVR", r"FWX"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 
