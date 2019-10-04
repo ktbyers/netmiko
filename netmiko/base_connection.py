@@ -1113,9 +1113,19 @@ class BaseConnection(object):
         log.debug(f"[find_prompt()]: prompt is {prompt}")
         return prompt
 
-    def clear_buffer(self):
+    def clear_buffer(self, backoff=True):
         """Read any data available in the channel."""
-        self.read_channel()
+        sleep_time = 0.1 * self.global_delay_factor
+        for _ in range(10):
+            time.sleep(sleep_time)
+            data = self.read_channel()
+            if not data:
+                break
+            # Double sleep time each time we detect data
+            log.debug("Clear buffer detects data in the channel")
+            if backoff:
+                sleep_time *= 2
+                sleep_time = 3 if sleep_time >= 3 else sleep_time
 
     def send_command_timing(
         self,
