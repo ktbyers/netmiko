@@ -1089,7 +1089,7 @@ class BaseConnection(object):
         # Check if the only thing you received was a newline
         count = 0
         prompt = prompt.strip()
-        while count <= 20 and not prompt:
+        while count <= 12 and not prompt:
             prompt = self.read_channel().strip()
             if prompt:
                 if self.ansi_escape_codes:
@@ -1098,8 +1098,11 @@ class BaseConnection(object):
                 self.write_channel(self.RETURN)
                 # log.debug(f"find_prompt sleep time: {sleep_time}")
                 time.sleep(sleep_time)
-                # Double the sleep_time each time through the loop
-                sleep_time *= 2
+                if sleep_time <= 3:
+                    # Double the sleep_time when it is small
+                    sleep_time *= 2
+                else:
+                    sleep_time += 1
             count += 1
 
         # If multiple lines in the output take the last line
