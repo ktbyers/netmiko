@@ -1173,7 +1173,24 @@ class BaseConnection(object):
             command_string = self.normalize_cmd(command_string)
 
         self.write_channel(command_string)
-        output = self._read_channel_timing(
+
+        cmd = command_string.strip()
+        # if cmd is just an "enter" skip this section
+        if cmd:
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            new_data = self.read_until_pattern(pattern=re.escape(cmd))
+
+            # Strip off everything before the command echo
+            if new_data.count(cmd) == 1:
+                new_data = new_data.split(cmd)[1:]
+                new_data = "\n".join(new_data)
+                new_data = new_data.strip()
+                output = f"{cmd}\n{new_data}"
+            else:
+                # cmd is in the actual output (not just echoed)
+                output = new_data
+
+        output += self._read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
         )
         output = self._sanitize_output(
