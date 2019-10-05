@@ -2,7 +2,6 @@ from netmiko.base_connection import BaseConnection
 from netmiko.ssh_exception import NetmikoTimeoutException
 from netmiko import log
 import time
-import re
 
 
 class YamahaBase(BaseConnection):
