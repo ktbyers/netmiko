@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import unicode_literals
 from netmiko.base_connection import BaseConnection
 from netmiko import log
 import time
@@ -8,6 +6,7 @@ import re
 
 class YamahaBase(BaseConnection):
     def session_preparation(self):
+        """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.disable_paging(command="console lines infinity")
