@@ -1,4 +1,5 @@
 from netmiko.base_connection import BaseConnection
+from netmiko.ssh_exception import NetmikoTimeoutException
 from netmiko import log
 import time
 import re
@@ -34,6 +35,10 @@ class YamahaBase(BaseConnection):
     def config_mode(self, config_command="administrator", pattern="ssword"):
         """Enter into administrator mode and configure device."""
         output = ""
+        msg = (
+            "Failed to enter administrator mode. Please ensure you pass "
+            "the 'secret' argument to ConnectHandler."
+        )
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             try:
@@ -42,10 +47,10 @@ class YamahaBase(BaseConnection):
                 )
                 self.write_channel(self.normalize_cmd(self.secret))
                 output += self.read_until_prompt()
-            except NetMikoTimeoutException:
+            except NetmikoTimeoutException:
                 raise ValueError(msg)
             if not self.check_config_mode():
-                raise ValueError("Failed to enter administrator mode.")
+                raise ValueError(msg)
         return output
 
     def exit_config_mode(self, exit_config="exit", pattern=">"):
@@ -95,5 +100,3 @@ class YamahaSSH(YamahaBase):
 class YamahaTelnet(YamahaBase):
     """Yamaha Telnet driver."""
     pass
-
-
