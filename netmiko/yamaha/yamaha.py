@@ -41,9 +41,7 @@ class YamahaBase(BaseConnection):
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             try:
-                output += self.read_until_prompt_or_pattern(
-                    pattern=pattern
-                )
+                output += self.read_until_prompt_or_pattern(pattern=pattern)
                 self.write_channel(self.normalize_cmd(self.secret))
                 output += self.read_until_prompt()
             except NetmikoTimeoutException:
@@ -58,16 +56,16 @@ class YamahaBase(BaseConnection):
         output = ""
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
-            self.write_channel('\n')
+            self.write_channel("\n")
             time.sleep(1)
-            self.write_channel('\n')
+            self.write_channel("\n")
             time.sleep(1)
             output = self.read_channel()
-            if '(Y/N)' in output:
-                self.write_channel('N')
-            self.write_channel('\n')
+            if "(Y/N)" in output:
+                self.write_channel("N")
+            self.write_channel("\n")
             time.sleep(1)
-            self.write_channel('\n')
+            self.write_channel("\n")
             time.sleep(1)
             output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
@@ -93,9 +91,11 @@ class YamahaBase(BaseConnection):
 
 class YamahaSSH(YamahaBase):
     """Yamaha SSH driver."""
+
     pass
 
 
 class YamahaTelnet(YamahaBase):
     """Yamaha Telnet driver."""
+
     pass
