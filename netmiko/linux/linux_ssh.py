@@ -55,7 +55,7 @@ class LinuxSSH(CiscoSSHConnection):
         """Verify root"""
         return self.check_enable_mode(check_string=check_string)
 
-    def config_mode(self, config_command="sudo su"):
+    def config_mode(self, config_command="sudo -s"):
         """Attempt to become root."""
         return self.enable(cmd=config_command)
 
@@ -78,7 +78,7 @@ class LinuxSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def enable(self, cmd="sudo su", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(self, cmd="sudo -s", pattern="ssword", re_flags=re.IGNORECASE):
         """Attempt to become root."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
