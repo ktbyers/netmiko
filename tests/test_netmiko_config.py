@@ -93,7 +93,7 @@ def test_disconnect(net_connect, commands, expected_responses):
     net_connect.disconnect()
 
 
-def test_large_acl(net_connect, acl_entries=500):
+def test_large_acl(net_connect, acl_entries=1000):
     """
     Test creating an ACL with tons of lines
     """
