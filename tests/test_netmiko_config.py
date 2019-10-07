@@ -102,7 +102,9 @@ def test_large_acl(net_connect, acl_entries=500):
     net_connect.send_config_set(["no ip access-list extended netmiko_test_large_acl"])
     cfg_lines = ["ip access-list extended netmiko_test_large_acl"]
     for i in range(1, acl_entries + 1):
-        cfg_lines.append(f"permit ip host {ipaddress.ip_address('192.168.0.0') + i} any")
+        cfg_lines.append(
+            f"permit ip host {ipaddress.ip_address('192.168.0.0') + i} any"
+        )
     net_connect.send_config_set(cfg_lines)
     result = net_connect.send_command("show ip access-lists netmiko_test_large_acl")
     assert len(result.splitlines()) == len(cfg_lines)
