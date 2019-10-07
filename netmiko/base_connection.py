@@ -1187,9 +1187,9 @@ class BaseConnection(object):
             # Strip off everything before the command echo
             if new_data.count(cmd) == 1:
                 new_data = new_data.split(cmd)[1:]
-                new_data = "\n".join(new_data)
+                new_data = self.RESPONSE_RETURN.join(new_data)
                 new_data = new_data.lstrip()
-                output = f"{cmd}\n{new_data}"
+                output = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
             else:
                 # cmd is in the actual output (not just echoed)
                 output = new_data
@@ -1347,9 +1347,9 @@ class BaseConnection(object):
             # Strip off everything before the command echo (to avoid false positives on the prompt)
             if new_data.count(cmd) == 1:
                 new_data = new_data.split(cmd)[1:]
-                new_data = "\n".join(new_data)
+                new_data = self.RESPONSE_RETURN.join(new_data)
                 new_data = new_data.lstrip()
-                new_data = f"{cmd}\n{new_data}"
+                new_data = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
 
         i = 1
         output = ""
