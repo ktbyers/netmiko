@@ -17,6 +17,11 @@ test_disconnect: cleanly disconnect the SSH session
 import pytest
 import time
 
+# import logging
+
+# logging.basicConfig(filename="test.log", level=logging.DEBUG)
+# logger = logging.getLogger("netmiko")
+
 
 def test_disable_paging(net_connect, commands, expected_responses):
     """Verify paging is disabled by looking for string after when paging would normally occur."""
@@ -25,11 +30,6 @@ def test_disable_paging(net_connect, commands, expected_responses):
         net_connect.send_command("clear logging")
     multiple_line_output = net_connect.send_command(commands["extended_output"])
     assert expected_responses["multiple_line_output"] in multiple_line_output
-    if net_connect.device_type == "arista_eos":
-        # Arista output is slow and has router-name in output
-        time.sleep(5)
-        net_connect.clear_buffer()
-        net_connect.send_command("clear logging", expect_string="#")
 
 
 def test_ssh_connect(net_connect, commands, expected_responses):

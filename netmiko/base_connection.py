@@ -1182,16 +1182,19 @@ class BaseConnection(object):
         if cmd:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
+            new_data = self.normalize_linefeeds(new_data)
 
             # Strip off everything before the command echo
             if new_data.count(cmd) == 1:
                 new_data = new_data.split(cmd)[1:]
-                new_data = "\n".join(new_data)
-                new_data = new_data.strip()
-                output = f"{cmd}\n{new_data}"
+                new_data = self.RESPONSE_RETURN.join(new_data)
+                new_data = new_data.lstrip()
+                output = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
             else:
                 # cmd is in the actual output (not just echoed)
                 output = new_data
+
+        log.debug(f"send_command_timing current output: {output}")
 
         output += self._read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
@@ -1214,6 +1217,7 @@ class BaseConnection(object):
                 # If we have structured data; return it.
                 if not isinstance(structured_output, str):
                     return structured_output
+        log.debug(f"send_command_timing final output: {output}")
         return output
 
     def strip_prompt(self, a_string):
@@ -1339,12 +1343,13 @@ class BaseConnection(object):
         if cmd:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
+            new_data = self.normalize_linefeeds(new_data)
             # Strip off everything before the command echo (to avoid false positives on the prompt)
             if new_data.count(cmd) == 1:
                 new_data = new_data.split(cmd)[1:]
-                new_data = "\n".join(new_data)
-                new_data = new_data.strip()
-                new_data = f"{cmd}\n{new_data}"
+                new_data = self.RESPONSE_RETURN.join(new_data)
+                new_data = new_data.lstrip()
+                new_data = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
 
         i = 1
         output = ""
