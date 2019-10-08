@@ -141,6 +141,7 @@ class CiscoWlcSSH(BaseConnection):
         strip_prompt=False,
         strip_command=False,
         config_mode_command=None,
+        cmd_verify=True,
     ):
         """
         Send configuration commands down the SSH channel.
@@ -159,16 +160,27 @@ class CiscoWlcSSH(BaseConnection):
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
 
+        output = ""
+
         # Send config commands
-        for cmd in config_commands:
-            self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(delay_factor * 0.5)
+        if self.fast_cli:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+        elif not cmd_verify:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+                time.sleep(delay_factor * 0.05)
+        else:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+                time.sleep(delay_factor * 0.05)
+                output += self.read_until_pattern(pattern=re.escape(cmd))
 
         # Gather output
-        output = self._read_channel_timing(
+        output += self._read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
         )
-        output = self._sanitize_output(output)
+        output += self._sanitize_output(output)
         log.debug(f"{output}")
         return output
 

@@ -1620,6 +1620,7 @@ class BaseConnection(object):
         strip_prompt=False,
         strip_command=False,
         config_mode_command=None,
+        cmd_verify=True,
     ):
         """
         Send configuration commands down the SSH channel.
@@ -1649,6 +1650,9 @@ class BaseConnection(object):
 
         :param config_mode_command: The command to enter into config mode
         :type config_mode_command: str
+
+        :param cmd_verify: Whether or not to verify command input for each command in config_set
+        :type cmd_verify: bool
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1662,12 +1666,19 @@ class BaseConnection(object):
         # Send config commands
         cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
         output = self.config_mode(*cfg_mode_args)
-        for cmd in config_commands:
-            self.write_channel(self.normalize_cmd(cmd))
-            if self.fast_cli:
-                pass
-            else:
+
+        if self.fast_cli:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+        elif not cmd_verify:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
                 time.sleep(delay_factor * 0.05)
+        else:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+                time.sleep(delay_factor * 0.05)
+                output += self.read_until_pattern(pattern=re.escape(cmd))
 
         # Gather output
         output += self._read_channel_timing(
