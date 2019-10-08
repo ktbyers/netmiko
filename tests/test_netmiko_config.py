@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import ipaddress
 
 
 def test_ssh_connect(net_connect, commands, expected_responses):
@@ -20,7 +21,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
         enable_prompt = net_connect.find_prompt()
         assert enable_prompt == expected_responses["enable_prompt"]
     except AttributeError:
-        assert True == True
+        assert True is True
 
 
 def test_config_mode(net_connect, commands, expected_responses):
@@ -89,4 +90,27 @@ def test_disconnect(net_connect, commands, expected_responses):
     """
     Terminate the SSH session
     """
+    net_connect.disconnect()
+
+
+def test_large_acl(net_connect, acl_entries=1000):
+    """
+    Test creating an ACL with tons of lines
+    """
+    if net_connect.device_type not in ["cisco_xe", "cisco_ios"]:
+        return
+    net_connect.send_config_set(["no ip access-list extended netmiko_test_large_acl"])
+    cfg_lines = ["ip access-list extended netmiko_test_large_acl"]
+    for i in range(1, acl_entries + 1):
+        cfg_lines.append(
+            f"permit ip host {ipaddress.ip_address('192.168.0.0') + i} any"
+        )
+    result = net_connect.send_config_set(cfg_lines)
+    # check that the result of send_config_set returns same num lines + four lines for getting
+    # into and out of config mode
+    assert len(result.splitlines()) == len(cfg_lines) + 4
+    verify = net_connect.send_command("show ip access-lists netmiko_test_large_acl")
+    # check that length of lines in show of the acl matches lines configured
+    assert len(verify.splitlines()) == len(cfg_lines)
+    net_connect.send_config_set(["no ip access-list extended netmiko_test_large_acl"])
     net_connect.disconnect()
