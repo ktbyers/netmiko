@@ -43,7 +43,7 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         """No save method on ION SSH"""
         pass
 
-    def send_config_set(self, config_commands=None, **kwargs):
+    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         return super().send_config_set(
-            config_commands=config_commands, exit_config_mode=False, **kwargs
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
