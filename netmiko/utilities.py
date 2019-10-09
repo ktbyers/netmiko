@@ -3,6 +3,7 @@ from glob import glob
 import io
 import os
 from pathlib import Path
+import pkg_resources
 import sys
 import serial.tools.list_ports
 
@@ -213,13 +214,21 @@ def check_serial_port(name):
 
 def get_template_dir():
     """Find and return the ntc-templates/templates dir."""
-    try:
-        template_dir = os.path.expanduser(os.environ["NET_TEXTFSM"])
-        index = os.path.join(template_dir, "index")
-        if not os.path.isfile(index):
-            # Assume only base ./ntc-templates specified
-            template_dir = os.path.join(template_dir, "templates")
-    except KeyError:
+    template_dir = os.environ.get("NET_TEXTFSM", None)
+
+    if template_dir:
+        template_dir = os.path.expanduser(template_dir)
+
+    # if no env var set, check to see if ntc_templates module has been installed
+    if template_dir is None:
+        try:
+            import ntc_templates  # noqa
+
+            template_dir = pkg_resources.resource_filename("ntc_templates", "templates")
+        except ModuleNotFoundError:
+            pass
+
+    if template_dir is None:
         # Construct path ~/ntc-templates/templates
         home_dir = os.path.expanduser("~")
         template_dir = os.path.join(home_dir, "ntc-templates", "templates")
