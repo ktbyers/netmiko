@@ -86,7 +86,7 @@ def test_commands_from_file(net_connect, commands, expected_responses):
         print("Skipping test (no file specified)...")
 
 
-def test_large_acl(net_connect, acl_entries=1000):
+def test_large_acl(net_connect, acl_entries=500):
     """
     Test creating an ACL with tons of lines
     """
