@@ -1,9 +1,11 @@
 """Miscellaneous utility functions."""
 from glob import glob
-import sys
 import io
 import os
+from pathlib import Path
+import sys
 import serial.tools.list_ports
+
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 
@@ -243,19 +245,37 @@ def clitable_to_dict(cli_table):
     return objs
 
 
-def get_structured_data(raw_output, platform, command):
+def get_structured_data(raw_output, platform, command, template=None):
     """Convert raw CLI output to structured data using TextFSM template."""
-    template_dir = get_template_dir()
-    index_file = os.path.join(template_dir, "index")
-    textfsm_obj = clitable.CliTable(index_file, template_dir)
     attrs = {"Command": command, "Platform": platform}
+
+    if template is None:
+        template_dir = get_template_dir()
+        index_file = os.path.join(template_dir, "index")
+        textfsm_obj = clitable.CliTable(index_file, template_dir)
+        try:
+            # Parse output through template
+            textfsm_obj.ParseCmd(raw_output, attrs)
+            structured_data = clitable_to_dict(textfsm_obj)
+            output = raw_output if structured_data == [] else structured_data
+            return output
+        except CliTableError:
+            return raw_output
+
+    return get_structured_data_manual(raw_output, template)
+
+
+def get_structured_data_manual(raw_output, template):
+    template_path = Path(os.path.expanduser(template))
+    template_file = template_path.name
+    template_dir = template_path.parents[0]
+    textfsm_obj = clitable.CliTable(template_dir=template_dir)
     try:
-        # Parse output through template
-        textfsm_obj.ParseCmd(raw_output, attrs)
+        textfsm_obj.ParseCmd(raw_output, templates=template_file)
         structured_data = clitable_to_dict(textfsm_obj)
         output = raw_output if structured_data == [] else structured_data
         return output
-    except CliTableError:
+    except (FileNotFoundError, CliTableError):
         return raw_output
 
 

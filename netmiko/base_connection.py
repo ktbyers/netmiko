@@ -1139,6 +1139,7 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        textfsm_template=None,
         use_genie=False,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
@@ -1165,6 +1166,9 @@ class BaseConnection(object):
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
+
+        :param textfsm_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in scripts directory. (default: None).
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
@@ -1205,18 +1209,26 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
+
         # If both TextFSM and Genie are set, try TextFSM then Genie
-        for parser_flag, parser_func in (
-            (use_textfsm, get_structured_data),
-            (use_genie, get_structured_data_genie),
-        ):
-            if parser_flag:
-                structured_output = parser_func(
-                    output, platform=self.device_type, command=command_string.strip()
-                )
-                # If we have structured data; return it.
-                if not isinstance(structured_output, str):
-                    return structured_output
+        if use_textfsm:
+            structured_output = get_structured_data(
+                output,
+                platform=self.device_type,
+                command=command_string.strip(),
+                template=textfsm_template,
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_genie:
+            structured_output = get_structured_data_genie(
+                output, platform=self.device_type, command=command_string.strip()
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+
         log.debug(f"send_command_timing final output: {output}")
         return output
 
@@ -1271,6 +1283,7 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        textfsm_template=None,
         use_genie=False,
     ):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
@@ -1303,6 +1316,9 @@ class BaseConnection(object):
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
+
+        :param textfsm_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in scripts directory. (default: None).
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
@@ -1398,17 +1414,23 @@ class BaseConnection(object):
         )
 
         # If both TextFSM and Genie are set, try TextFSM then Genie
-        for parser_flag, parser_func in (
-            (use_textfsm, get_structured_data),
-            (use_genie, get_structured_data_genie),
-        ):
-            if parser_flag:
-                structured_output = parser_func(
-                    output, platform=self.device_type, command=command_string.strip()
-                )
-                # If we have structured data; return it.
-                if not isinstance(structured_output, str):
-                    return structured_output
+        if use_textfsm:
+            structured_output = get_structured_data(
+                output,
+                platform=self.device_type,
+                command=command_string.strip(),
+                template=textfsm_template,
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_genie:
+            structured_output = get_structured_data_genie(
+                output, platform=self.device_type, command=command_string.strip()
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
         return output
 
     def send_command_expect(self, *args, **kwargs):
