@@ -86,14 +86,7 @@ def test_commands_from_file(net_connect, commands, expected_responses):
         print("Skipping test (no file specified)...")
 
 
-def test_disconnect(net_connect, commands, expected_responses):
-    """
-    Terminate the SSH session
-    """
-    net_connect.disconnect()
-
-
-def test_large_acl(net_connect, acl_entries=1000):
+def test_large_acl(net_connect, acl_entries=500):
     """
     Test creating an ACL with tons of lines
     """
@@ -113,4 +106,11 @@ def test_large_acl(net_connect, acl_entries=1000):
     # check that length of lines in show of the acl matches lines configured
     assert len(verify.splitlines()) == len(cfg_lines)
     net_connect.send_config_set(["no ip access-list extended netmiko_test_large_acl"])
+    net_connect.disconnect()
+
+
+def test_disconnect(net_connect, commands, expected_responses):
+    """
+    Terminate the SSH session
+    """
     net_connect.disconnect()
