@@ -21,8 +21,9 @@ class SCPConn(object):
     Must close the SCP connection to get the file to write to the remote filesystem
     """
 
-    def __init__(self, ssh_conn):
+    def __init__(self, ssh_conn, socket_timeout=10.0):
         self.ssh_ctl_chan = ssh_conn
+        self.socket_timeout = socket_timeout
         self.establish_scp_conn()
 
     def establish_scp_conn(self):
@@ -30,7 +31,9 @@ class SCPConn(object):
         ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
-        self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+        self.scp_client = scp.SCPClient(
+            self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+        )
 
     def scp_transfer_file(self, source_file, dest_file):
         """Put file using SCP (for backwards compatibility)."""
@@ -53,12 +56,19 @@ class BaseFileTransfer(object):
     """Class to manage SCP file transfer and associated SSH control channel."""
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system=None, direction="put"
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system=None,
+        direction="put",
+        socket_timeout=10.0,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+        self.socket_timeout = socket_timeout
 
         auto_flag = (
             "cisco_ios" in ssh_conn.device_type
@@ -93,7 +103,7 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         """Establish SCP connection."""
-        self.scp_conn = SCPConn(self.ssh_ctl_chan)
+        self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout)
 
     def close_scp_chan(self):
         """Close the SCP connection to the remote network device."""
