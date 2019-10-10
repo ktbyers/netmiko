@@ -63,7 +63,7 @@ class BaseConnection(object):
         timeout=100,
         session_timeout=60,
         auth_timeout=None,
-        blocking_timeout=8,
+        blocking_timeout=20,
         banner_timeout=15,
         keepalive=0,
         default_enter=None,
