@@ -37,6 +37,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         dest_file,
         file_system="bootflash:",
         direction="put",
+        socket_timeout=10.0,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
@@ -56,6 +57,8 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             self.file_size = self.remote_file_size(remote_file=source_file)
         else:
             raise ValueError("Invalid direction specified")
+
+        self.socket_timeout = socket_timeout
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""

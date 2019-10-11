@@ -70,6 +70,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         file_system=None,
         direction="put",
         source_config=None,
+        socket_timeout=10.0,
     ):
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
@@ -96,6 +97,8 @@ class InLineTransfer(CiscoIosFileTransfer):
         else:
             self.file_system = file_system
 
+        self.socket_timeout = socket_timeout
+
     @staticmethod
     def _read_file(file_name):
         with io.open(file_name, "rt", encoding="utf-8") as f:
@@ -103,7 +106,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     @staticmethod
     def _tcl_newline_rationalize(tcl_string):
-        """
+        r"""
         When using put inside a TCL {} section the newline is considered a new TCL
         statement and causes a missing curly-brace message. Convert "\n" to "\r". TCL
         will convert the "\r" to a "\n" i.e. you will see a "\n" inside the file on the

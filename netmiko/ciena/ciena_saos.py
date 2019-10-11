@@ -80,7 +80,13 @@ class CienaSaosFileTransfer(BaseFileTransfer):
     """Ciena SAOS SCP File Transfer driver."""
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system="", direction="put"
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system="",
+        direction="put",
+        **kwargs,
     ):
         if file_system == "":
             file_system = f"/tmp/users/{ssh_conn.username}"
@@ -90,6 +96,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
+            **kwargs,
         )
 
     def remote_space_available(self, search_pattern=""):
