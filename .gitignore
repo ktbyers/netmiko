@@ -31,3 +31,5 @@ docs/build/doctrees/
 .DS_Store
 */.DS_Store
 
+tests/cisco3-out.txt
+tests/test.log

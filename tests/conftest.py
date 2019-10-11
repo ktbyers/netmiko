@@ -179,6 +179,14 @@ def delete_file_generic(ssh_conn, dest_file_system, dest_file):
     return output
 
 
+def delete_file_ciena_saos(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for a ciena device."""
+    full_file_name = "{}/{}".format(dest_file_system, dest_file)
+    cmd = "file rm {}".format(full_file_name)
+    output = ssh_conn.send_command_timing(cmd, strip_command=False, strip_prompt=False)
+    return output
+
+
 @pytest.fixture(scope="module")
 def scp_fixture(request):
     """
@@ -206,6 +214,9 @@ def scp_fixture(request):
 
     platform = device["device_type"]
     dest_file_system = platform_args[platform]["file_system"]
+    if "ciena_saos" in platform and ssh_conn.username:
+        dest_file_system = f"/tmp/users/{ssh_conn.username}"
+
     source_file = "test9.txt"
     dest_file = "test9.txt"
     local_file = "testx.txt"
@@ -421,5 +432,10 @@ def get_platform_args():
             "file_system": "/home/admin",
             "enable_scp": False,
             "delete_file": delete_file_dellos10,
+        },
+        "ciena_saos": {
+            "file_system": "/tmp/users/ciena",
+            "enable_scp": False,
+            "delete_file": delete_file_ciena_saos,
         },
     }

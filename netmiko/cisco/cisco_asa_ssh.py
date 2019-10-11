@@ -32,7 +32,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         If the ASA is in multi-context mode, then the base_prompt needs to be
         updated after each context change.
         """
-        output = super(CiscoAsaSSH, self).send_command_timing(*args, **kwargs)
+        output = super().send_command_timing(*args, **kwargs)
         if len(args) >= 1:
             command_string = args[0]
         else:
@@ -56,7 +56,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
             if len(args) <= 1:
                 expect_string = kwargs.get("expect_string", "#")
                 kwargs["expect_string"] = expect_string
-        output = super(CiscoAsaSSH, self).send_command(*args, **kwargs)
+        output = super().send_command(*args, **kwargs)
 
         if "changeto" in command_string:
             self.set_base_prompt()
@@ -75,7 +75,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         This switch of ASA contexts can occur in configuration mode. If this
         happens the trailing '(config*' needs stripped off.
         """
-        cur_base_prompt = super(CiscoAsaSSH, self).set_base_prompt(*args, **kwargs)
+        cur_base_prompt = super().set_base_prompt(*args, **kwargs)
         match = re.search(r"(.*)\(conf.*", cur_base_prompt)
         if match:
             # strip off (conf.* from base_prompt
@@ -110,7 +110,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
 
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves Config"""
-        return super(CiscoAsaSSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 

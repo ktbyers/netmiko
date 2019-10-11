@@ -17,7 +17,7 @@ class AlcatelSrosSSH(CiscoSSHConnection):
 
     def set_base_prompt(self, *args, **kwargs):
         """Remove the > when navigating into the different config level."""
-        cur_base_prompt = super(AlcatelSrosSSH, self).set_base_prompt(*args, **kwargs)
+        cur_base_prompt = super().set_base_prompt(*args, **kwargs)
         match = re.search(r"(.*)(>.*)*#", cur_base_prompt)
         if match:
             # strip off >... from base_prompt
@@ -26,9 +26,7 @@ class AlcatelSrosSSH(CiscoSSHConnection):
 
     def enable(self, cmd="enable-admin", pattern="ssword", re_flags=re.IGNORECASE):
         """Enter enable mode."""
-        return super(AlcatelSrosSSH, self).enable(
-            cmd=cmd, pattern=pattern, re_flags=re_flags
-        )
+        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
     def check_enable_mode(self, check_string="CLI Already in admin mode"):
         """Check whether we are in enable-admin mode.
@@ -57,21 +55,15 @@ class AlcatelSrosSSH(CiscoSSHConnection):
 
     def config_mode(self, config_command="configure", pattern="#"):
         """ Enter into configuration mode on SROS device."""
-        return super(AlcatelSrosSSH, self).config_mode(
-            config_command=config_command, pattern=pattern
-        )
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
     def exit_config_mode(self, exit_config="exit all", pattern="#"):
         """ Exit from configuration mode."""
-        return super(AlcatelSrosSSH, self).exit_config_mode(
-            exit_config=exit_config, pattern=pattern
-        )
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_config_mode(self, check_string="config", pattern="#"):
         """ Checks if the device is in configuration mode or not. """
-        return super(AlcatelSrosSSH, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(self, *args, **kwargs):
         """Not Implemented"""

@@ -27,6 +27,7 @@ def file_transfer(
     inline_transfer=False,
     overwrite_file=False,
     copy_protocol="scp1",
+    socket_timeout=10.0,
 ):
     """Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
@@ -67,6 +68,7 @@ def file_transfer(
         "dest_file": dest_file,
         "direction": direction,
         "copy_protocol": copy_protocol,
+        "socket_timeout": socket_timeout,
     }
     if file_system is not None:
         scp_args["file_system"] = file_system

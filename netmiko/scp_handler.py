@@ -21,8 +21,9 @@ class SCPConn(object):
     Must close the SCP connection to get the file to write to the remote filesystem
     """
 
-    def __init__(self, ssh_conn, copy_protocol="scp1"):
+    def __init__(self, ssh_conn, socket_timeout=10.0, copy_protocol="scp1"):
         self.ssh_ctl_chan = ssh_conn
+        self.socket_timeout = socket_timeout
         self.copy_protocol = copy_protocol
         self.establish_scp_conn()
 
@@ -32,7 +33,9 @@ class SCPConn(object):
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
         if self.copy_protocol == "scp1":
-            self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+            self.scp_client = scp.SCPClient(
+            self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+        )
         elif self.copy_protocol in ["sftp", "scp2"]:
             self.scp_client = self.scp_conn.open_sftp()
         else:
@@ -66,12 +69,14 @@ class BaseFileTransfer(object):
         file_system=None,
         direction="put",
         copy_protocol="scp1",
+        socket_timeout=10.0,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
         self.copy_protocol = copy_protocol
+        self.socket_timeout = socket_timeout
 
         auto_flag = (
             "cisco_ios" in ssh_conn.device_type
@@ -106,7 +111,8 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         """Establish SCP connection."""
-        self.scp_conn = SCPConn(self.ssh_ctl_chan, self.copy_protocol)
+        self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout, 
+                                self.copy_protocol)
 
     def close_scp_chan(self):
         """Close the SCP connection to the remote network device."""

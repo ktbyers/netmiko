@@ -50,7 +50,7 @@ class AristaTelnet(AristaBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
-        super(AristaTelnet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class AristaFileTransfer(CiscoFileTransfer):
@@ -64,14 +64,16 @@ class AristaFileTransfer(CiscoFileTransfer):
         file_system="/mnt/flash",
         direction="put",
         copy_protocol="scp1",
+        socket_timeout=10.0,
     ):
-        return super(AristaFileTransfer, self).__init__(
+        return super().__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
             copy_protocol=copy_protocol,
+            socket_timeout=socket_timeout,
         )
 
     def remote_space_available(self, search_pattern=""):

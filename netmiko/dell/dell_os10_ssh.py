@@ -16,7 +16,7 @@ class DellOS10SSH(CiscoSSHConnection):
         confirm_response="",
     ):
         """Saves Config"""
-        return super(DellOS10SSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
@@ -35,7 +35,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
     ):
         if file_system is None:
             file_system = "/home/admin"
-        super(DellOS10FileTransfer, self).__init__(
+        super().__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
             dest_file=dest_file,

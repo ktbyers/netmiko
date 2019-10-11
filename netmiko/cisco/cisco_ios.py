@@ -26,13 +26,11 @@ class CiscoIosBase(CiscoBaseConnection):
 
         Cisco IOS devices abbreviate the prompt at 20 chars in config mode
         """
-        return super(CiscoIosBase, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves Config Using Copy Run Start"""
-        return super(CiscoIosBase, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
