@@ -15,7 +15,7 @@ def calc_md5(file_name=None, contents=None):
     else:
         raise ValueError("Most specify either file_name or contents")
 
-    return hashlib.md5(contents).hexdigest()
+    return hashlib.md5(contents.strip()).hexdigest()
 
 
 def read_session_log(session_file, append=False):
