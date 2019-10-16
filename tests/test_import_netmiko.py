@@ -1,4 +1,4 @@
-from netmiko import ConnectHandler
+from netmiko import ConnectHandler  # noqa
 
 
 def test_placeholder():

@@ -90,7 +90,7 @@ def test_config_mode(net_connect, commands, expected_responses):
     Test enter config mode
     """
     net_connect.config_mode()
-    assert net_connect.check_config_mode() == True
+    assert net_connect.check_config_mode() is True
 
 
 def test_commit_base(net_connect, commands, expected_responses):
@@ -390,7 +390,7 @@ def test_exit_config_mode(net_connect, commands, expected_responses):
     """
     net_connect.exit_config_mode()
     time.sleep(1)
-    assert net_connect.check_config_mode() == False
+    assert net_connect.check_config_mode() is False
 
 
 def test_disconnect(net_connect, commands, expected_responses):
