@@ -536,6 +536,8 @@ class BaseConnection(object):
                     if len(new_data) == 0:
                         raise EOFError("Channel stream closed by remote device.")
                     new_data = new_data.decode("utf-8", "ignore")
+                    if self.ansi_escape_codes:
+                        new_data = self.strip_ansi_escape_codes(new_data)
                     log.debug(f"_read_channel_expect read_data: {new_data}")
                     output += new_data
                     self._write_session_log(new_data)
