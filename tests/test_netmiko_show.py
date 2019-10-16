@@ -105,7 +105,7 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         "cisco_nxos",
         "cisco_asa",
     ]:
-        assert pytest.skip("TextFSM/ntc-templates not supported on this platform")
+        assert pytest.skip("Genie not supported on this platform")
     else:
         time.sleep(1)
         net_connect.clear_buffer()

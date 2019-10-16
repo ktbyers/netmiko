@@ -41,7 +41,7 @@ def net_connect(request):
 @pytest.fixture()
 def net_connect_cm(request):
     """
-    Create the SSH connection to the remote device using a context manager 
+    Create the SSH connection to the remote device using a context manager
     retrieve the find_prompt() data and close the connection.
     """
     device_under_test = request.config.getoption("test_device")
@@ -327,7 +327,7 @@ def tcl_fixture(request):
 
 @pytest.fixture(scope="module")
 def ssh_autodetect(request):
-    """Create an SSH autodetect object. 
+    """Create an SSH autodetect object.
 
     return (ssh_conn, real_device_type)
     """
