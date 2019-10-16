@@ -1,0 +1,20 @@
+cisco1#
+
+cisco1#terminal length 0
+terminal length 0
+cisco1#terminal width 511
+terminal width 511
+cisco1#
+
+cisco1#show ip interface brief
+show ip interface brief
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0              unassigned      YES unset  down                  down    
+FastEthernet1              unassigned      YES unset  down                  down    
+FastEthernet2              unassigned      YES unset  down                  down    
+FastEthernet3              unassigned      YES unset  down                  down    
+FastEthernet4              10.220.88.20    YES NVRAM  up                    up      
+Vlan1                      unassigned      YES unset  down                  down    
+cisco1#
+
+cisco1#exit
