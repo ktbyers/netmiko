@@ -105,7 +105,7 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         "cisco_nxos",
         "cisco_asa",
     ]:
-        assert pytest.skip("TextFSM/ntc-templates not supported on this platform")
+        assert pytest.skip("Genie not supported on this platform")
     else:
         time.sleep(1)
         net_connect.clear_buffer()
@@ -143,8 +143,8 @@ def test_normalize_linefeeds(net_connect, commands, expected_responses):
     """Ensure no '\r\n' sequences."""
     show_version = net_connect.send_command_timing(commands["version"])
     show_version_alt = net_connect.send_command(commands["version"])
-    assert not "\r\n" in show_version
-    assert not "\r\n" in show_version_alt
+    assert "\r\n" not in show_version
+    assert "\r\n" not in show_version_alt
 
 
 def test_clear_buffer(net_connect, commands, expected_responses):
@@ -170,7 +170,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
         enable_prompt = net_connect.find_prompt()
         assert enable_prompt == expected_responses["enable_prompt"]
     except AttributeError:
-        assert True == True
+        assert True is True
 
 
 def test_disconnect(net_connect, commands, expected_responses):

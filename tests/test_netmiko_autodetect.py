@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-import time
-
-
 def test_ssh_connect(ssh_autodetect):
     """Verify the connection was established successfully."""
     net_conn, real_device_type = ssh_autodetect
