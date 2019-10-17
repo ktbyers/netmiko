@@ -1,6 +1,4 @@
 """Controls selection of proper class based on the device type."""
-from __future__ import unicode_literals
-
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.alcatel import AlcatelAosSSH
@@ -12,7 +10,7 @@ from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.checkpoint import CheckPointGaiaSSH
-from netmiko.ciena import CienaSaosSSH
+from netmiko.ciena import CienaSaosSSH, CienaSaosTelnet, CienaSaosFileTransfer
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
 from netmiko.cisco import (
     CiscoIosSSH,
@@ -35,7 +33,7 @@ from netmiko.dell import DellOS10SSH, DellOS10FileTransfer
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
-from netmiko.eltex import EltexSSH
+from netmiko.eltex import EltexSSH, EltexEsrSSH
 from netmiko.endace import EndaceSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.extreme import ExtremeErsSSH
@@ -118,6 +116,7 @@ CLASS_MAPPER_BASE = {
     "dell_isilon": DellIsilonSSH,
     "endace": EndaceSSH,
     "eltex": EltexSSH,
+    "eltex_esr": EltexEsrSSH,
     "enterasys": EnterasysSSH,
     "extreme": ExtremeExosSSH,
     "extreme_ers": ExtremeErsSSH,
@@ -167,12 +166,13 @@ CLASS_MAPPER_BASE = {
 
 FILE_TRANSFER_MAP = {
     "arista_eos": AristaFileTransfer,
+    "ciena_saos": CienaSaosFileTransfer,
     "cisco_asa": CiscoAsaFileTransfer,
     "cisco_ios": CiscoIosFileTransfer,
-    "dell_os10": DellOS10FileTransfer,
     "cisco_nxos": CiscoNxosFileTransfer,
     "cisco_xe": CiscoIosFileTransfer,
     "cisco_xr": CiscoXrFileTransfer,
+    "dell_os10": DellOS10FileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
     "alcatel_sros": FileTransferSROS,
@@ -199,6 +199,7 @@ CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
+CLASS_MAPPER["ciena_saos_telnet"] = CienaSaosTelnet
 CLASS_MAPPER["cisco_ios_telnet"] = CiscoIosTelnet
 CLASS_MAPPER["cisco_xr_telnet"] = CiscoXrTelnet
 CLASS_MAPPER["dell_dnos6_telnet"] = DellDNOS6Telnet
