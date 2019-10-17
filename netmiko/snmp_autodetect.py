@@ -20,6 +20,8 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 """
+from __future__ import unicode_literals
+
 import re
 
 try:
@@ -28,6 +30,7 @@ except ImportError:
     raise ImportError("pysnmp not installed; please install it: 'pip install pysnmp'")
 
 from netmiko.ssh_dispatcher import CLASS_MAPPER
+from netmiko.py23_compat import text_type
 
 
 # Higher priority indicates a better match.
@@ -100,6 +103,11 @@ SNMP_MAPPER_BASE = {
     "juniper_junos": {
         "oid": ".1.3.6.1.2.1.1.1.0",
         "expr": re.compile(r".*Juniper.*"),
+        "priority": 99,
+    },
+    "alcatel_sros": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*TiMOS.*"),
         "priority": 99,
     },
 }
@@ -259,7 +267,7 @@ class SNMPDetect(object):
         )
 
         if not error_detected and snmp_data[0][1]:
-            return str(snmp_data[0][1])
+            return text_type(snmp_data[0][1])
         return ""
 
     def _get_snmpv2c(self, oid):
@@ -288,7 +296,7 @@ class SNMPDetect(object):
         )
 
         if not error_detected and snmp_data[0][1]:
-            return str(snmp_data[0][1])
+            return text_type(snmp_data[0][1])
         return ""
 
     def _get_snmp(self, oid):
