@@ -217,4 +217,3 @@ class FileTransferSROS(BaseFileTransfer):
             return self.file_size == self.remote_file_size(remote_file=self.source_file)
         elif self.direction == "get":
             return self.file_size == os.stat(self.source_file).st_size
-
