@@ -7,6 +7,7 @@ import re
 import os
 import time
 
+from netmiko import log
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
@@ -73,32 +74,45 @@ class AlcatelSrosSSH(BaseConnection):
 
         pass
 
-    def config_mode(self, config_command="edit-config private", pattern="#"):
-        """Enable configuration edit-mode for Nokia SR OS"""
+    def config_mode(self, *args, **kwargs):
+        """Enable config edit-mode for Nokia SR OS"""
 
-        if "@" not in self.base_prompt:
-            return ""
-        return super(AlcatelSrosSSH, self).config_mode(
-            config_command=config_command, pattern=pattern
-        )
+        self.write_channel(self.RETURN)
+        output = self.read_until_prompt()
+        if "@" in self.base_prompt:
+            if "(ex)[" not in output:
+                self.write_channel(self.normalize_cmd("edit-config exclusive"))
+                output += self.read_until_prompt()
+            else:
+                log.warning("Already in config edit-mode!")
+        return output
 
-    def exit_config_mode(self, exit_config="quit-config", pattern="#"):
-        """Disable configuration edit-mode for Nokia SR OS"""
+    def exit_config_mode(self, *args, **kwargs):
+        """Disable config edit-mode for Nokia SR OS"""
 
-        if "@" not in self.base_prompt:
-            return ""
-        return super(AlcatelSrosSSH, self).exit_config_mode(
-            exit_config=exit_config, pattern=pattern
-        )
+        self.write_channel(self.normalize_cmd("exit all"))
+        output = self.read_until_prompt()
+        if "@" in self.base_prompt:
+            if "(ex)[" in output:
+                if "*(ex)[" in output:
+                    log.warning("Uncommitted changes! Need to discard!")
+                    self.write_channel(self.normalize_cmd("discard"))
+                    output += self.read_until_prompt()
+                self.write_channel(self.normalize_cmd("quit-config"))
+                output += self.read_until_prompt()
+            else:
+                log.warning("Already in operational mode!")
+        return output
 
-    def check_config_mode(self, check_string="(pr)", pattern="#"):
-        """Check configuration edit-mode for Nokia SR OS"""
+    def check_config_mode(self, *args, **kwargs):
+        """Check config edit-mode for Nokia SR OS"""
 
         if "@" not in self.base_prompt:
             return True
-        return super(AlcatelSrosSSH, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        else:
+            self.write_channel(self.RETURN)
+            output = self.read_until_prompt()
+            return "(ex)[" in output
 
     def save_config(self, *args, **kwargs):
         """Persist configuration to cflash for Nokia SR OS"""
@@ -109,10 +123,35 @@ class AlcatelSrosSSH(BaseConnection):
     def commit(self, *args, **kwargs):
         """Activate changes from private candidate for Nokia SR OS"""
 
-        if "@" not in self.base_prompt:
-            raise AttributeError("commit is only supported in MD-CLI")
+        self.write_channel(self.normalize_cmd("exit all"))
+        output = self.read_until_prompt()
+        if "@" in self.base_prompt:
+            if "(ex)[" in output:
+                if "*(ex)[" in output:
+                    log.info("Apply uncommitted changes!")
+                    self.write_channel(self.normalize_cmd("commit"))
+                    output += self.read_until_prompt()
+            else:
+                log.warning("Commit is only supported in config edit-mode")
+        else:
+            log.warning("Commit is only supported in MD-CLI")
+        return output
 
-        output = self.send_command(command_string="/commit")
+    def discard(self):
+        """Discard changes from private candidate for Nokia SR OS"""
+
+        self.write_channel(self.normalize_cmd("exit all"))
+        output = self.read_until_prompt()
+        if "@" in self.base_prompt:
+            if "(ex)[" in output:
+                if "*(ex)[" in output:
+                    log.info("Discard uncommitted changes!")
+                    self.write_channel(self.normalize_cmd("discard"))
+                    output += self.read_until_prompt()
+            else:
+                log.warning("Discard is only supported in config edit-mode")
+        else:
+            log.warning("Discard is only supported in MD-CLI")
         return output
 
     def strip_prompt(self, *args, **kwargs):
