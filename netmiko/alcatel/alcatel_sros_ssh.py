@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2019 - NOKIA Inc. All Rights Reserved.
-# Please read the associated COPYRIGHTS file for more details.
+# Copyright (c) 2019 NOKIA Inc.
+# MIT License 
+# See License file at https://github.com/ktbyers/netmiko/blob/develop/LICENSE
 
 import re
 import os
