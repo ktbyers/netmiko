@@ -262,8 +262,9 @@ class BaseFileTransfer(object):
     def file_md5(self, file_name, add_newline=False):
         """Compute MD5 hash of file.
 
-        add_newline is needed to support Cisco IOS MD5 calculation which expects the newline in the string
-     
+        add_newline is needed to support Cisco IOS MD5 calculation which expects the newline in
+        the string
+
         Args:
           file_name: name of file to get md5 digest of
           add_newline: add newline to end of file contents or not
