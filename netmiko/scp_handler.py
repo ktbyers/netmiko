@@ -259,20 +259,15 @@ class BaseFileTransfer(object):
             "Search pattern not found for remote file size during SCP transfer."
         )
 
-    # def file_md5(self, file_name):
-    #     """Compute MD5 hash of file."""
-    #     with open(file_name, "rb") as f:
-    #         file_contents = f.read()
-    #         file_hash = hashlib.md5(file_contents).hexdigest()
-    #     return file_hash
-
-    def file_md5(self, file_name):
+    def file_md5(self, file_name, add_newline=False):
         """Compute MD5 hash of file."""
         file_hash = hashlib.md5()
         with open(file_name, "rb") as f:
             while True:
                 file_contents = f.read(512)
                 if not file_contents:
+                    if add_newline:
+                        file_contents + b"\n"
                     break
                 file_hash.update(file_contents)
         return file_hash.hexdigest()
