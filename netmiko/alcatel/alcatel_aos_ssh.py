@@ -3,7 +3,7 @@ import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class NokiaAosSSH(CiscoSSHConnection):
+class AlcatelAosSSH(CiscoSSHConnection):
     """Alcatel-Lucent Enterprise AOS support (AOS6 and AOS8)."""
 
     def session_preparation(self):
