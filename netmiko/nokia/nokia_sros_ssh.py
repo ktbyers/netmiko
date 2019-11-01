@@ -129,7 +129,7 @@ class NokiaSrosSSH(BaseConnection):
             log.warning("Commit is only supported in MD-CLI")
         return output
 
-    def discard(self):
+    def _discard(self):
         """Discard changes from private candidate for Nokia SR OS"""
         self.write_channel(self.normalize_cmd("exit all"))
         output = self.read_until_prompt()
