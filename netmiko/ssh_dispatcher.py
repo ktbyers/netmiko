@@ -1,9 +1,9 @@
 """Controls selection of proper class based on the device type."""
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
-from netmiko.alcatel import AlcatelAosSSH
-from netmiko.alcatel import AlcatelSrosSSH
-from netmiko.alcatel import FileTransferSROS
+from netmiko.nokia import NokiaAosSSH
+from netmiko.nokia import NokiaSrosSSH
+from netmiko.nokia import NokiaSrosFileTransfer
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
@@ -82,8 +82,8 @@ from netmiko.vyos import VyOSSSH
 CLASS_MAPPER_BASE = {
     "a10": A10SSH,
     "accedian": AccedianSSH,
-    "alcatel_aos": AlcatelAosSSH,
-    "alcatel_sros": AlcatelSrosSSH,
+    "alcatel_aos": NokiaAosSSH,
+    "alcatel_sros": NokiaSrosSSH,
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "aruba_os": ArubaSSH,
@@ -151,6 +151,8 @@ CLASS_MAPPER_BASE = {
     "mrv_optiswitch": MrvOptiswitchSSH,
     "netapp_cdot": NetAppcDotSSH,
     "netscaler": NetscalerSSH,
+    "nokia_aos": NokiaAosSSH,
+    "nokia_sros": NokiaSrosSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
@@ -165,6 +167,7 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
+    "alcatel_sros": NokiaSrosFileTransfer,
     "arista_eos": AristaFileTransfer,
     "ciena_saos": CienaSaosFileTransfer,
     "cisco_asa": CiscoAsaFileTransfer,
@@ -175,7 +178,7 @@ FILE_TRANSFER_MAP = {
     "dell_os10": DellOS10FileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
-    "alcatel_sros": FileTransferSROS,
+    "nokia_sros": NokiaSrosFileTransfer,
 }
 
 # Also support keys that end in _ssh

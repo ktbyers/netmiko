@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# Copyright (c) 2014 - 2019 Kirk Byers
+# Copyright (c) 2014 - 2019 Twin Bridges Technology
 # Copyright (c) 2019 NOKIA Inc.
 # MIT License - See License file at:
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
@@ -13,8 +15,7 @@ from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class AlcatelSrosSSH(BaseConnection):
-
+class NokiaSrosSSH(BaseConnection):
     """
     Implement methods for interacting with Nokia SR OS devices.
 
@@ -44,14 +45,12 @@ class AlcatelSrosSSH(BaseConnection):
             self.disable_paging(command="environment no more")
 
         # Clear the read buffer
-
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def set_base_prompt(self, *args, **kwargs):
         """Remove the > when navigating into the different config level."""
-
-        cur_base_prompt = super(AlcatelSrosSSH, self).set_base_prompt(*args, **kwargs)
+        cur_base_prompt = super().set_base_prompt(*args, **kwargs)
         match = re.search(r"\*?(.*)(>.*)*#", cur_base_prompt)
         if match:
 
@@ -62,22 +61,18 @@ class AlcatelSrosSSH(BaseConnection):
 
     def enable(self, *args, **kwargs):
         """Nokia SR OS does not support enable-mode"""
-
         pass
 
     def check_enable_mode(self, *args, **kwargs):
         """Nokia SR OS does not support enable-mode"""
-
         pass
 
     def exit_enable_mode(self, *args, **kwargs):
         """Nokia SR OS does not support enable-mode"""
-
         pass
 
     def config_mode(self, *args, **kwargs):
         """Enable config edit-mode for Nokia SR OS"""
-
         self.write_channel(self.RETURN)
         output = self.read_until_prompt()
         if "@" in self.base_prompt:
@@ -90,7 +85,6 @@ class AlcatelSrosSSH(BaseConnection):
 
     def exit_config_mode(self, *args, **kwargs):
         """Disable config edit-mode for Nokia SR OS"""
-
         self.write_channel(self.normalize_cmd("exit all"))
         output = self.read_until_prompt()
         if "@" in self.base_prompt:
@@ -107,7 +101,6 @@ class AlcatelSrosSSH(BaseConnection):
 
     def check_config_mode(self, *args, **kwargs):
         """Check config edit-mode for Nokia SR OS"""
-
         if "@" not in self.base_prompt:
             return True
         else:
@@ -117,13 +110,11 @@ class AlcatelSrosSSH(BaseConnection):
 
     def save_config(self, *args, **kwargs):
         """Persist configuration to cflash for Nokia SR OS"""
-
         output = self.send_command(command_string="/admin save")
         return output
 
     def commit(self, *args, **kwargs):
         """Activate changes from private candidate for Nokia SR OS"""
-
         self.write_channel(self.normalize_cmd("exit all"))
         output = self.read_until_prompt()
         if "@" in self.base_prompt:
@@ -140,7 +131,6 @@ class AlcatelSrosSSH(BaseConnection):
 
     def discard(self):
         """Discard changes from private candidate for Nokia SR OS"""
-
         self.write_channel(self.normalize_cmd("exit all"))
         output = self.read_until_prompt()
         if "@" in self.base_prompt:
@@ -157,9 +147,7 @@ class AlcatelSrosSSH(BaseConnection):
 
     def strip_prompt(self, *args, **kwargs):
         """Strip prompt from the output."""
-
-        output = super(AlcatelSrosSSH, self).strip_prompt(*args, **kwargs)
-
+        output = super().strip_prompt(*args, **kwargs)
         if "@" in self.base_prompt:
             # Remove context prompt too
             strips = r"[\r\n]*\!?\*?(\((ex|gl|pr|ro)\))?\[\S*\][\r\n]*"
@@ -168,7 +156,7 @@ class AlcatelSrosSSH(BaseConnection):
             return output
 
 
-class FileTransferSROS(BaseFileTransfer):
+class NokiaSrosFileTransfer(BaseFileTransfer):
     def __init__(self, ssh_conn, source_file, dest_file, file_system, direction="put"):
 
         self.ssh_ctl_chan = ssh_conn
@@ -190,7 +178,6 @@ class FileTransferSROS(BaseFileTransfer):
 
     def remote_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Return space available on remote device."""
-
         remote_cmd = "file dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
@@ -198,7 +185,6 @@ class FileTransferSROS(BaseFileTransfer):
 
     def check_file_exists(self, remote_cmd=""):
         """Check if destination file exists (returns boolean)."""
-
         if self.direction == "put":
             remote_cmd = "file dir {}/{}".format(self.file_system, self.dest_file)
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
@@ -213,7 +199,6 @@ class FileTransferSROS(BaseFileTransfer):
 
     def remote_file_size(self, remote_cmd=None, remote_file=None):
         """Get the file size of the remote file."""
-
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
@@ -228,7 +213,6 @@ class FileTransferSROS(BaseFileTransfer):
 
         # Parse dir output for filename. Output format is:
         # "10/16/2019  10:00p                6738 {filename}"
-
         pattern = r"(\S+)[ \t]+(\S+)[ \t]+(\d+)[ \t]+{}".format(re.escape(remote_file))
         match = re.search(pattern, remote_out)
 
@@ -239,20 +223,15 @@ class FileTransferSROS(BaseFileTransfer):
         return file_size
 
     def remote_md5(self, base_cmd=None, remote_file=None):
-
-        # Nokia SR OS does not expose a md5sum method
-
+        """Nokia SR OS does not expose a md5sum method"""
         raise NotImplementedError
 
     def compare_md5(self):
-
-        # Nokia SR OS does not expose a md5sum method
-
+        """Nokia SR OS does not expose a md5sum method"""
         raise NotImplementedError
 
     def verify_file(self):
         """Verify the file has been transferred correctly based on filesize."""
-
         if self.direction == "put":
             return self.file_size == self.remote_file_size(remote_file=self.source_file)
         elif self.direction == "get":
