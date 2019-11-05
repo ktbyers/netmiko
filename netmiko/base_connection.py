@@ -1685,7 +1685,19 @@ class BaseConnection(object):
         else:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
-                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+
+                # Make sure command is echoed
+                new_output = self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                output += new_output
+
+                # We might capture next prompt in the original read
+                pattern = f"(?:{re.escape(self.base_prompt)}|#)"
+                if not re.search(pattern, new_output):
+                    # Make sure trailing prompt comes back (after command)
+                    # NX-OS has fast-buffering problem where it immediately echoes command
+                    # Even though the device hasn't caught up with processing command.
+                    new_output = self.read_until_pattern(pattern=pattern)
+                    output += new_output
 
         if exit_config_mode:
             output += self.exit_config_mode()
