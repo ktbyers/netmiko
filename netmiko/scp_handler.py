@@ -219,7 +219,7 @@ class BaseFileTransfer(object):
         escape_file_name = re.escape(remote_file)
         pattern = r".*({}).*".format(escape_file_name)
         match = re.search(pattern, remote_out)
-        filesize = sys.maxsize
+        file_size = sys.maxsize
         if match:
             line = match.group(0)
             # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
