@@ -474,6 +474,8 @@ class BaseConnection(object):
                 output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
                     "utf-8", "ignore"
                 )
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
         log.debug(f"read_channel: {output}")
         self._write_session_log(output)
         return output
@@ -534,6 +536,8 @@ class BaseConnection(object):
                     if len(new_data) == 0:
                         raise EOFError("Channel stream closed by remote device.")
                     new_data = new_data.decode("utf-8", "ignore")
+                    if self.ansi_escape_codes:
+                        new_data = self.strip_ansi_escape_codes(new_data)
                     log.debug(f"_read_channel_expect read_data: {new_data}")
                     output += new_data
                     self._write_session_log(new_data)
@@ -842,8 +846,6 @@ class BaseConnection(object):
         :param strip_command:
         :type strip_command:
         """
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
         if strip_command and command_string:
             command_string = self.normalize_linefeeds(command_string)
@@ -1011,8 +1013,6 @@ class BaseConnection(object):
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
         return output
@@ -1036,8 +1036,6 @@ class BaseConnection(object):
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
         return output
 
     def set_base_prompt(
@@ -1083,18 +1081,13 @@ class BaseConnection(object):
 
         # Initial attempt to get prompt
         prompt = self.read_channel()
-        if self.ansi_escape_codes:
-            prompt = self.strip_ansi_escape_codes(prompt)
 
         # Check if the only thing you received was a newline
         count = 0
         prompt = prompt.strip()
         while count <= 12 and not prompt:
             prompt = self.read_channel().strip()
-            if prompt:
-                if self.ansi_escape_codes:
-                    prompt = self.strip_ansi_escape_codes(prompt).strip()
-            else:
+            if not prompt:
                 self.write_channel(self.RETURN)
                 # log.debug(f"find_prompt sleep time: {sleep_time}")
                 time.sleep(sleep_time)
@@ -1359,9 +1352,6 @@ class BaseConnection(object):
         # Keep reading data until search_pattern is found or until max_loops is reached.
         while i <= max_loops:
             if new_data:
-                if self.ansi_escape_codes:
-                    new_data = self.strip_ansi_escape_codes(new_data)
-
                 output += new_data
                 past_three_reads.append(new_data)
 
@@ -1790,6 +1780,7 @@ class BaseConnection(object):
         # CODE_NEXT_LINE must substitute with return
         output = re.sub(code_next_line, self.RETURN, output)
 
+        log.debug("Stripping ANSI escape codes")
         log.debug(f"new_output = {output}")
         log.debug(f"repr = {repr(output)}")
 

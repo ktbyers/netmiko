@@ -41,7 +41,7 @@ def net_connect(request):
 @pytest.fixture()
 def net_connect_cm(request):
     """
-    Create the SSH connection to the remote device using a context manager 
+    Create the SSH connection to the remote device using a context manager
     retrieve the find_prompt() data and close the connection.
     """
     device_under_test = request.config.getoption("test_device")
@@ -65,6 +65,8 @@ def net_connect_slog_wr(request):
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device["verbose"] = False
+    # Overwrite default session_log location
+    device["session_log"] = "SLOG/cisco881_slog_wr.log"
     device["session_log_record_writes"] = True
     conn = ConnectHandler(**device)
     return conn
@@ -140,17 +142,17 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     if not dest_file:
         raise ValueError("Invalid dest file specified")
 
-    full_file_name = "{0}/{1}".format(dest_file_system, dest_file)
+    full_file_name = f"{dest_file_system}/{dest_file}"
 
-    cmd = "delete {0}".format(full_file_name)
-    output = ssh_conn.send_command_timing(cmd)
+    cmd = f"delete {full_file_name}"
+    output = ssh_conn.send_command_timing(cmd, delay_factor=2)
     if "Delete" in output and dest_file in output:
-        output += ssh_conn.send_command_timing("\n")
+        output += ssh_conn.send_command_timing("\n", delay_factor=2)
         if "Delete" in output and full_file_name in output and "confirm" in output:
-            output += ssh_conn.send_command_timing("y")
+            output += ssh_conn.send_command_timing("y", delay_factor=2)
             return output
         else:
-            output += ssh_conn.send_command_timing("n")
+            output += ssh_conn.send_command_timing("n", delay_factor=2)
 
     raise ValueError("An error happened deleting file on Cisco IOS")
 
@@ -327,7 +329,7 @@ def tcl_fixture(request):
 
 @pytest.fixture(scope="module")
 def ssh_autodetect(request):
-    """Create an SSH autodetect object. 
+    """Create an SSH autodetect object.
 
     return (ssh_conn, real_device_type)
     """

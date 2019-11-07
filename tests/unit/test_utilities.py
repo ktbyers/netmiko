@@ -39,7 +39,7 @@ def test_invalid_yaml_file():
 def test_find_cfg_file():
     """
     Search for netmiko_tools config file in the following order:
- 
+
     NETMIKO_TOOLS_CFG environment variable
     Current directory
     Home directory
@@ -216,7 +216,11 @@ def test_get_structured_data_relative_path():
 def test_get_structured_data_genie():
     """Convert raw CLI output to structured data using Genie"""
 
-    raw_output = """Cisco IOS Software, C3560CX Software (C3560CX-UNIVERSALK9-M), Version 15.2(4)E7, RELEASE SOFTWARE (fc2)
+    header_line = (
+        "Cisco IOS Software, C3560CX Software (C3560CX-UNIVERSALK9-M), "
+        "Version 15.2(4)E7, RELEASE SOFTWARE (fc2)"
+    )
+    raw_output = """
 Technical Support: http://www.cisco.com/techsupport
 Copyright (c) 1986-2018 by Cisco Systems, Inc.
 Compiled Tue 18-Sep-18 13:20 by prod_rel_team
@@ -282,6 +286,7 @@ Switch Ports Model                     SW Version            SW Image
 
 Configuration register is 0xF
 """
+    raw_output = header_line + raw_output
     result = utilities.get_structured_data_genie(
         raw_output, platform="cisco_xe", command="show version"
     )

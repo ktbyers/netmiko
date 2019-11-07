@@ -15,7 +15,7 @@ def calc_md5(file_name=None, contents=None):
     else:
         raise ValueError("Most specify either file_name or contents")
 
-    return hashlib.md5(contents).hexdigest()
+    return hashlib.md5(contents.strip()).hexdigest()
 
 
 def read_session_log(session_file, append=False):
@@ -70,7 +70,7 @@ def test_session_log_write(net_connect_slog_wr, commands, expected_responses):
     session_action(net_connect_slog_wr, command)
 
     compare_file = expected_responses["compare_log_wr"]
-    session_file = expected_responses["session_log"]
+    session_file = expected_responses["session_log_wr"]
     session_log_md5(session_file, compare_file)
 
 

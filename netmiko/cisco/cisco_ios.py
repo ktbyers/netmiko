@@ -169,10 +169,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         return hashlib.md5(file_contents).hexdigest()
 
     def config_md5(self, source_config):
-        """Compute MD5 hash of file."""
-        file_contents = source_config + "\n"  # Cisco IOS automatically adds this
-        file_contents = file_contents.encode("UTF-8")
-        return hashlib.md5(file_contents).hexdigest()
+        return super().file_md5(source_config, add_newline=True)
 
     def put_file(self):
         curlybrace = r"{"
