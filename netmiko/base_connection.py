@@ -1161,7 +1161,7 @@ class BaseConnection(object):
         :type normalize: bool
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
-            path, relative path, or name of file in scripts directory. (default: None).
+            path, relative path, or name of file in current directory. (default: None).
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
@@ -1311,7 +1311,7 @@ class BaseConnection(object):
         :type normalize: bool
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
-            path, relative path, or name of file in scripts directory. (default: None).
+            path, relative path, or name of file in current directory. (default: None).
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
