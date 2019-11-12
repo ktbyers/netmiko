@@ -189,7 +189,7 @@ def test_clitable_to_dict():
     assert result == [{"model": "4500"}]
 
 
-def test_get_structured_data():
+def test_textfsm_w_index():
     """Convert raw CLI output to structured data using TextFSM template"""
     os.environ["NET_TEXTFSM"] = RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
@@ -199,7 +199,7 @@ def test_get_structured_data():
     assert result == [{"model": "4500"}]
 
 
-def test_get_structured_data_relative_path():
+def test_textfsm_index_relative_path():
     """Test relative path for textfsm ntc directory"""
     os.environ["NET_TEXTFSM"] = RELATIVE_RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
@@ -209,8 +209,8 @@ def test_get_structured_data_relative_path():
     assert result == [{"model": "4500"}]
 
 
-def test_get_structured_data_manual_template():
-    """Convert raw CLI output to structured data using TextFSM template"""
+def test_textfsm_direct_template():
+    """Convert raw CLI output to structured data using TextFSM template (no index)."""
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
     result = utilities.get_structured_data(
         raw_output,
@@ -220,9 +220,27 @@ def test_get_structured_data_manual_template():
     )
     assert result == [{"model": "4500"}]
 
+    # Should also work with no-platform or command
+    result = utilities.get_structured_data(
+        raw_output, template=f"{RESOURCE_FOLDER}/cisco_ios_show_version.template"
+    )
+    assert result == [{"model": "4500"}]
 
-def test_get_structured_data_manual_template_no_valid_template():
-    """Convert raw CLI output to structured data using TextFSM template"""
+
+def test_textfsm_failed_parsing():
+    """Verify raw_output is returned if TextFSM template parsing fails."""
+    raw_output = "This is not 'show version' output"
+    result = utilities.get_structured_data(
+        raw_output,
+        platform="cisco_ios",
+        command="show version",
+        template=f"{RESOURCE_FOLDER}/nothinghere",
+    )
+    assert result == raw_output
+
+
+def test_textfsm_missing_template():
+    """Verify raw_output is returned if TextFSM template is missing."""
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
     result = utilities.get_structured_data(
         raw_output,
