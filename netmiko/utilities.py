@@ -3,6 +3,7 @@ from glob import glob
 import sys
 import io
 import os
+from pathlib import Path
 import serial.tools.list_ports
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
@@ -79,13 +80,10 @@ def load_devices(file_name=None):
 def find_cfg_file(file_name=None):
     """
     Search for netmiko_tools inventory file in the following order:
-
     NETMIKO_TOOLS_CFG environment variable
     Current directory
     Home directory
-
     Look for file named: .netmiko.yml or netmiko.yml
-
     Also allow NETMIKO_TOOLS_CFG to point directly at a file
     """
     if file_name:
@@ -243,20 +241,51 @@ def clitable_to_dict(cli_table):
     return objs
 
 
-def get_structured_data(raw_output, platform, command):
-    """Convert raw CLI output to structured data using TextFSM template."""
-    template_dir = get_template_dir()
-    index_file = os.path.join(template_dir, "index")
-    textfsm_obj = clitable.CliTable(index_file, template_dir)
-    attrs = {"Command": command, "Platform": platform}
+def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
+    """Perform the actual TextFSM parsing using the CliTable object."""
     try:
         # Parse output through template
-        textfsm_obj.ParseCmd(raw_output, attrs)
+        if template_file is not None:
+            textfsm_obj.ParseCmd(raw_output, templates=template_file)
+        else:
+            textfsm_obj.ParseCmd(raw_output, attrs)
         structured_data = clitable_to_dict(textfsm_obj)
         output = raw_output if structured_data == [] else structured_data
         return output
-    except CliTableError:
+    except (FileNotFoundError, CliTableError):
         return raw_output
+
+
+def get_structured_data(raw_output, platform=None, command=None, template=None):
+    """
+    Convert raw CLI output to structured data using TextFSM template.
+
+    You can use a straight TextFSM file i.e. specify "template". If no template is specified,
+    then you must use an CliTable index file.
+    """
+    if platform is None or command is None:
+        attrs = {}
+    else:
+        attrs = {"Command": command, "Platform": platform}
+
+    if template is None:
+        if attrs == {}:
+            raise ValueError(
+                "Either 'platform/command' or 'template' must be specified."
+            )
+        template_dir = get_template_dir()
+        index_file = os.path.join(template_dir, "index")
+        textfsm_obj = clitable.CliTable(index_file, template_dir)
+        return _textfsm_parse(textfsm_obj, raw_output, attrs)
+    else:
+        template_path = Path(os.path.expanduser(template))
+        template_file = template_path.name
+        template_dir = template_path.parents[0]
+        # CliTable with no index will fall-back to a TextFSM parsing behavior
+        textfsm_obj = clitable.CliTable(template_dir=template_dir)
+        return _textfsm_parse(
+            textfsm_obj, raw_output, attrs, template_file=template_file
+        )
 
 
 def get_structured_data_genie(raw_output, platform, command):

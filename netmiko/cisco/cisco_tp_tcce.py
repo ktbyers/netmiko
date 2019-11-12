@@ -65,13 +65,6 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
 
         By default this method will keep waiting to receive data until the network device prompt is
         detected. The current network device prompt will be determined automatically.
-
-        command_string = command to execute
-        expect_string = pattern to search for uses re.search (use raw strings)
-        delay_factor = decrease the initial delay before we start looking for data
-        max_loops = number of iterations before we give up and raise an exception
-        strip_prompt = strip the trailing prompt from the output
-        strip_command = strip the leading command from the output
         """
         if len(args) >= 2:
             expect_string = args[1]
