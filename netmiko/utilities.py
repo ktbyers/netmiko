@@ -1,9 +1,12 @@
 """Miscellaneous utility functions."""
 from glob import glob
-import sys
 import io
 import os
+from pathlib import Path
+import pkg_resources
+import sys
 import serial.tools.list_ports
+
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 
@@ -211,13 +214,21 @@ def check_serial_port(name):
 
 def get_template_dir():
     """Find and return the ntc-templates/templates dir."""
-    try:
-        template_dir = os.path.expanduser(os.environ["NET_TEXTFSM"])
-        index = os.path.join(template_dir, "index")
-        if not os.path.isfile(index):
-            # Assume only base ./ntc-templates specified
-            template_dir = os.path.join(template_dir, "templates")
-    except KeyError:
+    template_dir = os.environ.get("NET_TEXTFSM", None)
+
+    if template_dir:
+        template_dir = os.path.expanduser(template_dir)
+
+    # if no env var set, check to see if ntc_templates module has been installed
+    if template_dir is None:
+        try:
+            import ntc_templates  # noqa
+
+            template_dir = pkg_resources.resource_filename("ntc_templates", "templates")
+        except ModuleNotFoundError:
+            pass
+
+    if template_dir is None:
         # Construct path ~/ntc-templates/templates
         home_dir = os.path.expanduser("~")
         template_dir = os.path.join(home_dir, "ntc-templates", "templates")
@@ -243,19 +254,37 @@ def clitable_to_dict(cli_table):
     return objs
 
 
-def get_structured_data(raw_output, platform, command):
+def get_structured_data(raw_output, platform, command, template=None):
     """Convert raw CLI output to structured data using TextFSM template."""
-    template_dir = get_template_dir()
-    index_file = os.path.join(template_dir, "index")
-    textfsm_obj = clitable.CliTable(index_file, template_dir)
     attrs = {"Command": command, "Platform": platform}
+
+    if template is None:
+        template_dir = get_template_dir()
+        index_file = os.path.join(template_dir, "index")
+        textfsm_obj = clitable.CliTable(index_file, template_dir)
+        try:
+            # Parse output through template
+            textfsm_obj.ParseCmd(raw_output, attrs)
+            structured_data = clitable_to_dict(textfsm_obj)
+            output = raw_output if structured_data == [] else structured_data
+            return output
+        except CliTableError:
+            return raw_output
+
+    return get_structured_data_manual(raw_output, template)
+
+
+def get_structured_data_manual(raw_output, template):
+    template_path = Path(os.path.expanduser(template))
+    template_file = template_path.name
+    template_dir = template_path.parents[0]
+    textfsm_obj = clitable.CliTable(template_dir=template_dir)
     try:
-        # Parse output through template
-        textfsm_obj.ParseCmd(raw_output, attrs)
+        textfsm_obj.ParseCmd(raw_output, templates=template_file)
         structured_data = clitable_to_dict(textfsm_obj)
         output = raw_output if structured_data == [] else structured_data
         return output
-    except CliTableError:
+    except (FileNotFoundError, CliTableError):
         return raw_output
 
 

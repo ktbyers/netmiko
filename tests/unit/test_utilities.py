@@ -151,7 +151,7 @@ def test_bytes_to_bytes():
 def test_invalid_data_to_bytes():
     """Convert an invalid data type to bytes"""
     try:
-        utilities.write_bytes(456779)
+        utilities.write_bytes(456_779)
     except ValueError as exc:
         assert isinstance(exc, ValueError)
         return
@@ -207,6 +207,30 @@ def test_get_structured_data_relative_path():
         raw_output, platform="cisco_ios", command="show version"
     )
     assert result == [{"model": "4500"}]
+
+
+def test_get_structured_data_manual_template():
+    """Convert raw CLI output to structured data using TextFSM template"""
+    raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
+    result = utilities.get_structured_data(
+        raw_output,
+        platform="cisco_ios",
+        command="show version",
+        template=f"{RESOURCE_FOLDER}/cisco_ios_show_version.template",
+    )
+    assert result == [{"model": "4500"}]
+
+
+def test_get_structured_data_manual_template_no_valid_template():
+    """Convert raw CLI output to structured data using TextFSM template"""
+    raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
+    result = utilities.get_structured_data(
+        raw_output,
+        platform="cisco_ios",
+        command="show version",
+        template=f"{RESOURCE_FOLDER}/nothinghere",
+    )
+    assert result == raw_output
 
 
 @pytest.mark.skipif(
