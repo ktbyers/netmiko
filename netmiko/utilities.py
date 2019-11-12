@@ -242,6 +242,7 @@ def clitable_to_dict(cli_table):
 
 
 def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
+    """Perform the actual TextFSM parsing using the CliTable object."""
     try:
         # Parse output through template
         if template_file is not None:
