@@ -43,27 +43,7 @@ class AWplusFileTransfer(CiscoFileTransfer):
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
 
-    def remote_file_size(self, remote_cmd="", remote_file=None):
-        """Get the file size of the remote file."""
-        if remote_file is None:
-            if self.direction == "put":
-                remote_file = self.dest_file
-            elif self.direction == "get":
-                remote_file = self.source_file
-
-    def remote_space_available(self, search_pattern=r"Available: \d+"):
-        """Return space available on remote device."""
-        remote_cmd = "show system"
-        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
-        for line in remote_output.splitlines():
-            if "Available" in line:
-                space_available = line.split()[-1]
-                break
-        total_space_available = space_available.split(".")[0]
-        return int(total_space_available) * 1000000
-
-    @staticmethod
-    def process_md5(md5_output, pattern=r"=\s+(\S+)"):
+    def process_md5(md5_output, pattern=None):
         raise NotImplementedError
 
     def remote_md5(self, base_cmd=None, remote_file=None):
