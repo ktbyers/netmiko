@@ -3,6 +3,7 @@ from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.alcatel import AlcatelSrosSSH
+from netmiko.alliedtelesis import AWplusSSH, AWplusFileTransfer
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
@@ -83,6 +84,7 @@ CLASS_MAPPER_BASE = {
     "accedian": AccedianSSH,
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": AlcatelSrosSSH,
+    "alliedtelesis_awplus": AWplusSSH,
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "aruba_os": ArubaSSH,
@@ -164,6 +166,7 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
+    "alliedtelesis_awplus": AWplusFileTransfer,
     "arista_eos": AristaFileTransfer,
     "ciena_saos": CienaSaosFileTransfer,
     "cisco_asa": CiscoAsaFileTransfer,
