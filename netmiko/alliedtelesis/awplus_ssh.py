@@ -16,7 +16,6 @@ class AWplusSSH(AWplusBase):
 
 
 class AWplusFileTransfer(CiscoFileTransfer):
-    """Cisco NXOS SCP File Transfer driver."""
 
     def __init__(
         self,
