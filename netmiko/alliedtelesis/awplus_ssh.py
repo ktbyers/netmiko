@@ -4,11 +4,7 @@ import os
 from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 
 
-class AWplusBase(CiscoSSHConnection):
-    pass
-
-
-class AWplusSSH(AWplusBase):
+class AWplusSSH(CiscoSSHConnection):
     pass
 
 
