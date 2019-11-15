@@ -64,7 +64,7 @@ class AWplusFileTransfer(CiscoFileTransfer):
                 space_available = line.split()[-1]
                 break
         total_space_available = space_available.split(".")[0]
-        return int(total_space_available)
+        return int(total_space_available) * 1000000
 
     @staticmethod
     def process_md5(md5_output, pattern=r"=\s+(\S+)"):
