@@ -1,10 +1,7 @@
-from __future__ import unicode_literals
-import time
-from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
-
 import re
-import time
 import os
+
+from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 
 
 class AWplusBase(CiscoSSHConnection):
@@ -30,7 +27,7 @@ class AWplusFileTransfer(CiscoFileTransfer):
         if file_system:
             self.file_system = file_system
         else:
-            raise ValueError("Destination file system must be specified for AWplus")
+            raise ValueError("Destination file system must be specified")
 
         if direction == "put":
             self.source_md5 = self.file_md5(source_file)
@@ -42,7 +39,7 @@ class AWplusFileTransfer(CiscoFileTransfer):
             raise ValueError("Invalid direction specified")
 
     def check_file_exists(self, remote_cmd="dir flash:"):
-        """Check if the dest_file already exists on the file system (return boolean)."""
+        """Check if the dest_file already exists on the file system."""
         if self.direction == "put":
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"{}".format(self.dest_file)
