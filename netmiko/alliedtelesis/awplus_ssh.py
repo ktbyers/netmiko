@@ -16,14 +16,8 @@ class AWplusSSH(AWplusBase):
 
 
 class AWplusFileTransfer(CiscoFileTransfer):
-
     def __init__(
-        self,
-        ssh_conn,
-        source_file,
-        dest_file,
-        file_system="flash:",
-        direction="put",
+        self, ssh_conn, source_file, dest_file, file_system="flash:", direction="put",
     ):
         return super(AWplusFileTransfer, self).__init__(
             ssh_conn=ssh_conn,
@@ -63,7 +57,7 @@ class AWplusFileTransfer(CiscoFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-                
+
     def remote_space_available(self, search_pattern=r"Available: \d+"):
         """Return space available on remote device."""
         remote_cmd = "show system"
@@ -72,7 +66,7 @@ class AWplusFileTransfer(CiscoFileTransfer):
             if "Available" in line:
                 space_available = line.split()[-1]
                 break
-        total_space_available = space_available.split('.')[0]
+        total_space_available = space_available.split(".")[0]
         return int(total_space_available)
 
     @staticmethod
