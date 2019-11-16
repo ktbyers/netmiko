@@ -1,8 +1,8 @@
 """Allied Telesis Support"""
 from __future__ import unicode_literals
-from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 import re
 import os
+from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 
 
 class AWplusSSH(CiscoSSHConnection):
@@ -10,8 +10,10 @@ class AWplusSSH(CiscoSSHConnection):
 
 
 class AWplusFileTransfer(CiscoFileTransfer):
+    """Allied Telesis SCP File Transfer driver."""
+
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system="flash:", direction="put",
+        self, ssh_conn, source_file, dest_file, file_system="flash:", direction="put"
     ):
         return super(AWplusFileTransfer, self).__init__(
             ssh_conn=ssh_conn,
@@ -42,9 +44,11 @@ class AWplusFileTransfer(CiscoFileTransfer):
             return os.path.exists(self.dest_file)
 
     def process_md5(md5_output, pattern=None):
+        """AW+ doesn't support MD5 checks from the switch"""
         raise NotImplementedError
 
     def remote_md5(self, base_cmd=None, remote_file=None):
+        """AW+ doesn't support MD5 checks from the switch"""
         raise NotImplementedError
 
     def enable_scp(self, cmd=None):
