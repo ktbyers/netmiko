@@ -102,6 +102,11 @@ SNMP_MAPPER_BASE = {
         "expr": re.compile(r".*Juniper.*"),
         "priority": 99,
     },
+    "alliedtelesis_awplus": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Allied Telesis.*"),
+        "priority": 99,
+    },
 }
 
 # Ensure all SNMP device types are supported by Netmiko
