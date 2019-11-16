@@ -213,3 +213,12 @@ keymile_nos:
   interface_ip: 1.2.3.5 
   version_banner: "NOS version 2.09 #0001"
   multiple_line_output: "Interface br328"
+
+alliedtelesis_awplus:
+  base_prompt: TIPHQ-S1
+  router_prompt : TIPHQ-S1>
+  enable_prompt: TIPHQ-S1#
+  interface_ip: 10.10.2.231
+  version_banner: "AlliedWare Plus (TM)"
+  multiple_line_output: "downloaded from:"
+  save_config: '[OK]'

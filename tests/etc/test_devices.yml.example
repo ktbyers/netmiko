@@ -171,3 +171,9 @@ keymile_nos:
   ip: 1.2.3.5
   username: TEST
   password: TEST
+
+alliedtelesis_awplus:
+  device_type: alliedtelesis_awplus
+  ip: 10.10.2.231
+  username: manager
+  password: friend

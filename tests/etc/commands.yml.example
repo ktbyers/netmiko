@@ -274,3 +274,14 @@ keymile_nos:
   save_config_confirm: True
   save_config_response: '[OK]'
 
+alliedtelesis_awplus:
+  version: "show version"
+  basic: "show ip int"
+  extended_output: "show version"   # requires paging to be disabled
+  config:
+    - "snmp-server community testcommunity"      # base command
+    - "no snmp-server community testcommunity"
+    - "snmp-server community testagaincommunity"      # something you can verify has changed
+  config_verification: "show run"
+  save_config_cmd: 'copy run start'
+  save_config_response: '[OK]'
