@@ -1,7 +1,8 @@
 """Allied Telesis Support"""
+from __future__ import unicode_literals
+from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 import re
 import os
-from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 
 
 class AWplusSSH(CiscoSSHConnection):
