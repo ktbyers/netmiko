@@ -166,7 +166,6 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
-    "alcatel_sros": NokiaSrosFileTransfer,
     "arista_eos": AristaFileTransfer,
     "ciena_saos": CienaSaosFileTransfer,
     "cisco_asa": CiscoAsaFileTransfer,
@@ -177,7 +176,6 @@ FILE_TRANSFER_MAP = {
     "dell_os10": DellOS10FileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
-    "nokia_sros": NokiaSrosFileTransfer,
 }
 
 # Also support keys that end in _ssh
