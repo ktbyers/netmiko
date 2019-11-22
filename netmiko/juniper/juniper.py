@@ -2,7 +2,6 @@ import re
 import time
 
 from netmiko.base_connection import BaseConnection
-from netmiko import log
 from netmiko.scp_handler import BaseFileTransfer
 
 
