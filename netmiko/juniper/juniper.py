@@ -26,7 +26,7 @@ class JuniperBase(BaseConnection):
         self.set_base_prompt()
         self.disable_paging(command="set cli screen-length 0")
         self.set_terminal_width(command="set cli screen-width 511")
-        self.disable_complete_on_space()
+        self.send_command("set cli complete-on-space off")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -56,27 +56,6 @@ class JuniperBase(BaseConnection):
             elif ">" in cur_prompt or "#" in cur_prompt:
                 break
             count += 1
-
-    def disable_complete_on_space(self, delay_factor=1):
-        """
-        Disable complete on space for Junos.
-
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
-        """
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
-        command = "set cli complete-on-space off"
-        command = self.normalize_cmd(command)
-        log.debug("In disable_complete_on_space")
-        log.debug(f"Command: {command}")
-        self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        log.debug(f"{output}")
-        log.debug("Exiting disable_complete_on_space")
-        return output
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on Juniper."""
