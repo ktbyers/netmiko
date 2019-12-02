@@ -1,8 +1,5 @@
-import re
 import time
-
 from netmiko.base_connection import BaseConnection
-from netmiko.scp_handler import BaseFileTransfer
 
 
 class JuniperScreenOsBase(BaseConnection):
@@ -49,6 +46,7 @@ class JuniperScreenOsBase(BaseConnection):
         """No configuration mode on Juniper ScreenOS."""
         self._in_config_mode = False
         return ""
+
 
 class JuniperScreenOsSSH(JuniperScreenOsBase):
     pass
