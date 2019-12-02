@@ -37,10 +37,8 @@ class JuniperScreenOsBase(BaseConnection):
         return self._in_config_mode
 
     def save_config(self, cmd="save config", confirm=False, confirm_response=""):
-        """Saves Config Using Save Config"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        """Save Config."""
+        return self.send_command(command_string=cmd)
 
     def config_mode(self):
         """No configuration mode on Juniper ScreenOS."""
