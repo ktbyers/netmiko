@@ -51,7 +51,7 @@ from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
-from netmiko.juniper import JuniperSSH, JuniperTelnet
+from netmiko.juniper import JuniperSSH, JuniperTelnet,JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
@@ -139,6 +139,7 @@ CLASS_MAPPER_BASE = {
     "ipinfusion_ocnos": IpInfusionOcNOSSSH,
     "juniper": JuniperSSH,
     "juniper_junos": JuniperSSH,
+    "juniper_screenos": JuniperScreenOsSSH,
     "keymile": KeymileSSH,
     "keymile_nos": KeymileNOSSSH,
     "linux": LinuxSSH,
