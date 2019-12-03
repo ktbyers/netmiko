@@ -58,6 +58,14 @@ juniper:
   rollback: 'rollback 0'
   commit_verification: "run show system commit"
 
+juniper_screenos:
+  version: "get system version"
+  basic: "get route"
+  extended_output: "get config" # requires paging to be disabled
+  config:
+    - 'set alias test "test"'
+  config_verification: "get config | inc alias"
+
 fortinet:
   version: "get system status"
   basic: "get system interface physical"
