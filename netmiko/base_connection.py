@@ -192,6 +192,10 @@ class BaseConnection(object):
         :param encoding: Encoding to be used when writing bytes to the output channel.
                 (default: ascii)
         :type encoding: str
+
+        :param sock: An open socket or socket-like object (such as a `.Channel`) to use for communication to the target host.
+                (default: None)
+        :type sock: socket
         """
         self.remote_conn = None
 
@@ -233,7 +237,6 @@ class BaseConnection(object):
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
-        # Sock param support
         self.sock=sock
 
         # Netmiko will close the session_log if we open the file
