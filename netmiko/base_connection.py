@@ -75,6 +75,7 @@ class BaseConnection(object):
         session_log_file_mode="write",
         allow_auto_change=False,
         encoding="ascii",
+        sock=None
     ):
         """
         Initialize attributes for establishing connection to target device.
@@ -232,6 +233,8 @@ class BaseConnection(object):
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
+        # Sock param support
+        self.sock=sock
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
@@ -828,6 +831,7 @@ class BaseConnection(object):
             "timeout": self.timeout,
             "auth_timeout": self.auth_timeout,
             "banner_timeout": self.banner_timeout,
+            "sock": self.sock
         }
 
         # Check if using SSH 'config' file mainly for SSH proxy support
