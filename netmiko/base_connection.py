@@ -40,42 +40,42 @@ class BaseConnection(object):
     """
 
     def __init__(
-        self,
-        ip="",
-        host="",
-        username="",
-        password=None,
-        secret="",
-        port=None,
-        device_type="",
-        verbose=False,
-        global_delay_factor=1,
-        use_keys=False,
-        key_file=None,
-        pkey=None,
-        passphrase=None,
-        allow_agent=False,
-        ssh_strict=False,
-        system_host_keys=False,
-        alt_host_keys=False,
-        alt_key_file="",
-        ssh_config_file=None,
-        timeout=100,
-        session_timeout=60,
-        auth_timeout=None,
-        blocking_timeout=20,
-        banner_timeout=15,
-        keepalive=0,
-        default_enter=None,
-        response_return=None,
-        serial_settings=None,
-        fast_cli=False,
-        session_log=None,
-        session_log_record_writes=False,
-        session_log_file_mode="write",
-        allow_auto_change=False,
-        encoding="ascii",
-        sock=None
+            self,
+            ip="",
+            host="",
+            username="",
+            password=None,
+            secret="",
+            port=None,
+            device_type="",
+            verbose=False,
+            global_delay_factor=1,
+            use_keys=False,
+            key_file=None,
+            pkey=None,
+            passphrase=None,
+            allow_agent=False,
+            ssh_strict=False,
+            system_host_keys=False,
+            alt_host_keys=False,
+            alt_key_file="",
+            ssh_config_file=None,
+            timeout=100,
+            session_timeout=60,
+            auth_timeout=None,
+            blocking_timeout=20,
+            banner_timeout=15,
+            keepalive=0,
+            default_enter=None,
+            response_return=None,
+            serial_settings=None,
+            fast_cli=False,
+            session_log=None,
+            session_log_record_writes=False,
+            session_log_file_mode="write",
+            allow_auto_change=False,
+            encoding="ascii",
+            sock=None
     ):
         """
         Initialize attributes for establishing connection to target device.
@@ -237,7 +237,7 @@ class BaseConnection(object):
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
-        self.sock=sock
+        self.sock = sock
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
@@ -363,7 +363,7 @@ class BaseConnection(object):
             start = time.time()
         # Wait here until the SSH channel lock is acquired or until session_timeout exceeded
         while not self._session_locker.acquire(False) and not self._timeout_exceeded(
-            start, "The netmiko channel is not available!"
+                start, "The netmiko channel is not available!"
         ):
             time.sleep(0.1)
         return True
@@ -636,13 +636,13 @@ class BaseConnection(object):
         return self._read_channel_expect(combined_pattern, re_flags=re_flags)
 
     def serial_login(
-        self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:[Uu]ser:|sername|ogin)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
+            self,
+            pri_prompt_terminator=r"#\s*$",
+            alt_prompt_terminator=r">\s*$",
+            username_pattern=r"(?:[Uu]ser:|sername|ogin)",
+            pwd_pattern=r"assword",
+            delay_factor=1,
+            max_loops=20,
     ):
         self.telnet_login(
             pri_prompt_terminator,
@@ -654,13 +654,13 @@ class BaseConnection(object):
         )
 
     def telnet_login(
-        self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
+            self,
+            pri_prompt_terminator=r"#\s*$",
+            alt_prompt_terminator=r">\s*$",
+            username_pattern=r"(?:user:|username|login|user name)",
+            pwd_pattern=r"assword",
+            delay_factor=1,
+            max_loops=20,
     ):
         """Telnet login. Can be username/password or just password.
 
@@ -704,13 +704,13 @@ class BaseConnection(object):
                     output = self.read_channel()
                     return_msg += output
                     if re.search(
-                        pri_prompt_terminator, output, flags=re.M
+                            pri_prompt_terminator, output, flags=re.M
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
                 # Check if proper data received
                 if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
+                        alt_prompt_terminator, output, flags=re.M
                 ):
                     return return_msg
 
@@ -728,7 +728,7 @@ class BaseConnection(object):
         output = self.read_channel()
         return_msg += output
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-            alt_prompt_terminator, output, flags=re.M
+                alt_prompt_terminator, output, flags=re.M
         ):
             return return_msg
 
@@ -843,7 +843,7 @@ class BaseConnection(object):
         return conn_dict
 
     def _sanitize_output(
-        self, output, strip_command=False, command_string=None, strip_prompt=False
+            self, output, strip_command=False, command_string=None, strip_prompt=False
     ):
         """Strip out command echo, trailing router prompt and ANSI escape codes.
 
@@ -1046,7 +1046,7 @@ class BaseConnection(object):
         return output
 
     def set_base_prompt(
-        self, pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
+            self, pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
     ):
         """Sets self.base_prompt
 
@@ -1131,16 +1131,16 @@ class BaseConnection(object):
                 sleep_time = 3 if sleep_time >= 3 else sleep_time
 
     def send_command_timing(
-        self,
-        command_string,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_genie=False,
+            self,
+            command_string,
+            delay_factor=1,
+            max_loops=150,
+            strip_prompt=True,
+            strip_command=True,
+            normalize=True,
+            use_textfsm=False,
+            textfsm_template=None,
+            use_genie=False,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1273,18 +1273,18 @@ class BaseConnection(object):
             return (data, False)
 
     def send_command(
-        self,
-        command_string,
-        expect_string=None,
-        delay_factor=1,
-        max_loops=500,
-        auto_find_prompt=True,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_genie=False,
+            self,
+            command_string,
+            expect_string=None,
+            delay_factor=1,
+            max_loops=500,
+            auto_find_prompt=True,
+            strip_prompt=True,
+            strip_command=True,
+            normalize=True,
+            use_textfsm=False,
+            textfsm_template=None,
+            use_genie=False,
     ):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1635,16 +1635,16 @@ class BaseConnection(object):
             return self.send_config_set(cfg_file, **kwargs)
 
     def send_config_set(
-        self,
-        config_commands=None,
-        exit_config_mode=True,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=False,
-        strip_command=False,
-        config_mode_command=None,
-        cmd_verify=True,
-        enter_config_mode=True,
+            self,
+            config_commands=None,
+            exit_config_mode=True,
+            delay_factor=1,
+            max_loops=150,
+            strip_prompt=False,
+            strip_command=False,
+            config_mode_command=None,
+            cmd_verify=True,
+            enter_config_mode=True,
     ):
         """
         Send configuration commands down the SSH channel.
