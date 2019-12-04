@@ -100,7 +100,7 @@ class NokiaSrosSSH(BaseConnection):
             # Classical CLI
             return True
         else:
-            # Model-drive CLI look for "exclusive"
+            # Model-driven CLI look for "exclusive"
             self.write_channel(self.RETURN)
             output = self.read_until_prompt()
             return "(ex)[" in output
@@ -109,6 +109,15 @@ class NokiaSrosSSH(BaseConnection):
         """Persist configuration to cflash for Nokia SR OS"""
         output = self.send_command(command_string="/admin save")
         return output
+
+    def send_config_set(self, config_commands=None, exit_config_mode=None, **kwargs):
+        """Model driven CLI requires you not exit from configuration mode."""
+        if exit_config_mode is None:
+            # Set to False if model-driven CLI
+            exit_config_mode = False if "@" in self.base_prompt else True
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+        )
 
     def commit(self, *args, **kwargs):
         """Activate changes from private candidate for Nokia SR OS"""
