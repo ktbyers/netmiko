@@ -834,6 +834,7 @@ class BaseConnection(object):
             "timeout": self.timeout,
             "auth_timeout": self.auth_timeout,
             "banner_timeout": self.banner_timeout,
+            "sock": self.sock,
         }
 
         # Check if using SSH 'config' file mainly for SSH proxy support
