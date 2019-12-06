@@ -68,42 +68,43 @@ class NokiaSrosSSH(BaseConnection):
         """Nokia SR OS does not support enable-mode"""
         return ""
 
-    def config_mode(self, *args, **kwargs):
+    def config_mode(self, config_command="edit-config exclusive", pattern=r"(ex)["):
         """Enable config edit-mode for Nokia SR OS"""
-        self.write_channel(self.RETURN)
-        output = self.read_until_prompt()
+        output = ""
+        # Only model-driven CLI supports config-mode
         if "@" in self.base_prompt:
-            if "(ex)[" not in output:
-                self.write_channel(self.normalize_cmd("edit-config exclusive"))
-                output += self.read_until_prompt()
-            else:
-                log.warning("Already in config edit-mode!")
+            output += super().config_mode(
+                config_command=config_command, pattern=pattern
+            )
         return output
 
     def exit_config_mode(self, *args, **kwargs):
         """Disable config edit-mode for Nokia SR OS"""
-        self.write_channel(self.normalize_cmd("exit all"))
-        output = self.read_until_prompt()
+        output = self._exit_all()
         # Model-driven CLI
         if "@" in self.base_prompt and "(ex)[" in output:
+            # Asterisk indicates changes were made.
             if "*(ex)[" in output:
                 log.warning("Uncommitted changes! Discarding changes!")
-                self.write_channel(self.normalize_cmd("discard"))
-                output += self.read_until_prompt()
-            self.write_channel(self.normalize_cmd("quit-config"))
-            output += self.read_until_prompt()
+                output += self._discard()
+            cmd = "quit-config"
+            self.write_channel(self.normalize_cmd(cmd))
+            output += self.read_until_pattern(pattern=re.escape(cmd))
+        if self.check_config_mode():
+            raise ValueError("Failed to exit configuration mode")
         return output
 
-    def check_config_mode(self, *args, **kwargs):
+    def check_config_mode(self, check_string=r"(ex)[", pattern=r"@"):
         """Check config mode for Nokia SR OS"""
         if "@" not in self.base_prompt:
             # Classical CLI
-            return True
+            return False
         else:
             # Model-driven CLI look for "exclusive"
-            self.write_channel(self.RETURN)
-            output = self.read_until_prompt()
-            return "(ex)[" in output
+            return super().check_config_mode(
+                check_string=check_string,
+                pattern=pattern
+            )
 
     def save_config(self, *args, **kwargs):
         """Persist configuration to cflash for Nokia SR OS"""
@@ -121,22 +122,31 @@ class NokiaSrosSSH(BaseConnection):
 
     def commit(self, *args, **kwargs):
         """Activate changes from private candidate for Nokia SR OS"""
-        self.write_channel(self.normalize_cmd("exit all"))
-        output = self.read_until_prompt()
+        output = self._exit_all()
         if "@" in self.base_prompt and "*(ex)[" in output:
             log.info("Apply uncommitted changes!")
-            self.write_channel(self.normalize_cmd("commit"))
-            output += self.read_until_prompt()
+            cmd = "commit"
+            self.write_channel(self.normalize_cmd(cmd))
+            output += self.read_until_pattern(pattern=re.escape(cmd))
+            output += self.read_until_pattern(r"@")
         return output
+
+    def _exit_all(self):
+        """Return to the 'root' context."""
+        exit_cmd = "exit all"
+        self.write_channel(self.normalize_cmd(exit_cmd))
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        return self.read_until_pattern(pattern=re.escape(exit_cmd))
 
     def _discard(self):
         """Discard changes from private candidate for Nokia SR OS"""
-        self.write_channel(self.normalize_cmd("exit all"))
-        output = self.read_until_prompt()
-        if "@" in self.base_prompt and "*(ex)[" in output:
-            log.info("Discard uncommitted changes!")
-            self.write_channel(self.normalize_cmd("discard"))
-            output += self.read_until_prompt()
+        if "@" in self.base_prompt:
+            cmd = "discard"
+            self.write_channel(self.normalize_cmd(cmd))
+            new_output = self.read_until_pattern(pattern=re.escape(cmd))
+            if '@' not in new_output:
+                new_output += self.read_until_prompt()
+            output += new_output
         return output
 
     def strip_prompt(self, *args, **kwargs):
