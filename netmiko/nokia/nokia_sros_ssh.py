@@ -101,10 +101,7 @@ class NokiaSrosSSH(BaseConnection):
             return False
         else:
             # Model-driven CLI look for "exclusive"
-            return super().check_config_mode(
-                check_string=check_string,
-                pattern=pattern
-            )
+            return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(self, *args, **kwargs):
         """Persist configuration to cflash for Nokia SR OS"""
@@ -140,11 +137,12 @@ class NokiaSrosSSH(BaseConnection):
 
     def _discard(self):
         """Discard changes from private candidate for Nokia SR OS"""
+        output = ""
         if "@" in self.base_prompt:
             cmd = "discard"
             self.write_channel(self.normalize_cmd(cmd))
             new_output = self.read_until_pattern(pattern=re.escape(cmd))
-            if '@' not in new_output:
+            if "@" not in new_output:
                 new_output += self.read_until_prompt()
             output += new_output
         return output
