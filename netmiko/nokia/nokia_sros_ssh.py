@@ -68,7 +68,7 @@ class NokiaSrosSSH(BaseConnection):
         """Nokia SR OS does not support enable-mode"""
         return ""
 
-    def config_mode(self, config_command="edit-config exclusive", pattern=r"(ex)["):
+    def config_mode(self, config_command="edit-config exclusive", pattern=r"\(ex\)\["):
         """Enable config edit-mode for Nokia SR OS"""
         output = ""
         # Only model-driven CLI supports config-mode
