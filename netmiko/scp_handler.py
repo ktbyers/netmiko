@@ -12,6 +12,7 @@ import os
 import hashlib
 
 import scp
+import platform
 
 
 class SCPConn(object):
@@ -156,8 +157,17 @@ class BaseFileTransfer(object):
 
     def local_space_available(self):
         """Return space available on local filesystem."""
-        destination_stats = os.statvfs(".")
-        return destination_stats.f_bsize * destination_stats.f_bavail
+        if platform.system() == "Windows":
+            import ctypes
+
+            free_bytes = ctypes.c_ulonglong(0)
+            ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                ctypes.c_wchar_p("."), None, None, ctypes.pointer(free_bytes)
+            )
+            return free_bytes.value
+        else:
+            destination_stats = os.statvfs(".")
+            return destination_stats.f_bsize * destination_stats.f_bavail
 
     def verify_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
