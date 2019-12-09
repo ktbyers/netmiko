@@ -18,15 +18,18 @@ def test_enable_mode(net_connect, commands, expected_responses):
         enable_prompt = net_connect.find_prompt()
         assert enable_prompt == expected_responses["enable_prompt"]
     except AttributeError:
-        assert True is True
+        assert True
 
 
 def test_config_mode(net_connect, commands, expected_responses):
     """
     Test enter config mode
     """
-    net_connect.config_mode()
-    assert net_connect.check_config_mode() is True
+    # Behavior for devices with no config mode is to return null string
+    if net_connect.config_mode() != "":
+        assert net_connect.check_config_mode() is True
+    else:
+        assert True
 
 
 def test_exit_config_mode(net_connect, commands, expected_responses):
