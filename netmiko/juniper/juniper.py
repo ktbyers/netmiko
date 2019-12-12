@@ -23,6 +23,7 @@ class JuniperBase(BaseConnection):
         self._test_channel_read()
         self.enter_cli_mode()
         self.set_base_prompt()
+        self._disable_complete_on_space()
         self.disable_paging(command="set cli screen-length 0")
         self.set_terminal_width(command="set cli screen-width 511")
         # Clear the read buffer
@@ -36,6 +37,21 @@ class JuniperBase(BaseConnection):
     def _return_cli(self):
         """Return to the Juniper CLI."""
         return self.send_command("exit", expect_string=r"[#>]")
+
+    def _disable_complete_on_space(self):
+        """
+        Juniper tries to auto complete commands when you type a "space" character.
+
+        This is a bad idea for automation as what your program is sending no longer matches
+        the command echo from the device. So we disable this behavior.
+        """
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        time.sleep(delay_factor * 0.1)
+        command = "set cli complete-on-space off"
+        self.write_channel(self.normalize_cmd(command))
+        time.sleep(delay_factor * 0.1)
+        output = self.read_channel()
+        return output
 
     def enter_cli_mode(self):
         """Check if at shell prompt root@ and go into CLI."""

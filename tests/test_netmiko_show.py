@@ -63,6 +63,17 @@ def test_send_command(net_connect, commands, expected_responses):
     assert expected_responses["interface_ip"] in show_ip_alt
 
 
+def test_send_command_juniper(net_connect, commands, expected_responses):
+    """Verify Juniper complete on space is disabled."""
+    # If complete on space is enabled will get re-written to "show ipv6 neighbors"
+    if net_connect.device_type == "juniper_junos":
+        net_connect.write_channel("show ip neighbors\n")
+        output = net_connect.read_until_prompt()
+        assert "show ip neighbors" in output
+    else:
+        assert pytest.skip()
+
+
 def test_send_command_textfsm(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully using send_command method."""
 
