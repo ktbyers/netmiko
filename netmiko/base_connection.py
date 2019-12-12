@@ -918,6 +918,10 @@ class BaseConnection(object):
         if autocommand_pattern in prompt.lower():
             time.sleep((delay_factor * 0.1)+5)
             prompt=self.read_channel()
+        cxr_pattern = "last switch-over"
+        if cxr_pattern in prompt.lower():
+            time.sleep((delay_factor * 0.1)+3)
+            prompt = self.read_channel()        
         if self.ansi_escape_codes:
             prompt = self.strip_ansi_escape_codes(prompt)
 
