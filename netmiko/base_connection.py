@@ -1134,6 +1134,7 @@ class BaseConnection(object):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
+        cmd_echo=False,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1158,13 +1159,17 @@ class BaseConnection(object):
         :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
-        :type normalize: bool
+        :type use_textfsm: bool
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
+        :type textfsm_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
-        :type normalize: bool
+        :type use_genie: bool
+
+        :param cmd_echo: Verify command echo before proceeding (default: False).
+        :type cmd_echo: bool
         """
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -1176,7 +1181,7 @@ class BaseConnection(object):
 
         cmd = command_string.strip()
         # if cmd is just an "enter" skip this section
-        if cmd:
+        if cmd and cmd_echo:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)

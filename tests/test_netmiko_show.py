@@ -50,6 +50,9 @@ def test_send_command_timing(net_connect, commands, expected_responses):
     net_connect.clear_buffer()
     show_ip = net_connect.send_command_timing(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip
+    # Force verification of command echo
+    show_ip = net_connect.send_command_timing(commands["basic"], cmd_echo=True)
+    assert expected_responses["interface_ip"] in show_ip
 
 
 def test_send_command(net_connect, commands, expected_responses):
