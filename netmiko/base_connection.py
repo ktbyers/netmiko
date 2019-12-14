@@ -1466,12 +1466,14 @@ class BaseConnection(object):
         # Check for line wrap (remove backspaces)
         if backspace_char in output:
             output = output.replace(backspace_char, "")
+
+        # Juniper has a weird case where the echoed command will be " \n"
+        # i.e. there is an extra space there.
+        cmd = command_string.strip()
+        if output.startswith(cmd):
             output_lines = output.split(self.RESPONSE_RETURN)
             new_output = output_lines[1:]
             return self.RESPONSE_RETURN.join(new_output)
-        elif output.startswith(command_string):
-            command_length = len(command_string)
-            return output[command_length:]
         else:
             # command_string isn't there; do nothing
             return output
