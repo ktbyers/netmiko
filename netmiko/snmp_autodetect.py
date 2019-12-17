@@ -330,15 +330,15 @@ class SNMPDetect(object):
                 oid = v["oid"]
                 regex = v["expr"]
 
-            # Used cache data if we already queryied this OID
-            if self._response_cache.get(oid):
-                snmp_response = self._response_cache.get(oid)
-            else:
-                snmp_response = self._get_snmp(oid)
-                self._response_cache[oid] = snmp_response
+                # Used cache data if we already queryied this OID
+                if self._response_cache.get(oid):
+                    snmp_response = self._response_cache.get(oid)
+                else:
+                    snmp_response = self._get_snmp(oid)
+                    self._response_cache[oid] = snmp_response
 
-            # See if we had a match
-            if re.search(regex, snmp_response):
-                return device_type
+                # See if we had a match
+                if re.search(regex, snmp_response):
+                    return device_type
 
         return None
