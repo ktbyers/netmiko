@@ -44,7 +44,7 @@ SNMP_MAPPER_BASE = {
     },
     "hp_comware": {
         "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*HP Comware.*", re.IGNORECASE),
+        "expr": re.compile(r".*HP(E)? Comware.*", re.IGNORECASE),
         "priority": 99,
     },
     "hp_procurve": {
