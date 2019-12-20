@@ -92,7 +92,7 @@ class LinuxSSH(CiscoSSHConnection):
                 self.set_base_prompt()
             except socket.timeout:
                 raise NetmikoTimeoutException(
-                    "Timed-out reading channel, data not available."
+                    "Timed-out reading channel, data not available.", output
                 )
             if not self.check_enable_mode():
                 msg = (

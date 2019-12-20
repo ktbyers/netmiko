@@ -543,7 +543,7 @@ class BaseConnection(object):
                     self._write_session_log(new_data)
                 except socket.timeout:
                     raise NetmikoTimeoutException(
-                        "Timed-out reading channel, data not available."
+                        "Timed-out reading channel, data not available.", output
                     )
                 finally:
                     self._unlock_netmiko_session()
@@ -555,7 +555,7 @@ class BaseConnection(object):
             time.sleep(loop_delay * self.global_delay_factor)
             i += 1
         raise NetmikoTimeoutException(
-            f"Timed-out reading channel, pattern not found in output: {pattern}"
+            f"Timed-out reading channel, pattern not found in output: {pattern}", output
         )
 
     def _read_channel_timing(self, delay_factor=1, max_loops=150):
@@ -1395,10 +1395,11 @@ class BaseConnection(object):
             i += 1
             new_data = self.read_channel()
         else:  # nobreak
-            raise IOError(
+            raise NetmikoTimeoutException(
                 "Search pattern never detected in send_command_expect: {}".format(
                     search_pattern
-                )
+                ),
+                output,
             )
 
         output = self._sanitize_output(
