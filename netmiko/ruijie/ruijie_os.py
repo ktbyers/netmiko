@@ -18,7 +18,7 @@ class RuijieOSBase(CiscoBaseConnection):
         self.set_terminal_width(command="terminal width 256")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()	
+        self.clear_buffer()
 
     def enable(
         self,
@@ -41,7 +41,7 @@ class RuijieOSBase(CiscoBaseConnection):
 
     def check_enable_mode(self, check_string="#"):
         return super(RuijieOSBase, self).check_enable_mode(
-            check_string = check_string	    
+            check_string = check_string
         )
 
     def config_mode(self, config_command="config"):
