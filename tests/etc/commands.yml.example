@@ -282,3 +282,15 @@ keymile_nos:
   save_config_confirm: True
   save_config_response: '[OK]'
 
+ruijie_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"
+  config:
+    - "logging buffered 20000"
+    - "no logging console"
+    - "logging buffered 20010"
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'
