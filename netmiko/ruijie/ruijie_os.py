@@ -21,10 +21,7 @@ class RuijieOSBase(CiscoBaseConnection):
         self.clear_buffer()
 
     def enable(
-        self,
-        cmd="enable",
-        pattern="password",
-        re_flags=re.IGNORECASE,
+        self, cmd="enable", pattern="password", re_flags=re.IGNORECASE,
     ):
         """Enter enable mode.
         Ruijie>en
@@ -40,9 +37,7 @@ class RuijieOSBase(CiscoBaseConnection):
         return output
 
     def check_enable_mode(self, check_string="#"):
-        return super(RuijieOSBase, self).check_enable_mode(
-            check_string=check_string
-        )
+        return super(RuijieOSBase, self).check_enable_mode(check_string=check_string)
 
     def config_mode(self, config_command="config"):
         """Enter into config_mode."""
@@ -50,15 +45,11 @@ class RuijieOSBase(CiscoBaseConnection):
 
     def exit_config_mode(self, exit_config="exit"):
         """Exit config_mode."""
-        return super(RuijieOSBase, self).exit_config_mode(
-            exit_config=exit_config
-        )
+        return super(RuijieOSBase, self).exit_config_mode(exit_config=exit_config)
 
     def check_config_mode(self, check_string="(config)#"):
         """Checks if the device is in configuration mode"""
-        return super(RuijieOSBase, self).check_config_mode(
-            check_string=check_string
-        )
+        return super(RuijieOSBase, self).check_config_mode(check_string=check_string)
 
     def special_login_handler(self, delay_factor=1):
         """
@@ -110,6 +101,7 @@ class RuijieOSBase(CiscoBaseConnection):
 
 
 class RuijieOSSSH(RuijieOSBase):
+
     pass
 
 
