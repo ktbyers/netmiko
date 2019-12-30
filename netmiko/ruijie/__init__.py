@@ -5,4 +5,3 @@ from netmiko.ruijie.ruijie_os import (
 )
 
 __all__ = ["RuijieOSSSH", "RuijieOSTelnet"]
-
