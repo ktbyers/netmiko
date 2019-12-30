@@ -20,9 +20,7 @@ class RuijieOSBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def enable(
-        self, cmd="enable", pattern="password", re_flags=re.IGNORECASE,
-    ):
+    def enable(self, cmd="enable", pattern="password", re_flags=re.IGNORECASE):
         """Enter enable mode.
         Ruijie>en
         Password:
