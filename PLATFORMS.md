@@ -39,6 +39,7 @@
 - Palo Alto PAN-OS
 - Pluribus
 - Ruckus ICX/FastIron
+- Ruijie Networks
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
 
