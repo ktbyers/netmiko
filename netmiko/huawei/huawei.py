@@ -108,7 +108,9 @@ class HuaweiTelnet(HuaweiBase):
         """Telnet login for Huawei Devices"""
 
         delay_factor = self.select_delay_factor(delay_factor)
-        password_change_prompt = re.escape("Change now? [Y/N]")
+        password_change_msg = r"(Change now|Please choose 'YES' or 'NO').+"
+        password_change_prompt = password_change_msg + re.escape("[Y/N]")
+
         combined_pattern = r"({}|{}|{})".format(
             pri_prompt_terminator, alt_prompt_terminator, password_change_prompt
         )
