@@ -223,3 +223,13 @@ keymile_nos:
   interface_ip: 1.2.3.5 
   version_banner: "NOS version 2.09 #0001"
   multiple_line_output: "Interface br328"
+
+ruijie_os:
+  base_prompt: Ruijie
+  router_prompt : Ruijie>
+  enable_prompt: Ruijie#
+  interface_ip: 172.30.31.101
+  version_banner: "Ruijie Networks"
+  multiple_line_output: ""
+  file_check_cmd: "logging buffered 8880"
+  save_config: 'OK'
