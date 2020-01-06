@@ -55,12 +55,9 @@ from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet
 from netmiko.juniper import JuniperFileTransfer
-<<<<<<< HEAD
 from netmiko.pica8 import pica8SSH, pica8Telnet
 from netmiko.pica8 import pica8FileTransfer
-=======
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
->>>>>>> upstream/master
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.mikrotik import MikrotikRouterOsSSH
 from netmiko.mikrotik import MikrotikSwitchOsSSH
