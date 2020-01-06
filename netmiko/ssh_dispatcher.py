@@ -142,13 +142,10 @@ CLASS_MAPPER_BASE = {
     "ipinfusion_ocnos": IpInfusionOcNOSSSH,
     "juniper": JuniperSSH,
     "juniper_junos": JuniperSSH,
-<<<<<<< HEAD
     "pica8": pica8SSH,
     "pica8_picos": pica8SSH,
-=======
     "keymile": KeymileSSH,
     "keymile_nos": KeymileNOSSSH,
->>>>>>> upstream/master
     "linux": LinuxSSH,
     "mikrotik_routeros": MikrotikRouterOsSSH,
     "mikrotik_switchos": MikrotikSwitchOsSSH,
