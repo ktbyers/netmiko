@@ -29,7 +29,12 @@ from netmiko.ssh_exception import (
     NetMikoTimeoutException,
     NetMikoAuthenticationException,
 )
-from netmiko.utilities import write_bytes, check_serial_port, get_structured_data
+from netmiko.utilities import (
+    write_bytes,
+    check_serial_port,
+    get_structured_data,
+    get_structured_data_genie,
+)
 
 
 class BaseConnection(object):
@@ -131,10 +136,10 @@ class BaseConnection(object):
                 means unknown SSH host keys will be accepted).
         :type ssh_strict: bool
 
-        :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+        :param system_host_keys: Load host keys from the users known_hosts file.
         :type system_host_keys: bool
         :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-                'alt_key_file'.
+                alt_key_file.
         :type alt_host_keys: bool
 
         :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -160,11 +165,11 @@ class BaseConnection(object):
                 to keep the connection alive).
         :type keepalive: int
 
-        :param default_enter: Character(s) to send to correspond to enter key (default: '\n').
+        :param default_enter: Character(s) to send to correspond to enter key (default: \n).
         :type default_enter: str
 
         :param response_return: Character(s) to use in normalized return data to represent
-                enter key (default: '\n')
+                enter key (default: \n)
         :type response_return: str
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
@@ -189,7 +194,7 @@ class BaseConnection(object):
         :type allow_auto_change: bool
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: 'ascii')
+                (default: ascii)
         :type encoding: str
         """
         self.remote_conn = None
@@ -398,6 +403,11 @@ class BaseConnection(object):
 
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) > 0:
+            # Hide the password and secret in the session_log
+            if self.password:
+                data = data.replace(self.password, "********")
+            if self.secret:
+                data = data.replace(self.secret, "********")
             self.session_log.write(write_bytes(data, encoding=self.encoding))
             self.session_log.flush()
 
@@ -721,7 +731,7 @@ class BaseConnection(object):
         """
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
-        to do since they don't have a reference to the object. This is possibly related
+        to do since they do not have a reference to the object. This is possibly related
         to threads used in Paramiko.
         """
         try:
@@ -754,7 +764,7 @@ class BaseConnection(object):
         self.clear_buffer()
 
     def _use_ssh_config(self, dict_arg):
-        """Update SSH connection parameters based on contents of SSH 'config' file.
+        """Update SSH connection parameters based on contents of SSH config file.
 
         :param dict_arg: Dictionary of SSH connection parameters
         :type dict_arg: dict
@@ -771,10 +781,20 @@ class BaseConnection(object):
         else:
             source = {}
 
+        # Keys get normalized to lower-case
         if "proxycommand" in source:
             proxy = paramiko.ProxyCommand(source["proxycommand"])
-        elif "ProxyCommand" in source:
-            proxy = paramiko.ProxyCommand(source["ProxyCommand"])
+        elif "proxyjump" in source:
+            hops = list(reversed(source["proxyjump"].split(",")))
+            if len(hops) > 1:
+                raise ValueError(
+                    "ProxyJump with more than one proxy server is not supported."
+                )
+            port = source.get("port", self.port)
+            host = source.get("hostname", self.host)
+            # -F {full_path} forces the continued use of the same SSH config file
+            cmd = "ssh -F {} -W {}:{} {}".format(full_path, host, port, hops[0])
+            proxy = paramiko.ProxyCommand(cmd)
         else:
             proxy = None
 
@@ -934,7 +954,7 @@ class BaseConnection(object):
 
         # check if data was ever present
         if new_data:
-            return ""
+            return new_data
         else:
             raise NetMikoTimeoutException("Timed out waiting for data")
 
@@ -1029,7 +1049,7 @@ class BaseConnection(object):
         Used as delimiter for stripping of trailing prompt in output.
 
         Should be set to something that is general and applies in multiple contexts. For Cisco
-        devices this will be set to router hostname (i.e. prompt without '>' or '#').
+        devices this will be set to router hostname (i.e. prompt without > or #).
 
         This will be set on entering user exec or privileged exec on Cisco, but not when
         entering/exiting config mode.
@@ -1102,6 +1122,7 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        use_genie=False,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1127,6 +1148,9 @@ class BaseConnection(object):
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
+
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
+        :type normalize: bool
         """
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -1144,10 +1168,18 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm:
-            output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
+        # If both TextFSM and Genie are set, try TextFSM then Genie
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
         return output
 
     def strip_prompt(self, a_string):
@@ -1201,6 +1233,7 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        use_genie=False,
     ):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1231,6 +1264,9 @@ class BaseConnection(object):
         :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
+        :type normalize: bool
+
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
         """
         # Time to delay in each read loop
@@ -1308,10 +1344,19 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm:
-            output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
+
+        # If both TextFSM and Genie are set, try TextFSM then Genie
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
         return output
 
     def send_command_expect(self, *args, **kwargs):

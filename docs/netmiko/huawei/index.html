@@ -105,10 +105,10 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -134,14 +134,14 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -165,7 +165,7 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">
@@ -293,10 +293,10 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -322,14 +322,14 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -353,7 +353,7 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">
@@ -383,28 +383,43 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
         i = 1
         while i &lt;= max_loops:
             try:
+                output = self.read_channel()
+                return_msg += output
+
                 # Search for username pattern / send username
-                output = self.read_until_pattern(pattern=username_pattern)
-                return_msg += output
+                if re.search(username_pattern, output, flags=re.I):
+                    self.write_channel(self.username + self.TELNET_RETURN)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel()
+                    return_msg += output
 
-                self.write_channel(self.username + self.TELNET_RETURN)
+                # Search for password pattern / send password
+                if re.search(pwd_pattern, output, flags=re.I):
+                    self.write_channel(self.password + self.TELNET_RETURN)
+                    time.sleep(0.5 * delay_factor)
+                    output = self.read_channel()
+                    return_msg += output
+                    if re.search(
+                        pri_prompt_terminator, output, flags=re.M
+                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                        return return_msg
 
-                # Search for password pattern, / send password
-                output = self.read_until_pattern(pattern=pwd_pattern)
-                return_msg += output
-
-                self.write_channel(self.password + self.TELNET_RETURN)
-
-                # Search for router prompt, OR password_change prompt
-                output = self.read_until_pattern(pattern=combined_pattern)
-                return_msg += output
-
+                # Search for password change prompt, send &#34;N&#34;
                 if re.search(password_change_prompt, output):
                     self.write_channel(&#34;N&#34; + self.TELNET_RETURN)
                     output = self.read_until_pattern(pattern=combined_pattern)
                     return_msg += output
 
-                return return_msg
+                # Check if proper data received
+                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                    alt_prompt_terminator, output, flags=re.M
+                ):
+                    return return_msg
+
+                self.write_channel(self.TELNET_RETURN)
+                time.sleep(0.5 * delay_factor)
+                i += 1
+
             except EOFError:
                 self.remote_conn.close()
                 msg = &#34;Login failed: {}&#34;.format(self.host)
@@ -461,28 +476,43 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
     i = 1
     while i &lt;= max_loops:
         try:
+            output = self.read_channel()
+            return_msg += output
+
             # Search for username pattern / send username
-            output = self.read_until_pattern(pattern=username_pattern)
-            return_msg += output
+            if re.search(username_pattern, output, flags=re.I):
+                self.write_channel(self.username + self.TELNET_RETURN)
+                time.sleep(1 * delay_factor)
+                output = self.read_channel()
+                return_msg += output
 
-            self.write_channel(self.username + self.TELNET_RETURN)
+            # Search for password pattern / send password
+            if re.search(pwd_pattern, output, flags=re.I):
+                self.write_channel(self.password + self.TELNET_RETURN)
+                time.sleep(0.5 * delay_factor)
+                output = self.read_channel()
+                return_msg += output
+                if re.search(
+                    pri_prompt_terminator, output, flags=re.M
+                ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                    return return_msg
 
-            # Search for password pattern, / send password
-            output = self.read_until_pattern(pattern=pwd_pattern)
-            return_msg += output
-
-            self.write_channel(self.password + self.TELNET_RETURN)
-
-            # Search for router prompt, OR password_change prompt
-            output = self.read_until_pattern(pattern=combined_pattern)
-            return_msg += output
-
+            # Search for password change prompt, send &#34;N&#34;
             if re.search(password_change_prompt, output):
                 self.write_channel(&#34;N&#34; + self.TELNET_RETURN)
                 output = self.read_until_pattern(pattern=combined_pattern)
                 return_msg += output
 
-            return return_msg
+            # Check if proper data received
+            if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                alt_prompt_terminator, output, flags=re.M
+            ):
+                return return_msg
+
+            self.write_channel(self.TELNET_RETURN)
+            time.sleep(0.5 * delay_factor)
+            i += 1
+
         except EOFError:
             self.remote_conn.close()
             msg = &#34;Login failed: {}&#34;.format(self.host)
@@ -611,10 +641,10 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -640,14 +670,14 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -671,7 +701,7 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">

@@ -109,10 +109,10 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -138,14 +138,14 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -169,7 +169,7 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">
@@ -292,10 +292,10 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -321,14 +321,14 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -352,7 +352,7 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">
@@ -478,10 +478,10 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -507,14 +507,14 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -538,7 +538,7 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">
@@ -564,7 +564,26 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
         # Try one last time to past &#34;Press any key to continue
         self.write_channel(self.RETURN)
 
-        super(HPProcurveSSH, self).session_preparation()</code></pre>
+        super(HPProcurveSSH, self).session_preparation()
+
+    def _build_ssh_client(self):
+        &#34;&#34;&#34;Allow passwordless authentication for HP devices being provisioned.&#34;&#34;&#34;
+
+        # Create instance of SSHClient object. If no SSH keys and no password, then use noauth
+        if not self.use_keys and not self.password:
+            remote_conn_pre = SSHClient_noauth()
+        else:
+            remote_conn_pre = SSHClient()
+
+        # Load host_keys for better SSH security
+        if self.system_host_keys:
+            remote_conn_pre.load_system_host_keys()
+        if self.alt_host_keys and path.isfile(self.alt_key_file):
+            remote_conn_pre.load_host_keys(self.alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+        return remote_conn_pre</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -681,10 +700,10 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -710,14 +729,14 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -741,7 +760,7 @@ __all__ = [&#34;HPProcurveSSH&#34;, &#34;HPProcurveTelnet&#34;, &#34;HPComwareSS
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">

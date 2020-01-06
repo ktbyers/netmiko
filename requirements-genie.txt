@@ -1,0 +1,2 @@
+pyats>=19.7; python_version>="3.4"
+genie>=19.7; python_version>="3.4"

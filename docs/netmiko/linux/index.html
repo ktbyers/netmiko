@@ -200,10 +200,10 @@ __all__ = [&#34;LinuxSSH&#34;, &#34;LinuxFileTransfer&#34;]</code></pre>
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -229,14 +229,14 @@ __all__ = [&#34;LinuxSSH&#34;, &#34;LinuxFileTransfer&#34;]</code></pre>
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -260,7 +260,7 @@ __all__ = [&#34;LinuxSSH&#34;, &#34;LinuxFileTransfer&#34;]</code></pre>
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">
@@ -284,7 +284,10 @@ __all__ = [&#34;LinuxSSH&#34;, &#34;LinuxFileTransfer&#34;]</code></pre>
         return &#34;&#34;
 
     def set_base_prompt(
-        self, pri_prompt_terminator=&#34;$&#34;, alt_prompt_terminator=&#34;#&#34;, delay_factor=1
+        self,
+        pri_prompt_terminator=LINUX_PROMPT_PRI,
+        alt_prompt_terminator=LINUX_PROMPT_ALT,
+        delay_factor=1,
     ):
         &#34;&#34;&#34;Determine base prompt.&#34;&#34;&#34;
         return super(LinuxSSH, self).set_base_prompt(
@@ -301,7 +304,7 @@ __all__ = [&#34;LinuxSSH&#34;, &#34;LinuxFileTransfer&#34;]</code></pre>
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def check_config_mode(self, check_string=&#34;#&#34;):
+    def check_config_mode(self, check_string=LINUX_PROMPT_ROOT):
         &#34;&#34;&#34;Verify root&#34;&#34;&#34;
         return self.check_enable_mode(check_string=check_string)
 
@@ -312,7 +315,7 @@ __all__ = [&#34;LinuxSSH&#34;, &#34;LinuxFileTransfer&#34;]</code></pre>
     def exit_config_mode(self, exit_config=&#34;exit&#34;):
         return self.exit_enable_mode(exit_command=exit_config)
 
-    def check_enable_mode(self, check_string=&#34;#&#34;):
+    def check_enable_mode(self, check_string=LINUX_PROMPT_ROOT):
         &#34;&#34;&#34;Verify root&#34;&#34;&#34;
         return super(LinuxSSH, self).check_enable_mode(check_string=check_string)
 
@@ -381,7 +384,7 @@ __all__ = [&#34;LinuxSSH&#34;, &#34;LinuxFileTransfer&#34;]</code></pre>
 <section class="desc"><p>Verify root</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, check_string=&#34;#&#34;):
+<pre><code class="python">def check_config_mode(self, check_string=LINUX_PROMPT_ROOT):
     &#34;&#34;&#34;Verify root&#34;&#34;&#34;
     return self.check_enable_mode(check_string=check_string)</code></pre>
 </details>
@@ -393,7 +396,7 @@ __all__ = [&#34;LinuxSSH&#34;, &#34;LinuxFileTransfer&#34;]</code></pre>
 <section class="desc"><p>Verify root</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_enable_mode(self, check_string=&#34;#&#34;):
+<pre><code class="python">def check_enable_mode(self, check_string=LINUX_PROMPT_ROOT):
     &#34;&#34;&#34;Verify root&#34;&#34;&#34;
     return super(LinuxSSH, self).check_enable_mode(check_string=check_string)</code></pre>
 </details>
@@ -536,7 +539,10 @@ __all__ = [&#34;LinuxSSH&#34;, &#34;LinuxFileTransfer&#34;]</code></pre>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def set_base_prompt(
-    self, pri_prompt_terminator=&#34;$&#34;, alt_prompt_terminator=&#34;#&#34;, delay_factor=1
+    self,
+    pri_prompt_terminator=LINUX_PROMPT_PRI,
+    alt_prompt_terminator=LINUX_PROMPT_ALT,
+    delay_factor=1,
 ):
     &#34;&#34;&#34;Determine base prompt.&#34;&#34;&#34;
     return super(LinuxSSH, self).set_base_prompt(

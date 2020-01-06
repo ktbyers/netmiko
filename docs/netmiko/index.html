@@ -47,7 +47,7 @@ NetmikoTimeoutError = NetMikoTimeoutException
 NetmikoAuthError = NetMikoAuthenticationException
 Netmiko = ConnectHandler
 
-__version__ = &#34;2.3.3&#34;
+__version__ = &#34;2.4.2&#34;
 __all__ = (
     &#34;ConnectHandler&#34;,
     &#34;ssh_dispatcher&#34;,
@@ -178,6 +178,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <section class="desc"></section>
 </dd>
 <dt><code class="name"><a title="netmiko.juniper" href="juniper/index.html">netmiko.juniper</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="netmiko.keymile" href="keymile/index.html">netmiko.keymile</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -544,10 +548,10 @@ with terminal server.</p></section>
             means unknown SSH host keys will be accepted).
     :type ssh_strict: bool
 
-    :param system_host_keys: Load host keys from the user's 'known_hosts' file.
+    :param system_host_keys: Load host keys from the users known_hosts file.
     :type system_host_keys: bool
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            'alt_key_file'.
+            alt_key_file.
     :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -573,14 +577,14 @@ with terminal server.</p></section>
             to keep the connection alive).
     :type keepalive: int
 
-    :param default_enter: Character(s) to send to correspond to enter key (default: '
+    :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>').
+<p>).
 :type default_enter: str</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default: '
+            enter key (default:
 </code></pre>
-<p>')
+<p>)
 :type response_return: str</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -604,7 +608,7 @@ with terminal server.</p></section>
     :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: 'ascii')
+            (default: ascii)
     :type encoding: str
 </code></pre></section>
 <details class="source">
@@ -708,10 +712,10 @@ with terminal server.</p></section>
                 means unknown SSH host keys will be accepted).
         :type ssh_strict: bool
 
-        :param system_host_keys: Load host keys from the user&#39;s &#39;known_hosts&#39; file.
+        :param system_host_keys: Load host keys from the users known_hosts file.
         :type system_host_keys: bool
         :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-                &#39;alt_key_file&#39;.
+                alt_key_file.
         :type alt_host_keys: bool
 
         :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
@@ -737,11 +741,11 @@ with terminal server.</p></section>
                 to keep the connection alive).
         :type keepalive: int
 
-        :param default_enter: Character(s) to send to correspond to enter key (default: &#39;\n&#39;).
+        :param default_enter: Character(s) to send to correspond to enter key (default: \n).
         :type default_enter: str
 
         :param response_return: Character(s) to use in normalized return data to represent
-                enter key (default: &#39;\n&#39;)
+                enter key (default: \n)
         :type response_return: str
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
@@ -766,7 +770,7 @@ with terminal server.</p></section>
         :type allow_auto_change: bool
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: &#39;ascii&#39;)
+                (default: ascii)
         :type encoding: str
         &#34;&#34;&#34;
         self.remote_conn = None
@@ -975,6 +979,11 @@ with terminal server.</p></section>
 
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) &gt; 0:
+            # Hide the password and secret in the session_log
+            if self.password:
+                data = data.replace(self.password, &#34;********&#34;)
+            if self.secret:
+                data = data.replace(self.secret, &#34;********&#34;)
             self.session_log.write(write_bytes(data, encoding=self.encoding))
             self.session_log.flush()
 
@@ -1298,7 +1307,7 @@ with terminal server.</p></section>
         &#34;&#34;&#34;
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
-        to do since they don&#39;t have a reference to the object. This is possibly related
+        to do since they do not have a reference to the object. This is possibly related
         to threads used in Paramiko.
         &#34;&#34;&#34;
         try:
@@ -1331,7 +1340,7 @@ with terminal server.</p></section>
         self.clear_buffer()
 
     def _use_ssh_config(self, dict_arg):
-        &#34;&#34;&#34;Update SSH connection parameters based on contents of SSH &#39;config&#39; file.
+        &#34;&#34;&#34;Update SSH connection parameters based on contents of SSH config file.
 
         :param dict_arg: Dictionary of SSH connection parameters
         :type dict_arg: dict
@@ -1348,10 +1357,20 @@ with terminal server.</p></section>
         else:
             source = {}
 
+        # Keys get normalized to lower-case
         if &#34;proxycommand&#34; in source:
             proxy = paramiko.ProxyCommand(source[&#34;proxycommand&#34;])
-        elif &#34;ProxyCommand&#34; in source:
-            proxy = paramiko.ProxyCommand(source[&#34;ProxyCommand&#34;])
+        elif &#34;proxyjump&#34; in source:
+            hops = list(reversed(source[&#34;proxyjump&#34;].split(&#34;,&#34;)))
+            if len(hops) &gt; 1:
+                raise ValueError(
+                    &#34;ProxyJump with more than one proxy server is not supported.&#34;
+                )
+            port = source.get(&#34;port&#34;, self.port)
+            host = source.get(&#34;hostname&#34;, self.host)
+            # -F {full_path} forces the continued use of the same SSH config file
+            cmd = &#34;ssh -F {} -W {}:{} {}&#34;.format(full_path, host, port, hops[0])
+            proxy = paramiko.ProxyCommand(cmd)
         else:
             proxy = None
 
@@ -1511,7 +1530,7 @@ with terminal server.</p></section>
 
         # check if data was ever present
         if new_data:
-            return &#34;&#34;
+            return new_data
         else:
             raise NetMikoTimeoutException(&#34;Timed out waiting for data&#34;)
 
@@ -1606,7 +1625,7 @@ with terminal server.</p></section>
         Used as delimiter for stripping of trailing prompt in output.
 
         Should be set to something that is general and applies in multiple contexts. For Cisco
-        devices this will be set to router hostname (i.e. prompt without &#39;&gt;&#39; or &#39;#&#39;).
+        devices this will be set to router hostname (i.e. prompt without &gt; or #).
 
         This will be set on entering user exec or privileged exec on Cisco, but not when
         entering/exiting config mode.
@@ -1679,6 +1698,7 @@ with terminal server.</p></section>
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        use_genie=False,
     ):
         &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1704,6 +1724,9 @@ with terminal server.</p></section>
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
+
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
+        :type normalize: bool
         &#34;&#34;&#34;
         output = &#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
@@ -1721,10 +1744,18 @@ with terminal server.</p></section>
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm:
-            output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
+        # If both TextFSM and Genie are set, try TextFSM then Genie
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
         return output
 
     def strip_prompt(self, a_string):
@@ -1778,6 +1809,7 @@ with terminal server.</p></section>
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        use_genie=False,
     ):
         &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1808,6 +1840,9 @@ with terminal server.</p></section>
         :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
+        :type normalize: bool
+
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
         &#34;&#34;&#34;
         # Time to delay in each read loop
@@ -1885,10 +1920,19 @@ with terminal server.</p></section>
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        if use_textfsm:
-            output = get_structured_data(
-                output, platform=self.device_type, command=command_string.strip()
-            )
+
+        # If both TextFSM and Genie are set, try TextFSM then Genie
+        for parser_flag, parser_func in (
+            (use_textfsm, get_structured_data),
+            (use_genie, get_structured_data_genie),
+        ):
+            if parser_flag:
+                structured_output = parser_func(
+                    output, platform=self.device_type, command=command_string.strip()
+                )
+                # If we have structured data; return it.
+                if not isinstance(structured_output, string_types):
+                    return structured_output
         return output
 
     def send_command_expect(self, *args, **kwargs):
@@ -2991,7 +3035,7 @@ In fast_cli choose the lesser of delay_factor of self.global_delay_factor.</p>
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.send_command"><code class="name flex">
-<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False)</span>
+<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, use_genie=False)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a pattern-based mechanism. Generally
@@ -3015,6 +3059,8 @@ based upon self.timeout.
 <p>:param normalize: Ensure the proper enter is sent at end of command (default: True).
 :type normalize: bool</p>
 <p>:param use_textfsm: Process command output through TextFSM template (default: False).
+:type normalize: bool</p>
+<p>:param use_genie: Process command output through PyATS/Genie parser (default: False).
 :type normalize: bool</p></section>
 <details class="source">
 <summary>Source code</summary>
@@ -3029,6 +3075,7 @@ based upon self.timeout.
     strip_command=True,
     normalize=True,
     use_textfsm=False,
+    use_genie=False,
 ):
     &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
     used for show commands. By default this method will keep waiting to receive data until the
@@ -3059,6 +3106,9 @@ based upon self.timeout.
     :type normalize: bool
 
     :param use_textfsm: Process command output through TextFSM template (default: False).
+    :type normalize: bool
+
+    :param use_genie: Process command output through PyATS/Genie parser (default: False).
     :type normalize: bool
     &#34;&#34;&#34;
     # Time to delay in each read loop
@@ -3136,10 +3186,19 @@ based upon self.timeout.
         command_string=command_string,
         strip_prompt=strip_prompt,
     )
-    if use_textfsm:
-        output = get_structured_data(
-            output, platform=self.device_type, command=command_string.strip()
-        )
+
+    # If both TextFSM and Genie are set, try TextFSM then Genie
+    for parser_flag, parser_func in (
+        (use_textfsm, get_structured_data),
+        (use_genie, get_structured_data_genie),
+    ):
+        if parser_flag:
+            structured_output = parser_func(
+                output, platform=self.device_type, command=command_string.strip()
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, string_types):
+                return structured_output
     return output</code></pre>
 </details>
 </dd>
@@ -3167,7 +3226,7 @@ based upon self.timeout.
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.send_command_timing"><code class="name flex">
-<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False)</span>
+<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, use_genie=False)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a delay-based mechanism. Generally
@@ -3186,6 +3245,8 @@ based upon self.timeout.
 <p>:param normalize: Ensure the proper enter is sent at end of command (default: True).
 :type normalize: bool</p>
 <p>:param use_textfsm: Process command output through TextFSM template (default: False).
+:type normalize: bool</p>
+<p>:param use_genie: Process command output through PyATS/Genie parser (default: False).
 :type normalize: bool</p></section>
 <details class="source">
 <summary>Source code</summary>
@@ -3198,6 +3259,7 @@ based upon self.timeout.
     strip_command=True,
     normalize=True,
     use_textfsm=False,
+    use_genie=False,
 ):
     &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
     used for show commands.
@@ -3223,6 +3285,9 @@ based upon self.timeout.
 
     :param use_textfsm: Process command output through TextFSM template (default: False).
     :type normalize: bool
+
+    :param use_genie: Process command output through PyATS/Genie parser (default: False).
+    :type normalize: bool
     &#34;&#34;&#34;
     output = &#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
@@ -3240,10 +3305,18 @@ based upon self.timeout.
         command_string=command_string,
         strip_prompt=strip_prompt,
     )
-    if use_textfsm:
-        output = get_structured_data(
-            output, platform=self.device_type, command=command_string.strip()
-        )
+    # If both TextFSM and Genie are set, try TextFSM then Genie
+    for parser_flag, parser_func in (
+        (use_textfsm, get_structured_data),
+        (use_genie, get_structured_data_genie),
+    ):
+        if parser_flag:
+            structured_output = parser_func(
+                output, platform=self.device_type, command=command_string.strip()
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, string_types):
+                return structured_output
     return output</code></pre>
 </details>
 </dd>
@@ -3445,7 +3518,7 @@ self.clear_buffer()</p></section>
 <section class="desc"><p>Sets self.base_prompt</p>
 <p>Used as delimiter for stripping of trailing prompt in output.</p>
 <p>Should be set to something that is general and applies in multiple contexts. For Cisco
-devices this will be set to router hostname (i.e. prompt without '&gt;' or '#').</p>
+devices this will be set to router hostname (i.e. prompt without &gt; or #).</p>
 <p>This will be set on entering user exec or privileged exec on Cisco, but not when
 entering/exiting config mode.</p>
 <p>:param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
@@ -3464,7 +3537,7 @@ entering/exiting config mode.</p>
     Used as delimiter for stripping of trailing prompt in output.
 
     Should be set to something that is general and applies in multiple contexts. For Cisco
-    devices this will be set to router hostname (i.e. prompt without &#39;&gt;&#39; or &#39;#&#39;).
+    devices this will be set to router hostname (i.e. prompt without &gt; or #).
 
     This will be set on entering user exec or privileged exec on Cisco, but not when
     entering/exiting config mode.
@@ -4549,6 +4622,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.huawei" href="huawei/index.html">netmiko.huawei</a></code></li>
 <li><code><a title="netmiko.ipinfusion" href="ipinfusion/index.html">netmiko.ipinfusion</a></code></li>
 <li><code><a title="netmiko.juniper" href="juniper/index.html">netmiko.juniper</a></code></li>
+<li><code><a title="netmiko.keymile" href="keymile/index.html">netmiko.keymile</a></code></li>
 <li><code><a title="netmiko.linux" href="linux/index.html">netmiko.linux</a></code></li>
 <li><code><a title="netmiko.mellanox" href="mellanox/index.html">netmiko.mellanox</a></code></li>
 <li><code><a title="netmiko.mikrotik" href="mikrotik/index.html">netmiko.mikrotik</a></code></li>
