@@ -18,10 +18,9 @@ class FortinetSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
-        """
-        if "set post-login-banner enable" is set it will require you to press 'a'
-        to accept the banner before you login. This will accept if it occurs
-        """
+
+        # If "set post-login-banner enable" is set it will require you to press 'a'
+        # to accept the banner before you login. This will accept if it occurs
         count = 1
         while count <= 30:
             output += self.read_channel()
