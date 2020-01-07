@@ -1462,7 +1462,6 @@ class BaseConnection(object):
         :type output: str
         """
         backspace_char = "\x08"
-        print(command_string)
 
         # Check for line wrap (remove backspaces)
         if backspace_char in output:
