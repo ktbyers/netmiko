@@ -182,7 +182,7 @@ For all code contributions, please ensure that you have ran `black` against the 
 
 If you find an issue with Netmiko, then you can open an issue on this projects issue page here: [https://github.com/ktbyers/netmiko/issues](https://github.com/ktbyers/netmiko/issues). Please make sure you've read through the common issues and examples prior to opening an issue. Please only open issues for bugs, feature requests, or other topics related to development of Netmiko. If you simply have a question, join us on Slack...
 
-If you have questions or would like to discuss Netmiko, a #netmiko channel exists in [this Slack](https://pynet.slack.com) workspace. To join, use [this invitation](https://join.slack.com/t/pynet/shared_invite/enQtNTA2MDI3NjU0MTM0LTQ5MjExNGNlNWIzMmRhOTZmNmZkNDA2Nzk4Y2Q1Y2RkMWNhZGEzM2Y5MjI0NDYxODkzM2M0ODIwYzFkMzVmZGY). Once you have entered the workspace, then you can join the #netmiko channel.
+If you have questions or would like to discuss Netmiko, a #netmiko channel exists in [this Slack](https://pynet.slack.com) workspace. To join, use [this invitation](https://join.slack.com/t/pynet/shared_invite/enQtNTA2MDI3NjU0MTM0LTIyZDdhMTBlOWNmNDJhNjkxZTEyMDg3NTRkOWIxMTUwOTAzYmQ0ZjMwMGMyNTM4N2E1YzA3YWQ1MWFiOWM1YzU). Once you have entered the workspace, then you can join the #netmiko channel.
 
 
 ---

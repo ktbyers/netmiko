@@ -1,5 +1,4 @@
 """Dell N2/3/4000 base driver- supports DNOS6."""
-from __future__ import unicode_literals
 from netmiko.dell.dell_powerconnect import DellPowerConnectBase
 import time
 
@@ -24,7 +23,7 @@ class DellDNOS6Base(DellPowerConnectBase):
         confirm_response="",
     ):
         """Saves Config"""
-        return super(DellDNOS6Base, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 

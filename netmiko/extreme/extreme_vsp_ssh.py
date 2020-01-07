@@ -1,6 +1,4 @@
 """Extreme Virtual Services Platform Support."""
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -19,6 +17,6 @@ class ExtremeVspSSH(CiscoSSHConnection):
 
     def save_config(self, cmd="save config", confirm=False, confirm_response=""):
         """Save Config"""
-        return super(ExtremeVspSSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

@@ -1,5 +1,4 @@
 """MRV Communications Driver (LX)."""
-from __future__ import unicode_literals
 import time
 import re
 
@@ -21,14 +20,14 @@ class MrvLxSSH(CiscoSSHConnection):
 
     def check_enable_mode(self, check_string=">>"):
         """MRV has a >> for enable mode instead of # like Cisco"""
-        return super(MrvLxSSH, self).check_enable_mode(check_string=check_string)
+        return super().check_enable_mode(check_string=check_string)
 
     def enable(self, cmd="enable", pattern="assword", re_flags=re.IGNORECASE):
         """Enter enable mode."""
-        return super(MrvLxSSH, self).enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
     def save_config(self, cmd="save config flash", confirm=False, confirm_response=""):
         """Saves configuration."""
-        return super(MrvLxSSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

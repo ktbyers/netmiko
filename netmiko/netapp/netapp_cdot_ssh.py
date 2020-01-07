@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from netmiko.base_connection import BaseConnection
 
 
@@ -19,15 +17,15 @@ class NetAppcDotSSH(BaseConnection):
         return output
 
     def check_config_mode(self, check_string="*>"):
-        return super(NetAppcDotSSH, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
     def config_mode(
         self, config_command="set -privilege diagnostic -confirmations off"
     ):
-        return super(NetAppcDotSSH, self).config_mode(config_command=config_command)
+        return super().config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config="set -privilege admin -confirmations off"):
-        return super(NetAppcDotSSH, self).exit_config_mode(exit_config=exit_config)
+        return super().exit_config_mode(exit_config=exit_config)
 
     def enable(self, *args, **kwargs):
         """No enable mode on NetApp."""

@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -26,22 +25,22 @@ class UbiquitiEdgeSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string=")#"):
         """Checks if the device is in configuration mode or not."""
-        return super(UbiquitiEdgeSSH, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
     def config_mode(self, config_command="configure"):
         """Enter configuration mode."""
-        return super(UbiquitiEdgeSSH, self).config_mode(config_command=config_command)
+        return super().config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config="exit"):
         """Exit configuration mode."""
-        return super(UbiquitiEdgeSSH, self).exit_config_mode(exit_config=exit_config)
+        return super().exit_config_mode(exit_config=exit_config)
 
     def exit_enable_mode(self, exit_command="exit"):
         """Exit enable mode."""
-        return super(UbiquitiEdgeSSH, self).exit_enable_mode(exit_command=exit_command)
+        return super().exit_enable_mode(exit_command=exit_command)
 
     def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
         """Saves configuration."""
-        return super(UbiquitiEdgeSSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

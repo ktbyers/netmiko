@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import time
 import re
 import os
@@ -28,13 +26,11 @@ class CiscoIosBase(CiscoBaseConnection):
 
         Cisco IOS devices abbreviate the prompt at 20 chars in config mode
         """
-        return super(CiscoIosBase, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves Config Using Copy Run Start"""
-        return super(CiscoIosBase, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
@@ -74,6 +70,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         file_system=None,
         direction="put",
         source_config=None,
+        socket_timeout=10.0,
     ):
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
@@ -100,6 +97,8 @@ class InLineTransfer(CiscoIosFileTransfer):
         else:
             self.file_system = file_system
 
+        self.socket_timeout = socket_timeout
+
     @staticmethod
     def _read_file(file_name):
         with io.open(file_name, "rt", encoding="utf-8") as f:
@@ -107,7 +106,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     @staticmethod
     def _tcl_newline_rationalize(tcl_string):
-        """
+        r"""
         When using put inside a TCL {} section the newline is considered a new TCL
         statement and causes a missing curly-brace message. Convert "\n" to "\r". TCL
         will convert the "\r" to a "\n" i.e. you will see a "\n" inside the file on the
@@ -139,9 +138,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         )
         for pattern in cmd_failed:
             if pattern in output:
-                raise ValueError(
-                    "Failed to enter tclsh mode on router: {}".format(output)
-                )
+                raise ValueError(f"Failed to enter tclsh mode on router: {output}")
         return output
 
     def _exit_tcl_mode(self):
@@ -172,10 +169,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         return hashlib.md5(file_contents).hexdigest()
 
     def config_md5(self, source_config):
-        """Compute MD5 hash of file."""
-        file_contents = source_config + "\n"  # Cisco IOS automatically adds this
-        file_contents = file_contents.encode("UTF-8")
-        return hashlib.md5(file_contents).hexdigest()
+        return super().file_md5(source_config, add_newline=True)
 
     def put_file(self):
         curlybrace = r"{"

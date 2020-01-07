@@ -1,5 +1,4 @@
 """Aruba OS support"""
-from __future__ import unicode_literals
 import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -11,7 +10,7 @@ class ArubaSSH(CiscoSSHConnection):
     def __init__(self, **kwargs):
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r"
-        return super(ArubaSSH, self).__init__(**kwargs)
+        return super().__init__(**kwargs)
 
     def session_preparation(self):
         """Aruba OS requires enable mode to disable paging."""
@@ -33,6 +32,4 @@ class ArubaSSH(CiscoSSHConnection):
         """
         if not pattern:
             pattern = re.escape(self.base_prompt[:16])
-        return super(ArubaSSH, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)

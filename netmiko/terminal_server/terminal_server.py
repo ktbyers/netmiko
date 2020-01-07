@@ -1,5 +1,4 @@
 """Generic Terminal Server driver."""
-from __future__ import unicode_literals
 from netmiko.base_connection import BaseConnection
 
 
@@ -29,4 +28,4 @@ class TerminalServerTelnet(TerminalServer):
         pass
 
     def std_login(self, *args, **kwargs):
-        return super(TerminalServerTelnet, self).telnet_login(*args, **kwargs)
+        return super().telnet_login(*args, **kwargs)

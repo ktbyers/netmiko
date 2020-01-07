@@ -1,5 +1,4 @@
 """Mellanox MLNX-OS Switch support."""
-from __future__ import unicode_literals
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
@@ -21,19 +20,13 @@ class MellanoxMlnxosSSH(CiscoSSHConnection):
         return output
 
     def config_mode(self, config_command="config term", pattern="#"):
-        return super(MellanoxMlnxosSSH, self).config_mode(
-            config_command=config_command, pattern=pattern
-        )
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
     def check_config_mode(self, check_string="(config", pattern=r"#"):
-        return super(MellanoxMlnxosSSH, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def disable_paging(self, command="no cli session paging enable", delay_factor=1):
-        return super(MellanoxMlnxosSSH, self).disable_paging(
-            command=command, delay_factor=delay_factor
-        )
+        return super().disable_paging(command=command, delay_factor=delay_factor)
 
     def exit_config_mode(self, exit_config="exit", pattern="#"):
         """Mellanox does not support a single command to completely exit configuration mode.
@@ -54,7 +47,7 @@ class MellanoxMlnxosSSH(CiscoSSHConnection):
         if self.check_config_mode():
             raise ValueError("Failed to exit configuration mode")
 
-        log.debug("exit_config_mode: {}".format(output))
+        log.debug(f"exit_config_mode: {output}")
         return output
 
     def save_config(

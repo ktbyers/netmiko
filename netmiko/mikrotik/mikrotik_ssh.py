@@ -10,7 +10,7 @@ class MikrotikBase(CiscoSSHConnection):
 
         self._in_config_mode = False
 
-        return super(MikrotikBase, self).__init__(**kwargs)
+        return super().__init__(**kwargs)
 
     def session_preparation(self, *args, **kwargs):
         """Prepare the session after the connection has been established."""
@@ -30,7 +30,7 @@ class MikrotikBase(CiscoSSHConnection):
         """
         self.username += "+cetw511h4098"
 
-    def disable_paging(self):
+    def disable_paging(self, *args, **kwargs):
         """Microtik does not have paging by default."""
         return ""
 

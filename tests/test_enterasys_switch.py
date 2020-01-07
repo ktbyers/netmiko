@@ -3,8 +3,6 @@
 This will run an ssh command successfully on an enterasys SSA and so SSH must
 be enabled on the device
 """
-
-from __future__ import print_function
 from netmiko import ConnectHandler
 
 

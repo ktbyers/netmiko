@@ -6,7 +6,7 @@ from netmiko.cisco.cisco_ios import CiscoIosBase
 class KeymileSSH(CiscoIosBase):
     def __init__(self, **kwargs):
         kwargs.setdefault("default_enter", "\r\n")
-        return super(KeymileSSH, self).__init__(**kwargs)
+        return super().__init__(**kwargs)
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -47,10 +47,8 @@ class KeymileSSH(CiscoIosBase):
         """Remove appending empty line and prompt from output"""
         self._write_session_log(a_string)
         a_string = a_string[:-1]
-        return super(KeymileSSH, self).strip_prompt(a_string=a_string)
+        return super().strip_prompt(a_string=a_string)
 
     def set_base_prompt(self, pri_prompt_terminator=">", **kwargs):
         """ set prompt termination  to >"""
-        return super(KeymileSSH, self).set_base_prompt(
-            pri_prompt_terminator=pri_prompt_terminator
-        )
+        return super().set_base_prompt(pri_prompt_terminator=pri_prompt_terminator)

@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-
-
 def test_ssh_connect(net_connect, commands, expected_responses):
     """
     Verify the connection was established successfully
@@ -11,26 +7,29 @@ def test_ssh_connect(net_connect, commands, expected_responses):
     assert expected_responses["version_banner"] in show_version
 
 
-# def test_enable_mode(net_connect, commands, expected_responses):
-#     """
-#     Test entering enable mode
+def test_enable_mode(net_connect, commands, expected_responses):
+    """
+    Test entering enable mode
 
-#     Catch exception for devices that don't support enable
-#     """
-#     try:
-#         net_connect.enable()
-#         enable_prompt = net_connect.find_prompt()
-#         assert enable_prompt == expected_responses["enable_prompt"]
-#     except AttributeError:
-#         assert True == True
+    Catch exception for devices that don't support enable
+    """
+    try:
+        net_connect.enable()
+        enable_prompt = net_connect.find_prompt()
+        assert enable_prompt == expected_responses["enable_prompt"]
+    except AttributeError:
+        assert True
 
 
 def test_config_mode(net_connect, commands, expected_responses):
     """
     Test enter config mode
     """
-    net_connect.config_mode()
-    assert net_connect.check_config_mode() == True
+    # Behavior for devices with no config mode is to return null string
+    if net_connect.config_mode() != "":
+        assert net_connect.check_config_mode() is True
+    else:
+        assert True
 
 
 def test_exit_config_mode(net_connect, commands, expected_responses):
@@ -38,7 +37,7 @@ def test_exit_config_mode(net_connect, commands, expected_responses):
     Test exit config mode
     """
     net_connect.exit_config_mode()
-    assert net_connect.check_config_mode() == False
+    assert net_connect.check_config_mode() is False
 
 
 def test_command_set(net_connect, commands, expected_responses):

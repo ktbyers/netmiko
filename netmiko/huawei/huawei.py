@@ -1,9 +1,7 @@
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection
-from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko import log
 
 
@@ -19,17 +17,15 @@ class HuaweiBase(CiscoBaseConnection):
 
     def config_mode(self, config_command="system-view"):
         """Enter configuration mode."""
-        return super(HuaweiBase, self).config_mode(config_command=config_command)
+        return super().config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config="return", pattern=r">"):
         """Exit configuration mode."""
-        return super(HuaweiBase, self).exit_config_mode(
-            exit_config=exit_config, pattern=pattern
-        )
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_config_mode(self, check_string="]"):
         """Checks whether in configuration mode. Returns a boolean."""
-        return super(HuaweiBase, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
     def check_enable_mode(self, *args, **kwargs):
         """Huawei has no enable mode."""
@@ -71,7 +67,7 @@ class HuaweiBase(CiscoBaseConnection):
 
         # Check that ends with a valid terminator character
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {0}".format(prompt))
+            raise ValueError(f"Router prompt not found: {prompt}")
 
         # Strip off any leading HRP_. characters for USGv5 HA
         prompt = re.sub(r"^HRP_.", "", prompt, flags=re.M)
@@ -80,13 +76,13 @@ class HuaweiBase(CiscoBaseConnection):
         prompt = prompt[1:-1]
         prompt = prompt.strip()
         self.base_prompt = prompt
-        log.debug("prompt: {0}".format(self.base_prompt))
+        log.debug(f"prompt: {self.base_prompt}")
 
         return self.base_prompt
 
-    def save_config(self, cmd="save", confirm=False, confirm_response=""):
+    def save_config(self, cmd="save", confirm=True, confirm_response="y"):
         """ Save Config for HuaweiSSH"""
-        return super(HuaweiBase, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
@@ -112,7 +108,7 @@ class HuaweiTelnet(HuaweiBase):
         """Telnet login for Huawei Devices"""
 
         delay_factor = self.select_delay_factor(delay_factor)
-        password_change_prompt = re.escape("Change now? [Y/N]")
+        password_change_prompt = r"(Change now|Please choose 'YES' or 'NO').+"
         combined_pattern = r"({}|{}|{})".format(
             pri_prompt_terminator, alt_prompt_terminator, password_change_prompt
         )
@@ -161,8 +157,8 @@ class HuaweiTelnet(HuaweiBase):
 
             except EOFError:
                 self.remote_conn.close()
-                msg = "Login failed: {}".format(self.host)
-                raise NetMikoAuthenticationException(msg)
+                msg = f"Login failed: {self.host}"
+                raise NetmikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -175,8 +171,8 @@ class HuaweiTelnet(HuaweiBase):
             return return_msg
 
         self.remote_conn.close()
-        msg = "Login failed: {}".format(self.host)
-        raise NetMikoAuthenticationException(msg)
+        msg = f"Login failed: {self.host}"
+        raise NetmikoAuthenticationException(msg)
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
@@ -198,7 +194,7 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         command_string = "commit"
 
         if comment:
-            command_string += ' comment "{}"'.format(comment)
+            command_string += f' comment "{comment}"'
 
         output = self.config_mode()
         output += self.send_command_expect(
@@ -211,9 +207,7 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         output += self.exit_config_mode()
 
         if error_marker in output:
-            raise ValueError(
-                "Commit failed with following errors:\n\n{}".format(output)
-            )
+            raise ValueError(f"Commit failed with following errors:\n\n{output}")
         return output
 
     def save_config(self, *args, **kwargs):

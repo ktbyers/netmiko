@@ -1,5 +1,4 @@
 """Support for Extreme SLX."""
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -28,6 +27,6 @@ class ExtremeSlxSSH(CiscoSSHConnection):
         confirm_response="y",
     ):
         """Save Config for Extreme SLX."""
-        return super(ExtremeSlxSSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

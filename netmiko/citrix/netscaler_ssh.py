@@ -12,7 +12,7 @@ class NetscalerSSH(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor=0)
         self._test_channel_read()
         self.set_base_prompt()
-        cmd = "{}set cli mode -page OFF{}".format(self.RETURN, self.RETURN)
+        cmd = f"{self.RETURN}set cli mode -page OFF{self.RETURN}"
         self.disable_paging(command=cmd)
         time.sleep(1 * delay_factor)
         self.set_base_prompt()
@@ -28,7 +28,7 @@ class NetscalerSSH(BaseConnection):
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("Router prompt not found: {}".format(repr(prompt)))
+            raise ValueError(f"Router prompt not found: {repr(prompt)}")
 
         prompt = prompt.strip()
         if len(prompt) == 1:
@@ -52,7 +52,7 @@ class NetscalerSSH(BaseConnection):
 
     def strip_prompt(self, a_string):
         """ Strip 'Done' from command output """
-        output = super(NetscalerSSH, self).strip_prompt(a_string)
+        output = super().strip_prompt(a_string)
         lines = output.split(self.RESPONSE_RETURN)
         if "Done" in lines[-1]:
             return self.RESPONSE_RETURN.join(lines[:-1])

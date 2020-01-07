@@ -90,7 +90,7 @@ def test_config_mode(net_connect, commands, expected_responses):
     Test enter config mode
     """
     net_connect.config_mode()
-    assert net_connect.check_config_mode() == True
+    assert net_connect.check_config_mode() is True
 
 
 def test_commit_base(net_connect, commands, expected_responses):
@@ -263,7 +263,7 @@ def test_commit_comment(net_connect, commands, expected_responses):
     if net_connect.device_type == "cisco_xr":
         commit_comment = tmp_output
     else:
-        commit_comment = tmp_output.split("\n")[2]
+        commit_comment = tmp_output.strip().split("\n")[1]
     assert expected_responses.get("commit_comment") in commit_comment.strip()
 
 
@@ -390,7 +390,7 @@ def test_exit_config_mode(net_connect, commands, expected_responses):
     """
     net_connect.exit_config_mode()
     time.sleep(1)
-    assert net_connect.check_config_mode() == False
+    assert net_connect.check_config_mode() is False
 
 
 def test_disconnect(net_connect, commands, expected_responses):

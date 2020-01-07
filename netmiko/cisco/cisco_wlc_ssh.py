@@ -1,13 +1,9 @@
 """Netmiko Cisco WLC support."""
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 import re
 
-from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko.base_connection import BaseConnection
-from netmiko.py23_compat import string_types
-from netmiko import log
 
 
 class CiscoWlcSSH(BaseConnection):
@@ -105,8 +101,8 @@ class CiscoWlcSSH(BaseConnection):
         try:
             self.set_base_prompt()
         except ValueError:
-            msg = "Authentication failed: {}".format(self.host)
-            raise NetMikoAuthenticationException(msg)
+            msg = f"Authentication failed: {self.host}"
+            raise NetmikoAuthenticationException(msg)
 
         self.disable_paging(command="config paging disable")
         # Clear the read buffer
@@ -121,59 +117,33 @@ class CiscoWlcSSH(BaseConnection):
         """Checks if the device is in configuration mode or not."""
         if not pattern:
             pattern = re.escape(self.base_prompt)
-        return super(CiscoWlcSSH, self).check_config_mode(check_string, pattern)
+        return super().check_config_mode(check_string, pattern)
 
     def config_mode(self, config_command="config", pattern=""):
         """Enter into config_mode."""
         if not pattern:
             pattern = re.escape(self.base_prompt)
-        return super(CiscoWlcSSH, self).config_mode(config_command, pattern)
+        return super().config_mode(config_command, pattern)
 
     def exit_config_mode(self, exit_config="exit", pattern=""):
         """Exit config_mode."""
         if not pattern:
             pattern = re.escape(self.base_prompt)
-        return super(CiscoWlcSSH, self).exit_config_mode(exit_config, pattern)
+        return super().exit_config_mode(exit_config, pattern)
 
     def send_config_set(
         self,
         config_commands=None,
-        exit_config_mode=True,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=False,
-        strip_command=False,
-        config_mode_command=None,
+        exit_config_mode=False,
+        enter_config_mode=False,
+        **kwargs,
     ):
-        """
-        Send configuration commands down the SSH channel.
-
-        config_commands is an iterable containing all of the configuration commands.
-        The commands will be executed one after the other.
-
-        Does not automatically exit/enter configuration mode.
-        """
-        delay_factor = self.select_delay_factor(delay_factor)
-        if config_commands is None:
-            return ""
-        elif isinstance(config_commands, string_types):
-            config_commands = (config_commands,)
-
-        if not hasattr(config_commands, "__iter__"):
-            raise ValueError("Invalid argument passed into send_config_set")
-
-        # Send config commands
-        for cmd in config_commands:
-            self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(delay_factor * 0.5)
-
-        # Gather output
-        output = self._read_channel_timing(
-            delay_factor=delay_factor, max_loops=max_loops
+        return super().send_config_set(
+            config_commands=config_commands,
+            exit_config_mode=exit_config_mode,
+            enter_config_mode=enter_config_mode,
+            **kwargs,
         )
-        output = self._sanitize_output(output)
-        log.debug("{}".format(output))
-        return output
 
     def save_config(self, cmd="save config", confirm=True, confirm_response="y"):
         """Saves Config."""

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import os
 import re
 import socket
@@ -7,7 +5,7 @@ import time
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
-from netmiko.ssh_exception import NetMikoTimeoutException
+from netmiko.ssh_exception import NetmikoTimeoutException
 
 LINUX_PROMPT_PRI = os.getenv("NETMIKO_LINUX_PROMPT_PRI", "$")
 LINUX_PROMPT_ALT = os.getenv("NETMIKO_LINUX_PROMPT_ALT", "#")
@@ -18,7 +16,7 @@ class LinuxSSH(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        return super(LinuxSSH, self).session_preparation()
+        return super().session_preparation()
 
     def _enter_shell(self):
         """Already in shell."""
@@ -39,7 +37,7 @@ class LinuxSSH(CiscoSSHConnection):
         delay_factor=1,
     ):
         """Determine base prompt."""
-        return super(LinuxSSH, self).set_base_prompt(
+        return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
@@ -49,7 +47,7 @@ class LinuxSSH(CiscoSSHConnection):
         """Can't exit from root (if root)"""
         if self.username == "root":
             exit_config_mode = False
-        return super(LinuxSSH, self).send_config_set(
+        return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
@@ -57,7 +55,7 @@ class LinuxSSH(CiscoSSHConnection):
         """Verify root"""
         return self.check_enable_mode(check_string=check_string)
 
-    def config_mode(self, config_command="sudo su"):
+    def config_mode(self, config_command="sudo -s"):
         """Attempt to become root."""
         return self.enable(cmd=config_command)
 
@@ -66,7 +64,7 @@ class LinuxSSH(CiscoSSHConnection):
 
     def check_enable_mode(self, check_string=LINUX_PROMPT_ROOT):
         """Verify root"""
-        return super(LinuxSSH, self).check_enable_mode(check_string=check_string)
+        return super().check_enable_mode(check_string=check_string)
 
     def exit_enable_mode(self, exit_command="exit"):
         """Exit enable mode."""
@@ -80,7 +78,7 @@ class LinuxSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def enable(self, cmd="sudo su", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(self, cmd="sudo -s", pattern="ssword", re_flags=re.IGNORECASE):
         """Attempt to become root."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
@@ -93,7 +91,7 @@ class LinuxSSH(CiscoSSHConnection):
                     self.write_channel(self.normalize_cmd(self.secret))
                 self.set_base_prompt()
             except socket.timeout:
-                raise NetMikoTimeoutException(
+                raise NetmikoTimeoutException(
                     "Timed-out reading channel, data not available."
                 )
             if not self.check_enable_mode():
@@ -122,14 +120,21 @@ class LinuxFileTransfer(CiscoFileTransfer):
     """
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction="put"
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system="/var/tmp",
+        direction="put",
+        **kwargs,
     ):
-        return super(LinuxFileTransfer, self).__init__(
+        return super().__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
+            **kwargs,
         )
 
     def remote_space_available(self, search_pattern=""):
@@ -152,7 +157,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
         dest_md5 = self.ssh_ctl_chan.send_command(
             remote_md5_cmd, max_loops=750, delay_factor=2
         )

@@ -4,6 +4,8 @@ import os
 from os.path import dirname, join, relpath
 import sys
 
+import pytest
+
 from netmiko import utilities
 from netmiko._textfsm import _clitable as clitable
 
@@ -37,7 +39,7 @@ def test_invalid_yaml_file():
 def test_find_cfg_file():
     """
     Search for netmiko_tools config file in the following order:
- 
+
     NETMIKO_TOOLS_CFG environment variable
     Current directory
     Home directory
@@ -149,7 +151,7 @@ def test_bytes_to_bytes():
 def test_invalid_data_to_bytes():
     """Convert an invalid data type to bytes"""
     try:
-        utilities.write_bytes(456779)
+        utilities.write_bytes(456_779)
     except ValueError as exc:
         assert isinstance(exc, ValueError)
         return
@@ -187,7 +189,7 @@ def test_clitable_to_dict():
     assert result == [{"model": "4500"}]
 
 
-def test_get_structured_data():
+def test_textfsm_w_index():
     """Convert raw CLI output to structured data using TextFSM template"""
     os.environ["NET_TEXTFSM"] = RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
@@ -197,7 +199,7 @@ def test_get_structured_data():
     assert result == [{"model": "4500"}]
 
 
-def test_get_structured_data_relative_path():
+def test_textfsm_index_relative_path():
     """Test relative path for textfsm ntc directory"""
     os.environ["NET_TEXTFSM"] = RELATIVE_RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
@@ -207,12 +209,60 @@ def test_get_structured_data_relative_path():
     assert result == [{"model": "4500"}]
 
 
+def test_textfsm_direct_template():
+    """Convert raw CLI output to structured data using TextFSM template (no index)."""
+    raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
+    result = utilities.get_structured_data(
+        raw_output,
+        platform="cisco_ios",
+        command="show version",
+        template=f"{RESOURCE_FOLDER}/cisco_ios_show_version.template",
+    )
+    assert result == [{"model": "4500"}]
+
+    # Should also work with no-platform or command
+    result = utilities.get_structured_data(
+        raw_output, template=f"{RESOURCE_FOLDER}/cisco_ios_show_version.template"
+    )
+    assert result == [{"model": "4500"}]
+
+
+def test_textfsm_failed_parsing():
+    """Verify raw_output is returned if TextFSM template parsing fails."""
+    raw_output = "This is not 'show version' output"
+    result = utilities.get_structured_data(
+        raw_output,
+        platform="cisco_ios",
+        command="show version",
+        template=f"{RESOURCE_FOLDER}/nothinghere",
+    )
+    assert result == raw_output
+
+
+def test_textfsm_missing_template():
+    """Verify raw_output is returned if TextFSM template is missing."""
+    raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
+    result = utilities.get_structured_data(
+        raw_output,
+        platform="cisco_ios",
+        command="show version",
+        template=f"{RESOURCE_FOLDER}/nothinghere",
+    )
+    assert result == raw_output
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 8),
+    reason="The genie package is not available for Python 3.8 yet",
+)
 def test_get_structured_data_genie():
     """Convert raw CLI output to structured data using Genie"""
-    if not sys.version_info >= (3, 4):
-        assert True
-        return
-    raw_output = """Cisco IOS Software, C3560CX Software (C3560CX-UNIVERSALK9-M), Version 15.2(4)E7, RELEASE SOFTWARE (fc2)
+
+    header_line = (
+        "Cisco IOS Software, C3560CX Software (C3560CX-UNIVERSALK9-M), "
+        "Version 15.2(4)E7, RELEASE SOFTWARE (fc2)"
+    )
+    raw_output = """
 Technical Support: http://www.cisco.com/techsupport
 Copyright (c) 1986-2018 by Cisco Systems, Inc.
 Compiled Tue 18-Sep-18 13:20 by prod_rel_team
@@ -278,6 +328,7 @@ Switch Ports Model                     SW Version            SW Image
 
 Configuration register is 0xF
 """
+    raw_output = header_line + raw_output
     result = utilities.get_structured_data_genie(
         raw_output, platform="cisco_xe", command="show version"
     )

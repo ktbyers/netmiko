@@ -1,6 +1,4 @@
 """Calix B6 SSH Driver for Netmiko"""
-from __future__ import unicode_literals
-
 import time
 from os import path
 
@@ -23,7 +21,7 @@ class CalixB6Base(CiscoSSHConnection):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
-        super(CalixB6Base, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -63,10 +61,10 @@ class CalixB6Base(CiscoSSHConnection):
 
     def check_config_mode(self, check_string=")#", pattern=""):
         """Checks if the device is in configuration mode"""
-        return super(CalixB6Base, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
     def save_config(self, cmd="copy run start", confirm=False, confirm_response=""):
-        return super(CalixB6Base, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 

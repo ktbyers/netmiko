@@ -30,6 +30,7 @@
 - HPE Comware7
 - Huawei
 - IP Infusion OcNOS
+- Juniper ScreenOS
 - Mellanox
 - MikroTik RouterOS
 - MikroTik SwitchOS
@@ -38,6 +39,7 @@
 - Palo Alto PAN-OS
 - Pluribus
 - Ruckus ICX/FastIron
+- Ruijie Networks
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
 
