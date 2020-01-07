@@ -55,12 +55,9 @@ from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet
 from netmiko.juniper import JuniperFileTransfer
-<<<<<<< HEAD
 from netmiko.pica8 import pica8SSH, pica8Telnet
 from netmiko.pica8 import pica8FileTransfer
-=======
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
->>>>>>> upstream/master
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.mikrotik import MikrotikRouterOsSSH
 from netmiko.mikrotik import MikrotikSwitchOsSSH
@@ -145,13 +142,10 @@ CLASS_MAPPER_BASE = {
     "ipinfusion_ocnos": IpInfusionOcNOSSSH,
     "juniper": JuniperSSH,
     "juniper_junos": JuniperSSH,
-<<<<<<< HEAD
     "pica8": pica8SSH,
     "pica8_picos": pica8SSH,
-=======
     "keymile": KeymileSSH,
     "keymile_nos": KeymileNOSSSH,
->>>>>>> upstream/master
     "linux": LinuxSSH,
     "mikrotik_routeros": MikrotikRouterOsSSH,
     "mikrotik_switchos": MikrotikSwitchOsSSH,
