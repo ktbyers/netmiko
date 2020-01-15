@@ -90,7 +90,15 @@ class HuaweiBase(CiscoBaseConnection):
 class HuaweiSSH(HuaweiBase):
     """Huawei SSH driver."""
 
-    pass
+    def special_login_handler(self):
+        """Handle password change request by ignoring it"""
+
+        password_change_prompt = r"(Change now|Please choose 'YES' or 'NO').+"
+        output = self.read_until_prompt_or_pattern(password_change_prompt)
+        if re.search(password_change_prompt, output):
+            self.write_channel("N\n")
+            self._read_channel_expect(pattern="N\n")
+        return output
 
 
 class HuaweiTelnet(HuaweiBase):
