@@ -97,7 +97,7 @@ class HuaweiSSH(HuaweiBase):
         output = self.read_until_prompt_or_pattern(password_change_prompt)
         if re.search(password_change_prompt, output):
             self.write_channel("N\n")
-            self._read_channel_expect(pattern="N\n")
+            self.clear_buffer()
         return output
 
 
