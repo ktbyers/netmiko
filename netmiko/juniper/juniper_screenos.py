@@ -72,5 +72,4 @@ class JuniperScreenOsSSH(BaseConnection):
 
     def save_config(self, cmd="save config", confirm=False, confirm_response=""):
         """Save Config."""
-        print("saving...")
         return self.send_command(command_string=cmd)
