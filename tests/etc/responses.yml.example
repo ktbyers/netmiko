@@ -22,8 +22,8 @@ juniper:
   commit_comment: 'Unit test on commit with comment'
 
 juniper_screenos:
-  base_prompt: "ssg5-serial-"
-  router_prompt: "ssg5-serial->"
+  base_prompt: "ssg5-serial"
+  router_prompt: "ssg5-serial"
   enable_prompt: "ssg5-serial->"
   interface_ip: 100.65.1.1
   multiple_line_output: 'Total Config size'

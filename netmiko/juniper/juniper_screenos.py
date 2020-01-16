@@ -1,6 +1,6 @@
 import time
 from netmiko.base_connection import BaseConnection
-
+import re
 
 class JuniperScreenOsSSH(BaseConnection):
     """
@@ -20,6 +20,30 @@ class JuniperScreenOsSSH(BaseConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+
+    def set_base_prompt(self, *args, **kwargs):
+        """ScreenOS is adding '(VR-NAME)' after the hostname to the prompt when using 'set vr VR-NAME' command"""
+        cur_base_prompt = re.sub(r"\(.*\)-$|-$","",super().set_base_prompt(*args, **kwargs))
+        match = re.search(r"(.*)", cur_base_prompt)
+        if match:
+            self.base_prompt = match.group(1)
+            return self.base_prompt
+        else:
+            print(f"else : {self.base_prompt}")
+            return cur_base_prompt
+
+
+    def send_command(self, *args, **kwargs):
+        """ScreenOS needs special handler here due to the prompt changes."""
+
+
+        # Change send_command behavior to use self.base_prompt
+        kwargs.setdefault("auto_find_prompt", False)
+
+        # refresh self.base_prompt
+        self.set_base_prompt()
+        return super().send_command(*args, **kwargs)
+
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on Juniper ScreenOS."""
@@ -47,4 +71,5 @@ class JuniperScreenOsSSH(BaseConnection):
 
     def save_config(self, cmd="save config", confirm=False, confirm_response=""):
         """Save Config."""
+        print("saving...")
         return self.send_command(command_string=cmd)
