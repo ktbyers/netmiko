@@ -28,7 +28,9 @@ class JuniperScreenOsSSH(BaseConnection):
         using 'set vr VR-NAME' command.
         The solution is to remove it and trailing '-' from base_prompt
         """
-        cur_base_prompt = re.sub(r"\(.*\)-$|-$", "", super().set_base_prompt(*args, **kwargs))
+        cur_base_prompt = re.sub(
+            r"\(.*\)-$|-$", "", super().set_base_prompt(*args, **kwargs)
+        )
         match = re.search(r"(.*)", cur_base_prompt)
         if match:
             self.base_prompt = match.group(1)
