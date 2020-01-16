@@ -2,6 +2,7 @@ import time
 from netmiko.base_connection import BaseConnection
 import re
 
+
 class JuniperScreenOsSSH(BaseConnection):
     """
     Implement methods for interacting with Juniper ScreenOS devices.
@@ -22,8 +23,12 @@ class JuniperScreenOsSSH(BaseConnection):
         self.clear_buffer()
 
     def set_base_prompt(self, *args, **kwargs):
-        """ScreenOS is adding '(VR-NAME)' after the hostname to the prompt when using 'set vr VR-NAME' command"""
-        cur_base_prompt = re.sub(r"\(.*\)-$|-$","",super().set_base_prompt(*args, **kwargs))
+        """
+        ScreenOS is adding '(VR-NAME)' after the hostname to the prompt when
+        using 'set vr VR-NAME' command.
+        The solution is to remove it and trailing '-' from base_prompt
+        """
+        cur_base_prompt = re.sub(r"\(.*\)-$|-$", "", super().set_base_prompt(*args, **kwargs))
         match = re.search(r"(.*)", cur_base_prompt)
         if match:
             self.base_prompt = match.group(1)
@@ -32,18 +37,14 @@ class JuniperScreenOsSSH(BaseConnection):
             print(f"else : {self.base_prompt}")
             return cur_base_prompt
 
-
     def send_command(self, *args, **kwargs):
         """ScreenOS needs special handler here due to the prompt changes."""
-
-
         # Change send_command behavior to use self.base_prompt
         kwargs.setdefault("auto_find_prompt", False)
 
         # refresh self.base_prompt
         self.set_base_prompt()
         return super().send_command(*args, **kwargs)
-
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on Juniper ScreenOS."""
