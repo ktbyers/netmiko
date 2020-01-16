@@ -1,5 +1,4 @@
 """Extreme support."""
-from __future__ import unicode_literals
 import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -35,7 +34,7 @@ class ExtremeExosBase(CiscoSSHConnection):
             * testhost.4 #
             * testhost.5 #
         """
-        cur_base_prompt = super(ExtremeExosBase, self).set_base_prompt(*args, **kwargs)
+        cur_base_prompt = super().set_base_prompt(*args, **kwargs)
         # Strip off any leading * or whitespace chars; strip off trailing period and digits
         match = re.search(r"[\*\s]*(.*)\.\d+", cur_base_prompt)
         if match:
@@ -52,7 +51,7 @@ class ExtremeExosBase(CiscoSSHConnection):
 
         # refresh self.base_prompt
         self.set_base_prompt()
-        return super(ExtremeExosBase, self).send_command(*args, **kwargs)
+        return super().send_command(*args, **kwargs)
 
     def config_mode(self, config_command=""):
         """No configuration mode on Extreme Exos."""
@@ -60,7 +59,7 @@ class ExtremeExosBase(CiscoSSHConnection):
 
     def check_config_mode(self, check_string="#"):
         """Checks whether in configuration mode. Returns a boolean."""
-        return super(ExtremeExosBase, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
     def exit_config_mode(self, exit_config=""):
         """No configuration mode on Extreme Exos."""
@@ -70,7 +69,7 @@ class ExtremeExosBase(CiscoSSHConnection):
         self, cmd="save configuration primary", confirm=False, confirm_response=""
     ):
         """Saves configuration."""
-        return super(ExtremeExosBase, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
@@ -83,4 +82,4 @@ class ExtremeExosTelnet(ExtremeExosBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
-        super(ExtremeExosTelnet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)

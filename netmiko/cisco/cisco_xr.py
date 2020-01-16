@@ -1,9 +1,6 @@
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
-from netmiko.py23_compat import text_type
 
 
 class CiscoXrBase(CiscoBaseConnection):
@@ -17,10 +14,10 @@ class CiscoXrBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
-        return super(CiscoXrBase, self).send_config_set(
-            config_commands=config_commands, exit_config_mode=False, **kwargs
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
     def commit(
@@ -71,26 +68,26 @@ class CiscoXrBase(CiscoBaseConnection):
         if comment:
             if '"' in comment:
                 raise ValueError("Invalid comment contains double quote")
-            comment = '"{0}"'.format(comment)
+            comment = f'"{comment}"'
 
-        label = text_type(label)
+        label = str(label)
         error_marker = "Failed to"
         alt_error_marker = "One or more commits have occurred from other"
 
         # Select proper command string based on arguments provided
         if label:
             if comment:
-                command_string = "commit label {} comment {}".format(label, comment)
+                command_string = f"commit label {label} comment {comment}"
             elif confirm:
                 command_string = "commit label {} confirmed {}".format(
-                    label, text_type(confirm_delay)
+                    label, str(confirm_delay)
                 )
             else:
-                command_string = "commit label {}".format(label)
+                command_string = f"commit label {label}"
         elif confirm:
-            command_string = "commit confirmed {}".format(text_type(confirm_delay))
+            command_string = f"commit confirmed {str(confirm_delay)}"
         elif comment:
-            command_string = "commit comment {}".format(comment)
+            command_string = f"commit comment {comment}"
         else:
             command_string = "commit"
 
@@ -103,17 +100,13 @@ class CiscoXrBase(CiscoBaseConnection):
             delay_factor=delay_factor,
         )
         if error_marker in output:
-            raise ValueError(
-                "Commit failed with the following errors:\n\n{0}".format(output)
-            )
+            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
             output += self.send_command_timing(
                 "no", strip_prompt=False, strip_command=False, delay_factor=delay_factor
             )
-            raise ValueError(
-                "Commit failed with the following errors:\n\n{}".format(output)
-            )
+            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
         return output
 
@@ -177,7 +170,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         if match:
             return match.group(1)
         else:
-            raise ValueError("Invalid output from MD5 command: {}".format(md5_output))
+            raise ValueError(f"Invalid output from MD5 command: {md5_output}")
 
     def remote_md5(self, base_cmd="show md5 file", remote_file=None):
         """
@@ -191,7 +184,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
         # IOS-XR requires both the leading slash and the slash between file-system and file here
-        remote_md5_cmd = "{} /{}/{}".format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = f"{base_cmd} /{self.file_system}/{remote_file}"
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5

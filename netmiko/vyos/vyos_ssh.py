@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -30,13 +28,11 @@ class VyOSSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string="#"):
         """Checks if the device is in configuration mode"""
-        return super(VyOSSSH, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
     def config_mode(self, config_command="configure", pattern=r"[edit]"):
         """Enter configuration mode."""
-        return super(VyOSSSH, self).config_mode(
-            config_command=config_command, pattern=pattern
-        )
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
     def exit_config_mode(self, exit_config="exit", pattern=r"exit"):
         """Exit configuration mode"""
@@ -71,7 +67,7 @@ class VyOSSSH(CiscoSSHConnection):
         command_string = "commit"
 
         if comment:
-            command_string += ' comment "{}"'.format(comment)
+            command_string += f' comment "{comment}"'
 
         output = self.config_mode()
         output += self.send_command_expect(
@@ -82,16 +78,14 @@ class VyOSSSH(CiscoSSHConnection):
         )
 
         if any(x in output for x in error_marker):
-            raise ValueError(
-                "Commit failed with following errors:\n\n{}".format(output)
-            )
+            raise ValueError(f"Commit failed with following errors:\n\n{output}")
         return output
 
     def set_base_prompt(
         self, pri_prompt_terminator="$", alt_prompt_terminator="#", delay_factor=1
     ):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        prompt = super(VyOSSSH, self).set_base_prompt(
+        prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
@@ -100,25 +94,10 @@ class VyOSSSH(CiscoSSHConnection):
         self.base_prompt = prompt[:-2].strip()
         return self.base_prompt
 
-    def send_config_set(
-        self,
-        config_commands=None,
-        exit_config_mode=False,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=False,
-        strip_command=False,
-        config_mode_command=None,
-    ):
+    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         """Remain in configuration mode."""
-        return super(VyOSSSH, self).send_config_set(
-            config_commands=config_commands,
-            exit_config_mode=exit_config_mode,
-            delay_factor=delay_factor,
-            max_loops=max_loops,
-            strip_prompt=strip_prompt,
-            strip_command=strip_command,
-            config_mode_command=config_mode_command,
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
     def save_config(self, *args, **kwargs):

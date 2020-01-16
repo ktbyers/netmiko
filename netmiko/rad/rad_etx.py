@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
 import time
 from netmiko.base_connection import BaseConnection
 
@@ -43,9 +41,7 @@ class RadETXBase(BaseConnection):
 
     def config_mode(self, config_command="config", pattern=">config"):
         """Enter into configuration mode on remote device."""
-        return super(RadETXBase, self).config_mode(
-            config_command=config_command, pattern=pattern
-        )
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
     def check_config_mode(self, check_string=">config", pattern=""):
         """
@@ -53,15 +49,11 @@ class RadETXBase(BaseConnection):
 
         Rad config starts with baseprompt>config.
         """
-        return super(RadETXBase, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def exit_config_mode(self, exit_config="exit all", pattern="#"):
         """Exit from configuration mode."""
-        return super(RadETXBase, self).exit_config_mode(
-            exit_config=exit_config, pattern=pattern
-        )
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
 
 class RadETXSSH(RadETXBase):
@@ -70,7 +62,7 @@ class RadETXSSH(RadETXBase):
     def __init__(self, **kwargs):
         # Found that a global_delay_factor of 2 is needed at minimum for SSH to the Rad ETX.
         kwargs.setdefault("global_delay_factor", 2)
-        return super(RadETXSSH, self).__init__(**kwargs)
+        return super().__init__(**kwargs)
 
 
 class RadETXTelnet(RadETXBase):
@@ -87,7 +79,7 @@ class RadETXTelnet(RadETXBase):
         password> ****
         """
         self.TELNET_RETURN = self.RETURN
-        return super(RadETXTelnet, self).telnet_login(
+        return super().telnet_login(
             username_pattern=username_pattern,
             alt_prompt_terminator=alt_prompt_term,
             **kwargs

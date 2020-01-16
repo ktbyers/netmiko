@@ -1,6 +1,4 @@
 """Netmiko support for Extreme Ethernet Routing Switch."""
-from __future__ import print_function
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -40,6 +38,6 @@ class ExtremeErsSSH(CiscoSSHConnection):
 
     def save_config(self, cmd="save config", confirm=False, confirm_response=""):
         """Save Config"""
-        return super(ExtremeErsSSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import paramiko
 import time
 import re
@@ -17,6 +16,21 @@ class FortinetSSH(CiscoSSHConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        output = ""
+
+        # If "set post-login-banner enable" is set it will require you to press 'a'
+        # to accept the banner before you login. This will accept if it occurs
+        count = 1
+        while count <= 30:
+            output += self.read_channel()
+            if "to accept" in output:
+                self.write_channel("a\r")
+                break
+            else:
+                time.sleep(0.33 * delay_factor)
+            count += 1
+
         self._test_channel_read()
         self.set_base_prompt(alt_prompt_terminator="$")
         self.disable_paging()
@@ -75,7 +89,7 @@ class FortinetSSH(CiscoSSHConnection):
         """Re-enable paging globally."""
         if self.allow_disable_global:
             # Return paging state
-            output_mode_cmd = "set output {}".format(self._output_mode)
+            output_mode_cmd = f"set output {self._output_mode}"
             enable_paging_commands = ["config system console", output_mode_cmd, "end"]
             if self.vdoms:
                 enable_paging_commands.insert(0, "config global")

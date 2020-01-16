@@ -1,5 +1,4 @@
 """Dell PowerConnect Driver."""
-from __future__ import unicode_literals
 from paramiko import SSHClient
 import time
 from os import path
@@ -30,7 +29,7 @@ class DellPowerConnectBase(CiscoBaseConnection):
         self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1
     ):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        prompt = super(DellPowerConnectBase, self).set_base_prompt(
+        prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
@@ -41,15 +40,11 @@ class DellPowerConnectBase(CiscoBaseConnection):
 
     def check_config_mode(self, check_string="(config)#"):
         """Checks if the device is in configuration mode"""
-        return super(DellPowerConnectBase, self).check_config_mode(
-            check_string=check_string
-        )
+        return super().check_config_mode(check_string=check_string)
 
     def config_mode(self, config_command="config"):
         """Enter configuration mode."""
-        return super(DellPowerConnectBase, self).config_mode(
-            config_command=config_command
-        )
+        return super().config_mode(config_command=config_command)
 
 
 class DellPowerConnectSSH(DellPowerConnectBase):

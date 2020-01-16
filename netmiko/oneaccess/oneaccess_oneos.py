@@ -1,8 +1,4 @@
 """Netmiko driver for OneAccess ONEOS"""
-
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from netmiko.cisco_base_connection import CiscoBaseConnection
 import time
 
@@ -12,7 +8,7 @@ class OneaccessOneOSBase(CiscoBaseConnection):
         """Init connection - similar as Cisco"""
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
-        super(OneaccessOneOSBase, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def session_preparation(self):
         """Prepare connection - disable paging"""
@@ -26,7 +22,7 @@ class OneaccessOneOSBase(CiscoBaseConnection):
 
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Save config: write mem"""
-        return super(OneaccessOneOSBase, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 

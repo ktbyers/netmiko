@@ -14,11 +14,13 @@ test_clear_buffer: clear text buffer
 test_enable_mode: verify enter enable mode
 test_disconnect: cleanly disconnect the SSH session
 """
-
-from __future__ import print_function
-from __future__ import unicode_literals
 import pytest
 import time
+
+# import logging
+
+# logging.basicConfig(filename="test.log", level=logging.DEBUG)
+# logger = logging.getLogger("netmiko")
 
 
 def test_disable_paging(net_connect, commands, expected_responses):
@@ -28,11 +30,6 @@ def test_disable_paging(net_connect, commands, expected_responses):
         net_connect.send_command("clear logging")
     multiple_line_output = net_connect.send_command(commands["extended_output"])
     assert expected_responses["multiple_line_output"] in multiple_line_output
-    if net_connect.device_type == "arista_eos":
-        # Arista output is slow and has router-name in output
-        time.sleep(5)
-        net_connect.clear_buffer()
-        net_connect.send_command("clear logging", expect_string="#")
 
 
 def test_ssh_connect(net_connect, commands, expected_responses):
@@ -53,6 +50,9 @@ def test_send_command_timing(net_connect, commands, expected_responses):
     net_connect.clear_buffer()
     show_ip = net_connect.send_command_timing(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip
+    # Force verification of command echo
+    show_ip = net_connect.send_command_timing(commands["basic"], cmd_echo=True)
+    assert expected_responses["interface_ip"] in show_ip
 
 
 def test_send_command(net_connect, commands, expected_responses):
@@ -61,6 +61,17 @@ def test_send_command(net_connect, commands, expected_responses):
     net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip_alt
+
+
+def test_send_command_juniper(net_connect, commands, expected_responses):
+    """Verify Juniper complete on space is disabled."""
+    # If complete on space is enabled will get re-written to "show ipv6 neighbors"
+    if net_connect.device_type == "juniper_junos":
+        net_connect.write_channel("show ip neighbors\n")
+        output = net_connect.read_until_prompt()
+        assert "show ip neighbors" in output
+    else:
+        assert pytest.skip()
 
 
 def test_send_command_textfsm(net_connect, commands, expected_responses):
@@ -108,7 +119,7 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         "cisco_nxos",
         "cisco_asa",
     ]:
-        assert pytest.skip("TextFSM/ntc-templates not supported on this platform")
+        assert pytest.skip("Genie not supported on this platform")
     else:
         time.sleep(1)
         net_connect.clear_buffer()
@@ -146,8 +157,8 @@ def test_normalize_linefeeds(net_connect, commands, expected_responses):
     """Ensure no '\r\n' sequences."""
     show_version = net_connect.send_command_timing(commands["version"])
     show_version_alt = net_connect.send_command(commands["version"])
-    assert not "\r\n" in show_version
-    assert not "\r\n" in show_version_alt
+    assert "\r\n" not in show_version
+    assert "\r\n" not in show_version_alt
 
 
 def test_clear_buffer(net_connect, commands, expected_responses):
@@ -173,7 +184,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
         enable_prompt = net_connect.find_prompt()
         assert enable_prompt == expected_responses["enable_prompt"]
     except AttributeError:
-        assert True == True
+        assert True is True
 
 
 def test_disconnect(net_connect, commands, expected_responses):

@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -24,6 +23,6 @@ class CiscoS300SSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
 
     def save_config(self, cmd="write memory", confirm=True, confirm_response="Y"):
-        return super(CiscoS300SSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import unicode_literals
 import re
 import time
 import os
@@ -26,9 +24,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string=")#", pattern="#"):
         """Checks if the device is in configuration mode or not."""
-        return super(CiscoNxosSSH, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):
@@ -41,6 +37,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         dest_file,
         file_system="bootflash:",
         direction="put",
+        socket_timeout=10.0,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
@@ -61,11 +58,13 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         else:
             raise ValueError("Invalid direction specified")
 
+        self.socket_timeout = socket_timeout
+
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             if not remote_cmd:
-                remote_cmd = "dir {}{}".format(self.file_system, self.dest_file)
+                remote_cmd = f"dir {self.file_system}{self.dest_file}"
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"{}.*Usage for".format(self.dest_file)
             if "No such file or directory" in remote_out:
@@ -86,7 +85,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
                 remote_file = self.source_file
 
         if not remote_cmd:
-            remote_cmd = "dir {}/{}".format(self.file_system, remote_file)
+            remote_cmd = f"dir {self.file_system}/{remote_file}"
 
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
         # Match line containing file name
@@ -113,9 +112,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_md5_cmd = "{} {}{} md5sum".format(
-            base_cmd, self.file_system, remote_file
-        )
+        remote_md5_cmd = f"{base_cmd} {self.file_system}{remote_file} md5sum"
         return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500).strip()
 
     def enable_scp(self, cmd=None):

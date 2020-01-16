@@ -1,17 +1,27 @@
 ---
 language: python
 python:
-  - "2.7"
-  - "3.5"
   - "3.6"
   - "3.7"
+  - "3.8-dev"
+  - "nightly"
+stages:
+  - lint
+  - test
 matrix:
   include:
-  - python: 3.6
-    env: TOXENV=black
-  - python: 3.6
-    env: TOXENV=pylama
-install: 
-  - pip install tox==3.13.1 tox-travis==0.12
-script: 
+    - stage: lint
+      name: Black
+      python: 3.6
+      env: TOXENV=black
+    - stage: lint
+      name: Pylama
+      python: 3.6
+      env: TOXENV=pylama
+  allow_failures:
+    - python: 3.8-dev
+    - python: nightly
+install:
+  - pip install tox==3.13.2 tox-travis==0.12
+script:
   - tox

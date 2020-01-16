@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import logging
 
 # Logging configuration
@@ -12,28 +11,29 @@ from netmiko.ssh_dispatcher import platforms
 from netmiko.ssh_dispatcher import FileTransfer
 from netmiko.scp_handler import SCPConn
 from netmiko.cisco.cisco_ios import InLineTransfer
-from netmiko.ssh_exception import NetMikoTimeoutException
-from netmiko.ssh_exception import NetMikoAuthenticationException
+from netmiko.ssh_exception import NetmikoTimeoutException, NetMikoTimeoutException
+from netmiko.ssh_exception import (
+    NetmikoAuthenticationException,
+    NetMikoAuthenticationException,
+)
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_functions import file_transfer
 
 # Alternate naming
-NetmikoTimeoutError = NetMikoTimeoutException
-NetmikoAuthError = NetMikoAuthenticationException
 Netmiko = ConnectHandler
 
-__version__ = "2.4.2"
+__version__ = "3.0.0"
 __all__ = (
     "ConnectHandler",
     "ssh_dispatcher",
     "platforms",
     "SCPConn",
     "FileTransfer",
+    "NetmikoTimeoutException",
+    "NetmikoAuthenticationException",
     "NetMikoTimeoutException",
     "NetMikoAuthenticationException",
-    "NetmikoTimeoutError",
-    "NetmikoAuthError",
     "InLineTransfer",
     "redispatch",
     "SSHDetect",
