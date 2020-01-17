@@ -1,9 +1,6 @@
 import re
-import time
 
 from netmiko.base_connection import BaseConnection
-from netmiko.scp_handler import BaseFileTransfer
-
 
 class EricssonIposSSH(BaseConnection):
 
@@ -64,3 +61,60 @@ class EricssonIposSSH(BaseConnection):
             exit_config=exit_config,
             pattern=pattern
         )
+
+
+    def commit(
+        self,
+        confirm=False,
+        confirm_delay=None,
+        comment="",
+        delay_factor=1,
+    ):
+        """
+        Commit the candidate configuration.
+
+        Commit the entered configuration. Raise an error and return the failure
+        if the commit fails.
+
+        Automatically enters configuration mode
+
+        """
+
+        delay_factor = self.select_delay_factor(delay_factor)
+
+
+        if confirm_delay and not confirm:
+            raise ValueError(
+                "Invalid arguments supplied to commit method both confirm and check"
+            )
+
+        command_string = "commit"
+        commit_marker = "Transaction committed"
+        if confirm:
+            if confirm_delay:
+                command_string = f"commit confirmed {confirm_delay}"
+            else:
+                command_string = "commit confirmed"
+            commit_marker = "Commit confirmed ,it will be rolled back within"
+        
+        if comment:
+            if '"' in comment:
+                raise ValueError("Invalid comment contains double quote")
+            comment = f'"{comment}"'
+            command_string += f" comment {comment}"
+       
+        output = self.config_mode()
+
+        output += self.send_command_expect(
+            command_string,
+            strip_prompt=False,
+            strip_command=False,
+            delay_factor=delay_factor,
+        )
+        
+        if commit_marker not in output:
+            raise ValueError(
+                f"Commit failed with the following errors:\n\n{output}"
+            )
+
+        return output
