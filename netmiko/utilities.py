@@ -30,6 +30,7 @@ SHOW_RUN_MAPPER = {
     "extreme_vdx": "show running-config",
     "extreme_vsp": "show running-config",
     "extreme_wing": "show running-config",
+    "ericsson_ipos": "show configuration",
     "hp_comware": "display current-configuration",
     "huawei": "display current-configuration",
     "fortinet": "show full-configuration",
