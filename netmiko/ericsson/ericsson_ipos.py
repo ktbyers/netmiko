@@ -2,6 +2,7 @@ import re
 
 from netmiko.base_connection import BaseConnection
 
+
 class EricssonIposSSH(BaseConnection):
 
     def check_enable_mode(self, check_string="#"):
@@ -30,7 +31,6 @@ class EricssonIposSSH(BaseConnection):
             exit_command=exit_command
         )
 
-    
     def check_config_mode(self, check_string=")#", pattern=""):
         """
         Checks if the device is in configuration mode or not.
@@ -62,7 +62,6 @@ class EricssonIposSSH(BaseConnection):
             pattern=pattern
         )
 
-
     def commit(
         self,
         confirm=False,
@@ -82,7 +81,6 @@ class EricssonIposSSH(BaseConnection):
 
         delay_factor = self.select_delay_factor(delay_factor)
 
-
         if confirm_delay and not confirm:
             raise ValueError(
                 "Invalid arguments supplied to commit method both confirm and check"
@@ -96,13 +94,13 @@ class EricssonIposSSH(BaseConnection):
             else:
                 command_string = "commit confirmed"
             commit_marker = "Commit confirmed ,it will be rolled back within"
-        
+
         if comment:
             if '"' in comment:
                 raise ValueError("Invalid comment contains double quote")
             comment = f'"{comment}"'
             command_string += f" comment {comment}"
-       
+
         output = self.config_mode()
 
         output += self.send_command_expect(
@@ -111,7 +109,7 @@ class EricssonIposSSH(BaseConnection):
             strip_command=False,
             delay_factor=delay_factor,
         )
-        
+
         if commit_marker not in output:
             raise ValueError(
                 f"Commit failed with the following errors:\n\n{output}"
