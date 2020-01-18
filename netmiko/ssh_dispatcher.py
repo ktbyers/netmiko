@@ -60,6 +60,7 @@ from netmiko.mellanox import MellanoxMlnxosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
+from netmiko.netgear import NetgearProSafeSSH
 from netmiko.nokia import NokiaSrosSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
@@ -151,6 +152,7 @@ CLASS_MAPPER_BASE = {
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "netapp_cdot": NetAppcDotSSH,
+    "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
     "nokia_sros": NokiaSrosSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
