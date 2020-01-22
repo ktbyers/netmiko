@@ -108,7 +108,7 @@ CLASS_MAPPER_BASE = {
     "cisco_xr": CiscoXrSSH,
     "cloudgenix_ion": CloudGenixIonSSH,
     "coriant": CoriantSSH,
-    "cros_mtbr" : CrosSSH,
+    "cros_mtbr": CrosSSH,
     "dell_dnos9": DellForce10SSH,
     "dell_force10": DellForce10SSH,
     "dell_os6": DellDNOS6SSH,

@@ -32,8 +32,7 @@ class CrosSSH(CiscoBaseConnection):
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-
-    def check_config_mode(self, check_string = ")#", pattern=r"[#\$]"):
+    def check_config_mode(self, check_string=")#", pattern=r"[#\$]"):
         """Checks if device is in configuration mode"""
 
         self.write_channel(self.RETURN)
@@ -41,13 +40,11 @@ class CrosSSH(CiscoBaseConnection):
 
         return check_string in output
 
-
-
     def config_mode(self, config_command="config", pattern=""):
         """Enter configuration mode."""
         return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def commit(self, comment = "", delay_factor = 1, and_quit = True):
+    def commit(self, comment="", delay_factor=1, and_quit=True):
         """
         Commit the candidate configuration.
 
@@ -66,7 +63,6 @@ class CrosSSH(CiscoBaseConnection):
         command_string = "commit"
         commit_marker = ["Commit complete", "No modifications to commit"]
 
-
         if comment:
             if '"' in comment:
                 raise ValueError("Invalid comment contains double quote")
@@ -80,8 +76,6 @@ class CrosSSH(CiscoBaseConnection):
             delay_factor=delay_factor,
         )
 
-
-
         if not (any(x in output for x in commit_marker)):
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
@@ -89,7 +83,6 @@ class CrosSSH(CiscoBaseConnection):
             self.exit_config_mode()
 
         return output
-
 
     # Dummy unsupported public functions
 
@@ -104,7 +97,6 @@ class CrosSSH(CiscoBaseConnection):
     def exit_enable_mode(self, *args, **kwargs):
         """No enable mode on CROS."""
         pass
-
 
     # Private functions
 
@@ -124,10 +116,9 @@ class CrosSSH(CiscoBaseConnection):
         return output
 
 
-
-
 def main():
     pass
+
 
 if __name__ == "__main__":
     main()
