@@ -44,9 +44,7 @@ class EricssonIposSSH(BaseConnection):
         """
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def commit(
-        self, confirm=False, confirm_delay=None, comment="", delay_factor=1,
-    ):
+    def commit(self, confirm=False, confirm_delay=None, comment="", delay_factor=1):
         """
         Commit the candidate configuration.
 
