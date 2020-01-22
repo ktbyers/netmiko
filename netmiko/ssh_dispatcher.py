@@ -76,6 +76,7 @@ from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
+from netmiko.cros import CrosSSH
 
 
 # The keys of this dictionary are the supported device_types
@@ -107,6 +108,7 @@ CLASS_MAPPER_BASE = {
     "cisco_xr": CiscoXrSSH,
     "cloudgenix_ion": CloudGenixIonSSH,
     "coriant": CoriantSSH,
+    "cros_mtbr" : CrosSSH,
     "dell_dnos9": DellForce10SSH,
     "dell_force10": DellForce10SSH,
     "dell_os6": DellDNOS6SSH,
