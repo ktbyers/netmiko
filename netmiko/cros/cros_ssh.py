@@ -79,7 +79,7 @@ class CrosSSH(CiscoBaseConnection):
         if not (any(x in output for x in commit_marker)):
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
-        if and_quit == True:
+        if and_quit:
             self.exit_config_mode()
 
         return output
