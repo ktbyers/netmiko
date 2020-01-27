@@ -35,6 +35,7 @@
 - MikroTik RouterOS
 - MikroTik SwitchOS
 - NetApp cDOT
+- Nokia/Alcatel SR OS
 - OneAccess
 - Palo Alto PAN-OS
 - Pluribus
@@ -66,7 +67,6 @@
 - Fortinet
 - MRV Communications OptiSwitch
 - MRV LX
-- Nokia/Alcatel SR-OS
 - QuantaMesh
 - Rad ETX
 - Versa Networks FlexVNF
