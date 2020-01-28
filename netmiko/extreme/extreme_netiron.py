@@ -1,3 +1,4 @@
+import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -18,6 +19,7 @@ class ExtremeNetironBase(CiscoSSHConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+
 
 class ExtremeNetironSSH(ExtremeNetironBase):
     pass
