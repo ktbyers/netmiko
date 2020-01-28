@@ -413,6 +413,7 @@ class BaseConnection(object):
                 data = self.normalize_linefeeds(data)
                 self.session_log.write(write_bytes(data, encoding=self.encoding))
             else:
+                # Should this be encoded before giving to session_log.write()?
                 self.session_log.write(self.normalize_linefeeds(data))
             self.session_log.flush()
 
@@ -458,12 +459,13 @@ class BaseConnection(object):
                 log.error("Unable to send", exc_info=True)
                 # If unable to send, we can tell for sure that the connection is unusable
                 return False
+        # Unreachable
         return False
 
     def _read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
+        output = ""
         if self.protocol == "ssh":
-            output = ""
             while True:
                 if self.remote_conn.recv_ready():
                     outbuf = self.remote_conn.recv(MAX_BUFFER)
@@ -890,17 +892,27 @@ class BaseConnection(object):
             # initiate SSH connection
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
-            except socket.error:
+            except (ConnectionError, OSError) as oops:  # socket.error is OSError
                 self.paramiko_cleanup()
-                msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
-                raise NetmikoTimeoutException(msg)
+                cls_map = {
+                    ConnectionRefusedError: "refused by device",
+                    ConnectionAbortedError: "aborted by device",
+                    ConnectionResetError: "reset by device",
+                }
+                explanation = None
+                for cls, string in cls_map.items():
+                    if isinstance(oops, cls):
+                        explanation = f"{string}: {oops}"
+                        break
+                if explanation is None:
+                    explanation = f"{oops.__class__.__name__}: {oops}"
+                    oops = NetmikoTimeoutException("")
+                msg = (f"Connection {explanation}: {self.device_type} {self.host}:{self.port}" )
+                raise type(oops)(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
-                msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = (f"Authentication failure: unable to connect {self.device_type}"
+                       f" {self.host}:{self.port}")
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
 
@@ -1690,6 +1702,7 @@ class BaseConnection(object):
 
         """
         delay_factor = self.select_delay_factor(delay_factor)
+        output = ""
         if config_commands is None:
             return ""
         elif isinstance(config_commands, str):
