@@ -907,12 +907,14 @@ class BaseConnection(object):
                 if explanation is None:
                     explanation = f"{oops.__class__.__name__}: {oops}"
                     oops = NetmikoTimeoutException("")
-                msg = (f"Connection {explanation}: {self.device_type} {self.host}:{self.port}" )
+                msg = f"Connection {explanation}: {self.device_type} {self.host}:{self.port}"
                 raise type(oops)(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
-                msg = (f"Authentication failure: unable to connect {self.device_type}"
-                       f" {self.host}:{self.port}")
+                msg = (
+                    f"Authentication failure: unable to connect {self.device_type}"
+                    f" {self.host}:{self.port}"
+                )
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
 
