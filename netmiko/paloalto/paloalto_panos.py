@@ -20,6 +20,7 @@ class PaloAltoPanosBase(BaseConnection):
         """
         self._test_channel_read()
         self.set_base_prompt(delay_factor=20)
+        self.enable_scripting_mode(command="set cli scripting-mode on")
         self.disable_paging(command="set cli pager off")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
