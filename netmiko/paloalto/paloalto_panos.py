@@ -25,14 +25,14 @@ class PaloAltoPanosBase(BaseConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-    
+
     def special_login_handler(self, delay_factor=1):
         """Enable scripting mode to remove ANSI escape codes from output
 
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
-        
+
         command = "set cli scripting-mode on"
 
         delay_factor = self.select_delay_factor(delay_factor)
