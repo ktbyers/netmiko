@@ -765,6 +765,7 @@ class BaseConnection(object):
         """
         self._test_channel_read()
         self.set_base_prompt()
+        self.enable_scripting_mode()
         self.disable_paging()
         self.set_terminal_width()
 

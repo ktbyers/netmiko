@@ -1,6 +1,7 @@
 import time
 import re
 from netmiko.base_connection import BaseConnection
+from netmiko import log
 
 
 class PaloAltoPanosBase(BaseConnection):
@@ -20,11 +21,32 @@ class PaloAltoPanosBase(BaseConnection):
         """
         self._test_channel_read()
         self.set_base_prompt(delay_factor=20)
-        self.enable_scripting_mode(command="set cli scripting-mode on")
         self.disable_paging(command="set cli pager off")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+    
+    def special_login_handler(self, delay_factor=1):
+        """Enable scripting mode to remove ANSI escape codes from output
+
+        :param delay_factor: See __init__: global_delay_factor
+        :type delay_factor: int
+        """
+        
+        command = "set cli scripting-mode on"
+
+        delay_factor = self.select_delay_factor(delay_factor)
+        time.sleep(delay_factor * 0.1)
+        self.clear_buffer()
+        command = self.normalize_cmd(command)
+        log.debug("In special_login_handler")
+        log.debug(f"Command: {command}")
+        self.write_channel(command)
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        log.debug(f"{output}")
+        log.debug("Exiting special_login_handler")
+        return output
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on PaloAlto."""
