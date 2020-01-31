@@ -94,10 +94,10 @@ class VyOSSSH(CiscoSSHConnection):
         self.base_prompt = prompt[:-2].strip()
         return self.base_prompt
 
-    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
+    def send_config_set(self, config_commands=None, exit_config_mode=False, cmd_verify=False, **kwargs):
         """Remain in configuration mode."""
         return super().send_config_set(
-            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+            config_commands=config_commands, exit_config_mode=exit_config_mode, cmd_verify=cmd_verify, **kwargs
         )
 
     def save_config(self, *args, **kwargs):
