@@ -100,6 +100,12 @@ class VyOSSSH(CiscoSSHConnection):
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def save_config(self, *args, **kwargs):
-        """Not Implemented"""
-        raise NotImplementedError
+    def save_config(self,
+        cmd="save",
+        confirm=False,
+        confirm_response="",
+    ):
+        """Saves Config"""
+        return super().save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
