@@ -160,7 +160,9 @@ class CiscoBaseConnection(BaseConnection):
     def cleanup(self):
         """Gracefully exit the SSH session."""
         try:
-            self.exit_config_mode()
+            # The pattern="" forces use of send_command_timing
+            if check_config_mode(pattern=""):
+                self.exit_config_mode()
         except Exception:
             pass
         # Always try to send final 'exit' regardless of whether exit_config_mode works or not.
