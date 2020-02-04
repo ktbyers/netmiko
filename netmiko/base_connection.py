@@ -1834,8 +1834,8 @@ class BaseConnection(object):
 
         return output
 
-    def cleanup(self):
-        """Any needed cleanup before closing connection."""
+    def cleanup(self, command=""):
+        """Logout of the session on the network device plus any additional cleanup."""
         pass
 
     def paramiko_cleanup(self):
@@ -1844,7 +1844,7 @@ class BaseConnection(object):
         del self.remote_conn_pre
 
     def disconnect(self):
-        """Try to gracefully close the SSH connection."""
+        """Try to gracefully close the session."""
         try:
             self.cleanup()
             if self.protocol == "ssh":

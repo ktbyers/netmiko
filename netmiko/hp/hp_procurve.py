@@ -75,10 +75,16 @@ class HPProcurveBase(CiscoSSHConnection):
             raise ValueError(msg)
         return output
 
-    def cleanup(self):
+    def cleanup(self, command="logout"):
         """Gracefully exit the SSH session."""
-        self.exit_config_mode()
-        self.write_channel("logout" + self.RETURN)
+        try:
+            # The pattern="" forces use of send_command_timing
+            if self.check_config_mode(pattern=""):
+                self.exit_config_mode()
+        except Exception:
+            pass
+
+        self.write_channel(command + self.RETURN)
         count = 0
         while count <= 5:
             time.sleep(0.5)

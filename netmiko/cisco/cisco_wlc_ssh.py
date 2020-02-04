@@ -109,9 +109,10 @@ class CiscoWlcSSH(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def cleanup(self):
+    def cleanup(self, command="logout"):
         """Reset WLC back to normal paging."""
         self.send_command_timing("config paging enable")
+        return super().cleanup(command=command)
 
     def check_config_mode(self, check_string="config", pattern=""):
         """Checks if the device is in configuration mode or not."""
