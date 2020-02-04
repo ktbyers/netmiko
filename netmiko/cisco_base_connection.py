@@ -161,7 +161,7 @@ class CiscoBaseConnection(BaseConnection):
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
-            if check_config_mode(pattern=""):
+            if self.check_config_mode(pattern=""):
                 self.exit_config_mode()
         except Exception:
             pass

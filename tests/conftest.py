@@ -53,6 +53,7 @@ def net_connect_newconn(request):
     conn = ConnectHandler(**device)
     return conn
 
+
 @pytest.fixture()
 def net_connect_cm(request):
     """
