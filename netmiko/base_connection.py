@@ -1699,9 +1699,10 @@ class BaseConnection(object):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Send config commands
+        output = ""
         if enter_config_mode:
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-            output = self.config_mode(*cfg_mode_args)
+            output += self.config_mode(*cfg_mode_args)
 
         if self.fast_cli:
             for cmd in config_commands:
