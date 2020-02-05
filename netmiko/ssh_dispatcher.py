@@ -12,6 +12,9 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
+from netmiko.audiocode import AudiocodeSSH
+from netmiko.audiocode import AudiocodeTelnet
+from netmiko.audiocode import AudiocodeOldCLI
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
@@ -99,6 +102,8 @@ from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
+from netmiko.supermicro import SmciSwitchSmisSSH
+from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
@@ -111,8 +116,6 @@ from netmiko.yamaha import YamahaSSH
 from netmiko.yamaha import YamahaTelnet
 from netmiko.zte import ZteZxrosSSH
 from netmiko.zte import ZteZxrosTelnet
-from netmiko.supermicro import SmciSwitchSmisSSH
-from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
 
 if TYPE_CHECKING:
@@ -135,6 +138,7 @@ CLASS_MAPPER_BASE = {
     "aruba_os": ArubaSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
+    "audiocode": AudiocodeSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
     "broadcom_icos": BroadcomIcosSSH,
@@ -273,6 +277,8 @@ for k, v in FILE_TRANSFER_MAP.items():
 FILE_TRANSFER_MAP = new_mapper
 
 # Add telnet drivers
+CLASS_MAPPER["audiocode_telnet"] = AudiocodeTelnet
+CLASS_MAPPER["audiocode_old_cli"] = AudiocodeOldCLI
 CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
