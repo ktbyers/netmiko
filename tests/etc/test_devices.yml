@@ -1,0 +1,193 @@
+---
+
+# Available device_type's are specified in the CLASS_MAPPER variable in
+# netmiko/netmiko/ssh_dispatcher.py
+
+cisco_ios:
+  device_type: cisco_ios
+  ip: 10.10.10.10
+  username: admin
+  password: cisco123
+  secret: cisco123
+
+cisco_asa_21:               # the device_name does not have to match the device type
+  device_type: cisco_asa
+  ip: 10.10.10.11
+  username: admin
+  password: cisco123
+  secret: cisco123
+
+arista_eos:
+  device_type: arista_eos
+  ip: 10.10.10.12
+  username: admin1
+  password: arista123
+  secret: ""                # enable secret is optional
+  port: 8522                # shows using non-standard SSH port
+
+hp_procurve:
+  device_type: hp_procurve
+  ip: 10.10.10.13
+  username: admin
+  password: '{more%comple9' # for passwords with special chars use quotes
+  secret: ''
+
+juniper:
+  device_type: juniper
+  ip: 10.10.10.14
+  username: admin
+  password: juniper123
+
+juniper_screenos:
+  device_type: juniper_screenos
+  ip: 100.65.1.1
+  username: netscreen
+  password: netscreen
+
+paloalto_panos:
+  device_type: paloalto_panos
+  ip: 10.10.10.15
+  username: admin
+  password: paloalto123
+
+brocade_fastiron:
+  device_type: brocade_fastiron
+  ip: 10.18.253.130
+  username: admin
+  password: password
+  secret: password
+
+brocade_netiron:
+  device_type: brocade_netiron
+  ip: 10.254.4.128
+  username: admin
+  password: password
+  secret: password
+
+brocade_nos:
+  device_type: brocade_nos
+  ip: 10.254.4.117
+  username: admin
+  password: password
+
+aruba_os:
+  device_type: aruba_os
+  ip: 10.1.200.242
+  username: admin
+  password: password
+  secret: secret
+
+ubiquiti_edge:
+  device_type: ubiquiti_edge
+  ip: 172.16.51.102
+  username: admin
+  password: password
+
+ubiquiti_edgeswitch:
+  device_type: ubiquiti_edgeswitch
+  ip: 172.16.51.102
+  username: admin
+  password: password
+
+dell_powerconnect:
+  device_type: dell_powerconnect
+  ip: 192.168.1.254
+  username: admin
+  password: admin
+
+dellos10:
+  device_type: dellos10
+  ip: 192.168.23.129
+  username: admin
+  password: admin
+
+pluribus:
+  device_type: pluribus_ssh
+  ip: 172.17.19.1
+  username: mircea
+  password: weakpass
+
+alcatel_aos:
+  device_type: alcatel_aos
+  ip: 192.168.1.154
+  username: admin
+  password: switch
+
+netscaler:
+  device_type: netscaler
+  ip: 192.168.10.10
+  username: admin
+  password: admin
+
+calix_b6_ssh:
+  device_type: calix_b6_ssh
+  ip: 192.168.99.99
+  username: cli
+  password: occam
+  secret: razor
+
+ipinfusion_ocnos:
+  device_type: ipinfusion_ocnos
+  ip: 10.12.39.34
+  username: ocnos
+  password: ocnos
+  secret: ocnos
+
+ipinfusion_ocnos_telnet:
+  device_type: ipinfusion_ocnos_telnet
+  ip: 10.12.39.34
+  username: ocnos
+  password: ocnos
+  secret: ocnos
+
+oneaccess_oneos:
+  device_type: oneaccess_oneos
+  ip: 10.94.49.187
+  username: m-wallraf
+  password: TEST
+  secret: TEST
+
+oneaccess_oneos_telnet:
+  device_type: oneaccess_oneos_telnet
+  ip: 10.94.49.187
+  username: m-wallraf
+  password: TEST
+  secret: TEST
+
+mikrotik_routeros:
+  device_type: mikrotik_routeros
+  ip: 192.168.88.1
+  username: admin
+  password: ""
+
+cloudgenix_ion:
+  device_type: cloudgenix_ion
+  ip: 1.1.1.1
+  username: TEST
+  password: TEST
+
+keymile:
+  device_type: keymile
+  ip: 1.2.3.4
+  username: TEST
+  password: TEST
+
+keymile_nos:
+  device_type: keymile_nos
+  ip: 1.2.3.5
+  username: TEST
+  password: TEST
+
+ruijie_os:
+  device_type: ruijie_os
+  ip: 1.1.1.1
+  username: ruijie
+  password: ruijie
+  secret: ruijie
+  
+audiocode_ssh:
+  device_type: audiocode_ssh
+  ip: 174.99.176.58
+  username: bct-admin
+  password: Adm!N!23
+  secret: Adm!N!23

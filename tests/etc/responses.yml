@@ -1,0 +1,255 @@
+---
+
+cisco_ios:
+  base_prompt: pynet-rtr1
+  router_prompt : pynet-rtr1>
+  enable_prompt: pynet-rtr1#
+  interface_ip: 10.220.88.20
+  version_banner: "Cisco IOS Software"
+  multiple_line_output: "Configuration register is"
+  file_check_cmd: "logging buffered 8880"
+  save_config: 'OK'
+
+juniper:
+  base_prompt: pyclass@pynet-jnpr-srx1
+  router_prompt: pyclass@pynet-jnpr-srx1>
+  enable_prompt: pyclass@pynet-jnpr-srx1#
+  interface_ip: 10.220.88.39
+  version_banner: 'JUNOS Software Release'
+  multiple_line_output: 'security-zone untrust'
+  cmd_response_init: 'archive size 110k files 3'
+  cmd_response_final: 'archive size 120k files 3'
+  commit_comment: 'Unit test on commit with comment'
+
+juniper_screenos:
+  base_prompt: "ssg5-serial-"
+  router_prompt: "ssg5-serial->"
+  enable_prompt: "ssg5-serial->"
+  interface_ip: 100.65.1.1
+  multiple_line_output: 'Total Config size'
+  version_banner: 'Version: 6.3.0.1.0.0.0.0'
+  cmd_response_init: ""
+  cmd_response_final: 'set alias test'
+
+paloalto_panos:
+  base_prompt: ntc@pa1
+  router_prompt: ntc@pa1>
+  enable_prompt: ntc@pa1>
+  interface_ip: '10.0.0.90'
+  multiple_line_output: 'logdb-version: 7.0.9'
+  version_banner: 'sw-version: 7.0.1'
+  cmd_response_init: 'new_test'
+  cmd_response_final: 'another_test'
+
+brocade_fastiron:
+  base_prompt: SSH@ICX7250-24P Router
+  router_prompt : SSH@ICX7250-24P Router>
+  enable_prompt: SSH@ICX7250-24P Router#
+  interface_ip: 10.18.253.130
+  version_banner: "SW: Version"
+  multiple_line_output: "interface management 1"
+  file_check_cmd: "logging buffered 3000"
+
+brocade_netiron:
+  base_prompt: SSH@MLXe
+  router_prompt : SSH@MLXe>
+  enable_prompt: SSH@MLXe#
+  interface_ip: 10.254.4.128
+  version_banner: "IronWare : Version"
+  multiple_line_output: "All show version done"
+  file_check_cmd: "logging buffered 3000"
+
+brocade_nos:
+  base_prompt: Leaf1
+  router_prompt : Leaf1#
+  enable_prompt: Leaf1#
+  interface_ip: 10.254.4.117
+  version_banner: "Network Operating System Version:"
+  multiple_line_output: "TenGigabitEthernet 34/0/48"
+  cmd_response_init: 'logging raslog console WARNING'
+  cmd_response_final: 'logging raslog console INFO'
+
+aruba_os:
+  base_prompt: "(ARUBA-MASTER) "
+  router_prompt: "(ARUBA-MASTER) >"
+  enable_prompt: "(ARUBA-MASTER) #"
+  interface_ip: 10.1.200.242
+  version_banner: "Aruba Operating System Software."
+  multiple_line_output: "Supervisor Card"
+  cmd_response_init: "location1"
+  cmd_response_final: "location2"
+
+ubiquiti_edge:
+  base_prompt: "(UBNT EdgeSwitch) "
+  router_prompt: "(UBNT EdgeSwitch) >"
+  enable_prompt: "(UBNT EdgeSwitch) #"
+  interface_ip: 172.16.51.102
+  version_banner: "Software Version"
+  multiple_line_output: "Current Configuration:"
+  cmd_response_init: ""
+  cmd_response_final: "logging persistent 4"
+
+dellos10:
+  base_prompt: OS10
+  router_prompt : OS10#
+  enable_prompt: OS10#
+  interface_ip: 192.168.23.129
+  version_banner: "Dell EMC Networking OS10-Enterprise"
+  multiple_line_output: "Last configuration change"
+  cmd_response_init: "host-description test"
+  cmd_response_final: "host-description node"
+  scp_remote_space: 1000
+
+dell_powerconnect:
+  base_prompt: myswitch
+  router_prompt : myswitch#
+  enable_prompt: myswitch#
+  interface_ip: 192.168.1.254
+  version_banner: "SW version"
+  multiple_line_output: "Gigabit Ethernet Ports"
+  cmd_response_init: "logging buffered 400"
+  cmd_response_final: "logging file warnings"
+
+pluribus:
+  base_prompt: "CLI (mircea@sw05.bjm01) "
+  router_prompt: "CLI (mircea@sw05.bjm01) "
+  enable_prompt: "CLI (mircea@sw05.bjm01) >"
+  interface_ip: ";mircea;fabric;70000;;cftac;"
+  multiple_line_output: "chassis-serial"
+  version_banner: "bjm;::;a0000bd:52b35878;0;;13068;"
+
+alcatel_aos:
+  base_prompt: "ale-lab-3"
+  router_prompt : "ale-lab-3>"
+  enable_prompt: "ale-lab-3>"
+  interface_ip: 192.168.1.154
+  version_banner: "Alcatel-Lucent OS6250-24 6.7.1.108.R04 Service Release, January 04, 2017"
+  multiple_line_output: "FC - ForcedCopper PC - PreferredCopper C - Copper"
+
+netscaler:
+  base_prompt: ">"
+  router_prompt: ">"
+  enable_prompt: ">"
+  interface_ip: "192.168.10.10"
+  multiple_line_output: "Netscaler Loopback interface"
+  version_banner: "NetScaler"
+
+calix_b6_ssh:
+  base_prompt: CALIX-B6-TEST
+  router_prompt: CALIX-B6-TEST>
+  enable_prompt: CALIX-B6-TEST#
+  interface_ip: 192.168.99.99
+  version_banner: "Kernel build id 8.0.30.0"
+  multiple_line_output: "rtcPwrUptimeTotal"
+  cmd_response_init: "Building configuration...    Done"
+  cmd_response_final: "access-list ethernet 999 permit ip"
+
+ipinfusion_ocnos:
+  base_prompt: rtr1
+  router_prompt: rtr1>
+  enable_prompt: rtr1#
+  interface_ip: 10.12.39.34
+  version_banner: "Software Product: OcNOS"
+  multiple_line_output: "lo                   127.0.0.1"
+  cmd_response_init: "ospfd                   2                           4"
+  cmd_response_final: "ospfd                   2                           5"
+  save_config: '[OK]'
+
+ipinfusion_ocnos_telnet:
+  base_prompt: rtr1
+  router_prompt: rtr1>
+  enable_prompt: rtr1#
+  interface_ip: 10.12.39.34
+  version_banner: "Software Product: OcNOS"
+  multiple_line_output: "lo                   127.0.0.1"
+  cmd_response_init: "ospfd                   2                           4"
+  cmd_response_final: "ospfd                   2                           5"
+  save_config: '[OK]'
+
+
+oneaccess_oneos:
+  base_prompt: dops-4glbb-01
+  router_prompt: dops-4glbb-01>
+  enable_prompt: dops-4glbb-01#
+  interface_ip: 10.94.49.187
+  version_banner: "Software version"
+  multiple_line_output: "Software created on"
+  file_check_cmd: "logging buffered 20010"
+  save_config: '[OK]'
+
+
+oneaccess_oneos_telnet:
+  base_prompt: dops-4glbb-01
+  router_prompt: dops-4glbb-01>
+  enable_prompt: dops-4glbb-01#
+  interface_ip: 10.94.49.187
+  version_banner: "Software version"
+  multiple_line_output: "Software created on"
+  file_check_cmd: "logging buffered 20010"
+  save_config: '[OK]'
+
+mikrotik_routeros:
+  base_prompt: '[admin@KLWNBC12RB01] '
+  enable_prompt: '[admin@KLWNBC12RB01] >'
+  config_prompt: '[admin@KLWNBC12RB01] >'
+  version_banner: "version: "
+  multiple_line_output: "out=.1.3.6.1.2.1.2.2.1.20.8"
+  interface_ip: "0 D "
+  cmd_response_init: "Flags: X "
+  cmd_response_final: "0   bridge1"
+
+cloudgenix_ion:
+  base_prompt: 'US-0002-ION-01'
+  enable_prompt: 'US-0002-ION-01#'
+  config_prompt: 'US-0002-ION-01#'
+  version_banner: "CurrentVersion"
+  multiple_line_output: "eth3.207@eth3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT gr\noup default qlen 1000\n    link/ether ec:b9:07:00:91:09 brd ff:ff:ff:ff:ff"
+  interface_ip: "192.168.1.16/24"
+  cmd_response_init: "172.16.16.15/24"
+  cmd_response_final: "172.16.16.16/24"
+
+keymile:
+  base_prompt: /
+  router_prompt: /> 
+  enable_prompt: /> 
+  interface_ip: 1.2.3.4
+  version_banner: "---===### CLI Release R2A21, Build 2018-12-21 ###===---"
+  multiple_line_output: "Equipment State"
+
+keymile_nos:
+  base_prompt: KDKB1251
+  router_prompt: KDKB1251> 
+  enable_prompt: KDKB1251# 
+  interface_ip: 1.2.3.5 
+  version_banner: "NOS version 2.09 #0001"
+  multiple_line_output: "Interface br328"
+
+ruijie_os:
+  base_prompt: Ruijie
+  router_prompt : Ruijie>
+  enable_prompt: Ruijie#
+  interface_ip: 172.30.31.101
+  version_banner: "Ruijie Networks"
+  multiple_line_output: ""
+  file_check_cmd: "logging buffered 8880"
+  save_config: 'OK'
+  
+  ruijie_os:
+  base_prompt: Ruijie
+  router_prompt : Ruijie>
+  enable_prompt: Ruijie#
+  interface_ip: 172.30.31.101
+  version_banner: "Ruijie Networks"
+  multiple_line_output: ""
+  file_check_cmd: "logging buffered 8880"
+  save_config: 'OK'
+  
+audiocode_ssh:
+  base_prompt: CHLTNCAC800-lab
+  router_prompt : CHLTNCAC800-lab>
+  enable_prompt: CHLTNCAC800-lab#
+  interface_ip: 174.99.176.58
+  version_banner: "Version info:"
+  multiple_line_output: "write-and-backup"
+  save_config: 'Writing configuration...done'
+

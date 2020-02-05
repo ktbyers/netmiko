@@ -1,0 +1,314 @@
+---
+
+cisco_ios:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"   # requires paging to be disabled
+  config:
+    - "logging buffered 20000"      # base command
+    - "no logging console"
+    - "logging buffered 20010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: 'cisco_ios_commands.txt'
+  save_config_cmd: 'copy run start'
+  save_config_confirm: True
+  save_config_response: ''
+
+cisco_asa:
+  version: "show version"
+  basic: "show ip"
+  extended_output: "show version"   # requires paging to be disabled
+  config:
+    - 'logging buffered notifications'
+    - 'no logging console'
+    - 'logging buffered warnings'
+  config_verification: "show run | inc logging buffer"
+  config_file: "cisco_asa_commands.txt"
+
+arista_eos:
+  version: "show version"
+  basic: "show ip int brief"
+  extended_output: "show logging"   # requires paging to be disabled
+  config:
+    - "logging buffered 20000"
+    - "no logging console"
+    - "logging buffered 20010"
+  config_verification: "show run | inc logging buffer"
+
+hp_procurve:
+  version: "show version"
+  basic: "show ip"
+  extended_output: "show logging"   # requires paging to be disabled
+  config:
+    - 'time timezone -420'
+    - 'time daylight-time-rule Continental-US-and-Canada'
+    - 'time timezone -480'
+  config_verification: "show run"
+
+juniper:
+  version: "show version"
+  basic: "show interfaces terse"
+  extended_output: "show configuration"   # requires paging to be disabled
+  config:
+   - 'set system syslog archive size 110k files 3'
+   - 'set system time-zone America/New_York'
+   - 'set system syslog archive size 120k files 3'
+  config_verification: "run show configuration | match archive"
+  support_commit: True
+  rollback: 'rollback 0'
+  commit_verification: "run show system commit"
+
+juniper_screenos:
+  version: "get system version"
+  basic: "get route"
+  extended_output: "get config" # requires paging to be disabled
+  config:
+    - 'set alias test "test"'
+  config_verification: "get config | inc alias"
+
+fortinet:
+  version: "get system status"
+  basic: "get system interface physical"
+  extended_output: "get system status"
+  config:
+    - 'config firewall service category'
+    - 'edit Database'
+    - 'set comment "Generated comment"'
+    - 'end'
+  config_verification: "show firewall service category Database | grep comment"
+
+paloalto_panos:
+  version: "show system info | match version"
+  basic: "show system info"
+  extended_output: "show system info"
+  config:
+    - 'set network vlan new_test'
+    - 'set network vlan another_test'
+  support_commit: True
+  config_verification: 'run show vlan all'
+
+brocade_fastiron:
+  version: "show version"
+  basic: "show ip interface"
+  extended_output: "show running-config"   # requires paging to be disabled
+  config:
+    - "logging buffered 4000"      # base command
+    - "no logging console"
+    - "logging buffered 3000"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: "brocade_fastiron_commands.txt"
+
+brocade_netiron:
+  version: "show version"
+  basic: "show ip interface"
+  extended_output: "show version"   # requires paging to be disabled
+  config:
+    - "logging buffered 4000"      # base command
+    - "no logging console"
+    - "logging buffered 3000"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: "brocade_netiron_commands.txt"
+
+brocade_nos:
+  version: "show version"
+  basic: "show interface Management"
+  extended_output: "show ip interface brief"   # requires paging to be disabled
+  config:
+    - "logging raslog console WARNING"      # base command
+    - "logging raslog console INFO"
+  config_verification: "show run | inc raslog"
+
+aruba_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"
+  config:
+    - "location location1"
+    - "location location2"
+  config_verification: "show location"
+
+ubiquiti_edge:
+  version: "show version"
+  basic: "show network"
+  extended_output: "show running-config"
+  config:
+    - "logging persistent 3"
+    - "no logging persistent"
+    - "logging persistent 4"
+  config_verification: "show running-config | include 'logging'"
+
+dellos10:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show running-config"
+  config:
+    - "host-description test"
+    - "no host-description"
+    - "host-description node"
+  config_verification: "show running-config"
+
+dell_powerconnect:
+  version: "show version"
+  basic: "show ip interface vlan 1"
+  extended_output: "show running-config"
+  config:
+    - "logging buffered 400"
+    - "no logging buffered"
+    - "logging buffered 200"
+  config_verification: "show running-config"
+
+pluribus_ssh:
+  version: "fabric-show parsable-delim ;"
+  basic: "user-show name mircea parsable-delim ;"
+  extended_output: "switch-info-show parsable-delim ;"
+  config:
+    - "role-create name dummy scope local"
+    - "role-delete name dummy"
+    - "role-create name dummy scope local access read-only"
+  config_verification: "running-config-show"
+
+alcatel_aos:
+  version: "show system"
+  basic: "show configuration snapshot ip"
+  extended_output: "show interfaces status"
+  config:
+    - 'VLAN 666'
+  config_verification: "show vlan"
+
+netscaler:
+  version: "show version"
+  basic: "show ip -summary"
+  extended_output: "show interfaces"
+
+calix_b6_ssh:
+  version: "show version"
+  basic: "show interface bvi 1"
+  extended_output: "show hardware"
+  config:
+    - "access-list ethernet 999 permit 0x8863"
+    - "access-list ethernet 999 permit 0x8864"
+    - "access-list ethernet 999 permit ip"
+    - "access-list ethernet 999 permit arp"
+  config_verification: "find running-config 999"
+
+ipinfusion_ocnos:
+  version: "show version"
+  basic: "show ip interface eth0 brief"
+  extended_output: "show ip interface brief"   # requires paging to be disabled
+  config:
+    - "logging  level ospf 4"      # base command
+    - "no logging level ospf"
+    - "logging level ospf 5"      # something you can verify has changed
+  config_verification: "show logging level ospf"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: "[OK]"
+
+ipinfusion_ocnos_telnet:
+  version: "show version"
+  basic: "show ip interface eth0 brief"
+  extended_output: "show ip interface brief"   # requires paging to be disabled
+  config:
+    - "logging  level ospf 4"      # base command
+    - "no logging level ospf"
+    - "logging level ospf 5"      # something you can verify has changed
+  config_verification: "show logging level ospf"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: "[OK]"
+
+oneaccess_oneos:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show system status"   # requires paging to be disabled
+  config:
+    - "logging buffered size 20000"      # base command
+    - "no logging console"
+    - "logging buffered size 20010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: "[OK]"
+
+oneaccess_oneos_telnet:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show system status"   # requires paging to be disabled
+  config:
+    - "logging buffered size 20000"      # base command
+    - "no logging console"
+    - "logging buffered size 20010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: "[OK]"
+
+mikrotik_routeros:
+  version: "/system resource print"
+  basic: "/ip address print"
+  extended_output: "/interface print oid"
+  config:
+    - "/ip upnp interfaces remove numbers=0"      # base command
+    - "/ip upnp interfaces add interface=bridge1 type=external"
+    - "/ip upnp interfaces add interface=bridge1 type=external"
+  config_verification: '/ip upnp interfaces print'
+  save_config_confirm: False
+  save_config_response: ">"
+
+cloudgenix_ion:
+  version: "dump software status"
+  basic: "dump interface status 1"
+  extended_output: "inspect interface stats all"
+  config:
+    - "config interface 2 ip static address=172.16.16.15/24 gw=172.16.16.1 dns=8.8.8.8"
+    - "config interface 2 ip static address=172.16.16.16/24 gw=172.16.16.1 dns=8.8.8.8"
+  config_verification: "dump interface status 2"
+  save_config_confirm: False
+  save_config_response: "#"
+
+keymile:
+  version: "show version"
+  basic: "get /cfgm/IP_Address"
+  extended_output: "ls"
+
+keymile_nos:
+  version: "show version"
+  basic: "show ip interface brief | include br328"
+  extended_output: "show interface"
+  config:
+      - "log login enable"
+  config_verification: "show running-config | include log"
+  save_config_cmd: 'write memory'
+  save_config_confirm: True
+  save_config_response: '[OK]'
+
+ruijie_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"
+  config:
+    - "logging buffered 20000"
+    - "no logging console"
+    - "logging buffered 20010"
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'
+  
+audiocode_ssh:
+  version: "show system version"
+  basic: "show voip interface network"
+  extended_output: "list"   # requires paging to be disabled
+  config:
+    - "welcome-msg 15"      
+    - 'set text "Test Netmiko Script 1"'  # base command
+    - "activate"
+    - "exit"                                    
+    - "welcome-msg 15"  
+    - 'set text "Test Netmiko Script 2"' # something you can verify has changed
+    - "activate"
+    - "exit"  
+  config_verification: "show run | i text"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'Writing configuration...done'
