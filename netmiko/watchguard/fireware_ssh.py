@@ -2,7 +2,7 @@ import time
 from netmiko.base_connection import BaseConnection
 
 
-class WatchguardFireboxSSH(BaseConnection):
+class WatchguardFirewareSSH(BaseConnection):
     """
     Implements methods for communicating with Watchguard Firebox firewalls.
     """
@@ -23,19 +23,13 @@ class WatchguardFireboxSSH(BaseConnection):
         """
         Checks if the device is in configuration mode or not.
         """
-        return super(WatchguardFireboxSSH, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(self, config_command="configure", pattern="#"):
-        return super(WatchguardFireboxSSH, self).config_mode(
-            config_command=config_command, pattern=pattern
-        )
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
     def exit_config_mode(self, exit_config="exit", pattern="#"):
-        return super(WatchguardFireboxSSH, self).exit_config_mode(
-            exit_config=exit_config, pattern=pattern
-        )
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(self, *args, **kwargs):
         """No save config on Watchguard."""

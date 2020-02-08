@@ -70,4 +70,5 @@
 - QuantaMesh
 - Rad ETX
 - Versa Networks FlexVNF
+- Watchguard Firebox
 

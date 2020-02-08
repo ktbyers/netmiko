@@ -1,3 +1,3 @@
-from netmiko.watchguard.firebox_ssh import WatchguardFireboxSSH
+from netmiko.watchguard.fireware_ssh import WatchguardFirewareSSH
 
-__all__ = ["WatchguardFireboxSSH"]
+__all__ = ["WatchguardFirewareSSH"]
