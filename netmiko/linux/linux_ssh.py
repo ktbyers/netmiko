@@ -51,7 +51,7 @@ class LinuxSSH(CiscoSSHConnection):
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def check_config_mode(self, check_string=LINUX_PROMPT_ROOT):
+    def check_config_mode(self, check_string=LINUX_PROMPT_ROOT, pattern=""):
         """Verify root"""
         return self.check_enable_mode(check_string=check_string)
 
@@ -102,10 +102,9 @@ class LinuxSSH(CiscoSSHConnection):
                 raise ValueError(msg)
         return output
 
-    def cleanup(self):
+    def cleanup(self, command="exit"):
         """Try to Gracefully exit the SSH session."""
-        self._session_log_fin = True
-        self.write_channel("exit" + self.RETURN)
+        return super().cleanup(command=command)
 
     def save_config(self, *args, **kwargs):
         """Not Implemented"""

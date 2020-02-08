@@ -16,6 +16,7 @@ test_disconnect: cleanly disconnect the SSH session
 """
 import pytest
 import time
+from datetime import datetime
 
 # import logging
 
@@ -189,4 +190,24 @@ def test_enable_mode(net_connect, commands, expected_responses):
 
 def test_disconnect(net_connect, commands, expected_responses):
     """Terminate the SSH session."""
+    start_time = datetime.now()
     net_connect.disconnect()
+    end_time = datetime.now()
+    time_delta = end_time - start_time
+    assert net_connect.remote_conn is None
+    assert time_delta.total_seconds() < 8
+
+
+def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses):
+    """Terminate the SSH session from privilege level1"""
+    net_connect = net_connect_newconn
+    if "cisco_ios" in net_connect.device_type:
+        net_connect.send_command_timing("disable")
+        start_time = datetime.now()
+        net_connect.disconnect()
+        end_time = datetime.now()
+        time_delta = end_time - start_time
+        assert net_connect.remote_conn is None
+        assert time_delta.total_seconds() < 5
+    else:
+        assert True

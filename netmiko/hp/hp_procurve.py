@@ -75,20 +75,38 @@ class HPProcurveBase(CiscoSSHConnection):
             raise ValueError(msg)
         return output
 
-    def cleanup(self):
+    def cleanup(self, command="logout"):
         """Gracefully exit the SSH session."""
-        self.exit_config_mode()
-        self.write_channel("logout" + self.RETURN)
+
+        # Exit configuration mode.
+        try:
+            # The pattern="" forces use of send_command_timing
+            if self.check_config_mode(pattern=""):
+                self.exit_config_mode()
+        except Exception:
+            pass
+
+        # Terminate SSH/telnet session
+        self.write_channel(command + self.RETURN)
         count = 0
+        output = ""
         while count <= 5:
             time.sleep(0.5)
-            output = self.read_channel()
-            if "Do you want to log out" in output:
-                self._session_log_fin = True
+
+            # The connection might be dead here.
+            try:
+                new_output = self.read_channel()
+                output += new_output
+            except socket.error:
+                break
+
+            if "Do you want to log out" in new_output:
                 self.write_channel("y" + self.RETURN)
+                time.sleep(0.5)
+                output += self.read_channel()
+
             # Don't automatically save the config (user's responsibility)
-            elif "Do you want to save the current" in output:
-                self._session_log_fin = True
+            if "Do you want to save the current" in output:
                 self.write_channel("n" + self.RETURN)
 
             try:
@@ -96,6 +114,9 @@ class HPProcurveBase(CiscoSSHConnection):
             except socket.error:
                 break
             count += 1
+
+        # Set outside of loop
+        self._session_log_fin = True
 
     def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
         """Save Config."""
