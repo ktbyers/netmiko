@@ -1141,7 +1141,8 @@ class BaseConnection(object):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
-        cmd_echo=False,
+        cmd_verify=False,
+        cmd_echo=None,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1175,9 +1176,16 @@ class BaseConnection(object):
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
 
-        :param cmd_echo: Verify command echo before proceeding (default: False).
+        :param cmd_verify: Verify command echo before proceeding (default: False).
+        :type cmd_verify: bool
+
+        :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         """
+        # For compatibility remove cmd_echo in Netmiko 4.x.x
+        if cmd_echo is not None:
+            cmd_verify = cmd_echo
+
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -1188,7 +1196,7 @@ class BaseConnection(object):
 
         cmd = command_string.strip()
         # if cmd is just an "enter" skip this section
-        if cmd and cmd_echo:
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -1290,6 +1298,7 @@ class BaseConnection(object):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
+        cmd_verify=True,
     ):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1327,6 +1336,9 @@ class BaseConnection(object):
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
+
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+        :type cmd_verify: bool
         """
         # Time to delay in each read loop
         loop_delay = 0.2
@@ -1360,8 +1372,8 @@ class BaseConnection(object):
         new_data = ""
 
         cmd = command_string.strip()
-        # if cmd is just and "enter" skip this section
-        if cmd:
+        # if cmd is just an "enter" skip this section
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
