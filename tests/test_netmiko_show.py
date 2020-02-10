@@ -52,7 +52,7 @@ def test_send_command_timing(net_connect, commands, expected_responses):
     show_ip = net_connect.send_command_timing(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip
     # Force verification of command echo
-    show_ip = net_connect.send_command_timing(commands["basic"], cmd_echo=True)
+    show_ip = net_connect.send_command_timing(commands["basic"], cmd_verify=True)
     assert expected_responses["interface_ip"] in show_ip
 
 
@@ -61,6 +61,8 @@ def test_send_command(net_connect, commands, expected_responses):
     time.sleep(1)
     net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command(commands["basic"])
+    assert expected_responses["interface_ip"] in show_ip_alt
+    show_ip_alt = net_connect.send_command(commands["basic"], cmd_verify=False)
     assert expected_responses["interface_ip"] in show_ip_alt
 
 
