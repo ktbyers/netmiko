@@ -142,12 +142,6 @@ class HuaweiTelnet(HuaweiBase):
                 output = self.read_until_pattern(pattern=combined_pattern)
                 return_msg += output
 
-                # If received prompt, login is completed
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
-                    return return_msg
-
                 # Search for password change prompt, send "N"
                 if re.search(password_change_prompt, output):
                     self.write_channel("N" + self.TELNET_RETURN)
