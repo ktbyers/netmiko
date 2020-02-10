@@ -21,6 +21,8 @@ except ImportError:
 SHOW_RUN_MAPPER = {
     "juniper": "show configuration",
     "juniper_junos": "show configuration",
+    "pica8": "show running-config",
+    "pica8_picos": "show running-config",
     "extreme": "show configuration",
     "extreme_ers": "show running-config",
     "extreme_exos": "show configuration",

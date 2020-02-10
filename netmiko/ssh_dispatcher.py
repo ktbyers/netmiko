@@ -52,6 +52,8 @@ from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
+from netmiko.pica8 import pica8SSH, pica8Telnet
+from netmiko.pica8 import pica8FileTransfer
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.mikrotik import MikrotikRouterOsSSH
@@ -141,6 +143,8 @@ CLASS_MAPPER_BASE = {
     "ipinfusion_ocnos": IpInfusionOcNOSSSH,
     "juniper": JuniperSSH,
     "juniper_junos": JuniperSSH,
+    "pica8": pica8SSH,
+    "pica8_picos": pica8SSH,
     "juniper_screenos": JuniperScreenOsSSH,
     "keymile": KeymileSSH,
     "keymile_nos": KeymileNOSSSH,
@@ -179,6 +183,7 @@ FILE_TRANSFER_MAP = {
     "cisco_xr": CiscoXrFileTransfer,
     "dell_os10": DellOS10FileTransfer,
     "juniper_junos": JuniperFileTransfer,
+    "pica8_picos": pica8FileTransfer,
     "linux": LinuxFileTransfer,
 }
 
@@ -217,6 +222,7 @@ CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
 CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
+CLASS_MAPPER["pica8_picos_telnet"] = pica8Telnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet

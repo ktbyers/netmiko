@@ -143,6 +143,16 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    'pica8_picos': {
+        "cmd": "show version",
+        "search_patterns": [
+            r"PICOS Software Release",
+            r"PICOS .+ Software",
+            r"PICA8 OS Kernel",
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
