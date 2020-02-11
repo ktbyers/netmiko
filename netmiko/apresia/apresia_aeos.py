@@ -1,7 +1,7 @@
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 import re
-from netmiko import log 
+from netmiko import log
 
 
 class ApresiaAeosBase(CiscoSSHConnection):
@@ -21,7 +21,10 @@ class ApresiaAeosBase(CiscoSSHConnection):
     def has_privilege(self):
         output = self.send_command("show username | include adpro")
         escape_username = re.escape(self.username)
-        return re.search(fr"^\s*{escape_username}\s+adpro\s*$", output, re.MULTILINE) is not None
+        return (
+            re.search(fr"^\s*{escape_username}\s+adpro\s*$", output, re.MULTILINE)
+            is not None
+        )
 
     def disable_paging(self, command="", delay_factor=1):
         self.enable()
