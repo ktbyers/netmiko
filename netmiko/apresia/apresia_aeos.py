@@ -1,5 +1,7 @@
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
+import re
+from netmiko import log 
 
 
 class ApresiaAeosBase(CiscoSSHConnection):
@@ -7,10 +9,19 @@ class ApresiaAeosBase(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
-        self.disable_paging()
+        # before executing "show run", check if it's possible.
+        if self.has_privilege():
+            self.disable_paging()
+        else:
+            log.info("This user is non-previleged.")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+
+    def has_privilege(self):
+        output = self.send_command("show username | include adpro")
+        escape_username = re.escape(self.username)
+        return re.search(fr"^\s*{escape_username}\s+adpro\s*$", output, re.MULTILINE) is not None
 
     def disable_paging(self, command="", delay_factor=1):
         self.enable()
