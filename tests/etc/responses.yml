@@ -245,11 +245,11 @@ ruijie_os:
   save_config: 'OK'
   
 audiocode_ssh:
-  base_prompt: CHLTNCAC800-lab
-  router_prompt : CHLTNCAC800-lab>
-  enable_prompt: CHLTNCAC800-lab#
-  interface_ip: 174.99.176.58
+  base_prompt: CHLTNCAC500-LAB
+  router_prompt : CHLTNCAC500-LAB>
+  enable_prompt: CHLTNCAC500-LAB#
+  interface_ip: 174.99.176.60
   version_banner: "Version info:"
-  multiple_line_output: "write-and-backup"
+  multiple_line_output: "write-and-backup to [URL]"
   save_config: 'Writing configuration...done'
 

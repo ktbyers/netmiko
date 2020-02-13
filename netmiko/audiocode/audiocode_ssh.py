@@ -201,13 +201,13 @@ class AudiocodeSSH (BaseConnection):
 		log.debug("Exiting disable_paging")
 
 		
-	def enable_paging(
+	def _enable_paging(
 		self, 
 		enable_window_config = ["cli-settings","window-height automatic","exit"],
 		config_mode = "config system",
 		delay_factor=.5
 	):
-		"""This is designed to reenable window paging
+		"""This is designed to reenable window paging.
 		
 		:param enable_window_config: Command, or list of commands, to execute.
 		:type enable_window_config: str
@@ -219,18 +219,19 @@ class AudiocodeSSH (BaseConnection):
 		:type delay_factor: int
 		
 		"""
+		self.enable()
 		delay_factor = self.select_delay_factor(delay_factor)
 		config_mode = config_mode
 		time.sleep(delay_factor * 0.1)
 		self.clear_buffer()
 		enable_window_config = enable_window_config
-		log.debug("In enable_paging")
+		log.debug("In _enable_paging")
 		log.debug(f"Commands: {enable_window_config}")
 		self.send_config_set(enable_window_config,True,.25,150,False,False,config_mode)
-		log.debug("Exiting enable_paging")
+		log.debug("Exiting _enable_paging")
 
-	def save_config(self, cmd="write", confirm=False, confirm_response=""):
-		"""Saves the running configuration
+	def _save_config(self, cmd="write", confirm=False, confirm_response=""):
+		"""Saves the running configuration.
 		
 		:param cmd: Command to save configuration
 		:type cmd: str
@@ -239,9 +240,6 @@ class AudiocodeSSH (BaseConnection):
 		:type confirm: bool
 
 		:param confirm_response: Command if confirm response required to further script
-		:type confirm response: str
-		
-		:param confirm_response: Pattern to terminate reading of channel
 		:type confirm response: str
 		
 		"""
@@ -259,8 +257,8 @@ class AudiocodeSSH (BaseConnection):
 
 		return (output)
 		
-	def reload_device(self, reload_device=True, reload_save=True, cmd_save="reload now", cmd_no_save="reload without-saving"):
-		"""Saves the running configuration
+	def _reload_device(self, reload_device=True, reload_save=True, cmd_save="reload now", cmd_no_save="reload without-saving"):
+		"""Reloads the device.
 		
 		:param reload_device: Boolean to determine if reload should occur.
 		:type reload_device: bool
@@ -282,7 +280,7 @@ class AudiocodeSSH (BaseConnection):
 		self.enable()
 		
 		if reload_device == True and reload_save == True:
-			self.enable_paging()
+			self._enable_paging()
 			output = self.send_command(command_string=cmd_save)		
 		elif reload_device == True and reload_save == False:
 			output = self.send_command(command_string=cmd_no_save)
@@ -292,11 +290,12 @@ class AudiocodeSSH (BaseConnection):
 		return (output)			
 
 
-	def device_terminal_exit(self):
+	def _device_terminal_exit(self):
 		"""This is for accessing devices via terminal. It first reenables window paging for
 		future use and exits the device before you send the disconnect method"""
 		
-		self.enable_paging()
+		self.enable()
+		self._enable_paging()
 		output = self.send_command_timing('exit')
 		return (output)
 
@@ -343,7 +342,7 @@ class AudiocodeOldCLI(AudiocodeSSH):
 		)
 
 			
-	def enable_paging(
+	def _enable_paging(
 		self, 
 		enable_window_config = ["cli-terminal","set window-height 100","exit"],
 		config_mode = "config system",
@@ -361,7 +360,7 @@ class AudiocodeOldCLI(AudiocodeSSH):
 		:type delay_factor: int
 		
 		"""
-		return super(AudiocodeOldCLI, self).enable_paging(
+		return super(AudiocodeOldCLI, self)._enable_paging(
 			enable_window_config=enable_window_config, config_mode=config_mode, delay_factor=delay_factor
 		)
 

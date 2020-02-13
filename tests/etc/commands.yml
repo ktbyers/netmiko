@@ -301,11 +301,11 @@ audiocode_ssh:
   extended_output: "list"   # requires paging to be disabled
   config:
     - "welcome-msg 15"      
-    - 'set text "Test Netmiko Script 1"'  # base command
+    - 'text "Test Netmiko Script 1"'  # base command
     - "activate"
     - "exit"                                    
     - "welcome-msg 15"  
-    - 'set text "Test Netmiko Script 2"' # something you can verify has changed
+    - 'text "Test Netmiko Script 2"' # something you can verify has changed
     - "activate"
     - "exit"  
   config_verification: "show run | i text"
