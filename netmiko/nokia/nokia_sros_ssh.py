@@ -172,7 +172,7 @@ class NokiaSrosSSH(BaseConnection):
         self.write_channel(command + self.RETURN)
 
 
-class FileTransferSROS(BaseFileTransfer):
+class NokiaSrosFileTransfer(BaseFileTransfer):
     def remote_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Return space available on remote device."""
 
