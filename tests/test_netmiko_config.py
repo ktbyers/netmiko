@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import pytest
 
 def test_ssh_connect(net_connect, commands, expected_responses):
     """
@@ -27,8 +28,17 @@ def test_config_mode(net_connect, commands, expected_responses):
     """
     Test enter config mode
     """
-    net_connect.config_mode()
-    assert net_connect.check_config_mode() == True
+    base_platform = net_connect.device_type
+    if base_platform.count("_") >= 2:
+        # Strip off the _ssh, _telnet, _serial
+        base_platform = base_platform.split("_")[:-1]
+        base_platform = "_".join(base_platform)
+    
+    if base_platform in ["dlink_ds"]:
+        assert pytest.skip("Config mode not implemented or not supported for this platform")
+    else:
+        net_connect.config_mode()
+        assert net_connect.check_config_mode() == True
 
 
 def test_exit_config_mode(net_connect, commands, expected_responses):

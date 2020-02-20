@@ -171,3 +171,15 @@ keymile_nos:
   ip: 1.2.3.5
   username: TEST
   password: TEST
+
+dlink_ds:
+  device_type: dlink_ds
+  ip: 192.168.50.10
+  username: admin
+  password: admin
+
+dlink_ds_telnet:
+  device_type: dlink_ds_telnet
+  ip: 192.168.50.10
+  username: admin
+  password: admin
