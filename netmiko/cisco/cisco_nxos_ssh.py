@@ -12,6 +12,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.ansi_escape_codes = True
         self.set_base_prompt()
         self.disable_paging()
+        self.set_terminal_width(command="terminal width 511")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()

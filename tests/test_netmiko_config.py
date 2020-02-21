@@ -40,7 +40,7 @@ def test_exit_config_mode(net_connect, commands, expected_responses):
     assert net_connect.check_config_mode() is False
 
 
-def test_command_set(net_connect, commands, expected_responses):
+def test_config_set(net_connect, commands, expected_responses):
     """Test sending configuration commands."""
     config_commands = commands["config"]
     support_commit = commands.get("support_commit")
@@ -53,8 +53,6 @@ def test_command_set(net_connect, commands, expected_responses):
 
     cmd_response = expected_responses.get("cmd_response_init")
     config_commands_output = net_connect.send_command(config_verify)
-    print(config_verify)
-    print(config_commands_output)
     if cmd_response:
         assert cmd_response in config_commands_output
     else:
@@ -71,8 +69,17 @@ def test_command_set(net_connect, commands, expected_responses):
     else:
         assert config_commands[-1] in config_commands_output
 
+def test_config_set_longcommand(net_connect, commands, expected_responses):
+    """Test sending configuration commands using long commands"""
+    config_commands = commands.get("config_long_command")
+    config_verify = commands["config_verification"]
+    if not config_commands:
+        assert True
+        return
+    output = net_connect.send_config_set(config_commands)
+    assert True
 
-def test_commands_from_file(net_connect, commands, expected_responses):
+def test_config_from_file(net_connect, commands, expected_responses):
     """
     Test sending configuration commands from a file
     """
