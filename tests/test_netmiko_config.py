@@ -69,6 +69,7 @@ def test_config_set(net_connect, commands, expected_responses):
     else:
         assert config_commands[-1] in config_commands_output
 
+
 def test_config_set_longcommand(net_connect, commands, expected_responses):
     """Test sending configuration commands using long commands"""
     config_commands = commands.get("config_long_command")
@@ -78,6 +79,7 @@ def test_config_set_longcommand(net_connect, commands, expected_responses):
         return
     output = net_connect.send_config_set(config_commands)
     assert True
+
 
 def test_config_from_file(net_connect, commands, expected_responses):
     """
