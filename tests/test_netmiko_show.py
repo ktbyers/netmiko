@@ -68,7 +68,6 @@ def test_send_command_textfsm(net_connect, commands, expected_responses):
         # Strip off the _ssh, _telnet, _serial
         base_platform = base_platform.split("_")[:-1]
         base_platform = "_".join(base_platform)
-
     if base_platform not in [
         "cisco_ios",
         "cisco_xe",
@@ -97,7 +96,6 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         # Strip off the _ssh, _telnet, _serial
         base_platform = base_platform.split("_")[:-1]
         base_platform = "_".join(base_platform)
-
     if base_platform not in [
         "cisco_ios",
         "cisco_xe",
@@ -139,14 +137,12 @@ def test_strip_command(net_connect, commands, expected_responses):
         # Strip off the _ssh, _telnet, _serial
         base_platform = base_platform.split("_")[:-1]
         base_platform = "_".join(base_platform)
-    
     show_ip = net_connect.send_command_timing(commands["basic"])
     show_ip_alt = net_connect.send_command(commands["basic"])
 
     if base_platform == "dlink_ds":
         show_ip = "\n".join(show_ip.split("\n")[2:-1])
         show_ip_alt = "\n".join(show_ip_alt.split("\n")[2:-1])
-
     assert commands["basic"] not in show_ip
     assert commands["basic"] not in show_ip_alt
 
