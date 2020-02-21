@@ -36,7 +36,7 @@ def test_config_mode(net_connect, commands, expected_responses):
         base_platform = "_".join(base_platform)
     if base_platform in ["dlink_ds"]:
         assert pytest.skip(
-            "Config mode not implemented or not supported for this platform"
+            "Config mode is not implemented or not supported for this platform"
         )
     else:
         net_connect.config_mode()
