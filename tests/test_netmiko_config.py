@@ -73,11 +73,11 @@ def test_config_set(net_connect, commands, expected_responses):
 def test_config_set_longcommand(net_connect, commands, expected_responses):
     """Test sending configuration commands using long commands"""
     config_commands = commands.get("config_long_command")
-    config_verify = commands["config_verification"]
+    config_verify = commands["config_verification"]  # noqa
     if not config_commands:
         assert True
         return
-    output = net_connect.send_config_set(config_commands)
+    output = net_connect.send_config_set(config_commands)  # noqa
     assert True
 
 
