@@ -180,8 +180,8 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         # "               3 Dir(s)               961531904 bytes free."
         remote_cmd = "file dir {}".format(self.file_system)
         if "@" in self.ssh_ctl_chan.base_prompt:
-            self.ssh_ctl_chan.send_command('//environment no more')
-            remote_cmd = '//' + remote_cmd
+            self.ssh_ctl_chan.send_command("//environment no more")
+            remote_cmd = "//" + remote_cmd
         remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
 
         match = re.search(search_pattern, remote_output)
@@ -193,8 +193,8 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         if self.direction == "put":
             remote_cmd = "file dir {}/{}".format(self.file_system, self.dest_file)
             if "@" in self.ssh_ctl_chan.base_prompt:
-                self.ssh_ctl_chan.send_command('//environment no more')
-                remote_cmd = '//' + remote_cmd
+                self.ssh_ctl_chan.send_command("//environment no more")
+                remote_cmd = "//" + remote_cmd
             remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
             if "File Not Found" in remote_out:
                 return False
@@ -216,8 +216,8 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         if not remote_cmd:
             remote_cmd = "file dir {}/{}".format(self.file_system, remote_file)
         if "@" in self.ssh_ctl_chan.base_prompt:
-            self.ssh_ctl_chan.send_command('//environment no more')
-            remote_cmd = '//' + remote_cmd
+            self.ssh_ctl_chan.send_command("//environment no more")
+            remote_cmd = "//" + remote_cmd
         print(remote_cmd, self.direction, self.dest_file)
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
 
