@@ -173,11 +173,17 @@ class NokiaSrosSSH(BaseConnection):
 
 
 class NokiaSrosFileTransfer(BaseFileTransfer):
-    def remote_space_available(self, search_pattern=r"(\d+) \w+ free"):
+    def remote_space_available(self, search_pattern=r"\s+(\d+)\s+\w+\s+free"):
         """Return space available on remote device."""
 
+        # Sample text for search_pattern.
+        # "               3 Dir(s)               961531904 bytes free."
         remote_cmd = "file dir {}".format(self.file_system)
-        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+        if "@" in self.ssh_ctl_chan.base_prompt:
+            self.ssh_ctl_chan.send_command('//environment no more')
+            remote_cmd = '//' + remote_cmd
+        remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
+
         match = re.search(search_pattern, remote_output)
         return int(match.group(1))
 
@@ -186,7 +192,10 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 
         if self.direction == "put":
             remote_cmd = "file dir {}/{}".format(self.file_system, self.dest_file)
-            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            if "@" in self.ssh_ctl_chan.base_prompt:
+                self.ssh_ctl_chan.send_command('//environment no more')
+                remote_cmd = '//' + remote_cmd
+            remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
             if "File Not Found" in remote_out:
                 return False
             elif self.dest_file in remote_out:
@@ -206,6 +215,10 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
                 remote_file = self.source_file
         if not remote_cmd:
             remote_cmd = "file dir {}/{}".format(self.file_system, remote_file)
+        if "@" in self.ssh_ctl_chan.base_prompt:
+            self.ssh_ctl_chan.send_command('//environment no more')
+            remote_cmd = '//' + remote_cmd
+        print(remote_cmd, self.direction, self.dest_file)
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
 
         if "File Not Found" in remote_out:
@@ -214,7 +227,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         # Parse dir output for filename. Output format is:
         # "10/16/2019  10:00p                6738 {filename}"
 
-        pattern = r"(\S+)[ \t]+(\S+)[ \t]+(\d+)[ \t]+{}".format(re.escape(remote_file))
+        pattern = r"(\S+)\s+(\S+)\s+(\d+)\s+{}".format(re.escape(remote_file))
         match = re.search(pattern, remote_out)
 
         if not match:
@@ -223,19 +236,23 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         file_size = int(match.group(3))
         return file_size
 
+    def process_md5(md5_output, pattern=r"=\s+(\S+)"):
+        """ Nokia SROS does not support a md5sum calculation."""
+        pass
+
     def verify_file(self):
         """Verify the file has been transferred correctly based on filesize."""
         if self.direction == "put":
             return os.stat(self.source_file).st_size == self.remote_file_size(
-                remote_file=self.source_file
+                remote_file=self.dest_file
             )
         elif self.direction == "get":
             return (
                 self.remote_file_size(remote_file=self.source_file)
-                == os.stat(self.source_file).st_size
+                == os.stat(self.dest_file).st_size
             )
 
     def compare_md5(self):
-        """ Nokia SR OS does not support a md5sum calculation.
+        """ Nokia SROS does not support a md5sum calculation.
          File verification is patched with verify_file which is based on file size."""
         return self.verify_file()
