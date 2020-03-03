@@ -179,8 +179,7 @@ def test_clitable_to_dict():
     """Converts TextFSM cli_table object to list of dictionaries"""
     table = clitable.CliTable(template_dir=RESOURCE_FOLDER)
     text_filename = join(RESOURCE_FOLDER, "textfsm.txt")
-    template_filename = join(
-        RESOURCE_FOLDER, "cisco_ios_show_version.template")
+    template_filename = join(RESOURCE_FOLDER, "cisco_ios_show_version.template")
     with open(text_filename) as data_file:
         text = data_file.read()
 
@@ -254,8 +253,8 @@ def test_textfsm_missing_template():
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 8) and float(
-        pkg_resources.get_distribution("genie").version) < 20.0,
+    sys.version_info >= (3, 8)
+    and float(pkg_resources.get_distribution("genie").version) < 20.0,
     # reason="The genie package is not available for Python 3.8 yet",
     reason="The genie package is available in Python 3.8 after 20.2 version",
 )
