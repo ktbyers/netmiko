@@ -233,3 +233,14 @@ ruijie_os:
   multiple_line_output: ""
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
+
+supermicro_usp:
+  base_prompt: SMIS
+  router_prompt: SMIS>
+  enable_prompt: SMIS#
+  interface_ip: 192.168.10.15
+  version_banner: "Firmware Version"
+  multiple_line_output: ""
+  save_config: '[OK]'
+  cmd_response_init: "logging buffered 100"
+  cmd_response_final: "logging buffered 110"
