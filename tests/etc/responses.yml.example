@@ -242,5 +242,5 @@ supermicro_usp:
   version_banner: "Firmware Version"
   multiple_line_output: ""
   save_config: '[OK]'
-  cmd_response_init: "logging buffered 100"
+  cmd_response_init: "logging buffered 110"
   cmd_response_final: "logging buffered 110"
