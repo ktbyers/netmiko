@@ -159,7 +159,7 @@ class SmciBaseConnection(BaseConnection):
             self,
             cmd="write startup-config",
             confirm=False,
-            confirm_response="",
+            confirm_response="[OK]",
     ):
         """Saves Config."""
         self.enable()
@@ -182,3 +182,7 @@ class SmciBaseConnection(BaseConnection):
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
         return output
+
+    def commit(self, *args, **kwargs):
+        """We don't have commit command."""
+        return ""
