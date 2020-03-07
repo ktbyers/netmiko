@@ -2,10 +2,6 @@
 
 import os
 from os.path import dirname, join, relpath
-import sys
-import pkg_resources
-
-import pytest
 
 from netmiko import utilities
 from netmiko._textfsm import _clitable as clitable
