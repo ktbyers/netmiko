@@ -22,6 +22,6 @@ matrix:
     - python: 3.8-dev
     - python: nightly
 install:
-  - pip install tox==3.13.2 tox-travis==0.12
+  - pip install tox==3.14.5 tox-travis==0.12
 script:
   - tox

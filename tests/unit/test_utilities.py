@@ -252,12 +252,6 @@ def test_textfsm_missing_template():
     assert result == raw_output
 
 
-@pytest.mark.skipif(
-    sys.version_info >= (3, 8)
-    and float(pkg_resources.get_distribution("genie").version) < 20.0,
-    # reason="The genie package is not available for Python 3.8 yet",
-    reason="The genie package is available in Python 3.8 after 20.2 version",
-)
 def test_get_structured_data_genie():
     """Convert raw CLI output to structured data using Genie"""
 
