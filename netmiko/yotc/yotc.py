@@ -21,7 +21,7 @@ class YotcBase(CiscoBaseConnection):
         )
         buffer = self.send_command_timing(*args, cmd_echo=True, **kwargs)
         output = buffer
-        while self.base_prompt not in buffer:
+        while prompt not in buffer:
             buffer = self.send_command_timing("", strip_command=False, strip_prompt=False, cmd_echo=True)
             output += buffer
         output = more_str_re.sub("", output)
