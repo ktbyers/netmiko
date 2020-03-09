@@ -7,22 +7,22 @@ from telnetlib import (IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS)
 
 class YotcBase(CiscoBaseConnection):
 
-    def send_command_more(self, *args, cmd_echo=True, max_loops=500, **kwargs):
+    def send_command_more(self, *args, **kwargs):
         """
         yotc has no disable_paging command, need to handle it in show command.
         cisco_wlc_ssh.py has similar function: send_command_w_enter().
-        :param cmd_echo: Verify command echo before proceeding
-        :param max_loops: need long time to receive
         :param args: same with send_command_timing()
         :param kwargs: same with send_command_timing()
         :return: output
         """
-        more_str_re = re.compile(" --More-- \b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b\n?")
-
-        output = self.send_command_timing(*args, cmd_echo=cmd_echo, max_loops=max_loops, **kwargs)
-        buffer = output
-        while " --More-- " in buffer:
-            buffer = self.send_command_timing("", strip_command=False, cmd_echo=True)
+        prompt = self.find_prompt()
+        more_str_re = re.compile(
+            f" --More-- \b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
+        )
+        buffer = self.send_command_timing(*args, cmd_echo=True, **kwargs)
+        output = buffer
+        while self.base_prompt not in buffer:
+            buffer = self.send_command_timing("", strip_command=False, strip_prompt=False, cmd_echo=True)
             output += buffer
         output = more_str_re.sub("", output)
         return output
@@ -33,6 +33,8 @@ class YotcBase(CiscoBaseConnection):
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.enable()
+        self.config_mode()
+        self.disable_paging("command max-lines 1000")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
