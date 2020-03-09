@@ -16,15 +16,13 @@ class YotcBase(CiscoBaseConnection):
         :return: output
         """
         prompt = self.find_prompt()
-        more_str_re = re.compile(
-            f" --More-- \b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
-        )
+        more_str_re = f" --More-- \b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
         buffer = self.send_command_timing(*args, cmd_echo=True, **kwargs)
         output = buffer
         while prompt not in buffer:
             buffer = self.send_command_timing("", strip_command=False, strip_prompt=False, cmd_echo=True)
             output += buffer
-        output = more_str_re.sub("", output)
+        output = re.sub(more_str_re, "", output)
         return output
 
     def session_preparation(self):
