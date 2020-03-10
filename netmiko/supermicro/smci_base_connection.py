@@ -156,7 +156,7 @@ class SmciBaseConnection(BaseConnection):
         pass
 
     def save_config(
-        self, cmd="write startup-config", confirm=False, confirm_response="[OK]",
+        self, cmd="write startup-config", confirm=False, confirm_response="[OK]"
     ):
         """Saves Config."""
         self.enable()
