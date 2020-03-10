@@ -80,6 +80,7 @@ from netmiko.watchguard import WatchguardFirewareSSH
 from netmiko.supermicro.smci_switch_usp import SmciSwitchUspSSH
 from netmiko.supermicro.smci_switch_usp import SmciSwitchUspTelnet
 from netmiko.supermicro.smci_switch_usp import SmciSwitchUspSerial
+from netmiko.supermicro.smci_switch_usp import SmciSwitchUspFileTransfer
 
 
 # The keys of this dictionary are the supported device_types
@@ -184,6 +185,7 @@ FILE_TRANSFER_MAP = {
     "dell_os10": DellOS10FileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
+    #    "supermicro_usp": SmciSwitchUspFileTransfer,
 }
 
 # Also support keys that end in _ssh

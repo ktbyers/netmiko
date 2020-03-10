@@ -176,7 +176,10 @@ class SmciBaseConnection(BaseConnection):
         else:
             # Some devices are slow so match on trailing-prompt if you can
             output = self.send_command(
-                command_string="write startup-config", strip_prompt=False, strip_command=False)
+                command_string="write startup-config",
+                strip_prompt=False,
+                strip_command=False,
+            )
         return output
 
     def commit(self, *args, **kwargs):
