@@ -41,7 +41,7 @@ class ZTETelnet(ZTEBase):
 
         """
         if cmd == WILL:
-            if opt == (ECHO or SGA):
+            if opt in [ECHO, SGA]:
                 # reply DO ECHO / DO SGA
                 telnet_sock.sendall(IAC + DO + opt)
             else:

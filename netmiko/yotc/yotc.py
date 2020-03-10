@@ -47,14 +47,17 @@ class YotcBase(CiscoBaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(
-        self,
-        cmd="wr",
-        confirm=True,
-        confirm_response="y",
-    ):
+    def save_config(self, cmd="wr", confirm_response="y"):
         """Saves Config."""
-        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
+        self.exit_config_mode()
+        self.enable()
+        output = self.send_command_timing(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+        output += self.send_command_timing(
+                confirm_response, strip_prompt=False, strip_command=False, normalize=False
+            )
+        return output
 
     def cleanup(self):
         """
@@ -99,7 +102,7 @@ class YotcTelnet(YotcBase):
 
         """
         if cmd == WILL:
-            if opt == (ECHO or SGA):
+            if opt in [ECHO, SGA]:
                 # reply DO ECHO / DO SGA
                 telnet_sock.sendall(IAC + DO + opt)
             else:
