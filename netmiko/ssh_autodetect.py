@@ -172,7 +172,7 @@ SSH_MAPPER_BASE = {
         "search_patterns": [r"Super Micro Computer"],
         "priority": 99,
         "dispatch": "_autodetect_std",
-    }
+    },
 }
 
 

@@ -49,18 +49,18 @@ class SmciBaseConnection(BaseConnection):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def serial_login(
-            self,
-            pri_prompt_terminator=r"#\s*$",
-            alt_prompt_terminator=r">\s*$",
-            username_pattern=r"login",
-            pwd_pattern=r"assword",
-            delay_factor=1,
-            max_loops=20,
+        self,
+        pri_prompt_terminator=r"#\s*$",
+        alt_prompt_terminator=r">\s*$",
+        username_pattern=r"login",
+        pwd_pattern=r"assword",
+        delay_factor=1,
+        max_loops=20,
     ):
         self.write_channel(self.TELNET_RETURN)
         output = self.read_channel()
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                alt_prompt_terminator, output, flags=re.M
+            alt_prompt_terminator, output, flags=re.M
         ):
             return output
         else:
@@ -74,13 +74,13 @@ class SmciBaseConnection(BaseConnection):
             )
 
     def telnet_login(
-            self,
-            pri_prompt_terminator=r"#\s*$",
-            alt_prompt_terminator=r">\s*$",
-            username_pattern=r"login",
-            pwd_pattern=r"assword",
-            delay_factor=1,
-            max_loops=20,
+        self,
+        pri_prompt_terminator=r"#\s*$",
+        alt_prompt_terminator=r">\s*$",
+        username_pattern=r"login",
+        pwd_pattern=r"assword",
+        delay_factor=1,
+        max_loops=20,
     ):
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -108,13 +108,13 @@ class SmciBaseConnection(BaseConnection):
                     output = self.read_channel()
                     return_msg += output
                     if re.search(
-                            pri_prompt_terminator, output, flags=re.M
+                        pri_prompt_terminator, output, flags=re.M
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
                 # Check if proper data received
                 if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                        alt_prompt_terminator, output, flags=re.M
+                    alt_prompt_terminator, output, flags=re.M
                 ):
                     return return_msg
 
@@ -132,7 +132,7 @@ class SmciBaseConnection(BaseConnection):
         output = self.read_channel()
         return_msg += output
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                alt_prompt_terminator, output, flags=re.M
+            alt_prompt_terminator, output, flags=re.M
         ):
             return return_msg
 
@@ -156,10 +156,7 @@ class SmciBaseConnection(BaseConnection):
         pass
 
     def save_config(
-            self,
-            cmd="write startup-config",
-            confirm=False,
-            confirm_response="[OK]",
+        self, cmd="write startup-config", confirm=False, confirm_response="[OK]",
     ):
         """Saves Config."""
         self.enable()

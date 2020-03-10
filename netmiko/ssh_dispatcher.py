@@ -170,7 +170,7 @@ CLASS_MAPPER_BASE = {
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "watchguard_fireware": WatchguardFirewareSSH,
-    "supermicro_usp": SmciSwitchUspSSH
+    "supermicro_usp": SmciSwitchUspSSH,
 }
 
 FILE_TRANSFER_MAP = {
