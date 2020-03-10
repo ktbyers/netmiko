@@ -81,7 +81,8 @@ from netmiko.zte.zte import ZTESSH
 from netmiko.zte.zte import ZTETelnet
 from netmiko.yotc.yotc import YotcSSH
 from netmiko.yotc.yotc import YotcTelnet
-
+from netmiko.h3c.h3c import H3CSSH
+from netmiko.h3c.h3c import H3CTelnet
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -173,6 +174,7 @@ CLASS_MAPPER_BASE = {
     "watchguard_fireware": WatchguardFirewareSSH,
     "zte": ZTESSH,
     "yotc": YotcSSH,
+    "h3c": H3CSSH,
 }
 
 FILE_TRANSFER_MAP = {
@@ -230,6 +232,7 @@ CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
 CLASS_MAPPER["zte_telnet"] = ZTETelnet
 CLASS_MAPPER["yotc_telnet"] = YotcTelnet
+CLASS_MAPPER["h3c_telnet"] = H3CTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial

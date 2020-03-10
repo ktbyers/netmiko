@@ -1,7 +1,5 @@
 from netmiko.cisco_base_connection import CiscoBaseConnection
-import re
 import time
-from netmiko import log
 from telnetlib import (IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS)
 
 
@@ -35,7 +33,8 @@ class ZTESSH(ZTEBase):
 
 class ZTETelnet(ZTEBase):
 
-    def _process_option(self, telnet_sock, cmd, opt):
+    @staticmethod
+    def _process_option(telnet_sock, cmd, opt):
         """
         ZTE need manually reply DO ECHO to enable echo command.
         enable ECHO, SGA, set window size to [500, 50]

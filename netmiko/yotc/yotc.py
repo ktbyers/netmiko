@@ -7,20 +7,23 @@ from telnetlib import (IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS)
 
 class YotcBase(CiscoBaseConnection):
 
-    def send_command_more(self, *args, **kwargs):
+    def send_command_more(self, *args, cmd_echo=True, **kwargs):
         """
         yotc has no disable_paging command, need to handle it in show command.
         cisco_wlc_ssh.py has similar function: send_command_w_enter().
+        :param cmd_echo: Verify command echo before proceeding
         :param args: same with send_command_timing()
         :param kwargs: same with send_command_timing()
         :return: output
         """
         prompt = self.find_prompt()
         more_str_re = f" --More-- \b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
-        buffer = self.send_command_timing(*args, cmd_echo=True, **kwargs)
+        buffer = self.send_command_timing(*args, cmd_echo=cmd_echo, **kwargs)
         output = buffer
+        log.debug(f"send_command_more first output: {output}")
         while prompt not in buffer:
-            buffer = self.send_command_timing("", strip_command=False, strip_prompt=False, cmd_echo=True)
+            buffer = self.send_command_timing("", strip_command=False, strip_prompt=False, cmd_echo=cmd_echo)
+            log.debug(f"send_command_more buffer: {buffer}")
             output += buffer
         output = re.sub(more_str_re, "", output)
         return output
@@ -64,7 +67,8 @@ class YotcBase(CiscoBaseConnection):
 class YotcSSH(YotcBase):
     
     def special_login_handler(self, delay_factor=1):
-        """yotc presents with the following on login
+        """
+        yotc presents with the following on login
 
         Password: ***
 
@@ -88,7 +92,8 @@ class YotcSSH(YotcBase):
 
 class YotcTelnet(YotcBase):
 
-    def _process_option(self, telnet_sock, cmd, opt):
+    @staticmethod
+    def _process_option(telnet_sock, cmd, opt):
         """
         enable ECHO, SGA, set window size to [500, 50]
 
