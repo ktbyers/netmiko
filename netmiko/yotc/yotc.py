@@ -49,6 +49,7 @@ class YotcBase(CiscoBaseConnection):
 
     def save_config(self, cmd="wr", confirm_response="y"):
         """Saves Config."""
+        self.clear_buffer()
         self.exit_config_mode()
         self.enable()
         output = self.send_command_timing(
@@ -64,6 +65,7 @@ class YotcBase(CiscoBaseConnection):
         no use exit command to disconnect
         :return:
         """
+
         pass
 
 
