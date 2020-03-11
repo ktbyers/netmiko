@@ -111,8 +111,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         remote_cmd = "file vols -P {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         remote_output = remote_output.strip()
-        err_msg = (
-            "Parsing error, unexpected output from {}:\n{}".format(remote_cmd, remote_output)
+        err_msg = "Parsing error, unexpected output from {}:\n{}".format(
+            remote_cmd, remote_output
         )
 
         # First line is the header; file_system_line is the output we care about

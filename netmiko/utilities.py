@@ -96,7 +96,9 @@ def find_cfg_file(file_name=None):
     # Filter optional_path if null
     search_paths = [path for path in search_paths if path]
     for path in search_paths:
-        files = glob("{}/.netmiko.yml".format(path)) + glob("{}/netmiko.yml".format(path))
+        files = glob("{}/.netmiko.yml".format(path)) + glob(
+            "{}/netmiko.yml".format(path)
+        )
         if files:
             return files[0]
     raise IOError(

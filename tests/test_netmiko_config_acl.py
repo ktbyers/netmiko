@@ -46,9 +46,9 @@ def test_large_acl(net_connect, acl_entries=100):
     # Generate sequence of ACL entries
     for i in range(1, acl_entries + 1):
         if "cisco_xr" in net_connect.device_type:
-            cmd = "permit ipv4 host {} any".format(ip_address('192.168.0.0') + i)
+            cmd = "permit ipv4 host {} any".format(ip_address("192.168.0.0") + i)
         else:
-            cmd = "permit ip host {} any".format(ip_address('192.168.0.0') + i)
+            cmd = "permit ip host {} any".format(ip_address("192.168.0.0") + i)
         cfg_lines.append(cmd)
 
     result = net_connect.send_config_set(cfg_lines)

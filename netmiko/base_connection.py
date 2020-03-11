@@ -905,7 +905,9 @@ class BaseConnection(object):
                 raise NetmikoAuthenticationException(msg)
 
             if self.verbose:
-                print("SSH connection established to {}:{}".format(self.host, self.port))
+                print(
+                    "SSH connection established to {}:{}".format(self.host, self.port)
+                )
 
             # Use invoke_shell to establish an 'interactive session'
             if width and height:

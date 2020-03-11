@@ -78,7 +78,9 @@ class VyOSSSH(CiscoSSHConnection):
         )
 
         if any(x in output for x in error_marker):
-            raise ValueError("Commit failed with following errors:\n\n{}".format(output))
+            raise ValueError(
+                "Commit failed with following errors:\n\n{}".format(output)
+            )
         return output
 
     def set_base_prompt(

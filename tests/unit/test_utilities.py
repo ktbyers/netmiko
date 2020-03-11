@@ -219,7 +219,8 @@ def test_textfsm_direct_template():
 
     # Should also work with no-platform or command
     result = utilities.get_structured_data(
-        raw_output, template="{}/cisco_ios_show_version.template".format(RESOURCE_FOLDER)
+        raw_output,
+        template="{}/cisco_ios_show_version.template".format(RESOURCE_FOLDER),
     )
     assert result == [{"model": "4500"}]
 

@@ -100,13 +100,17 @@ class CiscoXrBase(CiscoBaseConnection):
             delay_factor=delay_factor,
         )
         if error_marker in output:
-            raise ValueError("Commit failed with the following errors:\n\n{}".format(output))
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{}".format(output)
+            )
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
             output += self.send_command_timing(
                 "no", strip_prompt=False, strip_command=False, delay_factor=delay_factor
             )
-            raise ValueError("Commit failed with the following errors:\n\n{}".format(output))
+            raise ValueError(
+                "Commit failed with the following errors:\n\n{}".format(output)
+            )
 
         return output
 

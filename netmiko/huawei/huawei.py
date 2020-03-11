@@ -210,7 +210,9 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         output += self.exit_config_mode()
 
         if error_marker in output:
-            raise ValueError("Commit failed with following errors:\n\n{}".format(output))
+            raise ValueError(
+                "Commit failed with following errors:\n\n{}".format(output)
+            )
         return output
 
     def save_config(self, *args, **kwargs):
