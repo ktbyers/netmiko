@@ -65,7 +65,7 @@ class HPProcurveBase(CiscoSSHConnection):
             output += new_output
             i += 1
 
-        log.debug(f"{output}")
+        log.debug("{}".format(output))
         self.clear_buffer()
         msg = (
             "Failed to enter enable mode. Please ensure you pass "

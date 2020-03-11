@@ -140,7 +140,7 @@ class CiscoBaseConnection(BaseConnection):
                 i += 1
             except EOFError:
                 self.remote_conn.close()
-                msg = f"Login failed: {self.host}"
+                msg = "Login failed: {}".format(self.host)
                 raise NetmikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -154,7 +154,7 @@ class CiscoBaseConnection(BaseConnection):
             return return_msg
 
         self.remote_conn.close()
-        msg = f"Login failed: {self.host}"
+        msg = "Login failed: {}".format(self.host)
         raise NetmikoAuthenticationException(msg)
 
     def cleanup(self, command="exit"):
@@ -178,7 +178,7 @@ class CiscoBaseConnection(BaseConnection):
         if match:
             file_system = match.group(1)
             # Test file_system
-            cmd = f"dir {file_system}"
+            cmd = "dir {}".format(file_system)
             output = self.send_command_expect(cmd)
             if "% Invalid" in output or "%Error:" in output:
                 raise ValueError(

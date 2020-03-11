@@ -156,7 +156,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
+        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
         dest_md5 = self.ssh_ctl_chan.send_command(
             remote_md5_cmd, max_loops=750, delay_factor=2
         )

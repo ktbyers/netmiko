@@ -213,13 +213,13 @@ def test_textfsm_direct_template():
         raw_output,
         platform="cisco_ios",
         command="show version",
-        template=f"{RESOURCE_FOLDER}/cisco_ios_show_version.template",
+        template="{}/cisco_ios_show_version.template".format(RESOURCE_FOLDER),
     )
     assert result == [{"model": "4500"}]
 
     # Should also work with no-platform or command
     result = utilities.get_structured_data(
-        raw_output, template=f"{RESOURCE_FOLDER}/cisco_ios_show_version.template"
+        raw_output, template="{}/cisco_ios_show_version.template".format(RESOURCE_FOLDER)
     )
     assert result == [{"model": "4500"}]
 
@@ -231,7 +231,7 @@ def test_textfsm_failed_parsing():
         raw_output,
         platform="cisco_ios",
         command="show version",
-        template=f"{RESOURCE_FOLDER}/nothinghere",
+        template="{}/nothinghere".format(RESOURCE_FOLDER),
     )
     assert result == raw_output
 
@@ -243,7 +243,7 @@ def test_textfsm_missing_template():
         raw_output,
         platform="cisco_ios",
         command="show version",
-        template=f"{RESOURCE_FOLDER}/nothinghere",
+        template="{}/nothinghere".format(RESOURCE_FOLDER),
     )
     assert result == raw_output
 

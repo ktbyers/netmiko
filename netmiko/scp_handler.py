@@ -113,7 +113,7 @@ class BaseFileTransfer(object):
 
     def remote_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Return space available on remote device."""
-        remote_cmd = f"dir {self.file_system}"
+        remote_cmd = "dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
         if "kbytes" in match.group(0) or "Kbytes" in match.group(0):
@@ -123,7 +123,7 @@ class BaseFileTransfer(object):
     def _remote_space_available_unix(self, search_pattern=""):
         """Return space available on *nix system (BSD/Linux)."""
         self.ssh_ctl_chan._enter_shell()
-        remote_cmd = f"/bin/df -k {self.file_system}"
+        remote_cmd = "/bin/df -k {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command(
             remote_cmd, expect_string=r"[\$#]"
         )
@@ -183,7 +183,7 @@ class BaseFileTransfer(object):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             if not remote_cmd:
-                remote_cmd = f"dir {self.file_system}/{self.dest_file}"
+                remote_cmd = "dir {}/{}".format(self.file_system, self.dest_file)
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r"Directory of .*{0}".format(self.dest_file)
             if (
@@ -203,7 +203,7 @@ class BaseFileTransfer(object):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             self.ssh_ctl_chan._enter_shell()
-            remote_cmd = f"ls {self.file_system}"
+            remote_cmd = "ls {}".format(self.file_system)
             remote_out = self.ssh_ctl_chan.send_command(
                 remote_cmd, expect_string=r"[\$#]"
             )
@@ -220,7 +220,7 @@ class BaseFileTransfer(object):
             elif self.direction == "get":
                 remote_file = self.source_file
         if not remote_cmd:
-            remote_cmd = f"dir {self.file_system}/{remote_file}"
+            remote_cmd = "dir {}/{}".format(self.file_system, remote_file)
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
         # Strip out "Directory of flash:/filename line
         remote_out = re.split(r"Directory of .*", remote_out)
@@ -245,9 +245,9 @@ class BaseFileTransfer(object):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_file = f"{self.file_system}/{remote_file}"
+        remote_file = "{}/{}".format(self.file_system, remote_file)
         if not remote_cmd:
-            remote_cmd = f"ls -l {remote_file}"
+            remote_cmd = "ls -l {}".format(remote_file)
 
         self.ssh_ctl_chan._enter_shell()
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
@@ -304,7 +304,7 @@ class BaseFileTransfer(object):
         if match:
             return match.group(1)
         else:
-            raise ValueError(f"Invalid output from MD5 command: {md5_output}")
+            raise ValueError("Invalid output from MD5 command: {}".format(md5_output))
 
     def compare_md5(self):
         """Compare md5 of file on network device to md5 of local file."""
@@ -325,7 +325,7 @@ class BaseFileTransfer(object):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
+        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
@@ -339,13 +339,13 @@ class BaseFileTransfer(object):
 
     def get_file(self):
         """SCP copy the file from the remote device to local system."""
-        source_file = f"{self.file_system}/{self.source_file}"
+        source_file = "{}/{}".format(self.file_system, self.source_file)
         self.scp_conn.scp_get_file(source_file, self.dest_file)
         self.scp_conn.close()
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
-        destination = f"{self.file_system}/{self.dest_file}"
+        destination = "{}/{}".format(self.file_system, self.dest_file)
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()

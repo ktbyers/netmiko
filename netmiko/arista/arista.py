@@ -24,13 +24,13 @@ class AristaBase(CiscoSSHConnection):
 
         Can also be (s2)
         """
-        log.debug(f"pattern: {pattern}")
+        log.debug("pattern: {}".format(pattern))
         self.write_channel(self.RETURN)
         output = self.read_until_pattern(pattern=pattern)
-        log.debug(f"check_config_mode: {repr(output)}")
+        log.debug("check_config_mode: {}".format(repr(output)))
         output = output.replace("(s1)", "")
         output = output.replace("(s2)", "")
-        log.debug(f"check_config_mode: {repr(output)}")
+        log.debug("check_config_mode: {}".format(repr(output)))
         return check_string in output
 
     def _enter_shell(self):
@@ -94,7 +94,7 @@ class AristaFileTransfer(CiscoFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
-        remote_md5_cmd = f"{base_cmd} file:{self.file_system}/{remote_file}"
+        remote_md5_cmd = "{} file:{}/{}".format(base_cmd, self.file_system, remote_file)
         dest_md5 = self.ssh_ctl_chan.send_command(
             remote_md5_cmd, max_loops=750, delay_factor=4
         )

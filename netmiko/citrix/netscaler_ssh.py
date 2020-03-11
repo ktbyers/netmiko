@@ -12,7 +12,7 @@ class NetscalerSSH(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor=0)
         self._test_channel_read()
         self.set_base_prompt()
-        cmd = f"{self.RETURN}set cli mode -page OFF{self.RETURN}"
+        cmd = "{}set cli mode -page OFF{}".format(self.RETURN, self.RETURN)
         self.disable_paging(command=cmd)
         time.sleep(1 * delay_factor)
         self.set_base_prompt()
@@ -28,7 +28,7 @@ class NetscalerSSH(BaseConnection):
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError(f"Router prompt not found: {repr(prompt)}")
+            raise ValueError("Router prompt not found: {}".format(repr(prompt)))
 
         prompt = prompt.strip()
         if len(prompt) == 1:

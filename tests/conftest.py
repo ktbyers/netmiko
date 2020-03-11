@@ -158,9 +158,9 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     if not dest_file:
         raise ValueError("Invalid dest file specified")
 
-    full_file_name = f"{dest_file_system}/{dest_file}"
+    full_file_name = "{}/{}".format(dest_file_system, dest_file)
 
-    cmd = f"delete {full_file_name}"
+    cmd = "delete {}".format(full_file_name)
     output = ssh_conn.send_command_timing(cmd, delay_factor=2)
     if "Delete" in output and dest_file in output:
         output += ssh_conn.send_command_timing("\n", delay_factor=2)
@@ -233,7 +233,7 @@ def scp_fixture(request):
     platform = device["device_type"]
     dest_file_system = platform_args[platform]["file_system"]
     if "ciena_saos" in platform and ssh_conn.username:
-        dest_file_system = f"/tmp/users/{ssh_conn.username}"
+        dest_file_system = "/tmp/users/{}".format(ssh_conn.username)
 
     source_file = "test9.txt"
     dest_file = "test9.txt"

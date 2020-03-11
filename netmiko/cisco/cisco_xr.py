@@ -77,17 +77,17 @@ class CiscoXrBase(CiscoBaseConnection):
         # Select proper command string based on arguments provided
         if label:
             if comment:
-                command_string = f"commit label {label} comment {comment}"
+                command_string = "commit label {} comment {}".format(label, comment)
             elif confirm:
                 command_string = "commit label {} confirmed {}".format(
                     label, str(confirm_delay)
                 )
             else:
-                command_string = f"commit label {label}"
+                command_string = "commit label {}".format(label)
         elif confirm:
-            command_string = f"commit confirmed {str(confirm_delay)}"
+            command_string = "commit confirmed {}".format(str(confirm_delay))
         elif comment:
-            command_string = f"commit comment {comment}"
+            command_string = "commit comment {}".format(comment)
         else:
             command_string = "commit"
 
@@ -100,13 +100,13 @@ class CiscoXrBase(CiscoBaseConnection):
             delay_factor=delay_factor,
         )
         if error_marker in output:
-            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
+            raise ValueError("Commit failed with the following errors:\n\n{}".format(output))
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
             output += self.send_command_timing(
                 "no", strip_prompt=False, strip_command=False, delay_factor=delay_factor
             )
-            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
+            raise ValueError("Commit failed with the following errors:\n\n{}".format(output))
 
         return output
 
@@ -170,7 +170,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         if match:
             return match.group(1)
         else:
-            raise ValueError(f"Invalid output from MD5 command: {md5_output}")
+            raise ValueError("Invalid output from MD5 command: {}".format(md5_output))
 
     def remote_md5(self, base_cmd="show md5 file", remote_file=None):
         """
@@ -184,7 +184,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
         # IOS-XR requires both the leading slash and the slash between file-system and file here
-        remote_md5_cmd = f"{base_cmd} /{self.file_system}/{remote_file}"
+        remote_md5_cmd = "{} /{}/{}".format(base_cmd, self.file_system, remote_file)
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5

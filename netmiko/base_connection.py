@@ -482,7 +482,7 @@ class BaseConnection(object):
                 )
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        log.debug(f"read_channel: {output}")
+        log.debug("read_channel: {}".format(output))
         self._write_session_log(output)
         return output
 
@@ -525,7 +525,7 @@ class BaseConnection(object):
         output = ""
         if not pattern:
             pattern = re.escape(self.base_prompt)
-        log.debug(f"Pattern is: {pattern}")
+        log.debug("Pattern is: {}".format(pattern))
 
         i = 1
         loop_delay = 0.1
@@ -544,7 +544,7 @@ class BaseConnection(object):
                     new_data = new_data.decode("utf-8", "ignore")
                     if self.ansi_escape_codes:
                         new_data = self.strip_ansi_escape_codes(new_data)
-                    log.debug(f"_read_channel_expect read_data: {new_data}")
+                    log.debug("_read_channel_expect read_data: {}".format(new_data))
                     output += new_data
                     self._write_session_log(new_data)
                 except socket.timeout:
@@ -556,12 +556,12 @@ class BaseConnection(object):
             elif self.protocol == "telnet" or "serial":
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
-                log.debug(f"Pattern found: {pattern} {output}")
+                log.debug("Pattern found: {} {}".format(pattern, output))
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
             i += 1
         raise NetmikoTimeoutException(
-            f"Timed-out reading channel, pattern not found in output: {pattern}"
+            "Timed-out reading channel, pattern not found in output: {}".format(pattern)
         )
 
     def _read_channel_timing(self, delay_factor=1, max_loops=150):
@@ -719,7 +719,7 @@ class BaseConnection(object):
                 i += 1
             except EOFError:
                 self.remote_conn.close()
-                msg = f"Login failed: {self.host}"
+                msg = "Login failed: {}".format(self.host)
                 raise NetmikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
@@ -732,7 +732,7 @@ class BaseConnection(object):
         ):
             return return_msg
 
-        msg = f"Login failed: {self.host}"
+        msg = "Login failed: {}".format(self.host)
         self.remote_conn.close()
         raise NetmikoAuthenticationException(msg)
 
@@ -905,7 +905,7 @@ class BaseConnection(object):
                 raise NetmikoAuthenticationException(msg)
 
             if self.verbose:
-                print(f"SSH connection established to {self.host}:{self.port}")
+                print("SSH connection established to {}:{}".format(self.host, self.port))
 
             # Use invoke_shell to establish an 'interactive session'
             if width and height:
@@ -1016,11 +1016,11 @@ class BaseConnection(object):
         self.clear_buffer()
         command = self.normalize_cmd(command)
         log.debug("In disable_paging")
-        log.debug(f"Command: {command}")
+        log.debug("Command: {}".format(command))
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        log.debug(f"{output}")
+        log.debug("{}".format(output))
         log.debug("Exiting disable_paging")
         return output
 
@@ -1069,7 +1069,7 @@ class BaseConnection(object):
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError(f"Router prompt not found: {repr(prompt)}")
+            raise ValueError("Router prompt not found: {}".format(repr(prompt)))
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
         return self.base_prompt
@@ -1096,7 +1096,7 @@ class BaseConnection(object):
             prompt = self.read_channel().strip()
             if not prompt:
                 self.write_channel(self.RETURN)
-                # log.debug(f"find_prompt sleep time: {sleep_time}")
+                # log.debug("find_prompt sleep time: {}".format(sleep_time))
                 time.sleep(sleep_time)
                 if sleep_time <= 3:
                     # Double the sleep_time when it is small
@@ -1110,10 +1110,10 @@ class BaseConnection(object):
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
         if not prompt:
-            raise ValueError(f"Unable to find prompt: {prompt}")
+            raise ValueError("Unable to find prompt: {}".format(prompt))
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
-        log.debug(f"[find_prompt()]: prompt is {prompt}")
+        log.debug("[find_prompt()]: prompt is {}".format(prompt))
         return prompt
 
     def clear_buffer(self, backoff=True):
@@ -1206,12 +1206,12 @@ class BaseConnection(object):
                 new_data = new_data.split(cmd)[1:]
                 new_data = self.RESPONSE_RETURN.join(new_data)
                 new_data = new_data.lstrip()
-                output = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
+                output = "{}{}{}".format(cmd, self.RESPONSE_RETURN, new_data)
             else:
                 # cmd is in the actual output (not just echoed)
                 output = new_data
 
-        log.debug(f"send_command_timing current output: {output}")
+        log.debug("send_command_timing current output: {}".format(output))
 
         output += self._read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
@@ -1242,7 +1242,7 @@ class BaseConnection(object):
             if not isinstance(structured_output, str):
                 return structured_output
 
-        log.debug(f"send_command_timing final output: {output}")
+        log.debug("send_command_timing final output: {}".format(output))
         return output
 
     def strip_prompt(self, a_string):
@@ -1382,7 +1382,7 @@ class BaseConnection(object):
                 new_data = new_data.split(cmd)[1:]
                 new_data = self.RESPONSE_RETURN.join(new_data)
                 new_data = new_data.lstrip()
-                new_data = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
+                new_data = "{}{}{}".format(cmd, self.RESPONSE_RETURN, new_data)
 
         i = 1
         output = ""
@@ -1632,7 +1632,7 @@ class BaseConnection(object):
                 output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-        log.debug(f"exit_config_mode: {output}")
+        log.debug("exit_config_mode: {}".format(output))
         return output
 
     def send_config_from_file(self, config_file=None, **kwargs):
@@ -1740,7 +1740,7 @@ class BaseConnection(object):
                 output += new_output
 
                 # We might capture next prompt in the original read
-                pattern = f"(?:{re.escape(self.base_prompt)}|#)"
+                pattern = "(?:{}|#)".format(re.escape(self.base_prompt))
                 if not re.search(pattern, new_output):
                     # Make sure trailing prompt comes back (after command)
                     # NX-OS has fast-buffering problem where it immediately echoes command
@@ -1751,7 +1751,7 @@ class BaseConnection(object):
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
-        log.debug(f"{output}")
+        log.debug("{}".format(output))
         return output
 
     def strip_ansi_escape_codes(self, string_buffer):
@@ -1785,7 +1785,7 @@ class BaseConnection(object):
         :type string_buffer: str
         """  # noqa
         log.debug("In strip_ansi_escape_codes")
-        log.debug(f"repr = {repr(string_buffer)}")
+        log.debug("repr = {}".format(repr(string_buffer)))
 
         code_position_cursor = chr(27) + r"\[\d+;\d+H"
         code_show_cursor = chr(27) + r"\[\?25h"
@@ -1842,8 +1842,8 @@ class BaseConnection(object):
         output = re.sub(code_next_line, self.RETURN, output)
 
         log.debug("Stripping ANSI escape codes")
-        log.debug(f"new_output = {output}")
-        log.debug(f"repr = {repr(output)}")
+        log.debug("new_output = {}".format(output))
+        log.debug("repr = {}".format(repr(output)))
 
         return output
 

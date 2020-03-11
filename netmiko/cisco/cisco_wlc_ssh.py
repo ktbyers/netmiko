@@ -102,7 +102,7 @@ class CiscoWlcSSH(BaseConnection):
         try:
             self.set_base_prompt()
         except ValueError:
-            msg = f"Authentication failed: {self.host}"
+            msg = "Authentication failed: {}".format(self.host)
             raise NetmikoAuthenticationException(msg)
 
         self.disable_paging(command="config paging disable")

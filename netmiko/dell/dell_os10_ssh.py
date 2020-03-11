@@ -100,13 +100,13 @@ class DellOS10FileTransfer(BaseFileTransfer):
 
     def put_file(self):
         """SCP copy the file from the local system to the remote device."""
-        destination = f"{self.dest_file}"
+        destination = "{}".format(self.dest_file)
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()
 
     def get_file(self):
         """SCP copy the file from the remote device to local system."""
-        source_file = f"{self.source_file}"
+        source_file = "{}".format(self.source_file)
         self.scp_conn.scp_get_file(source_file, self.dest_file)
         self.scp_conn.close()

@@ -22,7 +22,7 @@ class KeymileNOSSSH(CiscoIosBase):
         if re.search(pattern, output):
             self.paramiko_cleanup()
             msg = "Authentication failure: unable to connect"
-            msg += f"{self.device_type} {self.host}:{self.port}"
+            msg += "{} {}:{}".format(self.device_type, self.host, self.port)
             msg += self.RESPONSE_RETURN + "Login incorrect"
             raise NetmikoAuthenticationException(msg)
         else:

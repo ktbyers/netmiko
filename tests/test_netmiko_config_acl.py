@@ -37,7 +37,7 @@ def test_large_acl(net_connect, acl_entries=100):
     cmd = platforms[net_connect.device_type]["base_cmd"]
     verify_cmd = platforms[net_connect.device_type]["verify_cmd"]
     offset = platforms[net_connect.device_type]["offset"]
-    net_connect.send_config_set(f"no {cmd}")
+    net_connect.send_config_set("no {}".format(cmd))
     if "cisco_xr" in net_connect.device_type:
         net_connect.commit()
         net_connect.exit_config_mode()
@@ -46,9 +46,9 @@ def test_large_acl(net_connect, acl_entries=100):
     # Generate sequence of ACL entries
     for i in range(1, acl_entries + 1):
         if "cisco_xr" in net_connect.device_type:
-            cmd = f"permit ipv4 host {ip_address('192.168.0.0') + i} any"
+            cmd = "permit ipv4 host {} any".format(ip_address('192.168.0.0') + i)
         else:
-            cmd = f"permit ip host {ip_address('192.168.0.0') + i} any"
+            cmd = "permit ip host {} any".format(ip_address('192.168.0.0') + i)
         cfg_lines.append(cmd)
 
     result = net_connect.send_config_set(cfg_lines)
@@ -68,7 +68,7 @@ def test_large_acl(net_connect, acl_entries=100):
     if "UTC" in verify_list[0]:
         verify_list.pop(0)
     assert len(verify_list) == len(cfg_lines)
-    net_connect.send_config_set(f"no {cmd}")
+    net_connect.send_config_set("no {}".format(cmd))
     if "cisco_xr" in net_connect.device_type:
         net_connect.commit()
         net_connect.exit_config_mode()
