@@ -199,7 +199,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
 
-        remote_md5_cmd = "{} {}/{}".format(base_cmd,self.file_system, remote_file)
+        remote_md5_cmd = "{} {}/{}".format(base_cmd, self.file_system, remote_file)
 
         self.ssh_ctl_chan._enter_shell()
         dest_md5 = self.ssh_ctl_chan.send_command(
