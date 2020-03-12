@@ -3,11 +3,23 @@ import re
 import time
 from netmiko import log
 from telnetlib import (IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS)
+from netmiko.utilities import (
+    get_structured_data,
+    get_structured_data_genie,
+)
 
 
 class YotcBase(CiscoBaseConnection):
 
-    def send_command_more(self, *args, cmd_echo=True, **kwargs):
+    def send_command_more(
+        self,
+        command_string,
+        use_textfsm=False,
+        use_genie=False,
+        textfsm_template=None,
+        cmd_echo=True,
+        **kwargs,
+    ):
         """
         yotc has no disable_paging command, need to handle it in show command.
         cisco_wlc_ssh.py has similar function: send_command_w_enter().
@@ -18,7 +30,7 @@ class YotcBase(CiscoBaseConnection):
         """
         prompt = self.find_prompt()
         more_str_re = f" --More-- \b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
-        buffer = self.send_command_timing(*args, cmd_echo=cmd_echo, **kwargs)
+        buffer = self.send_command_timing(command_string, cmd_echo=cmd_echo, use_textfsm=False, **kwargs)
         output = buffer
         log.debug(f"send_command_more first output: {output}")
         while prompt not in buffer:
@@ -26,6 +38,26 @@ class YotcBase(CiscoBaseConnection):
             log.debug(f"send_command_more buffer: {buffer}")
             output += buffer
         output = re.sub(more_str_re, "", output)
+
+        if use_textfsm:
+            structured_output = get_structured_data(
+                output,
+                platform=self.device_type,
+                command=command_string.strip(),
+                template=textfsm_template,
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+
+        if use_genie:
+            structured_output = get_structured_data_genie(
+                output, platform=self.device_type, command=command_string.strip()
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+
         return output
 
     def session_preparation(self):
@@ -49,7 +81,6 @@ class YotcBase(CiscoBaseConnection):
 
     def save_config(self, cmd="wr", confirm_response="y"):
         """Saves Config."""
-        self.clear_buffer()
         self.exit_config_mode()
         self.enable()
         output = self.send_command_timing(
@@ -65,7 +96,6 @@ class YotcBase(CiscoBaseConnection):
         no use exit command to disconnect
         :return:
         """
-
         pass
 
 
