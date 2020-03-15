@@ -1,6 +1,6 @@
 
-# Use pynetcio machine
-# Use virtual environment = py36_netmiko
+# Use pydev1 machine
+# Use virtual environment = py3_netmiko
 
 # Run the following command to update docs: 
 $ pdoc3 --html --output-dir docs netmiko --force

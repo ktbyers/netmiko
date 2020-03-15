@@ -2,9 +2,6 @@
 
 import os
 from os.path import dirname, join, relpath
-import sys
-
-import pytest
 
 from netmiko import utilities
 from netmiko._textfsm import _clitable as clitable
@@ -251,10 +248,6 @@ def test_textfsm_missing_template():
     assert result == raw_output
 
 
-@pytest.mark.skipif(
-    sys.version_info >= (3, 8),
-    reason="The genie package is not available for Python 3.8 yet",
-)
 def test_get_structured_data_genie():
     """Convert raw CLI output to structured data using Genie"""
 

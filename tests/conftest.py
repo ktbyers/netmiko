@@ -38,6 +38,22 @@ def net_connect(request):
     return conn
 
 
+@pytest.fixture(scope="function")
+def net_connect_newconn(request):
+    """
+    Create the SSH connection to the remote device
+
+    Return the netmiko connection object.
+    Force a new connection for each test.
+    """
+    device_under_test = request.config.getoption("test_device")
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device["verbose"] = False
+    conn = ConnectHandler(**device)
+    return conn
+
+
 @pytest.fixture()
 def net_connect_cm(request):
     """

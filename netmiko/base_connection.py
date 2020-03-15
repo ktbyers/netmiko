@@ -75,6 +75,7 @@ class BaseConnection(object):
         session_log_file_mode="write",
         allow_auto_change=False,
         encoding="ascii",
+        sock=None,
     ):
         """
         Initialize attributes for establishing connection to target device.
@@ -191,6 +192,10 @@ class BaseConnection(object):
         :param encoding: Encoding to be used when writing bytes to the output channel.
                 (default: ascii)
         :type encoding: str
+
+        :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+                communication to the target host (default: None).
+        :type sock: socket
         """
         self.remote_conn = None
 
@@ -232,6 +237,7 @@ class BaseConnection(object):
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
+        self.sock = sock
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
@@ -828,6 +834,7 @@ class BaseConnection(object):
             "timeout": self.timeout,
             "auth_timeout": self.auth_timeout,
             "banner_timeout": self.banner_timeout,
+            "sock": self.sock,
         }
 
         # Check if using SSH 'config' file mainly for SSH proxy support
@@ -1134,7 +1141,8 @@ class BaseConnection(object):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
-        cmd_echo=False,
+        cmd_verify=False,
+        cmd_echo=None,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1168,9 +1176,16 @@ class BaseConnection(object):
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
 
-        :param cmd_echo: Verify command echo before proceeding (default: False).
+        :param cmd_verify: Verify command echo before proceeding (default: False).
+        :type cmd_verify: bool
+
+        :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         """
+        # For compatibility remove cmd_echo in Netmiko 4.x.x
+        if cmd_echo is not None:
+            cmd_verify = cmd_echo
+
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -1181,7 +1196,7 @@ class BaseConnection(object):
 
         cmd = command_string.strip()
         # if cmd is just an "enter" skip this section
-        if cmd and cmd_echo:
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -1283,6 +1298,7 @@ class BaseConnection(object):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
+        cmd_verify=True,
     ):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1320,6 +1336,9 @@ class BaseConnection(object):
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
+
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+        :type cmd_verify: bool
         """
         # Time to delay in each read loop
         loop_delay = 0.2
@@ -1353,8 +1372,8 @@ class BaseConnection(object):
         new_data = ""
 
         cmd = command_string.strip()
-        # if cmd is just and "enter" skip this section
-        if cmd:
+        # if cmd is just an "enter" skip this section
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -1692,9 +1711,10 @@ class BaseConnection(object):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Send config commands
+        output = ""
         if enter_config_mode:
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-            output = self.config_mode(*cfg_mode_args)
+            output += self.config_mode(*cfg_mode_args)
 
         if self.fast_cli:
             for cmd in config_commands:
@@ -1827,8 +1847,8 @@ class BaseConnection(object):
 
         return output
 
-    def cleanup(self):
-        """Any needed cleanup before closing connection."""
+    def cleanup(self, command=""):
+        """Logout of the session on the network device plus any additional cleanup."""
         pass
 
     def paramiko_cleanup(self):
@@ -1837,7 +1857,7 @@ class BaseConnection(object):
         del self.remote_conn_pre
 
     def disconnect(self):
-        """Try to gracefully close the SSH connection."""
+        """Try to gracefully close the session."""
         try:
             self.cleanup()
             if self.protocol == "ssh":

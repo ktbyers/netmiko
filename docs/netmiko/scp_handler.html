@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.6.2" />
+<meta name="generator" content="pdoc 0.6.3" />
 <title>netmiko.scp_handler API documentation</title>
 <meta name="description" content="Netmiko SCP operations …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
@@ -35,14 +35,12 @@ SCP requires a separate SSH connection for a control channel.
 
 Currently only supports Cisco IOS and Cisco ASA.
 &#34;&#34;&#34;
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import re
 import os
 import hashlib
 
 import scp
+import platform
 
 
 class SCPConn(object):
@@ -52,8 +50,9 @@ class SCPConn(object):
     Must close the SCP connection to get the file to write to the remote filesystem
     &#34;&#34;&#34;
 
-    def __init__(self, ssh_conn):
+    def __init__(self, ssh_conn, socket_timeout=10.0):
         self.ssh_ctl_chan = ssh_conn
+        self.socket_timeout = socket_timeout
         self.establish_scp_conn()
 
     def establish_scp_conn(self):
@@ -61,7 +60,9 @@ class SCPConn(object):
         ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
-        self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+        self.scp_client = scp.SCPClient(
+            self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+        )
 
     def scp_transfer_file(self, source_file, dest_file):
         &#34;&#34;&#34;Put file using SCP (for backwards compatibility).&#34;&#34;&#34;
@@ -84,12 +85,19 @@ class BaseFileTransfer(object):
     &#34;&#34;&#34;Class to manage SCP file transfer and associated SSH control channel.&#34;&#34;&#34;
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system=None, direction=&#34;put&#34;
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system=None,
+        direction=&#34;put&#34;,
+        socket_timeout=10.0,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+        self.socket_timeout = socket_timeout
 
         auto_flag = (
             &#34;cisco_ios&#34; in ssh_conn.device_type
@@ -124,7 +132,7 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         &#34;&#34;&#34;Establish SCP connection.&#34;&#34;&#34;
-        self.scp_conn = SCPConn(self.ssh_ctl_chan)
+        self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout)
 
     def close_scp_chan(self):
         &#34;&#34;&#34;Close the SCP connection to the remote network device.&#34;&#34;&#34;
@@ -133,7 +141,7 @@ class BaseFileTransfer(object):
 
     def remote_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
         &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
-        remote_cmd = &#34;dir {}&#34;.format(self.file_system)
+        remote_cmd = f&#34;dir {self.file_system}&#34;
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
         if &#34;kbytes&#34; in match.group(0) or &#34;Kbytes&#34; in match.group(0):
@@ -143,7 +151,7 @@ class BaseFileTransfer(object):
     def _remote_space_available_unix(self, search_pattern=&#34;&#34;):
         &#34;&#34;&#34;Return space available on *nix system (BSD/Linux).&#34;&#34;&#34;
         self.ssh_ctl_chan._enter_shell()
-        remote_cmd = &#34;/bin/df -k {}&#34;.format(self.file_system)
+        remote_cmd = f&#34;/bin/df -k {self.file_system}&#34;
         remote_output = self.ssh_ctl_chan.send_command(
             remote_cmd, expect_string=r&#34;[\$#]&#34;
         )
@@ -177,8 +185,17 @@ class BaseFileTransfer(object):
 
     def local_space_available(self):
         &#34;&#34;&#34;Return space available on local filesystem.&#34;&#34;&#34;
-        destination_stats = os.statvfs(&#34;.&#34;)
-        return destination_stats.f_bsize * destination_stats.f_bavail
+        if platform.system() == &#34;Windows&#34;:
+            import ctypes
+
+            free_bytes = ctypes.c_ulonglong(0)
+            ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                ctypes.c_wchar_p(&#34;.&#34;), None, None, ctypes.pointer(free_bytes)
+            )
+            return free_bytes.value
+        else:
+            destination_stats = os.statvfs(&#34;.&#34;)
+            return destination_stats.f_bsize * destination_stats.f_bavail
 
     def verify_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
         &#34;&#34;&#34;Verify sufficient space is available on destination file system (return boolean).&#34;&#34;&#34;
@@ -194,7 +211,7 @@ class BaseFileTransfer(object):
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
             if not remote_cmd:
-                remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, self.dest_file)
+                remote_cmd = f&#34;dir {self.file_system}/{self.dest_file}&#34;
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r&#34;Directory of .*{0}&#34;.format(self.dest_file)
             if (
@@ -214,7 +231,7 @@ class BaseFileTransfer(object):
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
             self.ssh_ctl_chan._enter_shell()
-            remote_cmd = &#34;ls {}&#34;.format(self.file_system)
+            remote_cmd = f&#34;ls {self.file_system}&#34;
             remote_out = self.ssh_ctl_chan.send_command(
                 remote_cmd, expect_string=r&#34;[\$#]&#34;
             )
@@ -231,7 +248,7 @@ class BaseFileTransfer(object):
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
         if not remote_cmd:
-            remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, remote_file)
+            remote_cmd = f&#34;dir {self.file_system}/{remote_file}&#34;
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
         # Strip out &#34;Directory of flash:/filename line
         remote_out = re.split(r&#34;Directory of .*&#34;, remote_out)
@@ -256,9 +273,9 @@ class BaseFileTransfer(object):
                 remote_file = self.dest_file
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
-        remote_file = &#34;{}/{}&#34;.format(self.file_system, remote_file)
+        remote_file = f&#34;{self.file_system}/{remote_file}&#34;
         if not remote_cmd:
-            remote_cmd = &#34;ls -l {}&#34;.format(remote_file)
+            remote_cmd = f&#34;ls -l {remote_file}&#34;
 
         self.ssh_ctl_chan._enter_shell()
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r&#34;[\$#]&#34;)
@@ -280,12 +297,27 @@ class BaseFileTransfer(object):
             &#34;Search pattern not found for remote file size during SCP transfer.&#34;
         )
 
-    def file_md5(self, file_name):
-        &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
+    def file_md5(self, file_name, add_newline=False):
+        &#34;&#34;&#34;Compute MD5 hash of file.
+
+        add_newline is needed to support Cisco IOS MD5 calculation which expects the newline in
+        the string
+
+        Args:
+          file_name: name of file to get md5 digest of
+          add_newline: add newline to end of file contents or not
+
+        &#34;&#34;&#34;
+        file_hash = hashlib.md5()
         with open(file_name, &#34;rb&#34;) as f:
-            file_contents = f.read()
-            file_hash = hashlib.md5(file_contents).hexdigest()
-        return file_hash
+            while True:
+                file_contents = f.read(512)
+                if not file_contents:
+                    if add_newline:
+                        file_contents + b&#34;\n&#34;
+                    break
+                file_hash.update(file_contents)
+        return file_hash.hexdigest()
 
     @staticmethod
     def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
@@ -300,7 +332,7 @@ class BaseFileTransfer(object):
         if match:
             return match.group(1)
         else:
-            raise ValueError(&#34;Invalid output from MD5 command: {}&#34;.format(md5_output))
+            raise ValueError(f&#34;Invalid output from MD5 command: {md5_output}&#34;)
 
     def compare_md5(self):
         &#34;&#34;&#34;Compare md5 of file on network device to md5 of local file.&#34;&#34;&#34;
@@ -321,7 +353,7 @@ class BaseFileTransfer(object):
                 remote_file = self.dest_file
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
-        remote_md5_cmd = &#34;{} {}/{}&#34;.format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = f&#34;{base_cmd} {self.file_system}/{remote_file}&#34;
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
@@ -335,13 +367,13 @@ class BaseFileTransfer(object):
 
     def get_file(self):
         &#34;&#34;&#34;SCP copy the file from the remote device to local system.&#34;&#34;&#34;
-        source_file = &#34;{}/{}&#34;.format(self.file_system, self.source_file)
+        source_file = f&#34;{self.file_system}/{self.source_file}&#34;
         self.scp_conn.scp_get_file(source_file, self.dest_file)
         self.scp_conn.close()
 
     def put_file(self):
         &#34;&#34;&#34;SCP copy the file from the local system to the remote device.&#34;&#34;&#34;
-        destination = &#34;{}/{}&#34;.format(self.file_system, self.dest_file)
+        destination = f&#34;{self.file_system}/{self.dest_file}&#34;
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()
@@ -386,7 +418,7 @@ class BaseFileTransfer(object):
 <dl>
 <dt id="netmiko.scp_handler.BaseFileTransfer"><code class="flex name class">
 <span>class <span class="ident">BaseFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put')</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Class to manage SCP file transfer and associated SSH control channel.</p></section>
@@ -396,12 +428,19 @@ class BaseFileTransfer(object):
     &#34;&#34;&#34;Class to manage SCP file transfer and associated SSH control channel.&#34;&#34;&#34;
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system=None, direction=&#34;put&#34;
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system=None,
+        direction=&#34;put&#34;,
+        socket_timeout=10.0,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+        self.socket_timeout = socket_timeout
 
         auto_flag = (
             &#34;cisco_ios&#34; in ssh_conn.device_type
@@ -436,7 +475,7 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         &#34;&#34;&#34;Establish SCP connection.&#34;&#34;&#34;
-        self.scp_conn = SCPConn(self.ssh_ctl_chan)
+        self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout)
 
     def close_scp_chan(self):
         &#34;&#34;&#34;Close the SCP connection to the remote network device.&#34;&#34;&#34;
@@ -445,7 +484,7 @@ class BaseFileTransfer(object):
 
     def remote_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
         &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
-        remote_cmd = &#34;dir {}&#34;.format(self.file_system)
+        remote_cmd = f&#34;dir {self.file_system}&#34;
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
         if &#34;kbytes&#34; in match.group(0) or &#34;Kbytes&#34; in match.group(0):
@@ -455,7 +494,7 @@ class BaseFileTransfer(object):
     def _remote_space_available_unix(self, search_pattern=&#34;&#34;):
         &#34;&#34;&#34;Return space available on *nix system (BSD/Linux).&#34;&#34;&#34;
         self.ssh_ctl_chan._enter_shell()
-        remote_cmd = &#34;/bin/df -k {}&#34;.format(self.file_system)
+        remote_cmd = f&#34;/bin/df -k {self.file_system}&#34;
         remote_output = self.ssh_ctl_chan.send_command(
             remote_cmd, expect_string=r&#34;[\$#]&#34;
         )
@@ -489,8 +528,17 @@ class BaseFileTransfer(object):
 
     def local_space_available(self):
         &#34;&#34;&#34;Return space available on local filesystem.&#34;&#34;&#34;
-        destination_stats = os.statvfs(&#34;.&#34;)
-        return destination_stats.f_bsize * destination_stats.f_bavail
+        if platform.system() == &#34;Windows&#34;:
+            import ctypes
+
+            free_bytes = ctypes.c_ulonglong(0)
+            ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                ctypes.c_wchar_p(&#34;.&#34;), None, None, ctypes.pointer(free_bytes)
+            )
+            return free_bytes.value
+        else:
+            destination_stats = os.statvfs(&#34;.&#34;)
+            return destination_stats.f_bsize * destination_stats.f_bavail
 
     def verify_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
         &#34;&#34;&#34;Verify sufficient space is available on destination file system (return boolean).&#34;&#34;&#34;
@@ -506,7 +554,7 @@ class BaseFileTransfer(object):
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
             if not remote_cmd:
-                remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, self.dest_file)
+                remote_cmd = f&#34;dir {self.file_system}/{self.dest_file}&#34;
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
             search_string = r&#34;Directory of .*{0}&#34;.format(self.dest_file)
             if (
@@ -526,7 +574,7 @@ class BaseFileTransfer(object):
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
             self.ssh_ctl_chan._enter_shell()
-            remote_cmd = &#34;ls {}&#34;.format(self.file_system)
+            remote_cmd = f&#34;ls {self.file_system}&#34;
             remote_out = self.ssh_ctl_chan.send_command(
                 remote_cmd, expect_string=r&#34;[\$#]&#34;
             )
@@ -543,7 +591,7 @@ class BaseFileTransfer(object):
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
         if not remote_cmd:
-            remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, remote_file)
+            remote_cmd = f&#34;dir {self.file_system}/{remote_file}&#34;
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
         # Strip out &#34;Directory of flash:/filename line
         remote_out = re.split(r&#34;Directory of .*&#34;, remote_out)
@@ -568,9 +616,9 @@ class BaseFileTransfer(object):
                 remote_file = self.dest_file
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
-        remote_file = &#34;{}/{}&#34;.format(self.file_system, remote_file)
+        remote_file = f&#34;{self.file_system}/{remote_file}&#34;
         if not remote_cmd:
-            remote_cmd = &#34;ls -l {}&#34;.format(remote_file)
+            remote_cmd = f&#34;ls -l {remote_file}&#34;
 
         self.ssh_ctl_chan._enter_shell()
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r&#34;[\$#]&#34;)
@@ -592,12 +640,27 @@ class BaseFileTransfer(object):
             &#34;Search pattern not found for remote file size during SCP transfer.&#34;
         )
 
-    def file_md5(self, file_name):
-        &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
+    def file_md5(self, file_name, add_newline=False):
+        &#34;&#34;&#34;Compute MD5 hash of file.
+
+        add_newline is needed to support Cisco IOS MD5 calculation which expects the newline in
+        the string
+
+        Args:
+          file_name: name of file to get md5 digest of
+          add_newline: add newline to end of file contents or not
+
+        &#34;&#34;&#34;
+        file_hash = hashlib.md5()
         with open(file_name, &#34;rb&#34;) as f:
-            file_contents = f.read()
-            file_hash = hashlib.md5(file_contents).hexdigest()
-        return file_hash
+            while True:
+                file_contents = f.read(512)
+                if not file_contents:
+                    if add_newline:
+                        file_contents + b&#34;\n&#34;
+                    break
+                file_hash.update(file_contents)
+        return file_hash.hexdigest()
 
     @staticmethod
     def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
@@ -612,7 +675,7 @@ class BaseFileTransfer(object):
         if match:
             return match.group(1)
         else:
-            raise ValueError(&#34;Invalid output from MD5 command: {}&#34;.format(md5_output))
+            raise ValueError(f&#34;Invalid output from MD5 command: {md5_output}&#34;)
 
     def compare_md5(self):
         &#34;&#34;&#34;Compare md5 of file on network device to md5 of local file.&#34;&#34;&#34;
@@ -633,7 +696,7 @@ class BaseFileTransfer(object):
                 remote_file = self.dest_file
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
-        remote_md5_cmd = &#34;{} {}/{}&#34;.format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = f&#34;{base_cmd} {self.file_system}/{remote_file}&#34;
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
@@ -647,13 +710,13 @@ class BaseFileTransfer(object):
 
     def get_file(self):
         &#34;&#34;&#34;SCP copy the file from the remote device to local system.&#34;&#34;&#34;
-        source_file = &#34;{}/{}&#34;.format(self.file_system, self.source_file)
+        source_file = f&#34;{self.file_system}/{self.source_file}&#34;
         self.scp_conn.scp_get_file(source_file, self.dest_file)
         self.scp_conn.close()
 
     def put_file(self):
         &#34;&#34;&#34;SCP copy the file from the local system to the remote device.&#34;&#34;&#34;
-        destination = &#34;{}/{}&#34;.format(self.file_system, self.dest_file)
+        destination = f&#34;{self.file_system}/{self.dest_file}&#34;
         self.scp_conn.scp_transfer_file(self.source_file, destination)
         # Must close the SCP connection to get the file written (flush)
         self.scp_conn.close()
@@ -689,6 +752,7 @@ class BaseFileTransfer(object):
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco_base_connection.CiscoFileTransfer" href="cisco_base_connection.html#netmiko.cisco_base_connection.CiscoFileTransfer">CiscoFileTransfer</a></li>
+<li><a title="netmiko.ciena.ciena_saos.CienaSaosFileTransfer" href="ciena/ciena_saos.html#netmiko.ciena.ciena_saos.CienaSaosFileTransfer">CienaSaosFileTransfer</a></li>
 <li><a title="netmiko.dell.dell_os10_ssh.DellOS10FileTransfer" href="dell/dell_os10_ssh.html#netmiko.dell.dell_os10_ssh.DellOS10FileTransfer">DellOS10FileTransfer</a></li>
 <li><a title="netmiko.juniper.juniper.JuniperFileTransfer" href="juniper/juniper.html#netmiko.juniper.juniper.JuniperFileTransfer">JuniperFileTransfer</a></li>
 </ul>
@@ -717,7 +781,7 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
     if match:
         return match.group(1)
     else:
-        raise ValueError(&#34;Invalid output from MD5 command: {}&#34;.format(md5_output))</code></pre>
+        raise ValueError(f&#34;Invalid output from MD5 command: {md5_output}&#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -734,7 +798,7 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
     &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
     if self.direction == &#34;put&#34;:
         if not remote_cmd:
-            remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, self.dest_file)
+            remote_cmd = f&#34;dir {self.file_system}/{self.dest_file}&#34;
         remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         search_string = r&#34;Directory of .*{0}&#34;.format(self.dest_file)
         if (
@@ -832,22 +896,46 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
 <summary>Source code</summary>
 <pre><code class="python">def establish_scp_conn(self):
     &#34;&#34;&#34;Establish SCP connection.&#34;&#34;&#34;
-    self.scp_conn = SCPConn(self.ssh_ctl_chan)</code></pre>
+    self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.scp_handler.BaseFileTransfer.file_md5"><code class="name flex">
-<span>def <span class="ident">file_md5</span></span>(<span>self, file_name)</span>
+<span>def <span class="ident">file_md5</span></span>(<span>self, file_name, add_newline=False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Compute MD5 hash of file.</p></section>
+<section class="desc"><p>Compute MD5 hash of file.</p>
+<p>add_newline is needed to support Cisco IOS MD5 calculation which expects the newline in
+the string</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>file_name</code></strong></dt>
+<dd>name of file to get md5 digest of</dd>
+<dt><strong><code>add_newline</code></strong></dt>
+<dd>add newline to end of file contents or not</dd>
+</dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def file_md5(self, file_name):
-    &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
+<pre><code class="python">def file_md5(self, file_name, add_newline=False):
+    &#34;&#34;&#34;Compute MD5 hash of file.
+
+    add_newline is needed to support Cisco IOS MD5 calculation which expects the newline in
+    the string
+
+    Args:
+      file_name: name of file to get md5 digest of
+      add_newline: add newline to end of file contents or not
+
+    &#34;&#34;&#34;
+    file_hash = hashlib.md5()
     with open(file_name, &#34;rb&#34;) as f:
-        file_contents = f.read()
-        file_hash = hashlib.md5(file_contents).hexdigest()
-    return file_hash</code></pre>
+        while True:
+            file_contents = f.read(512)
+            if not file_contents:
+                if add_newline:
+                    file_contents + b&#34;\n&#34;
+                break
+            file_hash.update(file_contents)
+    return file_hash.hexdigest()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.scp_handler.BaseFileTransfer.get_file"><code class="name flex">
@@ -859,7 +947,7 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
 <summary>Source code</summary>
 <pre><code class="python">def get_file(self):
     &#34;&#34;&#34;SCP copy the file from the remote device to local system.&#34;&#34;&#34;
-    source_file = &#34;{}/{}&#34;.format(self.file_system, self.source_file)
+    source_file = f&#34;{self.file_system}/{self.source_file}&#34;
     self.scp_conn.scp_get_file(source_file, self.dest_file)
     self.scp_conn.close()</code></pre>
 </details>
@@ -873,8 +961,17 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
 <summary>Source code</summary>
 <pre><code class="python">def local_space_available(self):
     &#34;&#34;&#34;Return space available on local filesystem.&#34;&#34;&#34;
-    destination_stats = os.statvfs(&#34;.&#34;)
-    return destination_stats.f_bsize * destination_stats.f_bavail</code></pre>
+    if platform.system() == &#34;Windows&#34;:
+        import ctypes
+
+        free_bytes = ctypes.c_ulonglong(0)
+        ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+            ctypes.c_wchar_p(&#34;.&#34;), None, None, ctypes.pointer(free_bytes)
+        )
+        return free_bytes.value
+    else:
+        destination_stats = os.statvfs(&#34;.&#34;)
+        return destination_stats.f_bsize * destination_stats.f_bavail</code></pre>
 </details>
 </dd>
 <dt id="netmiko.scp_handler.BaseFileTransfer.put_file"><code class="name flex">
@@ -886,7 +983,7 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
 <summary>Source code</summary>
 <pre><code class="python">def put_file(self):
     &#34;&#34;&#34;SCP copy the file from the local system to the remote device.&#34;&#34;&#34;
-    destination = &#34;{}/{}&#34;.format(self.file_system, self.dest_file)
+    destination = f&#34;{self.file_system}/{self.dest_file}&#34;
     self.scp_conn.scp_transfer_file(self.source_file, destination)
     # Must close the SCP connection to get the file written (flush)
     self.scp_conn.close()</code></pre>
@@ -907,7 +1004,7 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
         elif self.direction == &#34;get&#34;:
             remote_file = self.source_file
     if not remote_cmd:
-        remote_cmd = &#34;dir {}/{}&#34;.format(self.file_system, remote_file)
+        remote_cmd = f&#34;dir {self.file_system}/{remote_file}&#34;
     remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
     # Strip out &#34;Directory of flash:/filename line
     remote_out = re.split(r&#34;Directory of .*&#34;, remote_out)
@@ -944,7 +1041,7 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
             remote_file = self.dest_file
         elif self.direction == &#34;get&#34;:
             remote_file = self.source_file
-    remote_md5_cmd = &#34;{} {}/{}&#34;.format(base_cmd, self.file_system, remote_file)
+    remote_md5_cmd = f&#34;{base_cmd} {self.file_system}/{remote_file}&#34;
     dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
     dest_md5 = self.process_md5(dest_md5)
     return dest_md5</code></pre>
@@ -959,7 +1056,7 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
 <summary>Source code</summary>
 <pre><code class="python">def remote_space_available(self, search_pattern=r&#34;(\d+) \w+ free&#34;):
     &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
-    remote_cmd = &#34;dir {}&#34;.format(self.file_system)
+    remote_cmd = f&#34;dir {self.file_system}&#34;
     remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
     match = re.search(search_pattern, remote_output)
     if &#34;kbytes&#34; in match.group(0) or &#34;Kbytes&#34; in match.group(0):
@@ -1016,7 +1113,7 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
 </dd>
 <dt id="netmiko.scp_handler.SCPConn"><code class="flex name class">
 <span>class <span class="ident">SCPConn</span></span>
-<span>(</span><span>ssh_conn)</span>
+<span>(</span><span>ssh_conn, socket_timeout=10.0)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Establish a secure copy channel to the remote network device.</p>
@@ -1030,8 +1127,9 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
     Must close the SCP connection to get the file to write to the remote filesystem
     &#34;&#34;&#34;
 
-    def __init__(self, ssh_conn):
+    def __init__(self, ssh_conn, socket_timeout=10.0):
         self.ssh_ctl_chan = ssh_conn
+        self.socket_timeout = socket_timeout
         self.establish_scp_conn()
 
     def establish_scp_conn(self):
@@ -1039,7 +1137,9 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
         ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
-        self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+        self.scp_client = scp.SCPClient(
+            self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+        )
 
     def scp_transfer_file(self, source_file, dest_file):
         &#34;&#34;&#34;Put file using SCP (for backwards compatibility).&#34;&#34;&#34;
@@ -1083,7 +1183,9 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
     ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
     self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
     self.scp_conn.connect(**ssh_connect_params)
-    self.scp_client = scp.SCPClient(self.scp_conn.get_transport())</code></pre>
+    self.scp_client = scp.SCPClient(
+        self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.scp_handler.SCPConn.scp_get_file"><code class="name flex">
@@ -1178,7 +1280,7 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

@@ -59,6 +59,7 @@ def test_use_ssh_file():
         auth_timeout=None,
         banner_timeout=10,
         ssh_config_file=join(RESOURCE_FOLDER, "ssh_config"),
+        sock=None,
     )
 
     connect_dict = connection._connect_params_dict()
@@ -102,6 +103,7 @@ def test_use_ssh_file_proxyjump():
         auth_timeout=None,
         banner_timeout=10,
         ssh_config_file=join(RESOURCE_FOLDER, "ssh_config_proxyjump"),
+        sock=None,
     )
 
     connect_dict = connection._connect_params_dict()
@@ -144,6 +146,7 @@ def test_connect_params_dict():
         auth_timeout=None,
         banner_timeout=10,
         ssh_config_file=None,
+        sock=None,
     )
 
     expected = {
@@ -159,6 +162,7 @@ def test_connect_params_dict():
         "passphrase": None,
         "auth_timeout": None,
         "banner_timeout": 10,
+        "sock": None,
     }
     result = connection._connect_params_dict()
     assert result == expected

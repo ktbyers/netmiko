@@ -1,6 +1,7 @@
 """Netmiko Cisco WLC support."""
 import time
 import re
+import socket
 
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko.base_connection import BaseConnection
@@ -109,9 +110,41 @@ class CiscoWlcSSH(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def cleanup(self):
-        """Reset WLC back to normal paging."""
+    def cleanup(self, command="logout"):
+        """Reset WLC back to normal paging and gracefully close session."""
         self.send_command_timing("config paging enable")
+
+        # Exit configuration mode
+        try:
+            # The pattern="" forces use of send_command_timing
+            if self.check_config_mode(pattern=""):
+                self.exit_config_mode()
+        except Exception:
+            pass
+
+        # End SSH/telnet session
+        self.write_channel(command + self.RETURN)
+        count = 0
+        output = ""
+        while count <= 5:
+            time.sleep(0.5)
+
+            # The connection might be dead at this point.
+            try:
+                output += self.read_channel()
+            except socket.error:
+                break
+
+            # Don't automatically save the config (user's responsibility)
+            if "Would you like to save them now" in output:
+                self._session_log_fin = True
+                self.write_channel("n" + self.RETURN)
+
+            try:
+                self.write_channel(self.RETURN)
+            except socket.error:
+                break
+            count += 1
 
     def check_config_mode(self, check_string="config", pattern=""):
         """Checks if the device is in configuration mode or not."""

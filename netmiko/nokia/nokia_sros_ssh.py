@@ -156,3 +156,15 @@ class NokiaSrosSSH(BaseConnection):
             return re.sub(strips, "", output)
         else:
             return output
+
+    def cleanup(self, command="logout"):
+        """Gracefully exit the SSH session."""
+        try:
+            # The pattern="" forces use of send_command_timing
+            if self.check_config_mode(pattern=""):
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final 'logout'.
+        self._session_log_fin = True
+        self.write_channel(command + self.RETURN)
