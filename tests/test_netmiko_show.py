@@ -92,6 +92,8 @@ def test_cmd_verify_decorator(net_connect_cmd_verify):
     (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
     assert kwargs["cmd_verify"] is False
 
+    # Set it back to proper False value (so later tests aren't messed up).
+    obj.global_cmd_verify = False
 
 def test_send_command_global_cmd_verify(
     net_connect_cmd_verify, commands, expected_responses
