@@ -95,6 +95,7 @@ def test_cmd_verify_decorator(net_connect_cmd_verify):
     # Set it back to proper False value (so later tests aren't messed up).
     obj.global_cmd_verify = False
 
+
 def test_send_command_global_cmd_verify(
     net_connect_cmd_verify, commands, expected_responses
 ):
