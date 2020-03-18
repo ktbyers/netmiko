@@ -2,6 +2,7 @@
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
+
 class SophosSfosSSH(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
