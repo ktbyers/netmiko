@@ -8,6 +8,12 @@ class NetmikoTimeoutException(SSHException):
     pass
 
 
+class NetmikoConnectionException(SSHException):
+    """SSH connection failed. Based on Paramiko ssh_exception on intial connection."""
+
+    pass
+
+
 class NetmikoAuthenticationException(AuthenticationException):
     """SSH authentication exception based on Paramiko AuthenticationException."""
 
@@ -15,4 +21,5 @@ class NetmikoAuthenticationException(AuthenticationException):
 
 
 NetMikoTimeoutException = NetmikoTimeoutException
+NetmikoConnectionException = NetmikoConnectionException
 NetMikoAuthenticationException = NetmikoAuthenticationException

@@ -22,6 +22,7 @@ from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import (
     NetmikoTimeoutException,
+    NetmikoConnectionException,
     NetmikoAuthenticationException,
 )
 from netmiko.utilities import (
@@ -903,6 +904,16 @@ class BaseConnection(object):
                 )
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
+            except paramiko.ssh_exception.SSHException as fail_err:
+                self.paramiko_cleanup()
+                msg = (
+                    "Connection Failure: The remote host rejected the connection. "
+                    "Potential lock-out {device_type} {ip}:{port}".format(
+                        device_type=self.device_type, ip=self.host, port=self.port
+                    )
+                )
+                msg += self.RETURN + str(fail_err)
+                raise NetmikoConnectionException(msg)
 
             if self.verbose:
                 print(f"SSH connection established to {self.host}:{self.port}")
