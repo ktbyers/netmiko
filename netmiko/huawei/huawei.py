@@ -16,6 +16,23 @@ class HuaweiBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    def strip_ansi_escape_codes(self, string_buffer):
+        """
+        Huawei does a strange thing where they add a space and then add ESC[1D
+        to move the cursor to the left one.
+
+        The extra space is problematic.
+        """
+        code_cursor_left = chr(27) + r"\[\d+D"
+        output = string_buffer
+        pattern = rf" {code_cursor_left}"
+        output = re.sub(pattern, "", output)
+
+        log.debug("Stripping ANSI escape codes")
+        log.debug(f"new_output = {output}")
+        log.debug(f"repr = {repr(output)}")
+        return super().strip_ansi_escape_codes(output)
+
     def config_mode(self, config_command="system-view"):
         """Enter configuration mode."""
         return super().config_mode(config_command=config_command)
