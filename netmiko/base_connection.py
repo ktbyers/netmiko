@@ -1789,6 +1789,7 @@ class BaseConnection(object):
         ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
+        ESC[1D       Move cursor position leftward by x characters (1 in this case)
 
         HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -1820,6 +1821,7 @@ class BaseConnection(object):
         code_erase_display = chr(27) + r"\[J"
         code_attrs_off = chr(27) + r"\[0m"
         code_reverse = chr(27) + r"\[7m"
+        code_cursor_left = chr(27) + r"\[\d+D"
 
         code_set = [
             code_position_cursor,
@@ -1843,6 +1845,7 @@ class BaseConnection(object):
             code_erase_display,
             code_attrs_off,
             code_reverse,
+            code_cursor_left,
         ]
 
         output = string_buffer
