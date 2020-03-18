@@ -29,6 +29,7 @@ from netmiko.utilities import (
     check_serial_port,
     get_structured_data,
     get_structured_data_genie,
+    select_cmd_verify,
 )
 
 
@@ -50,6 +51,7 @@ class BaseConnection(object):
         device_type="",
         verbose=False,
         global_delay_factor=1,
+        global_cmd_verify=None,
         use_keys=False,
         key_file=None,
         pkey=None,
@@ -196,6 +198,12 @@ class BaseConnection(object):
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
         :type sock: socket
+
+        :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+                (default: None). Global attribute takes precedence over function `cmd_verify`
+                argument. Value of `None` indicates to use function `cmd_verify` argument.
+        :type global_cmd_verify: bool|None
+
         """
         self.remote_conn = None
 
@@ -279,6 +287,7 @@ class BaseConnection(object):
 
         self.fast_cli = fast_cli
         self.global_delay_factor = global_delay_factor
+        self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
             self.global_delay_factor = 0.1
 
@@ -1130,6 +1139,7 @@ class BaseConnection(object):
                 sleep_time *= 2
                 sleep_time = 3 if sleep_time >= 3 else sleep_time
 
+    @select_cmd_verify
     def send_command_timing(
         self,
         command_string,
@@ -1285,6 +1295,7 @@ class BaseConnection(object):
         except IndexError:
             return (data, False)
 
+    @select_cmd_verify
     def send_command(
         self,
         command_string,
