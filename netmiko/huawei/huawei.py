@@ -8,6 +8,7 @@ from netmiko import log
 class HuaweiBase(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary")
