@@ -37,6 +37,6 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
 
     def save_config(self, cmd="save config flash", confirm=False, confirm_response=""):
         """Saves configuration."""
-        return super(MrvOptiswitchSSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

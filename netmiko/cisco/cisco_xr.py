@@ -14,10 +14,10 @@ class CiscoXrBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
-        return super(CiscoXrBase, self).send_config_set(
-            config_commands=config_commands, exit_config_mode=False, **kwargs
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
     def commit(

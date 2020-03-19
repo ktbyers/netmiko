@@ -16,6 +16,14 @@ test_disconnect: cleanly disconnect the SSH session
 """
 import pytest
 import time
+from datetime import datetime
+from netmiko.utilities import select_cmd_verify
+
+
+@select_cmd_verify
+def bogus_func(obj, *args, **kwargs):
+    """Function that just returns the arguments modified by the decorator."""
+    return (obj, args, kwargs)
 
 
 def test_disable_paging(net_connect, commands, expected_responses):
@@ -25,11 +33,6 @@ def test_disable_paging(net_connect, commands, expected_responses):
         net_connect.send_command("clear logging")
     multiple_line_output = net_connect.send_command(commands["extended_output"])
     assert expected_responses["multiple_line_output"] in multiple_line_output
-    if net_connect.device_type == "arista_eos":
-        # Arista output is slow and has router-name in output
-        time.sleep(5)
-        net_connect.clear_buffer()
-        net_connect.send_command("clear logging", expect_string="#")
 
 
 def test_ssh_connect(net_connect, commands, expected_responses):
@@ -50,14 +53,74 @@ def test_send_command_timing(net_connect, commands, expected_responses):
     net_connect.clear_buffer()
     show_ip = net_connect.send_command_timing(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip
+    # Force verification of command echo
+    show_ip = net_connect.send_command_timing(commands["basic"], cmd_verify=True)
+    assert expected_responses["interface_ip"] in show_ip
 
 
 def test_send_command(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully using send_command method."""
-    time.sleep(1)
     net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip_alt
+    show_ip_alt = net_connect.send_command(commands["basic"], cmd_verify=False)
+    assert expected_responses["interface_ip"] in show_ip_alt
+
+
+def test_cmd_verify_decorator(net_connect_cmd_verify):
+    obj = net_connect_cmd_verify
+    # Global False should have precedence
+    assert obj.global_cmd_verify is False
+    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=True)
+    assert kwargs["cmd_verify"] is False
+    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
+    assert kwargs["cmd_verify"] is False
+
+    # Global True should have precedence
+    obj.global_cmd_verify = True
+    assert obj.global_cmd_verify is True
+    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=True)
+    assert kwargs["cmd_verify"] is True
+    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
+    assert kwargs["cmd_verify"] is True
+
+    # None should track the local argument
+    obj.global_cmd_verify = None
+    assert obj.global_cmd_verify is None
+    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=True)
+    assert kwargs["cmd_verify"] is True
+    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
+    assert kwargs["cmd_verify"] is False
+
+    # Set it back to proper False value (so later tests aren't messed up).
+    obj.global_cmd_verify = False
+
+
+def test_send_command_global_cmd_verify(
+    net_connect_cmd_verify, commands, expected_responses
+):
+    """
+    Verify a command can be sent down the channel successfully using send_command method.
+
+    Disable cmd_verify globally.
+    """
+    net_connect = net_connect_cmd_verify
+    net_connect.clear_buffer()
+    # cmd_verify should be disabled globally at this point
+    assert net_connect.global_cmd_verify is False
+    show_ip_alt = net_connect.send_command(commands["basic"])
+    assert expected_responses["interface_ip"] in show_ip_alt
+
+
+def test_send_command_juniper(net_connect, commands, expected_responses):
+    """Verify Juniper complete on space is disabled."""
+    # If complete on space is enabled will get re-written to "show ipv6 neighbors"
+    if net_connect.device_type == "juniper_junos":
+        net_connect.write_channel("show ip neighbors\n")
+        output = net_connect.read_until_prompt()
+        assert "show ip neighbors" in output
+    else:
+        assert pytest.skip()
 
 
 def test_send_command_textfsm(net_connect, commands, expected_responses):
@@ -105,7 +168,7 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         "cisco_nxos",
         "cisco_asa",
     ]:
-        assert pytest.skip("TextFSM/ntc-templates not supported on this platform")
+        assert pytest.skip("Genie not supported on this platform")
     else:
         time.sleep(1)
         net_connect.clear_buffer()
@@ -143,8 +206,8 @@ def test_normalize_linefeeds(net_connect, commands, expected_responses):
     """Ensure no '\r\n' sequences."""
     show_version = net_connect.send_command_timing(commands["version"])
     show_version_alt = net_connect.send_command(commands["version"])
-    assert not "\r\n" in show_version
-    assert not "\r\n" in show_version_alt
+    assert "\r\n" not in show_version
+    assert "\r\n" not in show_version_alt
 
 
 def test_clear_buffer(net_connect, commands, expected_responses):
@@ -170,9 +233,29 @@ def test_enable_mode(net_connect, commands, expected_responses):
         enable_prompt = net_connect.find_prompt()
         assert enable_prompt == expected_responses["enable_prompt"]
     except AttributeError:
-        assert True == True
+        assert True is True
 
 
 def test_disconnect(net_connect, commands, expected_responses):
     """Terminate the SSH session."""
+    start_time = datetime.now()
     net_connect.disconnect()
+    end_time = datetime.now()
+    time_delta = end_time - start_time
+    assert net_connect.remote_conn is None
+    assert time_delta.total_seconds() < 8
+
+
+def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses):
+    """Terminate the SSH session from privilege level1"""
+    net_connect = net_connect_newconn
+    if "cisco_ios" in net_connect.device_type:
+        net_connect.send_command_timing("disable")
+        start_time = datetime.now()
+        net_connect.disconnect()
+        end_time = datetime.now()
+        time_delta = end_time - start_time
+        assert net_connect.remote_conn is None
+        assert time_delta.total_seconds() < 5
+    else:
+        assert True

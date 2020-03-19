@@ -1,3 +1,2 @@
-# pyats and genie are not available for Python 3.8 yet
-pyats>=19.7; python_version<"3.8"
-genie>=19.7; python_version<"3.8"
+pyats==20.2
+genie==20.2

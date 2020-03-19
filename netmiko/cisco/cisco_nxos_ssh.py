@@ -12,6 +12,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.ansi_escape_codes = True
         self.set_base_prompt()
         self.disable_paging()
+        self.set_terminal_width(command="terminal width 511")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -24,9 +25,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string=")#", pattern="#"):
         """Checks if the device is in configuration mode or not."""
-        return super(CiscoNxosSSH, self).check_config_mode(
-            check_string=check_string, pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):
@@ -39,6 +38,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         dest_file,
         file_system="bootflash:",
         direction="put",
+        socket_timeout=10.0,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
@@ -58,6 +58,8 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             self.file_size = self.remote_file_size(remote_file=source_file)
         else:
             raise ValueError("Invalid direction specified")
+
+        self.socket_timeout = socket_timeout
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""

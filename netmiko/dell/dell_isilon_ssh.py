@@ -9,7 +9,7 @@ class DellIsilonSSH(BaseConnection):
         self, pri_prompt_terminator="$", alt_prompt_terminator="#", delay_factor=1
     ):
         """Determine base prompt."""
-        return super(DellIsilonSSH, self).set_base_prompt(
+        return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
@@ -18,7 +18,7 @@ class DellIsilonSSH(BaseConnection):
     def strip_ansi_escape_codes(self, string_buffer):
         """Remove Null code"""
         output = re.sub(r"\x00", "", string_buffer)
-        return super(DellIsilonSSH, self).strip_ansi_escape_codes(output)
+        return super().strip_ansi_escape_codes(output)
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -62,7 +62,7 @@ class DellIsilonSSH(BaseConnection):
         pass
 
     def check_config_mode(self, check_string="#"):
-        return super(DellIsilonSSH, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
     def config_mode(self, config_command="sudo su"):
         """Attempt to become root."""
@@ -83,4 +83,4 @@ class DellIsilonSSH(BaseConnection):
 
     def exit_config_mode(self, exit_config="exit"):
         """Exit enable mode."""
-        return super(DellIsilonSSH, self).exit_config_mode(exit_config=exit_config)
+        return super().exit_config_mode(exit_config=exit_config)

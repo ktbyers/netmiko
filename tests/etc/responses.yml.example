@@ -21,6 +21,16 @@ juniper:
   cmd_response_final: 'archive size 120k files 3'
   commit_comment: 'Unit test on commit with comment'
 
+juniper_screenos:
+  base_prompt: "ssg5-serial-"
+  router_prompt: "ssg5-serial->"
+  enable_prompt: "ssg5-serial->"
+  interface_ip: 100.65.1.1
+  multiple_line_output: 'Total Config size'
+  version_banner: 'Version: 6.3.0.1.0.0.0.0'
+  cmd_response_init: ""
+  cmd_response_final: 'set alias test'
+
 paloalto_panos:
   base_prompt: ntc@pa1
   router_prompt: ntc@pa1>
@@ -213,7 +223,7 @@ keymile_nos:
   interface_ip: 1.2.3.5 
   version_banner: "NOS version 2.09 #0001"
   multiple_line_output: "Interface br328"
-
+  
 dlink_ds:
   base_prompt: DGS-3120-24TC:admin
   router_prompt : DGS-3120-24TC:admin#
@@ -222,3 +232,12 @@ dlink_ds:
   multiple_line_output: "End of configuration file"
   interface_ip: 192.168.50.10
 
+ruijie_os:
+  base_prompt: Ruijie
+  router_prompt : Ruijie>
+  enable_prompt: Ruijie#
+  interface_ip: 172.30.31.101
+  version_banner: "Ruijie Networks"
+  multiple_line_output: ""
+  file_check_cmd: "logging buffered 8880"
+  save_config: 'OK'
