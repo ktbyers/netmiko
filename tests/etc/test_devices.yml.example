@@ -178,21 +178,15 @@ keymile_nos:
   username: TEST
   password: TEST
 
-dlink_ds:
-  device_type: dlink_ds
-  ip: 192.168.50.10
-  username: admin
-  password: admin
-
-dlink_ds_telnet:
-  device_type: dlink_ds_telnet
-  ip: 192.168.50.10
-  username: admin
-  password: admin
-
 ruijie_os:
   device_type: ruijie_os
   ip: 1.1.1.1
   username: ruijie
   password: ruijie
   secret: ruijie
+
+huawei_smartax:
+  device_type: huawei_smartax
+  ip: 192.0.2.1
+  username: TEST
+  password: TEST

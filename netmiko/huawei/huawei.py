@@ -4,7 +4,6 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko import log
 
-
 class HuaweiBase(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -103,7 +102,6 @@ class HuaweiBase(CiscoBaseConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
-
 
 class HuaweiSSH(HuaweiBase):
     """Huawei SSH driver."""

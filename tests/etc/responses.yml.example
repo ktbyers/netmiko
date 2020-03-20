@@ -223,22 +223,6 @@ keymile_nos:
   interface_ip: 1.2.3.5 
   version_banner: "NOS version 2.09 #0001"
   multiple_line_output: "Interface br328"
-  
-dlink_ds:
-  base_prompt: DGS-3120-24TC:admin
-  router_prompt: DGS-3120-24TC:admin#
-  enable_prompt: DGS-3120-24TC:admin#
-  version_banner: "D-Link Corporation"
-  multiple_line_output: "End of configuration file"
-  interface_ip: 192.168.50.10
-
-dlink_ds_telnet:
-  base_prompt: DGS-3120-24TC:admin
-  router_prompt: DGS-3120-24TC:admin#
-  enable_prompt: DGS-3120-24TC:admin#
-  version_banner: "D-Link Corporation"
-  multiple_line_output: "End of configuration file"
-  interface_ip: 192.168.50.10
 
 ruijie_os:
   base_prompt: Ruijie
@@ -249,3 +233,11 @@ ruijie_os:
   multiple_line_output: ""
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
+
+huawei_smartax:
+  base_prompt: "ol01.test-lab.xyz"
+  router_prompt: "ol01.test-lab.xyz>"
+  enable_prompt: "ol01.test-lab.xyz#"
+  interface_ip: 192.0.2.1
+  version_banner: "VERSION :"
+  multiple_line_output: ""
