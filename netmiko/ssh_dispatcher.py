@@ -118,7 +118,7 @@ CLASS_MAPPER_BASE = {
     "dell_isilon": DellIsilonSSH,
     "dlink_ds": DlinkDSSSH,
     "endace": EndaceSSH,
-    "eltex": EltexSSH,  
+    "eltex": EltexSSH,
     "eltex_esr": EltexEsrSSH,
     "enterasys": EnterasysSSH,
     "extreme": ExtremeExosSSH,
