@@ -85,7 +85,7 @@ from netmiko.watchguard import WatchguardFirewareSSH
 CLASS_MAPPER_BASE = {
     "a10": A10SSH,
     "accedian": AccedianSSH,
-	"adtran_os": AdtranOSSSH,
+    "adtran_os": AdtranOSSSH,
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "apresia_aeos": ApresiaAeosSSH,

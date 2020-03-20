@@ -8,7 +8,7 @@ from netmiko import log
 class AdtranOSBase(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self.ansi_escape_codes = True 
+        self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="terminal length 0")
@@ -21,8 +21,8 @@ class AdtranOSBase(CiscoBaseConnection):
         Huawei does a strange thing where they add a space and then add ESC[1D
         to move the cursor to the left one.
 
-		Adtran also encounters this same issue like Huawei when executing long commands...
-		This function works as intended with Adtran also (Taken from Huawei)
+                Adtran also encounters this same issue like Huawei when executing long commands...
+                This function works as intended with Adtran also (Taken from Huawei)
 
         The extra space is problematic.
         """
@@ -36,5 +36,6 @@ class AdtranOSBase(CiscoBaseConnection):
         log.debug(f"repr = {repr(output)}")
         return super().strip_ansi_escape_codes(output)
 
+
 class AdtranOSSSH(AdtranOSBase):
-	pass
+    pass
