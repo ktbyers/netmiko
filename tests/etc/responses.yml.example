@@ -250,7 +250,7 @@ ruijie_os:
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
 
-adtran_ta:
+adtran_os:
   base_prompt: "adtrantest"
   router_prompt: "adtrantest>"
   enable_prompt: "adtrantest#"

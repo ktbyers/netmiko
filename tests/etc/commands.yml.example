@@ -311,7 +311,7 @@ ruijie_os:
   save_config_confirm: False
   save_config_response: 'OK'
 
-adtran_ta:
+adtran_os:
   version: "show version"
   basic: "show system-management-evc"
   extended_output: "show version"
