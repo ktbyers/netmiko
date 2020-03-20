@@ -27,6 +27,6 @@ class ExtremeNosSSH(CiscoSSHConnection):
         confirm_response="y",
     ):
         """Save Config for Extreme VDX."""
-        return super(ExtremeNosSSH, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

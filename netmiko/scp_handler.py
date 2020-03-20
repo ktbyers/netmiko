@@ -12,6 +12,7 @@ import os
 import hashlib
 
 import scp
+import platform
 
 
 class SCPConn(object):
@@ -21,8 +22,9 @@ class SCPConn(object):
     Must close the SCP connection to get the file to write to the remote filesystem
     """
 
-    def __init__(self, ssh_conn):
+    def __init__(self, ssh_conn, socket_timeout=10.0):
         self.ssh_ctl_chan = ssh_conn
+        self.socket_timeout = socket_timeout
         self.establish_scp_conn()
 
     def establish_scp_conn(self):
@@ -30,7 +32,9 @@ class SCPConn(object):
         ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
-        self.scp_client = scp.SCPClient(self.scp_conn.get_transport())
+        self.scp_client = scp.SCPClient(
+            self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+        )
 
     def scp_transfer_file(self, source_file, dest_file):
         """Put file using SCP (for backwards compatibility)."""
@@ -53,12 +57,19 @@ class BaseFileTransfer(object):
     """Class to manage SCP file transfer and associated SSH control channel."""
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system=None, direction="put"
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system=None,
+        direction="put",
+        socket_timeout=10.0,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+        self.socket_timeout = socket_timeout
 
         auto_flag = (
             "cisco_ios" in ssh_conn.device_type
@@ -93,7 +104,7 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         """Establish SCP connection."""
-        self.scp_conn = SCPConn(self.ssh_ctl_chan)
+        self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout)
 
     def close_scp_chan(self):
         """Close the SCP connection to the remote network device."""
@@ -146,8 +157,17 @@ class BaseFileTransfer(object):
 
     def local_space_available(self):
         """Return space available on local filesystem."""
-        destination_stats = os.statvfs(".")
-        return destination_stats.f_bsize * destination_stats.f_bavail
+        if platform.system() == "Windows":
+            import ctypes
+
+            free_bytes = ctypes.c_ulonglong(0)
+            ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                ctypes.c_wchar_p("."), None, None, ctypes.pointer(free_bytes)
+            )
+            return free_bytes.value
+        else:
+            destination_stats = os.statvfs(".")
+            return destination_stats.f_bsize * destination_stats.f_bavail
 
     def verify_space_available(self, search_pattern=r"(\d+) \w+ free"):
         """Verify sufficient space is available on destination file system (return boolean)."""
@@ -249,12 +269,27 @@ class BaseFileTransfer(object):
             "Search pattern not found for remote file size during SCP transfer."
         )
 
-    def file_md5(self, file_name):
-        """Compute MD5 hash of file."""
+    def file_md5(self, file_name, add_newline=False):
+        """Compute MD5 hash of file.
+
+        add_newline is needed to support Cisco IOS MD5 calculation which expects the newline in
+        the string
+
+        Args:
+          file_name: name of file to get md5 digest of
+          add_newline: add newline to end of file contents or not
+
+        """
+        file_hash = hashlib.md5()
         with open(file_name, "rb") as f:
-            file_contents = f.read()
-            file_hash = hashlib.md5(file_contents).hexdigest()
-        return file_hash
+            while True:
+                file_contents = f.read(512)
+                if not file_contents:
+                    if add_newline:
+                        file_contents + b"\n"
+                    break
+                file_hash.update(file_contents)
+        return file_hash.hexdigest()
 
     @staticmethod
     def process_md5(md5_output, pattern=r"=\s+(\S+)"):

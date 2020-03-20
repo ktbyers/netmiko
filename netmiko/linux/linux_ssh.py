@@ -16,7 +16,7 @@ class LinuxSSH(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        return super(LinuxSSH, self).session_preparation()
+        return super().session_preparation()
 
     def _enter_shell(self):
         """Already in shell."""
@@ -37,7 +37,7 @@ class LinuxSSH(CiscoSSHConnection):
         delay_factor=1,
     ):
         """Determine base prompt."""
-        return super(LinuxSSH, self).set_base_prompt(
+        return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
@@ -47,15 +47,15 @@ class LinuxSSH(CiscoSSHConnection):
         """Can't exit from root (if root)"""
         if self.username == "root":
             exit_config_mode = False
-        return super(LinuxSSH, self).send_config_set(
+        return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def check_config_mode(self, check_string=LINUX_PROMPT_ROOT):
+    def check_config_mode(self, check_string=LINUX_PROMPT_ROOT, pattern=""):
         """Verify root"""
         return self.check_enable_mode(check_string=check_string)
 
-    def config_mode(self, config_command="sudo su"):
+    def config_mode(self, config_command="sudo -s"):
         """Attempt to become root."""
         return self.enable(cmd=config_command)
 
@@ -64,7 +64,7 @@ class LinuxSSH(CiscoSSHConnection):
 
     def check_enable_mode(self, check_string=LINUX_PROMPT_ROOT):
         """Verify root"""
-        return super(LinuxSSH, self).check_enable_mode(check_string=check_string)
+        return super().check_enable_mode(check_string=check_string)
 
     def exit_enable_mode(self, exit_command="exit"):
         """Exit enable mode."""
@@ -78,7 +78,7 @@ class LinuxSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def enable(self, cmd="sudo su", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(self, cmd="sudo -s", pattern="ssword", re_flags=re.IGNORECASE):
         """Attempt to become root."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
@@ -102,10 +102,9 @@ class LinuxSSH(CiscoSSHConnection):
                 raise ValueError(msg)
         return output
 
-    def cleanup(self):
+    def cleanup(self, command="exit"):
         """Try to Gracefully exit the SSH session."""
-        self._session_log_fin = True
-        self.write_channel("exit" + self.RETURN)
+        return super().cleanup(command=command)
 
     def save_config(self, *args, **kwargs):
         """Not Implemented"""
@@ -120,14 +119,21 @@ class LinuxFileTransfer(CiscoFileTransfer):
     """
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system="/var/tmp", direction="put"
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system="/var/tmp",
+        direction="put",
+        **kwargs,
     ):
-        return super(LinuxFileTransfer, self).__init__(
+        return super().__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
+            **kwargs,
         )
 
     def remote_space_available(self, search_pattern=""):

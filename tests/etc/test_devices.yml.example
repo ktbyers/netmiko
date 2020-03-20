@@ -38,6 +38,12 @@ juniper:
   username: admin
   password: juniper123
 
+juniper_screenos:
+  device_type: juniper_screenos
+  ip: 100.65.1.1
+  username: netscreen
+  password: netscreen
+
 paloalto_panos:
   device_type: paloalto_panos
   ip: 10.10.10.15
@@ -183,3 +189,10 @@ dlink_ds_telnet:
   ip: 192.168.50.10
   username: admin
   password: admin
+
+ruijie_os:
+  device_type: ruijie_os
+  ip: 1.1.1.1
+  username: ruijie
+  password: ruijie
+  secret: ruijie

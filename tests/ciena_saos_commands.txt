@@ -1,0 +1,3 @@
+system set time-offset 7200
+system set timestamp local
+system set time-offset 3600

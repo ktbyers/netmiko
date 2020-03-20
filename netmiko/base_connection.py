@@ -29,6 +29,7 @@ from netmiko.utilities import (
     check_serial_port,
     get_structured_data,
     get_structured_data_genie,
+    select_cmd_verify,
 )
 
 
@@ -50,6 +51,7 @@ class BaseConnection(object):
         device_type="",
         verbose=False,
         global_delay_factor=1,
+        global_cmd_verify=None,
         use_keys=False,
         key_file=None,
         pkey=None,
@@ -63,7 +65,7 @@ class BaseConnection(object):
         timeout=100,
         session_timeout=60,
         auth_timeout=None,
-        blocking_timeout=8,
+        blocking_timeout=20,
         banner_timeout=15,
         keepalive=0,
         default_enter=None,
@@ -75,6 +77,7 @@ class BaseConnection(object):
         session_log_file_mode="write",
         allow_auto_change=False,
         encoding="ascii",
+        sock=None,
     ):
         """
         Initialize attributes for establishing connection to target device.
@@ -191,6 +194,16 @@ class BaseConnection(object):
         :param encoding: Encoding to be used when writing bytes to the output channel.
                 (default: ascii)
         :type encoding: str
+
+        :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+                communication to the target host (default: None).
+        :type sock: socket
+
+        :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+                (default: None). Global attribute takes precedence over function `cmd_verify`
+                argument. Value of `None` indicates to use function `cmd_verify` argument.
+        :type global_cmd_verify: bool|None
+
         """
         self.remote_conn = None
 
@@ -232,6 +245,7 @@ class BaseConnection(object):
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
+        self.sock = sock
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
@@ -273,6 +287,7 @@ class BaseConnection(object):
 
         self.fast_cli = fast_cli
         self.global_delay_factor = global_delay_factor
+        self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
             self.global_delay_factor = 0.1
 
@@ -403,7 +418,11 @@ class BaseConnection(object):
                 data = data.replace(self.password, "********")
             if self.secret:
                 data = data.replace(self.secret, "********")
-            self.session_log.write(write_bytes(data, encoding=self.encoding))
+            if isinstance(self.session_log, io.BufferedIOBase):
+                data = self.normalize_linefeeds(data)
+                self.session_log.write(write_bytes(data, encoding=self.encoding))
+            else:
+                self.session_log.write(self.normalize_linefeeds(data))
             self.session_log.flush()
 
     def write_channel(self, out_data):
@@ -470,6 +489,8 @@ class BaseConnection(object):
                 output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
                     "utf-8", "ignore"
                 )
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
         log.debug(f"read_channel: {output}")
         self._write_session_log(output)
         return output
@@ -530,6 +551,8 @@ class BaseConnection(object):
                     if len(new_data) == 0:
                         raise EOFError("Channel stream closed by remote device.")
                     new_data = new_data.decode("utf-8", "ignore")
+                    if self.ansi_escape_codes:
+                        new_data = self.strip_ansi_escape_codes(new_data)
                     log.debug(f"_read_channel_expect read_data: {new_data}")
                     output += new_data
                     self._write_session_log(new_data)
@@ -820,6 +843,7 @@ class BaseConnection(object):
             "timeout": self.timeout,
             "auth_timeout": self.auth_timeout,
             "banner_timeout": self.banner_timeout,
+            "sock": self.sock,
         }
 
         # Check if using SSH 'config' file mainly for SSH proxy support
@@ -838,8 +862,6 @@ class BaseConnection(object):
         :param strip_command:
         :type strip_command:
         """
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
         output = self.normalize_linefeeds(output)
         if strip_command and command_string:
             command_string = self.normalize_linefeeds(command_string)
@@ -1005,9 +1027,8 @@ class BaseConnection(object):
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        output = self.read_until_prompt()
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
         return output
@@ -1029,9 +1050,8 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        output = self.read_until_prompt()
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
         return output
 
     def set_base_prompt(
@@ -1072,24 +1092,26 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
-        time.sleep(delay_factor * 0.1)
+        sleep_time = delay_factor * 0.1
+        time.sleep(sleep_time)
 
         # Initial attempt to get prompt
         prompt = self.read_channel()
-        if self.ansi_escape_codes:
-            prompt = self.strip_ansi_escape_codes(prompt)
 
         # Check if the only thing you received was a newline
         count = 0
         prompt = prompt.strip()
-        while count <= 10 and not prompt:
+        while count <= 12 and not prompt:
             prompt = self.read_channel().strip()
-            if prompt:
-                if self.ansi_escape_codes:
-                    prompt = self.strip_ansi_escape_codes(prompt).strip()
-            else:
+            if not prompt:
                 self.write_channel(self.RETURN)
-                time.sleep(delay_factor * 0.1)
+                # log.debug(f"find_prompt sleep time: {sleep_time}")
+                time.sleep(sleep_time)
+                if sleep_time <= 3:
+                    # Double the sleep_time when it is small
+                    sleep_time *= 2
+                else:
+                    sleep_time += 1
             count += 1
 
         # If multiple lines in the output take the last line
@@ -1100,12 +1122,24 @@ class BaseConnection(object):
             raise ValueError(f"Unable to find prompt: {prompt}")
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
+        log.debug(f"[find_prompt()]: prompt is {prompt}")
         return prompt
 
-    def clear_buffer(self):
+    def clear_buffer(self, backoff=True):
         """Read any data available in the channel."""
-        self.read_channel()
+        sleep_time = 0.1 * self.global_delay_factor
+        for _ in range(10):
+            time.sleep(sleep_time)
+            data = self.read_channel()
+            if not data:
+                break
+            # Double sleep time each time we detect data
+            log.debug("Clear buffer detects data in the channel")
+            if backoff:
+                sleep_time *= 2
+                sleep_time = 3 if sleep_time >= 3 else sleep_time
 
+    @select_cmd_verify
     def send_command_timing(
         self,
         command_string,
@@ -1115,7 +1149,10 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        textfsm_template=None,
         use_genie=False,
+        cmd_verify=False,
+        cmd_echo=None,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1140,11 +1177,25 @@ class BaseConnection(object):
         :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
-        :type normalize: bool
+        :type use_textfsm: bool
+
+        :param textfsm_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type textfsm_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
-        :type normalize: bool
+        :type use_genie: bool
+
+        :param cmd_verify: Verify command echo before proceeding (default: False).
+        :type cmd_verify: bool
+
+        :param cmd_echo: Deprecated (use cmd_verify instead)
+        :type cmd_echo: bool
         """
+        # For compatibility remove cmd_echo in Netmiko 4.x.x
+        if cmd_echo is not None:
+            cmd_verify = cmd_echo
+
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -1152,7 +1203,27 @@ class BaseConnection(object):
             command_string = self.normalize_cmd(command_string)
 
         self.write_channel(command_string)
-        output = self._read_channel_timing(
+
+        cmd = command_string.strip()
+        # if cmd is just an "enter" skip this section
+        if cmd and cmd_verify:
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            new_data = self.read_until_pattern(pattern=re.escape(cmd))
+            new_data = self.normalize_linefeeds(new_data)
+
+            # Strip off everything before the command echo
+            if new_data.count(cmd) == 1:
+                new_data = new_data.split(cmd)[1:]
+                new_data = self.RESPONSE_RETURN.join(new_data)
+                new_data = new_data.lstrip()
+                output = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
+            else:
+                # cmd is in the actual output (not just echoed)
+                output = new_data
+
+        log.debug(f"send_command_timing current output: {output}")
+
+        output += self._read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
         )
         output = self._sanitize_output(
@@ -1161,18 +1232,27 @@ class BaseConnection(object):
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
+
         # If both TextFSM and Genie are set, try TextFSM then Genie
-        for parser_flag, parser_func in (
-            (use_textfsm, get_structured_data),
-            (use_genie, get_structured_data_genie),
-        ):
-            if parser_flag:
-                structured_output = parser_func(
-                    output, platform=self.device_type, command=command_string.strip()
-                )
-                # If we have structured data; return it.
-                if not isinstance(structured_output, str):
-                    return structured_output
+        if use_textfsm:
+            structured_output = get_structured_data(
+                output,
+                platform=self.device_type,
+                command=command_string.strip(),
+                template=textfsm_template,
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_genie:
+            structured_output = get_structured_data_genie(
+                output, platform=self.device_type, command=command_string.strip()
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+
+        log.debug(f"send_command_timing final output: {output}")
         return output
 
     def strip_prompt(self, a_string):
@@ -1215,6 +1295,7 @@ class BaseConnection(object):
         except IndexError:
             return (data, False)
 
+    @select_cmd_verify
     def send_command(
         self,
         command_string,
@@ -1226,7 +1307,9 @@ class BaseConnection(object):
         strip_command=True,
         normalize=True,
         use_textfsm=False,
+        textfsm_template=None,
         use_genie=False,
+        cmd_verify=True,
     ):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1259,8 +1342,14 @@ class BaseConnection(object):
         :param use_textfsm: Process command output through TextFSM template (default: False).
         :type normalize: bool
 
+        :param textfsm_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
+
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+        :type cmd_verify: bool
         """
         # Time to delay in each read loop
         loop_delay = 0.2
@@ -1291,6 +1380,20 @@ class BaseConnection(object):
         time.sleep(delay_factor * loop_delay)
         self.clear_buffer()
         self.write_channel(command_string)
+        new_data = ""
+
+        cmd = command_string.strip()
+        # if cmd is just an "enter" skip this section
+        if cmd and cmd_verify:
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            new_data = self.read_until_pattern(pattern=re.escape(cmd))
+            new_data = self.normalize_linefeeds(new_data)
+            # Strip off everything before the command echo (to avoid false positives on the prompt)
+            if new_data.count(cmd) == 1:
+                new_data = new_data.split(cmd)[1:]
+                new_data = self.RESPONSE_RETURN.join(new_data)
+                new_data = new_data.lstrip()
+                new_data = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
 
         i = 1
         output = ""
@@ -1299,11 +1402,7 @@ class BaseConnection(object):
 
         # Keep reading data until search_pattern is found or until max_loops is reached.
         while i <= max_loops:
-            new_data = self.read_channel()
             if new_data:
-                if self.ansi_escape_codes:
-                    new_data = self.strip_ansi_escape_codes(new_data)
-
                 output += new_data
                 past_three_reads.append(new_data)
 
@@ -1324,6 +1423,7 @@ class BaseConnection(object):
 
             time.sleep(delay_factor * loop_delay)
             i += 1
+            new_data = self.read_channel()
         else:  # nobreak
             raise IOError(
                 "Search pattern never detected in send_command_expect: {}".format(
@@ -1339,17 +1439,23 @@ class BaseConnection(object):
         )
 
         # If both TextFSM and Genie are set, try TextFSM then Genie
-        for parser_flag, parser_func in (
-            (use_textfsm, get_structured_data),
-            (use_genie, get_structured_data_genie),
-        ):
-            if parser_flag:
-                structured_output = parser_func(
-                    output, platform=self.device_type, command=command_string.strip()
-                )
-                # If we have structured data; return it.
-                if not isinstance(structured_output, str):
-                    return structured_output
+        if use_textfsm:
+            structured_output = get_structured_data(
+                output,
+                platform=self.device_type,
+                command=command_string.strip(),
+                template=textfsm_template,
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_genie:
+            structured_output = get_structured_data_genie(
+                output, platform=self.device_type, command=command_string.strip()
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
         return output
 
     def send_command_expect(self, *args, **kwargs):
@@ -1390,12 +1496,17 @@ class BaseConnection(object):
         # Check for line wrap (remove backspaces)
         if backspace_char in output:
             output = output.replace(backspace_char, "")
+
+        # Juniper has a weird case where the echoed command will be " \n"
+        # i.e. there is an extra space there.
+        cmd = command_string.strip()
+        if output.startswith(cmd):
             output_lines = output.split(self.RESPONSE_RETURN)
             new_output = output_lines[1:]
             return self.RESPONSE_RETURN.join(new_output)
         else:
-            command_length = len(command_string)
-            return output[command_length:]
+            # command_string isn't there; do nothing
+            return output
 
     def normalize_linefeeds(self, a_string):
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
@@ -1506,7 +1617,10 @@ class BaseConnection(object):
         output = ""
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
-            output = self.read_until_pattern(pattern=pattern)
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+            if not re.search(pattern, output, flags=re.M):
+                output += self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode.")
         return output
@@ -1523,7 +1637,10 @@ class BaseConnection(object):
         output = ""
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
-            output = self.read_until_pattern(pattern=pattern)
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+            if not re.search(pattern, output, flags=re.M):
+                output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         log.debug(f"exit_config_mode: {output}")
@@ -1556,6 +1673,8 @@ class BaseConnection(object):
         strip_prompt=False,
         strip_command=False,
         config_mode_command=None,
+        cmd_verify=True,
+        enter_config_mode=True,
     ):
         """
         Send configuration commands down the SSH channel.
@@ -1585,6 +1704,13 @@ class BaseConnection(object):
 
         :param config_mode_command: The command to enter into config mode
         :type config_mode_command: str
+
+        :param cmd_verify: Whether or not to verify command echo for each command in config_set
+        :type cmd_verify: bool
+
+        :param enter_config_mode: Do you enter config mode before sending config commands
+        :type exit_config_mode: bool
+
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1596,19 +1722,43 @@ class BaseConnection(object):
             raise ValueError("Invalid argument passed into send_config_set")
 
         # Send config commands
-        cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-        output = self.config_mode(*cfg_mode_args)
-        for cmd in config_commands:
-            self.write_channel(self.normalize_cmd(cmd))
-            if self.fast_cli:
-                pass
-            else:
-                time.sleep(delay_factor * 0.05)
+        output = ""
+        if enter_config_mode:
+            cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
+            output += self.config_mode(*cfg_mode_args)
 
-        # Gather output
-        output += self._read_channel_timing(
-            delay_factor=delay_factor, max_loops=max_loops
-        )
+        if self.fast_cli:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+            # Gather output
+            output += self._read_channel_timing(
+                delay_factor=delay_factor, max_loops=max_loops
+            )
+        elif not cmd_verify:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+                time.sleep(delay_factor * 0.05)
+            # Gather output
+            output += self._read_channel_timing(
+                delay_factor=delay_factor, max_loops=max_loops
+            )
+        else:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+
+                # Make sure command is echoed
+                new_output = self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                output += new_output
+
+                # We might capture next prompt in the original read
+                pattern = f"(?:{re.escape(self.base_prompt)}|#)"
+                if not re.search(pattern, new_output):
+                    # Make sure trailing prompt comes back (after command)
+                    # NX-OS has fast-buffering problem where it immediately echoes command
+                    # Even though the device hasn't caught up with processing command.
+                    new_output = self.read_until_pattern(pattern=pattern)
+                    output += new_output
+
         if exit_config_mode:
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
@@ -1639,6 +1789,7 @@ class BaseConnection(object):
         ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
+        ESC[1D       Move cursor position leftward by x characters (1 in this case)
 
         HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -1670,6 +1821,7 @@ class BaseConnection(object):
         code_erase_display = chr(27) + r"\[J"
         code_attrs_off = chr(27) + r"\[0m"
         code_reverse = chr(27) + r"\[7m"
+        code_cursor_left = chr(27) + r"\[\d+D"
 
         code_set = [
             code_position_cursor,
@@ -1693,6 +1845,7 @@ class BaseConnection(object):
             code_erase_display,
             code_attrs_off,
             code_reverse,
+            code_cursor_left,
         ]
 
         output = string_buffer
@@ -1702,13 +1855,14 @@ class BaseConnection(object):
         # CODE_NEXT_LINE must substitute with return
         output = re.sub(code_next_line, self.RETURN, output)
 
+        log.debug("Stripping ANSI escape codes")
         log.debug(f"new_output = {output}")
         log.debug(f"repr = {repr(output)}")
 
         return output
 
-    def cleanup(self):
-        """Any needed cleanup before closing connection."""
+    def cleanup(self, command=""):
+        """Logout of the session on the network device plus any additional cleanup."""
         pass
 
     def paramiko_cleanup(self):
@@ -1717,7 +1871,7 @@ class BaseConnection(object):
         del self.remote_conn_pre
 
     def disconnect(self):
-        """Try to gracefully close the SSH connection."""
+        """Try to gracefully close the session."""
         try:
             self.cleanup()
             if self.protocol == "ssh":
@@ -1745,9 +1899,9 @@ class BaseConnection(object):
     def open_session_log(self, filename, mode="write"):
         """Open the session_log file."""
         if mode == "append":
-            self.session_log = open(filename, mode="ab")
+            self.session_log = open(filename, mode="a")
         else:
-            self.session_log = open(filename, mode="wb")
+            self.session_log = open(filename, mode="w")
         self._session_log_close = True
 
     def close_session_log(self):

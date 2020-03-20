@@ -58,6 +58,14 @@ juniper:
   rollback: 'rollback 0'
   commit_verification: "run show system commit"
 
+juniper_screenos:
+  version: "get system version"
+  basic: "get route"
+  extended_output: "get config" # requires paging to be disabled
+  config:
+    - 'set alias test "test"'
+  config_verification: "get config | inc alias"
+
 fortinet:
   version: "get system status"
   basic: "get system interface physical"
@@ -289,3 +297,16 @@ dlink_ds_telnet:
     - enable command logging
   config_verification: "show config current_config include \"logging\""
   extended_output: "show config current_config"   # requires paging to be disabled
+
+ruijie_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"
+  config:
+    - "logging buffered 20000"
+    - "no logging console"
+    - "logging buffered 20010"
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'

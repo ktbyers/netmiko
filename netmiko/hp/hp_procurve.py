@@ -40,35 +40,73 @@ class HPProcurveBase(CiscoSSHConnection):
         default_username="manager",
     ):
         """Enter enable mode"""
+        delay_factor = self.select_delay_factor(delay_factor=0)
         if self.check_enable_mode():
             return ""
-        output = self.send_command_timing(cmd)
-        if (
-            "username" in output.lower()
-            or "login name" in output.lower()
-            or "user name" in output.lower()
-        ):
-            output += self.send_command_timing(default_username)
-        if "password" in output.lower():
-            output += self.send_command_timing(self.secret)
+
+        output = ""
+        i = 1
+        max_attempts = 5
+        while i <= max_attempts:
+            self.write_channel(cmd + self.RETURN)
+            time.sleep(0.3 * delay_factor)
+            new_output = self.read_channel()
+            username_pattern = r"(username|login|user name)"
+            if re.search(username_pattern, new_output, flags=re_flags):
+                output += new_output
+                new_output = self.send_command_timing(default_username)
+            if re.search(pattern, new_output, flags=re_flags):
+                output += new_output
+                self.write_channel(self.normalize_cmd(self.secret))
+                new_output = self._read_channel_timing()
+                if self.check_enable_mode():
+                    output += new_output
+                    return output
+            output += new_output
+            i += 1
+
         log.debug(f"{output}")
         self.clear_buffer()
+        msg = (
+            "Failed to enter enable mode. Please ensure you pass "
+            "the 'secret' argument to ConnectHandler."
+        )
+        if not self.check_enable_mode():
+            raise ValueError(msg)
         return output
 
-    def cleanup(self):
+    def cleanup(self, command="logout"):
         """Gracefully exit the SSH session."""
-        self.exit_config_mode()
-        self.write_channel("logout" + self.RETURN)
+
+        # Exit configuration mode.
+        try:
+            # The pattern="" forces use of send_command_timing
+            if self.check_config_mode(pattern=""):
+                self.exit_config_mode()
+        except Exception:
+            pass
+
+        # Terminate SSH/telnet session
+        self.write_channel(command + self.RETURN)
         count = 0
+        output = ""
         while count <= 5:
             time.sleep(0.5)
-            output = self.read_channel()
-            if "Do you want to log out" in output:
-                self._session_log_fin = True
+
+            # The connection might be dead here.
+            try:
+                new_output = self.read_channel()
+                output += new_output
+            except socket.error:
+                break
+
+            if "Do you want to log out" in new_output:
                 self.write_channel("y" + self.RETURN)
+                time.sleep(0.5)
+                output += self.read_channel()
+
             # Don't automatically save the config (user's responsibility)
-            elif "Do you want to save the current" in output:
-                self._session_log_fin = True
+            if "Do you want to save the current" in output:
                 self.write_channel("n" + self.RETURN)
 
             try:
@@ -77,9 +115,12 @@ class HPProcurveBase(CiscoSSHConnection):
                 break
             count += 1
 
+        # Set outside of loop
+        self._session_log_fin = True
+
     def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
         """Save Config."""
-        return super(HPProcurveBase, self).save_config(
+        return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
@@ -105,7 +146,7 @@ class HPProcurveSSH(HPProcurveBase):
         # Try one last time to past "Press any key to continue
         self.write_channel(self.RETURN)
 
-        super(HPProcurveSSH, self).session_preparation()
+        super().session_preparation()
 
     def _build_ssh_client(self):
         """Allow passwordless authentication for HP devices being provisioned."""
@@ -138,7 +179,7 @@ class HPProcurveTelnet(HPProcurveBase):
         max_loops=60,
     ):
         """Telnet login: can be username/password or just password."""
-        super(HPProcurveTelnet, self).telnet_login(
+        super().telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             username_pattern=username_pattern,
