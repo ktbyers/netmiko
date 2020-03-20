@@ -1,6 +1,7 @@
 """Controls selection of proper class based on the device type."""
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
+from netmiko.adtran import AdtranOSSSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
@@ -84,6 +85,7 @@ from netmiko.watchguard import WatchguardFirewareSSH
 CLASS_MAPPER_BASE = {
     "a10": A10SSH,
     "accedian": AccedianSSH,
+	"adtran_os": AdtranOSSSH,
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "apresia_aeos": ApresiaAeosSSH,

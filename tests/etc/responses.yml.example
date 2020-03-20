@@ -249,3 +249,11 @@ ruijie_os:
   multiple_line_output: ""
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
+
+adtran_ta:
+  base_prompt: "adtrantest"
+  router_prompt: "adtrantest>"
+  enable_prompt: "adtrantest#"
+  interface_ip: 192.0.2.1
+  version_banner: "Serial number"
+  multiple_line_output: ""

@@ -310,3 +310,8 @@ ruijie_os:
   save_config_cmd: 'write'
   save_config_confirm: False
   save_config_response: 'OK'
+
+adtran_ta:
+  version: "show version"
+  basic: "show system-management-evc"
+  extended_output: "show version"

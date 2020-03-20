@@ -196,3 +196,9 @@ ruijie_os:
   username: ruijie
   password: ruijie
   secret: ruijie
+
+adtran_ta:
+  device_type: adtran_ta
+  ip: 192.0.2.1
+  username: adtran
+  password: adtran
