@@ -1,7 +1,6 @@
 import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection
-from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko import log
 
 
