@@ -282,6 +282,11 @@ keymile_nos:
   save_config_confirm: True
   save_config_response: '[OK]'
 
+dlink_ds:
+  version: "show greeting_message"
+  basic: "show ipif"
+  extended_output: "show config current_config"   # requires paging to be disabled
+
 ruijie_os:
   version: "show version"
   basic: "show ip interface brief"
