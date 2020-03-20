@@ -226,7 +226,15 @@ keymile_nos:
   
 dlink_ds:
   base_prompt: DGS-3120-24TC:admin
-  router_prompt : DGS-3120-24TC:admin#
+  router_prompt: DGS-3120-24TC:admin#
+  enable_prompt: DGS-3120-24TC:admin#
+  version_banner: "D-Link Corporation"
+  multiple_line_output: "End of configuration file"
+  interface_ip: 192.168.50.10
+
+dlink_ds_telnet:
+  base_prompt: DGS-3120-24TC:admin
+  router_prompt: DGS-3120-24TC:admin#
   enable_prompt: DGS-3120-24TC:admin#
   version_banner: "D-Link Corporation"
   multiple_line_output: "End of configuration file"
