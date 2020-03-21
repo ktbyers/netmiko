@@ -9,7 +9,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging(command="scroll 512")
+        self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -145,6 +145,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         cmd = command_string.strip()
         # if cmd is just and "enter" skip this section
         if cmd:
+            log.debug(f"cmd is: {cmd}")
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -209,6 +210,17 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         )
 
         return output
+
+    def disable_paging(self, command="scroll", delay_factor=1):
+
+        delay_factor = self.select_delay_factor(delay_factor)
+        time.sleep(delay_factor * 0.1)
+        self.clear_buffer()
+        command = self.normalize_cmd(command)
+        log.debug("in disable_paging")
+        log.debug(f"Command: {command}")
+        self.send_command(command) #Can't use write_channel because { <cr> } output we need to handle on SmartAX Devices
+    log.debug("Exiting disable_paging")
 
     def config_mode(self, config_command="config", pattern=""):
         """Enter configuration mode."""
