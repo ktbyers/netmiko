@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+
 def test_ssh_connect(net_connect, commands, expected_responses):
     """
     Verify the connection was established successfully
@@ -50,18 +52,15 @@ def test_config_set(net_connect, commands, expected_responses):
     net_connect.send_config_set(config_commands[0])
     if support_commit:
         net_connect.commit()
-
     cmd_response = expected_responses.get("cmd_response_init")
     config_commands_output = net_connect.send_command(config_verify)
     if cmd_response:
         assert cmd_response in config_commands_output
     else:
         assert config_commands[0] in config_commands_output
-
     net_connect.send_config_set(config_commands)
     if support_commit:
         net_connect.commit()
-
     cmd_response = expected_responses.get("cmd_response_final")
     config_commands_output = net_connect.send_command_expect(config_verify)
     if cmd_response:

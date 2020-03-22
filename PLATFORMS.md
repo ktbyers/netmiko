@@ -67,6 +67,7 @@
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
+- Sophos SFOS
 - QuantaMesh
 - Rad ETX
 - Versa Networks FlexVNF
