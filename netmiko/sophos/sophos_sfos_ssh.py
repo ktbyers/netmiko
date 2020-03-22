@@ -32,19 +32,19 @@ class SophosSfosSSH(CiscoSSHConnection):
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on SFOS"""
-        pass
+        return True
 
     def enable(self, *args, **kwargs):
         """No enable mode on SFOS"""
-        pass
+        return ""
 
     def exit_enable_mode(self, *args, **kwargs):
         """No enable mode on SFOS"""
-        pass
+        return ""
 
     def check_config_mode(self, *args, **kwargs):
         """No config mode on SFOS"""
-        pass
+        return False
 
     def config_mode(self, *args, **kwargs):
         """No config mode on SFOS"""
