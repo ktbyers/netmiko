@@ -1,5 +1,6 @@
 import time
 import re
+from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko import log
 
@@ -14,6 +15,13 @@ class AdtranOSBase(CiscoBaseConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+
+    def _read_channel_expect(self, *args, **kwargs):
+        output = super()._read_channel_expect()
+        
+        #Strip backspaces for long commands
+        output = self.strip_backspaces(output)
+        return output
 
 class AdtranOSSSH(AdtranOSBase):
     pass
