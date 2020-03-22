@@ -147,6 +147,10 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         if cmd:
             log.debug(f"cmd is: {cmd}")
             # Make sure you read until you detect the command echo (avoid getting out of sync)
+            if r"{ <cr>" in self.read_channel():
+                self.write_channel("\n")
+                time.sleep(delay_factor)
+
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
             # Strip off everything before the command echo (to avoid false positives on the prompt)
