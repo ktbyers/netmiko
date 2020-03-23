@@ -3,10 +3,7 @@ import re
 import time
 from netmiko import log
 from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS
-from netmiko.utilities import (
-    get_structured_data,
-    get_structured_data_genie,
-)
+from netmiko.utilities import get_structured_data, get_structured_data_genie
 
 
 class YotcBase(CiscoBaseConnection):
@@ -22,9 +19,6 @@ class YotcBase(CiscoBaseConnection):
         """
         yotc has no disable_paging command, need to handle it in show command.
         cisco_wlc_ssh.py has similar function: send_command_w_enter().
-        :param cmd_echo: Verify command echo before proceeding
-        :param kwargs: same with send_command_timing()
-        :return: output
         """
         prompt = self.find_prompt()
         more_str_re = f" --More-- \b\b\b\b\b\b\b\b\b\b          \
