@@ -76,7 +76,7 @@ __all__ = [
 <dl>
 <dt id="netmiko.dell.DellDNOS6SSH"><code class="flex name class">
 <span>class <span class="ident">DellDNOS6SSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Dell PowerConnect Driver.</p>
@@ -200,6 +200,11 @@ __all__ = [
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -263,7 +268,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.dell.DellDNOS6Telnet"><code class="flex name class">
 <span>class <span class="ident">DellDNOS6Telnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Dell PowerConnect Driver.</p>
@@ -387,6 +392,11 @@ __all__ = [
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -450,7 +460,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.dell.DellForce10SSH"><code class="flex name class">
 <span>class <span class="ident">DellForce10SSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Dell Force10 Driver - supports DNOS9.</p>
@@ -574,6 +584,11 @@ __all__ = [
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -668,7 +683,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.dell.DellIsilonSSH"><code class="flex name class">
 <span>class <span class="ident">DellIsilonSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -793,6 +808,11 @@ __all__ = [
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1239,7 +1259,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.dell.DellOS10SSH"><code class="flex name class">
 <span>class <span class="ident">DellOS10SSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Dell EMC Networking OS10 Driver - supports dellos10.</p>
@@ -1363,6 +1383,11 @@ __all__ = [
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1457,7 +1482,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.dell.DellPowerConnectSSH"><code class="flex name class">
 <span>class <span class="ident">DellPowerConnectSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Dell PowerConnect Driver.</p>
@@ -1583,6 +1608,11 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1735,7 +1765,7 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
 </dd>
 <dt id="netmiko.dell.DellPowerConnectTelnet"><code class="flex name class">
 <span>class <span class="ident">DellPowerConnectTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Dell PowerConnect Telnet Driver.</p>
@@ -1859,6 +1889,11 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
