@@ -67,7 +67,9 @@
 - Fortinet
 - MRV Communications OptiSwitch
 - MRV LX
+- Nokia/Alcatel SR-OS
 - QuantaMesh
 - Rad ETX
+- Sophos SFOS
 - Versa Networks FlexVNF
-
+- Watchguard Firebox

@@ -8,12 +8,30 @@ from netmiko import log
 class HuaweiBase(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+
+    def strip_ansi_escape_codes(self, string_buffer):
+        """
+        Huawei does a strange thing where they add a space and then add ESC[1D
+        to move the cursor to the left one.
+
+        The extra space is problematic.
+        """
+        code_cursor_left = chr(27) + r"\[\d+D"
+        output = string_buffer
+        pattern = rf" {code_cursor_left}"
+        output = re.sub(pattern, "", output)
+
+        log.debug("Stripping ANSI escape codes")
+        log.debug(f"new_output = {output}")
+        log.debug(f"repr = {repr(output)}")
+        return super().strip_ansi_escape_codes(output)
 
     def config_mode(self, config_command="system-view"):
         """Enter configuration mode."""
@@ -47,12 +65,12 @@ class HuaweiBase(CiscoBaseConnection):
 
         Used as delimiter for stripping of trailing prompt in output.
 
-        Should be set to something that is general and applies in multiple contexts. For Comware
-        this will be the router prompt with < > or [ ] stripped off.
+        Should be set to something that is general and applies in multiple contexts.
+        For Huawei this will be the router prompt with < > or [ ] stripped off.
 
         This will be set on logging in, but not when entering system-view
         """
-        log.debug("In set_base_prompt")
+        # log.debug("In set_base_prompt")
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
@@ -126,26 +144,21 @@ class HuaweiTelnet(HuaweiBase):
         i = 1
         while i <= max_loops:
             try:
-                output = self.read_channel()
-                return_msg += output
-
                 # Search for username pattern / send username
-                if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
+                output = self.read_until_pattern(
+                    pattern=username_pattern, re_flags=re.I
+                )
+                return_msg += output
+                self.write_channel(self.username + self.TELNET_RETURN)
 
                 # Search for password pattern / send password
-                if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                        return return_msg
+                output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+                return_msg += output
+                self.write_channel(self.password + self.TELNET_RETURN)
+
+                # Waiting for combined output
+                output = self.read_until_pattern(pattern=combined_pattern)
+                return_msg += output
 
                 # Search for password change prompt, send "N"
                 if re.search(password_change_prompt, output):

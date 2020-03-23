@@ -45,7 +45,7 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
 <dl>
 <dt id="netmiko.fortinet.FortinetSSH"><code class="flex name class">
 <span>class <span class="ident">FortinetSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -169,6 +169,11 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -253,7 +258,7 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
             if result_mode in [&#34;more&#34;, &#34;standard&#34;]:
                 self._output_mode = result_mode
 
-    def cleanup(self):
+    def cleanup(self, command=&#34;exit&#34;):
         &#34;&#34;&#34;Re-enable paging globally.&#34;&#34;&#34;
         if self.allow_disable_global:
             # Return paging state
@@ -264,6 +269,7 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
             # Should test output is valid
             for command in enable_paging_commands:
                 self.send_command_timing(command)
+        return super().cleanup(command=command)
 
     def config_mode(self, config_command=&#34;&#34;):
         &#34;&#34;&#34;No config mode for Fortinet devices.&#34;&#34;&#34;
@@ -286,13 +292,13 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.fortinet.FortinetSSH.cleanup"><code class="name flex">
-<span>def <span class="ident">cleanup</span></span>(<span>self)</span>
+<span>def <span class="ident">cleanup</span></span>(<span>self, command='exit')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Re-enable paging globally.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def cleanup(self):
+<pre><code class="python">def cleanup(self, command=&#34;exit&#34;):
     &#34;&#34;&#34;Re-enable paging globally.&#34;&#34;&#34;
     if self.allow_disable_global:
         # Return paging state
@@ -302,7 +308,8 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
             enable_paging_commands.insert(0, &#34;config global&#34;)
         # Should test output is valid
         for command in enable_paging_commands:
-            self.send_command_timing(command)</code></pre>
+            self.send_command_timing(command)
+    return super().cleanup(command=command)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.fortinet.FortinetSSH.config_mode"><code class="name flex">

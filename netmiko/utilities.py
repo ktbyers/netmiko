@@ -4,6 +4,7 @@ import sys
 import io
 import os
 from pathlib import Path
+import functools
 import serial.tools.list_ports
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
@@ -334,3 +335,15 @@ def get_structured_data_genie(raw_output, platform, command):
         return parsed_output
     except Exception:
         return raw_output
+
+
+def select_cmd_verify(func):
+    """Override function cmd_verify argument with global setting."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args, **kwargs):
+        if self.global_cmd_verify is not None:
+            kwargs["cmd_verify"] = self.global_cmd_verify
+        return func(self, *args, **kwargs)
+
+    return wrapper_decorator

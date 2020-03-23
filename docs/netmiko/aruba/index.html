@@ -169,6 +169,11 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
