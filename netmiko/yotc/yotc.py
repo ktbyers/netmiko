@@ -27,10 +27,8 @@ class YotcBase(CiscoBaseConnection):
         :return: output
         """
         prompt = self.find_prompt()
-        more_str_re = (
-            f" --More-- \b\b\b\b\b\b\b\b\b\b          "
-            f"\b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
-        )
+        more_str_re = f" --More-- \b\b\b\b\b\b\b\b\b\b          \
+            \b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
         buffer = self.send_command_timing(
             command_string, cmd_echo=cmd_echo, use_textfsm=False, **kwargs
         )
