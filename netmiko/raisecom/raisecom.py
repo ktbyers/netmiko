@@ -1,7 +1,7 @@
 from netmiko.cisco_base_connection import CiscoBaseConnection
 import re
 import time
-from telnetlib import (IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS)
+from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS
 from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
@@ -28,7 +28,6 @@ class RaisecomSSH(RaisecomBase):
 
 
 class RaisecomTelnet(RaisecomBase):
-
     @staticmethod
     def _process_option(telnet_sock, cmd, opt):
         """
@@ -51,13 +50,13 @@ class RaisecomTelnet(RaisecomBase):
                 telnet_sock.sendall(IAC + WONT + opt)
 
     def telnet_login(
-            self,
-            pri_prompt_terminator=r"#\s*$",
-            alt_prompt_terminator=r">\s*$",
-            username_pattern=r"([Ll]ogin\:|[Uu]sername\:)",
-            pwd_pattern=r"[Pp]assword:",
-            delay_factor=1,
-            max_loops=20,
+        self,
+        pri_prompt_terminator=r"#\s*$",
+        alt_prompt_terminator=r">\s*$",
+        username_pattern=r"([Ll]ogin\:|[Uu]sername\:)",
+        pwd_pattern=r"[Pp]assword:",
+        delay_factor=1,
+        max_loops=20,
     ):
         """
         Override BaseConnection Telnet login. Can be username/password or just password.
@@ -109,13 +108,13 @@ class RaisecomTelnet(RaisecomBase):
                     output = self.read_channel()
                     return_msg += output
                     if re.search(
-                            pri_prompt_terminator, output, flags=re.M
+                        pri_prompt_terminator, output, flags=re.M
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
                 # Check if proper data received
                 if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                        alt_prompt_terminator, output, flags=re.M
+                    alt_prompt_terminator, output, flags=re.M
                 ):
                     return return_msg
 
@@ -132,7 +131,7 @@ class RaisecomTelnet(RaisecomBase):
         output = self.read_channel()
         return_msg += output
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                alt_prompt_terminator, output, flags=re.M
+            alt_prompt_terminator, output, flags=re.M
         ):
             return return_msg
 

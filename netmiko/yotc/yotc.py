@@ -2,7 +2,7 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 import re
 import time
 from netmiko import log
-from telnetlib import (IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS)
+from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS
 from netmiko.utilities import (
     get_structured_data,
     get_structured_data_genie,
@@ -10,7 +10,6 @@ from netmiko.utilities import (
 
 
 class YotcBase(CiscoBaseConnection):
-
     def send_command_more(
         self,
         command_string,
@@ -28,22 +27,18 @@ class YotcBase(CiscoBaseConnection):
         :return: output
         """
         prompt = self.find_prompt()
-        more_str_re = f" --More-- \b\b\b\b\b\b\b\b\b\b          " \
-                      f"\b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
+        more_str_re = (
+            f" --More-- \b\b\b\b\b\b\b\b\b\b          "
+            f"\b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
+        )
         buffer = self.send_command_timing(
-            command_string,
-            cmd_echo=cmd_echo,
-            use_textfsm=False,
-            **kwargs
+            command_string, cmd_echo=cmd_echo, use_textfsm=False, **kwargs
         )
         output = buffer
         log.debug(f"send_command_more first output: {output}")
         while prompt not in buffer:
             buffer = self.send_command_timing(
-                "",
-                strip_command=False,
-                strip_prompt=False,
-                cmd_echo=cmd_echo
+                "", strip_command=False, strip_prompt=False, cmd_echo=cmd_echo
             )
             log.debug(f"send_command_more buffer: {buffer}")
             output += buffer
@@ -96,8 +91,8 @@ class YotcBase(CiscoBaseConnection):
             command_string=cmd, strip_prompt=False, strip_command=False
         )
         output += self.send_command_timing(
-                confirm_response, strip_prompt=False, strip_command=False, normalize=False
-            )
+            confirm_response, strip_prompt=False, strip_command=False, normalize=False
+        )
         return output
 
     def cleanup(self):
@@ -109,7 +104,6 @@ class YotcBase(CiscoBaseConnection):
 
 
 class YotcSSH(YotcBase):
-
     def special_login_handler(self, delay_factor=1):
         """
         yotc presents with the following on login
@@ -133,7 +127,6 @@ class YotcSSH(YotcBase):
 
 
 class YotcTelnet(YotcBase):
-
     @staticmethod
     def _process_option(telnet_sock, cmd, opt):
         """

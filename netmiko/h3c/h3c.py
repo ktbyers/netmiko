@@ -1,12 +1,11 @@
 from netmiko.cisco_base_connection import CiscoBaseConnection
 import re
 import time
-from telnetlib import (IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS)
+from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS
 from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
 class H3CBase(CiscoBaseConnection):
-
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>\]]")
@@ -17,7 +16,7 @@ class H3CBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command="system-view",  pattern=""):
+    def config_mode(self, config_command="system-view", pattern=""):
         """Enter configuration mode."""
         if not pattern:
             pattern = re.escape(self.base_prompt)
@@ -39,8 +38,8 @@ class H3CBase(CiscoBaseConnection):
 
         Used as delimiter for stripping of trailing prompt in output.
 
-        Should be set to something that is general and applies in multiple contexts. For Comware
-        this will be the router prompt with < > or [ ] stripped off.
+        Should be set to something that is general and applies in multiple contexts.
+        For Comware this will be the router prompt with < > or [ ] stripped off.
 
         This will be set on logging in, but not when entering system-view
         """
@@ -81,13 +80,11 @@ class H3CSSH(H3CBase):
 
 
 class H3CTelnet(H3CBase):
-
     @staticmethod
     def _process_option(telnet_sock, cmd, opt):
         """
         H3C need set window size to receive long commands.
         enable ECHO, SGA, set window size to [500, 50]
-
         """
 
         if cmd == WILL:
@@ -116,7 +113,7 @@ class H3CTelnet(H3CBase):
     ):
         """
         Override BaseConnection Telnet login. Can be username/password or just password.
-        Cut 'self.write_channel(self.TELNET_RETURN)' in 'while'.
+        Cut self.write_channel(self.TELNET_RETURN) in while.
         H3C devices will disconnect if receives too much attempts for password.
 
         :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt

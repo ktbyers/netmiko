@@ -1,10 +1,9 @@
 from netmiko.cisco_base_connection import CiscoBaseConnection
 import time
-from telnetlib import (IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS)
+from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS
 
 
 class ZTEBase(CiscoBaseConnection):
-
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
@@ -32,7 +31,6 @@ class ZTESSH(ZTEBase):
 
 
 class ZTETelnet(ZTEBase):
-
     @staticmethod
     def _process_option(telnet_sock, cmd, opt):
         """
