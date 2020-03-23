@@ -234,3 +234,104 @@ class HuaweiVrpv8SSH(HuaweiSSH):
     def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError
+
+
+class HuaweiTelnetOLT8000(CiscoBaseConnection):
+    def enable_paging(self, command="scroll"):
+        return super().enable_paging(command=command)
+
+    def disable_paging(self, command="undo scroll", delay_factor=1):
+        return super().disable_paging(command=command)
+
+    def config_mode(self, config_command="config", pattern="config\)#"):
+        """Enter configuration mode."""
+        return super().config_mode(config_command=config_command, pattern=pattern)
+
+    def exit_config_mode(self, exit_config="quit", pattern="#"):
+        """Exit from configuration mode."""
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
+
+    def session_preparation(self):
+        """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
+        self._test_channel_read()
+        self.set_base_prompt()
+        self.send_command(command_string="undo interactive")
+        self.send_command(command_string="undo smart")
+        self.disable_paging(command="scroll")
+        # Clear the read buffer
+        time.sleep(0.3 * self.global_delay_factor)
+        self.clear_buffer()
+
+    def telnet_login(
+        self,
+        pri_prompt_terminator=r"]\s*$",
+        alt_prompt_terminator=r">\s*$",
+        username_pattern=r"(?:user:|username|login|user name)",
+        pwd_pattern=r"assword",
+        delay_factor=1,
+        max_loops=20,
+    ):
+        """Telnet login for Huawei Devices"""
+
+        delay_factor = self.select_delay_factor(delay_factor)
+        password_change_prompt = r"(Change now|Please choose 'YES' or 'NO').+"
+        combined_pattern = r"({}|{}|{})".format(
+            pri_prompt_terminator, alt_prompt_terminator, password_change_prompt
+        )
+
+        output = ""
+        return_msg = ""
+        i = 1
+        while i <= max_loops:
+            try:
+                # Search for username pattern / send username
+                output = self.read_until_pattern(
+                    pattern=username_pattern, re_flags=re.I
+                )
+                return_msg += output
+                self.write_channel(self.username + self.TELNET_RETURN)
+
+                # Search for password pattern / send password
+                output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+                return_msg += output
+                self.write_channel(self.password + self.TELNET_RETURN)
+
+                # Waiting for combined output
+                output = self.read_until_pattern(pattern=combined_pattern)
+                return_msg += output
+
+                # Search for password change prompt, send "N"
+                if re.search(password_change_prompt, output):
+                    self.write_channel("N" + self.TELNET_RETURN)
+                    output = self.read_until_pattern(pattern=combined_pattern)
+                    return_msg += output
+
+                # Check if proper data received
+                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                    alt_prompt_terminator, output, flags=re.M
+                ):
+                    return return_msg
+
+                self.write_channel(self.TELNET_RETURN)
+                time.sleep(0.5 * delay_factor)
+                i += 1
+
+            except EOFError:
+                self.remote_conn.close()
+                msg = f"Login failed: {self.host}"
+                raise NetmikoAuthenticationException(msg)
+
+        # Last try to see if we already logged in
+        self.write_channel(self.TELNET_RETURN)
+        time.sleep(0.5 * delay_factor)
+        output = self.read_channel()
+        return_msg += output
+        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+            alt_prompt_terminator, output, flags=re.M
+        ):
+            return return_msg
+
+        self.remote_conn.close()
+        msg = f"Login failed: {self.host}"
+        raise NetmikoAuthenticationException(msg)
