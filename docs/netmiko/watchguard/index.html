@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
-<title>netmiko.citrix API documentation</title>
+<title>netmiko.watchguard API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,20 +17,20 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>netmiko.citrix</code></h1>
+<h1 class="title">Module <code>netmiko.watchguard</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">from netmiko.citrix.netscaler_ssh import NetscalerSSH
+<pre><code class="python">from netmiko.watchguard.fireware_ssh import WatchguardFirewareSSH
 
-__all__ = [&#34;NetscalerSSH&#34;]</code></pre>
+__all__ = [&#34;WatchguardFirewareSSH&#34;]</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="netmiko.citrix.netscaler_ssh" href="netscaler_ssh.html">netmiko.citrix.netscaler_ssh</a></code></dt>
+<dt><code class="name"><a title="netmiko.watchguard.fireware_ssh" href="fireware_ssh.html">netmiko.watchguard.fireware_ssh</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -43,12 +43,12 @@ __all__ = [&#34;NetscalerSSH&#34;]</code></pre>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="netmiko.citrix.NetscalerSSH"><code class="flex name class">
-<span>class <span class="ident">NetscalerSSH</span></span>
+<dt id="netmiko.watchguard.WatchguardFirewareSSH"><code class="flex name class">
+<span>class <span class="ident">WatchguardFirewareSSH</span></span>
 <span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Netscaler SSH class. </p>
+<section class="desc"><p>Implements methods for communicating with Watchguard Firebox firewalls.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
     :param ip: IP address of target device. Not required if `host` is
@@ -177,61 +177,38 @@ __all__ = [&#34;NetscalerSSH&#34;]</code></pre>
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class NetscalerSSH(BaseConnection):
-    &#34;&#34;&#34; Netscaler SSH class. &#34;&#34;&#34;
+<pre><code class="python">class WatchguardFirewareSSH(BaseConnection):
+    &#34;&#34;&#34;
+    Implements methods for communicating with Watchguard Firebox firewalls.
+    &#34;&#34;&#34;
 
     def session_preparation(self):
-        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        # 0 will defer to the global delay factor
-        delay_factor = self.select_delay_factor(delay_factor=0)
+        &#34;&#34;&#34;
+        Prepare the session after the connection has been established.
+
+        Set the base prompt for interaction (&#39;#&#39;).
+        &#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
-        cmd = f&#34;{self.RETURN}set cli mode -page OFF{self.RETURN}&#34;
-        self.disable_paging(command=cmd)
-        time.sleep(1 * delay_factor)
-        self.set_base_prompt()
-        time.sleep(0.3 * delay_factor)
+        # Clear the read buffer
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def set_base_prompt(
-        self, pri_prompt_terminator=&#34;#&#34;, alt_prompt_terminator=&#34;&gt;&#34;, delay_factor=1
-    ):
-        &#34;&#34;&#34;Sets self.base_prompt.
-
-        Netscaler has &#39;&gt;&#39; for the prompt.
+    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
         &#34;&#34;&#34;
-        prompt = self.find_prompt(delay_factor=delay_factor)
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
+        Checks if the device is in configuration mode or not.
+        &#34;&#34;&#34;
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-        prompt = prompt.strip()
-        if len(prompt) == 1:
-            self.base_prompt = prompt
-        else:
-            # Strip off trailing terminator
-            self.base_prompt = prompt[:-1]
-        return self.base_prompt
+    def config_mode(self, config_command=&#34;configure&#34;, pattern=&#34;#&#34;):
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def check_config_mode(self):
-        &#34;&#34;&#34;Netscaler devices do not have a config mode.&#34;&#34;&#34;
-        return False
+    def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=&#34;#&#34;):
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def config_mode(self):
-        &#34;&#34;&#34;Netscaler devices do not have a config mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def exit_config_mode(self):
-        &#34;&#34;&#34;Netscaler devices do not have a config mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def strip_prompt(self, a_string):
-        &#34;&#34;&#34; Strip &#39;Done&#39; from command output &#34;&#34;&#34;
-        output = super().strip_prompt(a_string)
-        lines = output.split(self.RESPONSE_RETURN)
-        if &#34;Done&#34; in lines[-1]:
-            return self.RESPONSE_RETURN.join(lines[:-1])
-        else:
-            return output</code></pre>
+    def save_config(self, *args, **kwargs):
+        &#34;&#34;&#34;No save config on Watchguard.&#34;&#34;&#34;
+        pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -239,106 +216,51 @@ __all__ = [&#34;NetscalerSSH&#34;]</code></pre>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.citrix.NetscalerSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self)</span>
+<dt id="netmiko.watchguard.WatchguardFirewareSSH.check_config_mode"><code class="name flex">
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=')#', pattern='#')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Netscaler devices do not have a config mode.</p></section>
+<section class="desc"><p>Checks if the device is in configuration mode or not.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self):
-    &#34;&#34;&#34;Netscaler devices do not have a config mode.&#34;&#34;&#34;
-    return False</code></pre>
+<pre><code class="python">def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
+    &#34;&#34;&#34;
+    Checks if the device is in configuration mode or not.
+    &#34;&#34;&#34;
+    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
 </details>
 </dd>
-<dt id="netmiko.citrix.NetscalerSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self)</span>
+<dt id="netmiko.watchguard.WatchguardFirewareSSH.save_config"><code class="name flex">
+<span>def <span class="ident">save_config</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Netscaler devices do not have a config mode.</p></section>
+<section class="desc"><p>No save config on Watchguard.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self):
-    &#34;&#34;&#34;Netscaler devices do not have a config mode.&#34;&#34;&#34;
-    return &#34;&#34;</code></pre>
+<pre><code class="python">def save_config(self, *args, **kwargs):
+    &#34;&#34;&#34;No save config on Watchguard.&#34;&#34;&#34;
+    pass</code></pre>
 </details>
 </dd>
-<dt id="netmiko.citrix.NetscalerSSH.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Netscaler devices do not have a config mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def exit_config_mode(self):
-    &#34;&#34;&#34;Netscaler devices do not have a config mode.&#34;&#34;&#34;
-    return &#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="netmiko.citrix.NetscalerSSH.session_preparation"><code class="name flex">
+<dt id="netmiko.watchguard.WatchguardFirewareSSH.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Prepare the session after the connection has been established.</p></section>
+<section class="desc"><p>Prepare the session after the connection has been established.</p>
+<p>Set the base prompt for interaction ('#').</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self):
-    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    # 0 will defer to the global delay factor
-    delay_factor = self.select_delay_factor(delay_factor=0)
+    &#34;&#34;&#34;
+    Prepare the session after the connection has been established.
+
+    Set the base prompt for interaction (&#39;#&#39;).
+    &#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
-    cmd = f&#34;{self.RETURN}set cli mode -page OFF{self.RETURN}&#34;
-    self.disable_paging(command=cmd)
-    time.sleep(1 * delay_factor)
-    self.set_base_prompt()
-    time.sleep(0.3 * delay_factor)
+    # Clear the read buffer
+    time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>
-</details>
-</dd>
-<dt id="netmiko.citrix.NetscalerSSH.set_base_prompt"><code class="name flex">
-<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator='#', alt_prompt_terminator='>', delay_factor=1)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Sets self.base_prompt.</p>
-<p>Netscaler has '&gt;' for the prompt.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def set_base_prompt(
-    self, pri_prompt_terminator=&#34;#&#34;, alt_prompt_terminator=&#34;&gt;&#34;, delay_factor=1
-):
-    &#34;&#34;&#34;Sets self.base_prompt.
-
-    Netscaler has &#39;&gt;&#39; for the prompt.
-    &#34;&#34;&#34;
-    prompt = self.find_prompt(delay_factor=delay_factor)
-    if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-        raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
-
-    prompt = prompt.strip()
-    if len(prompt) == 1:
-        self.base_prompt = prompt
-    else:
-        # Strip off trailing terminator
-        self.base_prompt = prompt[:-1]
-    return self.base_prompt</code></pre>
-</details>
-</dd>
-<dt id="netmiko.citrix.NetscalerSSH.strip_prompt"><code class="name flex">
-<span>def <span class="ident">strip_prompt</span></span>(<span>self, a_string)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Strip 'Done' from command output</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def strip_prompt(self, a_string):
-    &#34;&#34;&#34; Strip &#39;Done&#39; from command output &#34;&#34;&#34;
-    output = super().strip_prompt(a_string)
-    lines = output.split(self.RESPONSE_RETURN)
-    if &#34;Done&#34; in lines[-1]:
-        return self.RESPONSE_RETURN.join(lines[:-1])
-    else:
-        return output</code></pre>
 </details>
 </dd>
 </dl>
@@ -351,10 +273,12 @@ __all__ = [&#34;NetscalerSSH&#34;]</code></pre>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.exit_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
@@ -366,18 +290,19 @@ __all__ = [&#34;NetscalerSSH&#34;]</code></pre>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.save_config" href="../base_connection.html#netmiko.base_connection.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.telnet_login" href="../base_connection.html#netmiko.base_connection.BaseConnection.telnet_login">telnet_login</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
 </ul>
@@ -400,20 +325,17 @@ __all__ = [&#34;NetscalerSSH&#34;]</code></pre>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="netmiko.citrix.netscaler_ssh" href="netscaler_ssh.html">netmiko.citrix.netscaler_ssh</a></code></li>
+<li><code><a title="netmiko.watchguard.fireware_ssh" href="fireware_ssh.html">netmiko.watchguard.fireware_ssh</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="netmiko.citrix.NetscalerSSH" href="#netmiko.citrix.NetscalerSSH">NetscalerSSH</a></code></h4>
-<ul class="two-column">
-<li><code><a title="netmiko.citrix.NetscalerSSH.check_config_mode" href="#netmiko.citrix.NetscalerSSH.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.citrix.NetscalerSSH.config_mode" href="#netmiko.citrix.NetscalerSSH.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.citrix.NetscalerSSH.exit_config_mode" href="#netmiko.citrix.NetscalerSSH.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.citrix.NetscalerSSH.session_preparation" href="#netmiko.citrix.NetscalerSSH.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.citrix.NetscalerSSH.set_base_prompt" href="#netmiko.citrix.NetscalerSSH.set_base_prompt">set_base_prompt</a></code></li>
-<li><code><a title="netmiko.citrix.NetscalerSSH.strip_prompt" href="#netmiko.citrix.NetscalerSSH.strip_prompt">strip_prompt</a></code></li>
+<h4><code><a title="netmiko.watchguard.WatchguardFirewareSSH" href="#netmiko.watchguard.WatchguardFirewareSSH">WatchguardFirewareSSH</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.watchguard.WatchguardFirewareSSH.check_config_mode" href="#netmiko.watchguard.WatchguardFirewareSSH.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.watchguard.WatchguardFirewareSSH.save_config" href="#netmiko.watchguard.WatchguardFirewareSSH.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.watchguard.WatchguardFirewareSSH.session_preparation" href="#netmiko.watchguard.WatchguardFirewareSSH.session_preparation">session_preparation</a></code></li>
 </ul>
 </li>
 </ul>

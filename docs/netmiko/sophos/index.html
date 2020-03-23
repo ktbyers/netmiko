@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
-<title>netmiko.cloudgenix API documentation</title>
+<title>netmiko.sophos API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,22 +17,22 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>netmiko.cloudgenix</code></h1>
+<h1 class="title">Module <code>netmiko.sophos</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">from netmiko.cloudgenix.cloudgenix_ion import CloudGenixIonSSH
+<pre><code class="python">from netmiko.sophos.sophos_sfos_ssh import SophosSfosSSH
 
-__all__ = [&#34;CloudGenixIonSSH&#34;]</code></pre>
+__all__ = [&#34;SophosSfosSSH&#34;]</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="netmiko.cloudgenix.cloudgenix_ion" href="cloudgenix_ion.html">netmiko.cloudgenix.cloudgenix_ion</a></code></dt>
+<dt><code class="name"><a title="netmiko.sophos.sophos_sfos_ssh" href="sophos_sfos_ssh.html">netmiko.sophos.sophos_sfos_ssh</a></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>SophosXG (SFOS) Firewall support</p></section>
 </dd>
 </dl>
 </section>
@@ -43,8 +43,8 @@ __all__ = [&#34;CloudGenixIonSSH&#34;]</code></pre>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="netmiko.cloudgenix.CloudGenixIonSSH"><code class="flex name class">
-<span>class <span class="ident">CloudGenixIonSSH</span></span>
+<dt id="netmiko.sophos.SophosSfosSSH"><code class="flex name class">
+<span>class <span class="ident">SophosSfosSSH</span></span>
 <span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
@@ -177,52 +177,60 @@ __all__ = [&#34;CloudGenixIonSSH&#34;]</code></pre>
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class CloudGenixIonSSH(CiscoSSHConnection):
-    def establish_connection(self):
-        super().establish_connection(width=100, height=1000)
-
-    def session_preparation(self, *args, **kwargs):
+<pre><code class="python">class SophosSfosSSH(CiscoSSHConnection):
+    def session_preparation(self):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self.ansi_escape_codes = True
         self._test_channel_read()
-        self.write_channel(self.RETURN)
-        self.set_base_prompt(delay_factor=5)
+        &#34;&#34;&#34;
+        Sophos Firmware Version SFOS 18.0.0 GA-Build339
 
-    def disable_paging(self):
-        &#34;&#34;&#34;Cloud Genix ION sets terminal height in establish_connection&#34;&#34;&#34;
+        Main Menu
+
+            1.  Network  Configuration
+            2.  System   Configuration
+            3.  Route    Configuration
+            4.  Device Console
+            5.  Device Management
+            6.  VPN Management
+            7.  Shutdown/Reboot Device
+            0.  Exit
+
+            Select Menu Number [0-7]:
+        &#34;&#34;&#34;
+        self.write_channel(&#34;4&#34; + self.RETURN)
+        self._test_channel_read(pattern=r&#34;[console&gt;]&#34;)
+        self.set_base_prompt()
+        # Clear the read buffer
+        time.sleep(0.3 * self.global_delay_factor)
+        self.clear_buffer()
+
+    def check_enable_mode(self, *args, **kwargs):
+        &#34;&#34;&#34;No enable mode on SFOS&#34;&#34;&#34;
+        return True
+
+    def enable(self, *args, **kwargs):
+        &#34;&#34;&#34;No enable mode on SFOS&#34;&#34;&#34;
         return &#34;&#34;
 
-    def find_prompt(self, delay_factor=1):
-        prompt = super().find_prompt(delay_factor=delay_factor)
-        prompt = self.strip_backspaces(prompt).strip()
-        return prompt
+    def exit_enable_mode(self, *args, **kwargs):
+        &#34;&#34;&#34;No enable mode on SFOS&#34;&#34;&#34;
+        return &#34;&#34;
 
-    def strip_command(self, command_string, output):
-        output = super().strip_command(command_string, output)
-        # command_string gets repainted potentially multiple times (grab everything after last one)
-        output = output.split(command_string)[-1]
-        return output
-
-    def check_config_mode(self):
-        &#34;&#34;&#34;Devices do not have a config mode.&#34;&#34;&#34;
+    def check_config_mode(self, *args, **kwargs):
+        &#34;&#34;&#34;No config mode on SFOS&#34;&#34;&#34;
         return False
 
-    def config_mode(self):
-        &#34;&#34;&#34;Devices do not have a config mode.&#34;&#34;&#34;
+    def config_mode(self, *args, **kwargs):
+        &#34;&#34;&#34;No config mode on SFOS&#34;&#34;&#34;
         return &#34;&#34;
 
-    def exit_config_mode(self):
-        &#34;&#34;&#34;Devices do not have a config mode.&#34;&#34;&#34;
+    def exit_config_mode(self, *args, **kwargs):
+        &#34;&#34;&#34;No config mode on SFOS&#34;&#34;&#34;
         return &#34;&#34;
 
     def save_config(self, *args, **kwargs):
-        &#34;&#34;&#34;No save method on ION SSH&#34;&#34;&#34;
-        pass
-
-    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
-        return super().send_config_set(
-            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
-        )</code></pre>
+        &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
+        raise NotImplementedError</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -232,79 +240,122 @@ __all__ = [&#34;CloudGenixIonSSH&#34;]</code></pre>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.cloudgenix.CloudGenixIonSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self)</span>
+<dt id="netmiko.sophos.SophosSfosSSH.check_config_mode"><code class="name flex">
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Devices do not have a config mode.</p></section>
+<section class="desc"><p>No config mode on SFOS</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self):
-    &#34;&#34;&#34;Devices do not have a config mode.&#34;&#34;&#34;
+<pre><code class="python">def check_config_mode(self, *args, **kwargs):
+    &#34;&#34;&#34;No config mode on SFOS&#34;&#34;&#34;
     return False</code></pre>
 </details>
 </dd>
-<dt id="netmiko.cloudgenix.CloudGenixIonSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self)</span>
+<dt id="netmiko.sophos.SophosSfosSSH.check_enable_mode"><code class="name flex">
+<span>def <span class="ident">check_enable_mode</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Devices do not have a config mode.</p></section>
+<section class="desc"><p>No enable mode on SFOS</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self):
-    &#34;&#34;&#34;Devices do not have a config mode.&#34;&#34;&#34;
+<pre><code class="python">def check_enable_mode(self, *args, **kwargs):
+    &#34;&#34;&#34;No enable mode on SFOS&#34;&#34;&#34;
+    return True</code></pre>
+</details>
+</dd>
+<dt id="netmiko.sophos.SophosSfosSSH.config_mode"><code class="name flex">
+<span>def <span class="ident">config_mode</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>No config mode on SFOS</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def config_mode(self, *args, **kwargs):
+    &#34;&#34;&#34;No config mode on SFOS&#34;&#34;&#34;
     return &#34;&#34;</code></pre>
 </details>
 </dd>
-<dt id="netmiko.cloudgenix.CloudGenixIonSSH.disable_paging"><code class="name flex">
-<span>def <span class="ident">disable_paging</span></span>(<span>self)</span>
+<dt id="netmiko.sophos.SophosSfosSSH.enable"><code class="name flex">
+<span>def <span class="ident">enable</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Cloud Genix ION sets terminal height in establish_connection</p></section>
+<section class="desc"><p>No enable mode on SFOS</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def disable_paging(self):
-    &#34;&#34;&#34;Cloud Genix ION sets terminal height in establish_connection&#34;&#34;&#34;
+<pre><code class="python">def enable(self, *args, **kwargs):
+    &#34;&#34;&#34;No enable mode on SFOS&#34;&#34;&#34;
     return &#34;&#34;</code></pre>
 </details>
 </dd>
-<dt id="netmiko.cloudgenix.CloudGenixIonSSH.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self)</span>
+<dt id="netmiko.sophos.SophosSfosSSH.exit_config_mode"><code class="name flex">
+<span>def <span class="ident">exit_config_mode</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Devices do not have a config mode.</p></section>
+<section class="desc"><p>No config mode on SFOS</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def exit_config_mode(self):
-    &#34;&#34;&#34;Devices do not have a config mode.&#34;&#34;&#34;
+<pre><code class="python">def exit_config_mode(self, *args, **kwargs):
+    &#34;&#34;&#34;No config mode on SFOS&#34;&#34;&#34;
     return &#34;&#34;</code></pre>
 </details>
 </dd>
-<dt id="netmiko.cloudgenix.CloudGenixIonSSH.save_config"><code class="name flex">
+<dt id="netmiko.sophos.SophosSfosSSH.exit_enable_mode"><code class="name flex">
+<span>def <span class="ident">exit_enable_mode</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>No enable mode on SFOS</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def exit_enable_mode(self, *args, **kwargs):
+    &#34;&#34;&#34;No enable mode on SFOS&#34;&#34;&#34;
+    return &#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="netmiko.sophos.SophosSfosSSH.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>No save method on ION SSH</p></section>
+<section class="desc"><p>Not Implemented</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def save_config(self, *args, **kwargs):
-    &#34;&#34;&#34;No save method on ION SSH&#34;&#34;&#34;
-    pass</code></pre>
+    &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
+    raise NotImplementedError</code></pre>
 </details>
 </dd>
-<dt id="netmiko.cloudgenix.CloudGenixIonSSH.session_preparation"><code class="name flex">
-<span>def <span class="ident">session_preparation</span></span>(<span>self, *args, **kwargs)</span>
+<dt id="netmiko.sophos.SophosSfosSSH.session_preparation"><code class="name flex">
+<span>def <span class="ident">session_preparation</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Prepare the session after the connection has been established.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def session_preparation(self, *args, **kwargs):
+<pre><code class="python">def session_preparation(self):
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    self.ansi_escape_codes = True
     self._test_channel_read()
-    self.write_channel(self.RETURN)
-    self.set_base_prompt(delay_factor=5)</code></pre>
+    &#34;&#34;&#34;
+    Sophos Firmware Version SFOS 18.0.0 GA-Build339
+
+    Main Menu
+
+        1.  Network  Configuration
+        2.  System   Configuration
+        3.  Route    Configuration
+        4.  Device Console
+        5.  Device Management
+        6.  VPN Management
+        7.  Shutdown/Reboot Device
+        0.  Exit
+
+        Select Menu Number [0-7]:
+    &#34;&#34;&#34;
+    self.write_channel(&#34;4&#34; + self.RETURN)
+    self._test_channel_read(pattern=r&#34;[console&gt;]&#34;)
+    self.set_base_prompt()
+    # Clear the read buffer
+    time.sleep(0.3 * self.global_delay_factor)
+    self.clear_buffer()</code></pre>
 </details>
 </dd>
 </dl>
@@ -312,15 +363,13 @@ __all__ = [&#34;CloudGenixIonSSH&#34;]</code></pre>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
@@ -366,20 +415,22 @@ __all__ = [&#34;CloudGenixIonSSH&#34;]</code></pre>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="netmiko.cloudgenix.cloudgenix_ion" href="cloudgenix_ion.html">netmiko.cloudgenix.cloudgenix_ion</a></code></li>
+<li><code><a title="netmiko.sophos.sophos_sfos_ssh" href="sophos_sfos_ssh.html">netmiko.sophos.sophos_sfos_ssh</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="netmiko.cloudgenix.CloudGenixIonSSH" href="#netmiko.cloudgenix.CloudGenixIonSSH">CloudGenixIonSSH</a></code></h4>
+<h4><code><a title="netmiko.sophos.SophosSfosSSH" href="#netmiko.sophos.SophosSfosSSH">SophosSfosSSH</a></code></h4>
 <ul class="two-column">
-<li><code><a title="netmiko.cloudgenix.CloudGenixIonSSH.check_config_mode" href="#netmiko.cloudgenix.CloudGenixIonSSH.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.cloudgenix.CloudGenixIonSSH.config_mode" href="#netmiko.cloudgenix.CloudGenixIonSSH.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.cloudgenix.CloudGenixIonSSH.disable_paging" href="#netmiko.cloudgenix.CloudGenixIonSSH.disable_paging">disable_paging</a></code></li>
-<li><code><a title="netmiko.cloudgenix.CloudGenixIonSSH.exit_config_mode" href="#netmiko.cloudgenix.CloudGenixIonSSH.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.cloudgenix.CloudGenixIonSSH.save_config" href="#netmiko.cloudgenix.CloudGenixIonSSH.save_config">save_config</a></code></li>
-<li><code><a title="netmiko.cloudgenix.CloudGenixIonSSH.session_preparation" href="#netmiko.cloudgenix.CloudGenixIonSSH.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.sophos.SophosSfosSSH.check_config_mode" href="#netmiko.sophos.SophosSfosSSH.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.sophos.SophosSfosSSH.check_enable_mode" href="#netmiko.sophos.SophosSfosSSH.check_enable_mode">check_enable_mode</a></code></li>
+<li><code><a title="netmiko.sophos.SophosSfosSSH.config_mode" href="#netmiko.sophos.SophosSfosSSH.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.sophos.SophosSfosSSH.enable" href="#netmiko.sophos.SophosSfosSSH.enable">enable</a></code></li>
+<li><code><a title="netmiko.sophos.SophosSfosSSH.exit_config_mode" href="#netmiko.sophos.SophosSfosSSH.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.sophos.SophosSfosSSH.exit_enable_mode" href="#netmiko.sophos.SophosSfosSSH.exit_enable_mode">exit_enable_mode</a></code></li>
+<li><code><a title="netmiko.sophos.SophosSfosSSH.save_config" href="#netmiko.sophos.SophosSfosSSH.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.sophos.SophosSfosSSH.session_preparation" href="#netmiko.sophos.SophosSfosSSH.session_preparation">session_preparation</a></code></li>
 </ul>
 </li>
 </ul>
