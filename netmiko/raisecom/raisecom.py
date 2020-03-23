@@ -1,7 +1,6 @@
 from netmiko.cisco_base_connection import CiscoBaseConnection
 import re
 import time
-from netmiko import log
 from telnetlib import (IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS)
 from netmiko.ssh_exception import NetmikoAuthenticationException
 
