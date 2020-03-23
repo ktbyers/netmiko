@@ -29,12 +29,23 @@ class YotcBase(CiscoBaseConnection):
         :return: output
         """
         prompt = self.find_prompt()
-        more_str_re = f" --More-- \b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
-        buffer = self.send_command_timing(command_string, cmd_echo=cmd_echo, use_textfsm=False, **kwargs)
+        more_str_re = f" --More-- \b\b\b\b\b\b\b\b\b\b          " \
+                      f"\b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
+        buffer = self.send_command_timing(
+            command_string,
+            cmd_echo=cmd_echo,
+            use_textfsm=False,
+            **kwargs
+        )
         output = buffer
         log.debug(f"send_command_more first output: {output}")
         while prompt not in buffer:
-            buffer = self.send_command_timing("", strip_command=False, strip_prompt=False, cmd_echo=cmd_echo)
+            buffer = self.send_command_timing(
+                "",
+                strip_command=False,
+                strip_prompt=False,
+                cmd_echo=cmd_echo
+            )
             log.debug(f"send_command_more buffer: {buffer}")
             output += buffer
         output = re.sub(more_str_re, "", output)
@@ -75,7 +86,6 @@ class YotcBase(CiscoBaseConnection):
     def check_config_mode(self, check_string=")#", pattern="#"):
         """
         Checks if the device is in configuration mode or not.
-
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
@@ -100,13 +110,11 @@ class YotcBase(CiscoBaseConnection):
 
 
 class YotcSSH(YotcBase):
-    
+
     def special_login_handler(self, delay_factor=1):
         """
         yotc presents with the following on login
-
         Password: ***
-
         """
         delay_factor = self.select_delay_factor(delay_factor)
         i = 0
@@ -131,7 +139,6 @@ class YotcTelnet(YotcBase):
     def _process_option(telnet_sock, cmd, opt):
         """
         enable ECHO, SGA, set window size to [500, 50]
-
         """
         if cmd == WILL:
             if opt in [ECHO, SGA]:
@@ -143,9 +150,8 @@ class YotcTelnet(YotcBase):
             if opt == NAWS:
                 # negotiate about window size
                 telnet_sock.sendall(IAC + WILL + opt)
-                telnet_sock.sendall(IAC + SB + NAWS + b"\x01\xf4\x00\x32" + IAC + SE)  # Width:500, Weight:50
-                # telnet_sock.sendall(
-                # IAC + SB + NAWS + (500).to_bytes(2, byteorder="big") + (50).to_bytes(2, byteorder="big") + IAC + SE)
+                # Width:500, Weight:50
+                telnet_sock.sendall(IAC + SB + NAWS + b"\x01\xf4\x00\x32" + IAC + SE)
             else:
                 telnet_sock.sendall(IAC + WONT + opt)
 

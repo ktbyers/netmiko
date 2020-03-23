@@ -50,9 +50,8 @@ class ZTETelnet(ZTEBase):
             if opt == NAWS:
                 # negotiate about window size
                 telnet_sock.sendall(IAC + WILL + opt)
-                telnet_sock.sendall(IAC + SB + NAWS + b"\x01\xf4\x00\x32" + IAC + SE)  # Width:500, Weight:50
-                # telnet_sock.sendall(
-                # IAC + SB + NAWS + (500).to_bytes(2, byteorder="big") + (50).to_bytes(2, byteorder="big") + IAC + SE)
+                # Width:500, Weight:50
+                telnet_sock.sendall(IAC + SB + NAWS + b"\x01\xf4\x00\x32" + IAC + SE)
             else:
                 telnet_sock.sendall(IAC + WONT + opt)
 
@@ -60,4 +59,3 @@ class ZTETelnet(ZTEBase):
         # set callback function to handle telnet options.
         self.remote_conn.set_option_negotiation_callback(self._process_option)
         return super().telnet_login(*args, **kwargs)
-

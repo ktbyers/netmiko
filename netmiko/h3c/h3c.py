@@ -100,7 +100,8 @@ class H3CTelnet(H3CBase):
             if opt == NAWS:
                 # negotiate about window size
                 telnet_sock.sendall(IAC + WILL + opt)
-                telnet_sock.sendall(IAC + SB + NAWS + b"\x01\xf4\x00\x32" + IAC + SE)  # Width:500, Weight:50
+                # Width:500, Weight:50
+                telnet_sock.sendall(IAC + SB + NAWS + b"\x01\xf4\x00\x32" + IAC + SE)
             else:
                 telnet_sock.sendall(IAC + WONT + opt)
 
