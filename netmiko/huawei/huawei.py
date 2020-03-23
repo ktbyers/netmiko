@@ -237,10 +237,7 @@ class HuaweiVrpv8SSH(HuaweiSSH):
 
 
 class HuaweiTelnetOLT8000(CiscoBaseConnection):
-    def enable_paging(self, command="scroll"):
-        return super().enable_paging(command=command)
-
-    def disable_paging(self, command="undo scroll", delay_factor=1):
+    def disable_paging(self, command="scroll"):
         return super().disable_paging(command=command)
 
     def config_mode(self, config_command="config", pattern="config\)#"):
@@ -335,3 +332,8 @@ class HuaweiTelnetOLT8000(CiscoBaseConnection):
         self.remote_conn.close()
         msg = f"Login failed: {self.host}"
         raise NetmikoAuthenticationException(msg)
+
+    def cleanup(self, command="quit"):
+        """Return paging before disconnect"""
+        self.send_command_timing("undo scroll")
+        return super().cleanup()
