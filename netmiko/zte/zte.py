@@ -38,7 +38,6 @@ class ZTETelnet(ZTEBase):
         """
         ZTE need manually reply DO ECHO to enable echo command.
         enable ECHO, SGA, set window size to [500, 50]
-
         """
         if cmd == WILL:
             if opt in [ECHO, SGA]:

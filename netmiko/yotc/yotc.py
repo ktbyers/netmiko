@@ -24,7 +24,6 @@ class YotcBase(CiscoBaseConnection):
         yotc has no disable_paging command, need to handle it in show command.
         cisco_wlc_ssh.py has similar function: send_command_w_enter().
         :param cmd_echo: Verify command echo before proceeding
-        :param args: same with send_command_timing()
         :param kwargs: same with send_command_timing()
         :return: output
         """
