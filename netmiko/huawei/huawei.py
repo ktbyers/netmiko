@@ -242,6 +242,7 @@ class HuaweiTelnetOLT8000(CiscoBaseConnection):
 
     def config_mode(self, config_command="config", pattern="config\)#"):
         """Enter configuration mode."""
+        self.enable()
         return super().config_mode(config_command=config_command, pattern=pattern)
 
     def exit_config_mode(self, exit_config="quit", pattern="#"):
@@ -333,7 +334,8 @@ class HuaweiTelnetOLT8000(CiscoBaseConnection):
         msg = f"Login failed: {self.host}"
         raise NetmikoAuthenticationException(msg)
 
-    def cleanup(self, command="quit"):
+    def cleanup(self):
         """Return paging before disconnect"""
         self.send_command_timing("undo scroll")
+        self.send_command_timing("quit")
         return super().cleanup()
