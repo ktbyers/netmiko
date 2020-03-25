@@ -69,7 +69,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 
     def set_base_prompt(self, pri_prompt_terminator=">", alt_prompt_terminator="#"):
         return super().set_base_prompt(
-            pri_prompt_iterminator=pri_prompt_terminator,
+            pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
         )
 
