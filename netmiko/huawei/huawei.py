@@ -242,10 +242,10 @@ class HuaweiOLTTelnet(CiscoBaseConnection):
     def disable_paging(self, command="scroll"):
         return super().disable_paging(command=command)
 
-    def config_mode(self, config_command="config", pattern=r"config\)#"):
+    def config_mode(self, config_command="config"):
         """Enter configuration mode."""
         self.enable()
-        return super().config_mode(config_command=config_command, pattern=pattern)
+        return super().config_mode(config_command=config_command)
 
     def exit_config_mode(self, exit_config="return", pattern="#"):
         """Exit from configuration mode."""
