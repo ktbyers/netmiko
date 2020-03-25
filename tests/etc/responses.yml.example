@@ -258,3 +258,10 @@ sophos_sfos:
   version_banner: "Serial Number"
   multiple_line_output: ""
 
+huawei_olt_telnet:
+  base_prompt: MA5608T_10.210.0.12
+  router_prompt: MA5608T_10.210.0.12>
+  enable_prompt: MA5608T_10.210.0.12#
+  version_banner: "Uptime is"
+  multiple_line_output: "Uptime is"
+  interface_ip: "Uptime is"
