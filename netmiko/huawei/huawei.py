@@ -247,7 +247,7 @@ class HuaweiOLTTelnet(CiscoBaseConnection):
         self.enable()
         return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def exit_config_mode(self, exit_config="quit", pattern="#"):
+    def exit_config_mode(self, exit_config="return", pattern="#"):
         """Exit from configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
