@@ -57,6 +57,7 @@ from netmiko.utilities import (
     check_serial_port,
     get_structured_data,
     get_structured_data_genie,
+    select_cmd_verify,
 )
 
 
@@ -78,6 +79,7 @@ class BaseConnection(object):
         device_type=&#34;&#34;,
         verbose=False,
         global_delay_factor=1,
+        global_cmd_verify=None,
         use_keys=False,
         key_file=None,
         pkey=None,
@@ -224,6 +226,12 @@ class BaseConnection(object):
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
         :type sock: socket
+
+        :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+                (default: None). Global attribute takes precedence over function `cmd_verify`
+                argument. Value of `None` indicates to use function `cmd_verify` argument.
+        :type global_cmd_verify: bool|None
+
         &#34;&#34;&#34;
         self.remote_conn = None
 
@@ -307,6 +315,7 @@ class BaseConnection(object):
 
         self.fast_cli = fast_cli
         self.global_delay_factor = global_delay_factor
+        self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
             self.global_delay_factor = 0.1
 
@@ -1158,6 +1167,7 @@ class BaseConnection(object):
                 sleep_time *= 2
                 sleep_time = 3 if sleep_time &gt;= 3 else sleep_time
 
+    @select_cmd_verify
     def send_command_timing(
         self,
         command_string,
@@ -1169,7 +1179,8 @@ class BaseConnection(object):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
-        cmd_echo=False,
+        cmd_verify=False,
+        cmd_echo=None,
     ):
         &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1203,9 +1214,16 @@ class BaseConnection(object):
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
 
-        :param cmd_echo: Verify command echo before proceeding (default: False).
+        :param cmd_verify: Verify command echo before proceeding (default: False).
+        :type cmd_verify: bool
+
+        :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         &#34;&#34;&#34;
+        # For compatibility remove cmd_echo in Netmiko 4.x.x
+        if cmd_echo is not None:
+            cmd_verify = cmd_echo
+
         output = &#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -1216,7 +1234,7 @@ class BaseConnection(object):
 
         cmd = command_string.strip()
         # if cmd is just an &#34;enter&#34; skip this section
-        if cmd and cmd_echo:
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -1305,6 +1323,7 @@ class BaseConnection(object):
         except IndexError:
             return (data, False)
 
+    @select_cmd_verify
     def send_command(
         self,
         command_string,
@@ -1318,6 +1337,7 @@ class BaseConnection(object):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
+        cmd_verify=True,
     ):
         &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1355,6 +1375,9 @@ class BaseConnection(object):
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
+
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+        :type cmd_verify: bool
         &#34;&#34;&#34;
         # Time to delay in each read loop
         loop_delay = 0.2
@@ -1388,8 +1411,8 @@ class BaseConnection(object):
         new_data = &#34;&#34;
 
         cmd = command_string.strip()
-        # if cmd is just and &#34;enter&#34; skip this section
-        if cmd:
+        # if cmd is just an &#34;enter&#34; skip this section
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -1727,9 +1750,10 @@ class BaseConnection(object):
             raise ValueError(&#34;Invalid argument passed into send_config_set&#34;)
 
         # Send config commands
+        output = &#34;&#34;
         if enter_config_mode:
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-            output = self.config_mode(*cfg_mode_args)
+            output += self.config_mode(*cfg_mode_args)
 
         if self.fast_cli:
             for cmd in config_commands:
@@ -1793,6 +1817,7 @@ class BaseConnection(object):
         ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
+        ESC[1D       Move cursor position leftward by x characters (1 in this case)
 
         HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -1824,6 +1849,7 @@ class BaseConnection(object):
         code_erase_display = chr(27) + r&#34;\[J&#34;
         code_attrs_off = chr(27) + r&#34;\[0m&#34;
         code_reverse = chr(27) + r&#34;\[7m&#34;
+        code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
 
         code_set = [
             code_position_cursor,
@@ -1847,6 +1873,7 @@ class BaseConnection(object):
             code_erase_display,
             code_attrs_off,
             code_reverse,
+            code_cursor_left,
         ]
 
         output = string_buffer
@@ -1862,8 +1889,8 @@ class BaseConnection(object):
 
         return output
 
-    def cleanup(self):
-        &#34;&#34;&#34;Any needed cleanup before closing connection.&#34;&#34;&#34;
+    def cleanup(self, command=&#34;&#34;):
+        &#34;&#34;&#34;Logout of the session on the network device plus any additional cleanup.&#34;&#34;&#34;
         pass
 
     def paramiko_cleanup(self):
@@ -1872,7 +1899,7 @@ class BaseConnection(object):
         del self.remote_conn_pre
 
     def disconnect(self):
-        &#34;&#34;&#34;Try to gracefully close the SSH connection.&#34;&#34;&#34;
+        &#34;&#34;&#34;Try to gracefully close the session.&#34;&#34;&#34;
         try:
             self.cleanup()
             if self.protocol == &#34;ssh&#34;:
@@ -1927,7 +1954,7 @@ class TelnetConnection(BaseConnection):
 <dl>
 <dt id="netmiko.base_connection.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -2052,6 +2079,11 @@ class TelnetConnection(BaseConnection):
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -2073,6 +2105,7 @@ class TelnetConnection(BaseConnection):
         device_type=&#34;&#34;,
         verbose=False,
         global_delay_factor=1,
+        global_cmd_verify=None,
         use_keys=False,
         key_file=None,
         pkey=None,
@@ -2219,6 +2252,12 @@ class TelnetConnection(BaseConnection):
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
         :type sock: socket
+
+        :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+                (default: None). Global attribute takes precedence over function `cmd_verify`
+                argument. Value of `None` indicates to use function `cmd_verify` argument.
+        :type global_cmd_verify: bool|None
+
         &#34;&#34;&#34;
         self.remote_conn = None
 
@@ -2302,6 +2341,7 @@ class TelnetConnection(BaseConnection):
 
         self.fast_cli = fast_cli
         self.global_delay_factor = global_delay_factor
+        self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
             self.global_delay_factor = 0.1
 
@@ -3153,6 +3193,7 @@ class TelnetConnection(BaseConnection):
                 sleep_time *= 2
                 sleep_time = 3 if sleep_time &gt;= 3 else sleep_time
 
+    @select_cmd_verify
     def send_command_timing(
         self,
         command_string,
@@ -3164,7 +3205,8 @@ class TelnetConnection(BaseConnection):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
-        cmd_echo=False,
+        cmd_verify=False,
+        cmd_echo=None,
     ):
         &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -3198,9 +3240,16 @@ class TelnetConnection(BaseConnection):
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
 
-        :param cmd_echo: Verify command echo before proceeding (default: False).
+        :param cmd_verify: Verify command echo before proceeding (default: False).
+        :type cmd_verify: bool
+
+        :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         &#34;&#34;&#34;
+        # For compatibility remove cmd_echo in Netmiko 4.x.x
+        if cmd_echo is not None:
+            cmd_verify = cmd_echo
+
         output = &#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -3211,7 +3260,7 @@ class TelnetConnection(BaseConnection):
 
         cmd = command_string.strip()
         # if cmd is just an &#34;enter&#34; skip this section
-        if cmd and cmd_echo:
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -3300,6 +3349,7 @@ class TelnetConnection(BaseConnection):
         except IndexError:
             return (data, False)
 
+    @select_cmd_verify
     def send_command(
         self,
         command_string,
@@ -3313,6 +3363,7 @@ class TelnetConnection(BaseConnection):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
+        cmd_verify=True,
     ):
         &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -3350,6 +3401,9 @@ class TelnetConnection(BaseConnection):
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
+
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+        :type cmd_verify: bool
         &#34;&#34;&#34;
         # Time to delay in each read loop
         loop_delay = 0.2
@@ -3383,8 +3437,8 @@ class TelnetConnection(BaseConnection):
         new_data = &#34;&#34;
 
         cmd = command_string.strip()
-        # if cmd is just and &#34;enter&#34; skip this section
-        if cmd:
+        # if cmd is just an &#34;enter&#34; skip this section
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -3722,9 +3776,10 @@ class TelnetConnection(BaseConnection):
             raise ValueError(&#34;Invalid argument passed into send_config_set&#34;)
 
         # Send config commands
+        output = &#34;&#34;
         if enter_config_mode:
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-            output = self.config_mode(*cfg_mode_args)
+            output += self.config_mode(*cfg_mode_args)
 
         if self.fast_cli:
             for cmd in config_commands:
@@ -3788,6 +3843,7 @@ class TelnetConnection(BaseConnection):
         ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
+        ESC[1D       Move cursor position leftward by x characters (1 in this case)
 
         HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -3819,6 +3875,7 @@ class TelnetConnection(BaseConnection):
         code_erase_display = chr(27) + r&#34;\[J&#34;
         code_attrs_off = chr(27) + r&#34;\[0m&#34;
         code_reverse = chr(27) + r&#34;\[7m&#34;
+        code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
 
         code_set = [
             code_position_cursor,
@@ -3842,6 +3899,7 @@ class TelnetConnection(BaseConnection):
             code_erase_display,
             code_attrs_off,
             code_reverse,
+            code_cursor_left,
         ]
 
         output = string_buffer
@@ -3857,8 +3915,8 @@ class TelnetConnection(BaseConnection):
 
         return output
 
-    def cleanup(self):
-        &#34;&#34;&#34;Any needed cleanup before closing connection.&#34;&#34;&#34;
+    def cleanup(self, command=&#34;&#34;):
+        &#34;&#34;&#34;Logout of the session on the network device plus any additional cleanup.&#34;&#34;&#34;
         pass
 
     def paramiko_cleanup(self):
@@ -3867,7 +3925,7 @@ class TelnetConnection(BaseConnection):
         del self.remote_conn_pre
 
     def disconnect(self):
-        &#34;&#34;&#34;Try to gracefully close the SSH connection.&#34;&#34;&#34;
+        &#34;&#34;&#34;Try to gracefully close the session.&#34;&#34;&#34;
         try:
             self.cleanup()
             if self.protocol == &#34;ssh&#34;:
@@ -3925,6 +3983,7 @@ class TelnetConnection(BaseConnection):
 <li><a title="netmiko.pluribus.pluribus_ssh.PluribusSSH" href="pluribus/pluribus_ssh.html#netmiko.pluribus.pluribus_ssh.PluribusSSH">PluribusSSH</a></li>
 <li><a title="netmiko.rad.rad_etx.RadETXBase" href="rad/rad_etx.html#netmiko.rad.rad_etx.RadETXBase">RadETXBase</a></li>
 <li><a title="netmiko.terminal_server.terminal_server.TerminalServer" href="terminal_server/terminal_server.html#netmiko.terminal_server.terminal_server.TerminalServer">TerminalServer</a></li>
+<li><a title="netmiko.watchguard.fireware_ssh.WatchguardFirewareSSH" href="watchguard/fireware_ssh.html#netmiko.watchguard.fireware_ssh.WatchguardFirewareSSH">WatchguardFirewareSSH</a></li>
 </ul>
 <h3>Static methods</h3>
 <dl>
@@ -4001,14 +4060,14 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.cleanup"><code class="name flex">
-<span>def <span class="ident">cleanup</span></span>(<span>self)</span>
+<span>def <span class="ident">cleanup</span></span>(<span>self, command='')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Any needed cleanup before closing connection.</p></section>
+<section class="desc"><p>Logout of the session on the network device plus any additional cleanup.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def cleanup(self):
-    &#34;&#34;&#34;Any needed cleanup before closing connection.&#34;&#34;&#34;
+<pre><code class="python">def cleanup(self, command=&#34;&#34;):
+    &#34;&#34;&#34;Logout of the session on the network device plus any additional cleanup.&#34;&#34;&#34;
     pass</code></pre>
 </details>
 </dd>
@@ -4130,11 +4189,11 @@ def strip_backspaces(output):
 <span>def <span class="ident">disconnect</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Try to gracefully close the SSH connection.</p></section>
+<section class="desc"><p>Try to gracefully close the session.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def disconnect(self):
-    &#34;&#34;&#34;Try to gracefully close the SSH connection.&#34;&#34;&#34;
+    &#34;&#34;&#34;Try to gracefully close the session.&#34;&#34;&#34;
     try:
         self.cleanup()
         if self.protocol == &#34;ssh&#34;:
@@ -4621,7 +4680,7 @@ In fast_cli choose the lesser of delay_factor of self.global_delay_factor.</p>
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.send_command"><code class="name flex">
-<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False)</span>
+<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False, cmd_verify=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a pattern-based mechanism. Generally
@@ -4649,10 +4708,13 @@ based upon self.timeout.
 <p>:param textfsm_template: Name of template to parse output with; can be fully qualified
 path, relative path, or name of file in current directory. (default: None).</p>
 <p>:param use_genie: Process command output through PyATS/Genie parser (default: False).
-:type normalize: bool</p></section>
+:type normalize: bool</p>
+<p>:param cmd_verify: Verify command echo before proceeding (default: True).
+:type cmd_verify: bool</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def send_command(
+<pre><code class="python">@select_cmd_verify
+def send_command(
     self,
     command_string,
     expect_string=None,
@@ -4665,6 +4727,7 @@ path, relative path, or name of file in current directory. (default: None).</p>
     use_textfsm=False,
     textfsm_template=None,
     use_genie=False,
+    cmd_verify=True,
 ):
     &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
     used for show commands. By default this method will keep waiting to receive data until the
@@ -4702,6 +4765,9 @@ path, relative path, or name of file in current directory. (default: None).</p>
 
     :param use_genie: Process command output through PyATS/Genie parser (default: False).
     :type normalize: bool
+
+    :param cmd_verify: Verify command echo before proceeding (default: True).
+    :type cmd_verify: bool
     &#34;&#34;&#34;
     # Time to delay in each read loop
     loop_delay = 0.2
@@ -4735,8 +4801,8 @@ path, relative path, or name of file in current directory. (default: None).</p>
     new_data = &#34;&#34;
 
     cmd = command_string.strip()
-    # if cmd is just and &#34;enter&#34; skip this section
-    if cmd:
+    # if cmd is just an &#34;enter&#34; skip this section
+    if cmd and cmd_verify:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(pattern=re.escape(cmd))
         new_data = self.normalize_linefeeds(new_data)
@@ -4835,7 +4901,7 @@ path, relative path, or name of file in current directory. (default: None).</p>
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.send_command_timing"><code class="name flex">
-<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False, cmd_echo=False)</span>
+<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False, cmd_verify=False, cmd_echo=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a delay-based mechanism. Generally
@@ -4860,11 +4926,14 @@ path, relative path, or name of file in current directory. (default: None).
 :type textfsm_template: str</p>
 <p>:param use_genie: Process command output through PyATS/Genie parser (default: False).
 :type use_genie: bool</p>
-<p>:param cmd_echo: Verify command echo before proceeding (default: False).
+<p>:param cmd_verify: Verify command echo before proceeding (default: False).
+:type cmd_verify: bool</p>
+<p>:param cmd_echo: Deprecated (use cmd_verify instead)
 :type cmd_echo: bool</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def send_command_timing(
+<pre><code class="python">@select_cmd_verify
+def send_command_timing(
     self,
     command_string,
     delay_factor=1,
@@ -4875,7 +4944,8 @@ path, relative path, or name of file in current directory. (default: None).
     use_textfsm=False,
     textfsm_template=None,
     use_genie=False,
-    cmd_echo=False,
+    cmd_verify=False,
+    cmd_echo=None,
 ):
     &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
     used for show commands.
@@ -4909,9 +4979,16 @@ path, relative path, or name of file in current directory. (default: None).
     :param use_genie: Process command output through PyATS/Genie parser (default: False).
     :type use_genie: bool
 
-    :param cmd_echo: Verify command echo before proceeding (default: False).
+    :param cmd_verify: Verify command echo before proceeding (default: False).
+    :type cmd_verify: bool
+
+    :param cmd_echo: Deprecated (use cmd_verify instead)
     :type cmd_echo: bool
     &#34;&#34;&#34;
+    # For compatibility remove cmd_echo in Netmiko 4.x.x
+    if cmd_echo is not None:
+        cmd_verify = cmd_echo
+
     output = &#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
     self.clear_buffer()
@@ -4922,7 +4999,7 @@ path, relative path, or name of file in current directory. (default: None).
 
     cmd = command_string.strip()
     # if cmd is just an &#34;enter&#34; skip this section
-    if cmd and cmd_echo:
+    if cmd and cmd_verify:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(pattern=re.escape(cmd))
         new_data = self.normalize_linefeeds(new_data)
@@ -5091,9 +5168,10 @@ The commands will be executed one after the other.</p>
         raise ValueError(&#34;Invalid argument passed into send_config_set&#34;)
 
     # Send config commands
+    output = &#34;&#34;
     if enter_config_mode:
         cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-        output = self.config_mode(*cfg_mode_args)
+        output += self.config_mode(*cfg_mode_args)
 
     if self.fast_cli:
         for cmd in config_commands:
@@ -5327,7 +5405,9 @@ ESC[00;32m
 Color Green (30 to 37 are different colors) more general pattern is
 ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
 ESC[6n
-Get cursor position</p>
+Get cursor position
+ESC[1D
+Move cursor position leftward by x characters (1 in this case)</p>
 <p>HP ProCurve and Cisco SG300 require this (possible others).</p>
 <p>:param string_buffer: The string to be processed to remove ANSI escape codes
 :type string_buffer: str</p></section>
@@ -5357,6 +5437,7 @@ Get cursor position</p>
     ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                  ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
     ESC[6n       Get cursor position
+    ESC[1D       Move cursor position leftward by x characters (1 in this case)
 
     HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -5388,6 +5469,7 @@ Get cursor position</p>
     code_erase_display = chr(27) + r&#34;\[J&#34;
     code_attrs_off = chr(27) + r&#34;\[0m&#34;
     code_reverse = chr(27) + r&#34;\[7m&#34;
+    code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
 
     code_set = [
         code_position_cursor,
@@ -5411,6 +5493,7 @@ Get cursor position</p>
         code_erase_display,
         code_attrs_off,
         code_reverse,
+        code_cursor_left,
     ]
 
     output = string_buffer
@@ -5620,7 +5703,7 @@ Get cursor position</p>
 </dd>
 <dt id="netmiko.base_connection.TelnetConnection"><code class="flex name class">
 <span>class <span class="ident">TelnetConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -5745,6 +5828,11 @@ Get cursor position</p>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
