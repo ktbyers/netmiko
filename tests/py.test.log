@@ -1,9 +1,0 @@
-============================= test session starts ==============================
-platform linux -- Python 3.6.8, pytest-5.4.1, py-1.8.1, pluggy-0.13.1 -- /home/bspendlove/dev/gitlab/cfl_netmiko/venv_netmiko/bin/python3
-cachedir: .pytest_cache
-rootdir: /home/bspendlove/dev/gitlab/cfl_netmiko/netmiko, inifile: setup.cfg
-collecting ... collected 8 items
-
-test_netmiko_config.py::test_ssh_connect 
-
-============================ no tests ran in 1.85s =============================
