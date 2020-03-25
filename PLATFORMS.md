@@ -35,6 +35,7 @@
 - MikroTik RouterOS
 - MikroTik SwitchOS
 - NetApp cDOT
+- Nokia/Alcatel SR OS
 - OneAccess
 - Palo Alto PAN-OS
 - Pluribus
@@ -69,6 +70,6 @@
 - Nokia/Alcatel SR-OS
 - QuantaMesh
 - Rad ETX
+- Sophos SFOS
 - Versa Networks FlexVNF
 - Watchguard Firebox
-

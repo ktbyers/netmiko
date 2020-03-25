@@ -234,6 +234,14 @@ ruijie_os:
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
 
+sophos_sfos:
+  base_prompt: "console"
+  router_prompt: "console>"
+  enable_prompt: "console>"
+  interface_ip: 172.16.16.16
+  version_banner: "Serial Number"
+  multiple_line_output: ""
+
 huawei_smartax:
   base_prompt: "ol01.test-lab.xyz"
   router_prompt: "ol01.test-lab.xyz>"
