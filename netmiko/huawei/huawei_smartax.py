@@ -67,12 +67,10 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
     def exit_enable_mode(self, exit_command="disable"):
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def set_base_prompt(
-        self, pri_prompt_terminator=">", alt_prompt_terminator="#"
-    ):
+    def set_base_prompt(self, pri_prompt_terminator=">", alt_prompt_terminator="#"):
         return super().set_base_prompt(
             pri_prompt_iterminator=pri_prompt_terminator,
-            alt_prompt_terminator=alt_prompt_terminator
+            alt_prompt_terminator=alt_prompt_terminator,
         )
 
     def save_config(self, cmd="save", confirm=False, confirm_response=""):
