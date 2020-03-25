@@ -234,3 +234,37 @@ class HuaweiVrpv8SSH(HuaweiSSH):
     def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError
+
+
+class HuaweiOLTTelnet(CiscoBaseConnection):
+    telnet_login = HuaweiTelnet.telnet_login
+
+    def disable_paging(self, command="scroll"):
+        return super().disable_paging(command=command)
+
+    def config_mode(self, config_command="config", pattern=r"config\)#"):
+        """Enter configuration mode."""
+        self.enable()
+        return super().config_mode(config_command=config_command, pattern=pattern)
+
+    def exit_config_mode(self, exit_config="quit", pattern="#"):
+        """Exit from configuration mode."""
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
+
+    def session_preparation(self):
+        """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
+        self._test_channel_read()
+        self.set_base_prompt()
+        self.send_command(command_string="undo interactive")
+        self.send_command(command_string="undo smart")
+        self.disable_paging(command="scroll")
+        # Clear the read buffer
+        time.sleep(0.3 * self.global_delay_factor)
+        self.clear_buffer()
+
+    def cleanup(self):
+        """Return paging before disconnect"""
+        self.send_command_timing("undo scroll")
+        self.send_command_timing("quit")
+        return super().cleanup()

@@ -203,4 +203,8 @@ sophos_sfos:
   username: admin
   password: admin
 
-
+huawei_olt_telnet:
+  device_type: huawei_olt_telnet
+  ip: 10.210.0.12
+  username: admin
+  password: admin

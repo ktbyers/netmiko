@@ -316,3 +316,10 @@ sophos_sfos:
   basic: "system diagnostics utilities route lookup 172.16.16.16"
   extended_output: "system diagnostics show version-info"
 
+huawei_olt_telnet:
+  version: "display version"
+  basic: "display version"
+  config:
+    - "syslog enable alarm-event"
+  config_verification: "display current-configuration | include syslog"
+  extended_output: "display version"   # requires paging to be disabled
