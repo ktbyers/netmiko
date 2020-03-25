@@ -1,12 +1,12 @@
 import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection
-from netmiko.base_connection import BaseConnection
 from netmiko import log
 
-class HuaweiSmartAXSSH(BaseConnection):
+class HuaweiSmartAXSSH(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_smart_interaction()
@@ -14,6 +14,22 @@ class HuaweiSmartAXSSH(BaseConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+
+    def strip_ansi_escape_codes(self, string_buffer):
+        """
+        Huawei does a strange thing where they add a space and then add ESC[1D
+        to move the cursor to the left one.
+        The extra space is problematic.
+        """
+        code_cursor_left = chr(27) + r"\[\d+D"
+        output = string_buffer
+        pattern = rf" {code_cursor_left}"
+        output = re.sub(pattern, "", output)
+
+        log.debug("Stripping ANSI escape codes")
+        log.debug(f"new_output = {output}")
+        log.debug(f"repr = {repr(output)}")
+        return super().strip_ansi_escape_codes(output)
 
     def disable_smart_interaction(self, command="undo smart", delay_factor=1):
         """Disables the { <cr> } prompt to avoid having to sent a 2nd return after each command"""
@@ -26,7 +42,7 @@ class HuaweiSmartAXSSH(BaseConnection):
         self.write_channel(command)
         output = self.read_until_pattern(pattern=re.escape(command.strip()))
         log.debug(f"{output}")
-        log.debug("Exiting disable_paging")
+        log.debug("Exiting disable_smart_interaction")
            
     def disable_paging(self, command="scroll"):
         return super().disable_paging(command=command)
@@ -35,10 +51,10 @@ class HuaweiSmartAXSSH(BaseConnection):
         """Enter configuration mode."""
         return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def check_config_mode(self, check_string=")#", pattern=""):
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+    def check_config_mode(self, check_string=")#"):
+        return super().check_config_mode(check_string=check_string)
 
-    def exit_config_mode(self, exit_config="quit"):
+    def exit_config_mode(self, exit_config="return"):
         return super().exit_config_mode(exit_config=exit_config)
 
     def check_enable_mode(self, check_string="#"):
