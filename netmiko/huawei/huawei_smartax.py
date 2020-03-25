@@ -3,6 +3,7 @@ import re
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko import log
 
+
 class HuaweiSmartAXSSH(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -43,7 +44,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         output = self.read_until_pattern(pattern=re.escape(command.strip()))
         log.debug(f"{output}")
         log.debug("Exiting disable_smart_interaction")
-           
+
     def disable_paging(self, command="scroll"):
         return super().disable_paging(command=command)
 
@@ -66,8 +67,13 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
     def exit_enable_mode(self, exit_command="disable"):
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def set_base_prompt(self, pri_prompt_terminator=">", alt_prompt_terminator="#"):
-        return super().set_base_prompt(pri_prompt_terminator=pri_prompt_terminator, alt_prompt_terminator=alt_prompt_terminator)
+    def set_base_prompt(
+        self, pri_prompt_terminator=">", alt_prompt_terminator="#"
+    ):
+        return super().set_base_prompt(
+            pri_prompt_iterminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator
+        )
 
     def save_config(self, cmd="save", confirm=False, confirm_response=""):
         """ Save Config for HuaweiSSH"""
