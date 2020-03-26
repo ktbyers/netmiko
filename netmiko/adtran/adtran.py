@@ -19,13 +19,10 @@ class AdtranOSBase(CiscoBaseConnection):
     def strip_ansi_escape_codes(self, string_buffer):
         """
             Even with terminal width set to max, some commands such as
-            an EVC map, may start producing \x08 eg:
-            interface muxponder-highspeed 1/1/8 ten-gigabit-et\x08\x08\x08
-
-            Adtran uses the backspace to allow more characters to appear
+            an EVC map, may start producing \x08 so we need to strip it
         """
-        output = self.strip_backspaces(string_buffer)
-        new_output = output.strip()
+        output = string_buffer
+        new_output = self.strip_backspaces(output)
         log.debug("Stripping ANSI escape codes")
         log.debug(f"new_output = {new_output}")
         return super().strip_ansi_escape_codes(new_output)
