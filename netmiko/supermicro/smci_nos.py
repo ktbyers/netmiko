@@ -34,6 +34,7 @@ class SmciSwitchNosBase(CiscoBaseConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+
     pass
 
 
@@ -43,4 +44,3 @@ class SmciSwitchNosSSH(SmciSwitchNosBase):
 
 class SmciSwitchNosTelnet(SmciSwitchNosBase):
     pass
-
