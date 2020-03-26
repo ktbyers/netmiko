@@ -10,7 +10,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_smart_interaction()
+        self._disable_smart_interaction()
         self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -32,7 +32,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         log.debug(f"repr = {repr(output)}")
         return super().strip_ansi_escape_codes(output)
 
-    def disable_smart_interaction(self, command="undo smart", delay_factor=1):
+    def _disable_smart_interaction(self, command="undo smart", delay_factor=1):
         """Disables the { <cr> } prompt to avoid having to sent a 2nd return after each command"""
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * 0.1)
@@ -63,9 +63,6 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 
     def enable(self, cmd="enable", pattern="", re_flags=re.IGNORECASE):
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
-
-    def exit_enable_mode(self, exit_command="disable"):
-        return super().exit_enable_mode(exit_command=exit_command)
 
     def set_base_prompt(self, pri_prompt_terminator=">", alt_prompt_terminator="#"):
         return super().set_base_prompt(
