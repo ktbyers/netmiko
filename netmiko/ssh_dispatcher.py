@@ -79,8 +79,8 @@ from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.watchguard import WatchguardFirewareSSH
-from netmiko.supermicro.smci_switch_usp import SmciSwitchUspSSH
-from netmiko.supermicro.smci_switch_usp import SmciSwitchUspTelnet
+from netmiko.supermicro.smci_nos import SmciSwitchNosSSH
+from netmiko.supermicro.smci_nos import SmciSwitchNosTelnet
 
 
 # The keys of this dictionary are the supported device_types
@@ -173,7 +173,7 @@ CLASS_MAPPER_BASE = {
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "watchguard_fireware": WatchguardFirewareSSH,
-    "supermicro_usp": SmciSwitchUspSSH,
+    "supermicro_nos": SmciSwitchNosSSH,
 }
 
 FILE_TRANSFER_MAP = {
@@ -230,7 +230,7 @@ CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
-CLASS_MAPPER["supermicro_usp_telnet"] = SmciSwitchUspTelnet
+CLASS_MAPPER["supermicro_nos_telnet"] = SmciSwitchNosTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
