@@ -178,9 +178,29 @@ keymile_nos:
   username: TEST
   password: TEST
 
+dlink_ds:
+  device_type: dlink_ds
+  ip: 192.168.50.10
+  username: admin
+  password: admin
+
+dlink_ds_telnet:
+  device_type: dlink_ds_telnet
+  ip: 192.168.50.10
+  username: admin
+  password: admin
+
 ruijie_os:
   device_type: ruijie_os
   ip: 1.1.1.1
   username: ruijie
   password: ruijie
   secret: ruijie
+
+sophos_sfos:
+  device_type: sophos_sfos
+  ip: 172.16.16.16
+  username: admin
+  password: admin
+
+

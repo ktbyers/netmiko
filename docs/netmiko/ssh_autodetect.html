@@ -264,6 +264,8 @@ class SSHDetect(object):
         &#34;&#34;&#34;
         if kwargs[&#34;device_type&#34;] != &#34;autodetect&#34;:
             raise ValueError(&#34;The connection device_type must be &#39;autodetect&#39;&#34;)
+        # Always set cmd_verify to False for autodetect
+        kwargs[&#34;global_cmd_verify&#34;] = False
         self.connection = ConnectHandler(*args, **kwargs)
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
@@ -463,6 +465,8 @@ Try to determine the device type.</p>
         &#34;&#34;&#34;
         if kwargs[&#34;device_type&#34;] != &#34;autodetect&#34;:
             raise ValueError(&#34;The connection device_type must be &#39;autodetect&#39;&#34;)
+        # Always set cmd_verify to False for autodetect
+        kwargs[&#34;global_cmd_verify&#34;] = False
         self.connection = ConnectHandler(*args, **kwargs)
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)

@@ -46,7 +46,7 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
 <dl>
 <dt id="netmiko.huawei.HuaweiSSH"><code class="flex name class">
 <span>class <span class="ident">HuaweiSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Huawei SSH driver.</p>
@@ -170,6 +170,11 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -254,7 +259,7 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.session_preparation" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.set_base_prompt" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
-<li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
+<li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_ansi_escape_codes" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
@@ -266,7 +271,7 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
 </dd>
 <dt id="netmiko.huawei.HuaweiTelnet"><code class="flex name class">
 <span>class <span class="ident">HuaweiTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Huawei Telnet driver.</p>
@@ -390,6 +395,11 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -418,26 +428,21 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
         i = 1
         while i &lt;= max_loops:
             try:
-                output = self.read_channel()
-                return_msg += output
-
                 # Search for username pattern / send username
-                if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
+                output = self.read_until_pattern(
+                    pattern=username_pattern, re_flags=re.I
+                )
+                return_msg += output
+                self.write_channel(self.username + self.TELNET_RETURN)
 
                 # Search for password pattern / send password
-                if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                        return return_msg
+                output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+                return_msg += output
+                self.write_channel(self.password + self.TELNET_RETURN)
+
+                # Waiting for combined output
+                output = self.read_until_pattern(pattern=combined_pattern)
+                return_msg += output
 
                 # Search for password change prompt, send &#34;N&#34;
                 if re.search(password_change_prompt, output):
@@ -511,26 +516,21 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
     i = 1
     while i &lt;= max_loops:
         try:
-            output = self.read_channel()
-            return_msg += output
-
             # Search for username pattern / send username
-            if re.search(username_pattern, output, flags=re.I):
-                self.write_channel(self.username + self.TELNET_RETURN)
-                time.sleep(1 * delay_factor)
-                output = self.read_channel()
-                return_msg += output
+            output = self.read_until_pattern(
+                pattern=username_pattern, re_flags=re.I
+            )
+            return_msg += output
+            self.write_channel(self.username + self.TELNET_RETURN)
 
             # Search for password pattern / send password
-            if re.search(pwd_pattern, output, flags=re.I):
-                self.write_channel(self.password + self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                output = self.read_channel()
-                return_msg += output
-                if re.search(
-                    pri_prompt_terminator, output, flags=re.M
-                ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                    return return_msg
+            output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+            return_msg += output
+            self.write_channel(self.password + self.TELNET_RETURN)
+
+            # Waiting for combined output
+            output = self.read_until_pattern(pattern=combined_pattern)
+            return_msg += output
 
             # Search for password change prompt, send &#34;N&#34;
             if re.search(password_change_prompt, output):
@@ -607,7 +607,7 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.set_base_prompt" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
-<li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
+<li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_ansi_escape_codes" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
@@ -618,7 +618,7 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
 </dd>
 <dt id="netmiko.huawei.HuaweiVrpv8SSH"><code class="flex name class">
 <span>class <span class="ident">HuaweiVrpv8SSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Huawei SSH driver.</p>
@@ -742,6 +742,11 @@ __all__ = [&#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&#34;, &#34;HuaweiTelnet&#34;
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -890,7 +895,7 @@ command_string = commit comment <comment></p></section>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.set_base_prompt" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.special_login_handler" href="huawei.html#netmiko.huawei.huawei.HuaweiSSH.special_login_handler">special_login_handler</a></code></li>
-<li><code><a title="netmiko.huawei.huawei.HuaweiSSH.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
+<li><code><a title="netmiko.huawei.huawei.HuaweiSSH.strip_ansi_escape_codes" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
