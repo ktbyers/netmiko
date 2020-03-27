@@ -32,10 +32,10 @@ class SmciSwitchNosBase(CiscoBaseConnection):
     ):
         """Save Config"""
         return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+            cmd="write startup-config",
+            confirm=confirm,
+            confirm_response=confirm_response,
         )
-
-    pass
 
 
 class SmciSwitchNosSSH(SmciSwitchNosBase):

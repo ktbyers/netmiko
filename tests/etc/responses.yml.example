@@ -250,7 +250,7 @@ ruijie_os:
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
 
-supermicro_usp:
+supermicro_nos:
   base_prompt: SMIS
   router_prompt: SMIS>
   enable_prompt: SMIS#

@@ -197,8 +197,8 @@ ruijie_os:
   password: ruijie
   secret: ruijie
 
-supermicro_usp:
-  device_type: supermicro_usp
+supermicro_nos:
+  device_type: supermicro_nos
   ip: 192.168.10.15
   username: ADMIN
   password: ADMIN
