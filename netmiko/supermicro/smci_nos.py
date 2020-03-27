@@ -30,9 +30,9 @@ class SmciSwitchNosBase(CiscoBaseConnection):
     def save_config(
         self, cmd="write startup-config", confirm=False, confirm_response="[OK]"
     ):
-        """Save Config"""
+        """Save config"""
         return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response,
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
 
