@@ -265,3 +265,11 @@ huawei_olt_telnet:
   version_banner: "Uptime is"
   multiple_line_output: "Uptime is"
   interface_ip: "Uptime is"
+
+huawei_olt:
+  base_prompt: MA5608T_10.210.0.12
+  router_prompt: MA5608T_10.210.0.12>
+  enable_prompt: MA5608T_10.210.0.12#
+  version_banner: "Uptime is"
+  multiple_line_output: "Uptime is"
+  interface_ip: "Uptime is"

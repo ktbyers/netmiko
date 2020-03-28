@@ -323,3 +323,11 @@ huawei_olt_telnet:
     - "syslog enable alarm-event"
   config_verification: "display current-configuration | include syslog"
   extended_output: "display version"   # requires paging to be disabled
+
+huawei_olt:
+  version: "display version"
+  basic: "display version"
+  config:
+    - "syslog enable alarm-event"
+  config_verification: "display current-configuration | include syslog"
+  extended_output: "display version"   # requires paging to be disabled

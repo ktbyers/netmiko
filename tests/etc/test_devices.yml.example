@@ -208,3 +208,9 @@ huawei_olt_telnet:
   ip: 10.210.0.12
   username: admin
   password: admin
+
+huawei_olt:
+  device_type: huawei_olt
+  ip: 10.210.0.12
+  username: admin
+  password: admin
