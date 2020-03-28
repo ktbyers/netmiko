@@ -263,8 +263,7 @@ class HuaweiOLTTelnet(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def cleanup(self):
+    def cleanup(self, command="quit"):
         """Return paging before disconnect"""
-        self.send_command_timing("return")
         self.send_command_timing("undo scroll")
         return super().cleanup()
