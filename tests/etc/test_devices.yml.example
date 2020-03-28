@@ -203,4 +203,8 @@ sophos_sfos:
   username: admin
   password: admin
 
-
+huawei_smartax:
+  device_type: huawei_smartax
+  ip: 192.0.2.1
+  username: TEST
+  password: TEST
