@@ -320,3 +320,11 @@ adtran_os
   version: "show version"
   basic: "show system-management-evc"
   extended_output: "show version"
+
+huawei_smartax:
+  version: "display version"
+  basic: "display system sys-info"
+  extended_output: "display version"
+  config:
+    - acl 2456
+  config_verification: "display current-configuration | include acl 2456"

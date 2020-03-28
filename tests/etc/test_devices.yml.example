@@ -208,3 +208,9 @@ adtran_os:
   ip: 192.0.2.1
   username: adtran
   password: adtran
+
+huawei_smartax:
+  device_type: huawei_smartax
+  ip: 192.0.2.1
+  username: TEST
+  password: TEST
