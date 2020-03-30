@@ -268,3 +268,11 @@ sophos_sfos:
   interface_ip: 172.16.16.16
   version_banner: "Serial Number"
   multiple_line_output: ""
+
+huawei_smartax:
+  base_prompt: "ol01.test-lab.xyz"
+  router_prompt: "ol01.test-lab.xyz>"
+  enable_prompt: "ol01.test-lab.xyz#"
+  interface_ip: 192.0.2.1
+  version_banner: "VERSION :"
+  multiple_line_output: ""

@@ -29,6 +29,7 @@ import sys
 import io
 import os
 from pathlib import Path
+import functools
 import serial.tools.list_ports
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
@@ -358,7 +359,19 @@ def get_structured_data_genie(raw_output, platform, command):
         parsed_output = device.parse(command, output=raw_output)
         return parsed_output
     except Exception:
-        return raw_output</code></pre>
+        return raw_output
+
+
+def select_cmd_verify(func):
+    &#34;&#34;&#34;Override function cmd_verify argument with global setting.&#34;&#34;&#34;
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args, **kwargs):
+        if self.global_cmd_verify is not None:
+            kwargs[&#34;cmd_verify&#34;] = self.global_cmd_verify
+        return func(self, *args, **kwargs)
+
+    return wrapper_decorator</code></pre>
 </details>
 </section>
 <section>
@@ -706,6 +719,25 @@ directory.&#34;&#34;&#34;
     return f&#34;{netmiko_full_dir}/{device_name}.txt&#34;</code></pre>
 </details>
 </dd>
+<dt id="netmiko.utilities.select_cmd_verify"><code class="name flex">
+<span>def <span class="ident">select_cmd_verify</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Override function cmd_verify argument with global setting.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def select_cmd_verify(func):
+    &#34;&#34;&#34;Override function cmd_verify argument with global setting.&#34;&#34;&#34;
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args, **kwargs):
+        if self.global_cmd_verify is not None:
+            kwargs[&#34;cmd_verify&#34;] = self.global_cmd_verify
+        return func(self, *args, **kwargs)
+
+    return wrapper_decorator</code></pre>
+</details>
+</dd>
 <dt id="netmiko.utilities.write_bytes"><code class="name flex">
 <span>def <span class="ident">write_bytes</span></span>(<span>out_data, encoding='ascii')</span>
 </code></dt>
@@ -774,6 +806,7 @@ directory.&#34;&#34;&#34;
 <li><code><a title="netmiko.utilities.load_yaml_file" href="#netmiko.utilities.load_yaml_file">load_yaml_file</a></code></li>
 <li><code><a title="netmiko.utilities.obtain_all_devices" href="#netmiko.utilities.obtain_all_devices">obtain_all_devices</a></code></li>
 <li><code><a title="netmiko.utilities.obtain_netmiko_filename" href="#netmiko.utilities.obtain_netmiko_filename">obtain_netmiko_filename</a></code></li>
+<li><code><a title="netmiko.utilities.select_cmd_verify" href="#netmiko.utilities.select_cmd_verify">select_cmd_verify</a></code></li>
 <li><code><a title="netmiko.utilities.write_bytes" href="#netmiko.utilities.write_bytes">write_bytes</a></code></li>
 <li><code><a title="netmiko.utilities.write_tmp_file" href="#netmiko.utilities.write_tmp_file">write_tmp_file</a></code></li>
 </ul>

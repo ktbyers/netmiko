@@ -328,3 +328,11 @@ sophos_sfos:
   version: "system diagnostics show version-info"
   basic: "system diagnostics utilities route lookup 172.16.16.16"
   extended_output: "system diagnostics show version-info"
+
+huawei_smartax:
+  version: "display version"
+  basic: "display system sys-info"
+  extended_output: "display version"
+  config:
+    - acl 2456
+  config_verification: "display current-configuration | include acl 2456"
