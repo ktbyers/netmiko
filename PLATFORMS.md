@@ -29,6 +29,8 @@
 - Extreme MLX/NetIron (Brocade/Foundry)
 - HPE Comware7
 - Huawei
+- Huawei OLT
+- Huawei SmartAX
 - IP Infusion OcNOS
 - Juniper ScreenOS
 - Mellanox
