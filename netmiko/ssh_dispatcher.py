@@ -142,6 +142,7 @@ CLASS_MAPPER_BASE = {
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
     "huawei_smartax": HuaweiSmartAXSSH,
+    "huawei_olt": HuaweiSmartAXSSH,
     "huawei_vrpv8": HuaweiVrpv8SSH,
     "ipinfusion_ocnos": IpInfusionOcNOSSSH,
     "juniper": JuniperSSH,
