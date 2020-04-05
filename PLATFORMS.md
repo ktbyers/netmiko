@@ -73,5 +73,6 @@
 - QuantaMesh
 - Rad ETX
 - Sophos SFOS
+- Ubiquiti Unifi Switch
 - Versa Networks FlexVNF
 - Watchguard Firebox

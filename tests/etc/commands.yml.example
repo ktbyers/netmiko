@@ -137,6 +137,16 @@ ubiquiti_edge:
     - "logging persistent 4"
   config_verification: "show running-config | include 'logging'"
 
+ubiquiti_unifiswitch:
+  version: "show version"
+  basic: "show network"
+  extended_output: "show running-config"
+  config:
+    - "logging persistent 3"
+    - "no logging persistent"
+    - "logging persistent 4"
+  config_verification: "show running-config | include 'logging'"
+
 dellos10:
   version: "show version"
   basic: "show ip interface brief"
