@@ -89,7 +89,7 @@ ubiquiti_edge:
   cmd_response_init: ""
   cmd_response_final: "logging persistent 4"
 
-ubiquiti_unifi:
+ubiquiti_unifiswitch:
   base_prompt: "(UBNT) "
   router_prompt: "(UBNT) >"
   enable_prompt: "(UBNT) #"

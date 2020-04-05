@@ -137,7 +137,7 @@ ubiquiti_edge:
     - "logging persistent 4"
   config_verification: "show running-config | include 'logging'"
 
-ubiquiti_unifi:
+ubiquiti_unifiswitch:
   version: "show version"
   basic: "show network"
   extended_output: "show running-config"
