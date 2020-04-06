@@ -225,6 +225,7 @@ CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
 CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
+CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
