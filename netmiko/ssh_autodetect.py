@@ -167,6 +167,11 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cisco_wlc": {
+        "dispatch": "_autodetect_remote_version",
+        "search_patterns": [r"CISCO_WLC"],
+        "priority": 99,
+    },
 }
 
 
@@ -287,6 +292,42 @@ class SSHDetect(object):
             return response
         else:
             return cached_results
+
+    def _autodetect_remote_version(
+        self, search_patterns=None, re_flags=re.I, priority=99
+    ):
+        """
+        Method to try auto-detect the device type, by matching a regular expression on the reported
+        remote version of the SSH server.
+
+        Parameters
+        ----------
+        search_patterns : list
+            A list of regular expression to look for in the reported remote SSH version
+            (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression (default: re.I).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        """
+        invalid_responses = [r"^$"]
+
+        if not search_patterns:
+            return 0
+
+        try:
+            remote_version = self.connection.remote_conn.transport.remote_version
+            for pattern in invalid_responses:
+                match = re.search(pattern, remote_version, flags=re.I)
+                if match:
+                    return 0
+            for pattern in search_patterns:
+                match = re.search(pattern, remote_version, flags=re_flags)
+                if match:
+                    return priority
+        except Exception:
+            return 0
+        return 0
 
     def _autodetect_std(self, cmd="", search_patterns=None, re_flags=re.I, priority=99):
         """
