@@ -870,18 +870,16 @@ class BaseConnection(object):
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, width=None, height=None):
+    def establish_connection(self, width=511, height=1000):
         """Establish SSH connection to the network device
 
         Timeout will generate a NetmikoTimeoutException
         Authentication failure will generate a NetmikoAuthenticationException
 
-        width and height are needed for Fortinet paging setting.
-
-        :param width: Specified width of the VT100 terminal window
+        :param width: Specified width of the VT100 terminal window (default: 511)
         :type width: int
 
-        :param height: Specified height of the VT100 terminal window
+        :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         """
         if self.protocol == "telnet":
@@ -917,12 +915,9 @@ class BaseConnection(object):
                 print(f"SSH connection established to {self.host}:{self.port}")
 
             # Use invoke_shell to establish an 'interactive session'
-            if width and height:
-                self.remote_conn = self.remote_conn_pre.invoke_shell(
-                    term="vt100", width=width, height=height
-                )
-            else:
-                self.remote_conn = self.remote_conn_pre.invoke_shell()
+            self.remote_conn = self.remote_conn_pre.invoke_shell(
+                term="vt100", width=width, height=height
+            )
 
             self.remote_conn.settimeout(self.blocking_timeout)
             if self.keepalive:
