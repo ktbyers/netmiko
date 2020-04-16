@@ -124,8 +124,7 @@ class NokiaSrosSSH(BaseConnection):
             log.info("Apply uncommitted changes!")
             cmd = "commit"
             self.write_channel(self.normalize_cmd(cmd))
-            output += self.read_until_pattern(pattern=re.escape(cmd))
-            output += self.read_until_pattern(r"@")
+            output += self.read_until_pattern(pattern="^(ex)[]$")
         return output
 
     def _exit_all(self):
