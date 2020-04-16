@@ -33,3 +33,9 @@ class ArubaSSH(CiscoSSHConnection):
         if not pattern:
             pattern = re.escape(self.base_prompt[:16])
         return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def config_mode(self, config_command="configure term", pattern=""):
+        """
+        Aruba auto completes on space so 'configure' needs fully spelled-out.
+        """
+        return super().config_mode(config_command=config_command, pattern=pattern)

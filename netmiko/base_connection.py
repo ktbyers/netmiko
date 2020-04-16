@@ -1028,7 +1028,10 @@ class BaseConnection(object):
         log.debug(f"Command: {command}")
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
         return output
@@ -1051,7 +1054,10 @@ class BaseConnection(object):
         command = self.normalize_cmd(command)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -1618,7 +1624,10 @@ class BaseConnection(object):
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+            if self.global_cmd_verify:
+                output += self.read_until_pattern(
+                    pattern=re.escape(config_command.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
@@ -1638,7 +1647,10 @@ class BaseConnection(object):
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+            if self.global_cmd_verify:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():

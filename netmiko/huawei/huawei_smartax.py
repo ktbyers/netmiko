@@ -43,7 +43,10 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         log.debug("In disable_smart_interaction")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_smart_interaction")
 
