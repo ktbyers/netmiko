@@ -1023,7 +1023,7 @@ class BaseConnection(object):
         log.debug(f"Command: {command}")
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify:
+        if self.global_cmd_verify is not False:
             output = self.read_until_pattern(pattern=re.escape(command.strip()))
         else:
             output = self.read_until_prompt()
@@ -1049,7 +1049,7 @@ class BaseConnection(object):
         command = self.normalize_cmd(command)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify:
+        if self.global_cmd_verify is not False:
             output = self.read_until_pattern(pattern=re.escape(command.strip()))
         else:
             output = self.read_until_prompt()
@@ -1619,7 +1619,7 @@ class BaseConnection(object):
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            if self.global_cmd_verify:
+            if self.global_cmd_verify is not False:
                 output += self.read_until_pattern(
                     pattern=re.escape(config_command.strip())
                 )
@@ -1642,7 +1642,7 @@ class BaseConnection(object):
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            if self.global_cmd_verify:
+            if self.global_cmd_verify is not False:
                 output += self.read_until_pattern(
                     pattern=re.escape(exit_config.strip())
                 )
