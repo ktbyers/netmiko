@@ -127,7 +127,8 @@ class NokiaSrosSSH(BaseConnection):
             self.write_channel(self.normalize_cmd(cmd))
             if self.global_cmd_verify:
                 output += self.read_until_pattern(pattern=re.escape(cmd))
-            output += self.read_until_pattern(r"@")
+            if "@" not in output:
+                output += self.read_until_pattern(r"@")
         return output
 
     def _exit_all(self):
