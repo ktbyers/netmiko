@@ -10,6 +10,9 @@ class ArubaSSH(CiscoSSHConnection):
     def __init__(self, **kwargs):
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r"
+        # Aruba has an auto-complete on space behavior that is problematic
+        if kwargs.get("global_cmd_verify") is None:
+            kwargs["global_cmd_verify"] = False
         return super().__init__(**kwargs)
 
     def session_preparation(self):
