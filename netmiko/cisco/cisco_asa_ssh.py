@@ -22,6 +22,9 @@ class CiscoAsaSSH(CiscoSSHConnection):
             except ValueError:
                 # Don't fail for the terminal width
                 pass
+        else:
+            # Disable cmd_verify if the terminal width can't be set
+            self.global_cmd_verify = False
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
