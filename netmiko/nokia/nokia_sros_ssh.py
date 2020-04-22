@@ -218,7 +218,6 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         if "@" in self.ssh_ctl_chan.base_prompt:
             self.ssh_ctl_chan.send_command("//environment no more")
             remote_cmd = "//" + remote_cmd
-        print(remote_cmd, self.direction, self.dest_file)
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
 
         if "File Not Found" in remote_out:
