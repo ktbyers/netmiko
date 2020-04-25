@@ -18,6 +18,12 @@ try:
 except ImportError:
     GENIE_INSTALLED = False
 
+try:
+    import importlib.resources as importlib_resources
+except ImportError:
+    # Handle Python < 3.7
+    import importlib_resources
+
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
     "juniper": "show configuration",
@@ -208,27 +214,59 @@ def check_serial_port(name):
         raise ValueError(msg)
 
 
-def get_template_dir():
-    """Find and return the ntc-templates/templates dir."""
-    try:
-        template_dir = os.path.expanduser(os.environ["NET_TEXTFSM"])
-        index = os.path.join(template_dir, "index")
-        if not os.path.isfile(index):
-            # Assume only base ./ntc-templates specified
-            template_dir = os.path.join(template_dir, "templates")
-    except KeyError:
-        # Construct path ~/ntc-templates/templates
-        home_dir = os.path.expanduser("~")
-        template_dir = os.path.join(home_dir, "ntc-templates", "templates")
+def get_template_path() -> Path:
+    """
+    Find and return the ntc-templates/templates dir.
 
-    index = os.path.join(template_dir, "index")
-    if not os.path.isdir(template_dir) or not os.path.isfile(index):
-        msg = """
-Valid ntc-templates not found, please install https://github.com/networktocode/ntc-templates
-and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
-directory."""
+    Order of preference is:
+        1) Find directory in `NET_TEXTFSM` Environment Variable
+        2) Check for pip installed `ntc-templates` location in this environment
+        3) ~/ntc-templates/templates
+
+    If `index` file is not found in any of these locations, will raise a ValueError
+
+    :return: An instantiated pathlib.Path object for the ntc-templates/templates directory
+    """
+
+    msg = (
+        "Valid ntc-templates directory not found, please install via `pip install ntc-templates` and retry."
+        "\nYou may also download the templates directly (https://github.com/networktocode/ntc-templates)"
+        " and then set the NET_TEXTFSM environment variable to point to your './ntc-templates/templates' directory."
+    )
+
+    # First check for `NET_TEXTFSM` environment variable to be set to a non-empty string
+    ntc_templates_env_var = os.environ.get("NET_TEXTFSM") or None
+    if ntc_templates_env_var is not None:
+        template_path = Path(ntc_templates_env_var).expanduser()
+        if not _ntc_template_index_exists(template_path=template_path):
+            # Assume only base ./ntc-templates specified
+            template_path = Path(template_path / "templates")
+
+    else:
+        # Next try and pull path from local python environment if ntc-templates were installed by pip
+        try:
+            with importlib_resources.path(package="ntc_templates", resource="templates") as p:
+                template_path = Path(str(p))
+                # Example path: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
+        except ModuleNotFoundError:
+            # Finally if we can't find the pip installed `ntc-templates`, check in ~/ntc-templates/templates
+            template_path = Path("~/ntc-templates/templates").expanduser()
+
+    if not template_path.is_dir() or not _ntc_template_index_exists(template_path=template_path):
         raise ValueError(msg)
-    return os.path.abspath(template_dir)
+    return template_path
+
+
+def _ntc_template_index_exists(template_path: Path) -> bool:
+    """
+    Check for `index` file in specified ntc-templates directory (in form of an instantiated pathilb.Path object)
+    :param template_path:
+    :return: True if `index` file exits, False if it does not
+    """
+    index = Path(template_path / "index")
+    if index.is_file():
+        return True
+    return False
 
 
 def clitable_to_dict(cli_table):
@@ -271,22 +309,18 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
 
     if template is None:
         if attrs == {}:
-            raise ValueError(
-                "Either 'platform/command' or 'template' must be specified."
-            )
-        template_dir = get_template_dir()
-        index_file = os.path.join(template_dir, "index")
-        textfsm_obj = clitable.CliTable(index_file, template_dir)
+            raise ValueError("Either 'platform/command' or 'template' must be specified.")
+        template_path = get_template_path()
+        index_file_path = Path(template_path / "index")
+        textfsm_obj = clitable.CliTable(str(index_file_path), str(template_path))
         return _textfsm_parse(textfsm_obj, raw_output, attrs)
     else:
-        template_path = Path(os.path.expanduser(template))
-        template_file = template_path.name
-        template_dir = template_path.parents[0]
+        template_file_path = Path(template).expanduser()
+        template_path = template_file_path.parent
+
         # CliTable with no index will fall-back to a TextFSM parsing behavior
-        textfsm_obj = clitable.CliTable(template_dir=template_dir)
-        return _textfsm_parse(
-            textfsm_obj, raw_output, attrs, template_file=template_file
-        )
+        textfsm_obj = clitable.CliTable(template_dir=str(template_path))
+        return _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=str(template_file_path))
 
 
 def get_structured_data_genie(raw_output, platform, command):
