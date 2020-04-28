@@ -18,11 +18,24 @@ try:
 except ImportError:
     GENIE_INSTALLED = False
 
+# If we are on python < 3.7, we need to force the import of importlib.resources backport
 try:
-    import importlib.resources as importlib_resources
-except ImportError:
-    # Handle Python < 3.7
-    import importlib_resources
+    # First check if `importlib.resources` exists
+    import importlib.resources as _  # noqa
+except ModuleNotFoundError:
+    # If it does not, we need to pull in the backport `importlib_resources`
+    import importlib_resources as _importlib_resources
+
+    # Import `sys` and `importlib` so we can push `importlib_resources` into them
+    import sys as _sys
+    import importlib as _importlib
+
+    _importlib.resources = _importlib_resources
+
+    # Push `importlib_resources` backport into the namespace as `importlib.resources`
+    _sys.modules["importlib.resources"] = _importlib_resources
+# Finally do the actual import
+import importlib.resources
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -247,7 +260,7 @@ def get_template_path() -> Path:
     else:
         # Next try from local python environment if ntc-templates were installed by pip
         try:
-            with importlib_resources.path(
+            with importlib.resources.path(
                 package="ntc_templates", resource="templates"
             ) as p:
                 template_path = Path(str(p))
