@@ -334,7 +334,7 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
             )
         template_path = get_template_path()
         index_file_path = Path(template_path / "index")
-        textfsm_obj = clitable.CliTable(str(index_file_path), str(template_path))
+        textfsm_obj = clitable.CliTable(str(index_file_path.name), str(template_path))
         return _textfsm_parse(textfsm_obj, raw_output, attrs)
     else:
         template_file_path = Path(template).expanduser()
