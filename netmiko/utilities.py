@@ -20,8 +20,8 @@ except ImportError:
 
 # If we are on python < 3.7, we need to force the import of importlib.resources backport
 try:
-    # First check if `importlib.resources` exists
-    import importlib.resources as _  # noqa
+    # First check if `importlib.resources` exists and try to import that
+    import importlib.resources
 except ModuleNotFoundError:
     # If it does not, we need to pull in the backport `importlib_resources`
     import importlib_resources as _importlib_resources
@@ -34,8 +34,8 @@ except ModuleNotFoundError:
 
     # Push `importlib_resources` backport into the namespace as `importlib.resources`
     _sys.modules["importlib.resources"] = _importlib_resources
-# Finally do the actual import
-import importlib.resources
+    # Finally do the actual import now that we've fixed the sys.modules namespace
+    import importlib.resources
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
