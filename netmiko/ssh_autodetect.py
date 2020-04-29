@@ -163,6 +163,7 @@ SSH_MAPPER_DICT = {
         "search_patterns": [
             r"Dell Application Software Version:  9",
             r"Dell Networking OS Version : 9",
+            r"Dell EMC Networking OS Version : 9"
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
