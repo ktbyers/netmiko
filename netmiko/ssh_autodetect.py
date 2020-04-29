@@ -105,9 +105,24 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "dell_os9": {
+        "cmd": "show system",
+        "search_patterns": [
+            r"Dell Application Software Version:  9",
+            r"Dell Networking OS Version : 9",
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "dell_os10": {
         "cmd": "show version",
         "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "dell_powerconnect": {
+        "cmd": "show system",
+        "search_patterns": [r"PowerConnect"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -171,6 +186,12 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_remote_version",
         "search_patterns": [r"CISCO_WLC"],
         "priority": 99,
+    },
+    "mellanox_mlnxos": {
+        "cmd": "show version",
+        "search_patterns": [r"Onyx", r"SX_PPC_M460EX"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
     },
 }
 
