@@ -18,6 +18,25 @@ try:
 except ImportError:
     GENIE_INSTALLED = False
 
+# If we are on python < 3.7, we need to force the import of importlib.resources backport
+try:
+    # First check if `importlib.resources` exists and try to import that
+    import importlib.resources
+except ModuleNotFoundError:
+    # If it does not, we need to pull in the backport `importlib_resources`
+    import importlib_resources as _importlib_resources
+
+    # Import `sys` and `importlib` so we can push `importlib_resources` into them
+    import sys as _sys
+    import importlib as _importlib
+
+    _importlib.resources = _importlib_resources
+
+    # Push `importlib_resources` backport into the namespace as `importlib.resources`
+    _sys.modules["importlib.resources"] = _importlib_resources
+    # Finally do the actual import now that we've fixed the sys.modules namespace
+    import importlib.resources
+
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
     "juniper": "show configuration",
@@ -101,8 +120,8 @@ def find_cfg_file(file_name=None):
         if files:
             return files[0]
     raise IOError(
-        ".netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current "
-        "directory, or home directory."
+        ".netmiko.yml file not found in NETMIKO_TOOLS environment variable directory,"
+        " current directory, or home directory."
     )
 
 
@@ -208,27 +227,66 @@ def check_serial_port(name):
         raise ValueError(msg)
 
 
-def get_template_dir():
-    """Find and return the ntc-templates/templates dir."""
-    try:
-        template_dir = os.path.expanduser(os.environ["NET_TEXTFSM"])
-        index = os.path.join(template_dir, "index")
-        if not os.path.isfile(index):
-            # Assume only base ./ntc-templates specified
-            template_dir = os.path.join(template_dir, "templates")
-    except KeyError:
-        # Construct path ~/ntc-templates/templates
-        home_dir = os.path.expanduser("~")
-        template_dir = os.path.join(home_dir, "ntc-templates", "templates")
+def get_template_path() -> Path:
+    """
+    Find and return the ntc-templates/templates dir.
 
-    index = os.path.join(template_dir, "index")
-    if not os.path.isdir(template_dir) or not os.path.isfile(index):
-        msg = """
-Valid ntc-templates not found, please install https://github.com/networktocode/ntc-templates
-and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
-directory."""
+    Order of preference is:
+        1) Find directory in `NET_TEXTFSM` Environment Variable
+        2) Check for pip installed `ntc-templates` location in this environment
+        3) ~/ntc-templates/templates
+
+    If `index` file is not found in any of these locations, will raise a ValueError
+
+    :return: Instantiated pathlib.Path object for the ntc-templates/templates directory
+    """
+
+    msg = (
+        "Valid ntc-templates directory not found, please install via"
+        " `pip install ntc-templates` and retry."
+        "\nYou may also download the templates directly"
+        " (https://github.com/networktocode/ntc-templates) and then set the NET_TEXTFSM"
+        " environment variable to point to your './ntc-templates/templates' directory."
+    )
+
+    # First check for `NET_TEXTFSM` environment variable to be set to a non-empty string
+    ntc_templates_env_var = os.environ.get("NET_TEXTFSM") or None
+    if ntc_templates_env_var is not None:
+        template_path = Path(ntc_templates_env_var).expanduser()
+        if not _ntc_template_index_exists(template_path=template_path):
+            # Assume only base ./ntc-templates specified
+            template_path = Path(template_path / "templates")
+
+    else:
+        # Next try from local python environment if ntc-templates were installed by pip
+        try:
+            with importlib.resources.path(
+                package="ntc_templates", resource="templates"
+            ) as p:
+                template_path = Path(str(p))
+        # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
+        except ModuleNotFoundError:
+            # Finally check in ~/ntc-templates/templates
+            template_path = Path("~/ntc-templates/templates").expanduser()
+
+    if not template_path.is_dir() or not _ntc_template_index_exists(
+        template_path=template_path
+    ):
         raise ValueError(msg)
-    return os.path.abspath(template_dir)
+    return template_path
+
+
+def _ntc_template_index_exists(template_path: Path) -> bool:
+    """
+    Check for `index` file in specified ntc-templates directory
+     (in form of an instantiated pathilb.Path object)
+    :param template_path:
+    :return: True if `index` file exits, False if it does not
+    """
+    index = Path(template_path / "index")
+    if index.is_file():
+        return True
+    return False
 
 
 def clitable_to_dict(cli_table):
@@ -261,8 +319,8 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
     """
     Convert raw CLI output to structured data using TextFSM template.
 
-    You can use a straight TextFSM file i.e. specify "template". If no template is specified,
-    then you must use an CliTable index file.
+    You can use a straight TextFSM file i.e. specify "template".
+    If no template is specified, then you must use an CliTable index file.
     """
     if platform is None or command is None:
         attrs = {}
@@ -274,18 +332,18 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
             raise ValueError(
                 "Either 'platform/command' or 'template' must be specified."
             )
-        template_dir = get_template_dir()
-        index_file = os.path.join(template_dir, "index")
-        textfsm_obj = clitable.CliTable(index_file, template_dir)
+        template_path = get_template_path()
+        index_file_path = Path(template_path / "index")
+        textfsm_obj = clitable.CliTable(str(index_file_path.name), str(template_path))
         return _textfsm_parse(textfsm_obj, raw_output, attrs)
     else:
-        template_path = Path(os.path.expanduser(template))
-        template_file = template_path.name
-        template_dir = template_path.parents[0]
+        template_file_path = Path(template).expanduser()
+        template_path = template_file_path.parent
+
         # CliTable with no index will fall-back to a TextFSM parsing behavior
-        textfsm_obj = clitable.CliTable(template_dir=template_dir)
+        textfsm_obj = clitable.CliTable(template_dir=str(template_path))
         return _textfsm_parse(
-            textfsm_obj, raw_output, attrs, template_file=template_file
+            textfsm_obj, raw_output, attrs, template_file=str(template_file_path)
         )
 
 
@@ -295,7 +353,8 @@ def get_structured_data_genie(raw_output, platform, command):
 
     if not GENIE_INSTALLED:
         msg = (
-            "\nGenie and PyATS are not installed. Please PIP install both Genie and PyATS:\n"
+            "\nGenie and PyATS are not installed."
+            " Please PIP install both Genie and PyATS:\n"
             "pip install genie\npip install pyats\n"
         )
         raise ValueError(msg)
@@ -329,7 +388,7 @@ def get_structured_data_genie(raw_output, platform, command):
     device.custom["abstraction"]["order"] = ["os"]
     device.cli = AttrDict({"execute": None})
     try:
-        # Test of whether their is a parser for the given command (will return Exception if fails)
+        # Test whether there is a parser for given command (return Exception if fails)
         get_parser(command, device)
         parsed_output = device.parse(command, output=raw_output)
         return parsed_output
