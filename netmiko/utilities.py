@@ -20,22 +20,10 @@ except ImportError:
 
 # If we are on python < 3.7, we need to force the import of importlib.resources backport
 try:
-    # First check if `importlib.resources` exists and try to import that
-    import importlib.resources
+    from importlib.resources import path as importresources_path
 except ModuleNotFoundError:
-    # If it does not, we need to pull in the backport `importlib_resources`
-    import importlib_resources as _importlib_resources
+    from importlib_resources import path as importresources_path
 
-    # Import `sys` and `importlib` so we can push `importlib_resources` into them
-    import sys as _sys
-    import importlib as _importlib
-
-    _importlib.resources = _importlib_resources
-
-    # Push `importlib_resources` backport into the namespace as `importlib.resources`
-    _sys.modules["importlib.resources"] = _importlib_resources
-    # Finally do the actual import now that we've fixed the sys.modules namespace
-    import importlib.resources
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -241,15 +229,18 @@ def get_template_path() -> Path:
     :return: Instantiated pathlib.Path object for the ntc-templates/templates directory
     """
 
-    msg = (
-        "Valid ntc-templates directory not found, please install via"
-        " `pip install ntc-templates` and retry."
-        "\nYou may also download the templates directly"
-        " (https://github.com/networktocode/ntc-templates) and then set the NET_TEXTFSM"
-        " environment variable to point to your './ntc-templates/templates' directory."
-    )
+    msg = """
+Valid ntc-templates directory not found, please install via `pip install ntc-templates` and retry.
 
-    # First check for `NET_TEXTFSM` environment variable to be set to a non-empty string
+You may also download the templates directly using:
+
+git clone https://github.com/networktocode/ntc-templates
+
+And then set the NET_TEXTFSM" environment variable to point to your './ntc-templates/templates'
+directory.
+"""
+
+    # First check for `NET_TEXTFSM` environment variable to be set to a non-empty string.
     ntc_templates_env_var = os.environ.get("NET_TEXTFSM") or None
     if ntc_templates_env_var is not None:
         template_path = Path(ntc_templates_env_var).expanduser()
@@ -258,9 +249,9 @@ def get_template_path() -> Path:
             template_path = Path(template_path / "templates")
 
     else:
-        # Next try from local python environment if ntc-templates were installed by pip
+        # Next see if ntc-templates was pip-installed.
         try:
-            with importlib.resources.path(
+            with importresources_path(
                 package="ntc_templates", resource="templates"
             ) as p:
                 template_path = Path(str(p))
