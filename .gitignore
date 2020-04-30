@@ -18,6 +18,7 @@ bin/.netmiko.cfg
 .vscode/*
 .idea/
 .venv/
+.devcontainer
 
 # Sphinx documentation
 docs/build/doctrees/
