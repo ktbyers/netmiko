@@ -25,6 +25,7 @@ bin/.netmiko.cfg
 bin/
 lib/
 pyvenv.cfg
+.devcontainer
 
 # Sphinx documentation
 docs/build/doctrees/
