@@ -242,7 +242,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         file_size = int(match.group(3))
         return file_size
 
-    def process_md5(md5_output, pattern=r"=\s+(\S+)"):
+    def process_md5(self, md5_output, pattern=r"=\s+(\S+)"):
         """ Nokia SROS does not support a md5sum calculation."""
         pass
 
