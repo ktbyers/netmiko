@@ -173,7 +173,7 @@ class NokiaSrosSSH(BaseConnection):
 
 
 class NokiaSrosFileTransfer(BaseFileTransfer):
-    def remote_space_available(self, search_pattern=r"\s+(\d+)\s+\w+\s+free"):
+    def remote_space_available(self, search_pattern=r"(\d+)\s+\w+\s+free"):
         """Return space available on remote device."""
 
         # Sample text for search_pattern.
