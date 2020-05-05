@@ -230,13 +230,13 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         # Parse dir output for filename. Output format is:
         # "10/16/2019  10:00p                6738 {filename}"
 
-        pattern = r"(\S+)\s+(\S+)\s+(\d+)\s+{}".format(re.escape(remote_file))
+        pattern = r"\S+\s+\S+\s+(\d+)\s+{}".format(re.escape(remote_file))
         match = re.search(pattern, remote_out)
 
         if not match:
             raise ValueError("Filename entry not found in dir output")
 
-        file_size = int(match.group(3))
+        file_size = int(match.group(1))
         return file_size
 
     def process_md5(self, md5_output, pattern=r"=\s+(\S+)"):
