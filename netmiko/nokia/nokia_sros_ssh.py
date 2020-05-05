@@ -173,17 +173,21 @@ class NokiaSrosSSH(BaseConnection):
 
 
 class NokiaSrosFileTransfer(BaseFileTransfer):
-    def remote_space_available(self, search_pattern=r"\s+(\d+)\s+\w+\s+free"):
+    def _get_cmd_prefix(self):
+        """
+        Returns "//" if the current prompt is MD-CLI
+        empty string otherwise
+        """
+        return "//" if "@" in self.ssh_ctl_chan.base_prompt else ""
+
+    def remote_space_available(self, search_pattern=r"(\d+)\s+\w+\s+free"):
         """Return space available on remote device."""
 
         # Sample text for search_pattern.
         # "               3 Dir(s)               961531904 bytes free."
-        remote_cmd = "file dir {}".format(self.file_system)
-        if "@" in self.ssh_ctl_chan.base_prompt:
-            self.ssh_ctl_chan.send_command("//environment no more")
-            remote_cmd = "//" + remote_cmd
+        self.ssh_ctl_chan.send_command(self._get_cmd_prefix() + "environment no more")
+        remote_cmd = self._get_cmd_prefix() + "file dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
-
         match = re.search(search_pattern, remote_output)
         return int(match.group(1))
 
@@ -191,10 +195,13 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         """Check if destination file exists (returns boolean)."""
 
         if self.direction == "put":
-            remote_cmd = "file dir {}/{}".format(self.file_system, self.dest_file)
-            if "@" in self.ssh_ctl_chan.base_prompt:
-                self.ssh_ctl_chan.send_command("//environment no more")
-                remote_cmd = "//" + remote_cmd
+            self.ssh_ctl_chan.send_command(
+                self._get_cmd_prefix() + "environment no more"
+            )
+            if not remote_cmd:
+                remote_cmd = self._get_cmd_prefix() + "file dir {}/{}".format(
+                    self.file_system, self.dest_file
+                )
             remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
             if "File Not Found" in remote_out:
                 return False
@@ -214,10 +221,10 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
         if not remote_cmd:
-            remote_cmd = "file dir {}/{}".format(self.file_system, remote_file)
-        if "@" in self.ssh_ctl_chan.base_prompt:
-            self.ssh_ctl_chan.send_command("//environment no more")
-            remote_cmd = "//" + remote_cmd
+            remote_cmd = self._get_cmd_prefix() + "file dir {}/{}".format(
+                self.file_system, remote_file
+            )
+        self.ssh_ctl_chan.send_command(self._get_cmd_prefix() + "environment no more")
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
 
         if "File Not Found" in remote_out:
@@ -235,7 +242,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         file_size = int(match.group(3))
         return file_size
 
-    def process_md5(md5_output, pattern=r"=\s+(\S+)"):
+    def process_md5(self, md5_output, pattern=r"=\s+(\S+)"):
         """ Nokia SROS does not support a md5sum calculation."""
         pass
 
