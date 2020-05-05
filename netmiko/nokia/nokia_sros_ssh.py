@@ -41,9 +41,11 @@ class NokiaSrosSSH(BaseConnection):
         # "@" indicates model-driven CLI (vs Classical CLI)
         if "@" in self.base_prompt:
             self.disable_paging(command="environment more false")
+            self.disable_paging(command="//environment no more")
             self.set_terminal_width(command="environment console width 512")
         else:
             self.disable_paging(command="environment no more")
+            self.disable_paging(command="//environment more false")
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -185,7 +187,6 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 
         # Sample text for search_pattern.
         # "               3 Dir(s)               961531904 bytes free."
-        self.ssh_ctl_chan.send_command(self._get_cmd_prefix() + "environment no more")
         remote_cmd = self._get_cmd_prefix() + "file dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
         match = re.search(search_pattern, remote_output)
@@ -195,9 +196,6 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         """Check if destination file exists (returns boolean)."""
 
         if self.direction == "put":
-            self.ssh_ctl_chan.send_command(
-                self._get_cmd_prefix() + "environment no more"
-            )
             if not remote_cmd:
                 remote_cmd = self._get_cmd_prefix() + "file dir {}/{}".format(
                     self.file_system, self.dest_file
@@ -224,7 +222,6 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
             remote_cmd = self._get_cmd_prefix() + "file dir {}/{}".format(
                 self.file_system, remote_file
             )
-        self.ssh_ctl_chan.send_command(self._get_cmd_prefix() + "environment no more")
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
 
         if "File Not Found" in remote_out:
