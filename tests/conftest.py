@@ -205,6 +205,18 @@ def delete_file_ciena_saos(ssh_conn, dest_file_system, dest_file):
     return output
 
 
+def delete_file_nokia_sros(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for a Nokia SR OS device."""
+    full_file_name = "{}/{}".format(dest_file_system, dest_file)
+    cmd = "file delete {} force".format(full_file_name)
+    cmd_prefix = ""
+    if "@" in ssh_conn.base_prompt:
+        cmd_prefix = "//"
+    ssh_conn.send_command(cmd_prefix + "environment no more")
+    output = ssh_conn.send_command_timing(cmd_prefix + cmd, strip_command=False, strip_prompt=False)
+    return output
+
+
 @pytest.fixture(scope="module")
 def scp_fixture(request):
     """
@@ -455,5 +467,10 @@ def get_platform_args():
             "file_system": "/tmp/users/ciena",
             "enable_scp": False,
             "delete_file": delete_file_ciena_saos,
+        },
+        "nokia_sros": {
+            "file_system": "cf3:",
+            "enable_scp": False,
+            "delete_file": delete_file_nokia_sros,
         },
     }
