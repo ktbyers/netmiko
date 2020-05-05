@@ -62,7 +62,7 @@ from netmiko.mellanox import MellanoxMlnxosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
-from netmiko.nokia import NokiaSrosSSH
+from netmiko.nokia import NokiaSrosSSH, NokiaSrosFileTransfer
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
@@ -189,6 +189,7 @@ FILE_TRANSFER_MAP = {
     "dell_os10": DellOS10FileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
+    "nokia_sros": NokiaSrosFileTransfer,
 }
 
 # Also support keys that end in _ssh
