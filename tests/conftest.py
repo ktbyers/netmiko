@@ -213,7 +213,9 @@ def delete_file_nokia_sros(ssh_conn, dest_file_system, dest_file):
     if "@" in ssh_conn.base_prompt:
         cmd_prefix = "//"
     ssh_conn.send_command(cmd_prefix + "environment no more")
-    output = ssh_conn.send_command_timing(cmd_prefix + cmd, strip_command=False, strip_prompt=False)
+    output = ssh_conn.send_command_timing(
+        cmd_prefix + cmd, strip_command=False, strip_prompt=False
+    )
     return output
 
 
