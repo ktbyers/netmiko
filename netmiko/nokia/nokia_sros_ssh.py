@@ -7,10 +7,12 @@
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
 
 import re
+import os
 import time
 
 from netmiko import log
 from netmiko.base_connection import BaseConnection
+from netmiko.scp_handler import BaseFileTransfer
 
 
 class NokiaSrosSSH(BaseConnection):
@@ -39,6 +41,8 @@ class NokiaSrosSSH(BaseConnection):
         # "@" indicates model-driven CLI (vs Classical CLI)
         if "@" in self.base_prompt:
             self.disable_paging(command="environment more false")
+            # To perform file operations we need to disable paging in classical-CLI also
+            self.disable_paging(command="//environment no more")
             self.set_terminal_width(command="environment console width 512")
         else:
             self.disable_paging(command="environment no more")
@@ -182,3 +186,101 @@ class NokiaSrosSSH(BaseConnection):
         # Always try to send final 'logout'.
         self._session_log_fin = True
         self.write_channel(command + self.RETURN)
+
+
+class NokiaSrosFileTransfer(BaseFileTransfer):
+    def __init__(
+        self, ssh_conn, source_file, dest_file, hash_supported=False, **kwargs
+    ):
+        super().__init__(
+            ssh_conn, source_file, dest_file, hash_supported=hash_supported, **kwargs
+        )
+
+    def _file_cmd_prefix(self):
+        """
+        Allow MD-CLI to execute file operations by using classical CLI.
+
+        Returns "//" if the current prompt is MD-CLI (empty string otherwise).
+        """
+        return "//" if "@" in self.ssh_ctl_chan.base_prompt else ""
+
+    def remote_space_available(self, search_pattern=r"(\d+)\s+\w+\s+free"):
+        """Return space available on remote device."""
+
+        # Sample text for search_pattern.
+        # "               3 Dir(s)               961531904 bytes free."
+        remote_cmd = self._file_cmd_prefix() + "file dir {}".format(self.file_system)
+        remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
+        match = re.search(search_pattern, remote_output)
+        return int(match.group(1))
+
+    def check_file_exists(self, remote_cmd=""):
+        """Check if destination file exists (returns boolean)."""
+
+        if self.direction == "put":
+            if not remote_cmd:
+                remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
+                    self.file_system, self.dest_file
+                )
+            remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+            if "File Not Found" in remote_out:
+                return False
+            elif self.dest_file in remote_out:
+                return True
+            else:
+                raise ValueError("Unexpected output from check_file_exists")
+        elif self.direction == "get":
+            return os.path.exists(self.dest_file)
+
+    def remote_file_size(self, remote_cmd=None, remote_file=None):
+        """Get the file size of the remote file."""
+
+        if remote_file is None:
+            if self.direction == "put":
+                remote_file = self.dest_file
+            elif self.direction == "get":
+                remote_file = self.source_file
+        if not remote_cmd:
+            remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
+                self.file_system, remote_file
+            )
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+
+        if "File Not Found" in remote_out:
+            raise IOError("Unable to find file on remote system")
+
+        # Parse dir output for filename. Output format is:
+        # "10/16/2019  10:00p                6738 {filename}"
+
+        pattern = r"\S+\s+\S+\s+(\d+)\s+{}".format(re.escape(remote_file))
+        match = re.search(pattern, remote_out)
+
+        if not match:
+            raise ValueError("Filename entry not found in dir output")
+
+        file_size = int(match.group(1))
+        return file_size
+
+    def verify_file(self):
+        """Verify the file has been transferred correctly based on filesize."""
+        if self.direction == "put":
+            return os.stat(self.source_file).st_size == self.remote_file_size(
+                remote_file=self.dest_file
+            )
+        elif self.direction == "get":
+            return (
+                self.remote_file_size(remote_file=self.source_file)
+                == os.stat(self.dest_file).st_size
+            )
+
+    def file_md5(self, **kwargs):
+        raise AttributeError("SR-OS does not support an MD5-hash operation.")
+
+    def process_md5(self, **kwargs):
+        raise AttributeError("SR-OS does not support an MD5-hash operation.")
+
+    def compare_md5(self, **kwargs):
+        raise AttributeError("SR-OS does not support an MD5-hash operation.")
+
+    def remote_md5(self, **kwargs):
+        raise AttributeError("SR-OS does not support an MD5-hash operation.")
