@@ -189,8 +189,15 @@ class NokiaSrosSSH(BaseConnection):
 
 
 class NokiaSrosFileTransfer(BaseFileTransfer):
-    def __init__(self, hash_supported=False, **kwargs):
-        super().__init__(self, hash_supported=hash_supported, **kwargs)
+    def __init__(
+        self, ssh_conn, source_file, dest_file, hash_supported=False, **kwargs
+    ):
+        import ipdb
+
+        ipdb.set_trace()
+        super().__init__(
+            ssh_conn, source_file, dest_file, hash_supported=hash_supported, **kwargs
+        )
 
     def _file_cmd_prefix(self):
         """
