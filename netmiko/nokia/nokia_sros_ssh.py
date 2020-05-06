@@ -189,6 +189,9 @@ class NokiaSrosSSH(BaseConnection):
 
 
 class NokiaSrosFileTransfer(BaseFileTransfer):
+    def __init__(self, hash_supported=False, **kwargs):
+        super().__init__(self, hash_supported=hash_supported, **kwargs)
+
     def _file_cmd_prefix(self):
         """
         Allow MD-CLI to execute file operations by using classical CLI.
@@ -254,10 +257,6 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         file_size = int(match.group(1))
         return file_size
 
-    def process_md5(self, md5_output, pattern=r"=\s+(\S+)"):
-        """ Nokia SROS does not support a md5sum calculation."""
-        raise ValueError("SR-OS does not support an MD5-hash operation.")
-
     def verify_file(self):
         """Verify the file has been transferred correctly based on filesize."""
         if self.direction == "put":
@@ -270,6 +269,14 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
                 == os.stat(self.dest_file).st_size
             )
 
-    def compare_md5(self):
-        """ Nokia SROS does not support a md5sum calculation."""
-        raise ValueError("SR-OS does not support an MD5-hash operation.")
+    def file_md5(self, **kwargs):
+        raise AttributeError("SR-OS does not support an MD5-hash operation.")
+
+    def process_md5(self, **kwargs):
+        raise AttributeError("SR-OS does not support an MD5-hash operation.")
+
+    def compare_md5(self, **kwargs):
+        raise AttributeError("SR-OS does not support an MD5-hash operation.")
+
+    def remote_md5(self, **kwargs):
+        raise AttributeError("SR-OS does not support an MD5-hash operation.")
