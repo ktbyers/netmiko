@@ -20,6 +20,7 @@ class YotcBase(CiscoBaseConnection):
         yotc has no disable_paging command, need to handle it in show command.
         cisco_wlc_ssh.py has similar function: send_command_w_enter().
         """
+        self.disable_paging("command max-lines 1000")
         prompt = self.find_prompt()
         more_str_re = f" --More-- \b\b\b\b\b\b\b\b\b\b          \
             \b\b\b\b\b\b\b\b\b\b\n?|(\n?{re.escape(prompt)} ?\n?)+"
@@ -64,7 +65,7 @@ class YotcBase(CiscoBaseConnection):
         self.set_base_prompt()
         self.enable()
         self.config_mode()
-        self.disable_paging("command max-lines 1000")
+        # self.disable_paging("command max-lines 1000")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
