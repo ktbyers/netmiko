@@ -109,7 +109,7 @@ class H3CTelnet(H3CBase):
         username_pattern=r"([Ll]ogin\:|[Uu]sername\:)",
         pwd_pattern=r"[Pp]assword:",
         delay_factor=1,
-        max_loops=20,
+        max_loops=50,
     ):
         """
         Override BaseConnection Telnet login. Can be username/password or just password.
