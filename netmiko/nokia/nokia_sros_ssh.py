@@ -222,10 +222,11 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
                 remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
                     self.file_system, self.dest_file
                 )
+            dest_file_name = self.dest_file.replace("\\", "/").split("/")[-1]
             remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
             if "File Not Found" in remote_out:
                 return False
-            elif self.dest_file in remote_out:
+            elif dest_file_name in remote_out:
                 return True
             else:
                 raise ValueError("Unexpected output from check_file_exists")
