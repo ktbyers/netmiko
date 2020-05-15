@@ -315,7 +315,7 @@ class SSHDetect(object):
             return cached_results
 
     def _autodetect_remote_version(
-        self, search_patterns=None, re_flags=re.I, priority=99
+        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
     ):
         """
         Method to try auto-detect the device type, by matching a regular expression on the reported
@@ -350,7 +350,9 @@ class SSHDetect(object):
             return 0
         return 0
 
-    def _autodetect_std(self, cmd="", search_patterns=None, re_flags=re.I, priority=99):
+    def _autodetect_std(
+        self, cmd="", search_patterns=None, re_flags=re.IGNORECASE, priority=99
+    ):
         """
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
