@@ -34,9 +34,7 @@ class SixwindBase(CiscoBaseConnection):
     def config_mode(self, config_command="edit running"):
         """Enter configuration mode."""
 
-        return super().config_mode(
-            config_command=config_command
-        )
+        return super().config_mode(config_command=config_command)
 
     def commit(self, comment="", delay_factor=1):
         """
@@ -67,6 +65,7 @@ class SixwindBase(CiscoBaseConnection):
             raise ValueError(
                 f"Commit failed with following errors:\n\n{output}"
             )
+
         return output
 
     def exit_config_mode(self, exit_config="exit", pattern=r">"):
@@ -80,12 +79,10 @@ class SixwindBase(CiscoBaseConnection):
     def check_config_mode(self, check_string="#"):
         """Checks whether in configuration mode. Returns a boolean."""
 
-        return super().check_config_mode(
-            check_string=check_string
-        )
+        return super().check_config_mode(check_string=check_string)
 
     def save_config(self, cmd="copy running startup", confirm=True, confirm_response="y"):
-        """ Save Config for 6WIND"""
+        """Save Config for 6WIND"""
 
         return super().save_config(
             cmd=cmd,
@@ -110,4 +107,5 @@ class SixwindBase(CiscoBaseConnection):
 
 
 class SixwindSSH(SixwindBase):
+
     pass
