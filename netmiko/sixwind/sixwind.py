@@ -86,5 +86,6 @@ class SixwindBase(CiscoBaseConnection):
         """6WIND has no enable mode."""
         pass
 
+
 class SixwindSSH(SixwindBase):
     pass
