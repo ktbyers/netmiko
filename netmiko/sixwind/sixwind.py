@@ -1,7 +1,9 @@
 import time
-from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoSSHConnection
+from netmiko.cisco_base_connection import CiscoBaseConnection
+
 
 class SixwindBase(CiscoBaseConnection):
+
     def disable_paging(self, *args, **kwargs):
         """6WIND requires | no-pager at the end of command, not implemented at this time."""
         return ""
