@@ -3,7 +3,6 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class SixwindBase(CiscoBaseConnection):
-
     def disable_paging(self, *args, **kwargs):
         """6WIND requires no-pager at the end of command, not implemented at this time."""
 
@@ -19,13 +18,15 @@ class SixwindBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def set_base_prompt(self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1):
+    def set_base_prompt(
+        self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1
+    ):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
 
         prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
-            delay_factor=delay_factor
+            delay_factor=delay_factor,
         )
         prompt = prompt.strip()
         self.base_prompt = prompt
@@ -45,9 +46,7 @@ class SixwindBase(CiscoBaseConnection):
            command_string = commit
         """
 
-        delay_factor = self.select_delay_factor(
-            delay_factor
-        )
+        delay_factor = self.select_delay_factor(delay_factor)
         error_marker = "Failed to generate committed config"
         command_string = "commit"
 
@@ -57,37 +56,32 @@ class SixwindBase(CiscoBaseConnection):
             strip_prompt=False,
             strip_command=False,
             delay_factor=delay_factor,
-            expect_string=r"#"
+            expect_string=r"#",
         )
         output += self.exit_config_mode()
 
         if error_marker in output:
-            raise ValueError(
-                f"Commit failed with following errors:\n\n{output}"
-            )
+            raise ValueError(f"Commit failed with following errors:\n\n{output}")
 
         return output
 
     def exit_config_mode(self, exit_config="exit", pattern=r">"):
         """Exit configuration mode."""
 
-        return super().exit_config_mode(
-            exit_config=exit_config,
-            pattern=pattern
-        )
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_config_mode(self, check_string="#"):
         """Checks whether in configuration mode. Returns a boolean."""
 
         return super().check_config_mode(check_string=check_string)
 
-    def save_config(self, cmd="copy running startup", confirm=True, confirm_response="y"):
+    def save_config(
+        self, cmd="copy running startup", confirm=True, confirm_response="y"
+    ):
         """Save Config for 6WIND"""
 
         return super().save_config(
-            cmd=cmd,
-            confirm=confirm,
-            confirm_response=confirm_response
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
     def check_enable_mode(self, *args, **kwargs):
