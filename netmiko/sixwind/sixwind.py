@@ -19,7 +19,9 @@ class SixwindBase(CiscoBaseConnection):
 
     def set_base_prompt(self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        prompt = super().set_base_prompt(pri_prompt_terminator=pri_prompt_terminator,alt_prompt_terminator=alt_prompt_terminator,delay_factor=delay_factor,)
+        prompt = super().set_base_prompt(pri_prompt_terminator=pri_prompt_terminator,
+                                         alt_prompt_terminator=alt_prompt_terminator,
+                                         delay_factor=delay_factor)
         prompt = prompt.strip()
         self.base_prompt = prompt
         return self.base_prompt
@@ -41,7 +43,8 @@ class SixwindBase(CiscoBaseConnection):
         command_string = "commit"
 
         output = self.config_mode()
-        output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False, delay_factor=delay_factor, expect_string=r"#")
+        output += self.send_command_expect(command_string, strip_prompt=False, strip_command=False,
+                                           delay_factor=delay_factor, expect_string=r"#")
         output += self.exit_config_mode()
 
         if error_marker in output:
