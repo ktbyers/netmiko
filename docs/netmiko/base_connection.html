@@ -898,18 +898,16 @@ class BaseConnection(object):
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, width=None, height=None):
+    def establish_connection(self, width=511, height=1000):
         &#34;&#34;&#34;Establish SSH connection to the network device
 
         Timeout will generate a NetmikoTimeoutException
         Authentication failure will generate a NetmikoAuthenticationException
 
-        width and height are needed for Fortinet paging setting.
-
-        :param width: Specified width of the VT100 terminal window
+        :param width: Specified width of the VT100 terminal window (default: 511)
         :type width: int
 
-        :param height: Specified height of the VT100 terminal window
+        :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         &#34;&#34;&#34;
         if self.protocol == &#34;telnet&#34;:
@@ -945,12 +943,9 @@ class BaseConnection(object):
                 print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
 
             # Use invoke_shell to establish an &#39;interactive session&#39;
-            if width and height:
-                self.remote_conn = self.remote_conn_pre.invoke_shell(
-                    term=&#34;vt100&#34;, width=width, height=height
-                )
-            else:
-                self.remote_conn = self.remote_conn_pre.invoke_shell()
+            self.remote_conn = self.remote_conn_pre.invoke_shell(
+                term=&#34;vt100&#34;, width=width, height=height
+            )
 
             self.remote_conn.settimeout(self.blocking_timeout)
             if self.keepalive:
@@ -1056,7 +1051,10 @@ class BaseConnection(object):
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
@@ -1079,7 +1077,10 @@ class BaseConnection(object):
         command = self.normalize_cmd(command)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -1646,7 +1647,10 @@ class BaseConnection(object):
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(config_command.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
@@ -1666,7 +1670,10 @@ class BaseConnection(object):
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
@@ -2924,18 +2931,16 @@ class TelnetConnection(BaseConnection):
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, width=None, height=None):
+    def establish_connection(self, width=511, height=1000):
         &#34;&#34;&#34;Establish SSH connection to the network device
 
         Timeout will generate a NetmikoTimeoutException
         Authentication failure will generate a NetmikoAuthenticationException
 
-        width and height are needed for Fortinet paging setting.
-
-        :param width: Specified width of the VT100 terminal window
+        :param width: Specified width of the VT100 terminal window (default: 511)
         :type width: int
 
-        :param height: Specified height of the VT100 terminal window
+        :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         &#34;&#34;&#34;
         if self.protocol == &#34;telnet&#34;:
@@ -2971,12 +2976,9 @@ class TelnetConnection(BaseConnection):
                 print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
 
             # Use invoke_shell to establish an &#39;interactive session&#39;
-            if width and height:
-                self.remote_conn = self.remote_conn_pre.invoke_shell(
-                    term=&#34;vt100&#34;, width=width, height=height
-                )
-            else:
-                self.remote_conn = self.remote_conn_pre.invoke_shell()
+            self.remote_conn = self.remote_conn_pre.invoke_shell(
+                term=&#34;vt100&#34;, width=width, height=height
+            )
 
             self.remote_conn.settimeout(self.blocking_timeout)
             if self.keepalive:
@@ -3082,7 +3084,10 @@ class TelnetConnection(BaseConnection):
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
@@ -3105,7 +3110,10 @@ class TelnetConnection(BaseConnection):
         command = self.normalize_cmd(command)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -3672,7 +3680,10 @@ class TelnetConnection(BaseConnection):
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(config_command.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
@@ -3692,7 +3703,10 @@ class TelnetConnection(BaseConnection):
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
@@ -4143,7 +4157,10 @@ def strip_backspaces(output):
     if not self.check_config_mode():
         self.write_channel(self.normalize_cmd(config_command))
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(
+                pattern=re.escape(config_command.strip())
+            )
         if not re.search(pattern, output, flags=re.M):
             output += self.read_until_pattern(pattern=pattern)
         if not self.check_config_mode():
@@ -4179,7 +4196,10 @@ def strip_backspaces(output):
     log.debug(f&#34;Command: {command}&#34;)
     self.write_channel(command)
     # Make sure you read until you detect the command echo (avoid getting out of sync)
-    output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    if self.global_cmd_verify is not False:
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    else:
+        output = self.read_until_prompt()
     log.debug(f&#34;{output}&#34;)
     log.debug(&#34;Exiting disable_paging&#34;)
     return output</code></pre>
@@ -4257,31 +4277,28 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.establish_connection"><code class="name flex">
-<span>def <span class="ident">establish_connection</span></span>(<span>self, width=None, height=None)</span>
+<span>def <span class="ident">establish_connection</span></span>(<span>self, width=511, height=1000)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Establish SSH connection to the network device</p>
 <p>Timeout will generate a NetmikoTimeoutException
 Authentication failure will generate a NetmikoAuthenticationException</p>
-<p>width and height are needed for Fortinet paging setting.</p>
-<p>:param width: Specified width of the VT100 terminal window
+<p>:param width: Specified width of the VT100 terminal window (default: 511)
 :type width: int</p>
-<p>:param height: Specified height of the VT100 terminal window
+<p>:param height: Specified height of the VT100 terminal window (default: 1000)
 :type height: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def establish_connection(self, width=None, height=None):
+<pre><code class="python">def establish_connection(self, width=511, height=1000):
     &#34;&#34;&#34;Establish SSH connection to the network device
 
     Timeout will generate a NetmikoTimeoutException
     Authentication failure will generate a NetmikoAuthenticationException
 
-    width and height are needed for Fortinet paging setting.
-
-    :param width: Specified width of the VT100 terminal window
+    :param width: Specified width of the VT100 terminal window (default: 511)
     :type width: int
 
-    :param height: Specified height of the VT100 terminal window
+    :param height: Specified height of the VT100 terminal window (default: 1000)
     :type height: int
     &#34;&#34;&#34;
     if self.protocol == &#34;telnet&#34;:
@@ -4317,12 +4334,9 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
             print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
 
         # Use invoke_shell to establish an &#39;interactive session&#39;
-        if width and height:
-            self.remote_conn = self.remote_conn_pre.invoke_shell(
-                term=&#34;vt100&#34;, width=width, height=height
-            )
-        else:
-            self.remote_conn = self.remote_conn_pre.invoke_shell()
+        self.remote_conn = self.remote_conn_pre.invoke_shell(
+            term=&#34;vt100&#34;, width=width, height=height
+        )
 
         self.remote_conn.settimeout(self.blocking_timeout)
         if self.keepalive:
@@ -4357,7 +4371,10 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
     if self.check_config_mode():
         self.write_channel(self.normalize_cmd(exit_config))
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(
+                pattern=re.escape(exit_config.strip())
+            )
         if not re.search(pattern, output, flags=re.M):
             output += self.read_until_pattern(pattern=pattern)
         if self.check_config_mode():
@@ -5356,7 +5373,10 @@ This causes the output to get distorted when accessed programmatically.</p>
     command = self.normalize_cmd(command)
     self.write_channel(command)
     # Make sure you read until you detect the command echo (avoid getting out of sync)
-    output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    if self.global_cmd_verify is not False:
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    else:
+        output = self.read_until_prompt()
     return output</code></pre>
 </details>
 </dd>

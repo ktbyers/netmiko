@@ -50,6 +50,7 @@ from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
+from netmiko.huawei import HuaweiSmartAXSSH
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
@@ -61,7 +62,7 @@ from netmiko.mellanox import MellanoxMlnxosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
-from netmiko.nokia import NokiaSrosSSH
+from netmiko.nokia import NokiaSrosSSH, NokiaSrosFileTransfer
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
@@ -77,6 +78,7 @@ from netmiko.sophos import SophosSfosSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.ubiquiti import UbiquitiEdgeSSH
+from netmiko.ubiquiti import UbiquitiUnifiSwitchSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.watchguard import WatchguardFirewareSSH
 
@@ -140,6 +142,8 @@ CLASS_MAPPER_BASE = {
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
+    "huawei_smartax": HuaweiSmartAXSSH,
+    "huawei_olt": HuaweiSmartAXSSH,
     "huawei_vrpv8": HuaweiVrpv8SSH,
     "ipinfusion_ocnos": IpInfusionOcNOSSSH,
     "juniper": JuniperSSH,
@@ -168,6 +172,7 @@ CLASS_MAPPER_BASE = {
     "sophos_sfos": SophosSfosSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
+    "ubiquiti_unifiswitch": UbiquitiUnifiSwitchSSH,
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "watchguard_fireware": WatchguardFirewareSSH,
@@ -184,6 +189,7 @@ FILE_TRANSFER_MAP = {
     "dell_os10": DellOS10FileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
+    "nokia_sros": NokiaSrosFileTransfer,
 }
 
 # Also support keys that end in _ssh
@@ -220,6 +226,7 @@ CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
 CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
+CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet

@@ -89,6 +89,16 @@ ubiquiti_edge:
   cmd_response_init: ""
   cmd_response_final: "logging persistent 4"
 
+ubiquiti_unifiswitch:
+  base_prompt: "(UBNT) "
+  router_prompt: "(UBNT) >"
+  enable_prompt: "(UBNT) #"
+  interface_ip: 10.0.132.4
+  version_banner: "Software Version"
+  multiple_line_output: "Current Configuration:"
+  cmd_response_init: ""
+  cmd_response_final: "logging persistent 4"
+
 dellos10:
   base_prompt: OS10
   router_prompt : OS10#
@@ -258,3 +268,10 @@ sophos_sfos:
   version_banner: "Serial Number"
   multiple_line_output: ""
 
+huawei_smartax:
+  base_prompt: "ol01.test-lab.xyz"
+  router_prompt: "ol01.test-lab.xyz>"
+  enable_prompt: "ol01.test-lab.xyz#"
+  interface_ip: 192.0.2.1
+  version_banner: "VERSION :"
+  multiple_line_output: ""

@@ -35,6 +35,14 @@ def test_disable_paging(net_connect, commands, expected_responses):
     assert expected_responses["multiple_line_output"] in multiple_line_output
 
 
+def test_terminal_width(net_connect, commands, expected_responses):
+    """Verify long commands work properly."""
+    wide_command = commands.get("wide_command")
+    if wide_command:
+        net_connect.send_command(wide_command)
+    assert True
+
+
 def test_ssh_connect(net_connect, commands, expected_responses):
     """Verify the connection was established successfully."""
     show_version = net_connect.send_command(commands["version"])

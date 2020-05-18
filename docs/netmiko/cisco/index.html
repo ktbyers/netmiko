@@ -101,7 +101,7 @@ Expressway/VCS …</p></section>
 <dl>
 <dt id="netmiko.cisco.CiscoAsaFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoAsaFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco ASA SCP File Transfer driver.</p></section>
@@ -294,6 +294,9 @@ Expressway/VCS …</p></section>
             except ValueError:
                 # Don&#39;t fail for the terminal width
                 pass
+        else:
+            # Disable cmd_verify if the terminal width can&#39;t be set
+            self.global_cmd_verify = False
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -533,6 +536,9 @@ updated after each context change.</p></section>
         except ValueError:
             # Don&#39;t fail for the terminal width
             pass
+    else:
+        # Disable cmd_verify if the terminal width can&#39;t be set
+        self.global_cmd_verify = False
 
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
@@ -865,7 +871,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoIosFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS SCP File Transfer driver.</p></section>
@@ -1558,6 +1564,8 @@ happens the trailing '(config*' needs stripped off.</p></section>
             remote_cmd = f&#34;dir {self.file_system}/{remote_file}&#34;
 
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        if re.search(&#34;no such file or directory&#34;, remote_out, flags=re.I):
+            raise IOError(&#34;Unable to find file on remote system&#34;)
         # Match line containing file name
         escape_file_name = re.escape(remote_file)
         pattern = r&#34;.*({}).*&#34;.format(escape_file_name)
@@ -1565,11 +1573,9 @@ happens the trailing '(config*' needs stripped off.</p></section>
         if match:
             file_size = match.group(0)
             file_size = file_size.split()[0]
-
-        if &#34;No such file or directory&#34; in remote_out:
-            raise IOError(&#34;Unable to find file on remote system&#34;)
-        else:
             return int(file_size)
+
+        raise IOError(&#34;Unable to find file on remote system&#34;)
 
     @staticmethod
     def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
@@ -3129,7 +3135,7 @@ Arguments are the same as send_command_timing() method</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoXrFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoXrFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS-XR SCP File Transfer driver.</p></section>

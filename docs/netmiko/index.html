@@ -47,7 +47,7 @@ from netmiko.scp_functions import file_transfer
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = &#34;3.0.0&#34;
+__version__ = &#34;3.1.1&#34;
 __all__ = (
     &#34;ConnectHandler&#34;,
     &#34;ssh_dispatcher&#34;,
@@ -361,7 +361,7 @@ a new SSH connection with a remote host. This …</p></section>
 </details>
 </dd>
 <dt id="netmiko.file_transfer"><code class="name flex">
-<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0)</span>
+<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0, verify_file=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.</p>
@@ -383,6 +383,7 @@ a new SSH connection with a remote host. This …</p></section>
     inline_transfer=False,
     overwrite_file=False,
     socket_timeout=10.0,
+    verify_file=None,
 ):
     &#34;&#34;&#34;Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
@@ -417,6 +418,10 @@ a new SSH connection with a remote host. This …</p></section>
     if not cisco_ios and inline_transfer:
         raise ValueError(&#34;Inline Transfer only supported for Cisco IOS/Cisco IOS-XE&#34;)
 
+    # Replace disable_md5 argument with verify_file argument across time
+    if verify_file is None:
+        verify_file = not disable_md5
+
     scp_args = {
         &#34;ssh_conn&#34;: ssh_conn,
         &#34;source_file&#34;: source_file,
@@ -432,13 +437,13 @@ a new SSH connection with a remote host. This …</p></section>
     with TransferClass(**scp_args) as scp_transfer:
         if scp_transfer.check_file_exists():
             if overwrite_file:
-                if not disable_md5:
-                    if scp_transfer.compare_md5():
+                if verify_file:
+                    if scp_transfer.verify_file():
                         return nottransferred_but_verified
                     else:
                         # File exists, you can overwrite it, MD5 is wrong (transfer file)
                         verifyspace_and_transferfile(scp_transfer)
-                        if scp_transfer.compare_md5():
+                        if scp_transfer.verify_file():
                             return transferred_and_verified
                         else:
                             raise ValueError(
@@ -450,16 +455,16 @@ a new SSH connection with a remote host. This …</p></section>
                     return transferred_and_notverified
             else:
                 # File exists, but you can&#39;t overwrite it.
-                if not disable_md5:
-                    if scp_transfer.compare_md5():
+                if verify_file:
+                    if scp_transfer.verify_file():
                         return nottransferred_but_verified
                 msg = &#34;File already exists and overwrite_file is disabled&#34;
                 raise ValueError(msg)
         else:
             verifyspace_and_transferfile(scp_transfer)
             # File doesn&#39;t exist
-            if not disable_md5:
-                if scp_transfer.compare_md5():
+            if verify_file:
+                if scp_transfer.verify_file():
                     return transferred_and_verified
                 else:
                     raise ValueError(&#34;MD5 failure between source and destination files&#34;)
@@ -1477,18 +1482,16 @@ with terminal server.</p></section>
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, width=None, height=None):
+    def establish_connection(self, width=511, height=1000):
         &#34;&#34;&#34;Establish SSH connection to the network device
 
         Timeout will generate a NetmikoTimeoutException
         Authentication failure will generate a NetmikoAuthenticationException
 
-        width and height are needed for Fortinet paging setting.
-
-        :param width: Specified width of the VT100 terminal window
+        :param width: Specified width of the VT100 terminal window (default: 511)
         :type width: int
 
-        :param height: Specified height of the VT100 terminal window
+        :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         &#34;&#34;&#34;
         if self.protocol == &#34;telnet&#34;:
@@ -1524,12 +1527,9 @@ with terminal server.</p></section>
                 print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
 
             # Use invoke_shell to establish an &#39;interactive session&#39;
-            if width and height:
-                self.remote_conn = self.remote_conn_pre.invoke_shell(
-                    term=&#34;vt100&#34;, width=width, height=height
-                )
-            else:
-                self.remote_conn = self.remote_conn_pre.invoke_shell()
+            self.remote_conn = self.remote_conn_pre.invoke_shell(
+                term=&#34;vt100&#34;, width=width, height=height
+            )
 
             self.remote_conn.settimeout(self.blocking_timeout)
             if self.keepalive:
@@ -1635,7 +1635,10 @@ with terminal server.</p></section>
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
@@ -1658,7 +1661,10 @@ with terminal server.</p></section>
         command = self.normalize_cmd(command)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -2225,7 +2231,10 @@ with terminal server.</p></section>
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(config_command.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
@@ -2245,7 +2254,10 @@ with terminal server.</p></section>
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
@@ -2696,7 +2708,10 @@ def strip_backspaces(output):
     if not self.check_config_mode():
         self.write_channel(self.normalize_cmd(config_command))
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(
+                pattern=re.escape(config_command.strip())
+            )
         if not re.search(pattern, output, flags=re.M):
             output += self.read_until_pattern(pattern=pattern)
         if not self.check_config_mode():
@@ -2732,7 +2747,10 @@ def strip_backspaces(output):
     log.debug(f&#34;Command: {command}&#34;)
     self.write_channel(command)
     # Make sure you read until you detect the command echo (avoid getting out of sync)
-    output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    if self.global_cmd_verify is not False:
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    else:
+        output = self.read_until_prompt()
     log.debug(f&#34;{output}&#34;)
     log.debug(&#34;Exiting disable_paging&#34;)
     return output</code></pre>
@@ -2810,31 +2828,28 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.establish_connection"><code class="name flex">
-<span>def <span class="ident">establish_connection</span></span>(<span>self, width=None, height=None)</span>
+<span>def <span class="ident">establish_connection</span></span>(<span>self, width=511, height=1000)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Establish SSH connection to the network device</p>
 <p>Timeout will generate a NetmikoTimeoutException
 Authentication failure will generate a NetmikoAuthenticationException</p>
-<p>width and height are needed for Fortinet paging setting.</p>
-<p>:param width: Specified width of the VT100 terminal window
+<p>:param width: Specified width of the VT100 terminal window (default: 511)
 :type width: int</p>
-<p>:param height: Specified height of the VT100 terminal window
+<p>:param height: Specified height of the VT100 terminal window (default: 1000)
 :type height: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def establish_connection(self, width=None, height=None):
+<pre><code class="python">def establish_connection(self, width=511, height=1000):
     &#34;&#34;&#34;Establish SSH connection to the network device
 
     Timeout will generate a NetmikoTimeoutException
     Authentication failure will generate a NetmikoAuthenticationException
 
-    width and height are needed for Fortinet paging setting.
-
-    :param width: Specified width of the VT100 terminal window
+    :param width: Specified width of the VT100 terminal window (default: 511)
     :type width: int
 
-    :param height: Specified height of the VT100 terminal window
+    :param height: Specified height of the VT100 terminal window (default: 1000)
     :type height: int
     &#34;&#34;&#34;
     if self.protocol == &#34;telnet&#34;:
@@ -2870,12 +2885,9 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
             print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
 
         # Use invoke_shell to establish an &#39;interactive session&#39;
-        if width and height:
-            self.remote_conn = self.remote_conn_pre.invoke_shell(
-                term=&#34;vt100&#34;, width=width, height=height
-            )
-        else:
-            self.remote_conn = self.remote_conn_pre.invoke_shell()
+        self.remote_conn = self.remote_conn_pre.invoke_shell(
+            term=&#34;vt100&#34;, width=width, height=height
+        )
 
         self.remote_conn.settimeout(self.blocking_timeout)
         if self.keepalive:
@@ -2910,7 +2922,10 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
     if self.check_config_mode():
         self.write_channel(self.normalize_cmd(exit_config))
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(
+                pattern=re.escape(exit_config.strip())
+            )
         if not re.search(pattern, output, flags=re.M):
             output += self.read_until_pattern(pattern=pattern)
         if self.check_config_mode():
@@ -3909,7 +3924,10 @@ This causes the output to get distorted when accessed programmatically.</p>
     command = self.normalize_cmd(command)
     self.write_channel(command)
     # Make sure you read until you detect the command echo (avoid getting out of sync)
-    output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    if self.global_cmd_verify is not False:
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    else:
+        output = self.read_until_prompt()
     return output</code></pre>
 </details>
 </dd>
@@ -4834,7 +4852,45 @@ Try to determine the device type.</p>
         else:
             return cached_results
 
-    def _autodetect_std(self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.I, priority=99):
+    def _autodetect_remote_version(
+        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+    ):
+        &#34;&#34;&#34;
+        Method to try auto-detect the device type, by matching a regular expression on the reported
+        remote version of the SSH server.
+
+        Parameters
+        ----------
+        search_patterns : list
+            A list of regular expression to look for in the reported remote SSH version
+            (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression (default: re.I).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        &#34;&#34;&#34;
+        invalid_responses = [r&#34;^$&#34;]
+
+        if not search_patterns:
+            return 0
+
+        try:
+            remote_version = self.connection.remote_conn.transport.remote_version
+            for pattern in invalid_responses:
+                match = re.search(pattern, remote_version, flags=re.I)
+                if match:
+                    return 0
+            for pattern in search_patterns:
+                match = re.search(pattern, remote_version, flags=re_flags)
+                if match:
+                    return priority
+        except Exception:
+            return 0
+        return 0
+
+    def _autodetect_std(
+        self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+    ):
         &#34;&#34;&#34;
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict (&#39;dispatch&#39; key). It will attempt to send a
