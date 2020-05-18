@@ -185,6 +185,7 @@ __all__ = [&#34;VyOSSSH&#34;]</code></pre>
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command=&#34;set terminal length 0&#34;)
+        self.set_terminal_width(command=&#34;set terminal width 512&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -454,6 +455,7 @@ command_string = commit comment <comment></p></section>
     self._test_channel_read()
     self.set_base_prompt()
     self.disable_paging(command=&#34;set terminal length 0&#34;)
+    self.set_terminal_width(command=&#34;set terminal width 512&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>

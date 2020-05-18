@@ -113,6 +113,8 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             remote_cmd = f&#34;dir {self.file_system}/{remote_file}&#34;
 
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        if re.search(&#34;no such file or directory&#34;, remote_out, flags=re.I):
+            raise IOError(&#34;Unable to find file on remote system&#34;)
         # Match line containing file name
         escape_file_name = re.escape(remote_file)
         pattern = r&#34;.*({}).*&#34;.format(escape_file_name)
@@ -120,11 +122,9 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         if match:
             file_size = match.group(0)
             file_size = file_size.split()[0]
-
-        if &#34;No such file or directory&#34; in remote_out:
-            raise IOError(&#34;Unable to find file on remote system&#34;)
-        else:
             return int(file_size)
+
+        raise IOError(&#34;Unable to find file on remote system&#34;)
 
     @staticmethod
     def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
@@ -225,6 +225,8 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             remote_cmd = f&#34;dir {self.file_system}/{remote_file}&#34;
 
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        if re.search(&#34;no such file or directory&#34;, remote_out, flags=re.I):
+            raise IOError(&#34;Unable to find file on remote system&#34;)
         # Match line containing file name
         escape_file_name = re.escape(remote_file)
         pattern = r&#34;.*({}).*&#34;.format(escape_file_name)
@@ -232,11 +234,9 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         if match:
             file_size = match.group(0)
             file_size = file_size.split()[0]
-
-        if &#34;No such file or directory&#34; in remote_out:
-            raise IOError(&#34;Unable to find file on remote system&#34;)
-        else:
             return int(file_size)
+
+        raise IOError(&#34;Unable to find file on remote system&#34;)
 
     @staticmethod
     def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
