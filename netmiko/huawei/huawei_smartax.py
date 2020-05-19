@@ -50,8 +50,8 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         log.debug(f"{output}")
         log.debug("Exiting disable_smart_interaction")
 
-    def disable_paging(self, command="scroll"):
-        return super().disable_paging(command=command)
+    def disable_paging(self, command="scroll", **kwargs):
+        return super().disable_paging(command=command, **kwargs)
 
     def config_mode(self, config_command="config", pattern=""):
         """Enter configuration mode."""
