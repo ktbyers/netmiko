@@ -1022,11 +1022,8 @@ class BaseConnection(object):
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
         return output
@@ -1048,11 +1045,8 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
