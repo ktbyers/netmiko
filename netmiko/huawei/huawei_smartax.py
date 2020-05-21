@@ -5,6 +5,8 @@ from netmiko import log
 
 
 class HuaweiSmartAXSSH(CiscoBaseConnection):
+    """Supports Huawei SmartAX and OLT."""
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -41,12 +43,15 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         log.debug("In disable_smart_interaction")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        if self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        else:
+            output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_smart_interaction")
 
-    def disable_paging(self, command="scroll"):
-        return super().disable_paging(command=command)
+    def disable_paging(self, command="scroll", **kwargs):
+        return super().disable_paging(command=command, **kwargs)
 
     def config_mode(self, config_command="config", pattern=""):
         """Enter configuration mode."""

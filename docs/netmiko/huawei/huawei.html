@@ -135,8 +135,9 @@ class HuaweiSSH(HuaweiBase):
     def special_login_handler(self):
         &#34;&#34;&#34;Handle password change request by ignoring it&#34;&#34;&#34;
 
-        password_change_prompt = r&#34;(Change now|Please choose &#39;YES&#39; or &#39;NO&#39;).+&#34;
-        output = self.read_until_prompt_or_pattern(password_change_prompt)
+        # Huawei can prompt for password change. Search for that or for normal prompt
+        password_change_prompt = r&#34;((Change now|Please choose))|([\]&gt;]\s*$)&#34;
+        output = self.read_until_pattern(password_change_prompt)
         if re.search(password_change_prompt, output):
             self.write_channel(&#34;N\n&#34;)
             self.clear_buffer()
@@ -877,8 +878,9 @@ to move the cursor to the left one.</p>
     def special_login_handler(self):
         &#34;&#34;&#34;Handle password change request by ignoring it&#34;&#34;&#34;
 
-        password_change_prompt = r&#34;(Change now|Please choose &#39;YES&#39; or &#39;NO&#39;).+&#34;
-        output = self.read_until_prompt_or_pattern(password_change_prompt)
+        # Huawei can prompt for password change. Search for that or for normal prompt
+        password_change_prompt = r&#34;((Change now|Please choose))|([\]&gt;]\s*$)&#34;
+        output = self.read_until_pattern(password_change_prompt)
         if re.search(password_change_prompt, output):
             self.write_channel(&#34;N\n&#34;)
             self.clear_buffer()
@@ -906,8 +908,9 @@ to move the cursor to the left one.</p>
 <pre><code class="python">def special_login_handler(self):
     &#34;&#34;&#34;Handle password change request by ignoring it&#34;&#34;&#34;
 
-    password_change_prompt = r&#34;(Change now|Please choose &#39;YES&#39; or &#39;NO&#39;).+&#34;
-    output = self.read_until_prompt_or_pattern(password_change_prompt)
+    # Huawei can prompt for password change. Search for that or for normal prompt
+    password_change_prompt = r&#34;((Change now|Please choose))|([\]&gt;]\s*$)&#34;
+    output = self.read_until_pattern(password_change_prompt)
     if re.search(password_change_prompt, output):
         self.write_channel(&#34;N\n&#34;)
         self.clear_buffer()

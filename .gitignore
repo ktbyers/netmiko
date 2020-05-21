@@ -15,9 +15,17 @@ dist
 netmiko.egg-info
 .cache
 bin/.netmiko.cfg
+
+# IDE Related files
 .vscode/*
 .idea/
+
+# Virtual Environment files
 .venv/
+bin/
+lib/
+pyvenv.cfg
+.devcontainer
 
 # Sphinx documentation
 docs/build/doctrees/

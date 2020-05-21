@@ -111,8 +111,9 @@ class HuaweiSSH(HuaweiBase):
     def special_login_handler(self):
         """Handle password change request by ignoring it"""
 
-        password_change_prompt = r"(Change now|Please choose 'YES' or 'NO').+"
-        output = self.read_until_prompt_or_pattern(password_change_prompt)
+        # Huawei can prompt for password change. Search for that or for normal prompt
+        password_change_prompt = r"((Change now|Please choose))|([\]>]\s*$)"
+        output = self.read_until_pattern(password_change_prompt)
         if re.search(password_change_prompt, output):
             self.write_channel("N\n")
             self.clear_buffer()

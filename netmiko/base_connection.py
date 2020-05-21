@@ -870,18 +870,16 @@ class BaseConnection(object):
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, width=None, height=None):
+    def establish_connection(self, width=511, height=1000):
         """Establish SSH connection to the network device
 
         Timeout will generate a NetmikoTimeoutException
         Authentication failure will generate a NetmikoAuthenticationException
 
-        width and height are needed for Fortinet paging setting.
-
-        :param width: Specified width of the VT100 terminal window
+        :param width: Specified width of the VT100 terminal window (default: 511)
         :type width: int
 
-        :param height: Specified height of the VT100 terminal window
+        :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         """
         if self.protocol == "telnet":
@@ -917,12 +915,9 @@ class BaseConnection(object):
                 print(f"SSH connection established to {self.host}:{self.port}")
 
             # Use invoke_shell to establish an 'interactive session'
-            if width and height:
-                self.remote_conn = self.remote_conn_pre.invoke_shell(
-                    term="vt100", width=width, height=height
-                )
-            else:
-                self.remote_conn = self.remote_conn_pre.invoke_shell()
+            self.remote_conn = self.remote_conn_pre.invoke_shell(
+                term="vt100", width=width, height=height
+            )
 
             self.remote_conn.settimeout(self.blocking_timeout)
             if self.keepalive:
@@ -1027,8 +1022,8 @@ class BaseConnection(object):
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
         return output
@@ -1050,8 +1045,8 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -1618,7 +1613,10 @@ class BaseConnection(object):
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(config_command.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
@@ -1638,7 +1636,10 @@ class BaseConnection(object):
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
