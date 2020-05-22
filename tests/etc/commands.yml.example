@@ -421,8 +421,7 @@ centec_os:
   extended_output: "show version"
   config:
     - "ip access-list centec"
-    - "logging buffer 1000"
-  config_verification: "show running-config | include interface"
+  config_verification: "show running-config | include ip access-list centec"
   save_config_cmd: 'write'
   save_config_response: 'OK'
 
