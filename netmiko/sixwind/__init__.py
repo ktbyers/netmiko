@@ -1,3 +1,3 @@
-from netmiko.sixwind.sixwind import SixwindSSH, SixwindBase
+from netmiko.sixwind.sixwind_os import SixwindOSSSH
 
-__all__ = ["SixwindSSH", "SixwindBase"]
+__all__ = ["SixwindOSSSH"]

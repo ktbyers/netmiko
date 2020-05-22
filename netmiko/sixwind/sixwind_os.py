@@ -2,21 +2,19 @@ import time
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
-class SixwindBase(CiscoBaseConnection):
-    def disable_paging(self, *args, **kwargs):
-        """6WIND requires no-pager at the end of command, not implemented at this time."""
-
-    pass
-
+class SixwindOSBase(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-
         self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+
+    def disable_paging(self, *args, **kwargs):
+        """6WIND requires no-pager at the end of command, not implemented at this time."""
+        pass
 
     def set_base_prompt(
         self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1
@@ -32,18 +30,16 @@ class SixwindBase(CiscoBaseConnection):
         self.base_prompt = prompt
         return self.base_prompt
 
-    def config_mode(self, config_command="edit running"):
+    def config_mode(self, config_command="edit running", pattern=""):
         """Enter configuration mode."""
 
-        return super().config_mode(config_command=config_command)
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
     def commit(self, comment="", delay_factor=1):
         """
         Commit the candidate configuration.
-        Commit the entered configuration. Raise an error and return the failure
-        if the commit fails.
-        default:
-           command_string = commit
+
+        Raise an error and return the failure if the commit fails.
         """
 
         delay_factor = self.select_delay_factor(delay_factor)
@@ -51,7 +47,7 @@ class SixwindBase(CiscoBaseConnection):
         command_string = "commit"
 
         output = self.config_mode()
-        output += self.send_command_expect(
+        output += self.send_command(
             command_string,
             strip_prompt=False,
             strip_command=False,
@@ -70,10 +66,10 @@ class SixwindBase(CiscoBaseConnection):
 
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def check_config_mode(self, check_string="#"):
+    def check_config_mode(self, check_string="#", pattern=""):
         """Checks whether in configuration mode. Returns a boolean."""
 
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(
         self, cmd="copy running startup", confirm=True, confirm_response="y"
@@ -100,6 +96,6 @@ class SixwindBase(CiscoBaseConnection):
         pass
 
 
-class SixwindSSH(SixwindBase):
+class SixwindOSSSH(SixwindOSBase):
 
     pass
