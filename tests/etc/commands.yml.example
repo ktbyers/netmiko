@@ -415,6 +415,17 @@ ruijie_os:
   save_config_confirm: False
   save_config_response: 'OK'
 
+centec_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"
+  config:
+    - "ip access-list centec"
+    - "logging buffer 1000"
+  config_verification: "show running-config | include interface"
+  save_config_cmd: 'write'
+  save_config_response: 'OK'
+
 sophos_sfos:
   version: "system diagnostics show version-info"
   basic: "system diagnostics utilities route lookup 172.16.16.16"

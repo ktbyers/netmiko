@@ -260,6 +260,14 @@ ruijie_os:
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
 
+centec_os:
+  base_prompt: Centec
+  router_prompt : Centec>
+  enable_prompt: Centec#
+  interface_ip: 172.30.31.101
+  version_banner: "Centec Networks"
+  multiple_line_output: ""
+
 sophos_sfos:
   base_prompt: "console"
   router_prompt: "console>"
