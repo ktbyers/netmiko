@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>netmiko.centec.centec_os API documentation</title>
-<meta name="description" content="centec RGOS Support" />
+<meta name="description" content="Centec OS Support" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,42 +20,31 @@
 <h1 class="title">Module <code>netmiko.centec.centec_os</code></h1>
 </header>
 <section id="section-intro">
-<p>centec RGOS Support</p>
+<p>Centec OS Support</p>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">&#34;&#34;&#34;"""Centec OS Support"""
+<pre><code class="python">&#34;&#34;&#34;Centec OS Support&#34;&#34;&#34;
 from netmiko.cisco_base_connection import CiscoBaseConnection
 import time
-import re
 
 
 class CentecOSBase(CiscoBaseConnection):
     def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         self.disable_paging()
-        self.set_terminal_width(command="terminal length 0")
+        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command="configure terminal", pattern=""):
-        """
-        Enter into configuration mode on remote device.
-
-        Centec IOS devices abbreviate the prompt at 20 chars in config mode
-        """
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
-
-        return super().config_mode(config_command=config_command, pattern=pattern)
-
-    def save_config(self, cmd="write", confirm=False, confirm_response=""):
-        """Save config: write"""
+    def save_config(self, cmd=&#34;write&#34;, confirm=False, confirm_response=&#34;&#34;):
+        &#34;&#34;&#34;Save config: write&#34;&#34;&#34;
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+
 
 class CentecOSSSH(CentecOSBase):
 
@@ -64,8 +53,7 @@ class CentecOSSSH(CentecOSBase):
 
 class CentecOSTelnet(CentecOSBase):
 
-    pass
-</code></pre>
+    pass</code></pre>
 </details>
 </section>
 <section>
@@ -77,8 +65,8 @@ class CentecOSTelnet(CentecOSBase):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="netmiko.centec.centec_os.centecOSBase"><code class="flex name class">
-<span>class <span class="ident">centecOSBase</span></span>
+<dt id="netmiko.centec.centec_os.CentecOSBase"><code class="flex name class">
+<span>class <span class="ident">CentecOSBase</span></span>
 <span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
@@ -213,32 +201,20 @@ class CentecOSTelnet(CentecOSBase):
 <summary>Source code</summary>
 <pre><code class="python">class CentecOSBase(CiscoBaseConnection):
     def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         self.disable_paging()
-        self.set_terminal_width(command="terminal length 0")
+        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command="configure terminal", pattern=""):
-        """
-        Enter into configuration mode on remote device.
-
-        Centec IOS devices abbreviate the prompt at 20 chars in config mode
-        """
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
-
-        return super().config_mode(config_command=config_command, pattern=pattern)
-
-    def save_config(self, cmd="write", confirm=False, confirm_response=""):
-        """Save config: write"""
+    def save_config(self, cmd=&#34;write&#34;, confirm=False, confirm_response=&#34;&#34;):
+        &#34;&#34;&#34;Save config: write&#34;&#34;&#34;
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
-</code></pre>
+        )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -247,26 +223,26 @@ class CentecOSTelnet(CentecOSBase):
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="netmiko.centec.centec_os.centecOSSSH" href="#netmiko.centec.centec_os.centecOSSSH">centecOSSSH</a></li>
-<li><a title="netmiko.centec.centec_os.centecOSTelnet" href="#netmiko.centec.centec_os.centecOSTelnet">centecOSTelnet</a></li>
+<li><a title="netmiko.centec.centec_os.CentecOSSSH" href="#netmiko.centec.centec_os.CentecOSSSH">CentecOSSSH</a></li>
+<li><a title="netmiko.centec.centec_os.CentecOSTelnet" href="#netmiko.centec.centec_os.CentecOSTelnet">CentecOSTelnet</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.centec.centec_os.centecOSBase.save_config"><code class="name flex">
+<dt id="netmiko.centec.centec_os.CentecOSBase.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd='write', confirm=False, confirm_response='')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Save config: write</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">    def save_config(self, cmd="write", confirm=False, confirm_response=""):
-        """Save config: write"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )</code></pre>
+<pre><code class="python">def save_config(self, cmd=&#34;write&#34;, confirm=False, confirm_response=&#34;&#34;):
+    &#34;&#34;&#34;Save config: write&#34;&#34;&#34;
+    return super().save_config(
+        cmd=cmd, confirm=confirm, confirm_response=confirm_response
+    )</code></pre>
 </details>
 </dd>
-<dt id="netmiko.centec.centec_os.centecOSBase.session_preparation"><code class="name flex">
+<dt id="netmiko.centec.centec_os.CentecOSBase.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -274,14 +250,14 @@ class CentecOSTelnet(CentecOSBase):
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
-        self.set_base_prompt()
-        self.disable_paging()
-        self.set_terminal_width(command="terminal length 0")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()</code></pre>
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+    self.set_base_prompt()
+    self.disable_paging()
+    self.set_terminal_width(command=&#34;terminal width 511&#34;)
+    # Clear the read buffer
+    time.sleep(0.3 * self.global_delay_factor)
+    self.clear_buffer()</code></pre>
 </details>
 </dd>
 </dl>
@@ -331,8 +307,8 @@ class CentecOSTelnet(CentecOSBase):
 </li>
 </ul>
 </dd>
-<dt id="netmiko.centec.centec_os.centecOSSSH"><code class="flex name class">
-<span>class <span class="ident">centecOSSSH</span></span>
+<dt id="netmiko.centec.centec_os.CentecOSSSH"><code class="flex name class">
+<span>class <span class="ident">CentecOSSSH</span></span>
 <span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
@@ -465,67 +441,67 @@ class CentecOSTelnet(CentecOSBase):
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class centecOSSSH(centecOSBase):
+<pre><code class="python">class CentecOSSSH(CentecOSBase):
 
     pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="netmiko.centec.centec_os.centecOSBase" href="#netmiko.centec.centec_os.centecOSBase">centecOSBase</a></li>
+<li><a title="netmiko.centec.centec_os.CentecOSBase" href="#netmiko.centec.centec_os.CentecOSBase">CentecOSBase</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
 </ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="netmiko.centec.centec_os.centecOSBase" href="#netmiko.centec.centec_os.centecOSBase">centecOSBase</a></b></code>:
+<li><code><b><a title="netmiko.centec.centec_os.CentecOSBase" href="#netmiko.centec.centec_os.CentecOSBase">CentecOSBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.save_config" href="#netmiko.centec.centec_os.centecOSBase.save_config">save_config</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.session_preparation" href="#netmiko.centec.centec_os.centecOSBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.telnet_login" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login">telnet_login</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.save_config" href="#netmiko.centec.centec_os.CentecOSBase.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.session_preparation" href="#netmiko.centec.centec_os.CentecOSBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.telnet_login" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login">telnet_login</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
 </ul>
 </li>
 </ul>
 </dd>
-<dt id="netmiko.centec.centec_os.centecOSTelnet"><code class="flex name class">
-<span>class <span class="ident">centecOSTelnet</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<dt id="netmiko.centec.centec_os.CentecOSTelnet"><code class="flex name class">
+<span>class <span class="ident">CentecOSTelnet</span></span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -663,54 +639,54 @@ class CentecOSTelnet(CentecOSBase):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="netmiko.centec.centec_os.centecOSBase" href="#netmiko.centec.centec_os.centecOSBase">centecOSBase</a></li>
+<li><a title="netmiko.centec.centec_os.CentecOSBase" href="#netmiko.centec.centec_os.CentecOSBase">CentecOSBase</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
 </ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="netmiko.centec.centec_os.centecOSBase" href="#netmiko.centec.centec_os.centecOSBase">centecOSBase</a></b></code>:
+<li><code><b><a title="netmiko.centec.centec_os.CentecOSBase" href="#netmiko.centec.centec_os.CentecOSBase">CentecOSBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.save_config" href="#netmiko.centec.centec_os.centecOSBase.save_config">save_config</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.session_preparation" href="#netmiko.centec.centec_os.centecOSBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.telnet_login" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login">telnet_login</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.save_config" href="#netmiko.centec.centec_os.CentecOSBase.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.session_preparation" href="#netmiko.centec.centec_os.CentecOSBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.telnet_login" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login">telnet_login</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
 </ul>
 </li>
 </ul>
@@ -732,17 +708,17 @@ class CentecOSTelnet(CentecOSBase):
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="netmiko.centec.centec_os.centecOSBase" href="#netmiko.centec.centec_os.centecOSBase">centecOSBase</a></code></h4>
+<h4><code><a title="netmiko.centec.centec_os.CentecOSBase" href="#netmiko.centec.centec_os.CentecOSBase">CentecOSBase</a></code></h4>
 <ul class="">
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.save_config" href="#netmiko.centec.centec_os.centecOSBase.save_config">save_config</a></code></li>
-<li><code><a title="netmiko.centec.centec_os.centecOSBase.session_preparation" href="#netmiko.centec.centec_os.centecOSBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.save_config" href="#netmiko.centec.centec_os.CentecOSBase.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.centec.centec_os.CentecOSBase.session_preparation" href="#netmiko.centec.centec_os.CentecOSBase.session_preparation">session_preparation</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="netmiko.centec.centec_os.centecOSSSH" href="#netmiko.centec.centec_os.centecOSSSH">centecOSSSH</a></code></h4>
+<h4><code><a title="netmiko.centec.centec_os.CentecOSSSH" href="#netmiko.centec.centec_os.CentecOSSSH">CentecOSSSH</a></code></h4>
 </li>
 <li>
-<h4><code><a title="netmiko.centec.centec_os.centecOSTelnet" href="#netmiko.centec.centec_os.centecOSTelnet">centecOSTelnet</a></code></h4>
+<h4><code><a title="netmiko.centec.centec_os.CentecOSTelnet" href="#netmiko.centec.centec_os.CentecOSTelnet">CentecOSTelnet</a></code></h4>
 </li>
 </ul>
 </li>
