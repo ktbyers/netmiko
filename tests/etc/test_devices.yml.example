@@ -197,6 +197,13 @@ ruijie_os:
   password: ruijie
   secret: ruijie
 
+centec_os:
+  device_type: centec_os
+  ip: 1.1.1.1
+  username: centec
+  password: centec
+  secret: centec
+
 sophos_sfos:
   device_type: sophos_sfos
   ip: 172.16.16.16

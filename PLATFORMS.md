@@ -43,6 +43,7 @@
 - Pluribus
 - Ruckus ICX/FastIron
 - Ruijie Networks
+- Centec Networks
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
 
