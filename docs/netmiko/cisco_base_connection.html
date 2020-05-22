@@ -624,9 +624,11 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.cisco.cisco_xr.CiscoXrBase" href="cisco/cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase">CiscoXrBase</a></li>
 <li><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase" href="dell/dell_powerconnect.html#netmiko.dell.dell_powerconnect.DellPowerConnectBase">DellPowerConnectBase</a></li>
 <li><a title="netmiko.huawei.huawei.HuaweiBase" href="huawei/huawei.html#netmiko.huawei.huawei.HuaweiBase">HuaweiBase</a></li>
+<li><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH" href="huawei/huawei_smartax.html#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH">HuaweiSmartAXSSH</a></li>
 <li><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="ipinfusion/ipinfusion_ocnos.html#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></li>
 <li><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase" href="oneaccess/oneaccess_oneos.html#netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase">OneaccessOneOSBase</a></li>
 <li><a title="netmiko.ruijie.ruijie_os.RuijieOSBase" href="ruijie/ruijie_os.html#netmiko.ruijie.ruijie_os.RuijieOSBase">RuijieOSBase</a></li>
+<li><a title="netmiko.centec.centec_os.CentecOSBase" href="centec/centec_os.html#netmiko.centec.centec_os.CentecOSBase">CentecOSBase</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -942,7 +944,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Class to manage SCP file transfer and associated SSH control channel.</p></section>
