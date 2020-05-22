@@ -32,6 +32,7 @@ class CentecOSBase(CiscoBaseConnection):
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
+
 class CentecOSSSH(CentecOSBase):
 
     pass
