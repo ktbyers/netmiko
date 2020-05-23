@@ -77,3 +77,4 @@
 - Ubiquiti Unifi Switch
 - Versa Networks FlexVNF
 - Watchguard Firebox
+- 6WIND TurboRouter
