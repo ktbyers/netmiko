@@ -54,7 +54,7 @@ class CiscoBaseConnection(BaseConnection):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;
         Enter into configuration mode on remote device.
 
@@ -421,7 +421,7 @@ class CiscoFileTransfer(BaseFileTransfer):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;
         Enter into configuration mode on remote device.
 
@@ -682,14 +682,14 @@ class CiscoFileTransfer(BaseFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='config term', pattern='')</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure terminal', pattern='')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter into configuration mode on remote device.</p>
 <p>Cisco IOS devices abbreviate the prompt at 20 chars in config mode</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;&#34;):
+<pre><code class="python">def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
     &#34;&#34;&#34;
     Enter into configuration mode on remote device.
 
