@@ -220,12 +220,10 @@ def get_template_dir():
 
     Order of preference is:
     1) Find directory in `NET_TEXTFSM` Environment Variable.
-
     2) Check for pip installed `ntc-templates` location in this environment.
-
     3) ~/ntc-templates/templates.
 
-    If `index` file is not found in any of these locations, will raise a ValueError
+    If `index` file is not found in any of these locations, raise ValueError
 
     :return: directory containing the TextFSM index file
     """
@@ -266,7 +264,6 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     index = os.path.join(template_dir, "index")
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
         raise ValueError(msg)
-
     return os.path.abspath(template_dir)
 
 
@@ -299,6 +296,7 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
 def get_structured_data(raw_output, platform=None, command=None, template=None):
     """
     Convert raw CLI output to structured data using TextFSM template.
+
     You can use a straight TextFSM file i.e. specify "template". If no template is specified,
     then you must use an CliTable index file.
     """
@@ -333,8 +331,7 @@ def get_structured_data_genie(raw_output, platform, command):
 
     if not GENIE_INSTALLED:
         msg = (
-            "\nGenie and PyATS are not installed."
-            " Please PIP install both Genie and PyATS:\n"
+            "\nGenie and PyATS are not installed. Please PIP install both Genie and PyATS:\n"
             "pip install genie\npip install pyats\n"
         )
         raise ValueError(msg)
