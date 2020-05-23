@@ -24,7 +24,6 @@ try:
 except ModuleNotFoundError:
     from importlib_resources import path as importresources_path
 
-
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
     "juniper": "show configuration",
