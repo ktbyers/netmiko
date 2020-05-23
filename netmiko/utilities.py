@@ -257,7 +257,7 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
             ) as posix_path:
                 # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
                 template_dir = str(posix_path)
-    
+
         except ModuleNotFoundError:
             # Finally check in ~/ntc-templates/templates
             home_dir = os.path.expanduser("~")
@@ -299,9 +299,8 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
 def get_structured_data(raw_output, platform=None, command=None, template=None):
     """
     Convert raw CLI output to structured data using TextFSM template.
-
-    You can use a straight TextFSM file i.e. specify "template".
-    If no template is specified, then you must use an CliTable index file.
+    You can use a straight TextFSM file i.e. specify "template". If no template is specified,
+    then you must use an CliTable index file.
     """
     if platform is None or command is None:
         attrs = {}
@@ -313,18 +312,18 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
             raise ValueError(
                 "Either 'platform/command' or 'template' must be specified."
             )
-        template_path = get_template_path()
-        index_file_path = Path(template_path / "index")
-        textfsm_obj = clitable.CliTable(str(index_file_path.name), str(template_path))
+        template_dir = get_template_dir()
+        index_file = os.path.join(template_dir, "index")
+        textfsm_obj = clitable.CliTable(index_file, template_dir)
         return _textfsm_parse(textfsm_obj, raw_output, attrs)
     else:
-        template_file_path = Path(template).expanduser()
-        template_path = template_file_path.parent
-
+        template_path = Path(os.path.expanduser(template))
+        template_file = template_path.name
+        template_dir = template_path.parents[0]
         # CliTable with no index will fall-back to a TextFSM parsing behavior
-        textfsm_obj = clitable.CliTable(template_dir=str(template_path))
+        textfsm_obj = clitable.CliTable(template_dir=template_dir)
         return _textfsm_parse(
-            textfsm_obj, raw_output, attrs, template_file=str(template_file_path)
+            textfsm_obj, raw_output, attrs, template_file=template_file
         )
 
 
