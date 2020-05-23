@@ -214,69 +214,60 @@ def check_serial_port(name):
         raise ValueError(msg)
 
 
-def get_template_path() -> Path:
+def get_template_dir():
     """
-    Find and return the ntc-templates/templates dir.
+    Find and return the directory containing the TextFSM index file.
 
     Order of preference is:
-        1) Find directory in `NET_TEXTFSM` Environment Variable
-        2) Check for pip installed `ntc-templates` location in this environment
-        3) ~/ntc-templates/templates
+    1) Find directory in `NET_TEXTFSM` Environment Variable.
+
+    2) Check for pip installed `ntc-templates` location in this environment.
+
+    3) ~/ntc-templates/templates.
 
     If `index` file is not found in any of these locations, will raise a ValueError
 
-    :return: Instantiated pathlib.Path object for the ntc-templates/templates directory
+    :return: directory containing the TextFSM index file
     """
 
     msg = """
-Valid ntc-templates directory not found, please install via `pip install ntc-templates` and retry.
+Directory containing TextFSM index file not found.
 
-You may also download the templates directly using:
+Please set the NET_TEXTFSM environment variable to point at the directory containing your TextFSM
+index file.
 
-git clone https://github.com/networktocode/ntc-templates
+Alternatively, `pip install ntc-templates` (if using ntc-templates).
 
-And then set the NET_TEXTFSM" environment variable to point to your './ntc-templates/templates'
-directory.
 """
 
-    # First check for `NET_TEXTFSM` environment variable to be set to a non-empty string.
-    ntc_templates_env_var = os.environ.get("NET_TEXTFSM") or None
-    if ntc_templates_env_var is not None:
-        template_path = Path(ntc_templates_env_var).expanduser()
-        if not _ntc_template_index_exists(template_path=template_path):
+    # Try NET_TEXTFSM environment variable
+    template_dir = os.environ.get("NET_TEXTFSM")
+    if template_dir is not None:
+        template_dir = os.path.expanduser(template_dir)
+        index = os.path.join(template_dir, "index")
+        if not os.path.isfile(index):
             # Assume only base ./ntc-templates specified
-            template_path = Path(template_path / "templates")
+            template_dir = os.path.join(template_dir, "templates")
 
     else:
-        # Next see if ntc-templates was pip-installed.
+        # Try 'pip installed' ntc-templates
         try:
             with importresources_path(
                 package="ntc_templates", resource="templates"
-            ) as p:
-                template_path = Path(str(p))
-        # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
+            ) as posix_path:
+                # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
+                template_dir = str(posix_path)
+    
         except ModuleNotFoundError:
             # Finally check in ~/ntc-templates/templates
-            template_path = Path("~/ntc-templates/templates").expanduser()
+            home_dir = os.path.expanduser("~")
+            template_dir = os.path.join(home_dir, "ntc-templates", "templates")
 
-    if not template_path.is_dir() or not _ntc_template_index_exists(
-        template_path=template_path
-    ):
+    index = os.path.join(template_dir, "index")
+    if not os.path.isdir(template_dir) or not os.path.isfile(index):
         raise ValueError(msg)
-    return template_path
 
-
-def _ntc_template_index_exists(template_path: Path) -> bool:
-    """
-    Check for `index` file in specified ntc-templates directory
-     (in form of an instantiated pathilb.Path object)
-    :param template_path:
-    :return: True if `index` file exits, False if it does not
-    """
-    index = Path(template_path / "index")
-    if index.is_file():
-        return True
-    return False
+    return os.path.abspath(template_dir)
 
 
 def clitable_to_dict(cli_table):
