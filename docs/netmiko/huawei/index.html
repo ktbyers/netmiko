@@ -456,8 +456,8 @@ __all__ = [&#34;HuaweiSmartAXSSH&#34;, &#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_smart_interaction&#34;)
 
-    def disable_paging(self, command=&#34;scroll&#34;):
-        return super().disable_paging(command=command)
+    def disable_paging(self, command=&#34;scroll&#34;, **kwargs):
+        return super().disable_paging(command=command, **kwargs)
 
     def config_mode(self, config_command=&#34;config&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;

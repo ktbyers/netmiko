@@ -105,6 +105,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dd>
 <section class="desc"></section>
 </dd>
+<dt><code class="name"><a title="netmiko.centec" href="centec/index.html">netmiko.centec</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
 <dt><code class="name"><a title="netmiko.checkpoint" href="checkpoint/index.html">netmiko.checkpoint</a></code></dt>
 <dd>
 <section class="desc"></section>
@@ -256,6 +260,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dt><code class="name"><a title="netmiko.scp_handler" href="scp_handler.html">netmiko.scp_handler</a></code></dt>
 <dd>
 <section class="desc"><p>Netmiko SCP operations …</p></section>
+</dd>
+<dt><code class="name"><a title="netmiko.sixwind" href="sixwind/index.html">netmiko.sixwind</a></code></dt>
+<dd>
+<section class="desc"></section>
 </dd>
 <dt><code class="name"><a title="netmiko.snmp_autodetect" href="snmp_autodetect.html">netmiko.snmp_autodetect</a></code></dt>
 <dd>
@@ -1634,11 +1642,8 @@ with terminal server.</p></section>
         log.debug(&#34;In disable_paging&#34;)
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
@@ -1660,11 +1665,8 @@ with terminal server.</p></section>
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -2746,11 +2748,8 @@ def strip_backspaces(output):
     log.debug(&#34;In disable_paging&#34;)
     log.debug(f&#34;Command: {command}&#34;)
     self.write_channel(command)
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    if self.global_cmd_verify is not False:
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
-    else:
-        output = self.read_until_prompt()
+    # Do not use command_verify here as still in session_preparation stage.
+    output = self.read_until_prompt()
     log.debug(f&#34;{output}&#34;)
     log.debug(&#34;Exiting disable_paging&#34;)
     return output</code></pre>
@@ -3923,11 +3922,8 @@ This causes the output to get distorted when accessed programmatically.</p>
     delay_factor = self.select_delay_factor(delay_factor)
     command = self.normalize_cmd(command)
     self.write_channel(command)
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    if self.global_cmd_verify is not False:
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
-    else:
-        output = self.read_until_prompt()
+    # Do not use command_verify here as still in session_preparation stage.
+    output = self.read_until_prompt()
     return output</code></pre>
 </details>
 </dd>
@@ -5003,6 +4999,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.aruba" href="aruba/index.html">netmiko.aruba</a></code></li>
 <li><code><a title="netmiko.base_connection" href="base_connection.html">netmiko.base_connection</a></code></li>
 <li><code><a title="netmiko.calix" href="calix/index.html">netmiko.calix</a></code></li>
+<li><code><a title="netmiko.centec" href="centec/index.html">netmiko.centec</a></code></li>
 <li><code><a title="netmiko.checkpoint" href="checkpoint/index.html">netmiko.checkpoint</a></code></li>
 <li><code><a title="netmiko.ciena" href="ciena/index.html">netmiko.ciena</a></code></li>
 <li><code><a title="netmiko.cisco" href="cisco/index.html">netmiko.cisco</a></code></li>
@@ -5041,6 +5038,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.ruijie" href="ruijie/index.html">netmiko.ruijie</a></code></li>
 <li><code><a title="netmiko.scp_functions" href="scp_functions.html">netmiko.scp_functions</a></code></li>
 <li><code><a title="netmiko.scp_handler" href="scp_handler.html">netmiko.scp_handler</a></code></li>
+<li><code><a title="netmiko.sixwind" href="sixwind/index.html">netmiko.sixwind</a></code></li>
 <li><code><a title="netmiko.snmp_autodetect" href="snmp_autodetect.html">netmiko.snmp_autodetect</a></code></li>
 <li><code><a title="netmiko.sophos" href="sophos/index.html">netmiko.sophos</a></code></li>
 <li><code><a title="netmiko.ssh_autodetect" href="ssh_autodetect.html">netmiko.ssh_autodetect</a></code></li>

@@ -188,7 +188,7 @@ __all__ = [&#34;CloudGenixIonSSH&#34;]</code></pre>
         self.write_channel(self.RETURN)
         self.set_base_prompt(delay_factor=5)
 
-    def disable_paging(self):
+    def disable_paging(self, *args, **kwargs):
         &#34;&#34;&#34;Cloud Genix ION sets terminal height in establish_connection&#34;&#34;&#34;
         return &#34;&#34;
 
@@ -257,13 +257,13 @@ __all__ = [&#34;CloudGenixIonSSH&#34;]</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cloudgenix.CloudGenixIonSSH.disable_paging"><code class="name flex">
-<span>def <span class="ident">disable_paging</span></span>(<span>self)</span>
+<span>def <span class="ident">disable_paging</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cloud Genix ION sets terminal height in establish_connection</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def disable_paging(self):
+<pre><code class="python">def disable_paging(self, *args, **kwargs):
     &#34;&#34;&#34;Cloud Genix ION sets terminal height in establish_connection&#34;&#34;&#34;
     return &#34;&#34;</code></pre>
 </details>
