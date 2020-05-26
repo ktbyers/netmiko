@@ -1050,11 +1050,8 @@ class BaseConnection(object):
         log.debug(&#34;In disable_paging&#34;)
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
@@ -1076,11 +1073,8 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -3083,11 +3077,8 @@ class TelnetConnection(BaseConnection):
         log.debug(&#34;In disable_paging&#34;)
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
@@ -3109,11 +3100,8 @@ class TelnetConnection(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -4195,11 +4183,8 @@ def strip_backspaces(output):
     log.debug(&#34;In disable_paging&#34;)
     log.debug(f&#34;Command: {command}&#34;)
     self.write_channel(command)
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    if self.global_cmd_verify is not False:
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
-    else:
-        output = self.read_until_prompt()
+    # Do not use command_verify here as still in session_preparation stage.
+    output = self.read_until_prompt()
     log.debug(f&#34;{output}&#34;)
     log.debug(&#34;Exiting disable_paging&#34;)
     return output</code></pre>
@@ -5372,11 +5357,8 @@ This causes the output to get distorted when accessed programmatically.</p>
     delay_factor = self.select_delay_factor(delay_factor)
     command = self.normalize_cmd(command)
     self.write_channel(command)
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    if self.global_cmd_verify is not False:
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
-    else:
-        output = self.read_until_prompt()
+    # Do not use command_verify here as still in session_preparation stage.
+    output = self.read_until_prompt()
     return output</code></pre>
 </details>
 </dd>

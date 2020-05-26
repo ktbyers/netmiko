@@ -211,7 +211,7 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, delay_factor=1):
+    def disable_paging(self, delay_factor=1, **kwargs):
         &#34;&#34;&#34;Disable paging is only available with specific roles so it may fail.&#34;&#34;&#34;
         check_command = &#34;get system status | grep Virtual&#34;
         output = self.send_command_timing(check_command)
@@ -325,13 +325,13 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
 </details>
 </dd>
 <dt id="netmiko.fortinet.FortinetSSH.disable_paging"><code class="name flex">
-<span>def <span class="ident">disable_paging</span></span>(<span>self, delay_factor=1)</span>
+<span>def <span class="ident">disable_paging</span></span>(<span>self, delay_factor=1, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Disable paging is only available with specific roles so it may fail.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def disable_paging(self, delay_factor=1):
+<pre><code class="python">def disable_paging(self, delay_factor=1, **kwargs):
     &#34;&#34;&#34;Disable paging is only available with specific roles so it may fail.&#34;&#34;&#34;
     check_command = &#34;get system status | grep Virtual&#34;
     output = self.send_command_timing(check_command)
