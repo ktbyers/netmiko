@@ -11,6 +11,7 @@ class RaisecomBase(CiscoBaseConnection):
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.enable()
+        self.disable_paging("terminal page-break disable")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
