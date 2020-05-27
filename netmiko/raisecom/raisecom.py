@@ -34,7 +34,6 @@ class RaisecomBase(CiscoBaseConnection):
 
 
 class RaisecomSSH(RaisecomBase):
-
     def special_login_handler(self, delay_factor=1):
         """
         Raisecom presents with the following on login (in certain OS versions)
