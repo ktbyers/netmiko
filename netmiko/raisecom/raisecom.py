@@ -23,9 +23,42 @@ class RaisecomBase(CiscoBaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
+    def save_config(self, cmd="write startup-config"):
+        """Saves Config."""
+        self.exit_config_mode()
+        self.enable()
+        output = self.send_command_timing(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+        return output
+
 
 class RaisecomSSH(RaisecomBase):
-    pass
+
+    def special_login_handler(self, delay_factor=1):
+        """
+        Raisecom presents with the following on login (in certain OS versions)
+
+        Login: user
+        Password:****
+        """
+        delay_factor = self.select_delay_factor(delay_factor)
+        i = 0
+        time.sleep(delay_factor * 0.5)
+        output = ""
+        while i <= 12:
+            output = self.read_channel()
+            if output:
+                if "Login:" in output:
+                    self.write_channel(self.username + self.RETURN)
+                elif "Password:" in output:
+                    self.write_channel(self.password + self.RETURN)
+                    break
+                time.sleep(delay_factor * 1)
+            else:
+                self.write_channel(self.RETURN)
+                time.sleep(delay_factor * 1.5)
+            i += 1
 
 
 class RaisecomTelnet(RaisecomBase):
