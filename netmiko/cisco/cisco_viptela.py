@@ -1,12 +1,11 @@
 """Subclass specific to Cisco Viptela."""
 import time
-import re
 
-from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class CiscoViptelaSSH(CiscoSSHConnection):
-    """Subclass specific to Cisco ASA."""
+    """Subclass specific to Cisco Viptela."""
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
