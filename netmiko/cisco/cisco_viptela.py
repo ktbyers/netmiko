@@ -25,3 +25,9 @@ class CiscoViptelaSSH(CiscoSSHConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+
+    def config_mode(self, config_command="conf terminal", pattern=""):
+        """
+        Enter into configuration mode on remote device.
+        """
+        return super().config_mode(config_command=config_command, pattern=pattern)
