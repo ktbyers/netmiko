@@ -193,6 +193,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "yamaha": {
+        "cmd": "show copyright",
+        "search_patterns": [r"Yamaha Corporation"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 
