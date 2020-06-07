@@ -19,8 +19,8 @@ class YamahaBase(BaseConnection):
 
     def exit_enable_mode(self, exit_command="exit"):
         """
-        When any changes have been made, the prompt "Save new configuration ? (Y/N)" 
-        appears before exiting. Ignore this by entering "N".
+        When any changes have been made, the prompt 'Save new configuration ? (Y/N)'
+        appears before exiting. Ignore this by entering 'N'.
         """
         output = ""
         if self.check_enable_mode():
