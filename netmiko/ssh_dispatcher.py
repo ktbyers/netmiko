@@ -64,10 +64,7 @@ from netmiko.mellanox import MellanoxMlnxosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
-<<<<<<< HEAD
-=======
 from netmiko.nokia import NokiaSrosSSH, NokiaSrosFileTransfer
->>>>>>> 5e51b8917975c96b3320f7d0111e0b058b3cfb5d
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
@@ -87,7 +84,6 @@ from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ubiquiti import UbiquitiUnifiSwitchSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.watchguard import WatchguardFirewareSSH
-<<<<<<< HEAD
 from netmiko.zte.zte import ZTESSH
 from netmiko.zte.zte import ZTETelnet
 from netmiko.yotc.yotc import YotcSSH
@@ -96,11 +92,9 @@ from netmiko.h3c.h3c import H3CSSH
 from netmiko.h3c.h3c import H3CTelnet
 from netmiko.raisecom.raisecom import RaisecomSSH
 from netmiko.raisecom.raisecom import RaisecomTelnet
-=======
 from netmiko.yamaha import YamahaSSH
 from netmiko.yamaha import YamahaTelnet
 
->>>>>>> 5e51b8917975c96b3320f7d0111e0b058b3cfb5d
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -198,14 +192,11 @@ CLASS_MAPPER_BASE = {
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "watchguard_fireware": WatchguardFirewareSSH,
-<<<<<<< HEAD
     "zte": ZTESSH,
     "yotc": YotcSSH,
     "h3c": H3CSSH,
     "raisecom": RaisecomSSH,
-=======
     "yamaha": YamahaSSH,
->>>>>>> 5e51b8917975c96b3320f7d0111e0b058b3cfb5d
 }
 
 FILE_TRANSFER_MAP = {
@@ -265,14 +256,11 @@ CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
-<<<<<<< HEAD
 CLASS_MAPPER["zte_telnet"] = ZTETelnet
 CLASS_MAPPER["yotc_telnet"] = YotcTelnet
 CLASS_MAPPER["h3c_telnet"] = H3CTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomTelnet
-=======
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
->>>>>>> 5e51b8917975c96b3320f7d0111e0b058b3cfb5d
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
