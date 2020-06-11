@@ -169,6 +169,11 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -178,6 +183,9 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
     def __init__(self, **kwargs):
         if kwargs.get(&#34;default_enter&#34;) is None:
             kwargs[&#34;default_enter&#34;] = &#34;\r&#34;
+        # Aruba has an auto-complete on space behavior that is problematic
+        if kwargs.get(&#34;global_cmd_verify&#34;) is None:
+            kwargs[&#34;global_cmd_verify&#34;] = False
         return super().__init__(**kwargs)
 
     def session_preparation(self):
@@ -200,7 +208,13 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
         &#34;&#34;&#34;
         if not pattern:
             pattern = re.escape(self.base_prompt[:16])
-        return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def config_mode(self, config_command=&#34;configure term&#34;, pattern=&#34;&#34;):
+        &#34;&#34;&#34;
+        Aruba auto completes on space so &#39;configure&#39; needs fully spelled-out.
+        &#34;&#34;&#34;
+        return super().config_mode(config_command=config_command, pattern=pattern)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -227,6 +241,20 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
     if not pattern:
         pattern = re.escape(self.base_prompt[:16])
     return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.aruba.ArubaSSH.config_mode"><code class="name flex">
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure term', pattern='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Aruba auto completes on space so 'configure' needs fully spelled-out.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def config_mode(self, config_command=&#34;configure term&#34;, pattern=&#34;&#34;):
+    &#34;&#34;&#34;
+    Aruba auto completes on space so &#39;configure&#39; needs fully spelled-out.
+    &#34;&#34;&#34;
+    return super().config_mode(config_command=config_command, pattern=pattern)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.aruba.ArubaSSH.session_preparation"><code class="name flex">
@@ -259,7 +287,6 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -321,6 +348,7 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
 <h4><code><a title="netmiko.aruba.ArubaSSH" href="#netmiko.aruba.ArubaSSH">ArubaSSH</a></code></h4>
 <ul class="">
 <li><code><a title="netmiko.aruba.ArubaSSH.check_config_mode" href="#netmiko.aruba.ArubaSSH.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.aruba.ArubaSSH.config_mode" href="#netmiko.aruba.ArubaSSH.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.aruba.ArubaSSH.session_preparation" href="#netmiko.aruba.ArubaSSH.session_preparation">session_preparation</a></code></li>
 </ul>
 </li>

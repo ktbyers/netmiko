@@ -1,3 +1,3 @@
-from netmiko.nokia.nokia_sros_ssh import NokiaSrosSSH
+from netmiko.nokia.nokia_sros_ssh import NokiaSrosSSH, NokiaSrosFileTransfer
 
-__all__ = ["NokiaSrosSSH"]
+__all__ = ["NokiaSrosSSH", "NokiaSrosFileTransfer"]

@@ -166,9 +166,24 @@ SSH_MAPPER_BASE = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
+    &#34;dell_os9&#34;: {
+        &#34;cmd&#34;: &#34;show system&#34;,
+        &#34;search_patterns&#34;: [
+            r&#34;Dell Application Software Version:  9&#34;,
+            r&#34;Dell Networking OS Version : 9&#34;,
+        ],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
     &#34;dell_os10&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
         &#34;search_patterns&#34;: [r&#34;Dell EMC Networking OS10-Enterprise&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;dell_powerconnect&#34;: {
+        &#34;cmd&#34;: &#34;show system&#34;,
+        &#34;search_patterns&#34;: [r&#34;PowerConnect&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
@@ -228,6 +243,17 @@ SSH_MAPPER_BASE = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
+    &#34;cisco_wlc&#34;: {
+        &#34;dispatch&#34;: &#34;_autodetect_remote_version&#34;,
+        &#34;search_patterns&#34;: [r&#34;CISCO_WLC&#34;],
+        &#34;priority&#34;: 99,
+    },
+    &#34;mellanox_mlnxos&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Onyx&#34;, r&#34;SX_PPC_M460EX&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
 }
 
 
@@ -264,6 +290,8 @@ class SSHDetect(object):
         &#34;&#34;&#34;
         if kwargs[&#34;device_type&#34;] != &#34;autodetect&#34;:
             raise ValueError(&#34;The connection device_type must be &#39;autodetect&#39;&#34;)
+        # Always set cmd_verify to False for autodetect
+        kwargs[&#34;global_cmd_verify&#34;] = False
         self.connection = ConnectHandler(*args, **kwargs)
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
@@ -347,7 +375,45 @@ class SSHDetect(object):
         else:
             return cached_results
 
-    def _autodetect_std(self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.I, priority=99):
+    def _autodetect_remote_version(
+        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+    ):
+        &#34;&#34;&#34;
+        Method to try auto-detect the device type, by matching a regular expression on the reported
+        remote version of the SSH server.
+
+        Parameters
+        ----------
+        search_patterns : list
+            A list of regular expression to look for in the reported remote SSH version
+            (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression (default: re.I).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        &#34;&#34;&#34;
+        invalid_responses = [r&#34;^$&#34;]
+
+        if not search_patterns:
+            return 0
+
+        try:
+            remote_version = self.connection.remote_conn.transport.remote_version
+            for pattern in invalid_responses:
+                match = re.search(pattern, remote_version, flags=re.I)
+                if match:
+                    return 0
+            for pattern in search_patterns:
+                match = re.search(pattern, remote_version, flags=re_flags)
+                if match:
+                    return priority
+        except Exception:
+            return 0
+        return 0
+
+    def _autodetect_std(
+        self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+    ):
         &#34;&#34;&#34;
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict (&#39;dispatch&#39; key). It will attempt to send a
@@ -463,6 +529,8 @@ Try to determine the device type.</p>
         &#34;&#34;&#34;
         if kwargs[&#34;device_type&#34;] != &#34;autodetect&#34;:
             raise ValueError(&#34;The connection device_type must be &#39;autodetect&#39;&#34;)
+        # Always set cmd_verify to False for autodetect
+        kwargs[&#34;global_cmd_verify&#34;] = False
         self.connection = ConnectHandler(*args, **kwargs)
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
@@ -546,7 +614,45 @@ Try to determine the device type.</p>
         else:
             return cached_results
 
-    def _autodetect_std(self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.I, priority=99):
+    def _autodetect_remote_version(
+        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+    ):
+        &#34;&#34;&#34;
+        Method to try auto-detect the device type, by matching a regular expression on the reported
+        remote version of the SSH server.
+
+        Parameters
+        ----------
+        search_patterns : list
+            A list of regular expression to look for in the reported remote SSH version
+            (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression (default: re.I).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        &#34;&#34;&#34;
+        invalid_responses = [r&#34;^$&#34;]
+
+        if not search_patterns:
+            return 0
+
+        try:
+            remote_version = self.connection.remote_conn.transport.remote_version
+            for pattern in invalid_responses:
+                match = re.search(pattern, remote_version, flags=re.I)
+                if match:
+                    return 0
+            for pattern in search_patterns:
+                match = re.search(pattern, remote_version, flags=re_flags)
+                if match:
+                    return priority
+        except Exception:
+            return 0
+        return 0
+
+    def _autodetect_std(
+        self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+    ):
         &#34;&#34;&#34;
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict (&#39;dispatch&#39; key). It will attempt to send a

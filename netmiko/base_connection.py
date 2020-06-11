@@ -29,6 +29,7 @@ from netmiko.utilities import (
     check_serial_port,
     get_structured_data,
     get_structured_data_genie,
+    select_cmd_verify,
 )
 
 
@@ -50,6 +51,7 @@ class BaseConnection(object):
         device_type="",
         verbose=False,
         global_delay_factor=1,
+        global_cmd_verify=None,
         use_keys=False,
         key_file=None,
         pkey=None,
@@ -196,6 +198,12 @@ class BaseConnection(object):
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
         :type sock: socket
+
+        :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+                (default: None). Global attribute takes precedence over function `cmd_verify`
+                argument. Value of `None` indicates to use function `cmd_verify` argument.
+        :type global_cmd_verify: bool|None
+
         """
         self.remote_conn = None
 
@@ -279,6 +287,7 @@ class BaseConnection(object):
 
         self.fast_cli = fast_cli
         self.global_delay_factor = global_delay_factor
+        self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
             self.global_delay_factor = 0.1
 
@@ -861,18 +870,16 @@ class BaseConnection(object):
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, width=None, height=None):
+    def establish_connection(self, width=511, height=1000):
         """Establish SSH connection to the network device
 
         Timeout will generate a NetmikoTimeoutException
         Authentication failure will generate a NetmikoAuthenticationException
 
-        width and height are needed for Fortinet paging setting.
-
-        :param width: Specified width of the VT100 terminal window
+        :param width: Specified width of the VT100 terminal window (default: 511)
         :type width: int
 
-        :param height: Specified height of the VT100 terminal window
+        :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         """
         if self.protocol == "telnet":
@@ -908,12 +915,9 @@ class BaseConnection(object):
                 print(f"SSH connection established to {self.host}:{self.port}")
 
             # Use invoke_shell to establish an 'interactive session'
-            if width and height:
-                self.remote_conn = self.remote_conn_pre.invoke_shell(
-                    term="vt100", width=width, height=height
-                )
-            else:
-                self.remote_conn = self.remote_conn_pre.invoke_shell()
+            self.remote_conn = self.remote_conn_pre.invoke_shell(
+                term="vt100", width=width, height=height
+            )
 
             self.remote_conn.settimeout(self.blocking_timeout)
             if self.keepalive:
@@ -1018,8 +1022,8 @@ class BaseConnection(object):
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
         return output
@@ -1041,8 +1045,8 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -1130,6 +1134,7 @@ class BaseConnection(object):
                 sleep_time *= 2
                 sleep_time = 3 if sleep_time >= 3 else sleep_time
 
+    @select_cmd_verify
     def send_command_timing(
         self,
         command_string,
@@ -1141,7 +1146,8 @@ class BaseConnection(object):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
-        cmd_echo=False,
+        cmd_verify=False,
+        cmd_echo=None,
     ):
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1175,9 +1181,16 @@ class BaseConnection(object):
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
 
-        :param cmd_echo: Verify command echo before proceeding (default: False).
+        :param cmd_verify: Verify command echo before proceeding (default: False).
+        :type cmd_verify: bool
+
+        :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         """
+        # For compatibility remove cmd_echo in Netmiko 4.x.x
+        if cmd_echo is not None:
+            cmd_verify = cmd_echo
+
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -1188,7 +1201,7 @@ class BaseConnection(object):
 
         cmd = command_string.strip()
         # if cmd is just an "enter" skip this section
-        if cmd and cmd_echo:
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -1277,6 +1290,7 @@ class BaseConnection(object):
         except IndexError:
             return (data, False)
 
+    @select_cmd_verify
     def send_command(
         self,
         command_string,
@@ -1290,6 +1304,7 @@ class BaseConnection(object):
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
+        cmd_verify=True,
     ):
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1327,6 +1342,9 @@ class BaseConnection(object):
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
+
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+        :type cmd_verify: bool
         """
         # Time to delay in each read loop
         loop_delay = 0.2
@@ -1360,8 +1378,8 @@ class BaseConnection(object):
         new_data = ""
 
         cmd = command_string.strip()
-        # if cmd is just and "enter" skip this section
-        if cmd:
+        # if cmd is just an "enter" skip this section
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -1595,7 +1613,10 @@ class BaseConnection(object):
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(config_command.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
@@ -1615,7 +1636,10 @@ class BaseConnection(object):
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
@@ -1766,6 +1790,7 @@ class BaseConnection(object):
         ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
+        ESC[1D       Move cursor position leftward by x characters (1 in this case)
 
         HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -1797,6 +1822,7 @@ class BaseConnection(object):
         code_erase_display = chr(27) + r"\[J"
         code_attrs_off = chr(27) + r"\[0m"
         code_reverse = chr(27) + r"\[7m"
+        code_cursor_left = chr(27) + r"\[\d+D"
 
         code_set = [
             code_position_cursor,
@@ -1820,6 +1846,7 @@ class BaseConnection(object):
             code_erase_display,
             code_attrs_off,
             code_reverse,
+            code_cursor_left,
         ]
 
         output = string_buffer

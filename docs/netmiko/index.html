@@ -47,7 +47,7 @@ from netmiko.scp_functions import file_transfer
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = &#34;3.0.0&#34;
+__version__ = &#34;3.1.1&#34;
 __all__ = (
     &#34;ConnectHandler&#34;,
     &#34;ssh_dispatcher&#34;,
@@ -105,6 +105,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dd>
 <section class="desc"></section>
 </dd>
+<dt><code class="name"><a title="netmiko.centec" href="centec/index.html">netmiko.centec</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
 <dt><code class="name"><a title="netmiko.checkpoint" href="checkpoint/index.html">netmiko.checkpoint</a></code></dt>
 <dd>
 <section class="desc"></section>
@@ -134,6 +138,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <section class="desc"></section>
 </dd>
 <dt><code class="name"><a title="netmiko.dell" href="dell/index.html">netmiko.dell</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="netmiko.dlink" href="dlink/index.html">netmiko.dlink</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -253,10 +261,18 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dd>
 <section class="desc"><p>Netmiko SCP operations …</p></section>
 </dd>
+<dt><code class="name"><a title="netmiko.sixwind" href="sixwind/index.html">netmiko.sixwind</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
 <dt><code class="name"><a title="netmiko.snmp_autodetect" href="snmp_autodetect.html">netmiko.snmp_autodetect</a></code></dt>
 <dd>
 <section class="desc"><p>This module is used to auto-detect the type of a device in order to automatically create a
 Netmiko connection …</p></section>
+</dd>
+<dt><code class="name"><a title="netmiko.sophos" href="sophos/index.html">netmiko.sophos</a></code></dt>
+<dd>
+<section class="desc"></section>
 </dd>
 <dt><code class="name"><a title="netmiko.ssh_autodetect" href="ssh_autodetect.html">netmiko.ssh_autodetect</a></code></dt>
 <dd>
@@ -280,6 +296,10 @@ a new SSH connection with a remote host. This …</p></section>
 <section class="desc"><p>Miscellaneous utility functions.</p></section>
 </dd>
 <dt><code class="name"><a title="netmiko.vyos" href="vyos/index.html">netmiko.vyos</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="netmiko.watchguard" href="watchguard/index.html">netmiko.watchguard</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -349,7 +369,7 @@ a new SSH connection with a remote host. This …</p></section>
 </details>
 </dd>
 <dt id="netmiko.file_transfer"><code class="name flex">
-<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0)</span>
+<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0, verify_file=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.</p>
@@ -371,6 +391,7 @@ a new SSH connection with a remote host. This …</p></section>
     inline_transfer=False,
     overwrite_file=False,
     socket_timeout=10.0,
+    verify_file=None,
 ):
     &#34;&#34;&#34;Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
@@ -405,6 +426,10 @@ a new SSH connection with a remote host. This …</p></section>
     if not cisco_ios and inline_transfer:
         raise ValueError(&#34;Inline Transfer only supported for Cisco IOS/Cisco IOS-XE&#34;)
 
+    # Replace disable_md5 argument with verify_file argument across time
+    if verify_file is None:
+        verify_file = not disable_md5
+
     scp_args = {
         &#34;ssh_conn&#34;: ssh_conn,
         &#34;source_file&#34;: source_file,
@@ -420,13 +445,13 @@ a new SSH connection with a remote host. This …</p></section>
     with TransferClass(**scp_args) as scp_transfer:
         if scp_transfer.check_file_exists():
             if overwrite_file:
-                if not disable_md5:
-                    if scp_transfer.compare_md5():
+                if verify_file:
+                    if scp_transfer.verify_file():
                         return nottransferred_but_verified
                     else:
                         # File exists, you can overwrite it, MD5 is wrong (transfer file)
                         verifyspace_and_transferfile(scp_transfer)
-                        if scp_transfer.compare_md5():
+                        if scp_transfer.verify_file():
                             return transferred_and_verified
                         else:
                             raise ValueError(
@@ -438,16 +463,16 @@ a new SSH connection with a remote host. This …</p></section>
                     return transferred_and_notverified
             else:
                 # File exists, but you can&#39;t overwrite it.
-                if not disable_md5:
-                    if scp_transfer.compare_md5():
+                if verify_file:
+                    if scp_transfer.verify_file():
                         return nottransferred_but_verified
                 msg = &#34;File already exists and overwrite_file is disabled&#34;
                 raise ValueError(msg)
         else:
             verifyspace_and_transferfile(scp_transfer)
             # File doesn&#39;t exist
-            if not disable_md5:
-                if scp_transfer.compare_md5():
+            if verify_file:
+                if scp_transfer.verify_file():
                     return transferred_and_verified
                 else:
                     raise ValueError(&#34;MD5 failure between source and destination files&#34;)
@@ -495,7 +520,7 @@ with terminal server.</p></section>
 <dl>
 <dt id="netmiko.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -620,6 +645,11 @@ with terminal server.</p></section>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -641,6 +671,7 @@ with terminal server.</p></section>
         device_type=&#34;&#34;,
         verbose=False,
         global_delay_factor=1,
+        global_cmd_verify=None,
         use_keys=False,
         key_file=None,
         pkey=None,
@@ -787,6 +818,12 @@ with terminal server.</p></section>
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
         :type sock: socket
+
+        :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+                (default: None). Global attribute takes precedence over function `cmd_verify`
+                argument. Value of `None` indicates to use function `cmd_verify` argument.
+        :type global_cmd_verify: bool|None
+
         &#34;&#34;&#34;
         self.remote_conn = None
 
@@ -870,6 +907,7 @@ with terminal server.</p></section>
 
         self.fast_cli = fast_cli
         self.global_delay_factor = global_delay_factor
+        self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
             self.global_delay_factor = 0.1
 
@@ -1452,18 +1490,16 @@ with terminal server.</p></section>
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, width=None, height=None):
+    def establish_connection(self, width=511, height=1000):
         &#34;&#34;&#34;Establish SSH connection to the network device
 
         Timeout will generate a NetmikoTimeoutException
         Authentication failure will generate a NetmikoAuthenticationException
 
-        width and height are needed for Fortinet paging setting.
-
-        :param width: Specified width of the VT100 terminal window
+        :param width: Specified width of the VT100 terminal window (default: 511)
         :type width: int
 
-        :param height: Specified height of the VT100 terminal window
+        :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         &#34;&#34;&#34;
         if self.protocol == &#34;telnet&#34;:
@@ -1499,12 +1535,9 @@ with terminal server.</p></section>
                 print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
 
             # Use invoke_shell to establish an &#39;interactive session&#39;
-            if width and height:
-                self.remote_conn = self.remote_conn_pre.invoke_shell(
-                    term=&#34;vt100&#34;, width=width, height=height
-                )
-            else:
-                self.remote_conn = self.remote_conn_pre.invoke_shell()
+            self.remote_conn = self.remote_conn_pre.invoke_shell(
+                term=&#34;vt100&#34;, width=width, height=height
+            )
 
             self.remote_conn.settimeout(self.blocking_timeout)
             if self.keepalive:
@@ -1609,8 +1642,8 @@ with terminal server.</p></section>
         log.debug(&#34;In disable_paging&#34;)
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
@@ -1632,8 +1665,8 @@ with terminal server.</p></section>
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -1721,6 +1754,7 @@ with terminal server.</p></section>
                 sleep_time *= 2
                 sleep_time = 3 if sleep_time &gt;= 3 else sleep_time
 
+    @select_cmd_verify
     def send_command_timing(
         self,
         command_string,
@@ -1732,7 +1766,8 @@ with terminal server.</p></section>
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
-        cmd_echo=False,
+        cmd_verify=False,
+        cmd_echo=None,
     ):
         &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1766,9 +1801,16 @@ with terminal server.</p></section>
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
 
-        :param cmd_echo: Verify command echo before proceeding (default: False).
+        :param cmd_verify: Verify command echo before proceeding (default: False).
+        :type cmd_verify: bool
+
+        :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         &#34;&#34;&#34;
+        # For compatibility remove cmd_echo in Netmiko 4.x.x
+        if cmd_echo is not None:
+            cmd_verify = cmd_echo
+
         output = &#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -1779,7 +1821,7 @@ with terminal server.</p></section>
 
         cmd = command_string.strip()
         # if cmd is just an &#34;enter&#34; skip this section
-        if cmd and cmd_echo:
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -1868,6 +1910,7 @@ with terminal server.</p></section>
         except IndexError:
             return (data, False)
 
+    @select_cmd_verify
     def send_command(
         self,
         command_string,
@@ -1881,6 +1924,7 @@ with terminal server.</p></section>
         use_textfsm=False,
         textfsm_template=None,
         use_genie=False,
+        cmd_verify=True,
     ):
         &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1918,6 +1962,9 @@ with terminal server.</p></section>
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
+
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+        :type cmd_verify: bool
         &#34;&#34;&#34;
         # Time to delay in each read loop
         loop_delay = 0.2
@@ -1951,8 +1998,8 @@ with terminal server.</p></section>
         new_data = &#34;&#34;
 
         cmd = command_string.strip()
-        # if cmd is just and &#34;enter&#34; skip this section
-        if cmd:
+        # if cmd is just an &#34;enter&#34; skip this section
+        if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
             new_data = self.normalize_linefeeds(new_data)
@@ -2186,7 +2233,10 @@ with terminal server.</p></section>
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(config_command.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if not self.check_config_mode():
@@ -2206,7 +2256,10 @@ with terminal server.</p></section>
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
+                )
             if not re.search(pattern, output, flags=re.M):
                 output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
@@ -2290,9 +2343,10 @@ with terminal server.</p></section>
             raise ValueError(&#34;Invalid argument passed into send_config_set&#34;)
 
         # Send config commands
+        output = &#34;&#34;
         if enter_config_mode:
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-            output = self.config_mode(*cfg_mode_args)
+            output += self.config_mode(*cfg_mode_args)
 
         if self.fast_cli:
             for cmd in config_commands:
@@ -2356,6 +2410,7 @@ with terminal server.</p></section>
         ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
+        ESC[1D       Move cursor position leftward by x characters (1 in this case)
 
         HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -2387,6 +2442,7 @@ with terminal server.</p></section>
         code_erase_display = chr(27) + r&#34;\[J&#34;
         code_attrs_off = chr(27) + r&#34;\[0m&#34;
         code_reverse = chr(27) + r&#34;\[7m&#34;
+        code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
 
         code_set = [
             code_position_cursor,
@@ -2410,6 +2466,7 @@ with terminal server.</p></section>
             code_erase_display,
             code_attrs_off,
             code_reverse,
+            code_cursor_left,
         ]
 
         output = string_buffer
@@ -2425,8 +2482,8 @@ with terminal server.</p></section>
 
         return output
 
-    def cleanup(self):
-        &#34;&#34;&#34;Any needed cleanup before closing connection.&#34;&#34;&#34;
+    def cleanup(self, command=&#34;&#34;):
+        &#34;&#34;&#34;Logout of the session on the network device plus any additional cleanup.&#34;&#34;&#34;
         pass
 
     def paramiko_cleanup(self):
@@ -2435,7 +2492,7 @@ with terminal server.</p></section>
         del self.remote_conn_pre
 
     def disconnect(self):
-        &#34;&#34;&#34;Try to gracefully close the SSH connection.&#34;&#34;&#34;
+        &#34;&#34;&#34;Try to gracefully close the session.&#34;&#34;&#34;
         try:
             self.cleanup()
             if self.protocol == &#34;ssh&#34;:
@@ -2493,6 +2550,7 @@ with terminal server.</p></section>
 <li><a title="netmiko.pluribus.pluribus_ssh.PluribusSSH" href="pluribus/pluribus_ssh.html#netmiko.pluribus.pluribus_ssh.PluribusSSH">PluribusSSH</a></li>
 <li><a title="netmiko.rad.rad_etx.RadETXBase" href="rad/rad_etx.html#netmiko.rad.rad_etx.RadETXBase">RadETXBase</a></li>
 <li><a title="netmiko.terminal_server.terminal_server.TerminalServer" href="terminal_server/terminal_server.html#netmiko.terminal_server.terminal_server.TerminalServer">TerminalServer</a></li>
+<li><a title="netmiko.watchguard.fireware_ssh.WatchguardFirewareSSH" href="watchguard/fireware_ssh.html#netmiko.watchguard.fireware_ssh.WatchguardFirewareSSH">WatchguardFirewareSSH</a></li>
 </ul>
 <h3>Static methods</h3>
 <dl>
@@ -2569,14 +2627,14 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.cleanup"><code class="name flex">
-<span>def <span class="ident">cleanup</span></span>(<span>self)</span>
+<span>def <span class="ident">cleanup</span></span>(<span>self, command='')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Any needed cleanup before closing connection.</p></section>
+<section class="desc"><p>Logout of the session on the network device plus any additional cleanup.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def cleanup(self):
-    &#34;&#34;&#34;Any needed cleanup before closing connection.&#34;&#34;&#34;
+<pre><code class="python">def cleanup(self, command=&#34;&#34;):
+    &#34;&#34;&#34;Logout of the session on the network device plus any additional cleanup.&#34;&#34;&#34;
     pass</code></pre>
 </details>
 </dd>
@@ -2652,7 +2710,10 @@ def strip_backspaces(output):
     if not self.check_config_mode():
         self.write_channel(self.normalize_cmd(config_command))
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(
+                pattern=re.escape(config_command.strip())
+            )
         if not re.search(pattern, output, flags=re.M):
             output += self.read_until_pattern(pattern=pattern)
         if not self.check_config_mode():
@@ -2687,8 +2748,8 @@ def strip_backspaces(output):
     log.debug(&#34;In disable_paging&#34;)
     log.debug(f&#34;Command: {command}&#34;)
     self.write_channel(command)
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    # Do not use command_verify here as still in session_preparation stage.
+    output = self.read_until_prompt()
     log.debug(f&#34;{output}&#34;)
     log.debug(&#34;Exiting disable_paging&#34;)
     return output</code></pre>
@@ -2698,11 +2759,11 @@ def strip_backspaces(output):
 <span>def <span class="ident">disconnect</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Try to gracefully close the SSH connection.</p></section>
+<section class="desc"><p>Try to gracefully close the session.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def disconnect(self):
-    &#34;&#34;&#34;Try to gracefully close the SSH connection.&#34;&#34;&#34;
+    &#34;&#34;&#34;Try to gracefully close the session.&#34;&#34;&#34;
     try:
         self.cleanup()
         if self.protocol == &#34;ssh&#34;:
@@ -2766,31 +2827,28 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.establish_connection"><code class="name flex">
-<span>def <span class="ident">establish_connection</span></span>(<span>self, width=None, height=None)</span>
+<span>def <span class="ident">establish_connection</span></span>(<span>self, width=511, height=1000)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Establish SSH connection to the network device</p>
 <p>Timeout will generate a NetmikoTimeoutException
 Authentication failure will generate a NetmikoAuthenticationException</p>
-<p>width and height are needed for Fortinet paging setting.</p>
-<p>:param width: Specified width of the VT100 terminal window
+<p>:param width: Specified width of the VT100 terminal window (default: 511)
 :type width: int</p>
-<p>:param height: Specified height of the VT100 terminal window
+<p>:param height: Specified height of the VT100 terminal window (default: 1000)
 :type height: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def establish_connection(self, width=None, height=None):
+<pre><code class="python">def establish_connection(self, width=511, height=1000):
     &#34;&#34;&#34;Establish SSH connection to the network device
 
     Timeout will generate a NetmikoTimeoutException
     Authentication failure will generate a NetmikoAuthenticationException
 
-    width and height are needed for Fortinet paging setting.
-
-    :param width: Specified width of the VT100 terminal window
+    :param width: Specified width of the VT100 terminal window (default: 511)
     :type width: int
 
-    :param height: Specified height of the VT100 terminal window
+    :param height: Specified height of the VT100 terminal window (default: 1000)
     :type height: int
     &#34;&#34;&#34;
     if self.protocol == &#34;telnet&#34;:
@@ -2826,12 +2884,9 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
             print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
 
         # Use invoke_shell to establish an &#39;interactive session&#39;
-        if width and height:
-            self.remote_conn = self.remote_conn_pre.invoke_shell(
-                term=&#34;vt100&#34;, width=width, height=height
-            )
-        else:
-            self.remote_conn = self.remote_conn_pre.invoke_shell()
+        self.remote_conn = self.remote_conn_pre.invoke_shell(
+            term=&#34;vt100&#34;, width=width, height=height
+        )
 
         self.remote_conn.settimeout(self.blocking_timeout)
         if self.keepalive:
@@ -2866,7 +2921,10 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
     if self.check_config_mode():
         self.write_channel(self.normalize_cmd(exit_config))
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(
+                pattern=re.escape(exit_config.strip())
+            )
         if not re.search(pattern, output, flags=re.M):
             output += self.read_until_pattern(pattern=pattern)
         if self.check_config_mode():
@@ -3189,7 +3247,7 @@ In fast_cli choose the lesser of delay_factor of self.global_delay_factor.</p>
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.send_command"><code class="name flex">
-<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False)</span>
+<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False, cmd_verify=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a pattern-based mechanism. Generally
@@ -3217,10 +3275,13 @@ based upon self.timeout.
 <p>:param textfsm_template: Name of template to parse output with; can be fully qualified
 path, relative path, or name of file in current directory. (default: None).</p>
 <p>:param use_genie: Process command output through PyATS/Genie parser (default: False).
-:type normalize: bool</p></section>
+:type normalize: bool</p>
+<p>:param cmd_verify: Verify command echo before proceeding (default: True).
+:type cmd_verify: bool</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def send_command(
+<pre><code class="python">@select_cmd_verify
+def send_command(
     self,
     command_string,
     expect_string=None,
@@ -3233,6 +3294,7 @@ path, relative path, or name of file in current directory. (default: None).</p>
     use_textfsm=False,
     textfsm_template=None,
     use_genie=False,
+    cmd_verify=True,
 ):
     &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
     used for show commands. By default this method will keep waiting to receive data until the
@@ -3270,6 +3332,9 @@ path, relative path, or name of file in current directory. (default: None).</p>
 
     :param use_genie: Process command output through PyATS/Genie parser (default: False).
     :type normalize: bool
+
+    :param cmd_verify: Verify command echo before proceeding (default: True).
+    :type cmd_verify: bool
     &#34;&#34;&#34;
     # Time to delay in each read loop
     loop_delay = 0.2
@@ -3303,8 +3368,8 @@ path, relative path, or name of file in current directory. (default: None).</p>
     new_data = &#34;&#34;
 
     cmd = command_string.strip()
-    # if cmd is just and &#34;enter&#34; skip this section
-    if cmd:
+    # if cmd is just an &#34;enter&#34; skip this section
+    if cmd and cmd_verify:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(pattern=re.escape(cmd))
         new_data = self.normalize_linefeeds(new_data)
@@ -3403,7 +3468,7 @@ path, relative path, or name of file in current directory. (default: None).</p>
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.send_command_timing"><code class="name flex">
-<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False, cmd_echo=False)</span>
+<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False, cmd_verify=False, cmd_echo=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a delay-based mechanism. Generally
@@ -3428,11 +3493,14 @@ path, relative path, or name of file in current directory. (default: None).
 :type textfsm_template: str</p>
 <p>:param use_genie: Process command output through PyATS/Genie parser (default: False).
 :type use_genie: bool</p>
-<p>:param cmd_echo: Verify command echo before proceeding (default: False).
+<p>:param cmd_verify: Verify command echo before proceeding (default: False).
+:type cmd_verify: bool</p>
+<p>:param cmd_echo: Deprecated (use cmd_verify instead)
 :type cmd_echo: bool</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def send_command_timing(
+<pre><code class="python">@select_cmd_verify
+def send_command_timing(
     self,
     command_string,
     delay_factor=1,
@@ -3443,7 +3511,8 @@ path, relative path, or name of file in current directory. (default: None).
     use_textfsm=False,
     textfsm_template=None,
     use_genie=False,
-    cmd_echo=False,
+    cmd_verify=False,
+    cmd_echo=None,
 ):
     &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
     used for show commands.
@@ -3477,9 +3546,16 @@ path, relative path, or name of file in current directory. (default: None).
     :param use_genie: Process command output through PyATS/Genie parser (default: False).
     :type use_genie: bool
 
-    :param cmd_echo: Verify command echo before proceeding (default: False).
+    :param cmd_verify: Verify command echo before proceeding (default: False).
+    :type cmd_verify: bool
+
+    :param cmd_echo: Deprecated (use cmd_verify instead)
     :type cmd_echo: bool
     &#34;&#34;&#34;
+    # For compatibility remove cmd_echo in Netmiko 4.x.x
+    if cmd_echo is not None:
+        cmd_verify = cmd_echo
+
     output = &#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
     self.clear_buffer()
@@ -3490,7 +3566,7 @@ path, relative path, or name of file in current directory. (default: None).
 
     cmd = command_string.strip()
     # if cmd is just an &#34;enter&#34; skip this section
-    if cmd and cmd_echo:
+    if cmd and cmd_verify:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(pattern=re.escape(cmd))
         new_data = self.normalize_linefeeds(new_data)
@@ -3659,9 +3735,10 @@ The commands will be executed one after the other.</p>
         raise ValueError(&#34;Invalid argument passed into send_config_set&#34;)
 
     # Send config commands
+    output = &#34;&#34;
     if enter_config_mode:
         cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-        output = self.config_mode(*cfg_mode_args)
+        output += self.config_mode(*cfg_mode_args)
 
     if self.fast_cli:
         for cmd in config_commands:
@@ -3845,8 +3922,8 @@ This causes the output to get distorted when accessed programmatically.</p>
     delay_factor = self.select_delay_factor(delay_factor)
     command = self.normalize_cmd(command)
     self.write_channel(command)
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    # Do not use command_verify here as still in session_preparation stage.
+    output = self.read_until_prompt()
     return output</code></pre>
 </details>
 </dd>
@@ -3895,7 +3972,9 @@ ESC[00;32m
 Color Green (30 to 37 are different colors) more general pattern is
 ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
 ESC[6n
-Get cursor position</p>
+Get cursor position
+ESC[1D
+Move cursor position leftward by x characters (1 in this case)</p>
 <p>HP ProCurve and Cisco SG300 require this (possible others).</p>
 <p>:param string_buffer: The string to be processed to remove ANSI escape codes
 :type string_buffer: str</p></section>
@@ -3925,6 +4004,7 @@ Get cursor position</p>
     ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
                  ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
     ESC[6n       Get cursor position
+    ESC[1D       Move cursor position leftward by x characters (1 in this case)
 
     HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -3956,6 +4036,7 @@ Get cursor position</p>
     code_erase_display = chr(27) + r&#34;\[J&#34;
     code_attrs_off = chr(27) + r&#34;\[0m&#34;
     code_reverse = chr(27) + r&#34;\[7m&#34;
+    code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
 
     code_set = [
         code_position_cursor,
@@ -3979,6 +4060,7 @@ Get cursor position</p>
         code_erase_display,
         code_attrs_off,
         code_reverse,
+        code_cursor_left,
     ]
 
     output = string_buffer
@@ -4681,6 +4763,8 @@ Try to determine the device type.</p>
         &#34;&#34;&#34;
         if kwargs[&#34;device_type&#34;] != &#34;autodetect&#34;:
             raise ValueError(&#34;The connection device_type must be &#39;autodetect&#39;&#34;)
+        # Always set cmd_verify to False for autodetect
+        kwargs[&#34;global_cmd_verify&#34;] = False
         self.connection = ConnectHandler(*args, **kwargs)
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
@@ -4764,7 +4848,45 @@ Try to determine the device type.</p>
         else:
             return cached_results
 
-    def _autodetect_std(self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.I, priority=99):
+    def _autodetect_remote_version(
+        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+    ):
+        &#34;&#34;&#34;
+        Method to try auto-detect the device type, by matching a regular expression on the reported
+        remote version of the SSH server.
+
+        Parameters
+        ----------
+        search_patterns : list
+            A list of regular expression to look for in the reported remote SSH version
+            (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression (default: re.I).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        &#34;&#34;&#34;
+        invalid_responses = [r&#34;^$&#34;]
+
+        if not search_patterns:
+            return 0
+
+        try:
+            remote_version = self.connection.remote_conn.transport.remote_version
+            for pattern in invalid_responses:
+                match = re.search(pattern, remote_version, flags=re.I)
+                if match:
+                    return 0
+            for pattern in search_patterns:
+                match = re.search(pattern, remote_version, flags=re_flags)
+                if match:
+                    return priority
+        except Exception:
+            return 0
+        return 0
+
+    def _autodetect_std(
+        self, cmd=&#34;&#34;, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+    ):
         &#34;&#34;&#34;
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict (&#39;dispatch&#39; key). It will attempt to send a
@@ -4877,6 +4999,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.aruba" href="aruba/index.html">netmiko.aruba</a></code></li>
 <li><code><a title="netmiko.base_connection" href="base_connection.html">netmiko.base_connection</a></code></li>
 <li><code><a title="netmiko.calix" href="calix/index.html">netmiko.calix</a></code></li>
+<li><code><a title="netmiko.centec" href="centec/index.html">netmiko.centec</a></code></li>
 <li><code><a title="netmiko.checkpoint" href="checkpoint/index.html">netmiko.checkpoint</a></code></li>
 <li><code><a title="netmiko.ciena" href="ciena/index.html">netmiko.ciena</a></code></li>
 <li><code><a title="netmiko.cisco" href="cisco/index.html">netmiko.cisco</a></code></li>
@@ -4885,6 +5008,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.cloudgenix" href="cloudgenix/index.html">netmiko.cloudgenix</a></code></li>
 <li><code><a title="netmiko.coriant" href="coriant/index.html">netmiko.coriant</a></code></li>
 <li><code><a title="netmiko.dell" href="dell/index.html">netmiko.dell</a></code></li>
+<li><code><a title="netmiko.dlink" href="dlink/index.html">netmiko.dlink</a></code></li>
 <li><code><a title="netmiko.eltex" href="eltex/index.html">netmiko.eltex</a></code></li>
 <li><code><a title="netmiko.endace" href="endace/index.html">netmiko.endace</a></code></li>
 <li><code><a title="netmiko.enterasys" href="enterasys/index.html">netmiko.enterasys</a></code></li>
@@ -4914,13 +5038,16 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.ruijie" href="ruijie/index.html">netmiko.ruijie</a></code></li>
 <li><code><a title="netmiko.scp_functions" href="scp_functions.html">netmiko.scp_functions</a></code></li>
 <li><code><a title="netmiko.scp_handler" href="scp_handler.html">netmiko.scp_handler</a></code></li>
+<li><code><a title="netmiko.sixwind" href="sixwind/index.html">netmiko.sixwind</a></code></li>
 <li><code><a title="netmiko.snmp_autodetect" href="snmp_autodetect.html">netmiko.snmp_autodetect</a></code></li>
+<li><code><a title="netmiko.sophos" href="sophos/index.html">netmiko.sophos</a></code></li>
 <li><code><a title="netmiko.ssh_autodetect" href="ssh_autodetect.html">netmiko.ssh_autodetect</a></code></li>
 <li><code><a title="netmiko.ssh_exception" href="ssh_exception.html">netmiko.ssh_exception</a></code></li>
 <li><code><a title="netmiko.terminal_server" href="terminal_server/index.html">netmiko.terminal_server</a></code></li>
 <li><code><a title="netmiko.ubiquiti" href="ubiquiti/index.html">netmiko.ubiquiti</a></code></li>
 <li><code><a title="netmiko.utilities" href="utilities.html">netmiko.utilities</a></code></li>
 <li><code><a title="netmiko.vyos" href="vyos/index.html">netmiko.vyos</a></code></li>
+<li><code><a title="netmiko.watchguard" href="watchguard/index.html">netmiko.watchguard</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
