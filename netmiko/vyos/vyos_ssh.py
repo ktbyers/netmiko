@@ -10,6 +10,7 @@ class VyOSSSH(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="set terminal length 0")
+        self.set_terminal_width(command="set terminal width 512")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()

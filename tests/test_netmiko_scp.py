@@ -2,17 +2,6 @@
 import pytest
 from netmiko import file_transfer
 
-# def test_enable_scp(scp_fixture):
-#    ssh_conn, scp_transfer = scp_fixture
-#
-#    scp_transfer.disable_scp()
-#    output = ssh_conn.send_command_expect("show run | inc scp")
-#    assert 'ip scp server enable' not in output
-#
-#    scp_transfer.enable_scp()
-#    output = ssh_conn.send_command_expect("show run | inc scp")
-#    assert 'ip scp server enable' in output
-
 
 def test_scp_put(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
@@ -53,6 +42,8 @@ def test_remote_file_size(scp_fixture):
 
 def test_md5_methods(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
+    if "nokia_sros" in ssh_conn.device_type:
+        pytest.skip("MD5 not supported on this platform")
     md5_value = "d8df36973ff832b564ad84642d07a261"
 
     remote_md5 = scp_transfer.remote_md5()
@@ -70,7 +61,7 @@ def test_verify_space_available_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
     assert scp_transfer.verify_space_available() is True
     # intentional make there not be enough space available
-    scp_transfer.file_size = 100000000000000
+    scp_transfer.file_size = 100000000000000000
     assert scp_transfer.verify_space_available() is False
 
 
@@ -90,6 +81,8 @@ def test_scp_get(scp_fixture_get):
 
 def test_md5_methods_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
+    if "nokia_sros" in ssh_conn.device_type:
+        pytest.skip("MD5 not supported on this platform")
     md5_value = "d8df36973ff832b564ad84642d07a261"
     local_md5 = scp_transfer.file_md5("test9.txt")
     assert local_md5 == md5_value

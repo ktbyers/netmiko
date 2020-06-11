@@ -99,20 +99,38 @@ class HPProcurveBase(CiscoSSHConnection):
             raise ValueError(msg)
         return output
 
-    def cleanup(self):
+    def cleanup(self, command=&#34;logout&#34;):
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
-        self.exit_config_mode()
-        self.write_channel(&#34;logout&#34; + self.RETURN)
+
+        # Exit configuration mode.
+        try:
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
+        except Exception:
+            pass
+
+        # Terminate SSH/telnet session
+        self.write_channel(command + self.RETURN)
         count = 0
+        output = &#34;&#34;
         while count &lt;= 5:
             time.sleep(0.5)
-            output = self.read_channel()
-            if &#34;Do you want to log out&#34; in output:
-                self._session_log_fin = True
+
+            # The connection might be dead here.
+            try:
+                new_output = self.read_channel()
+                output += new_output
+            except socket.error:
+                break
+
+            if &#34;Do you want to log out&#34; in new_output:
                 self.write_channel(&#34;y&#34; + self.RETURN)
+                time.sleep(0.5)
+                output += self.read_channel()
+
             # Don&#39;t automatically save the config (user&#39;s responsibility)
-            elif &#34;Do you want to save the current&#34; in output:
-                self._session_log_fin = True
+            if &#34;Do you want to save the current&#34; in output:
                 self.write_channel(&#34;n&#34; + self.RETURN)
 
             try:
@@ -120,6 +138,9 @@ class HPProcurveBase(CiscoSSHConnection):
             except socket.error:
                 break
             count += 1
+
+        # Set outside of loop
+        self._session_log_fin = True
 
     def save_config(self, cmd=&#34;write memory&#34;, confirm=False, confirm_response=&#34;&#34;):
         &#34;&#34;&#34;Save Config.&#34;&#34;&#34;
@@ -203,7 +224,7 @@ class HPProcurveTelnet(HPProcurveBase):
 <dl>
 <dt id="netmiko.hp.hp_procurve.HPProcurveBase"><code class="flex name class">
 <span>class <span class="ident">HPProcurveBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -327,6 +348,11 @@ class HPProcurveTelnet(HPProcurveBase):
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -390,20 +416,38 @@ class HPProcurveTelnet(HPProcurveBase):
             raise ValueError(msg)
         return output
 
-    def cleanup(self):
+    def cleanup(self, command=&#34;logout&#34;):
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
-        self.exit_config_mode()
-        self.write_channel(&#34;logout&#34; + self.RETURN)
+
+        # Exit configuration mode.
+        try:
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
+        except Exception:
+            pass
+
+        # Terminate SSH/telnet session
+        self.write_channel(command + self.RETURN)
         count = 0
+        output = &#34;&#34;
         while count &lt;= 5:
             time.sleep(0.5)
-            output = self.read_channel()
-            if &#34;Do you want to log out&#34; in output:
-                self._session_log_fin = True
+
+            # The connection might be dead here.
+            try:
+                new_output = self.read_channel()
+                output += new_output
+            except socket.error:
+                break
+
+            if &#34;Do you want to log out&#34; in new_output:
                 self.write_channel(&#34;y&#34; + self.RETURN)
+                time.sleep(0.5)
+                output += self.read_channel()
+
             # Don&#39;t automatically save the config (user&#39;s responsibility)
-            elif &#34;Do you want to save the current&#34; in output:
-                self._session_log_fin = True
+            if &#34;Do you want to save the current&#34; in output:
                 self.write_channel(&#34;n&#34; + self.RETURN)
 
             try:
@@ -411,6 +455,9 @@ class HPProcurveTelnet(HPProcurveBase):
             except socket.error:
                 break
             count += 1
+
+        # Set outside of loop
+        self._session_log_fin = True
 
     def save_config(self, cmd=&#34;write memory&#34;, confirm=False, confirm_response=&#34;&#34;):
         &#34;&#34;&#34;Save Config.&#34;&#34;&#34;
@@ -568,7 +615,7 @@ class HPProcurveTelnet(HPProcurveBase):
 </dd>
 <dt id="netmiko.hp.hp_procurve.HPProcurveSSH"><code class="flex name class">
 <span>class <span class="ident">HPProcurveSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -692,6 +739,11 @@ class HPProcurveTelnet(HPProcurveBase):
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -794,7 +846,7 @@ class HPProcurveTelnet(HPProcurveBase):
 </dd>
 <dt id="netmiko.hp.hp_procurve.HPProcurveTelnet"><code class="flex name class">
 <span>class <span class="ident">HPProcurveTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -918,6 +970,11 @@ class HPProcurveTelnet(HPProcurveBase):
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>

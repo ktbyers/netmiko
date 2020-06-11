@@ -47,6 +47,9 @@ class CiscoAsaSSH(CiscoSSHConnection):
             except ValueError:
                 # Don&#39;t fail for the terminal width
                 pass
+        else:
+            # Disable cmd_verify if the terminal width can&#39;t be set
+            self.global_cmd_verify = False
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -157,7 +160,7 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
 <dl>
 <dt id="netmiko.cisco.cisco_asa_ssh.CiscoAsaFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoAsaFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco ASA SCP File Transfer driver.</p></section>
@@ -200,7 +203,7 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoAsaSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Subclass specific to Cisco ASA.</p>
@@ -324,6 +327,11 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -345,6 +353,9 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
             except ValueError:
                 # Don&#39;t fail for the terminal width
                 pass
+        else:
+            # Disable cmd_verify if the terminal width can&#39;t be set
+            self.global_cmd_verify = False
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -584,6 +595,9 @@ updated after each context change.</p></section>
         except ValueError:
             # Don&#39;t fail for the terminal width
             pass
+    else:
+        # Disable cmd_verify if the terminal width can&#39;t be set
+        self.global_cmd_verify = False
 
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)

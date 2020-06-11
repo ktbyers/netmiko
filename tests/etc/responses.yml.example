@@ -89,6 +89,16 @@ ubiquiti_edge:
   cmd_response_init: ""
   cmd_response_final: "logging persistent 4"
 
+ubiquiti_unifiswitch:
+  base_prompt: "(UBNT) "
+  router_prompt: "(UBNT) >"
+  enable_prompt: "(UBNT) #"
+  interface_ip: 10.0.132.4
+  version_banner: "Software Version"
+  multiple_line_output: "Current Configuration:"
+  cmd_response_init: ""
+  cmd_response_final: "logging persistent 4"
+
 dellos10:
   base_prompt: OS10
   router_prompt : OS10#
@@ -223,6 +233,22 @@ keymile_nos:
   interface_ip: 1.2.3.5 
   version_banner: "NOS version 2.09 #0001"
   multiple_line_output: "Interface br328"
+  
+dlink_ds:
+  base_prompt: DGS-3120-24TC:admin
+  router_prompt: DGS-3120-24TC:admin#
+  enable_prompt: DGS-3120-24TC:admin#
+  version_banner: "D-Link Corporation"
+  multiple_line_output: "End of configuration file"
+  interface_ip: 192.168.50.10
+
+dlink_ds_telnet:
+  base_prompt: DGS-3120-24TC:admin
+  router_prompt: DGS-3120-24TC:admin#
+  enable_prompt: DGS-3120-24TC:admin#
+  version_banner: "D-Link Corporation"
+  multiple_line_output: "End of configuration file"
+  interface_ip: 192.168.50.10
 
 ruijie_os:
   base_prompt: Ruijie
@@ -233,3 +259,27 @@ ruijie_os:
   multiple_line_output: ""
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
+
+centec_os:
+  base_prompt: Centec
+  router_prompt : Centec>
+  enable_prompt: Centec#
+  interface_ip: 172.30.31.101
+  version_banner: "Centec Networks"
+  multiple_line_output: ""
+
+sophos_sfos:
+  base_prompt: "console"
+  router_prompt: "console>"
+  enable_prompt: "console>"
+  interface_ip: 172.16.16.16
+  version_banner: "Serial Number"
+  multiple_line_output: ""
+
+huawei_smartax:
+  base_prompt: "ol01.test-lab.xyz"
+  router_prompt: "ol01.test-lab.xyz>"
+  enable_prompt: "ol01.test-lab.xyz#"
+  interface_ip: 192.0.2.1
+  version_banner: "VERSION :"
+  multiple_line_output: ""

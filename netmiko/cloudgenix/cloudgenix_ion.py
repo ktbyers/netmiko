@@ -12,7 +12,7 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         self.write_channel(self.RETURN)
         self.set_base_prompt(delay_factor=5)
 
-    def disable_paging(self):
+    def disable_paging(self, *args, **kwargs):
         """Cloud Genix ION sets terminal height in establish_connection"""
         return ""
 

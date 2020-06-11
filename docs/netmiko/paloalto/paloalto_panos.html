@@ -183,15 +183,17 @@ class PaloAltoPanosBase(BaseConnection):
         kwargs[&#34;delay_factor&#34;] = kwargs.get(&#34;delay_factor&#34;, 2.5)
         return super().send_command(*args, **kwargs)
 
-    def cleanup(self):
+    def cleanup(self, command=&#34;exit&#34;):
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
         try:
-            self.exit_config_mode()
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
         except Exception:
-            # Always try to send &#39;exit&#39; regardless of whether exit_config_mode works or not.
             pass
+        # Always try to send final &#39;exit&#39; (command)
         self._session_log_fin = True
-        self.write_channel(&#34;exit&#34; + self.RETURN)
+        self.write_channel(command + self.RETURN)
 
 
 class PaloAltoPanosSSH(PaloAltoPanosBase):
@@ -213,7 +215,7 @@ class PaloAltoPanosTelnet(PaloAltoPanosBase):
 <dl>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase"><code class="flex name class">
 <span>class <span class="ident">PaloAltoPanosBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with PaloAlto devices.</p>
@@ -340,6 +342,11 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -499,15 +506,17 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
         kwargs[&#34;delay_factor&#34;] = kwargs.get(&#34;delay_factor&#34;, 2.5)
         return super().send_command(*args, **kwargs)
 
-    def cleanup(self):
+    def cleanup(self, command=&#34;exit&#34;):
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
         try:
-            self.exit_config_mode()
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
         except Exception:
-            # Always try to send &#39;exit&#39; regardless of whether exit_config_mode works or not.
             pass
+        # Always try to send final &#39;exit&#39; (command)
         self._session_log_fin = True
-        self.write_channel(&#34;exit&#34; + self.RETURN)</code></pre>
+        self.write_channel(command + self.RETURN)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -545,21 +554,23 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 </details>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.cleanup"><code class="name flex">
-<span>def <span class="ident">cleanup</span></span>(<span>self)</span>
+<span>def <span class="ident">cleanup</span></span>(<span>self, command='exit')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Gracefully exit the SSH session.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def cleanup(self):
+<pre><code class="python">def cleanup(self, command=&#34;exit&#34;):
     &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
     try:
-        self.exit_config_mode()
+        # The pattern=&#34;&#34; forces use of send_command_timing
+        if self.check_config_mode(pattern=&#34;&#34;):
+            self.exit_config_mode()
     except Exception:
-        # Always try to send &#39;exit&#39; regardless of whether exit_config_mode works or not.
         pass
+    # Always try to send final &#39;exit&#39; (command)
     self._session_log_fin = True
-    self.write_channel(&#34;exit&#34; + self.RETURN)</code></pre>
+    self.write_channel(command + self.RETURN)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.commit"><code class="name flex">
@@ -841,7 +852,7 @@ Set the base prompt for interaction ('&gt;').</p></section>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosSSH"><code class="flex name class">
 <span>class <span class="ident">PaloAltoPanosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with PaloAlto devices.</p>
@@ -968,6 +979,11 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1030,7 +1046,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosTelnet"><code class="flex name class">
 <span>class <span class="ident">PaloAltoPanosTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with PaloAlto devices.</p>
@@ -1157,6 +1173,11 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>

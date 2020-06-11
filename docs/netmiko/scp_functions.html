@@ -55,6 +55,7 @@ def file_transfer(
     inline_transfer=False,
     overwrite_file=False,
     socket_timeout=10.0,
+    verify_file=None,
 ):
     &#34;&#34;&#34;Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
@@ -89,6 +90,10 @@ def file_transfer(
     if not cisco_ios and inline_transfer:
         raise ValueError(&#34;Inline Transfer only supported for Cisco IOS/Cisco IOS-XE&#34;)
 
+    # Replace disable_md5 argument with verify_file argument across time
+    if verify_file is None:
+        verify_file = not disable_md5
+
     scp_args = {
         &#34;ssh_conn&#34;: ssh_conn,
         &#34;source_file&#34;: source_file,
@@ -104,13 +109,13 @@ def file_transfer(
     with TransferClass(**scp_args) as scp_transfer:
         if scp_transfer.check_file_exists():
             if overwrite_file:
-                if not disable_md5:
-                    if scp_transfer.compare_md5():
+                if verify_file:
+                    if scp_transfer.verify_file():
                         return nottransferred_but_verified
                     else:
                         # File exists, you can overwrite it, MD5 is wrong (transfer file)
                         verifyspace_and_transferfile(scp_transfer)
-                        if scp_transfer.compare_md5():
+                        if scp_transfer.verify_file():
                             return transferred_and_verified
                         else:
                             raise ValueError(
@@ -122,16 +127,16 @@ def file_transfer(
                     return transferred_and_notverified
             else:
                 # File exists, but you can&#39;t overwrite it.
-                if not disable_md5:
-                    if scp_transfer.compare_md5():
+                if verify_file:
+                    if scp_transfer.verify_file():
                         return nottransferred_but_verified
                 msg = &#34;File already exists and overwrite_file is disabled&#34;
                 raise ValueError(msg)
         else:
             verifyspace_and_transferfile(scp_transfer)
             # File doesn&#39;t exist
-            if not disable_md5:
-                if scp_transfer.compare_md5():
+            if verify_file:
+                if scp_transfer.verify_file():
                     return transferred_and_verified
                 else:
                     raise ValueError(&#34;MD5 failure between source and destination files&#34;)
@@ -147,7 +152,7 @@ def file_transfer(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="netmiko.scp_functions.file_transfer"><code class="name flex">
-<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0)</span>
+<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0, verify_file=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.</p>
@@ -169,6 +174,7 @@ def file_transfer(
     inline_transfer=False,
     overwrite_file=False,
     socket_timeout=10.0,
+    verify_file=None,
 ):
     &#34;&#34;&#34;Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
@@ -203,6 +209,10 @@ def file_transfer(
     if not cisco_ios and inline_transfer:
         raise ValueError(&#34;Inline Transfer only supported for Cisco IOS/Cisco IOS-XE&#34;)
 
+    # Replace disable_md5 argument with verify_file argument across time
+    if verify_file is None:
+        verify_file = not disable_md5
+
     scp_args = {
         &#34;ssh_conn&#34;: ssh_conn,
         &#34;source_file&#34;: source_file,
@@ -218,13 +228,13 @@ def file_transfer(
     with TransferClass(**scp_args) as scp_transfer:
         if scp_transfer.check_file_exists():
             if overwrite_file:
-                if not disable_md5:
-                    if scp_transfer.compare_md5():
+                if verify_file:
+                    if scp_transfer.verify_file():
                         return nottransferred_but_verified
                     else:
                         # File exists, you can overwrite it, MD5 is wrong (transfer file)
                         verifyspace_and_transferfile(scp_transfer)
-                        if scp_transfer.compare_md5():
+                        if scp_transfer.verify_file():
                             return transferred_and_verified
                         else:
                             raise ValueError(
@@ -236,16 +246,16 @@ def file_transfer(
                     return transferred_and_notverified
             else:
                 # File exists, but you can&#39;t overwrite it.
-                if not disable_md5:
-                    if scp_transfer.compare_md5():
+                if verify_file:
+                    if scp_transfer.verify_file():
                         return nottransferred_but_verified
                 msg = &#34;File already exists and overwrite_file is disabled&#34;
                 raise ValueError(msg)
         else:
             verifyspace_and_transferfile(scp_transfer)
             # File doesn&#39;t exist
-            if not disable_md5:
-                if scp_transfer.compare_md5():
+            if verify_file:
+                if scp_transfer.verify_file():
                     return transferred_and_verified
                 else:
                     raise ValueError(&#34;MD5 failure between source and destination files&#34;)

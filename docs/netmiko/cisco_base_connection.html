@@ -54,7 +54,7 @@ class CiscoBaseConnection(BaseConnection):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;
         Enter into configuration mode on remote device.
 
@@ -182,15 +182,17 @@ class CiscoBaseConnection(BaseConnection):
         msg = f&#34;Login failed: {self.host}&#34;
         raise NetmikoAuthenticationException(msg)
 
-    def cleanup(self):
+    def cleanup(self, command=&#34;exit&#34;):
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
         try:
-            self.exit_config_mode()
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
         except Exception:
             pass
-        # Always try to send final &#39;exit&#39; regardless of whether exit_config_mode works or not.
+        # Always try to send final &#39;exit&#39; (command)
         self._session_log_fin = True
-        self.write_channel(&#34;exit&#34; + self.RETURN)
+        self.write_channel(command + self.RETURN)
 
     def _autodetect_fs(self, cmd=&#34;dir&#34;, pattern=r&#34;Directory of (.*)/&#34;):
         &#34;&#34;&#34;Autodetect the file system on the remote device. Used by SCP operations.&#34;&#34;&#34;
@@ -264,7 +266,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <dl>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoBaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -388,6 +390,11 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -414,7 +421,7 @@ class CiscoFileTransfer(BaseFileTransfer):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;
         Enter into configuration mode on remote device.
 
@@ -542,15 +549,17 @@ class CiscoFileTransfer(BaseFileTransfer):
         msg = f&#34;Login failed: {self.host}&#34;
         raise NetmikoAuthenticationException(msg)
 
-    def cleanup(self):
+    def cleanup(self, command=&#34;exit&#34;):
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
         try:
-            self.exit_config_mode()
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
         except Exception:
             pass
-        # Always try to send final &#39;exit&#39; regardless of whether exit_config_mode works or not.
+        # Always try to send final &#39;exit&#39; (command)
         self._session_log_fin = True
-        self.write_channel(&#34;exit&#34; + self.RETURN)
+        self.write_channel(command + self.RETURN)
 
     def _autodetect_fs(self, cmd=&#34;dir&#34;, pattern=r&#34;Directory of (.*)/&#34;):
         &#34;&#34;&#34;Autodetect the file system on the remote device. Used by SCP operations.&#34;&#34;&#34;
@@ -611,13 +620,16 @@ class CiscoFileTransfer(BaseFileTransfer):
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
+<li><a title="netmiko.centec.centec_os.CentecOSBase" href="centec/centec_os.html#netmiko.centec.centec_os.CentecOSBase">CentecOSBase</a></li>
 <li><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="cisco/cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></li>
 <li><a title="netmiko.cisco.cisco_xr.CiscoXrBase" href="cisco/cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase">CiscoXrBase</a></li>
 <li><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase" href="dell/dell_powerconnect.html#netmiko.dell.dell_powerconnect.DellPowerConnectBase">DellPowerConnectBase</a></li>
 <li><a title="netmiko.huawei.huawei.HuaweiBase" href="huawei/huawei.html#netmiko.huawei.huawei.HuaweiBase">HuaweiBase</a></li>
+<li><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH" href="huawei/huawei_smartax.html#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH">HuaweiSmartAXSSH</a></li>
 <li><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="ipinfusion/ipinfusion_ocnos.html#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></li>
 <li><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase" href="oneaccess/oneaccess_oneos.html#netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase">OneaccessOneOSBase</a></li>
 <li><a title="netmiko.ruijie.ruijie_os.RuijieOSBase" href="ruijie/ruijie_os.html#netmiko.ruijie.ruijie_os.RuijieOSBase">RuijieOSBase</a></li>
+<li><a title="netmiko.sixwind.sixwind_os.SixwindOSBase" href="sixwind/sixwind_os.html#netmiko.sixwind.sixwind_os.SixwindOSBase">SixwindOSBase</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -651,32 +663,34 @@ class CiscoFileTransfer(BaseFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.cleanup"><code class="name flex">
-<span>def <span class="ident">cleanup</span></span>(<span>self)</span>
+<span>def <span class="ident">cleanup</span></span>(<span>self, command='exit')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Gracefully exit the SSH session.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def cleanup(self):
+<pre><code class="python">def cleanup(self, command=&#34;exit&#34;):
     &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
     try:
-        self.exit_config_mode()
+        # The pattern=&#34;&#34; forces use of send_command_timing
+        if self.check_config_mode(pattern=&#34;&#34;):
+            self.exit_config_mode()
     except Exception:
         pass
-    # Always try to send final &#39;exit&#39; regardless of whether exit_config_mode works or not.
+    # Always try to send final &#39;exit&#39; (command)
     self._session_log_fin = True
-    self.write_channel(&#34;exit&#34; + self.RETURN)</code></pre>
+    self.write_channel(command + self.RETURN)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='config term', pattern='')</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure terminal', pattern='')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter into configuration mode on remote device.</p>
 <p>Cisco IOS devices abbreviate the prompt at 20 chars in config mode</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;&#34;):
+<pre><code class="python">def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
     &#34;&#34;&#34;
     Enter into configuration mode on remote device.
 
@@ -931,7 +945,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Class to manage SCP file transfer and associated SSH control channel.</p></section>
@@ -980,7 +994,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoSSHConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoSSHConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -1104,6 +1118,11 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
     :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1132,6 +1151,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.coriant.coriant_ssh.CoriantSSH" href="coriant/coriant_ssh.html#netmiko.coriant.coriant_ssh.CoriantSSH">CoriantSSH</a></li>
 <li><a title="netmiko.dell.dell_force10_ssh.DellForce10SSH" href="dell/dell_force10_ssh.html#netmiko.dell.dell_force10_ssh.DellForce10SSH">DellForce10SSH</a></li>
 <li><a title="netmiko.dell.dell_os10_ssh.DellOS10SSH" href="dell/dell_os10_ssh.html#netmiko.dell.dell_os10_ssh.DellOS10SSH">DellOS10SSH</a></li>
+<li><a title="netmiko.dlink.dlink_ds.DlinkDSBase" href="dlink/dlink_ds.html#netmiko.dlink.dlink_ds.DlinkDSBase">DlinkDSBase</a></li>
 <li><a title="netmiko.eltex.eltex_ssh.EltexSSH" href="eltex/eltex_ssh.html#netmiko.eltex.eltex_ssh.EltexSSH">EltexSSH</a></li>
 <li><a title="netmiko.eltex.eltex_esr_ssh.EltexEsrSSH" href="eltex/eltex_esr_ssh.html#netmiko.eltex.eltex_esr_ssh.EltexEsrSSH">EltexEsrSSH</a></li>
 <li><a title="netmiko.endace.endace_ssh.EndaceSSH" href="endace/endace_ssh.html#netmiko.endace.endace_ssh.EndaceSSH">EndaceSSH</a></li>
@@ -1153,6 +1173,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.mrv.mrv_ssh.MrvOptiswitchSSH" href="mrv/mrv_ssh.html#netmiko.mrv.mrv_ssh.MrvOptiswitchSSH">MrvOptiswitchSSH</a></li>
 <li><a title="netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH" href="quanta/quanta_mesh_ssh.html#netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH">QuantaMeshSSH</a></li>
 <li><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase" href="ruckus/ruckus_fastiron.html#netmiko.ruckus.ruckus_fastiron.RuckusFastironBase">RuckusFastironBase</a></li>
+<li><a title="netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH" href="sophos/sophos_sfos_ssh.html#netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH">SophosSfosSSH</a></li>
 <li><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH" href="ubiquiti/edge_ssh.html#netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH">UbiquitiEdgeSSH</a></li>
 <li><a title="netmiko.vyos.vyos_ssh.VyOSSSH" href="vyos/vyos_ssh.html#netmiko.vyos.vyos_ssh.VyOSSSH">VyOSSSH</a></li>
 </ul>

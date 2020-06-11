@@ -12,6 +12,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.ansi_escape_codes = True
         self.set_base_prompt()
         self.disable_paging()
+        self.set_terminal_width(command="terminal width 511")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -88,6 +89,8 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             remote_cmd = f"dir {self.file_system}/{remote_file}"
 
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        if re.search("no such file or directory", remote_out, flags=re.I):
+            raise IOError("Unable to find file on remote system")
         # Match line containing file name
         escape_file_name = re.escape(remote_file)
         pattern = r".*({}).*".format(escape_file_name)
@@ -95,11 +98,9 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         if match:
             file_size = match.group(0)
             file_size = file_size.split()[0]
-
-        if "No such file or directory" in remote_out:
-            raise IOError("Unable to find file on remote system")
-        else:
             return int(file_size)
+
+        raise IOError("Unable to find file on remote system")
 
     @staticmethod
     def process_md5(md5_output, pattern=r"= (.*)"):

@@ -64,6 +64,7 @@ class BaseFileTransfer(object):
         file_system=None,
         direction="put",
         socket_timeout=10.0,
+        hash_supported=True,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
@@ -85,10 +86,12 @@ class BaseFileTransfer(object):
             self.file_system = file_system
 
         if direction == "put":
-            self.source_md5 = self.file_md5(source_file)
+            self.source_md5 = self.file_md5(source_file) if hash_supported else None
             self.file_size = os.stat(source_file).st_size
         elif direction == "get":
-            self.source_md5 = self.remote_md5(remote_file=source_file)
+            self.source_md5 = (
+                self.remote_md5(remote_file=source_file) if hash_supported else None
+            )
             self.file_size = self.remote_file_size(remote_file=source_file)
         else:
             raise ValueError("Invalid direction specified")
