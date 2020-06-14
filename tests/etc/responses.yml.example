@@ -99,6 +99,15 @@ ubiquiti_unifiswitch:
   cmd_response_init: ""
   cmd_response_final: "logging persistent 4"
 
+dell_sonic:
+  base_prompt: sonic
+  router_prompt : sonic#
+  interface_ip: 10.10.10.1
+  version_banner: "Software Version:"
+  multiple_line_output: "Name                Description         Admin          Oper           Speed          MTU"
+  cmd_response_init: ""
+  cmd_response_final: "100        Inactive"
+
 dellos10:
   base_prompt: OS10
   router_prompt : OS10#
