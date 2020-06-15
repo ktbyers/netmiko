@@ -31,3 +31,9 @@ class CiscoViptelaSSH(CiscoSSHConnection):
         Enter into configuration mode on remote device.
         """
         return super().config_mode(config_command=config_command, pattern=pattern)
+
+    def exit_config_mode(self, exit_config="end", pattern="#"):
+        """Exit from configuration mode."""
+        # Viptela requires committing before exiting config mode.
+        self.save_config()
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
