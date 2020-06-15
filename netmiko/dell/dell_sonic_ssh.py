@@ -13,27 +13,11 @@ class DellSonicSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
         self._enter_shell()
+        self.disable_paging()
         self.set_base_prompt(alt_prompt_terminator="$")
 
-    def check_config_mode1(self, check_string="#", pattern=""):
-        log.debug(f"pattern: {pattern}")
-        self.write_channel(self.RETURN)
-        output = self.read_until_pattern(pattern=pattern)
-        log.debug(f"check_config_mode: {repr(output)}")
-        output = output.replace("(s1)", "")
-        output = output.replace("(s2)", "")
-        log.debug(f"check_config_mode: {repr(output)}")
-        return check_string in output
-
-    def disable_paging(self, command="terminal length 0", delay_factor=1):
-        """Disable paging sets the command: terminal length 0
-
-        :param command: Device command to disable pagination of output
-        :type command: str
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
-        """
-        return self.send_command(command, expect_string=r"[\#]")
+    #def disable_paging(self, command="terminal length 0", delay_factor=1):
+    #    return self.send_command(command, expect_string=r"[\#]")
 
     def config_mode(self, config_command="configure terminal", pattern="#"):
         return super().config_mode(config_command=config_command, pattern=pattern)
@@ -42,12 +26,16 @@ class DellSonicSSH(CiscoSSHConnection):
         """Enter the sonic-cli Shell."""
         log.debug(f"Enter sonic-cli Shell.")
         output = self.send_command("sonic-cli", expect_string=r"[\#]")
-        self.send_command("terminal length 0", expect_string=r"[\#]")
-
         return output
 
     def enable(self, *args, **kwargs):
-        raise AttributeError("Dell Sonic switches do not support enable mode!")
+        return ""
+
+    def exit_enable_mode(self, *args, **kwargs):
+        return ""
+
+    def check_enable_mode(self, *args, **kwargs):
+        return True
 
     def _return_cli(self):
         """Return to the CLI."""
