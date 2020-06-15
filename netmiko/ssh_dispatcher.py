@@ -86,6 +86,8 @@ from netmiko.vyos import VyOSSSH
 from netmiko.watchguard import WatchguardFirewareSSH
 from netmiko.yamaha import YamahaSSH
 from netmiko.yamaha import YamahaTelnet
+from netmiko.zte import ZteZxrosSSH
+from netmiko.zte import ZteZxrosTelnet
 
 
 # The keys of this dictionary are the supported device_types
@@ -184,6 +186,7 @@ CLASS_MAPPER_BASE = {
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "watchguard_fireware": WatchguardFirewareSSH,
+    "zte_zxros": ZteZxrosSSH,
     "yamaha": YamahaSSH,
 }
 
@@ -245,6 +248,7 @@ CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
+CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
