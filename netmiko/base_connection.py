@@ -78,6 +78,7 @@ class BaseConnection(object):
         allow_auto_change=False,
         encoding="ascii",
         sock=None,
+        auto_connect=True,
     ):
         """
         Initialize attributes for establishing connection to target device.
@@ -204,6 +205,9 @@ class BaseConnection(object):
                 argument. Value of `None` indicates to use function `cmd_verify` argument.
         :type global_cmd_verify: bool|None
 
+        :param auto_connect: Control whether Netmiko automatically establishes the connection as
+                part of the object creation (default: True).
+        :type auto_connect: bool
         """
         self.remote_conn = None
 
@@ -324,7 +328,8 @@ class BaseConnection(object):
             self.ssh_config_file = ssh_config_file
 
         # Establish the remote connection
-        self._open()
+        if auto_connect:
+            self._open()
 
     def _open(self):
         """Decouple connection creation from __init__ for mocking."""
