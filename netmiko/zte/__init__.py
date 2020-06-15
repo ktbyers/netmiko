@@ -1,4 +1,4 @@
-from netmiko.zte.zte import ZTESSH
-from netmiko.zte.zte import ZTETelnet
+from netmiko.zte.zte_zxros import ZteZxrosSSH
+from netmiko.zte.zte_zxros import ZteZxrosTelnet
 
-__all__ = ["ZTESSH", "ZTETelnet"]
+__all__ = ["ZteZxrosSSH", "ZteZxrosTelnet"]

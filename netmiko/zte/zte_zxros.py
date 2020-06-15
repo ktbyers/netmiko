@@ -3,7 +3,7 @@ import time
 from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS
 
 
-class ZTEBase(CiscoBaseConnection):
+class ZteZxrosBase(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
@@ -26,11 +26,11 @@ class ZTEBase(CiscoBaseConnection):
         )
 
 
-class ZTESSH(ZTEBase):
+class ZteZxrosSSH(ZteZxrosBase):
     pass
 
 
-class ZTETelnet(ZTEBase):
+class ZteZxrosTelnet(ZteZxrosBase):
     @staticmethod
     def _process_option(telnet_sock, cmd, opt):
         """
@@ -47,7 +47,7 @@ class ZTETelnet(ZTEBase):
             if opt == NAWS:
                 # negotiate about window size
                 telnet_sock.sendall(IAC + WILL + opt)
-                # Width:500, Weight:50
+                # Width:500, Height:50
                 telnet_sock.sendall(IAC + SB + NAWS + b"\x01\xf4\x00\x32" + IAC + SE)
             else:
                 telnet_sock.sendall(IAC + WONT + opt)
