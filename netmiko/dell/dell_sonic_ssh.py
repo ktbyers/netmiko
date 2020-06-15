@@ -16,9 +16,6 @@ class DellSonicSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_base_prompt(alt_prompt_terminator="$")
 
-    #def disable_paging(self, command="terminal length 0", delay_factor=1):
-    #    return self.send_command(command, expect_string=r"[\#]")
-
     def config_mode(self, config_command="configure terminal", pattern="#"):
         return super().config_mode(config_command=config_command, pattern=pattern)
 
