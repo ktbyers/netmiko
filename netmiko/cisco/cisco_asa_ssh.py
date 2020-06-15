@@ -94,12 +94,12 @@ class CiscoAsaSSH(CiscoSSHConnection):
         Username: admin
 
         Raises NetmikoAuthenticationException, if we do not reach privilege
-        level 15 after 3 attempts.
+        level 15 after 10 loops.
         """
         delay_factor = self.select_delay_factor(0)
 
         i = 1
-        max_attempts = 3
+        max_attempts = 10
         self.write_channel("login" + self.RETURN)
         while i <= max_attempts:
             time.sleep(0.5 * delay_factor)
@@ -109,12 +109,12 @@ class CiscoAsaSSH(CiscoSSHConnection):
             elif "ssword" in output:
                 self.write_channel(self.password + self.RETURN)
             elif "#" in output:
-                return True
+                return
             else:
                 self.write_channel("login" + self.RETURN)
             i += 1
 
-        msg = "Unable to get to enable mode!"
+        msg = "Unable to enter enable mode!"
         raise NetmikoAuthenticationException(msg)
 
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
