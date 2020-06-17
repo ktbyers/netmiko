@@ -138,6 +138,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "hp_comware": {
+        "cmd": "display version",
+        "search_patterns": ["HPE Comware"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "huawei": {
         "cmd": "display version",
         "search_patterns": [
