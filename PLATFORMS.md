@@ -17,7 +17,9 @@
 
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
+- Broadcom ICOS
 - Calix B6
+- Centec Networks
 - Cisco AireOS (Wireless LAN Controllers)
 - CloudGenix ION
 - Dell OS9 (Force10)
@@ -43,9 +45,10 @@
 - Pluribus
 - Ruckus ICX/FastIron
 - Ruijie Networks
-- Centec Networks
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
+- Yamaha
+- ZTE ZXROS
 
 ###### Experimental
 
