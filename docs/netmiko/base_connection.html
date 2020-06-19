@@ -106,6 +106,7 @@ class BaseConnection(object):
         allow_auto_change=False,
         encoding=&#34;ascii&#34;,
         sock=None,
+        auto_connect=True,
     ):
         &#34;&#34;&#34;
         Initialize attributes for establishing connection to target device.
@@ -232,6 +233,9 @@ class BaseConnection(object):
                 argument. Value of `None` indicates to use function `cmd_verify` argument.
         :type global_cmd_verify: bool|None
 
+        :param auto_connect: Control whether Netmiko automatically establishes the connection as
+                part of the object creation (default: True).
+        :type auto_connect: bool
         &#34;&#34;&#34;
         self.remote_conn = None
 
@@ -352,7 +356,8 @@ class BaseConnection(object):
             self.ssh_config_file = ssh_config_file
 
         # Establish the remote connection
-        self._open()
+        if auto_connect:
+            self._open()
 
     def _open(self):
         &#34;&#34;&#34;Decouple connection creation from __init__ for mocking.&#34;&#34;&#34;
@@ -1955,7 +1960,7 @@ class TelnetConnection(BaseConnection):
 <dl>
 <dt id="netmiko.base_connection.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -2085,6 +2090,10 @@ class TelnetConnection(BaseConnection):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -2133,6 +2142,7 @@ class TelnetConnection(BaseConnection):
         allow_auto_change=False,
         encoding=&#34;ascii&#34;,
         sock=None,
+        auto_connect=True,
     ):
         &#34;&#34;&#34;
         Initialize attributes for establishing connection to target device.
@@ -2259,6 +2269,9 @@ class TelnetConnection(BaseConnection):
                 argument. Value of `None` indicates to use function `cmd_verify` argument.
         :type global_cmd_verify: bool|None
 
+        :param auto_connect: Control whether Netmiko automatically establishes the connection as
+                part of the object creation (default: True).
+        :type auto_connect: bool
         &#34;&#34;&#34;
         self.remote_conn = None
 
@@ -2379,7 +2392,8 @@ class TelnetConnection(BaseConnection):
             self.ssh_config_file = ssh_config_file
 
         # Establish the remote connection
-        self._open()
+        if auto_connect:
+            self._open()
 
     def _open(self):
         &#34;&#34;&#34;Decouple connection creation from __init__ for mocking.&#34;&#34;&#34;
@@ -3986,6 +4000,7 @@ class TelnetConnection(BaseConnection):
 <li><a title="netmiko.rad.rad_etx.RadETXBase" href="rad/rad_etx.html#netmiko.rad.rad_etx.RadETXBase">RadETXBase</a></li>
 <li><a title="netmiko.terminal_server.terminal_server.TerminalServer" href="terminal_server/terminal_server.html#netmiko.terminal_server.terminal_server.TerminalServer">TerminalServer</a></li>
 <li><a title="netmiko.watchguard.fireware_ssh.WatchguardFirewareSSH" href="watchguard/fireware_ssh.html#netmiko.watchguard.fireware_ssh.WatchguardFirewareSSH">WatchguardFirewareSSH</a></li>
+<li><a title="netmiko.yamaha.yamaha.YamahaBase" href="yamaha/yamaha.html#netmiko.yamaha.yamaha.YamahaBase">YamahaBase</a></li>
 </ul>
 <h3>Static methods</h3>
 <dl>
@@ -5705,7 +5720,7 @@ Move cursor position leftward by x characters (1 in this case)</p>
 </dd>
 <dt id="netmiko.base_connection.TelnetConnection"><code class="flex name class">
 <span>class <span class="ident">TelnetConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -5835,6 +5850,10 @@ Move cursor position leftward by x characters (1 in this case)</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>

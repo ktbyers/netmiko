@@ -89,6 +89,8 @@ from netmiko.yamaha import YamahaTelnet
 from netmiko.zte import ZteZxrosSSH
 from netmiko.zte import ZteZxrosTelnet
 
+GenericSSH = TerminalServerSSH
+GenericTelnet = TerminalServerTelnet
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -147,6 +149,7 @@ CLASS_MAPPER_BASE = {
     "f5_linux": F5LinuxSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
+    "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
@@ -235,6 +238,7 @@ CLASS_MAPPER["dlink_ds_telnet"] = DlinkDSTelnet
 CLASS_MAPPER["extreme_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_exos_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_netiron_telnet"] = ExtremeNetironTelnet
+CLASS_MAPPER["generic_telnet"] = GenericTelnet
 CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
