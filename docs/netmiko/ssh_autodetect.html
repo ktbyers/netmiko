@@ -199,6 +199,12 @@ SSH_MAPPER_BASE = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
+    &#34;hp_comware&#34;: {
+        &#34;cmd&#34;: &#34;display version&#34;,
+        &#34;search_patterns&#34;: [&#34;HPE Comware&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
     &#34;huawei&#34;: {
         &#34;cmd&#34;: &#34;display version&#34;,
         &#34;search_patterns&#34;: [
@@ -251,6 +257,12 @@ SSH_MAPPER_BASE = {
     &#34;mellanox_mlnxos&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
         &#34;search_patterns&#34;: [r&#34;Onyx&#34;, r&#34;SX_PPC_M460EX&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;yamaha&#34;: {
+        &#34;cmd&#34;: &#34;show copyright&#34;,
+        &#34;search_patterns&#34;: [r&#34;Yamaha Corporation&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
