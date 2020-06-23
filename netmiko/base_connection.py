@@ -49,6 +49,7 @@ class BaseConnection(object):
         secret="",
         port=None,
         device_type="",
+        ansi_escape_codes=False,
         verbose=False,
         global_delay_factor=1,
         global_cmd_verify=None,
@@ -108,6 +109,10 @@ class BaseConnection(object):
 
         :param device_type: Class selection based on device type.
         :type device_type: str
+
+        :param ansi_escape_codes: Whether the device outputs ANSI escape codes that
+                need to be stripped.
+        :type ansi_escape_codes: bool
 
         :param verbose: Enable additional messages to standard output.
         :type verbose: bool
@@ -239,7 +244,7 @@ class BaseConnection(object):
         self.password = password
         self.secret = secret
         self.device_type = device_type
-        self.ansi_escape_codes = False
+        self.ansi_escape_codes = ansi_escape_codes
         self.verbose = verbose
         self.timeout = timeout
         self.auth_timeout = auth_timeout
