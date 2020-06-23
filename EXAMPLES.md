@@ -3,15 +3,15 @@
 Netmiko Examples
 =======
 
-A set of common Netmiko use-cases.
+A set of common Netmiko use cases.
 
 <br />
 
 ## Table of contents
 
 - [Available device types](#available-device-types)
-- [Simple example](https://ktbyers.github.io/netmiko/#installation)
-- [Connect using a dictionary](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
+- [Simple example](#simple-example)
+- [Connect using a dictionary](#connect-using-a-dictionary)
 - [Dictionary and a context manager](https://ktbyers.github.io/netmiko/#common-issuesfaq)
 - [Enable mode](https://ktbyers.github.io/netmiko/#api-documentation)
 - [Connecting to multiple devices](https://ktbyers.github.io/netmiko/#textfsm-integration)
@@ -80,8 +80,9 @@ print(net_connect.find_prompt())
 net_connect.disconnect()
 ```
 
+<br />
 
-## Connect using a Dictionary.
+## Connect using a dictionary
 
 ```py
 from netmiko import ConnectHandler
