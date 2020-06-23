@@ -13,6 +13,10 @@ class ArubaSSH(CiscoSSHConnection):
         # Aruba has an auto-complete on space behavior that is problematic
         if kwargs.get("global_cmd_verify") is None:
             kwargs["global_cmd_verify"] = False
+        # Some Aruba switches output ANSI escape codes
+        if kwargs.get("ansi_escape_codes") is None:
+            kwargs["ansi_escape_codes"] = True
+
         return super().__init__(**kwargs)
 
     def session_preparation(self):
