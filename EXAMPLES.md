@@ -2,18 +2,24 @@
 Netmiko
 =======
 
-Multi-vendor library to simplify Paramiko SSH connections to network devices
+A large set of very common Netmiko use-cases.
 
-## Quick Links
+## The Simplest Example
 
-- [Supported Platforms](https://ktbyers.github.io/netmiko/#supported-platforms)
-- [Installation](https://ktbyers.github.io/netmiko/#installation)
-- [Tutorials/Examples/Getting Started](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
-- [Common Issues/FAQ](https://ktbyers.github.io/netmiko/#common-issuesfaq)
-- [API-Documentation](https://ktbyers.github.io/netmiko/#api-documentation)
-- [TextFSM Integration](https://ktbyers.github.io/netmiko/#textfsm-integration)
-- [Contributing](https://ktbyers.github.io/netmiko/#contributing)
-- [Questions/Discussion](https://ktbyers.github.io/netmiko/#questionsdiscussion)
+```py
+from netmiko import ConnectHandler
+from getpass import getpass
+
+net_connect = ConnectHandler(
+    device_type="cisco_ios",
+    host="rtr1.domain.com",
+    username="pyclass",
+    password=getpass(),
+)
+
+print(net_connect.find_prompt())
+net_connect.disconnect()
+```
 
 
 ## Supported Platforms
