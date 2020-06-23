@@ -4,6 +4,7 @@ Netmiko Examples
 
 A set of common Netmiko use-cases.
 
+![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
 
 ## How to find a "device_type".
 
@@ -195,7 +196,7 @@ print(output)
 print()
 ```
 
-Output from the above execution:
+#### Output from the above execution:
 
 ```
 Password: 
@@ -237,7 +238,7 @@ print()
 ```
 
 
-Output from the above execution:
+#### Output from the above execution:
 
 ```
 Password: 
