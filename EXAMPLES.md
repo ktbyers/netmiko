@@ -1,4 +1,4 @@
-![Netmiko Image](images/netmiko_logo_gh.png = 640 x 244)
+![Netmiko Image](images/netmiko_logo_gh.png | width=640)
 
 
 Netmiko Examples
