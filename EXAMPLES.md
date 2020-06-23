@@ -1,4 +1,4 @@
-![Netmiko Image](https://github.com/ktbyers/netmiko/blob/improved_examples/images/netmiko_logo_gh.png =640x244)
+![Netmiko Image](https://github.com/ktbyers/netmiko/blob/improved_examples/images/netmiko_logo_gh.png=640x244)
 
 
 Netmiko Examples
