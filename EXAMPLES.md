@@ -17,12 +17,14 @@ A set of common Netmiko use cases.
 - [Connecting to multiple devices](#connecting-to-multiple-devices)
 - [Executing a show command](#executing-show-command)
 - [TextFSM example](#using-textfsm)
+- [Genie example](#using-genie)
 - [Handling commands that prompt (timing)](#handling-commands-that-prompt-timing)
 - [Handling commands that prompt (expect_string)](#handling-commands-that-prompt-expect_string)
 - [Configuration changes](#configuration-changes)
 - [Configuration changes from a file](#configuration-changes-from-a-file)
 - [SSH keys](#ssh-keys)
 - [SSH config file](#ssh-config-file)
+- [Session log](#session-log)
 
 
 <br />
@@ -294,6 +296,69 @@ Password:
   'ipaddr': 'unassigned',
   'proto': 'down',
   'status': 'down'}]
+
+```
+
+<br />
+
+## Using Genie
+
+```py
+from getpass import getpass
+from pprint import pprint
+from netmiko import ConnectHandler
+
+device = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass()
+}
+
+with ConnectHandler(**device) as net_connect:
+    output = net_connect.send_command("show ip interface brief", use_genie=True)
+
+print()
+pprint(output)
+print()
+```
+
+#### Output from the above execution:
+
+```
+$ python send_command_genie.py 
+Password: 
+
+{'interface': {'FastEthernet0': {'interface_is_ok': 'YES',
+                                 'ip_address': 'unassigned',
+                                 'method': 'unset',
+                                 'protocol': 'down',
+                                 'status': 'down'},
+               'FastEthernet1': {'interface_is_ok': 'YES',
+                                 'ip_address': 'unassigned',
+                                 'method': 'unset',
+                                 'protocol': 'down',
+                                 'status': 'down'},
+               'FastEthernet2': {'interface_is_ok': 'YES',
+                                 'ip_address': 'unassigned',
+                                 'method': 'unset',
+                                 'protocol': 'down',
+                                 'status': 'down'},
+               'FastEthernet3': {'interface_is_ok': 'YES',
+                                 'ip_address': 'unassigned',
+                                 'method': 'unset',
+                                 'protocol': 'down',
+                                 'status': 'down'},
+               'FastEthernet4': {'interface_is_ok': 'YES',
+                                 'ip_address': '10.220.88.20',
+                                 'method': 'NVRAM',
+                                 'protocol': 'up',
+                                 'status': 'up'},
+               'Vlan1': {'interface_is_ok': 'YES',
+                         'ip_address': 'unassigned',
+                         'method': 'unset',
+                         'protocol': 'down',
+                         'status': 'down'}}}
 
 ```
 
@@ -599,4 +664,49 @@ Line       User       Host(s)              Idle       Location
 
   Interface    User               Mode         Idle     Peer Address
 
+```
+
+<br />
+
+## Session log
+
+```py
+#!/usr/bin/env python
+from netmiko import ConnectHandler
+from getpass import getpass
+
+cisco1 = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass(),
+    # File name to save the 'session_log' to
+    "session_log": "output.txt"
+}
+
+# Show command that we execute
+command = "show ip int brief"
+with ConnectHandler(**cisco1) as net_connect:
+    output = net_connect.send_command(command)
+```
+
+#### Contents of 'output.txt' after execution
+
+```
+$ cat output.txt 
+
+cisco1#
+cisco1#terminal length 0
+cisco1#terminal width 511
+cisco1#
+cisco1#show ip int brief
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0              unassigned      YES unset  down                  down    
+FastEthernet1              unassigned      YES unset  down                  down    
+FastEthernet2              unassigned      YES unset  down                  down    
+FastEthernet3              unassigned      YES unset  down                  down    
+FastEthernet4              10.220.88.20    YES NVRAM  up                    up      
+Vlan1                      unassigned      YES unset  down                  down    
+cisco1#
+cisco1#exit
 ```
