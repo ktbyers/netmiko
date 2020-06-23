@@ -1,10 +1,11 @@
+![Netmiko Image](images/netmiko_logo_gh.png = 640 x 244)
+
 
 Netmiko Examples
 =======
 
 A set of common Netmiko use-cases.
 
-![Netmiko Image](images/netmiko_logo_gh.png)
 
 ## How to find a "device_type".
 
