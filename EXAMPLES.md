@@ -5,6 +5,7 @@ Netmiko Examples
 
 A set of common Netmiko use-cases.
 
+<br />
 
 ## Table of contents
 
@@ -39,9 +40,7 @@ net_connect = ConnectHandler(**cisco1)
 net_connect.disconnect()
 ```
 
-
-#### The above code will output all of the available SSH device types.
-#### Switch to 'invalid_telnet' to see 'telnet' device types.
+#### The above code will output all of the available SSH device types. Switch to 'invalid_telnet' to see 'telnet' device types.
 
 ```
 Traceback (most recent call last):
@@ -62,8 +61,9 @@ avaya_vsp
 ... and a lot more.
 ```
 
+<br />
 
-## A Simple Example.
+## Simple example
 
 ```py
 from netmiko import ConnectHandler
