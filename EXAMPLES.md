@@ -4,7 +4,7 @@ Netmiko Examples
 
 A set of common Netmiko use-cases.
 
-![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
+![Netmiko Image](images/netmiko_logo_gh.png)
 
 ## How to find a "device_type".
 
