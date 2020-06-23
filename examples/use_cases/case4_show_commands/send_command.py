@@ -9,12 +9,12 @@ cisco1 = {
     "password": getpass(),
 }
 
-net_connect = ConnectHandler(**cisco1)
+# Show command that we execute
 command = "show ip int brief"
+with ConnectHandler(**cisco1) as net_connect:
+    output = net_connect.send_command(command)
 
+# Automatically cleans-up the output so that only the show output is returned
 print()
-print(net_connect.find_prompt())
-output = net_connect.send_command(command)
-net_connect.disconnect()
 print(output)
 print()

@@ -5,10 +5,9 @@ Netmiko Examples
 A set of common Netmiko use-cases.
 
 
-## How to find a "device_type" 
+## How to find a "device_type".
 
 ```py
-#!/usr/bin/env python
 from netmiko import ConnectHandler
 
 # Just pick an 'invalid' device_type
@@ -24,8 +23,8 @@ net_connect.disconnect()
 ```
 
 
-### This will output all of the available SSH device types.
-### Switch to 'invalid_telnet' to see 'telnet' device types.
+#### The above code will output all of the available SSH device types.
+#### Switch to 'invalid_telnet' to see 'telnet' device types.
 
 ```
 Traceback (most recent call last):
@@ -47,7 +46,7 @@ avaya_vsp
 ```
 
 
-## A Simple Example
+## A Simple Example.
 
 ```py
 from netmiko import ConnectHandler
@@ -65,7 +64,7 @@ net_connect.disconnect()
 ```
 
 
-## Connect using a Dictionary
+## Connect using a Dictionary.
 
 ```py
 from netmiko import ConnectHandler
@@ -84,7 +83,7 @@ net_connect.disconnect()
 ```
 
 
-## Connect using a Dictionary and a Context Manager
+## Connect using a Dictionary and a Context Manager.
 
 ```py
 from netmiko import ConnectHandler
@@ -103,7 +102,7 @@ with ConnectHandler(**cisco1) as net_connect:
 ```
 
 
-## Enter Enable Mode
+## Enter Enable Mode.
 
 ```py
 from netmiko import ConnectHandler
@@ -127,7 +126,8 @@ print(net_connect.find_prompt())
 net_connect.disconnect()
 ```
 
-## Connecting to Multiple Devices
+
+## Connecting to Multiple Devices.
 
 ```py
 from netmiko import ConnectHandler
@@ -170,7 +170,101 @@ for device in (cisco1, cisco2, nxos1, srx1):
 ```
 
 
-## Executing Simple 'show' Commands
+## Executing a Simple 'show' Command.
 
 ```py
+from netmiko import ConnectHandler
+from getpass import getpass
+
+cisco1 = { 
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass(),
+}
+
+# Show command that we execute.
+command = "show ip int brief"
+
+with ConnectHandler(**cisco1) as net_connect:
+    output = net_connect.send_command(command)
+
+# Automatically cleans-up the output so that only the show output is returned
+print()
+print(output)
+print()
+```
+
+Output from the above execution:
+
+```
+Password: 
+
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0              unassigned      YES unset  down                  down    
+FastEthernet1              unassigned      YES unset  down                  down    
+FastEthernet2              unassigned      YES unset  down                  down    
+FastEthernet3              unassigned      YES unset  down                  down    
+FastEthernet4              10.220.88.20    YES NVRAM  up                    up      
+Vlan1                      unassigned      YES unset  down                  down    
+
+```
+
+## Netmiko and TextFSM
+
+[Additional Details on Netmiko and TextFSM](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html)
+
+```py
+from netmiko import ConnectHandler
+from getpass import getpass
+from pprint import pprint
+
+cisco1 = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass(),
+}
+
+command = "show ip int brief"
+with ConnectHandler(**cisco1) as net_connect:
+    # Use TextFSM to retrieve structured data
+    output = net_connect.send_command(command, use_textfsm=True)
+
+print()
+pprint(output)
+print()
+```
+
+
+Output from the above execution:
+
+```
+Password: 
+
+[{'intf': 'FastEthernet0',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'},
+ {'intf': 'FastEthernet1',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'},
+ {'intf': 'FastEthernet2',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'},
+ {'intf': 'FastEthernet3',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'},
+ {'intf': 'FastEthernet4',
+  'ipaddr': '10.220.88.20',
+  'proto': 'up',
+  'status': 'up'},
+ {'intf': 'Vlan1',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'}]
+
 ```

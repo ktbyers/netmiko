@@ -1,20 +1,20 @@
 #!/usr/bin/env python
-from netmiko import Netmiko
+from netmiko import ConnectHandler
 from getpass import getpass
+from pprint import pprint
 
 cisco1 = {
-    "host": "cisco1.twb-tech.com",
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
     "username": "pyclass",
     "password": getpass(),
-    "device_type": "cisco_ios",
 }
 
-net_connect = Netmiko(**cisco1)
 command = "show ip int brief"
+with ConnectHandler(**cisco1) as net_connect:
+    # Use TextFSM to retrieve structured data
+    output = net_connect.send_command(command, use_textfsm=True)
 
 print()
-print(net_connect.find_prompt())
-output = net_connect.send_command(command, use_textfsm=True)
-net_connect.disconnect()
-print(output)
+pprint(output)
 print()
