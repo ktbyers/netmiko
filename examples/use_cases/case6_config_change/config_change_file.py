@@ -1,22 +1,26 @@
 #!/usr/bin/env python
-from netmiko import Netmiko
+from netmiko import ConnectHandler
 from getpass import getpass
 
-nxos1 = {
-    "host": "nxos1.twb-tech.com",
+device1 = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
     "username": "pyclass",
     "password": getpass(),
-    "device_type": "cisco_nxos",
 }
 
+# File in same directory as script that contains
+#
+# $ cat config_changes.txt 
+# --------------
+# logging buffered 100000
+# no logging console
+
 cfg_file = "config_changes.txt"
-net_connect = Netmiko(**nxos1)
+with ConnectHandler(**device1) as net_connect:
+    output = net_connect.send_config_from_file(cfg_file)
+    output += net_connect.save_config()
 
 print()
-print(net_connect.find_prompt())
-output = net_connect.send_config_from_file(cfg_file)
 print(output)
 print()
-
-net_connect.save_config()
-net_connect.disconnect()

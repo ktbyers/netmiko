@@ -4,6 +4,7 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/ktbyers/netmiko.svg)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
+<img src="https://github.com/ktbyers/netmiko/blob/improved_examples/images/netmiko_logo_gh.png" width="640">
 
 Netmiko
 =======

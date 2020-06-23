@@ -1,10 +1,21 @@
 <img src="https://github.com/ktbyers/netmiko/blob/improved_examples/images/netmiko_logo_gh.png" width="640">
 
-
 Netmiko Examples
 =======
 
 A set of common Netmiko use-cases.
+
+
+## Table of contents
+
+- [Supported Platforms](https://ktbyers.github.io/netmiko/#supported-platforms)
+- [Installation](https://ktbyers.github.io/netmiko/#installation)
+- [Tutorials/Examples/Getting Started](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
+- [Common Issues/FAQ](https://ktbyers.github.io/netmiko/#common-issuesfaq)
+- [API-Documentation](https://ktbyers.github.io/netmiko/#api-documentation)
+- [TextFSM Integration](https://ktbyers.github.io/netmiko/#textfsm-integration)
+- [Contributing](https://ktbyers.github.io/netmiko/#contributing)
+- [Questions/Discussion](https://ktbyers.github.io/netmiko/#questionsdiscussion)
 
 
 ## How to find a "device_type".
@@ -320,6 +331,8 @@ print(output)
 print()
 ```
 
+#### Output from the above execution:
+
 ```
 Password: 
 
@@ -384,6 +397,8 @@ print(output)
 print()
 ```
 
+#### Output from the above execution:
+
 ```
 $ python send_command_prompting_expect.py 
 Password: 
@@ -391,6 +406,99 @@ Password:
 del flash:/test4.txt
 Delete filename [test4.txt]? 
 Delete flash:/test4.txt? [confirm]y
+cisco1#
+
+```
+
+## Configuration changes including write mem
+
+```py
+#!/usr/bin/env python
+from netmiko import ConnectHandler
+from getpass import getpass
+
+device = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass(),
+}
+
+commands = ["logging buffered 100000"]
+with ConnectHandler(**device) as net_connect:
+    output = net_connect.send_config_set(commands)
+    output += net_connect.save_config()
+
+print()
+print(output)
+print()
+```
+
+#### Netmiko will automatically enter and exit config mode.
+#### Output from the above execution:
+
+```
+$ python config_change.py 
+Password: 
+
+configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+cisco1(config)#logging buffered 100000
+cisco1(config)#end
+cisco1#write mem
+Building configuration...
+[OK]
+cisco1#
+
+```
+
+
+## Configuration changes from a file
+
+```py
+#!/usr/bin/env python
+from netmiko import ConnectHandler
+from getpass import getpass
+
+device1 = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass(),
+}
+
+# File in same directory as script that contains
+#
+# $ cat config_changes.txt 
+# --------------
+# logging buffered 100000
+# no logging console
+
+cfg_file = "config_changes.txt"
+with ConnectHandler(**device1) as net_connect:
+    output = net_connect.send_config_from_file(cfg_file)
+    output += net_connect.save_config()
+
+print()
+print(output)
+print()
+```
+
+#### Netmiko will automatically enter and exit config mode.
+#### Output from the above execution:
+
+```
+$ python config_change_file.py 
+Password: 
+
+configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+cisco1(config)#logging buffered 100000
+cisco1(config)#no logging console
+cisco1(config)#end
+cisco1#write mem
+Building configuration...
+[OK]
 cisco1#
 
 ```
