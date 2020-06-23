@@ -8,7 +8,7 @@ A set of common Netmiko use-cases.
 
 ## Table of contents
 
-- [Available device types](#how-to-find-a-device_type)
+- [Available device types](#available-device-types)
 - [Simple example](https://ktbyers.github.io/netmiko/#installation)
 - [Connect using a dictionary](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
 - [Dictionary and a context manager](https://ktbyers.github.io/netmiko/#common-issuesfaq)
@@ -20,8 +20,8 @@ A set of common Netmiko use-cases.
 - [Configuration changes](https://ktbyers.github.io/netmiko/#questionsdiscussion)
 - [Configuration changes from a file](https://ktbyers.github.io/netmiko/#questionsdiscussion)
 
-
-## How to find a "device_type".
+<br />
+## Available device types
 
 ```py
 from netmiko import ConnectHandler
