@@ -21,6 +21,7 @@ A set of common Netmiko use-cases.
 - [Configuration changes from a file](https://ktbyers.github.io/netmiko/#questionsdiscussion)
 
 <br />
+
 ## Available device types
 
 ```py
