@@ -12,10 +12,10 @@ A set of common Netmiko use cases.
 - [Available device types](#available-device-types)
 - [Simple example](#simple-example)
 - [Connect using a dictionary](#connect-using-a-dictionary)
-- [Dictionary and a context manager](https://ktbyers.github.io/netmiko/#common-issuesfaq)
-- [Enable mode](https://ktbyers.github.io/netmiko/#api-documentation)
-- [Connecting to multiple devices](https://ktbyers.github.io/netmiko/#textfsm-integration)
-- [TextFSM example](https://ktbyers.github.io/netmiko/#contributing)
+- [Dictionary with a context manager](#dictionary-with-a-context-manager)
+- [Enable mode](#enable-mode)
+- [Connecting to multiple devices](#connecting-to-multiple-devices)
+- [TextFSM example](#using-textfsm)
 - [Handling commands that prompt (timing)](https://ktbyers.github.io/netmiko/#questionsdiscussion)
 - [Handling commands that prompt (expect_string)](https://ktbyers.github.io/netmiko/#questionsdiscussion)
 - [Configuration changes](https://ktbyers.github.io/netmiko/#questionsdiscussion)
@@ -100,8 +100,9 @@ print(net_connect.find_prompt())
 net_connect.disconnect()
 ```
 
+<br />
 
-## Connect using a Dictionary and a Context Manager.
+## Dictionary with a context manager
 
 ```py
 from netmiko import ConnectHandler
@@ -119,8 +120,9 @@ with ConnectHandler(**cisco1) as net_connect:
     print(net_connect.find_prompt())
 ```
 
+<br />
 
-## Enter Enable Mode.
+## Enable mode
 
 ```py
 from netmiko import ConnectHandler
@@ -144,8 +146,9 @@ print(net_connect.find_prompt())
 net_connect.disconnect()
 ```
 
+<br />
 
-## Connecting to Multiple Devices.
+## Connecting to multiple devices.
 
 ```py
 from netmiko import ConnectHandler
@@ -228,7 +231,7 @@ Vlan1                      unassigned      YES unset  down                  down
 
 ```
 
-## Netmiko and TextFSM
+## Using TextFSM
 
 [Additional Details on Netmiko and TextFSM](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html)
 
@@ -288,7 +291,7 @@ Password:
 ```
 
 
-## Handling Commands that Prompt for Additional Information
+## Handling commands that prompt (timing)
 
 ```py
 from netmiko import ConnectHandler
@@ -350,7 +353,7 @@ cisco1#
 ```
 
 
-## Handling Commands that Prompt for Additional Information using 'expect_string'.
+## Handling commands that prompt (expect_string)
 
 ```py
 from netmiko import ConnectHandler
