@@ -1,27 +1,19 @@
 #!/usr/bin/env python
-from netmiko import Netmiko
+from netmiko import ConnectHandler
 from getpass import getpass
 
 password = getpass()
+secret = getpass("Enter secret: ")
 
 cisco1 = {
-    "host": "cisco1.twb-tech.com",
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
     "username": "pyclass",
     "password": password,
-    "device_type": "cisco_ios",
-    "secret": password,
+    "secret": secret,
 }
 
-net_connect = Netmiko(**cisco1)
-print(net_connect.find_prompt())
-net_connect.send_command_timing("disable")
-print(net_connect.find_prompt())
+net_connect = ConnectHandler(**cisco1)
+# Call 'enable()' method to elevate privileges
 net_connect.enable()
 print(net_connect.find_prompt())
-
-# Go into config mode
-net_connect.config_mode()
-print(net_connect.find_prompt())
-net_connect.exit_config_mode()
-print(net_connect.find_prompt())
-net_connect.disconnect()

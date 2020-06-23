@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-from netmiko import Netmiko
-from getpass import getpass
+from netmiko import ConnectHandler
 
 cisco1 = {
-    "host": "cisco1.twb-tech.com",
+    # Just pick an 'invalid' device_type
+    "device_type": "invalid",
+    "host": "cisco1.lasthop.io",
     "username": "pyclass",
-    "password": getpass(),
-    "device_type": "whatever",
+    "password": "invalid"
 }
 
-net_connect = Netmiko(**cisco1)
-print(net_connect.find_prompt())
+net_connect = ConnectHandler(**cisco1)
 net_connect.disconnect()
