@@ -273,15 +273,21 @@ scp_platforms.sort()
 scp_platforms_str = "\n".join(scp_platforms)
 scp_platforms_str = "\n" + scp_platforms_str
 
+telnet_platforms = [x for x in platforms if "telnet" in x]
+telnet_platforms_str = "\n".join(telnet_platforms)
+telnet_platforms_str = "\n" + telnet_platforms_str
+
 
 def ConnectHandler(*args, **kwargs):
     """Factory function selects the proper class and creates object based on device_type."""
-    if kwargs["device_type"] not in platforms:
+    device_type = kwargs["device_type"]
+    if device_type not in platforms:
+        msg_str = telnet_platforms_str if "telnet" in device_type else platforms_str
         raise ValueError(
-            "Unsupported device_type: "
-            "currently supported platforms are: {}".format(platforms_str)
+            "Unsupported 'device_type' "
+            "currently supported platforms are: {}".format(msg_str)
         )
-    ConnectionClass = ssh_dispatcher(kwargs["device_type"])
+    ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)
 
 

@@ -9,12 +9,6 @@ cisco1 = {
     "password": getpass(),
 }
 
-net_connect = ConnectHandler(**cisco1)
-command = "show ip int brief"
-
-print()
-print(net_connect.find_prompt())
-output = net_connect.send_command(command)
-net_connect.disconnect()
-print(output)
-print()
+# Will automatically 'disconnect()'
+with ConnectHandler(**cisco1) as net_connect:
+    print(net_connect.find_prompt())

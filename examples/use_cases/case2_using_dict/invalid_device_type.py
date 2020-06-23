@@ -6,7 +6,7 @@ cisco1 = {
     "device_type": "invalid",
     "host": "cisco1.lasthop.io",
     "username": "pyclass",
-    "password": "invalid"
+    "password": "invalid",
 }
 
 net_connect = ConnectHandler(**cisco1)
