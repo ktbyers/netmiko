@@ -15,11 +15,12 @@ A set of common Netmiko use cases.
 - [Dictionary with a context manager](#dictionary-with-a-context-manager)
 - [Enable mode](#enable-mode)
 - [Connecting to multiple devices](#connecting-to-multiple-devices)
+- [Executing a show command](#executing-show-command)
 - [TextFSM example](#using-textfsm)
-- [Handling commands that prompt (timing)](https://ktbyers.github.io/netmiko/#questionsdiscussion)
-- [Handling commands that prompt (expect_string)](https://ktbyers.github.io/netmiko/#questionsdiscussion)
-- [Configuration changes](https://ktbyers.github.io/netmiko/#questionsdiscussion)
-- [Configuration changes from a file](https://ktbyers.github.io/netmiko/#questionsdiscussion)
+- [Handling commands that prompt (timing)](#handling-commands-that-prompt-timing)
+- [Handling commands that prompt (expect_string)](#handling-commands-that-prompt-expect_string)
+- [Configuration changes](#configuration-changes)
+- [Configuration changes from a file](#configuration-changes-from-a-file)
 
 <br />
 
@@ -190,8 +191,9 @@ for device in (cisco1, cisco2, nxos1, srx1):
     net_connect.disconnect()
 ```
 
+<br />
 
-## Executing a Simple 'show' Command.
+## Executing show command.
 
 ```py
 from netmiko import ConnectHandler
@@ -230,6 +232,8 @@ FastEthernet4              10.220.88.20    YES NVRAM  up                    up
 Vlan1                      unassigned      YES unset  down                  down    
 
 ```
+
+<br />
 
 ## Using TextFSM
 
@@ -290,6 +294,7 @@ Password:
 
 ```
 
+<br />
 
 ## Handling commands that prompt (timing)
 
@@ -352,6 +357,7 @@ cisco1#
 
 ```
 
+<br />
 
 ## Handling commands that prompt (expect_string)
 
@@ -418,7 +424,9 @@ cisco1#
 
 ```
 
-## Configuration changes including write mem
+<br />
+
+## Configuration changes
 
 ```py
 #!/usr/bin/env python
@@ -460,6 +468,7 @@ cisco1#
 
 ```
 
+<br />
 
 ## Configuration changes from a file
 
