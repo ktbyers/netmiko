@@ -8,14 +8,17 @@ A set of common Netmiko use-cases.
 
 ## Table of contents
 
-- [Supported Platforms](https://ktbyers.github.io/netmiko/#supported-platforms)
-- [Installation](https://ktbyers.github.io/netmiko/#installation)
-- [Tutorials/Examples/Getting Started](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
-- [Common Issues/FAQ](https://ktbyers.github.io/netmiko/#common-issuesfaq)
-- [API-Documentation](https://ktbyers.github.io/netmiko/#api-documentation)
-- [TextFSM Integration](https://ktbyers.github.io/netmiko/#textfsm-integration)
-- [Contributing](https://ktbyers.github.io/netmiko/#contributing)
-- [Questions/Discussion](https://ktbyers.github.io/netmiko/#questionsdiscussion)
+- [Available device types](#how-to-find-a-device_type)
+- [Simple example](https://ktbyers.github.io/netmiko/#installation)
+- [Connect using a dictionary](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
+- [Dictionary and a context manager](https://ktbyers.github.io/netmiko/#common-issuesfaq)
+- [Enable mode](https://ktbyers.github.io/netmiko/#api-documentation)
+- [Connecting to multiple devices](https://ktbyers.github.io/netmiko/#textfsm-integration)
+- [TextFSM example](https://ktbyers.github.io/netmiko/#contributing)
+- [Handling commands that prompt (timing)](https://ktbyers.github.io/netmiko/#questionsdiscussion)
+- [Handling commands that prompt (expect_string)](https://ktbyers.github.io/netmiko/#questionsdiscussion)
+- [Configuration changes](https://ktbyers.github.io/netmiko/#questionsdiscussion)
+- [Configuration changes from a file](https://ktbyers.github.io/netmiko/#questionsdiscussion)
 
 
 ## How to find a "device_type".
