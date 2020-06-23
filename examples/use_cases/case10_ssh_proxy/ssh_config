@@ -1,7 +1,12 @@
 host jumphost
+  IdentitiesOnly yes
   IdentityFile ~/.ssh/test_rsa
-  user gituser
-  hostname 10.10.10.159
+  User gituser
+  HostName pynetqa.lasthop.io
 
 host * !jumphost
-  ProxyCommand ssh jumphost nc %h %p
+  User pyclass
+  # Force usage of this SSH config file
+  ProxyCommand ssh -F ~/.ssh/ssh_config -W %h:%p jumphost
+  # Alternate solution using netcat
+  #ProxyCommand ssh -F ./ssh_config jumphost nc %h %p

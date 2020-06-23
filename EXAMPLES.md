@@ -21,6 +21,9 @@ A set of common Netmiko use cases.
 - [Handling commands that prompt (expect_string)](#handling-commands-that-prompt-expect_string)
 - [Configuration changes](#configuration-changes)
 - [Configuration changes from a file](#configuration-changes-from-a-file)
+- [SSH keys](#ssh-keys)
+- [SSH config file](#ssh-config-file)
+
 
 <br />
 
@@ -517,5 +520,83 @@ cisco1#write mem
 Building configuration...
 [OK]
 cisco1#
+
+```
+
+<br />
+
+## SSH keys
+
+```py
+from netmiko import ConnectHandler
+from getpass import getpass
+
+key_file = "~/.ssh/test_rsa"
+cisco1 = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "testuser",
+    "use_keys": True,
+    "key_file": key_file,
+}
+
+with ConnectHandler(**cisco1) as net_connect:
+    output = net_connect.send_command("show ip arp")
+
+print(f"\n{output}\n")
+```
+
+<br />
+
+## SSH Config File
+
+```py
+#!/usr/bin/env python
+from netmiko import ConnectHandler
+from getpass import getpass
+
+
+cisco1 = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass(),
+    "ssh_config_file": "~/.ssh/ssh_config",
+}
+
+with ConnectHandler(**cisco1) as net_connect:
+    output = net_connect.send_command("show users")
+
+print(output)
+```
+
+#### Contents of 'ssh_config' file
+
+```
+host jumphost
+  IdentitiesOnly yes
+  IdentityFile ~/.ssh/test_rsa
+  User gituser
+  HostName pynetqa.lasthop.io
+
+host * !jumphost
+  User pyclass
+  # Force usage of this SSH config file
+  ProxyCommand ssh -F ~/.ssh/ssh_config -W %h:%p jumphost
+  # Alternate solution using netcat
+  #ProxyCommand ssh -F ./ssh_config jumphost nc %h %p
+```
+
+#### Script execution
+
+```
+# 3.82.44.123 is the IP address of the 'jumphost'
+$ python conn_ssh_proxy.py 
+Password: 
+
+Line       User       Host(s)              Idle       Location
+*  8 vty 0     pyclass    idle                 00:00:00 3.82.44.123
+
+  Interface    User               Mode         Idle     Peer Address
 
 ```
