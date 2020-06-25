@@ -1802,8 +1802,6 @@ class BaseConnection(object):
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
         """  # noqa
-        log.debug("In strip_ansi_escape_codes")
-        log.debug(f"repr = {repr(string_buffer)}")
 
         code_position_cursor = chr(27) + r"\[\d+;\d+H"
         code_show_cursor = chr(27) + r"\[\?25h"
@@ -1859,13 +1857,7 @@ class BaseConnection(object):
             output = re.sub(ansi_esc_code, "", output)
 
         # CODE_NEXT_LINE must substitute with return
-        output = re.sub(code_next_line, self.RETURN, output)
-
-        log.debug("Stripping ANSI escape codes")
-        log.debug(f"new_output = {output}")
-        log.debug(f"repr = {repr(output)}")
-
-        return output
+        return re.sub(code_next_line, self.RETURN, output)
 
     def cleanup(self, command=""):
         """Logout of the session on the network device plus any additional cleanup."""
