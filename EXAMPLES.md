@@ -270,6 +270,12 @@ net_connect = ConnectHandler(**cisco1)
 output = net_connect.send_command_timing(
     command, strip_prompt=False, strip_command=False, delay_factor=4
 )
+# Router prompted in this example:
+# -------
+# cisco1#copy flash:c880data-universalk9-mz.155-3.M8.bin flash:test1.bin
+# Destination filename [test1.bin]? 
+# Copy in progress...CCCCCCC
+# -------
 if "Destination filename" in output:
     print("Starting copy...")
     output += net_connect.send_command("\n", delay_factor=4, expect_string=r"#")
@@ -779,4 +785,34 @@ FastEthernet4              10.220.88.20    YES NVRAM  up                    up
 Vlan1                      unassigned      YES unset  down                  down    
 cisco1#
 cisco1#exit
+```
+
+<br />
+
+## Standard Logging
+
+The below will create a file named "test.log". This file will contain a lot of
+low-level details.
+
+```py
+from netmiko import ConnectHandler
+from getpass import getpass
+
+# Logging section ##############
+import logging
+
+logging.basicConfig(filename="test.log", level=logging.DEBUG)
+logger = logging.getLogger("netmiko")
+# Logging section ##############
+
+cisco1 = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass(),
+}
+
+net_connect = ConnectHandler(**cisco1)
+print(net_connect.find_prompt())
+net_connect.disconnect()
 ```
