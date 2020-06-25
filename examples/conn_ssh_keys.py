@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from netmiko import ConnectHandler
-from getpass import getpass
 
 key_file = "~/.ssh/test_rsa"
 cisco1 = {
