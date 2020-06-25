@@ -14,10 +14,10 @@ net_connect = ConnectHandler(**cisco1)
 
 # CLI Interaction is as follows:
 # cisco1#delete flash:/testb.txt
-# Delete filename [testb.txt]? 
+# Delete filename [testb.txt]?
 # Delete flash:/testb.txt? [confirm]y
 
-# Use 'send_command' and the 'expect_string' argument (note, expect_string uses 
+# Use 'send_command' and the 'expect_string' argument (note, expect_string uses
 # RegEx patterns). Netmiko will move-on to the next command when the
 # 'expect_string' is detected.
 
@@ -27,19 +27,16 @@ output = net_connect.send_command(
     command_string=command,
     expect_string=r"Delete filename",
     strip_prompt=False,
-    strip_command=False
+    strip_command=False,
 )
 output += net_connect.send_command(
     command_string="\n",
     expect_string=r"confirm",
     strip_prompt=False,
-    strip_command=False
+    strip_command=False,
 )
 output += net_connect.send_command(
-    command_string="y",
-    expect_string=r"#",
-    strip_prompt=False,
-    strip_command=False
+    command_string="y", expect_string=r"#", strip_prompt=False, strip_command=False
 )
 net_connect.disconnect()
 

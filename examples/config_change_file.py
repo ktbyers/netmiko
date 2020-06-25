@@ -11,7 +11,7 @@ device1 = {
 
 # File in same directory as script that contains
 #
-# $ cat config_changes.txt 
+# $ cat config_changes.txt
 # --------------
 # logging buffered 100000
 # no logging console

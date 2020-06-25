@@ -8,7 +8,6 @@ cisco1 = {
     "host": "cisco1.lasthop.io",
     "username": "pyclass",
     "password": getpass(),
-    "session_log": "output.txt",
 }
 
 command = "copy flash:c880data-universalk9-mz.155-3.M8.bin flash:test1.bin"
