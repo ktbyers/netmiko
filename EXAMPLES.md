@@ -49,6 +49,7 @@ A set of common Netmiko use cases.
 
 #### Auto Detection of Device Type
 - [Auto detection using SSH](#auto-detection-using-ssh)
+- [Auto detection using SNMPv3](#auto-detection-using-snmpv3)
 - [Auto detection using SNMPv2c](#auto-detection-using-snmpv2c)
 
 <br />
@@ -935,4 +936,41 @@ if device_type is None:
 device["device_type"] = device_type
 with ConnectHandler(**device) as net_connect:
     print(net_connect.find_prompt())
+```
+
+<br />
+
+## Auto detection using SNMPv3
+
+Requires 'pysnmp'.
+
+```py
+import sys
+from getpass import getpass
+from netmiko.snmp_autodetect import SNMPDetect
+from netmiko import ConnectHandler
+
+device = {"host": "cisco1.lasthop.io", "username": "pyclass", "password": getpass()}
+
+snmp_key = getpass("Enter SNMP community: ")
+my_snmp = SNMPDetect(
+    "cisco1.lasthop.io",
+    snmp_version="v3",
+    user="pysnmp",
+    auth_key=snmp_key,
+    encrypt_key=snmp_key,
+    auth_proto="sha",
+    encrypt_proto="aes128",
+)
+device_type = my_snmp.autodetect()
+print(device_type)
+
+if device_type is None:
+    sys.exit("SNMP failed!")
+
+# Update the device_type with information discovered using SNMP
+device["device_type"] = device_type
+net_connect = ConnectHandler(**device)
+print(net_connect.find_prompt())
+net_connect.disconnect()
 ```

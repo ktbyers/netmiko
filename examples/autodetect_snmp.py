@@ -4,16 +4,10 @@ from netmiko.snmp_autodetect import SNMPDetect
 from netmiko import ConnectHandler
 
 host = "cisco1.lasthop.io"
-device = {
-    "host": host,
-    "username": "pyclass", 
-    "password": getpass()
-}
+device = {"host": host, "username": "pyclass", "password": getpass()}
 
 snmp_community = getpass("Enter SNMP community: ")
-my_snmp = SNMPDetect(
-    host, snmp_version="v2c", community=snmp_community
-)
+my_snmp = SNMPDetect(host, snmp_version="v2c", community=snmp_community)
 device_type = my_snmp.autodetect()
 print(device_type)
 

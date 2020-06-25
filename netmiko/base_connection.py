@@ -316,7 +316,9 @@ class BaseConnection(object):
 
             # Options for SSH host_keys
             self.use_keys = use_keys
-            self.key_file = path.abspath(path.expanduser(key_file)) if key_file else None
+            self.key_file = (
+                path.abspath(path.expanduser(key_file)) if key_file else None
+            )
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
