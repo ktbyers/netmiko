@@ -2,13 +2,11 @@
 from getpass import getpass
 from netmiko import ConnectHandler, file_transfer
 
-password = getpass()
-
 cisco = {
     "device_type": "cisco_ios",
-    "host": "cisco1.twb-tech.com",
+    "host": "cisco1.lasthop.io",
     "username": "pyclass",
-    "password": password,
+    "password": getpass(),
 }
 
 source_file = "test1.txt"
@@ -23,6 +21,7 @@ transfer_dict = file_transfer(
     dest_file=dest_file,
     file_system=file_system,
     direction=direction,
+    # Force an overwrite of the file if it already exists
     overwrite_file=True,
 )
 

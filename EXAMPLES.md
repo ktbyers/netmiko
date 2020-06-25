@@ -27,6 +27,8 @@ A set of common Netmiko use cases.
 - [SSH keys](#ssh-keys)
 - [SSH config file](#ssh-config-file)
 - [Session log](#session-log)
+- [Standard logging](#standard-logging)
+- [Secure Copy](#secure-copy)
 
 
 <br />
@@ -815,4 +817,41 @@ cisco1 = {
 net_connect = ConnectHandler(**cisco1)
 print(net_connect.find_prompt())
 net_connect.disconnect()
+```
+
+<br />
+
+## Secure Copy
+
+[Additional details on Netmiko and Secure Copy](https://pynet.twb-tech.com/blog/automation/netmiko-scp.html)
+
+```py
+from getpass import getpass
+from netmiko import ConnectHandler, file_transfer
+
+cisco = {
+    "device_type": "cisco_ios",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass(),
+}
+
+# A secure copy server must be enable on the device ('ip scp server enable')
+source_file = "test1.txt"
+dest_file = "test1.txt"
+direction = "put"
+file_system = "flash:"
+
+ssh_conn = ConnectHandler(**cisco)
+transfer_dict = file_transfer(
+    ssh_conn,
+    source_file=source_file,
+    dest_file=dest_file,
+    file_system=file_system,
+    direction=direction,
+    # Force an overwrite of the file if it already exists
+    overwrite_file=True,
+)
+
+print(transfer_dict)
 ```
