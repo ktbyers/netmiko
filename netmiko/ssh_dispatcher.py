@@ -282,7 +282,10 @@ def ConnectHandler(*args, **kwargs):
     """Factory function selects the proper class and creates object based on device_type."""
     device_type = kwargs["device_type"]
     if device_type not in platforms:
-        msg_str = telnet_platforms_str if "telnet" in device_type else platforms_str
+        if device_type is None:
+            msg_str = platforms_str
+        else:
+            msg_str = telnet_platforms_str if "telnet" in device_type else platforms_str
         raise ValueError(
             "Unsupported 'device_type' "
             "currently supported platforms are: {}".format(msg_str)
