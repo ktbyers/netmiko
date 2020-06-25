@@ -52,6 +52,10 @@ A set of common Netmiko use cases.
 - [Auto detection using SNMPv3](#auto-detection-using-snmpv3)
 - [Auto detection using SNMPv2c](#auto-detection-using-snmpv2c)
 
+#### Terminal Server and Redispatch
+- [Terminal Server and Redispatch](#terminal-server-and-redispatch)
+
+
 <br />
 
 ## Available device types
@@ -989,9 +993,10 @@ It also illustrates using 'redispatch()' to change the Netmiko class.
 
 The setup is:
 
-Linux Server --(ssh)--> Small Switch
-    Small Switch --(telnet(--> Terminal Server
-        Terminal Server --(serial)--> Juniper SRX
+Linux Server 
+  --> Small Switch (SSH)
+        --> Terminal Server (telnet)
+              --> Juniper SRX (serial)
 """
 import os
 from getpass import getpass
@@ -1069,6 +1074,6 @@ pyclass@srx2>
 
 Hostname: srx2
 Model: srx110h2-va
-JUNOS Software Release [12.1X46-D35.1]
+JUNOS Software Release []
 
 ```
