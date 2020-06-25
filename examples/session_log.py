@@ -7,7 +7,7 @@ cisco1 = {
     "host": "cisco1.lasthop.io",
     "username": "pyclass",
     "password": getpass(),
-    "session_log": "output.txt"
+    "session_log": "output.txt",
 }
 
 # Show command that we execute
