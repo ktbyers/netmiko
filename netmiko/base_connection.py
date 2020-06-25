@@ -708,14 +708,16 @@ class BaseConnection(object):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with "\r" and not "\r\n"
+                    self.write_channel(self.username + "\r")
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with "\r" and not "\r\n"
+                    self.write_channel(self.password + "\r")
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
