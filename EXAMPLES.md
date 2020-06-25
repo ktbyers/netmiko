@@ -52,7 +52,7 @@ A set of common Netmiko use cases.
 - [Auto detection using SNMPv3](#auto-detection-using-snmpv3)
 - [Auto detection using SNMPv2c](#auto-detection-using-snmpv2c)
 
-#### Terminal Server and Redispatch
+#### Terminal Server Example
 - [Terminal Server and Redispatch](#terminal-server-and-redispatch)
 
 
@@ -980,7 +980,7 @@ net_connect.disconnect()
 
 <br />
 
-## Terminal Server and Redispatch
+## Terminal server and redispatch
 
 ```py
 """
