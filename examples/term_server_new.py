@@ -39,7 +39,7 @@ print(net_connect.find_prompt())
 net_connect.password = term_serv_pass
 net_connect.secret = term_serv_pass
 # Telnet to the terminal server
-command = f"telnet {TERMINAL_SERVER_IP}\n"
+command = f"telnet {terminal_server_ip}\n"
 net_connect.write_channel(command)
 # Use the telnet_login() method to handle the login process
 net_connect.telnet_login()
