@@ -9,25 +9,42 @@ A set of common Netmiko use cases.
 
 ## Table of contents
 
+#### Available Device Types
 - [Available device types](#available-device-types)
+
+#### Simple Examples
 - [Simple example](#simple-example)
 - [Connect using a dictionary](#connect-using-a-dictionary)
 - [Dictionary with a context manager](#dictionary-with-a-context-manager)
 - [Enable mode](#enable-mode)
+
+#### Multiple Devices (simple example)
 - [Connecting to multiple devices](#connecting-to-multiple-devices)
+
+#### Show Commands
 - [Executing a show command](#executing-show-command)
-- [Adjusting delay_factor](#adjusting-delay_factor)
-- [Using global_delay_factor](#using-global_delay_factor)
-- [TextFSM example](#using-textfsm)
-- [Genie example](#using-genie)
 - [Handling commands that prompt (timing)](#handling-commands-that-prompt-timing)
 - [Handling commands that prompt (expect_string)](#handling-commands-that-prompt-expect_string)
+- [Using global_delay_factor](#using-global_delay_factor)
+- [Adjusting delay_factor](#adjusting-delay_factor)
+
+#### Parsers (TextFSM and Genie)
+- [TextFSM example](#using-textfsm)
+- [Genie example](#using-genie)
+
+#### Configuration Changes
 - [Configuration changes](#configuration-changes)
 - [Configuration changes from a file](#configuration-changes-from-a-file)
+
+#### SSH keys and SSH config_file
 - [SSH keys](#ssh-keys)
 - [SSH config file](#ssh-config-file)
+
+#### Logging and Session Log
 - [Session log](#session-log)
 - [Standard logging](#standard-logging)
+
+#### Secure Copy
 - [Secure Copy](#secure-copy)
 
 
