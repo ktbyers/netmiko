@@ -3,11 +3,15 @@ from netmiko.snmp_autodetect import SNMPDetect
 from netmiko import Netmiko
 from getpass import getpass
 
-device = {"host": "cisco1.twb-tech.com", "username": "pyclass", "password": getpass()}
+device = {
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass", 
+    "password": getpass()
+}
 
 snmp_key = getpass("Enter SNMP community: ")
 my_snmp = SNMPDetect(
-    "cisco1.twb-tech.com",
+    "cisco1.lasthop.io",
     snmp_version="v3",
     user="pysnmp",
     auth_key=snmp_key,

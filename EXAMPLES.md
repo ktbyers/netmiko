@@ -47,6 +47,9 @@ A set of common Netmiko use cases.
 #### Secure Copy
 - [Secure Copy](#secure-copy)
 
+#### Auto Detection of Device Type
+- [Auto detection using SSH](#auto-detection-using-ssh)
+- [Auto detection using SNMPv2c](#auto-detection-using-snmpv2c)
 
 <br />
 
@@ -871,4 +874,65 @@ transfer_dict = file_transfer(
 )
 
 print(transfer_dict)
+```
+
+<br />
+
+## Auto detection using SSH
+
+```py
+from netmiko import SSHDetect, ConnectHandler
+from getpass import getpass
+
+device = {
+    "device_type": "autodetect",
+    "host": "cisco1.lasthop.io",
+    "username": "pyclass",
+    "password": getpass(),
+}
+
+guesser = SSHDetect(**device)
+best_match = guesser.autodetect()
+print(best_match)  # Name of the best device_type to use further
+print(guesser.potential_matches)  # Dictionary of the whole matching result
+# Update the 'device' dictionary with the device_type
+device["device_type"] = best_match
+
+with ConnectHandler(**device) as connection:
+    print(connection.find_prompt())
+```
+
+<br />
+
+## Auto detection using SNMPv2c
+
+Requires 'pysnmp'.
+
+```py
+import sys
+from getpass import getpass
+from netmiko.snmp_autodetect import SNMPDetect
+from netmiko import ConnectHandler
+
+host = "cisco1.lasthop.io"
+device = {
+    "host": host,
+    "username": "pyclass", 
+    "password": getpass()
+}
+
+snmp_community = getpass("Enter SNMP community: ")
+my_snmp = SNMPDetect(
+    host, snmp_version="v2c", community=snmp_community
+)
+device_type = my_snmp.autodetect()
+print(device_type)
+
+if device_type is None:
+    sys.exit("SNMP failed!")
+
+# Update the device dictionary with the device_type and connect
+device["device_type"] = device_type
+with ConnectHandler(**device) as net_connect:
+    print(net_connect.find_prompt())
 ```
