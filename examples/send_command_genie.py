@@ -7,7 +7,7 @@ device = {
     "device_type": "cisco_ios",
     "host": "cisco1.lasthop.io",
     "username": "pyclass",
-    "password": getpass()
+    "password": getpass(),
 }
 
 with ConnectHandler(**device) as net_connect:
