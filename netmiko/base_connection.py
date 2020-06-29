@@ -316,7 +316,9 @@ class BaseConnection(object):
 
             # Options for SSH host_keys
             self.use_keys = use_keys
-            self.key_file = key_file
+            self.key_file = (
+                path.abspath(path.expanduser(key_file)) if key_file else None
+            )
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
@@ -706,14 +708,16 @@ class BaseConnection(object):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with "\r" and not "\r\n"
+                    self.write_channel(self.username + "\r")
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with "\r" and not "\r\n"
+                    self.write_channel(self.password + "\r")
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -1802,8 +1806,6 @@ class BaseConnection(object):
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
         """  # noqa
-        log.debug("In strip_ansi_escape_codes")
-        log.debug(f"repr = {repr(string_buffer)}")
 
         code_position_cursor = chr(27) + r"\[\d+;\d+H"
         code_show_cursor = chr(27) + r"\[\?25h"
@@ -1859,13 +1861,7 @@ class BaseConnection(object):
             output = re.sub(ansi_esc_code, "", output)
 
         # CODE_NEXT_LINE must substitute with return
-        output = re.sub(code_next_line, self.RETURN, output)
-
-        log.debug("Stripping ANSI escape codes")
-        log.debug(f"new_output = {output}")
-        log.debug(f"repr = {repr(output)}")
-
-        return output
+        return re.sub(code_next_line, self.RETURN, output)
 
     def cleanup(self, command=""):
         """Logout of the session on the network device plus any additional cleanup."""
