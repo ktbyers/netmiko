@@ -24,13 +24,14 @@ class AristaBase(CiscoSSHConnection):
 
         Can also be (s2)
         """
-        log.debug(f"pattern: {pattern}")
         self.write_channel(self.RETURN)
-        output = self.read_until_pattern(pattern=pattern)
-        log.debug(f"check_config_mode: {repr(output)}")
+        # You can encounter an issue here (on router name changes) prefer delay-based solution
+        if not pattern:
+            output = self._read_channel_timing()
+        else:
+            output = self.read_until_pattern(pattern=pattern)
         output = output.replace("(s1)", "")
         output = output.replace("(s2)", "")
-        log.debug(f"check_config_mode: {repr(output)}")
         return check_string in output
 
     def _enter_shell(self):

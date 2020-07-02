@@ -79,6 +79,17 @@ def test_config_set_longcommand(net_connect, commands, expected_responses):
     output = net_connect.send_config_set(config_commands)  # noqa
     assert True
 
+def test_config_hostname(net_connect, commands, expected_responses):
+    hostname = "test-netmiko1"
+    command = f"hostname {hostname}"
+    if "arista" in net_connect.device_type:
+        current_hostname = net_connect.find_prompt()[:-1]
+        output = net_connect.send_config_set(command)
+        new_hostname = net_connect.find_prompt()
+        assert hostname in new_hostname
+        # Reset prompt back to original value
+        net_connect.set_base_prompt()
+        output = net_connect.send_config_set(f"hostname {current_hostname}")
 
 def test_config_from_file(net_connect, commands, expected_responses):
     """
