@@ -71,12 +71,23 @@ class InLineTransfer(CiscoIosFileTransfer):
         direction="put",
         source_config=None,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
+
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
             raise ValueError(msg)
         if direction != "put":
             raise ValueError("Only put operation supported by InLineTransfer.")
+
+        if progress is not None or progress4 is not None:
+            raise NotImplementedError(
+                "Progress bar is not supported on inline transfers."
+            )
+        else:
+            self.progress = progress
+            self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
         if source_file:
