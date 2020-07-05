@@ -1867,7 +1867,7 @@ class BaseConnection(object):
         if insert_line_match:
             # Substitute each insert_line with a new <enter>
             count = int(insert_line_match.group(1))
-            re.sub(code_insert_line, count * self.RETURN, output)
+            output = re.sub(code_insert_line, count * self.RETURN, output)
 
         return output
 
