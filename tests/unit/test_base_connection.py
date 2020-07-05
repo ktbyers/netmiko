@@ -449,7 +449,6 @@ def test_strip_ansi_codes():
         "\x1b[2K",  # code_erase_line
         "\x1b[K",  # code_erase_start_line
         "\x1b[1;2r",  # code_enable_scroll
-        "\x1b[1L",  # code_form_feed
         "\x1b[1M",  # code_carriage_return
         "\x1b[?7l",  # code_disable_line_wrapping
         "\x1b[?7l",  # code_reset_mode_screen_options
@@ -463,6 +462,12 @@ def test_strip_ansi_codes():
     ]
     for ansi_code in ansi_codes_to_strip:
         assert connection.strip_ansi_escape_codes(ansi_code) == ""
+
+    # code_insert_line must be substituted with n-returns
+    ansi_insert_line = "\x1b[1L"
+    assert connection.strip_ansi_escape_codes(ansi_insert_line) == "\n"
+    ansi_insert_line = "\x1b[3L"
+    assert connection.strip_ansi_escape_codes(ansi_insert_line) == "\n\n\n"
 
     # code_next_line must be substituted with a return
     assert connection.strip_ansi_escape_codes("\x1bE") == "\n"
