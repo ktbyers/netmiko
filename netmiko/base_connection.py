@@ -1109,7 +1109,6 @@ class BaseConnection(object):
             prompt = self.read_channel().strip()
             if not prompt:
                 self.write_channel(self.RETURN)
-                # log.debug(f"find_prompt sleep time: {sleep_time}")
                 time.sleep(sleep_time)
                 if sleep_time <= 3:
                     # Double the sleep_time when it is small
@@ -1814,19 +1813,19 @@ class BaseConnection(object):
         code_erase_line = chr(27) + r"\[2K"
         code_erase_start_line = chr(27) + r"\[K"
         code_enable_scroll = chr(27) + r"\[\d+;\d+r"
-        code_form_feed = chr(27) + r"\[1L"
+        code_insert_line = chr(27) + r"\[(\d+)L"
         code_carriage_return = chr(27) + r"\[1M"
         code_disable_line_wrapping = chr(27) + r"\[\?7l"
         code_reset_mode_screen_options = chr(27) + r"\[\?\d+l"
         code_reset_graphics_mode = chr(27) + r"\[00m"
         code_erase_display = chr(27) + r"\[2J"
+        code_erase_display_0 = chr(27) + r"\[J"
         code_graphics_mode = chr(27) + r"\[\d\d;\d\dm"
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
         code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
         code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
-        code_erase_display = chr(27) + r"\[J"
         code_attrs_off = chr(27) + r"\[0m"
         code_reverse = chr(27) + r"\[7m"
         code_cursor_left = chr(27) + r"\[\d+D"
@@ -1837,7 +1836,6 @@ class BaseConnection(object):
             code_erase_line,
             code_enable_scroll,
             code_erase_start_line,
-            code_form_feed,
             code_carriage_return,
             code_disable_line_wrapping,
             code_erase_line_end,
@@ -1851,6 +1849,7 @@ class BaseConnection(object):
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_erase_display_0,
             code_attrs_off,
             code_reverse,
             code_cursor_left,
@@ -1861,7 +1860,16 @@ class BaseConnection(object):
             output = re.sub(ansi_esc_code, "", output)
 
         # CODE_NEXT_LINE must substitute with return
-        return re.sub(code_next_line, self.RETURN, output)
+        output = re.sub(code_next_line, self.RETURN, output)
+
+        # Aruba and ProCurve switches can use code_insert_line for <enter>
+        insert_line_match = re.search(code_insert_line, output)
+        if insert_line_match:
+            # Substitute each insert_line with a new <enter>
+            count = int(insert_line_match.group(1))
+            output = re.sub(code_insert_line, count * self.RETURN, output)
+
+        return output
 
     def cleanup(self, command=""):
         """Logout of the session on the network device plus any additional cleanup."""
