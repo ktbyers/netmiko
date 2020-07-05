@@ -45,7 +45,7 @@ A set of common Netmiko use cases.
 - [Standard logging](#standard-logging)
 
 #### Secure Copy
-- [Secure Copy](#secure-copy)
+- [Secure Copy](#secure-copy-1)
 
 #### Auto Detection of Device Type
 - [Auto detection using SSH](#auto-detection-using-ssh)

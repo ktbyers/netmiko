@@ -74,11 +74,20 @@ class InLineTransfer(CiscoIosFileTransfer):
         progress=None,
         progress4=None,
     ):
+
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
             raise ValueError(msg)
         if direction != "put":
             raise ValueError("Only put operation supported by InLineTransfer.")
+
+        if progress is not None or progress4 is not None:
+            raise NotImplementedError(
+                "Progress bar is not supported on inline transfers."
+            )
+        else:
+            self.progress = progress
+            self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
         if source_file:
@@ -100,9 +109,6 @@ class InLineTransfer(CiscoIosFileTransfer):
             self.file_system = file_system
 
         self.socket_timeout = socket_timeout
-        # not useful for text files but has to exist
-        self.progress = progress
-        self.progress4 = progress4
 
     @staticmethod
     def _read_file(file_name):

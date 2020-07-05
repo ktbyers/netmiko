@@ -18,7 +18,7 @@ from netmiko.ssh_exception import (
 )
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
-from netmiko.scp_functions import file_transfer
+from netmiko.scp_functions import file_transfer, progress_bar
 
 # Alternate naming
 Netmiko = ConnectHandler
@@ -40,6 +40,7 @@ __all__ = (
     "BaseConnection",
     "Netmiko",
     "file_transfer",
+    "progress_bar",
 )
 
 # Cisco cntl-shift-six sequence
