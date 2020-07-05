@@ -76,6 +76,7 @@
 - Nokia/Alcatel SR-OS
 - QuantaMesh
 - Rad ETX
+- Raisecom ROAP
 - Sophos SFOS
 - Ubiquiti Unifi Switch
 - Versa Networks FlexVNF
