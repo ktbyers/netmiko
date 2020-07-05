@@ -1867,7 +1867,6 @@ class BaseConnection(object):
             output = re.sub(ansi_esc_code, "", output)
 
         # CODE_NEXT_LINE must substitute with return
-        import ipdb; ipdb.set_trace()
         output = re.sub(code_next_line, self.RETURN, output)
 
         # Aruba and ProCurve switches can use code_insert_line for <enter>
