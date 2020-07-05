@@ -1124,7 +1124,9 @@ class BaseConnection(object):
         prompt = self.normalize_linefeeds(prompt)
         log.debug(f"find_prompt: normalized prompt: {prompt}")
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
-        log.debug(f"find_prompt: last line, split around {self.RESPONSE_RETURN}: {prompt}")
+        log.debug(
+            f"find_prompt: last line, split around {self.RESPONSE_RETURN}: {prompt}"
+        )
         prompt = prompt.strip()
         if not prompt:
             raise ValueError(f"Unable to find prompt: {prompt}")
@@ -1818,19 +1820,19 @@ class BaseConnection(object):
         code_erase_line = chr(27) + r"\[2K"
         code_erase_start_line = chr(27) + r"\[K"
         code_enable_scroll = chr(27) + r"\[\d+;\d+r"
-        code_insert_line = chr(27) + r"\[(\d)L"
+        code_insert_line = chr(27) + r"\[(\d+)L"
         code_carriage_return = chr(27) + r"\[1M"
         code_disable_line_wrapping = chr(27) + r"\[\?7l"
         code_reset_mode_screen_options = chr(27) + r"\[\?\d+l"
         code_reset_graphics_mode = chr(27) + r"\[00m"
         code_erase_display = chr(27) + r"\[2J"
+        code_erase_display_0 = chr(27) + r"\[J"
         code_graphics_mode = chr(27) + r"\[\d\d;\d\dm"
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
         code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
         code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
-        code_erase_display = chr(27) + r"\[J"
         code_attrs_off = chr(27) + r"\[0m"
         code_reverse = chr(27) + r"\[7m"
         code_cursor_left = chr(27) + r"\[\d+D"
@@ -1854,6 +1856,7 @@ class BaseConnection(object):
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_erase_display_0,
             code_attrs_off,
             code_reverse,
             code_cursor_left,
@@ -1864,20 +1867,15 @@ class BaseConnection(object):
             output = re.sub(ansi_esc_code, "", output)
 
         # CODE_NEXT_LINE must substitute with return
+        import ipdb; ipdb.set_trace()
         output = re.sub(code_next_line, self.RETURN, output)
 
-        # Aruba and ProCurve switches appear to use code_insert_line for their return
-        def insert_line_repl(m):
-            ret = ""
-            num = int(m.group(1))
-            for i in range(num):
-                ret += self.RETURN
-            return ret
-        output = re.sub(code_insert_line, insert_line_repl, output)
-
-        log.debug("Stripping ANSI escape codes")
-        log.debug(f"new_output = {output}")
-        log.debug(f"repr = {repr(output)}")
+        # Aruba and ProCurve switches can use code_insert_line for <enter>
+        insert_line_match = re.search(code_insert_line, output)
+        if insert_line_match:
+            # Substitute each insert_line with a new <enter>
+            count = int(insert_line_match.group(1))
+            re.sub(code_insert_line, count * self.RETURN, output)
 
         return output
 
