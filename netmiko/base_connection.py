@@ -1101,15 +1101,17 @@ class BaseConnection(object):
 
         # Initial attempt to get prompt
         prompt = self.read_channel()
+        log.debug(f"find_prompt initial attempt: prompt is {prompt}")
 
         # Check if the only thing you received was a newline
         count = 0
         prompt = prompt.strip()
         while count <= 12 and not prompt:
             prompt = self.read_channel().strip()
+            log.debug(f"find_prompt: count={count}, prompt={prompt}")
             if not prompt:
                 self.write_channel(self.RETURN)
-                # log.debug(f"find_prompt sleep time: {sleep_time}")
+                log.debug(f"find_prompt sleep time: {sleep_time}")
                 time.sleep(sleep_time)
                 if sleep_time <= 3:
                     # Double the sleep_time when it is small
@@ -1120,7 +1122,9 @@ class BaseConnection(object):
 
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
+        log.debug(f"find_prompt: normalized prompt: {prompt}")
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
+        log.debug(f"find_prompt: last line, split around {self.RESPONSE_RETURN}: {prompt}")
         prompt = prompt.strip()
         if not prompt:
             raise ValueError(f"Unable to find prompt: {prompt}")
@@ -1814,7 +1818,7 @@ class BaseConnection(object):
         code_erase_line = chr(27) + r"\[2K"
         code_erase_start_line = chr(27) + r"\[K"
         code_enable_scroll = chr(27) + r"\[\d+;\d+r"
-        code_form_feed = chr(27) + r"\[1L"
+        code_insert_line = chr(27) + r"\[(\d)L"
         code_carriage_return = chr(27) + r"\[1M"
         code_disable_line_wrapping = chr(27) + r"\[\?7l"
         code_reset_mode_screen_options = chr(27) + r"\[\?\d+l"
@@ -1837,7 +1841,6 @@ class BaseConnection(object):
             code_erase_line,
             code_enable_scroll,
             code_erase_start_line,
-            code_form_feed,
             code_carriage_return,
             code_disable_line_wrapping,
             code_erase_line_end,
@@ -1861,7 +1864,22 @@ class BaseConnection(object):
             output = re.sub(ansi_esc_code, "", output)
 
         # CODE_NEXT_LINE must substitute with return
-        return re.sub(code_next_line, self.RETURN, output)
+        output = re.sub(code_next_line, self.RETURN, output)
+
+        # Aruba and ProCurve switches appear to use code_insert_line for their return
+        def insert_line_repl(m):
+            ret = ""
+            num = int(m.group(1))
+            for i in range(num):
+                ret += self.RETURN
+            return ret
+        output = re.sub(code_insert_line, insert_line_repl, output)
+
+        log.debug("Stripping ANSI escape codes")
+        log.debug(f"new_output = {output}")
+        log.debug(f"repr = {repr(output)}")
+
+        return output
 
     def cleanup(self, command=""):
         """Logout of the session on the network device plus any additional cleanup."""
