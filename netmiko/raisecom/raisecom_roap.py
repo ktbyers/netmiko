@@ -22,14 +22,15 @@ class RaisecomRoapBase(CiscoBaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, cmd="write startup-config"):
+    def save_config(
+        self, cmd="write startup-config", confirm=False, confirm_response=""
+    ):
         """Saves Config."""
         self.exit_config_mode()
         self.enable()
-        output = self.send_command_timing(
-            command_string=cmd, strip_prompt=False, strip_command=False
+        return super().save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
-        return output
 
 
 class RaisecomRoapSSH(RaisecomRoapBase):
