@@ -1101,17 +1101,14 @@ class BaseConnection(object):
 
         # Initial attempt to get prompt
         prompt = self.read_channel()
-        log.debug(f"find_prompt initial attempt: prompt is {prompt}")
 
         # Check if the only thing you received was a newline
         count = 0
         prompt = prompt.strip()
         while count <= 12 and not prompt:
             prompt = self.read_channel().strip()
-            log.debug(f"find_prompt: count={count}, prompt={prompt}")
             if not prompt:
                 self.write_channel(self.RETURN)
-                log.debug(f"find_prompt sleep time: {sleep_time}")
                 time.sleep(sleep_time)
                 if sleep_time <= 3:
                     # Double the sleep_time when it is small
@@ -1122,11 +1119,7 @@ class BaseConnection(object):
 
         # If multiple lines in the output take the last line
         prompt = self.normalize_linefeeds(prompt)
-        log.debug(f"find_prompt: normalized prompt: {prompt}")
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
-        log.debug(
-            f"find_prompt: last line, split around {self.RESPONSE_RETURN}: {prompt}"
-        )
         prompt = prompt.strip()
         if not prompt:
             raise ValueError(f"Unable to find prompt: {prompt}")
