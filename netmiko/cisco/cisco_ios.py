@@ -71,6 +71,8 @@ class InLineTransfer(CiscoIosFileTransfer):
         direction="put",
         source_config=None,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
@@ -98,6 +100,9 @@ class InLineTransfer(CiscoIosFileTransfer):
             self.file_system = file_system
 
         self.socket_timeout = socket_timeout
+        # not useful for text files but has to exist
+        self.progress = progress
+        self.progress4 = progress4
 
     @staticmethod
     def _read_file(file_name):
