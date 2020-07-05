@@ -84,28 +84,12 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
         self,
         pri_prompt_terminator=r"#\s*$",
         alt_prompt_terminator=r">\s*$",
-        username_pattern=r"([Ll]ogin\:|[Uu]sername\:)",
-        pwd_pattern=r"[Pp]assword:",
+        username_pattern=r"(Login|Username)",
+        pwd_pattern=r"Password",
         delay_factor=1,
         max_loops=20,
     ):
-        """
-        Override BaseConnection Telnet login. Can be username/password or just password.
-        Cut 'self.write_channel(self.TELNET_RETURN)' in 'while'.
-        Raisecom devices will disconnect if receives too much attempts for password.
-        :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
-        :type pri_prompt_terminator: str
-        :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
-        :type alt_prompt_terminator: str
-        :param username_pattern: Pattern used to identify the username prompt
-        :type username_pattern: str
-        :param pwd_pattern: password
-        :type pwd_pattern: str
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
-        :param max_loops: Controls the wait time in conjunction with the delay_factor
-        (default: 20)
-        """
+
         # set callback function to handle telnet options.
         self.remote_conn.set_option_negotiation_callback(self._process_option)
         delay_factor = self.select_delay_factor(delay_factor)
