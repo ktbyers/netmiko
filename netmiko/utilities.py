@@ -211,7 +211,11 @@ def check_serial_port(name):
 def get_template_dir():
     """Find and return the ntc-templates/templates dir."""
     try:
-        template_dir = os.path.expanduser(os.environ["NET_TEXTFSM"])
+        try:
+            import ntc_templates
+            template_dir = ntc_templates.__path__[0]
+        except SyntaxError:
+            template_dir = os.path.expanduser(os.environ["NET_TEXTFSM"])
         index = os.path.join(template_dir, "index")
         if not os.path.isfile(index):
             # Assume only base ./ntc-templates specified
