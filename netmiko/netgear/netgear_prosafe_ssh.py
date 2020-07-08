@@ -1,6 +1,5 @@
 """ProSafe OS support"""
 import time
-import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -39,20 +38,21 @@ class NetgearProSafeSSH(CiscoSSHConnection):
     def exit_config_mode(self, exit_config="exit", pattern="#"):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def save_config(self, save_cmd="write memory", confirm=True, confirm_response=""):
+    def save_config(self, save_cmd="write memory", confirm=True, confirm_response="y"):
         self.enable()
         """ProSafe doesn't allow saving whilst within configuration mode"""
         if self.check_config_mode():
             self.exit_config_mode()
 
-       """TODO: This operation may take a few minutes.
-       Management interfaces will not be available during this time.
+        """
+        TODO: This operation may take a few minutes
+        Management interfaces will not be available during this time.
 
-       Are you sure you want to save? (y/n)
+        Are you sure you want to save? (y/n)
 
 
-       Configuration Not Saved!"""
-
+        Configuration Not Saved!
+        """
 
         return super().save_config(
             cmd=save_cmd, confirm=confirm, confirm_response=confirm_response
