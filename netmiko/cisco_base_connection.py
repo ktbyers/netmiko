@@ -34,7 +34,7 @@ class CiscoBaseConnection(BaseConnection):
         return super(CiscoBaseConnection, self).check_config_mode(check_string=check_string,
                                                                   pattern=pattern)
 
-    def config_mode(self, config_command='configure terminal', pattern=''):
+    def config_mode(self, config_command='config terminal', pattern=''):
         """
         Enter into configuration mode on remote device.
 
