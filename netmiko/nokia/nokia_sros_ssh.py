@@ -20,9 +20,7 @@ class NokiaSrosSSH(BaseConnection):
     Implement methods for interacting with Nokia SR OS devices.
 
     Not applicable in Nokia SR OS (disabled):
-        - enable()
         - exit_enable_mode()
-        - check_enable_mode()
 
     Overriden methods to adapt Nokia SR OS behavior (changed):
         - session_preparation()
@@ -33,6 +31,8 @@ class NokiaSrosSSH(BaseConnection):
         - save_config()
         - commit()
         - strip_prompt()
+        - enable()
+        - check_enable_mode()
     """
 
     def session_preparation(self):
@@ -60,16 +60,27 @@ class NokiaSrosSSH(BaseConnection):
             self.base_prompt = match.group(1)
             return self.base_prompt
 
-    def enable(self, *args, **kwargs):
-        """Nokia SR OS does not support enable-mode"""
-        return ""
+    def enable(
+        self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE, *args, **kwargs
+    ):
+        """Enable SR OS administrative mode"""
+        if "@" not in self.base_prompt:
+            cmd = "enable-admin"
+        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
-    def check_enable_mode(self, *args, **kwargs):
-        """Nokia SR OS does not support enable-mode"""
-        return True
+    def check_enable_mode(self, check_string="in admin mode", *args, **kwargs):
+        """Check if in enable mode. Returns True if already in admin mode, false otherwise."""
+        cmd = "enable"
+        if "@" not in self.base_prompt:
+            cmd = "enable-admin"
+        self.write_channel(self.normalize_cmd(cmd))
+        output = self.read_until_prompt_or_pattern(pattern="assword")
+        self.write_channel(self.RETURN)  # send ENTER to pass the password prompt
+        self.read_until_prompt()
+        return check_string in output
 
     def exit_enable_mode(self, *args, **kwargs):
-        """Nokia SR OS does not support enable-mode"""
+        """Nokia SR OS does not have a notion of exiting administrative mode"""
         return ""
 
     def config_mode(self, config_command="edit-config exclusive", pattern=r"\(ex\)\["):
