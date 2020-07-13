@@ -1909,9 +1909,9 @@ class BaseConnection(object):
     def open_session_log(self, filename, mode="write"):
         """Open the session_log file."""
         if mode == "append":
-            self.session_log = open(filename, mode="a")
+            self.session_log = open(filename, mode="a", encoding=self.encoding)
         else:
-            self.session_log = open(filename, mode="w")
+            self.session_log = open(filename, mode="w", encoding=self.encoding)
         self._session_log_close = True
 
     def close_session_log(self):
