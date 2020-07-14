@@ -74,7 +74,7 @@ class CiscoXr(CiscoBaseConnection):
             return False
 
 
-    def config_mode(self, config_command='configure terminal', pattern='', skip_check=True):
+    def config_mode(self, config_command='config term', pattern='', skip_check=True):
         """
         Enter into configuration mode on remote device.
 
