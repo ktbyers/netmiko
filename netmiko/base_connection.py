@@ -63,7 +63,8 @@ class BaseConnection(object):
         alt_key_file="",
         ssh_config_file=None,
         #
-        # Connect ---| TCP conn (timeout) | Auth response (auth_timeout) | SSH-Banner (banner_timeout)
+        # Connect ---| TCP conn (timeout) | Auth response (auth_timeout)
+        #                           | SSH-Banner (banner_timeout)
         #
         conn_timeout=5,
         auth_timeout=None,  # Timeout to wait for authentication response
@@ -912,12 +913,16 @@ class BaseConnection(object):
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
             except socket.error as conn_error:
-                msg = (f"TCP connection to device failed.\n\n"
-                       f"Common causes of this problem are:\n"
-                       f"1. Incorrect hostname or IP address.\n"
-                       f"2. Wrong TCP port.\n"
-                       f"3. Intermediate firewall blocking access.\n\n"
-                       f"Device settings: {self.device_type} {self.host}:{self.port}\n\n")
+                msg = f"""TCP connection to device failed.
+
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+"""
 
                 # Handle DNS failures separately
                 if "Name or service not known" in str(conn_error):
