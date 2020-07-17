@@ -12,20 +12,20 @@ DEVICE_DICT = parse_yaml(PWD + "/etc/test_devices_exc.yml")
 
 def test_valid_conn():
     """Verify device without modifications works."""
-    device = DEVICE_DICT["cisco881_invalid"]
+    device = DEVICE_DICT["cisco3_invalid"]
     conn = ConnectHandler(**device)
     assert conn.find_prompt() == "cisco3#"
 
 
 def test_invalid_port():
-    device = DEVICE_DICT["cisco881_invalid"]
+    device = DEVICE_DICT["cisco3_invalid"]
     device["port"] = 8022
     with pytest.raises(NetmikoTimeoutException):
         ConnectHandler(**device)
 
 
 def test_conn_timeout():
-    device = DEVICE_DICT["cisco881_invalid"]
+    device = DEVICE_DICT["cisco3_invalid"]
     device["conn_timeout"] = 5
     device["port"] = 8022
     start_time = datetime.now()
@@ -38,7 +38,7 @@ def test_conn_timeout():
 
 
 def test_dns_fail():
-    device = DEVICE_DICT["cisco881_invalid"]
+    device = DEVICE_DICT["cisco3_invalid"]
     device["host"] = "invalid.lasthop.io"
     with pytest.raises(NetmikoTimeoutException):
         try:
@@ -50,7 +50,7 @@ def test_dns_fail():
 
 def test_dns_fail_timeout():
     """Should fail very fast."""
-    device = DEVICE_DICT["cisco881_invalid"]
+    device = DEVICE_DICT["cisco3_invalid"]
     device["host"] = "invalid.lasthop.io"
     start_time = datetime.now()
     with pytest.raises(NetmikoTimeoutException):
