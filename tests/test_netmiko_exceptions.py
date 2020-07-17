@@ -26,10 +26,47 @@ def test_invalid_port():
 
 def test_conn_timeout():
     device = DEVICE_DICT["cisco881_invalid"]
-    device["conn_timeout"] = 1
+    device["conn_timeout"] = 5
+    device["port"] = 8022
     start_time = datetime.now()
     with pytest.raises(NetmikoTimeoutException):
         ConnectHandler(**device)
     end_time = datetime.now()
     time_delta = end_time - start_time
-    assert time_delta.total_seconds() < 1.1
+    assert time_delta.total_seconds() > 5.0
+    assert time_delta.total_seconds() < 5.1
+
+
+def test_dns_fail():
+    device = DEVICE_DICT["cisco881_invalid"]
+    device["host"] = "invalid.lasthop.io"
+    with pytest.raises(NetmikoTimeoutException):
+        try:
+            ConnectHandler(**device)
+        except NetmikoTimeoutException as e:
+            assert "DNS failure" in str(e)
+            raise
+
+
+def test_dns_fail_timeout():
+    """Should fail very fast."""
+    device = DEVICE_DICT["cisco881_invalid"]
+    device["host"] = "invalid.lasthop.io"
+    start_time = datetime.now()
+    with pytest.raises(NetmikoTimeoutException):
+        try:
+            ConnectHandler(**device)
+        except NetmikoTimeoutException as e:
+            assert "DNS failure" in str(e)
+            raise
+    end_time = datetime.now()
+    time_delta = end_time - start_time
+    assert time_delta.total_seconds() < 0.1
+
+
+def test_auth_timeout():
+    assert True
+
+
+def test_banner_timeout():
+    assert True
