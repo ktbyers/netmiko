@@ -913,6 +913,7 @@ class BaseConnection(object):
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
             except socket.error as conn_error:
+                self.paramiko_cleanup()
                 msg = f"""TCP connection to device failed.
 
 Common causes of this problem are:
@@ -934,13 +935,12 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
+                self.paramiko_cleanup()
                 msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
                     device_type=self.device_type, ip=self.host, port=self.port
                 )
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
-            finally:
-                self.paramiko_cleanup()
 
             if self.verbose:
                 print(f"SSH connection established to {self.host}:{self.port}")
