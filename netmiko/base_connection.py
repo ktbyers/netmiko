@@ -62,11 +62,17 @@ class BaseConnection(object):
         alt_host_keys=False,
         alt_key_file="",
         ssh_config_file=None,
-        timeout=100,
-        session_timeout=60,
-        auth_timeout=None,
-        blocking_timeout=20,
-        banner_timeout=15,
+        #
+        # Connect timeouts
+        # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
+        #       --> Auth response (auth_timeout)
+        conn_timeout=5,
+        auth_timeout=None,  # Timeout to wait for authentication response
+        banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        # Other timeouts
+        blocking_timeout=20,  # Read blocking timeout
+        timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
+        session_timeout=60,  # Used for locking/sharing the connection
         keepalive=0,
         default_enter=None,
         response_return=None,
@@ -241,11 +247,12 @@ class BaseConnection(object):
         self.device_type = device_type
         self.ansi_escape_codes = False
         self.verbose = verbose
-        self.timeout = timeout
         self.auth_timeout = auth_timeout
         self.banner_timeout = banner_timeout
-        self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
+        self.conn_timeout = conn_timeout
+        self.session_timeout = session_timeout
+        self.timeout = timeout
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
@@ -849,7 +856,7 @@ class BaseConnection(object):
             "key_filename": self.key_file,
             "pkey": self.pkey,
             "passphrase": self.passphrase,
-            "timeout": self.timeout,
+            "timeout": self.conn_timeout,
             "auth_timeout": self.auth_timeout,
             "banner_timeout": self.banner_timeout,
             "sock": self.sock,
@@ -906,11 +913,27 @@ class BaseConnection(object):
             # initiate SSH connection
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
-            except socket.error:
+            except socket.error as conn_error:
                 self.paramiko_cleanup()
-                msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f"""TCP connection to device failed.
+
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+"""
+
+                # Handle DNS failures separately
+                if "Name or service not known" in str(conn_error):
+                    msg = (
+                        f"DNS failure--the hostname you provided was not resolvable "
+                        f"in DNS: {self.host}:{self.port}"
+                    )
+
+                msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
