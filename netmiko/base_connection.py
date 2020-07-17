@@ -63,15 +63,16 @@ class BaseConnection(object):
         alt_key_file="",
         ssh_config_file=None,
         #
-        # Connect ---| TCP conn (timeout) | Auth response (auth_timeout)
-        #                           | SSH-Banner (banner_timeout)
-        #
+        # Connect timeouts
+        # ssh-connect --> TCP conn (conn_timeout) --> Auth response (auth_timeout)
+        #       --> SSH-banner (banner_timeout)
         conn_timeout=5,
         auth_timeout=None,  # Timeout to wait for authentication response
         banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        # Other timeouts
         blocking_timeout=20,  # Read blocking timeout
         timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
-        session_timeout=60,  # Used for sharing the connection
+        session_timeout=60,  # Used for locking/sharing the connection
         keepalive=0,
         default_enter=None,
         response_return=None,
