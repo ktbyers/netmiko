@@ -4,6 +4,9 @@ RETURN_CODE=0
 
 # Exit on the first test failure and set RETURN_CODE = 1
 echo "Starting tests...good luck:" \
+&& echo "Exception and Timeout Tests" \
+&& py.test -x -s -v test_netmiko_exceptions.py \
+\
 && echo "Cisco IOS-XE SSH (including SCP)" \
 && py.test -v test_netmiko_scp.py --test_device cisco3 \
 && py.test -v test_netmiko_show.py --test_device cisco3 \
