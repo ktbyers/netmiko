@@ -64,8 +64,8 @@ class BaseConnection(object):
         ssh_config_file=None,
         #
         # Connect timeouts
-        # ssh-connect --> TCP conn (conn_timeout) --> Auth response (auth_timeout)
-        #       --> SSH-banner (banner_timeout)
+        # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
+        #       --> Auth response (auth_timeout)
         conn_timeout=5,
         auth_timeout=None,  # Timeout to wait for authentication response
         banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
