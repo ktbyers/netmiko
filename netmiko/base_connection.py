@@ -1085,7 +1085,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         log.debug("Exiting disable_paging")
         return output
 
-    def set_terminal_width(self, command="", delay_factor=1, cmd_verify=False, pattern=None):
+    def set_terminal_width(
+        self, command="", delay_factor=1, cmd_verify=False, pattern=None
+    ):
         """CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
