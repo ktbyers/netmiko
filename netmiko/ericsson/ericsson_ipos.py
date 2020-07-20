@@ -16,10 +16,10 @@ class EricssonIposSSH(BaseConnection):
 
     def disable_paging(self, command="terminal length 0", delay_factor=1):
         """Disable paging default to a Cisco CLI method.
-        
+
         :param command: Device command to disable pagination of output
         :type command: str
-        
+
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
@@ -28,17 +28,22 @@ class EricssonIposSSH(BaseConnection):
     def set_terminal_width(self, command="terminal width 512", delay_factor=1):
         """CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
-        
+
         Set terminal width to 511 which works on a broad set of devices.
 
         :param command: Command string to send to the device
         :type command: str
-        
+
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
         return super().set_terminal_width(command=command, delay_factor=delay_factor)
 
+    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
+        """Ericsson IPOS requires you not exit from configuration mode."""
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+        )
 
     def exit_enable_mode(self, exit_command="disable"):
         """
@@ -88,7 +93,7 @@ class EricssonIposSSH(BaseConnection):
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
         return output
-    
+
     def commit(self, confirm=False, confirm_delay=None, comment="", delay_factor=1):
         """
         Commit the candidate configuration.
@@ -133,5 +138,7 @@ class EricssonIposSSH(BaseConnection):
 
         if commit_marker not in output:
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
+
+        self.exit_config_mode()
 
         return output
