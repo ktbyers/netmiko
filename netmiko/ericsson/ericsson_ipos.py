@@ -10,11 +10,35 @@ class EricssonIposSSH(BaseConnection):
         """
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd="", pattern="ssword", re_flags=re.IGNORECASE):
-        """
-        Enter enable mode.
-        """
+    def enable(self, cmd="enable 15", pattern="ssword", re_flags=re.IGNORECASE):
+        """Enter enable mode."""
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+
+    def disable_paging(self, command="terminal length 0", delay_factor=1):
+        """Disable paging default to a Cisco CLI method.
+        
+        :param command: Device command to disable pagination of output
+        :type command: str
+        
+        :param delay_factor: See __init__: global_delay_factor
+        :type delay_factor: int
+        """
+        return super().disable_paging(command=command, delay_factor=delay_factor)
+
+    def set_terminal_width(self, command="terminal width 512", delay_factor=1):
+        """CLI terminals try to automatically adjust the line based on the width of the terminal.
+        This causes the output to get distorted when accessed programmatically.
+        
+        Set terminal width to 511 which works on a broad set of devices.
+
+        :param command: Command string to send to the device
+        :type command: str
+        
+        :param delay_factor: See __init__: global_delay_factor
+        :type delay_factor: int
+        """
+        return super().set_terminal_width(command=command, delay_factor=delay_factor)
+
 
     def exit_enable_mode(self, exit_command="disable"):
         """
@@ -44,6 +68,27 @@ class EricssonIposSSH(BaseConnection):
         """
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
+    def save_config(self, cmd="save config", confirm=True, confirm_response="yes"):
+        """Saves configuration"""
+        if confirm:
+            output = self.send_command_timing(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
+
+            if confirm_response:
+                output += self.send_command_timing(
+                    confirm_response, strip_prompt=False, strip_command=False
+                )
+            else:
+                output += self.send_command_timing(
+                    self.RETURN, strip_prompt=False, strip_command=False
+                )
+        else:
+            output = self.send_command(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
+        return output
+    
     def commit(self, confirm=False, confirm_delay=None, comment="", delay_factor=1):
         """
         Commit the candidate configuration.
