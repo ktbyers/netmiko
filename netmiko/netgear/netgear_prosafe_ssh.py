@@ -38,7 +38,9 @@ class NetgearProSafeSSH(CiscoSSHConnection):
     def exit_config_mode(self, exit_config="exit", pattern="#"):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def save_config(self, save_cmd="write memory confirm", confirm=False, confirm_response=""):
+    def save_config(
+        self, save_cmd="write memory confirm", confirm=False, confirm_response=""
+    ):
         self.enable()
         """ProSafe doesn't allow saving whilst within configuration mode"""
         if self.check_config_mode():
