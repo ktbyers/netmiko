@@ -10,8 +10,8 @@ class RuijieOSBase(CiscoBaseConnection):
         self.set_base_prompt()
         """Ruijie OS requires enable mode to set terminal width"""
         self.enable()
+        self.set_terminal_width(command="terminal width 256", pattern="terminal")
         self.disable_paging(command="terminal length 0")
-        self.set_terminal_width(command="terminal width 256")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
