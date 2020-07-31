@@ -108,65 +108,76 @@ class CiscoBaseConnection(BaseConnection):
 
         output = &#34;&#34;
         return_msg = &#34;&#34;
+        outer_loops = 3
+        inner_loops = int(max_loops / outer_loops)
         i = 1
-        while i &lt;= max_loops:
-            try:
-                output = self.read_channel()
-                return_msg += output
-
-                # Search for username pattern / send username
-                if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
+        for _ in range(outer_loops):
+            while i &lt;= inner_loops:
+                try:
                     output = self.read_channel()
                     return_msg += output
 
-                # Search for password pattern / send password
-                if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
+                    # Search for username pattern / send username
+                    if re.search(username_pattern, output, flags=re.I):
+                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                        self.write_channel(self.username + &#34;\r&#34;)
+                        time.sleep(1 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+
+                    # Search for password pattern / send password
+                    if re.search(pwd_pattern, output, flags=re.I):
+                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                        self.write_channel(self.password + &#34;\r&#34;)
+                        time.sleep(0.5 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+                        if re.search(
+                            pri_prompt_terminator, output, flags=re.M
+                        ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                            return return_msg
+
+                    # Support direct telnet through terminal server
+                    if re.search(
+                        r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output
+                    ):
+                        self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
+                        time.sleep(0.5 * delay_factor)
+                        count = 0
+                        while count &lt; 15:
+                            output = self.read_channel()
+                            return_msg += output
+                            if re.search(r&#34;ress RETURN to get started&#34;, output):
+                                output = &#34;&#34;
+                                break
+                            time.sleep(2 * delay_factor)
+                            count += 1
+
+                    # Check for device with no password configured
+                    if re.search(r&#34;assword required, but none set&#34;, output):
+                        self.remote_conn.close()
+                        msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
+                            self.host
+                        )
+                        raise NetmikoAuthenticationException(msg)
+
+                    # Check if proper data received
                     if re.search(
                         pri_prompt_terminator, output, flags=re.M
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
-                # Support direct telnet through terminal server
-                if re.search(r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output):
-                    self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    count = 0
-                    while count &lt; 15:
-                        output = self.read_channel()
-                        return_msg += output
-                        if re.search(r&#34;ress RETURN to get started&#34;, output):
-                            output = &#34;&#34;
-                            break
-                        time.sleep(2 * delay_factor)
-                        count += 1
+                    i += 1
 
-                # Check for device with no password configured
-                if re.search(r&#34;assword required, but none set&#34;, output):
+                except EOFError:
                     self.remote_conn.close()
-                    msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
-                        self.host
-                    )
+                    msg = f&#34;Login failed: {self.host}&#34;
                     raise NetmikoAuthenticationException(msg)
 
-                # Check if proper data received
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
-                    return return_msg
-
-                self.write_channel(self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                i += 1
-            except EOFError:
-                self.remote_conn.close()
-                msg = f&#34;Login failed: {self.host}&#34;
-                raise NetmikoAuthenticationException(msg)
+            # Try sending an &lt;enter&gt; to restart the login process
+            self.write_channel(self.TELNET_RETURN)
+            time.sleep(0.5 * delay_factor)
+            i = 1
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -266,7 +277,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <dl>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoBaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -479,65 +490,76 @@ class CiscoFileTransfer(BaseFileTransfer):
 
         output = &#34;&#34;
         return_msg = &#34;&#34;
+        outer_loops = 3
+        inner_loops = int(max_loops / outer_loops)
         i = 1
-        while i &lt;= max_loops:
-            try:
-                output = self.read_channel()
-                return_msg += output
-
-                # Search for username pattern / send username
-                if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
+        for _ in range(outer_loops):
+            while i &lt;= inner_loops:
+                try:
                     output = self.read_channel()
                     return_msg += output
 
-                # Search for password pattern / send password
-                if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
+                    # Search for username pattern / send username
+                    if re.search(username_pattern, output, flags=re.I):
+                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                        self.write_channel(self.username + &#34;\r&#34;)
+                        time.sleep(1 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+
+                    # Search for password pattern / send password
+                    if re.search(pwd_pattern, output, flags=re.I):
+                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                        self.write_channel(self.password + &#34;\r&#34;)
+                        time.sleep(0.5 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+                        if re.search(
+                            pri_prompt_terminator, output, flags=re.M
+                        ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                            return return_msg
+
+                    # Support direct telnet through terminal server
+                    if re.search(
+                        r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output
+                    ):
+                        self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
+                        time.sleep(0.5 * delay_factor)
+                        count = 0
+                        while count &lt; 15:
+                            output = self.read_channel()
+                            return_msg += output
+                            if re.search(r&#34;ress RETURN to get started&#34;, output):
+                                output = &#34;&#34;
+                                break
+                            time.sleep(2 * delay_factor)
+                            count += 1
+
+                    # Check for device with no password configured
+                    if re.search(r&#34;assword required, but none set&#34;, output):
+                        self.remote_conn.close()
+                        msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
+                            self.host
+                        )
+                        raise NetmikoAuthenticationException(msg)
+
+                    # Check if proper data received
                     if re.search(
                         pri_prompt_terminator, output, flags=re.M
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
-                # Support direct telnet through terminal server
-                if re.search(r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output):
-                    self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    count = 0
-                    while count &lt; 15:
-                        output = self.read_channel()
-                        return_msg += output
-                        if re.search(r&#34;ress RETURN to get started&#34;, output):
-                            output = &#34;&#34;
-                            break
-                        time.sleep(2 * delay_factor)
-                        count += 1
+                    i += 1
 
-                # Check for device with no password configured
-                if re.search(r&#34;assword required, but none set&#34;, output):
+                except EOFError:
                     self.remote_conn.close()
-                    msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
-                        self.host
-                    )
+                    msg = f&#34;Login failed: {self.host}&#34;
                     raise NetmikoAuthenticationException(msg)
 
-                # Check if proper data received
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
-                    return return_msg
-
-                self.write_channel(self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                i += 1
-            except EOFError:
-                self.remote_conn.close()
-                msg = f&#34;Login failed: {self.host}&#34;
-                raise NetmikoAuthenticationException(msg)
+            # Try sending an &lt;enter&gt; to restart the login process
+            self.write_channel(self.TELNET_RETURN)
+            time.sleep(0.5 * delay_factor)
+            i = 1
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -632,6 +654,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH" href="huawei/huawei_smartax.html#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH">HuaweiSmartAXSSH</a></li>
 <li><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="ipinfusion/ipinfusion_ocnos.html#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></li>
 <li><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase" href="oneaccess/oneaccess_oneos.html#netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase">OneaccessOneOSBase</a></li>
+<li><a title="netmiko.raisecom.raisecom_roap.RaisecomRoapBase" href="raisecom/raisecom_roap.html#netmiko.raisecom.raisecom_roap.RaisecomRoapBase">RaisecomRoapBase</a></li>
 <li><a title="netmiko.ruijie.ruijie_os.RuijieOSBase" href="ruijie/ruijie_os.html#netmiko.ruijie.ruijie_os.RuijieOSBase">RuijieOSBase</a></li>
 <li><a title="netmiko.sixwind.sixwind_os.SixwindOSBase" href="sixwind/sixwind_os.html#netmiko.sixwind.sixwind_os.SixwindOSBase">SixwindOSBase</a></li>
 <li><a title="netmiko.zte.zte_zxros.ZteZxrosBase" href="zte/zte_zxros.html#netmiko.zte.zte_zxros.ZteZxrosBase">ZteZxrosBase</a></li>
@@ -833,65 +856,76 @@ class CiscoFileTransfer(BaseFileTransfer):
 
     output = &#34;&#34;
     return_msg = &#34;&#34;
+    outer_loops = 3
+    inner_loops = int(max_loops / outer_loops)
     i = 1
-    while i &lt;= max_loops:
-        try:
-            output = self.read_channel()
-            return_msg += output
-
-            # Search for username pattern / send username
-            if re.search(username_pattern, output, flags=re.I):
-                self.write_channel(self.username + self.TELNET_RETURN)
-                time.sleep(1 * delay_factor)
+    for _ in range(outer_loops):
+        while i &lt;= inner_loops:
+            try:
                 output = self.read_channel()
                 return_msg += output
 
-            # Search for password pattern / send password
-            if re.search(pwd_pattern, output, flags=re.I):
-                self.write_channel(self.password + self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                output = self.read_channel()
-                return_msg += output
+                # Search for username pattern / send username
+                if re.search(username_pattern, output, flags=re.I):
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.username + &#34;\r&#34;)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel()
+                    return_msg += output
+
+                # Search for password pattern / send password
+                if re.search(pwd_pattern, output, flags=re.I):
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.password + &#34;\r&#34;)
+                    time.sleep(0.5 * delay_factor)
+                    output = self.read_channel()
+                    return_msg += output
+                    if re.search(
+                        pri_prompt_terminator, output, flags=re.M
+                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                        return return_msg
+
+                # Support direct telnet through terminal server
+                if re.search(
+                    r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output
+                ):
+                    self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
+                    time.sleep(0.5 * delay_factor)
+                    count = 0
+                    while count &lt; 15:
+                        output = self.read_channel()
+                        return_msg += output
+                        if re.search(r&#34;ress RETURN to get started&#34;, output):
+                            output = &#34;&#34;
+                            break
+                        time.sleep(2 * delay_factor)
+                        count += 1
+
+                # Check for device with no password configured
+                if re.search(r&#34;assword required, but none set&#34;, output):
+                    self.remote_conn.close()
+                    msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
+                        self.host
+                    )
+                    raise NetmikoAuthenticationException(msg)
+
+                # Check if proper data received
                 if re.search(
                     pri_prompt_terminator, output, flags=re.M
                 ) or re.search(alt_prompt_terminator, output, flags=re.M):
                     return return_msg
 
-            # Support direct telnet through terminal server
-            if re.search(r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output):
-                self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                count = 0
-                while count &lt; 15:
-                    output = self.read_channel()
-                    return_msg += output
-                    if re.search(r&#34;ress RETURN to get started&#34;, output):
-                        output = &#34;&#34;
-                        break
-                    time.sleep(2 * delay_factor)
-                    count += 1
+                i += 1
 
-            # Check for device with no password configured
-            if re.search(r&#34;assword required, but none set&#34;, output):
+            except EOFError:
                 self.remote_conn.close()
-                msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
-                    self.host
-                )
+                msg = f&#34;Login failed: {self.host}&#34;
                 raise NetmikoAuthenticationException(msg)
 
-            # Check if proper data received
-            if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                alt_prompt_terminator, output, flags=re.M
-            ):
-                return return_msg
-
-            self.write_channel(self.TELNET_RETURN)
-            time.sleep(0.5 * delay_factor)
-            i += 1
-        except EOFError:
-            self.remote_conn.close()
-            msg = f&#34;Login failed: {self.host}&#34;
-            raise NetmikoAuthenticationException(msg)
+        # Try sending an &lt;enter&gt; to restart the login process
+        self.write_channel(self.TELNET_RETURN)
+        time.sleep(0.5 * delay_factor)
+        i = 1
 
     # Last try to see if we already logged in
     self.write_channel(self.TELNET_RETURN)
@@ -950,7 +984,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Class to manage SCP file transfer and associated SSH control channel.</p></section>
@@ -999,7 +1033,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoSSHConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoSSHConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>

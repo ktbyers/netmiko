@@ -42,12 +42,12 @@ from netmiko.ssh_exception import (
 )
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
-from netmiko.scp_functions import file_transfer
+from netmiko.scp_functions import file_transfer, progress_bar
 
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = &#34;3.1.1&#34;
+__version__ = &#34;3.2.0&#34;
 __all__ = (
     &#34;ConnectHandler&#34;,
     &#34;ssh_dispatcher&#34;,
@@ -64,6 +64,7 @@ __all__ = (
     &#34;BaseConnection&#34;,
     &#34;Netmiko&#34;,
     &#34;file_transfer&#34;,
+    &#34;progress_bar&#34;,
 )
 
 # Cisco cntl-shift-six sequence
@@ -249,6 +250,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dd>
 <section class="desc"></section>
 </dd>
+<dt><code class="name"><a title="netmiko.raisecom" href="raisecom/index.html">netmiko.raisecom</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
 <dt><code class="name"><a title="netmiko.ruckus" href="ruckus/index.html">netmiko.ruckus</a></code></dt>
 <dd>
 <section class="desc"></section>
@@ -331,12 +336,17 @@ a new SSH connection with a remote host. This …</p></section>
 <summary>Source code</summary>
 <pre><code class="python">def ConnectHandler(*args, **kwargs):
     &#34;&#34;&#34;Factory function selects the proper class and creates object based on device_type.&#34;&#34;&#34;
-    if kwargs[&#34;device_type&#34;] not in platforms:
+    device_type = kwargs[&#34;device_type&#34;]
+    if device_type not in platforms:
+        if device_type is None:
+            msg_str = platforms_str
+        else:
+            msg_str = telnet_platforms_str if &#34;telnet&#34; in device_type else platforms_str
         raise ValueError(
-            &#34;Unsupported device_type: &#34;
-            &#34;currently supported platforms are: {}&#34;.format(platforms_str)
+            &#34;Unsupported &#39;device_type&#39; &#34;
+            &#34;currently supported platforms are: {}&#34;.format(msg_str)
         )
-    ConnectionClass = ssh_dispatcher(kwargs[&#34;device_type&#34;])
+    ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)</code></pre>
 </details>
 </dd>
@@ -371,17 +381,22 @@ a new SSH connection with a remote host. This …</p></section>
 <summary>Source code</summary>
 <pre><code class="python">def ConnectHandler(*args, **kwargs):
     &#34;&#34;&#34;Factory function selects the proper class and creates object based on device_type.&#34;&#34;&#34;
-    if kwargs[&#34;device_type&#34;] not in platforms:
+    device_type = kwargs[&#34;device_type&#34;]
+    if device_type not in platforms:
+        if device_type is None:
+            msg_str = platforms_str
+        else:
+            msg_str = telnet_platforms_str if &#34;telnet&#34; in device_type else platforms_str
         raise ValueError(
-            &#34;Unsupported device_type: &#34;
-            &#34;currently supported platforms are: {}&#34;.format(platforms_str)
+            &#34;Unsupported &#39;device_type&#39; &#34;
+            &#34;currently supported platforms are: {}&#34;.format(msg_str)
         )
-    ConnectionClass = ssh_dispatcher(kwargs[&#34;device_type&#34;])
+    ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.file_transfer"><code class="name flex">
-<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0, verify_file=None)</span>
+<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0, progress=None, progress4=None, verify_file=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.</p>
@@ -403,6 +418,8 @@ a new SSH connection with a remote host. This …</p></section>
     inline_transfer=False,
     overwrite_file=False,
     socket_timeout=10.0,
+    progress=None,
+    progress4=None,
     verify_file=None,
 ):
     &#34;&#34;&#34;Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
@@ -448,6 +465,8 @@ a new SSH connection with a remote host. This …</p></section>
         &#34;dest_file&#34;: dest_file,
         &#34;direction&#34;: direction,
         &#34;socket_timeout&#34;: socket_timeout,
+        &#34;progress&#34;: progress,
+        &#34;progress4&#34;: progress4,
     }
     if file_system is not None:
         scp_args[&#34;file_system&#34;] = file_system
@@ -492,6 +511,36 @@ a new SSH connection with a remote host. This …</p></section>
                 return transferred_and_notverified</code></pre>
 </details>
 </dd>
+<dt id="netmiko.progress_bar"><code class="name flex">
+<span>def <span class="ident">progress_bar</span></span>(<span>filename, size, sent, peername=None)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def progress_bar(filename, size, sent, peername=None):
+    max_width = 50
+    filename = filename.decode()
+    clear_screen = chr(27) + &#34;[2J&#34;
+    terminating_char = &#34;|&#34;
+
+    # Percentage done
+    percent_complete = sent / size
+    percent_str = f&#34;{percent_complete*100:.2f}%&#34;
+    hash_count = int(percent_complete * max_width)
+    progress = hash_count * &#34;&gt;&#34;
+
+    if peername is None:
+        header_msg = f&#34;Transferring file: {filename}\n&#34;
+    else:
+        header_msg = f&#34;Transferring file to {peername}: {filename}\n&#34;
+
+    msg = f&#34;{progress:&lt;50}{terminating_char:1} ({percent_str})&#34;
+    print(clear_screen)
+    print(header_msg)
+    print(msg)</code></pre>
+</details>
+</dd>
 <dt id="netmiko.redispatch"><code class="name flex">
 <span>def <span class="ident">redispatch</span></span>(<span>obj, device_type, session_prep=True)</span>
 </code></dt>
@@ -532,7 +581,7 @@ with terminal server.</p></section>
 <dl>
 <dt id="netmiko.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -698,11 +747,17 @@ with terminal server.</p></section>
         alt_host_keys=False,
         alt_key_file=&#34;&#34;,
         ssh_config_file=None,
-        timeout=100,
-        session_timeout=60,
-        auth_timeout=None,
-        blocking_timeout=20,
-        banner_timeout=15,
+        #
+        # Connect timeouts
+        # ssh-connect --&gt; TCP conn (conn_timeout) --&gt; SSH-banner (banner_timeout)
+        #       --&gt; Auth response (auth_timeout)
+        conn_timeout=5,
+        auth_timeout=None,  # Timeout to wait for authentication response
+        banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        # Other timeouts
+        blocking_timeout=20,  # Read blocking timeout
+        timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
+        session_timeout=60,  # Used for locking/sharing the connection
         keepalive=0,
         default_enter=None,
         response_return=None,
@@ -877,11 +932,12 @@ with terminal server.</p></section>
         self.device_type = device_type
         self.ansi_escape_codes = False
         self.verbose = verbose
-        self.timeout = timeout
         self.auth_timeout = auth_timeout
         self.banner_timeout = banner_timeout
-        self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
+        self.conn_timeout = conn_timeout
+        self.session_timeout = session_timeout
+        self.timeout = timeout
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
@@ -952,7 +1008,9 @@ with terminal server.</p></section>
 
             # Options for SSH host_keys
             self.use_keys = use_keys
-            self.key_file = key_file
+            self.key_file = (
+                path.abspath(path.expanduser(key_file)) if key_file else None
+            )
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
@@ -1342,14 +1400,16 @@ with terminal server.</p></section>
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.username + &#34;\r&#34;)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.password + &#34;\r&#34;)
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -1481,7 +1541,7 @@ with terminal server.</p></section>
             &#34;key_filename&#34;: self.key_file,
             &#34;pkey&#34;: self.pkey,
             &#34;passphrase&#34;: self.passphrase,
-            &#34;timeout&#34;: self.timeout,
+            &#34;timeout&#34;: self.conn_timeout,
             &#34;auth_timeout&#34;: self.auth_timeout,
             &#34;banner_timeout&#34;: self.banner_timeout,
             &#34;sock&#34;: self.sock,
@@ -1538,11 +1598,27 @@ with terminal server.</p></section>
             # initiate SSH connection
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
-            except socket.error:
+            except socket.error as conn_error:
                 self.paramiko_cleanup()
-                msg = &#34;Connection to device timed-out: {device_type} {ip}:{port}&#34;.format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f&#34;&#34;&#34;TCP connection to device failed.
+
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
+                # Handle DNS failures separately
+                if &#34;Name or service not known&#34; in str(conn_error):
+                    msg = (
+                        f&#34;DNS failure--the hostname you provided was not resolvable &#34;
+                        f&#34;in DNS: {self.host}:{self.port}&#34;
+                    )
+
+                msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
@@ -1741,7 +1817,6 @@ with terminal server.</p></section>
             prompt = self.read_channel().strip()
             if not prompt:
                 self.write_channel(self.RETURN)
-                # log.debug(f&#34;find_prompt sleep time: {sleep_time}&#34;)
                 time.sleep(sleep_time)
                 if sleep_time &lt;= 3:
                     # Double the sleep_time when it is small
@@ -2438,8 +2513,6 @@ with terminal server.</p></section>
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
         &#34;&#34;&#34;  # noqa
-        log.debug(&#34;In strip_ansi_escape_codes&#34;)
-        log.debug(f&#34;repr = {repr(string_buffer)}&#34;)
 
         code_position_cursor = chr(27) + r&#34;\[\d+;\d+H&#34;
         code_show_cursor = chr(27) + r&#34;\[\?25h&#34;
@@ -2448,19 +2521,19 @@ with terminal server.</p></section>
         code_erase_line = chr(27) + r&#34;\[2K&#34;
         code_erase_start_line = chr(27) + r&#34;\[K&#34;
         code_enable_scroll = chr(27) + r&#34;\[\d+;\d+r&#34;
-        code_form_feed = chr(27) + r&#34;\[1L&#34;
+        code_insert_line = chr(27) + r&#34;\[(\d+)L&#34;
         code_carriage_return = chr(27) + r&#34;\[1M&#34;
         code_disable_line_wrapping = chr(27) + r&#34;\[\?7l&#34;
         code_reset_mode_screen_options = chr(27) + r&#34;\[\?\d+l&#34;
         code_reset_graphics_mode = chr(27) + r&#34;\[00m&#34;
         code_erase_display = chr(27) + r&#34;\[2J&#34;
+        code_erase_display_0 = chr(27) + r&#34;\[J&#34;
         code_graphics_mode = chr(27) + r&#34;\[\d\d;\d\dm&#34;
         code_graphics_mode2 = chr(27) + r&#34;\[\d\d;\d\d;\d\dm&#34;
         code_graphics_mode3 = chr(27) + r&#34;\[(3|4)\dm&#34;
         code_graphics_mode4 = chr(27) + r&#34;\[(9|10)[0-7]m&#34;
         code_get_cursor_position = chr(27) + r&#34;\[6n&#34;
         code_cursor_position = chr(27) + r&#34;\[m&#34;
-        code_erase_display = chr(27) + r&#34;\[J&#34;
         code_attrs_off = chr(27) + r&#34;\[0m&#34;
         code_reverse = chr(27) + r&#34;\[7m&#34;
         code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
@@ -2471,7 +2544,6 @@ with terminal server.</p></section>
             code_erase_line,
             code_enable_scroll,
             code_erase_start_line,
-            code_form_feed,
             code_carriage_return,
             code_disable_line_wrapping,
             code_erase_line_end,
@@ -2485,6 +2557,7 @@ with terminal server.</p></section>
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_erase_display_0,
             code_attrs_off,
             code_reverse,
             code_cursor_left,
@@ -2497,9 +2570,12 @@ with terminal server.</p></section>
         # CODE_NEXT_LINE must substitute with return
         output = re.sub(code_next_line, self.RETURN, output)
 
-        log.debug(&#34;Stripping ANSI escape codes&#34;)
-        log.debug(f&#34;new_output = {output}&#34;)
-        log.debug(f&#34;repr = {repr(output)}&#34;)
+        # Aruba and ProCurve switches can use code_insert_line for &lt;enter&gt;
+        insert_line_match = re.search(code_insert_line, output)
+        if insert_line_match:
+            # Substitute each insert_line with a new &lt;enter&gt;
+            count = int(insert_line_match.group(1))
+            output = re.sub(code_insert_line, count * self.RETURN, output)
 
         return output
 
@@ -2541,9 +2617,9 @@ with terminal server.</p></section>
     def open_session_log(self, filename, mode=&#34;write&#34;):
         &#34;&#34;&#34;Open the session_log file.&#34;&#34;&#34;
         if mode == &#34;append&#34;:
-            self.session_log = open(filename, mode=&#34;a&#34;)
+            self.session_log = open(filename, mode=&#34;a&#34;, encoding=self.encoding)
         else:
-            self.session_log = open(filename, mode=&#34;w&#34;)
+            self.session_log = open(filename, mode=&#34;w&#34;, encoding=self.encoding)
         self._session_log_close = True
 
     def close_session_log(self):
@@ -2861,62 +2937,78 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
 :type height: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def establish_connection(self, width=511, height=1000):
-    &#34;&#34;&#34;Establish SSH connection to the network device
+<pre><code class="python">    def establish_connection(self, width=511, height=1000):
+        &#34;&#34;&#34;Establish SSH connection to the network device
 
-    Timeout will generate a NetmikoTimeoutException
-    Authentication failure will generate a NetmikoAuthenticationException
+        Timeout will generate a NetmikoTimeoutException
+        Authentication failure will generate a NetmikoAuthenticationException
 
-    :param width: Specified width of the VT100 terminal window (default: 511)
-    :type width: int
+        :param width: Specified width of the VT100 terminal window (default: 511)
+        :type width: int
 
-    :param height: Specified height of the VT100 terminal window (default: 1000)
-    :type height: int
-    &#34;&#34;&#34;
-    if self.protocol == &#34;telnet&#34;:
-        self.remote_conn = telnetlib.Telnet(
-            self.host, port=self.port, timeout=self.timeout
-        )
-        self.telnet_login()
-    elif self.protocol == &#34;serial&#34;:
-        self.remote_conn = serial.Serial(**self.serial_settings)
-        self.serial_login()
-    elif self.protocol == &#34;ssh&#34;:
-        ssh_connect_params = self._connect_params_dict()
-        self.remote_conn_pre = self._build_ssh_client()
-
-        # initiate SSH connection
-        try:
-            self.remote_conn_pre.connect(**ssh_connect_params)
-        except socket.error:
-            self.paramiko_cleanup()
-            msg = &#34;Connection to device timed-out: {device_type} {ip}:{port}&#34;.format(
-                device_type=self.device_type, ip=self.host, port=self.port
+        :param height: Specified height of the VT100 terminal window (default: 1000)
+        :type height: int
+        &#34;&#34;&#34;
+        if self.protocol == &#34;telnet&#34;:
+            self.remote_conn = telnetlib.Telnet(
+                self.host, port=self.port, timeout=self.timeout
             )
-            raise NetmikoTimeoutException(msg)
-        except paramiko.ssh_exception.AuthenticationException as auth_err:
-            self.paramiko_cleanup()
-            msg = &#34;Authentication failure: unable to connect {device_type} {ip}:{port}&#34;.format(
-                device_type=self.device_type, ip=self.host, port=self.port
+            self.telnet_login()
+        elif self.protocol == &#34;serial&#34;:
+            self.remote_conn = serial.Serial(**self.serial_settings)
+            self.serial_login()
+        elif self.protocol == &#34;ssh&#34;:
+            ssh_connect_params = self._connect_params_dict()
+            self.remote_conn_pre = self._build_ssh_client()
+
+            # initiate SSH connection
+            try:
+                self.remote_conn_pre.connect(**ssh_connect_params)
+            except socket.error as conn_error:
+                self.paramiko_cleanup()
+                msg = f&#34;&#34;&#34;TCP connection to device failed.
+
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
+                # Handle DNS failures separately
+                if &#34;Name or service not known&#34; in str(conn_error):
+                    msg = (
+                        f&#34;DNS failure--the hostname you provided was not resolvable &#34;
+                        f&#34;in DNS: {self.host}:{self.port}&#34;
+                    )
+
+                msg = msg.lstrip()
+                raise NetmikoTimeoutException(msg)
+            except paramiko.ssh_exception.AuthenticationException as auth_err:
+                self.paramiko_cleanup()
+                msg = &#34;Authentication failure: unable to connect {device_type} {ip}:{port}&#34;.format(
+                    device_type=self.device_type, ip=self.host, port=self.port
+                )
+                msg += self.RETURN + str(auth_err)
+                raise NetmikoAuthenticationException(msg)
+
+            if self.verbose:
+                print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
+
+            # Use invoke_shell to establish an &#39;interactive session&#39;
+            self.remote_conn = self.remote_conn_pre.invoke_shell(
+                term=&#34;vt100&#34;, width=width, height=height
             )
-            msg += self.RETURN + str(auth_err)
-            raise NetmikoAuthenticationException(msg)
 
-        if self.verbose:
-            print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
-
-        # Use invoke_shell to establish an &#39;interactive session&#39;
-        self.remote_conn = self.remote_conn_pre.invoke_shell(
-            term=&#34;vt100&#34;, width=width, height=height
-        )
-
-        self.remote_conn.settimeout(self.blocking_timeout)
-        if self.keepalive:
-            self.remote_conn.transport.set_keepalive(self.keepalive)
-        self.special_login_handler()
-        if self.verbose:
-            print(&#34;Interactive SSH session established&#34;)
-    return &#34;&#34;</code></pre>
+            self.remote_conn.settimeout(self.blocking_timeout)
+            if self.keepalive:
+                self.remote_conn.transport.set_keepalive(self.keepalive)
+            self.special_login_handler()
+            if self.verbose:
+                print(&#34;Interactive SSH session established&#34;)
+        return &#34;&#34;</code></pre>
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.exit_config_mode"><code class="name flex">
@@ -3010,7 +3102,6 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
         prompt = self.read_channel().strip()
         if not prompt:
             self.write_channel(self.RETURN)
-            # log.debug(f&#34;find_prompt sleep time: {sleep_time}&#34;)
             time.sleep(sleep_time)
             if sleep_time &lt;= 3:
                 # Double the sleep_time when it is small
@@ -3131,9 +3222,9 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
 <pre><code class="python">def open_session_log(self, filename, mode=&#34;write&#34;):
     &#34;&#34;&#34;Open the session_log file.&#34;&#34;&#34;
     if mode == &#34;append&#34;:
-        self.session_log = open(filename, mode=&#34;a&#34;)
+        self.session_log = open(filename, mode=&#34;a&#34;, encoding=self.encoding)
     else:
-        self.session_log = open(filename, mode=&#34;w&#34;)
+        self.session_log = open(filename, mode=&#34;w&#34;, encoding=self.encoding)
     self._session_log_close = True</code></pre>
 </details>
 </dd>
@@ -4033,8 +4124,6 @@ Move cursor position leftward by x characters (1 in this case)</p>
     :param string_buffer: The string to be processed to remove ANSI escape codes
     :type string_buffer: str
     &#34;&#34;&#34;  # noqa
-    log.debug(&#34;In strip_ansi_escape_codes&#34;)
-    log.debug(f&#34;repr = {repr(string_buffer)}&#34;)
 
     code_position_cursor = chr(27) + r&#34;\[\d+;\d+H&#34;
     code_show_cursor = chr(27) + r&#34;\[\?25h&#34;
@@ -4043,19 +4132,19 @@ Move cursor position leftward by x characters (1 in this case)</p>
     code_erase_line = chr(27) + r&#34;\[2K&#34;
     code_erase_start_line = chr(27) + r&#34;\[K&#34;
     code_enable_scroll = chr(27) + r&#34;\[\d+;\d+r&#34;
-    code_form_feed = chr(27) + r&#34;\[1L&#34;
+    code_insert_line = chr(27) + r&#34;\[(\d+)L&#34;
     code_carriage_return = chr(27) + r&#34;\[1M&#34;
     code_disable_line_wrapping = chr(27) + r&#34;\[\?7l&#34;
     code_reset_mode_screen_options = chr(27) + r&#34;\[\?\d+l&#34;
     code_reset_graphics_mode = chr(27) + r&#34;\[00m&#34;
     code_erase_display = chr(27) + r&#34;\[2J&#34;
+    code_erase_display_0 = chr(27) + r&#34;\[J&#34;
     code_graphics_mode = chr(27) + r&#34;\[\d\d;\d\dm&#34;
     code_graphics_mode2 = chr(27) + r&#34;\[\d\d;\d\d;\d\dm&#34;
     code_graphics_mode3 = chr(27) + r&#34;\[(3|4)\dm&#34;
     code_graphics_mode4 = chr(27) + r&#34;\[(9|10)[0-7]m&#34;
     code_get_cursor_position = chr(27) + r&#34;\[6n&#34;
     code_cursor_position = chr(27) + r&#34;\[m&#34;
-    code_erase_display = chr(27) + r&#34;\[J&#34;
     code_attrs_off = chr(27) + r&#34;\[0m&#34;
     code_reverse = chr(27) + r&#34;\[7m&#34;
     code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
@@ -4066,7 +4155,6 @@ Move cursor position leftward by x characters (1 in this case)</p>
         code_erase_line,
         code_enable_scroll,
         code_erase_start_line,
-        code_form_feed,
         code_carriage_return,
         code_disable_line_wrapping,
         code_erase_line_end,
@@ -4080,6 +4168,7 @@ Move cursor position leftward by x characters (1 in this case)</p>
         code_get_cursor_position,
         code_cursor_position,
         code_erase_display,
+        code_erase_display_0,
         code_attrs_off,
         code_reverse,
         code_cursor_left,
@@ -4092,9 +4181,12 @@ Move cursor position leftward by x characters (1 in this case)</p>
     # CODE_NEXT_LINE must substitute with return
     output = re.sub(code_next_line, self.RETURN, output)
 
-    log.debug(&#34;Stripping ANSI escape codes&#34;)
-    log.debug(f&#34;new_output = {output}&#34;)
-    log.debug(f&#34;repr = {repr(output)}&#34;)
+    # Aruba and ProCurve switches can use code_insert_line for &lt;enter&gt;
+    insert_line_match = re.search(code_insert_line, output)
+    if insert_line_match:
+        # Substitute each insert_line with a new &lt;enter&gt;
+        count = int(insert_line_match.group(1))
+        output = re.sub(code_insert_line, count * self.RETURN, output)
 
     return output</code></pre>
 </details>
@@ -4220,14 +4312,16 @@ Move cursor position leftward by x characters (1 in this case)</p>
 
             # Search for username pattern / send username
             if re.search(username_pattern, output, flags=re.I):
-                self.write_channel(self.username + self.TELNET_RETURN)
+                # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                self.write_channel(self.username + &#34;\r&#34;)
                 time.sleep(1 * delay_factor)
                 output = self.read_channel()
                 return_msg += output
 
             # Search for password pattern / send password
             if re.search(pwd_pattern, output, flags=re.I):
-                self.write_channel(self.password + self.TELNET_RETURN)
+                # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                self.write_channel(self.password + &#34;\r&#34;)
                 time.sleep(0.5 * delay_factor)
                 output = self.read_channel()
                 return_msg += output
@@ -4292,7 +4386,7 @@ Move cursor position leftward by x characters (1 in this case)</p>
 </dd>
 <dt id="netmiko.InLineTransfer"><code class="flex name class">
 <span>class <span class="ident">InLineTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file=None, dest_file=None, file_system=None, direction='put', source_config=None, socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file=None, dest_file=None, file_system=None, direction='put', source_config=None, socket_timeout=10.0, progress=None, progress4=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Use TCL on Cisco IOS to directly transfer file.</p></section>
@@ -4310,12 +4404,23 @@ Move cursor position leftward by x characters (1 in this case)</p>
         direction=&#34;put&#34;,
         source_config=None,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
+
         if source_file and source_config:
             msg = &#34;Invalid call to InLineTransfer both source_file and source_config specified.&#34;
             raise ValueError(msg)
         if direction != &#34;put&#34;:
             raise ValueError(&#34;Only put operation supported by InLineTransfer.&#34;)
+
+        if progress is not None or progress4 is not None:
+            raise NotImplementedError(
+                &#34;Progress bar is not supported on inline transfers.&#34;
+            )
+        else:
+            self.progress = progress
+            self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
         if source_file:
@@ -4616,7 +4721,7 @@ Move cursor position leftward by x characters (1 in this case)</p>
 </dd>
 <dt id="netmiko.SCPConn"><code class="flex name class">
 <span>class <span class="ident">SCPConn</span></span>
-<span>(</span><span>ssh_conn, socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, socket_timeout=10.0, progress=None, progress4=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Establish a secure copy channel to the remote network device.</p>
@@ -4630,9 +4735,11 @@ Move cursor position leftward by x characters (1 in this case)</p>
     Must close the SCP connection to get the file to write to the remote filesystem
     &#34;&#34;&#34;
 
-    def __init__(self, ssh_conn, socket_timeout=10.0):
+    def __init__(self, ssh_conn, socket_timeout=10.0, progress=None, progress4=None):
         self.ssh_ctl_chan = ssh_conn
         self.socket_timeout = socket_timeout
+        self.progress = progress
+        self.progress4 = progress4
         self.establish_scp_conn()
 
     def establish_scp_conn(self):
@@ -4641,7 +4748,10 @@ Move cursor position leftward by x characters (1 in this case)</p>
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
         self.scp_client = scp.SCPClient(
-            self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+            self.scp_conn.get_transport(),
+            socket_timeout=self.socket_timeout,
+            progress=self.progress,
+            progress4=self.progress4,
         )
 
     def scp_transfer_file(self, source_file, dest_file):
@@ -4687,7 +4797,10 @@ Move cursor position leftward by x characters (1 in this case)</p>
     self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
     self.scp_conn.connect(**ssh_connect_params)
     self.scp_client = scp.SCPClient(
-        self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+        self.scp_conn.get_transport(),
+        socket_timeout=self.socket_timeout,
+        progress=self.progress,
+        progress4=self.progress4,
     )</code></pre>
 </details>
 </dd>
@@ -5063,6 +5176,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.pluribus" href="pluribus/index.html">netmiko.pluribus</a></code></li>
 <li><code><a title="netmiko.quanta" href="quanta/index.html">netmiko.quanta</a></code></li>
 <li><code><a title="netmiko.rad" href="rad/index.html">netmiko.rad</a></code></li>
+<li><code><a title="netmiko.raisecom" href="raisecom/index.html">netmiko.raisecom</a></code></li>
 <li><code><a title="netmiko.ruckus" href="ruckus/index.html">netmiko.ruckus</a></code></li>
 <li><code><a title="netmiko.ruijie" href="ruijie/index.html">netmiko.ruijie</a></code></li>
 <li><code><a title="netmiko.scp_functions" href="scp_functions.html">netmiko.scp_functions</a></code></li>
@@ -5087,6 +5201,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.FileTransfer" href="#netmiko.FileTransfer">FileTransfer</a></code></li>
 <li><code><a title="netmiko.Netmiko" href="#netmiko.Netmiko">Netmiko</a></code></li>
 <li><code><a title="netmiko.file_transfer" href="#netmiko.file_transfer">file_transfer</a></code></li>
+<li><code><a title="netmiko.progress_bar" href="#netmiko.progress_bar">progress_bar</a></code></li>
 <li><code><a title="netmiko.redispatch" href="#netmiko.redispatch">redispatch</a></code></li>
 <li><code><a title="netmiko.ssh_dispatcher" href="#netmiko.ssh_dispatcher">ssh_dispatcher</a></code></li>
 </ul>

@@ -25,7 +25,6 @@
 <pre><code class="python">import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
-from netmiko import log
 
 
 class AristaBase(CiscoSSHConnection):
@@ -48,13 +47,14 @@ class AristaBase(CiscoSSHConnection):
 
         Can also be (s2)
         &#34;&#34;&#34;
-        log.debug(f&#34;pattern: {pattern}&#34;)
         self.write_channel(self.RETURN)
-        output = self.read_until_pattern(pattern=pattern)
-        log.debug(f&#34;check_config_mode: {repr(output)}&#34;)
+        # You can encounter an issue here (on router name changes) prefer delay-based solution
+        if not pattern:
+            output = self._read_channel_timing()
+        else:
+            output = self.read_until_pattern(pattern=pattern)
         output = output.replace(&#34;(s1)&#34;, &#34;&#34;)
         output = output.replace(&#34;(s2)&#34;, &#34;&#34;)
-        log.debug(f&#34;check_config_mode: {repr(output)}&#34;)
         return check_string in output
 
     def _enter_shell(self):
@@ -143,7 +143,7 @@ class AristaFileTransfer(CiscoFileTransfer):
 <dl>
 <dt id="netmiko.arista.arista.AristaBase"><code class="flex name class">
 <span>class <span class="ident">AristaBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -299,13 +299,14 @@ class AristaFileTransfer(CiscoFileTransfer):
 
         Can also be (s2)
         &#34;&#34;&#34;
-        log.debug(f&#34;pattern: {pattern}&#34;)
         self.write_channel(self.RETURN)
-        output = self.read_until_pattern(pattern=pattern)
-        log.debug(f&#34;check_config_mode: {repr(output)}&#34;)
+        # You can encounter an issue here (on router name changes) prefer delay-based solution
+        if not pattern:
+            output = self._read_channel_timing()
+        else:
+            output = self.read_until_pattern(pattern=pattern)
         output = output.replace(&#34;(s1)&#34;, &#34;&#34;)
         output = output.replace(&#34;(s2)&#34;, &#34;&#34;)
-        log.debug(f&#34;check_config_mode: {repr(output)}&#34;)
         return check_string in output
 
     def _enter_shell(self):
@@ -348,13 +349,14 @@ loc1-core01(s1)#</p>
 
     Can also be (s2)
     &#34;&#34;&#34;
-    log.debug(f&#34;pattern: {pattern}&#34;)
     self.write_channel(self.RETURN)
-    output = self.read_until_pattern(pattern=pattern)
-    log.debug(f&#34;check_config_mode: {repr(output)}&#34;)
+    # You can encounter an issue here (on router name changes) prefer delay-based solution
+    if not pattern:
+        output = self._read_channel_timing()
+    else:
+        output = self.read_until_pattern(pattern=pattern)
     output = output.replace(&#34;(s1)&#34;, &#34;&#34;)
     output = output.replace(&#34;(s2)&#34;, &#34;&#34;)
-    log.debug(f&#34;check_config_mode: {repr(output)}&#34;)
     return check_string in output</code></pre>
 </details>
 </dd>
@@ -517,7 +519,7 @@ loc1-core01(s1)#</p>
 </dd>
 <dt id="netmiko.arista.arista.AristaSSH"><code class="flex name class">
 <span>class <span class="ident">AristaSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>

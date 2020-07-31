@@ -136,8 +136,7 @@ class NokiaSrosSSH(BaseConnection):
 
     def save_config(self, *args, **kwargs):
         &#34;&#34;&#34;Persist configuration to cflash for Nokia SR OS&#34;&#34;&#34;
-        output = self.send_command(command_string=&#34;/admin save&#34;)
-        return output
+        return self.send_command(command_string=&#34;/admin save&#34;, expect_string=r&#34;#&#34;)
 
     def send_config_set(self, config_commands=None, exit_config_mode=None, **kwargs):
         &#34;&#34;&#34;Model driven CLI requires you not exit from configuration mode.&#34;&#34;&#34;
@@ -505,7 +504,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.nokia.nokia_sros_ssh.NokiaSrosSSH"><code class="flex name class">
 <span>class <span class="ident">NokiaSrosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with Nokia SR OS devices.</p>
@@ -751,8 +750,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 
     def save_config(self, *args, **kwargs):
         &#34;&#34;&#34;Persist configuration to cflash for Nokia SR OS&#34;&#34;&#34;
-        output = self.send_command(command_string=&#34;/admin save&#34;)
-        return output
+        return self.send_command(command_string=&#34;/admin save&#34;, expect_string=r&#34;#&#34;)
 
     def send_config_set(self, config_commands=None, exit_config_mode=None, **kwargs):
         &#34;&#34;&#34;Model driven CLI requires you not exit from configuration mode.&#34;&#34;&#34;
@@ -982,8 +980,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 <summary>Source code</summary>
 <pre><code class="python">def save_config(self, *args, **kwargs):
     &#34;&#34;&#34;Persist configuration to cflash for Nokia SR OS&#34;&#34;&#34;
-    output = self.send_command(command_string=&#34;/admin save&#34;)
-    return output</code></pre>
+    return self.send_command(command_string=&#34;/admin save&#34;, expect_string=r&#34;#&#34;)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.nokia.nokia_sros_ssh.NokiaSrosSSH.send_config_set"><code class="name flex">
