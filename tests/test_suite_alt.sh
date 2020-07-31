@@ -8,8 +8,8 @@ echo "Starting tests...good luck:" \
 && py.test -x -s -v test_netmiko_exceptions.py \
 \
 && echo "Juniper vMX" \
-&& py.test -x -s -v test_netmiko_show.py --test_device vmx1 \
-&& py.test -x -s -v test_netmiko_config.py --test_device vmx1 \
+&& py.test -x -s -v test_netmiko_show.py --test_device juniper_vmx \
+&& py.test -x -s -v test_netmiko_config.py --test_device juniper_vmx \
 \
 && echo "Nokia SR-OS" \
 && py.test -x -s -v test_netmiko_show.py --test_device sros1 \
