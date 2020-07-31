@@ -186,6 +186,23 @@ class NokiaSrosSSH(BaseConnection):
         self._session_log_fin = True
         self.write_channel(command + self.RETURN)
 
+    def reboot_upgrade(self, *args, **kwargs):
+        """Restarting device for software upgrade."""
+        output = ""
+        try:
+            output += self.send_command(
+                command_string="/admin reboot upgrade",
+                expect_string="Are you sure you want to reboot"
+            )
+            # After calling following command there can be raised OSError, because the device is restarted and it's doesn't responding
+            output += self.send_command("y", max_loops=5,
+                                        auto_find_prompt=False)
+        except OSError:
+            pass
+        if output is not None:
+            log.info(f"{self.host} rebooted.")
+        return output
+
 
 class NokiaSrosFileTransfer(BaseFileTransfer):
     def __init__(
