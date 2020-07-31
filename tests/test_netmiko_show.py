@@ -122,11 +122,11 @@ def test_send_command_global_cmd_verify(
 
 def test_send_command_juniper(net_connect, commands, expected_responses):
     """Verify Juniper complete on space is disabled."""
-    # If complete on space is enabled will get re-written to "show ipv6 neighbors"
+    # If complete on space is enabled will get re-written to "show configuration groups"
     if net_connect.device_type == "juniper_junos":
-        net_connect.write_channel("show ip neighbors\n")
+        net_connect.write_channel("show configuration gr \n")
         output = net_connect.read_until_prompt()
-        assert "show ip neighbors" in output
+        assert "show configuration groups" not in output
     else:
         assert pytest.skip()
 
