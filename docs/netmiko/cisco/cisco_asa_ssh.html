@@ -27,6 +27,7 @@
 import re
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
+from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
 class CiscoAsaSSH(CiscoSSHConnection):
@@ -116,12 +117,14 @@ class CiscoAsaSSH(CiscoSSHConnection):
 
         twb-dc-fw1&gt; login
         Username: admin
-        Password: ************
+
+        Raises NetmikoAuthenticationException, if we do not reach privilege
+        level 15 after 10 loops.
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(0)
 
         i = 1
-        max_attempts = 50
+        max_attempts = 10
         self.write_channel(&#34;login&#34; + self.RETURN)
         while i &lt;= max_attempts:
             time.sleep(0.5 * delay_factor)
@@ -131,10 +134,13 @@ class CiscoAsaSSH(CiscoSSHConnection):
             elif &#34;ssword&#34; in output:
                 self.write_channel(self.password + self.RETURN)
             elif &#34;#&#34; in output:
-                break
+                return
             else:
                 self.write_channel(&#34;login&#34; + self.RETURN)
             i += 1
+
+        msg = &#34;Unable to enter enable mode!&#34;
+        raise NetmikoAuthenticationException(msg)
 
     def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
         &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
@@ -203,7 +209,7 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoAsaSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Subclass specific to Cisco ASA.</p>
@@ -332,6 +338,10 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -422,12 +432,14 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
 
         twb-dc-fw1&gt; login
         Username: admin
-        Password: ************
+
+        Raises NetmikoAuthenticationException, if we do not reach privilege
+        level 15 after 10 loops.
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(0)
 
         i = 1
-        max_attempts = 50
+        max_attempts = 10
         self.write_channel(&#34;login&#34; + self.RETURN)
         while i &lt;= max_attempts:
             time.sleep(0.5 * delay_factor)
@@ -437,10 +449,13 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
             elif &#34;ssword&#34; in output:
                 self.write_channel(self.password + self.RETURN)
             elif &#34;#&#34; in output:
-                break
+                return
             else:
                 self.write_channel(&#34;login&#34; + self.RETURN)
             i += 1
+
+        msg = &#34;Unable to enter enable mode!&#34;
+        raise NetmikoAuthenticationException(msg)
 
     def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
         &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
@@ -462,8 +477,9 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
 <dd>
 <section class="desc"><p>Handle ASA reaching privilege level 15 using login</p>
 <p>twb-dc-fw1&gt; login
-Username: admin
-Password: <strong><em>*</em></strong><strong>*</strong></p></section>
+Username: admin</p>
+<p>Raises NetmikoAuthenticationException, if we do not reach privilege
+level 15 after 10 loops.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def asa_login(self):
@@ -472,12 +488,14 @@ Password: <strong><em>*</em></strong><strong>*</strong></p></section>
 
     twb-dc-fw1&gt; login
     Username: admin
-    Password: ************
+
+    Raises NetmikoAuthenticationException, if we do not reach privilege
+    level 15 after 10 loops.
     &#34;&#34;&#34;
     delay_factor = self.select_delay_factor(0)
 
     i = 1
-    max_attempts = 50
+    max_attempts = 10
     self.write_channel(&#34;login&#34; + self.RETURN)
     while i &lt;= max_attempts:
         time.sleep(0.5 * delay_factor)
@@ -487,10 +505,13 @@ Password: <strong><em>*</em></strong><strong>*</strong></p></section>
         elif &#34;ssword&#34; in output:
             self.write_channel(self.password + self.RETURN)
         elif &#34;#&#34; in output:
-            break
+            return
         else:
             self.write_channel(&#34;login&#34; + self.RETURN)
-        i += 1</code></pre>
+        i += 1
+
+    msg = &#34;Unable to enter enable mode!&#34;
+    raise NetmikoAuthenticationException(msg)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH.save_config"><code class="name flex">

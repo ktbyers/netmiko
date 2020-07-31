@@ -17,7 +17,9 @@
 
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
+- Broadcom ICOS
 - Calix B6
+- Centec Networks
 - Cisco AireOS (Wireless LAN Controllers)
 - CloudGenix ION
 - Dell OS9 (Force10)
@@ -45,6 +47,8 @@
 - Ruijie Networks
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
+- Yamaha
+- ZTE ZXROS
 
 ###### Experimental
 
@@ -72,7 +76,9 @@
 - Nokia/Alcatel SR-OS
 - QuantaMesh
 - Rad ETX
+- Raisecom ROAP
 - Sophos SFOS
 - Ubiquiti Unifi Switch
 - Versa Networks FlexVNF
 - Watchguard Firebox
+- 6WIND TurboRouter

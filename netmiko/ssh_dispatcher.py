@@ -6,7 +6,9 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
+from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
+from netmiko.centec import CentecOSSSH, CentecOSTelnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH, CienaSaosTelnet, CienaSaosFileTransfer
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
@@ -71,9 +73,12 @@ from netmiko.pluribus import PluribusSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.rad import RadETXSSH
 from netmiko.rad import RadETXTelnet
+from netmiko.raisecom import RaisecomRoapSSH
+from netmiko.raisecom import RaisecomRoapTelnet
 from netmiko.ruckus import RuckusFastironSSH
 from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
+from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
@@ -81,7 +86,13 @@ from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ubiquiti import UbiquitiUnifiSwitchSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.watchguard import WatchguardFirewareSSH
+from netmiko.yamaha import YamahaSSH
+from netmiko.yamaha import YamahaTelnet
+from netmiko.zte import ZteZxrosSSH
+from netmiko.zte import ZteZxrosTelnet
 
+GenericSSH = TerminalServerSSH
+GenericTelnet = TerminalServerTelnet
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER_BASE = {
@@ -94,6 +105,7 @@ CLASS_MAPPER_BASE = {
     "aruba_os": ArubaSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
+    "broadcom_icos": BroadcomIcosSSH,
     "brocade_fastiron": RuckusFastironSSH,
     "brocade_netiron": ExtremeNetironSSH,
     "brocade_nos": ExtremeNosSSH,
@@ -101,6 +113,7 @@ CLASS_MAPPER_BASE = {
     "brocade_vyos": VyOSSSH,
     "checkpoint_gaia": CheckPointGaiaSSH,
     "calix_b6": CalixB6SSH,
+    "centec_os": CentecOSSSH,
     "ciena_saos": CienaSaosSSH,
     "cisco_asa": CiscoAsaSSH,
     "cisco_ios": CiscoIosSSH,
@@ -138,6 +151,7 @@ CLASS_MAPPER_BASE = {
     "f5_linux": F5LinuxSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
+    "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
@@ -167,8 +181,10 @@ CLASS_MAPPER_BASE = {
     "pluribus": PluribusSSH,
     "quanta_mesh": QuantaMeshSSH,
     "rad_etx": RadETXSSH,
+    "raisecom_roap": RaisecomRoapSSH,
     "ruckus_fastiron": RuckusFastironSSH,
     "ruijie_os": RuijieOSSSH,
+    "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
@@ -176,6 +192,8 @@ CLASS_MAPPER_BASE = {
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "watchguard_fireware": WatchguardFirewareSSH,
+    "zte_zxros": ZteZxrosSSH,
+    "yamaha": YamahaSSH,
 }
 
 FILE_TRANSFER_MAP = {
@@ -213,6 +231,7 @@ CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
+CLASS_MAPPER["centec_os_telnet"] = CentecOSTelnet
 CLASS_MAPPER["ciena_saos_telnet"] = CienaSaosTelnet
 CLASS_MAPPER["cisco_ios_telnet"] = CiscoIosTelnet
 CLASS_MAPPER["cisco_xr_telnet"] = CiscoXrTelnet
@@ -222,6 +241,7 @@ CLASS_MAPPER["dlink_ds_telnet"] = DlinkDSTelnet
 CLASS_MAPPER["extreme_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_exos_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_netiron_telnet"] = ExtremeNetironTelnet
+CLASS_MAPPER["generic_telnet"] = GenericTelnet
 CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
@@ -232,8 +252,11 @@ CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
+CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
+CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
+CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
@@ -254,15 +277,24 @@ scp_platforms.sort()
 scp_platforms_str = "\n".join(scp_platforms)
 scp_platforms_str = "\n" + scp_platforms_str
 
+telnet_platforms = [x for x in platforms if "telnet" in x]
+telnet_platforms_str = "\n".join(telnet_platforms)
+telnet_platforms_str = "\n" + telnet_platforms_str
+
 
 def ConnectHandler(*args, **kwargs):
     """Factory function selects the proper class and creates object based on device_type."""
-    if kwargs["device_type"] not in platforms:
+    device_type = kwargs["device_type"]
+    if device_type not in platforms:
+        if device_type is None:
+            msg_str = platforms_str
+        else:
+            msg_str = telnet_platforms_str if "telnet" in device_type else platforms_str
         raise ValueError(
-            "Unsupported device_type: "
-            "currently supported platforms are: {}".format(platforms_str)
+            "Unsupported 'device_type' "
+            "currently supported platforms are: {}".format(msg_str)
         )
-    ConnectionClass = ssh_dispatcher(kwargs["device_type"])
+    ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)
 
 

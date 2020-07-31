@@ -62,11 +62,17 @@ class BaseConnection(object):
         alt_host_keys=False,
         alt_key_file="",
         ssh_config_file=None,
-        timeout=100,
-        session_timeout=60,
-        auth_timeout=None,
-        blocking_timeout=20,
-        banner_timeout=15,
+        #
+        # Connect timeouts
+        # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
+        #       --> Auth response (auth_timeout)
+        conn_timeout=5,
+        auth_timeout=None,  # Timeout to wait for authentication response
+        banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        # Other timeouts
+        blocking_timeout=20,  # Read blocking timeout
+        timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
+        session_timeout=60,  # Used for locking/sharing the connection
         keepalive=0,
         default_enter=None,
         response_return=None,
@@ -78,6 +84,7 @@ class BaseConnection(object):
         allow_auto_change=False,
         encoding="ascii",
         sock=None,
+        auto_connect=True,
     ):
         """
         Initialize attributes for establishing connection to target device.
@@ -204,6 +211,9 @@ class BaseConnection(object):
                 argument. Value of `None` indicates to use function `cmd_verify` argument.
         :type global_cmd_verify: bool|None
 
+        :param auto_connect: Control whether Netmiko automatically establishes the connection as
+                part of the object creation (default: True).
+        :type auto_connect: bool
         """
         self.remote_conn = None
 
@@ -237,11 +247,12 @@ class BaseConnection(object):
         self.device_type = device_type
         self.ansi_escape_codes = False
         self.verbose = verbose
-        self.timeout = timeout
         self.auth_timeout = auth_timeout
         self.banner_timeout = banner_timeout
-        self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
+        self.conn_timeout = conn_timeout
+        self.session_timeout = session_timeout
+        self.timeout = timeout
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
@@ -312,7 +323,9 @@ class BaseConnection(object):
 
             # Options for SSH host_keys
             self.use_keys = use_keys
-            self.key_file = key_file
+            self.key_file = (
+                path.abspath(path.expanduser(key_file)) if key_file else None
+            )
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
@@ -324,7 +337,8 @@ class BaseConnection(object):
             self.ssh_config_file = ssh_config_file
 
         # Establish the remote connection
-        self._open()
+        if auto_connect:
+            self._open()
 
     def _open(self):
         """Decouple connection creation from __init__ for mocking."""
@@ -701,14 +715,16 @@ class BaseConnection(object):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with "\r" and not "\r\n"
+                    self.write_channel(self.username + "\r")
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with "\r" and not "\r\n"
+                    self.write_channel(self.password + "\r")
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -840,7 +856,7 @@ class BaseConnection(object):
             "key_filename": self.key_file,
             "pkey": self.pkey,
             "passphrase": self.passphrase,
-            "timeout": self.timeout,
+            "timeout": self.conn_timeout,
             "auth_timeout": self.auth_timeout,
             "banner_timeout": self.banner_timeout,
             "sock": self.sock,
@@ -897,11 +913,27 @@ class BaseConnection(object):
             # initiate SSH connection
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
-            except socket.error:
+            except socket.error as conn_error:
                 self.paramiko_cleanup()
-                msg = "Connection to device timed-out: {device_type} {ip}:{port}".format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f"""TCP connection to device failed.
+
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+"""
+
+                # Handle DNS failures separately
+                if "Name or service not known" in str(conn_error):
+                    msg = (
+                        f"DNS failure--the hostname you provided was not resolvable "
+                        f"in DNS: {self.host}:{self.port}"
+                    )
+
+                msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
@@ -1022,11 +1054,8 @@ class BaseConnection(object):
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
         return output
@@ -1048,11 +1077,8 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-        else:
-            output = self.read_until_prompt()
+        # Do not use command_verify here as still in session_preparation stage.
+        output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -1106,7 +1132,6 @@ class BaseConnection(object):
             prompt = self.read_channel().strip()
             if not prompt:
                 self.write_channel(self.RETURN)
-                # log.debug(f"find_prompt sleep time: {sleep_time}")
                 time.sleep(sleep_time)
                 if sleep_time <= 3:
                     # Double the sleep_time when it is small
@@ -1803,8 +1828,6 @@ class BaseConnection(object):
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
         """  # noqa
-        log.debug("In strip_ansi_escape_codes")
-        log.debug(f"repr = {repr(string_buffer)}")
 
         code_position_cursor = chr(27) + r"\[\d+;\d+H"
         code_show_cursor = chr(27) + r"\[\?25h"
@@ -1813,19 +1836,19 @@ class BaseConnection(object):
         code_erase_line = chr(27) + r"\[2K"
         code_erase_start_line = chr(27) + r"\[K"
         code_enable_scroll = chr(27) + r"\[\d+;\d+r"
-        code_form_feed = chr(27) + r"\[1L"
+        code_insert_line = chr(27) + r"\[(\d+)L"
         code_carriage_return = chr(27) + r"\[1M"
         code_disable_line_wrapping = chr(27) + r"\[\?7l"
         code_reset_mode_screen_options = chr(27) + r"\[\?\d+l"
         code_reset_graphics_mode = chr(27) + r"\[00m"
         code_erase_display = chr(27) + r"\[2J"
+        code_erase_display_0 = chr(27) + r"\[J"
         code_graphics_mode = chr(27) + r"\[\d\d;\d\dm"
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
         code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
         code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
-        code_erase_display = chr(27) + r"\[J"
         code_attrs_off = chr(27) + r"\[0m"
         code_reverse = chr(27) + r"\[7m"
         code_cursor_left = chr(27) + r"\[\d+D"
@@ -1836,7 +1859,6 @@ class BaseConnection(object):
             code_erase_line,
             code_enable_scroll,
             code_erase_start_line,
-            code_form_feed,
             code_carriage_return,
             code_disable_line_wrapping,
             code_erase_line_end,
@@ -1850,6 +1872,7 @@ class BaseConnection(object):
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_erase_display_0,
             code_attrs_off,
             code_reverse,
             code_cursor_left,
@@ -1862,9 +1885,12 @@ class BaseConnection(object):
         # CODE_NEXT_LINE must substitute with return
         output = re.sub(code_next_line, self.RETURN, output)
 
-        log.debug("Stripping ANSI escape codes")
-        log.debug(f"new_output = {output}")
-        log.debug(f"repr = {repr(output)}")
+        # Aruba and ProCurve switches can use code_insert_line for <enter>
+        insert_line_match = re.search(code_insert_line, output)
+        if insert_line_match:
+            # Substitute each insert_line with a new <enter>
+            count = int(insert_line_match.group(1))
+            output = re.sub(code_insert_line, count * self.RETURN, output)
 
         return output
 
@@ -1906,9 +1932,9 @@ class BaseConnection(object):
     def open_session_log(self, filename, mode="write"):
         """Open the session_log file."""
         if mode == "append":
-            self.session_log = open(filename, mode="a")
+            self.session_log = open(filename, mode="a", encoding=self.encoding)
         else:
-            self.session_log = open(filename, mode="w")
+            self.session_log = open(filename, mode="w", encoding=self.encoding)
         self._session_log_close = True
 
     def close_session_log(self):

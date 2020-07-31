@@ -71,12 +71,23 @@ class InLineTransfer(CiscoIosFileTransfer):
         direction="put",
         source_config=None,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
+
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
             raise ValueError(msg)
         if direction != "put":
             raise ValueError("Only put operation supported by InLineTransfer.")
+
+        if progress is not None or progress4 is not None:
+            raise NotImplementedError(
+                "Progress bar is not supported on inline transfers."
+            )
+        else:
+            self.progress = progress
+            self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
         if source_file:
@@ -169,7 +180,10 @@ class InLineTransfer(CiscoIosFileTransfer):
         return hashlib.md5(file_contents).hexdigest()
 
     def config_md5(self, source_config):
-        return super().file_md5(source_config, add_newline=True)
+        """Compute MD5 hash of text."""
+        file_contents = source_config + "\n"  # Cisco IOS automatically adds this
+        file_contents = file_contents.encode("UTF-8")
+        return hashlib.md5(file_contents).hexdigest()
 
     def put_file(self):
         curlybrace = r"{"

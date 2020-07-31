@@ -112,8 +112,7 @@ class NokiaSrosSSH(BaseConnection):
 
     def save_config(self, *args, **kwargs):
         """Persist configuration to cflash for Nokia SR OS"""
-        output = self.send_command(command_string="/admin save")
-        return output
+        return self.send_command(command_string="/admin save", expect_string=r"#")
 
     def send_config_set(self, config_commands=None, exit_config_mode=None, **kwargs):
         """Model driven CLI requires you not exit from configuration mode."""

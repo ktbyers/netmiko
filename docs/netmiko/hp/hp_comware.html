@@ -27,6 +27,13 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class HPComwareBase(CiscoSSHConnection):
+    def __init__(self, **kwargs):
+        # Comware doesn&#39;t have a way to set terminal width which breaks cmd_verify
+        global_cmd_verify = kwargs.get(&#34;global_cmd_verify&#34;)
+        if global_cmd_verify is None:
+            kwargs[&#34;global_cmd_verify&#34;] = False
+        return super().__init__(**kwargs)
+
     def session_preparation(self):
         &#34;&#34;&#34;
         Prepare the session after the connection has been established.
@@ -129,7 +136,7 @@ class HPComwareTelnet(HPComwareBase):
 <dl>
 <dt id="netmiko.hp.hp_comware.HPComwareBase"><code class="flex name class">
 <span>class <span class="ident">HPComwareBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -258,10 +265,21 @@ class HPComwareTelnet(HPComwareBase):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class HPComwareBase(CiscoSSHConnection):
+    def __init__(self, **kwargs):
+        # Comware doesn&#39;t have a way to set terminal width which breaks cmd_verify
+        global_cmd_verify = kwargs.get(&#34;global_cmd_verify&#34;)
+        if global_cmd_verify is None:
+            kwargs[&#34;global_cmd_verify&#34;] = False
+        return super().__init__(**kwargs)
+
     def session_preparation(self):
         &#34;&#34;&#34;
         Prepare the session after the connection has been established.
@@ -552,7 +570,7 @@ this will be the router prompt with &lt; &gt; or [ ] stripped off.</p>
 </dd>
 <dt id="netmiko.hp.hp_comware.HPComwareSSH"><code class="flex name class">
 <span>class <span class="ident">HPComwareSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -681,6 +699,10 @@ this will be the router prompt with &lt; &gt; or [ ] stripped off.</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -873,6 +895,10 @@ this will be the router prompt with &lt; &gt; or [ ] stripped off.</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
