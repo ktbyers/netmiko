@@ -106,6 +106,9 @@ def test_config_from_file(net_connect, commands, expected_responses):
     else:
         print("Skipping test (no file specified)...")
 
+    if "nokia_sros" in net_connect.device_type:
+        net_connect.save_config()
+
 
 def test_disconnect(net_connect, commands, expected_responses):
     """
