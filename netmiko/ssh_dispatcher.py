@@ -6,7 +6,7 @@ from netmiko.alcatel import AlcatelAosSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
-from netmiko.aruba import ArubaSSH, ArubaSwitchSSH
+from netmiko.aruba import ArubaSSH, ArubaOSSwitchSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.centec import CentecOSSSH, CentecOSTelnet
@@ -108,7 +108,7 @@ CLASS_MAPPER_BASE = {
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "aruba_os": ArubaSSH,
-    "aruba_osswitch": ArubaSwitchSSH,
+    "arubaos_switch": ArubaOSSwitchSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
     "broadcom_icos": BroadcomIcosSSH,
