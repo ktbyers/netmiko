@@ -110,9 +110,9 @@ class NokiaSrosSSH(BaseConnection):
             # Model-driven CLI look for "exclusive"
             return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, expect_string=r"#", *args, **kwargs):
         """Persist configuration to cflash for Nokia SR OS"""
-        return self.send_command(command_string="/admin save", expect_string=r"#")
+        return self.send_command(command_string="/admin save", expect_string=expect_string)
 
     def send_config_set(self, config_commands=None, exit_config_mode=None, **kwargs):
         """Model driven CLI requires you not exit from configuration mode."""
