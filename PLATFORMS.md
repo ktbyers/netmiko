@@ -15,6 +15,7 @@
 
 ###### Limited testing
 
+- 6Wind
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
 - Broadcom ICOS
