@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014 - 2019 Kirk Byers
-# Copyright (c) 2014 - 2019 Twin Bridges Technology
-# Copyright (c) 2019 NOKIA Inc.
+# Copyright (c) 2014 - 2020 Kirk Byers
+# Copyright (c) 2014 - 2020 Twin Bridges Technology
+# Copyright (c) 2019 - 2020 NOKIA Inc.
 # MIT License - See License file at:
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
 
@@ -60,23 +60,22 @@ class NokiaSrosSSH(BaseConnection):
             self.base_prompt = match.group(1)
             return self.base_prompt
 
-    def enable(
-        self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE, *args, **kwargs
-    ):
+    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
         """Enable SR OS administrative mode"""
         if "@" not in self.base_prompt:
             cmd = "enable-admin"
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
-    def check_enable_mode(self, check_string="in admin mode", *args, **kwargs):
-        """Check if in enable mode. Returns True if already in admin mode, false otherwise."""
+    def check_enable_mode(self, check_string="in admin mode"):
+        """Check if in enable mode."""
         cmd = "enable"
         if "@" not in self.base_prompt:
             cmd = "enable-admin"
         self.write_channel(self.normalize_cmd(cmd))
-        output = self.read_until_prompt_or_pattern(pattern="assword")
-        self.write_channel(self.RETURN)  # send ENTER to pass the password prompt
-        self.read_until_prompt()
+        output = self.read_until_prompt_or_pattern(pattern="ssword")
+        if "ssword" in output:
+            self.write_channel(self.RETURN)  # send ENTER to pass the password prompt
+            self.read_until_prompt()
         return check_string in output
 
     def exit_enable_mode(self, *args, **kwargs):
