@@ -37,10 +37,13 @@ class AdtranOSBase(CiscoBaseConnection):
     def exit_config_mode(self, exit_config="end", pattern="#"):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def set_base_prompt(self, pri_prompt_terminator=">", alt_prompt_terminator="#"):
+    def set_base_prompt(
+        self, pri_prompt_terminator=">", alt_prompt_terminator="#", **kwargs
+    ):
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
+            **kwargs
         )
 
 
