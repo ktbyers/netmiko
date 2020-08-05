@@ -25,15 +25,8 @@ class NetgearProSafeSSH(CiscoSSHConnection):
     def check_config_mode(self, check_string="(Config)#"):
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configure", pattern=""):
-        output = ""
-        if not self.check_config_mode():
-            output = self.send_command_timing(
-                config_command, strip_command=False, strip_prompt=False
-            )
-            if not self.check_config_mode():
-                raise ValueError("Failed to enter configuration mode")
-        return output
+    def config_mode(self, config_command="configure", pattern=r")#"):
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
     def exit_config_mode(self, exit_config="exit", pattern="#"):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
