@@ -51,6 +51,7 @@
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
 - Yamaha
+- YOTC
 - ZTE ZXROS
 
 ###### Experimental
