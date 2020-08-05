@@ -120,13 +120,21 @@ def test_send_command_global_cmd_verify(
     assert expected_responses["interface_ip"] in show_ip_alt
 
 
-def test_send_command_juniper(net_connect, commands, expected_responses):
-    """Verify Juniper complete on space is disabled."""
+def test_complete_on_space_disabled(net_connect, commands, expected_responses):
+    """Verify complete on space is disabled."""
     # If complete on space is enabled will get re-written to "show configuration groups"
-    if net_connect.device_type == "juniper_junos":
-        net_connect.write_channel("show configuration gr \n")
+    if net_connect.device_type in ["juniper_junos", "nokia_sros"]:
+        if (
+            net_connect.device_type == "nokia_sros"
+            and "@" not in net_connect.base_prompt
+        ):
+            # Only MD-CLI supports disable of command complete on space
+            assert pytest.skip()
+        cmd = commands.get("abbreviated_cmd")
+        cmd_full = commands.get("abbreviated_cmd_full")
+        net_connect.write_channel(f"{cmd}\n")
         output = net_connect.read_until_prompt()
-        assert "show configuration groups" not in output
+        assert cmd_full not in output
     else:
         assert pytest.skip()
 
@@ -244,7 +252,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
         enable_prompt = net_connect.find_prompt()
         assert enable_prompt == expected_responses["enable_prompt"]
     except AttributeError:
-        assert True is True
+        assert True
 
 
 def test_disconnect(net_connect, commands, expected_responses):

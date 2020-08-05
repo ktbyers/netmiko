@@ -40,11 +40,15 @@ class NokiaSrosSSH(BaseConnection):
         self.set_base_prompt()
         # "@" indicates model-driven CLI (vs Classical CLI)
         if "@" in self.base_prompt:
+            self._disable_complete_on_space()
             self.disable_paging(command="environment more false")
             # To perform file operations we need to disable paging in classical-CLI also
             self.disable_paging(command="//environment no more")
             self.set_terminal_width(command="environment console width 512")
         else:
+            # Classical CLI has no method to set the terminal width nor to disable command
+            # complete on space; consequently, cmd_verify needs disabled.
+            self.global_cmd_verify = False
             self.disable_paging(command="environment no more")
 
         # Clear the read buffer
@@ -59,6 +63,20 @@ class NokiaSrosSSH(BaseConnection):
             # strip off >... from base_prompt; strip off leading *
             self.base_prompt = match.group(1)
             return self.base_prompt
+
+    def _disable_complete_on_space(self):
+        """
+        SR-OS tries to auto complete commands when you type a "space" character.
+
+        This is a bad idea for automation as what your program is sending no longer matches
+        the command echo from the device, so we disable this behavior.
+        """
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        time.sleep(delay_factor * 0.1)
+        command = "environment command-completion space false"
+        self.write_channel(self.normalize_cmd(command))
+        time.sleep(delay_factor * 0.1)
+        return self.read_channel()
 
     def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
         """Enable SR OS administrative mode"""
