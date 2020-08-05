@@ -16,6 +16,7 @@
 ###### Limited testing
 
 - 6Wind
+- Adtran OS
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
 - Broadcom ICOS
