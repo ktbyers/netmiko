@@ -36,19 +36,12 @@ class YotcBase(CiscoBaseConnection):
         prompt = self.find_prompt()
         more_str_re = r"\s--More--\s*"
         new_data = self.send_command_timing(
-            command_string=command_string, 
-            use_textfsm=False, 
-            use_genie=False, 
-            **kwargs,
+            command_string=command_string, use_textfsm=False, use_genie=False, **kwargs,
         )
         output = new_data
         while prompt not in new_data:
             new_data = self.send_command_timing(
-                "m", 
-                use_textfsm=False, 
-                use_genie=False, 
-                strip_prompt=False, 
-                **kwargs,
+                "m", use_textfsm=False, use_genie=False, strip_prompt=False, **kwargs,
             )
             output += new_data
         output = re.sub(more_str_re, "", output)
@@ -88,14 +81,12 @@ class YotcBase(CiscoBaseConnection):
         """Saves Config."""
         self.exit_config_mode()
         self.enable()
-        output = self.send_command_timing(
-            cmd, strip_prompt=False, strip_command=False
-        )
+        output = self.send_command_timing(cmd, strip_prompt=False, strip_command=False)
         output += self.send_command_timing(
             confirm_response, strip_prompt=False, strip_command=False, normalize=False
         )
         return output
-    
+
     def cleanup(self):
         """Don't use 'exit' to disconnect, and reset command max-lines to default"""
         self.send_config_set("no command max-lines")
