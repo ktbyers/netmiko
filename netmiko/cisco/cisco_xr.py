@@ -4,6 +4,10 @@ from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 
 class CiscoXrBase(CiscoBaseConnection):
+    def establish_connection(self):
+        """Establish SSH connection to the network device"""
+        super().establish_connection(width=511, height=511)
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
