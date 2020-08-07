@@ -18,7 +18,7 @@ class YotcBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def _send_command_more(
+    def send_command_more(
         self,
         command_string,
         use_textfsm=False,
@@ -34,12 +34,21 @@ class YotcBase(CiscoBaseConnection):
         cisco_wlc_ssh.py has similar function: send_command_w_enter().
         """
         prompt = self.find_prompt()
-        more_str_re = r".*--More--.*"
-        new_data = ""
-        output = ""
+        more_str_re = r"\s--More--\s*"
+        new_data = self.send_command_timing(
+            command_string=command_string, 
+            use_textfsm=False, 
+            use_genie=False, 
+            **kwargs,
+        )
+        output = new_data
         while prompt not in new_data:
             new_data = self.send_command_timing(
-                " ", cmd_verify=False, use_textfsm=False, use_genie=False, **kwargs
+                "m", 
+                use_textfsm=False, 
+                use_genie=False, 
+                strip_prompt=False, 
+                **kwargs,
             )
             output += new_data
         output = re.sub(more_str_re, "", output)
@@ -78,13 +87,18 @@ class YotcBase(CiscoBaseConnection):
     def save_config(self, cmd="wr", confirm=True, confirm_response="y"):
         """Saves Config."""
         self.exit_config_mode()
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        self.enable()
+        output = self.send_command_timing(
+            cmd, strip_prompt=False, strip_command=False
         )
-
+        output += self.send_command_timing(
+            confirm_response, strip_prompt=False, strip_command=False, normalize=False
+        )
+        return output
+    
     def cleanup(self):
-        """Don't use 'exit' to disconnect."""
-        pass
+        """Don't use 'exit' to disconnect, and reset command max-lines to default"""
+        self.send_config_set("no command max-lines")
 
 
 class YotcSSH(YotcBase):
