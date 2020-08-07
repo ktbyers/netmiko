@@ -36,9 +36,10 @@ class YotcBase(CiscoBaseConnection):
         prompt = self.find_prompt()
         more_str_re = r"\s--More--\s*"
         new_data = self.send_command_timing(
-            command_string=command_string, use_textfsm=False, use_genie=False, **kwargs,
+            command_string, use_textfsm=False, use_genie=False, **kwargs,
         )
         output = new_data
+
         while prompt not in new_data:
             new_data = self.send_command_timing(
                 "m", use_textfsm=False, use_genie=False, strip_prompt=False, **kwargs,
