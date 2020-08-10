@@ -25,7 +25,13 @@ class CiscoXrBase(CiscoBaseConnection):
         )
 
     def commit(
-        self, confirm=False, confirm_delay=None, comment="", label="", delay_factor=1
+        self,
+        confirm=False,
+        confirm_delay=None,
+        comment="",
+        label="",
+        delay_factor=1,
+        quote_comment=True,
     ):
         """
         Commit the candidate configuration.
@@ -38,12 +44,16 @@ class CiscoXrBase(CiscoBaseConnection):
             command_string = commit label <label>
         comment:
             command_string = commit comment <comment>
+        quote_comment:
+            command_string = commit comment "<comment>"
 
         supported combinations
         label and confirm:
             command_string = commit label <label> confirmed <confirm_delay>
         label and comment:
             command_string = commit label <label> comment <comment>
+        label, comment and quote_comment:
+            command_string = commit label <label> comment "<comment>"
 
         All other combinations will result in an exception.
 
@@ -69,7 +79,7 @@ class CiscoXrBase(CiscoBaseConnection):
             raise ValueError("Invalid arguments supplied to XR commit")
 
         # wrap the comment in quotes
-        if comment:
+        if comment and quote_comment:
             if '"' in comment:
                 raise ValueError("Invalid comment contains double quote")
             comment = f'"{comment}"'
