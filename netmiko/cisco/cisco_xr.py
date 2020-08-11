@@ -68,12 +68,6 @@ class CiscoXrBase(CiscoBaseConnection):
         if comment and confirm:
             raise ValueError("Invalid arguments supplied to XR commit")
 
-        # wrap the comment in quotes
-        if comment:
-            if '"' in comment:
-                raise ValueError("Invalid comment contains double quote")
-            comment = f'"{comment}"'
-
         label = str(label)
         error_marker = "Failed to"
         alt_error_marker = "One or more commits have occurred from other"
