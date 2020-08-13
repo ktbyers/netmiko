@@ -51,6 +51,9 @@ class NokiaSrosSSH(BaseConnection):
             self.global_cmd_verify = False
             self.disable_paging(command="environment no more")
 
+        # set initial value for enable mode attribute
+        self._in_enable_mode = False
+
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -82,19 +85,13 @@ class NokiaSrosSSH(BaseConnection):
         """Enable SR OS administrative mode"""
         if "@" not in self.base_prompt:
             cmd = "enable-admin"
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        output = super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        self._in_enable_mode = True
+        return output
 
     def check_enable_mode(self, check_string="in admin mode"):
         """Check if in enable mode."""
-        cmd = "enable"
-        if "@" not in self.base_prompt:
-            cmd = "enable-admin"
-        self.write_channel(self.normalize_cmd(cmd))
-        output = self.read_until_prompt_or_pattern(pattern="ssword")
-        if "ssword" in output:
-            self.write_channel(self.RETURN)  # send ENTER to pass the password prompt
-            self.read_until_prompt()
-        return check_string in output
+        return self._in_enable_mode
 
     def exit_enable_mode(self, *args, **kwargs):
         """Nokia SR OS does not have a notion of exiting administrative mode"""
