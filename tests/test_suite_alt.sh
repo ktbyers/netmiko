@@ -12,8 +12,8 @@ echo "Starting tests...good luck:" \
 && py.test -x -s -v test_netmiko_config.py --test_device juniper_vmx \
 \
 && echo "Nokia SR-OS" \
-&& py.test -x -s -v test_netmiko_show.py --test_device sros1 \
-&& py.test -x -s -v test_netmiko_config.py --test_device sros1 \
+&& py.test -x -s -v test_netmiko_show.py --test_device sros1_md \
+&& py.test -x -s -v test_netmiko_config.py --test_device sros1_md \
 \
 && echo "Cisco IOS-XE SSH (including SCP)" \
 && py.test -v test_netmiko_scp.py --test_device cisco3 \
@@ -82,11 +82,6 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config.py --test_device cisco_xrv \
 && py.test -v test_netmiko_commit.py --test_device cisco_xrv \
 \
-&& echo "Cisco IOS-XR (Azure)" \
-&& py.test -v test_netmiko_show.py --test_device cisco_xr_azure \
-&& py.test -v test_netmiko_config.py --test_device cisco_xr_azure \
-&& py.test -v test_netmiko_commit.py --test_device cisco_xr_azure \
-\
 && echo "Cisco NXOS" \
 && py.test -v test_netmiko_scp.py --test_device nxos1 \
 && py.test -v test_netmiko_show.py --test_device nxos1 \
@@ -120,3 +115,9 @@ exit $RETURN_CODE
 # && py.test -v test_netmiko_scp.py --test_device cisco881_key \
 # && py.test -v test_netmiko_scp.py --test_device cisco881 \
 # && py.test -v test_netmiko_scp.py --test_device cisco881_fast \
+#
+#&& echo "Cisco IOS-XR (Azure)" \
+#&& py.test -v test_netmiko_show.py --test_device cisco_xr_azure \
+#&& py.test -v test_netmiko_config.py --test_device cisco_xr_azure \
+#&& py.test -v test_netmiko_commit.py --test_device cisco_xr_azure \
+#\
