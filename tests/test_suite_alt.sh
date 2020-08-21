@@ -12,8 +12,8 @@ echo "Starting tests...good luck:" \
 && py.test -x -s -v test_netmiko_config.py --test_device juniper_vmx \
 \
 && echo "Nokia SR-OS" \
-&& py.test -x -s -v test_netmiko_show.py --test_device sros1 \
-&& py.test -x -s -v test_netmiko_config.py --test_device sros1 \
+&& py.test -x -s -v test_netmiko_show.py --test_device sros1_md \
+&& py.test -x -s -v test_netmiko_config.py --test_device sros1_md \
 \
 && echo "Cisco IOS-XE SSH (including SCP)" \
 && py.test -v test_netmiko_scp.py --test_device cisco3 \
