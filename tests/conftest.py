@@ -142,6 +142,12 @@ def commands(request):
     test_platform = device["device_type"]
 
     commands_yml = parse_yaml(PWD + "/etc/commands.yml")
+
+    # Nokia SR-OS driver is overloaded with both classical-CLI and MD-CLI
+    # Swap out the commands to be the MD-CLI commands
+    if device_under_test == 'sros1_md':
+        test_platform = "nokia_sros_md"
+
     return commands_yml[test_platform]
 
 
