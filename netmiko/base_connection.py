@@ -790,8 +790,8 @@ class BaseConnection(object):
         """
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
+        self.disable_paging()
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -947,9 +947,17 @@ Device settings: {self.device_type} {self.host}:{self.port}
                     raise
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
-                msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f"""Authentication to device failed.
+
+Common causes of this problem are:
+1. Invalid username and password
+2. Incorrect SSH-key file
+3. Connecting to the wrong device
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+"""
+
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
 
@@ -1048,7 +1056,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
         pass
 
-    def disable_paging(self, command="terminal length 0", delay_factor=1):
+    def disable_paging(
+        self, command="terminal length 0", delay_factor=1, cmd_verify=True, pattern=None
+    ):
         """Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
@@ -1064,13 +1074,20 @@ Device settings: {self.device_type} {self.host}:{self.port}
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        # Do not use command_verify here as still in session_preparation stage.
-        output = self.read_until_prompt()
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        if cmd_verify and self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
+        else:
+            output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
         return output
 
-    def set_terminal_width(self, command="", delay_factor=1):
+    def set_terminal_width(
+        self, command="", delay_factor=1, cmd_verify=False, pattern=None
+    ):
         """CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
@@ -1087,8 +1104,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Do not use command_verify here as still in session_preparation stage.
-        output = self.read_until_prompt()
+        # Avoid cmd_verify here as terminal width must be set before doing cmd_verify
+        if cmd_verify and self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
+        else:
+            output = self.read_until_prompt()
         return output
 
     def set_base_prompt(

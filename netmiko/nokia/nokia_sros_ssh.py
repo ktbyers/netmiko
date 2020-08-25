@@ -41,15 +41,17 @@ class NokiaSrosSSH(BaseConnection):
         # "@" indicates model-driven CLI (vs Classical CLI)
         if "@" in self.base_prompt:
             self._disable_complete_on_space()
+            self.set_terminal_width(
+                command="environment console width 512", pattern="environment"
+            )
             self.disable_paging(command="environment more false")
             # To perform file operations we need to disable paging in classical-CLI also
             self.disable_paging(command="//environment no more")
-            self.set_terminal_width(command="environment console width 512")
         else:
             # Classical CLI has no method to set the terminal width nor to disable command
             # complete on space; consequently, cmd_verify needs disabled.
             self.global_cmd_verify = False
-            self.disable_paging(command="environment no more")
+            self.disable_paging(command="environment no more", pattern="environment")
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)

@@ -16,8 +16,8 @@ class UbiquitiEdgeSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.enable()
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
+        self.disable_paging()
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)

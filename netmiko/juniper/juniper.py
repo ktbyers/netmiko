@@ -24,8 +24,8 @@ class JuniperBase(BaseConnection):
         self.enter_cli_mode()
         self.set_base_prompt()
         self._disable_complete_on_space()
+        self.set_terminal_width(command="set cli screen-width 511", pattern="set")
         self.disable_paging(command="set cli screen-length 0")
-        self.set_terminal_width(command="set cli screen-width 511")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
