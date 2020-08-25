@@ -145,7 +145,7 @@ def commands(request):
 
     # Nokia SR-OS driver is overloaded with both classical-CLI and MD-CLI
     # Swap out the commands to be the MD-CLI commands
-    if device_under_test == 'sros1_md':
+    if device_under_test == "sros1_md":
         test_platform = "nokia_sros_md"
 
     return commands_yml[test_platform]
