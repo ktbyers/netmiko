@@ -59,7 +59,7 @@ SNMP_MAPPER_BASE = {
     },
     "cisco_xe": {
         "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*IOS-XE Software,.*", re.IGNORECASE),
+        "expr": re.compile(r".*Catalyst L3 Switch Software.*", re.IGNORECASE),
         "priority": 99,
     },
     "cisco_xr": {

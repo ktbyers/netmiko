@@ -56,13 +56,13 @@ SSH_MAPPER_BASE = {
     },
     "alcatel_sros": {
         "cmd": "show version",
-        "search_patterns": ["Nokia", "Alcatel"],
+        "search_patterns": [r"Nokia", r"Alcatel"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     "apresia_aeos": {
         "cmd": "show system",
-        "search_patterns": ["Apresia"],
+        "search_patterns": [r"Apresia"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -81,8 +81,8 @@ SSH_MAPPER_BASE = {
     "cisco_ios": {
         "cmd": "show version",
         "search_patterns": [
-            "Cisco IOS Software",
-            "Cisco Internetwork Operating System Software",
+            r"Cisco IOS Software,",
+            r"Cisco Internetwork Operating System Software",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -90,6 +90,12 @@ SSH_MAPPER_BASE = {
     "cisco_nxos": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "cisco_xe": {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco IOS XE Software", r"IOS-EX"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
