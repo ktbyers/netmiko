@@ -20,11 +20,13 @@ class CiscoFtdSSH(CiscoSSHConnection):
         raise NotImplementedError
 
     def enable(self):
+        """no enable mode on firepower ssh"""
         raise AttributeError
 
     def config_mode(self, config_command="", pattern=""):
-        """No Config mode on Firepower ssh"""
+        """No Config mode on firepower ssh"""
         return ""
 
     def check_config_mode(self, check_string="", pattern=""):
+        """No Config mode on firepower ssh"""
         return False
