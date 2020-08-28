@@ -20,11 +20,11 @@ def generate_csv_timestamp():
     return t_stamp
 
 
-def write_csv(device_name, netmiko_func_names):
+def write_csv(device_name, netmiko_results):
     results_file = "netmiko_performance.csv"
     file_exists = os.path.isfile(results_file)
     with open(results_file, "a") as csv_file:
-        field_names = ["date", "netmiko_version", "device_name"] + netmiko_func_names
+        field_names = ["date", "netmiko_version", "device_name"] + list(netmiko_results.keys())
         t_stamp = generate_csv_timestamp()
         csv_write = csv.DictWriter(csv_file, fieldnames=field_names)
 
@@ -36,11 +36,10 @@ def write_csv(device_name, netmiko_func_names):
             "date": t_stamp,
             "netmiko_version": __version__,
             "device_name": device_name,
-            "connect": 0.0,
-            "send_command_simple": 0.0,
-            "send_config_simple": 0.0,
-            "send_config_large_acl": 0.0,
         }
+
+        for func_name, exec_time in netmiko_results.items():
+            entry[func_name] = exec_time
         csv_write.writerow(entry)
 
 
@@ -50,8 +49,9 @@ def f_exec_time(func):
         start_time = datetime.now()
         result = func(*args, **kwargs)
         end_time = datetime.now()
-        print(f"{str(func)}: Elapsed time: {end_time - start_time}")
-        return result
+        time_delta = end_time - start_time
+        print(f"{str(func)}: Elapsed time: {time_delta}")
+        return (time_delta, result)
 
     return wrapper_decorator
 
@@ -120,13 +120,15 @@ def main():
             "send_config_simple",
             "send_config_large_acl",
         ]
+        results = {}
         for op in operations:
             func = globals()[op]
-            func(dev_dict)
+            time_delta, result = func(dev_dict)
+            results[op] = time_delta
         print("-" * 80)
         print()
 
-        write_csv(dev_name, operations)
+        write_csv(dev_name, results)
 
     print("\n\n")
 
