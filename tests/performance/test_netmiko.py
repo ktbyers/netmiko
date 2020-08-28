@@ -1,14 +1,14 @@
 from netmiko import ConnectHandler, __version__
 import os
-import logging
 from ipaddress import ip_address
 import yaml
 import functools
 from datetime import datetime
 import csv
 
-logging.basicConfig(filename="test.log", level=logging.DEBUG)
-logger = logging.getLogger("netmiko")
+# import logging
+# logging.basicConfig(filename="test.log", level=logging.DEBUG)
+# logger = logging.getLogger("netmiko")
 
 PRINT_DEBUG = False
 
@@ -24,7 +24,9 @@ def write_csv(device_name, netmiko_results):
     results_file = "netmiko_performance.csv"
     file_exists = os.path.isfile(results_file)
     with open(results_file, "a") as csv_file:
-        field_names = ["date", "netmiko_version", "device_name"] + list(netmiko_results.keys())
+        field_names = ["date", "netmiko_version", "device_name"] + list(
+            netmiko_results.keys()
+        )
         t_stamp = generate_csv_timestamp()
         csv_write = csv.DictWriter(csv_file, fieldnames=field_names)
 
