@@ -59,10 +59,19 @@ def test_send_command_timing(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully."""
     time.sleep(1)
     net_connect.clear_buffer()
-    show_ip = net_connect.send_command_timing(commands["basic"])
-    assert expected_responses["interface_ip"] in show_ip
     # Force verification of command echo
     show_ip = net_connect.send_command_timing(commands["basic"], cmd_verify=True)
+    assert expected_responses["interface_ip"] in show_ip
+
+
+def test_send_command_timing_no_cmd_verify(net_connect, commands, expected_responses):
+    # Skip devices that are performance optimized (i.e. cmd_verify is required there)
+    if net_connect.fast_cli is True:
+        assert pytest.skip()
+    time.sleep(1)
+    net_connect.clear_buffer()
+    # cmd_verify=False is the default
+    show_ip = net_connect.send_command_timing(commands["basic"], cmd_verify=False)
     assert expected_responses["interface_ip"] in show_ip
 
 
@@ -71,10 +80,18 @@ def test_send_command(net_connect, commands, expected_responses):
     net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip_alt
+
+
+def test_send_command_no_cmd_verify(net_connect, commands, expected_responses):
+    # Skip devices that are performance optimized (i.e. cmd_verify is required there)
+    if net_connect.fast_cli is True:
+        assert pytest.skip()
+    net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command(commands["basic"], cmd_verify=False)
     assert expected_responses["interface_ip"] in show_ip_alt
 
 
+# @pytest.mark.skip(reason="FIX: need a way to skip for high-latency devices")
 def test_cmd_verify_decorator(net_connect_cmd_verify):
     obj = net_connect_cmd_verify
     # Global False should have precedence
@@ -104,6 +121,7 @@ def test_cmd_verify_decorator(net_connect_cmd_verify):
     obj.global_cmd_verify = False
 
 
+# @pytest.mark.skip(reason="FIX: need a way to skip for high-latency devices")
 def test_send_command_global_cmd_verify(
     net_connect_cmd_verify, commands, expected_responses
 ):
