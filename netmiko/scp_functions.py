@@ -37,6 +37,7 @@ def verifyspace_and_transferfile(scp_transfer):
         raise ValueError("Insufficient space available on remote device")
     scp_transfer.transfer_file()
 
+
 def file_transfer(
     ssh_conn,
     source_file,

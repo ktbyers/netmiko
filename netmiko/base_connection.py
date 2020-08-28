@@ -30,8 +30,8 @@ from netmiko.utilities import (
     get_structured_data,
     get_structured_data_genie,
     select_cmd_verify,
-    m_exec_time # noqa
 )
+from netmiko.utilities import m_exec_time  # noqa
 
 
 class BaseConnection(object):
@@ -1185,7 +1185,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
     def clear_buffer(self, backoff=True):
         """Read any data available in the channel."""
-        std_sleep_time = .02 if self.fast_cli else .1
+        std_sleep_time = 0.02 if self.fast_cli else 0.1
         sleep_time = std_sleep_time * self.global_delay_factor
         for _ in range(10):
             time.sleep(sleep_time)
