@@ -13,7 +13,7 @@ class CiscoIosBase(CiscoBaseConnection):
     def __init__(self, *args, **kwargs):
         # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
         kwargs.setdefault("fast_cli", True)
-        kwargs.setdefault("legacy_mode", False)
+        kwargs.setdefault("_legacy_mode", False)
         return super().__init__(*args, **kwargs)
 
     def session_preparation(self):
