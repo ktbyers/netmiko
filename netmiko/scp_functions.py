@@ -4,8 +4,6 @@ Netmiko SCP operations.
 Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
-
-Currently only supports Cisco IOS and Cisco ASA.
 """
 from netmiko import FileTransfer, InLineTransfer
 
@@ -38,7 +36,6 @@ def verifyspace_and_transferfile(scp_transfer):
     if not scp_transfer.verify_space_available():
         raise ValueError("Insufficient space available on remote device")
     scp_transfer.transfer_file()
-
 
 def file_transfer(
     ssh_conn,
