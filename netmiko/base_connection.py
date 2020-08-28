@@ -31,6 +31,7 @@ from netmiko.utilities import (
     get_structured_data_genie,
     select_cmd_verify,
 )
+from netmiko.utilities import m_exec_time  # noqa
 
 
 class BaseConnection(object):
@@ -78,6 +79,7 @@ class BaseConnection(object):
         response_return=None,
         serial_settings=None,
         fast_cli=False,
+        _legacy_mode=True,
         session_log=None,
         session_log_record_writes=False,
         session_log_file_mode="write",
@@ -297,6 +299,7 @@ class BaseConnection(object):
             self.serial_settings.update({"port": comm_port})
 
         self.fast_cli = fast_cli
+        self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
         self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
@@ -1068,8 +1071,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :type delay_factor: int
         """
         delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
         command = self.normalize_cmd(command)
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
@@ -1155,11 +1156,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         time.sleep(sleep_time)
 
         # Initial attempt to get prompt
-        prompt = self.read_channel()
+        prompt = self.read_channel().strip()
 
         # Check if the only thing you received was a newline
         count = 0
-        prompt = prompt.strip()
         while count <= 12 and not prompt:
             prompt = self.read_channel().strip()
             if not prompt:
@@ -1791,7 +1791,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
             output += self.config_mode(*cfg_mode_args)
 
-        if self.fast_cli:
+        if self.fast_cli and self._legacy_mode:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output

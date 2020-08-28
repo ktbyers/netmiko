@@ -1,0 +1,15 @@
+---
+cisco1:
+  device_type: cisco_ios
+  host: cisco1.lasthop.io
+  username: pyclass
+
+cisco3:
+  device_type: cisco_xe
+  host: cisco3.lasthop.io
+  username: pyclass
+
+cisco5:
+  device_type: cisco_xe
+  host: cisco5.lasthop.io
+  username: pyclass

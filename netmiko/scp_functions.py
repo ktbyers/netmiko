@@ -4,8 +4,6 @@ Netmiko SCP operations.
 Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
-
-Currently only supports Cisco IOS and Cisco ASA.
 """
 from netmiko import FileTransfer, InLineTransfer
 

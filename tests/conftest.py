@@ -176,7 +176,13 @@ def delete_file_nxos(ssh_conn, dest_file_system, dest_file):
 
 
 def delete_file_ios(ssh_conn, dest_file_system, dest_file):
-    """Delete a remote file for a Cisco IOS device."""
+    """
+    Delete a remote file for a Cisco IOS device:
+
+    cisco1#del flash:/useless_file.cfg
+    Delete filename [useless_file.cfg]?
+    Delete flash:/useless_file.cfg? [confirm]y
+    """
     if not dest_file_system:
         raise ValueError("Invalid file system specified")
     if not dest_file:
@@ -185,14 +191,11 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     full_file_name = f"{dest_file_system}/{dest_file}"
 
     cmd = f"delete {full_file_name}"
-    output = ssh_conn.send_command_timing(cmd, delay_factor=2)
+    output = ssh_conn.send_command(cmd, expect_string=r"Delete filename")
     if "Delete" in output and dest_file in output:
-        output += ssh_conn.send_command_timing("\n", delay_factor=2)
-        if "Delete" in output and full_file_name in output and "confirm" in output:
-            output += ssh_conn.send_command_timing("y", delay_factor=2)
-            return output
-        else:
-            output += ssh_conn.send_command_timing("n", delay_factor=2)
+        output += ssh_conn.send_command("\n", expect_string=r"confirm")
+        output += ssh_conn.send_command("y", expect_string=r"#")
+        return output
 
     raise ValueError("An error happened deleting file on Cisco IOS")
 
