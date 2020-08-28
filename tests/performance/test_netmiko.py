@@ -26,12 +26,22 @@ def write_csv(device_name, netmiko_func_names):
     with open(results_file, "a") as csv_file:
         field_names = ["date", "netmiko_version", "device_name"] + netmiko_func_names
         t_stamp = generate_csv_timestamp()
-        version = __version__
         csv_write = csv.DictWriter(csv_file, fieldnames=field_names)
 
         # Write the header only once
-        if file_exists:
+        if not file_exists:
             csv_write.writeheader()
+
+        entry = {
+            "date": t_stamp,
+            "netmiko_version": __version__,
+            "device_name": device_name,
+            "connect": 0.0,
+            "send_command_simple": 0.0,
+            "send_config_simple": 0.0,
+            "send_config_large_acl": 0.0,
+        }
+        csv_write.writerow(entry)
 
 
 def f_exec_time(func):
