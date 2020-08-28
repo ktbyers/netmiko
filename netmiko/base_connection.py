@@ -1185,8 +1185,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
     def clear_buffer(self, backoff=True):
         """Read any data available in the channel."""
-        std_sleep_time = 0.02 if self.fast_cli else 0.1
-        sleep_time = std_sleep_time * self.global_delay_factor
+        sleep_time = 0.1 * self.global_delay_factor
         for _ in range(10):
             time.sleep(sleep_time)
             data = self.read_channel()
