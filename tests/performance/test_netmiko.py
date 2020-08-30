@@ -81,15 +81,25 @@ def send_command_simple(device):
 @f_exec_time
 def send_config_simple(device):
     with ConnectHandler(**device) as conn:
-        output = conn.send_config_set("logging buffered 20000")
+        cmd = "logging buffered 20000"
+        if "cisco_nxos" in device["device_type"]:
+            cmd = "logging console 4"
+        output = conn.send_config_set(cmd)
         PRINT_DEBUG and print(output)
 
 
 @f_exec_time
 def send_config_large_acl(device):
+
+    # Results will be marginally distorted by generating the ACL here.
+    device_type = device["device_type"]
+    if "cisco_ios" in device_type or "cisco_xe" in device_type:
+        func = generate_ios_acl
+    elif "cisco_nxos" in device_type:
+        func = generate_nxos_acl
+
     with ConnectHandler(**device) as conn:
-        # Results will be marginally distorted by generating the ACL here.
-        cfg = generate_ios_acl(entries=100)
+        cfg = func(entries=100)
         output = conn.send_config_set(cfg)
         PRINT_DEBUG and print(output)
 
@@ -103,12 +113,43 @@ def generate_ios_acl(entries=100):
     return acl
 
 
+def generate_nxos_acl(entries=100):
+    base_cmd = "ip access-list netmiko_test_large_acl"
+    acl = [base_cmd]
+    for i in range(1, entries + 1):
+        cmd = f"permit ip host {ip_address('192.168.0.0') + i} any"
+        acl.append(cmd)
+    return acl
+
+
+@f_exec_time
+def cleanup(device):
+
+    # Results will be marginally distorted by generating the ACL here.
+    device_type = device["device_type"]
+    if "cisco_ios" in device_type or "cisco_xe" in device_type:
+        return
+    elif "cisco_nxos" in device_type:
+        func = cleanup_nxos
+
+    func(device)
+
+
+def cleanup_nxos(device):
+    with ConnectHandler(**device) as conn:
+        cfg = "no ip access-list netmiko_test_large_acl"
+        output = conn.send_config_set(cfg)
+        PRINT_DEBUG and print(output)
+
+
 def main():
     PASSWORD = os.environ["NORNIR_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
     for dev_name, dev_dict in devices.items():
+        if dev_name != "nxos1":
+            continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
         print("-" * 12)
@@ -121,12 +162,14 @@ def main():
             "send_command_simple",
             "send_config_simple",
             "send_config_large_acl",
+            "cleanup",
         ]
         results = {}
         for op in operations:
             func = globals()[op]
             time_delta, result = func(dev_dict)
-            results[op] = time_delta
+            if op != "cleanup":
+                results[op] = time_delta
         print("-" * 80)
         print()
 
