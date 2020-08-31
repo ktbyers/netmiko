@@ -91,7 +91,6 @@ def test_send_command_no_cmd_verify(net_connect, commands, expected_responses):
     assert expected_responses["interface_ip"] in show_ip_alt
 
 
-# @pytest.mark.skip(reason="FIX: need a way to skip for high-latency devices")
 def test_cmd_verify_decorator(net_connect_cmd_verify):
     obj = net_connect_cmd_verify
     # Global False should have precedence
@@ -121,7 +120,6 @@ def test_cmd_verify_decorator(net_connect_cmd_verify):
     obj.global_cmd_verify = False
 
 
-# @pytest.mark.skip(reason="FIX: need a way to skip for high-latency devices")
 def test_send_command_global_cmd_verify(
     net_connect_cmd_verify, commands, expected_responses
 ):
@@ -131,6 +129,8 @@ def test_send_command_global_cmd_verify(
     Disable cmd_verify globally.
     """
     net_connect = net_connect_cmd_verify
+    if net_connect.fast_cli is True:
+        assert pytest.skip()
     net_connect.clear_buffer()
     # cmd_verify should be disabled globally at this point
     assert net_connect.global_cmd_verify is False

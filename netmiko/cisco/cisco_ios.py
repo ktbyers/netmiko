@@ -18,7 +18,8 @@ class CiscoIosBase(CiscoBaseConnection):
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self.set_terminal_width(command="terminal width 511", pattern="terminal")
+        cmd = "terminal width 511"
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
         self.set_base_prompt()
 

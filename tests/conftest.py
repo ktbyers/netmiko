@@ -175,6 +175,30 @@ def delete_file_nxos(ssh_conn, dest_file_system, dest_file):
     raise ValueError("An error happened deleting file on Cisco NX-OS")
 
 
+def delete_file_xr(ssh_conn, dest_file_system, dest_file):
+    """
+    Delete a remote file for a Cisco IOS-XR device:
+
+    delete disk0:/test9.txt
+    Mon Aug 31 17:56:15.008 UTC
+    Delete disk0:/test9.txt[confirm]
+    """
+    if not dest_file_system:
+        raise ValueError("Invalid file system specified")
+    if not dest_file:
+        raise ValueError("Invalid dest file specified")
+
+    full_file_name = f"{dest_file_system}/{dest_file}"
+
+    cmd = f"delete {full_file_name}"
+    output = ssh_conn.send_command(cmd, expect_string=r"Delete.*confirm")
+    if "Delete" in output and dest_file in output:
+        output += ssh_conn.send_command("\n", expect_string=r"#")
+        return output
+
+    raise ValueError("An error happened deleting file on Cisco IOS-XR")
+
+
 def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     """
     Delete a remote file for a Cisco IOS device:
@@ -182,6 +206,10 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     cisco1#del flash:/useless_file.cfg
     Delete filename [useless_file.cfg]?
     Delete flash:/useless_file.cfg? [confirm]y
+
+delete disk0:/test9.txt
+Mon Aug 31 17:56:15.008 UTC
+Delete disk0:/test9.txt[confirm]
     """
     if not dest_file_system:
         raise ValueError("Invalid file system specified")
@@ -479,8 +507,7 @@ def get_platform_args():
         "cisco_xr": {
             "file_system": "disk0:",
             "enable_scp": False,
-            # Delete pattern is the same on IOS-XR
-            "delete_file": delete_file_ios,
+            "delete_file": delete_file_xr,
         },
         "linux": {
             "file_system": "/var/tmp",
