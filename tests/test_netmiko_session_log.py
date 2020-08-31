@@ -67,11 +67,33 @@ def test_session_log(net_connect, commands, expected_responses):
 def test_session_log_write(net_connect_slog_wr, commands, expected_responses):
     """Verify session_log matches expected content, but when channel writes are also logged."""
     command = commands["basic"]
-    session_action(net_connect_slog_wr, command)
+    nc = net_connect_slog_wr
+
+    # Send a marker down the channel
+    nc.send_command("show foooooooo")
+    time.sleep(1)
+    nc.clear_buffer()
+    nc.send_command(command)
+    nc.disconnect()
 
     compare_file = expected_responses["compare_log_wr"]
     session_file = expected_responses["session_log_wr"]
-    session_log_md5(session_file, compare_file)
+
+    with open(compare_file, "rb") as f:
+        compare_contents = f.read()
+
+    # Header information varies too much due to device behavior differences.
+    # So just discard it.
+    marker = b"% Invalid input detected at '^' marker."
+    _, compare_contents = compare_contents.split(marker)
+    compare_log_md5 = calc_md5(contents=compare_contents.strip())
+
+    log_content = read_session_log(session_file)
+    marker = b"% Invalid input detected at '^' marker."
+    _, log_content = log_content.split(marker)
+
+    session_log_md5 = calc_md5(contents=log_content.strip())
+    assert session_log_md5 == compare_log_md5
 
 
 def test_session_log_append(device_slog, commands, expected_responses):

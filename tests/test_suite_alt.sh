@@ -39,7 +39,6 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device cisco881 \
 && py.test -v test_netmiko_config.py --test_device cisco881 \
 && py.test -v test_netmiko_config_acl.py --test_device cisco881 \
-&& py.test -v test_netmiko_session_log.py --test_device cisco881_slog \
 \
 && echo "Cisco IOS SSH fast_cli (including SCP)" \
 && py.test -v test_netmiko_tcl.py --test_device cisco881_fast \
@@ -127,3 +126,5 @@ exit $RETURN_CODE
 # && py.test -v test_netmiko_show.py --test_device cisco_xr_azure \
 # && py.test -v test_netmiko_config.py --test_device cisco_xr_azure \
 # && py.test -v test_netmiko_commit.py --test_device cisco_xr_azure \
+#
+# && py.test -v test_netmiko_session_log.py --test_device cisco881_slog \
