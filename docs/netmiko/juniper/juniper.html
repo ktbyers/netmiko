@@ -48,8 +48,8 @@ class JuniperBase(BaseConnection):
         self.enter_cli_mode()
         self.set_base_prompt()
         self._disable_complete_on_space()
+        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;, pattern=&#34;set&#34;)
         self.disable_paging(command=&#34;set cli screen-length 0&#34;)
-        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -490,8 +490,8 @@ Overrides several methods for Juniper-specific compatibility.</p>
         self.enter_cli_mode()
         self.set_base_prompt()
         self._disable_complete_on_space()
+        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;, pattern=&#34;set&#34;)
         self.disable_paging(command=&#34;set cli screen-length 0&#34;)
-        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -978,8 +978,8 @@ Set the base prompt for interaction ('&gt;').</p></section>
     self.enter_cli_mode()
     self.set_base_prompt()
     self._disable_complete_on_space()
+    self.set_terminal_width(command=&#34;set cli screen-width 511&#34;, pattern=&#34;set&#34;)
     self.disable_paging(command=&#34;set cli screen-length 0&#34;)
-    self.set_terminal_width(command=&#34;set cli screen-width 511&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>

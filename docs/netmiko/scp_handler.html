@@ -75,7 +75,14 @@ class SCPConn(object):
 
     def scp_get_file(self, source_file, dest_file):
         &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
-        self.scp_client.get(source_file, dest_file)
+        platform = self.ssh_ctl_chan.device_type
+        if &#34;cisco_ios&#34; in platform or &#34;cisco_xe&#34; in platform:
+            try:
+                self.scp_client.get(source_file, dest_file)
+            except EOFError:
+                pass
+        else:
+            self.scp_client.get(source_file, dest_file)
 
     def scp_put_file(self, source_file, dest_file):
         &#34;&#34;&#34;Put file using SCP.&#34;&#34;&#34;
@@ -1187,7 +1194,14 @@ the string</p>
 
     def scp_get_file(self, source_file, dest_file):
         &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
-        self.scp_client.get(source_file, dest_file)
+        platform = self.ssh_ctl_chan.device_type
+        if &#34;cisco_ios&#34; in platform or &#34;cisco_xe&#34; in platform:
+            try:
+                self.scp_client.get(source_file, dest_file)
+            except EOFError:
+                pass
+        else:
+            self.scp_client.get(source_file, dest_file)
 
     def scp_put_file(self, source_file, dest_file):
         &#34;&#34;&#34;Put file using SCP.&#34;&#34;&#34;
@@ -1240,7 +1254,14 @@ the string</p>
 <summary>Source code</summary>
 <pre><code class="python">def scp_get_file(self, source_file, dest_file):
     &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
-    self.scp_client.get(source_file, dest_file)</code></pre>
+    platform = self.ssh_ctl_chan.device_type
+    if &#34;cisco_ios&#34; in platform or &#34;cisco_xe&#34; in platform:
+        try:
+            self.scp_client.get(source_file, dest_file)
+        except EOFError:
+            pass
+    else:
+        self.scp_client.get(source_file, dest_file)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.scp_handler.SCPConn.scp_put_file"><code class="name flex">

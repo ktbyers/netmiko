@@ -35,8 +35,8 @@ class RuijieOSBase(CiscoBaseConnection):
         self.set_base_prompt()
         &#34;&#34;&#34;Ruijie OS requires enable mode to set terminal width&#34;&#34;&#34;
         self.enable()
+        self.set_terminal_width(command=&#34;terminal width 256&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging(command=&#34;terminal length 0&#34;)
-        self.set_terminal_width(command=&#34;terminal width 256&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -214,8 +214,8 @@ class RuijieOSTelnet(RuijieOSBase):
         self.set_base_prompt()
         &#34;&#34;&#34;Ruijie OS requires enable mode to set terminal width&#34;&#34;&#34;
         self.enable()
+        self.set_terminal_width(command=&#34;terminal width 256&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging(command=&#34;terminal length 0&#34;)
-        self.set_terminal_width(command=&#34;terminal width 256&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -265,8 +265,8 @@ class RuijieOSTelnet(RuijieOSBase):
     self.set_base_prompt()
     &#34;&#34;&#34;Ruijie OS requires enable mode to set terminal width&#34;&#34;&#34;
     self.enable()
+    self.set_terminal_width(command=&#34;terminal width 256&#34;, pattern=&#34;terminal&#34;)
     self.disable_paging(command=&#34;terminal length 0&#34;)
-    self.set_terminal_width(command=&#34;terminal width 256&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>

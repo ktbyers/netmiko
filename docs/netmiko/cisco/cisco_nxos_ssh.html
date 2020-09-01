@@ -35,8 +35,8 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.ansi_escape_codes = True
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -455,8 +455,8 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.ansi_escape_codes = True
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -521,8 +521,8 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
     self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
     self.ansi_escape_codes = True
     self.set_base_prompt()
+    self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
     self.disable_paging()
-    self.set_terminal_width(command=&#34;terminal width 511&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>
