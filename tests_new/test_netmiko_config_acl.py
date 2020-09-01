@@ -2,6 +2,7 @@
 import re
 import pytest
 from ipaddress import ip_address
+from network_utilities import generate_ios_acl, generate_nxos_acl
 
 
 def test_large_acl(net_connect, acl_entries=100):
@@ -34,23 +35,33 @@ def test_large_acl(net_connect, acl_entries=100):
 
     if net_connect.device_type not in platforms.keys():
         pytest.skip("Platform not supported for ACL test")
-    cmd = platforms[net_connect.device_type]["base_cmd"]
     verify_cmd = platforms[net_connect.device_type]["verify_cmd"]
     offset = platforms[net_connect.device_type]["offset"]
+
+    # Ensure ACL is removed
+    cmd = platforms[net_connect.device_type]["base_cmd"]
     net_connect.send_config_set(f"no {cmd}")
     if "cisco_xr" in net_connect.device_type:
         net_connect.commit()
         net_connect.exit_config_mode()
-    cfg_lines = [cmd]
 
-    # Generate sequence of ACL entries
-    for i in range(1, acl_entries + 1):
-        if "cisco_xr" in net_connect.device_type:
-            cmd = f"permit ipv4 host {ip_address('192.168.0.0') + i} any"
-        else:
-            cmd = f"permit ip host {ip_address('192.168.0.0') + i} any"
-        cfg_lines.append(cmd)
+    # Generate the ACL
+    if "cisco_ios" in net_connect.device_type or "cisco_xe" in net_connect.device_type:
+        cfg_lines = generate_ios_acl()
+    elif "cisco_nxos" in net_connect.device_type:
+        cfg_lines = generate_nxos_acl()
+    else:
+        # Add base ACL command
+        cfg_lines = [cmd]
+        # Generate sequence of ACL entries
+        for i in range(1, acl_entries + 1):
+            if "cisco_xr" in net_connect.device_type:
+                cmd = f"permit ipv4 host {ip_address('192.168.0.0') + i} any"
+            else:
+                cmd = f"permit ip host {ip_address('192.168.0.0') + i} any"
+            cfg_lines.append(cmd)
 
+    # Send ACL to remote devices
     result = net_connect.send_config_set(cfg_lines)
     if "cisco_xr" in net_connect.device_type:
         net_connect.commit()
