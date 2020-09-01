@@ -17,6 +17,7 @@ import time
 import re
 import random
 import string
+import pytest
 
 
 def gen_random(N=6):
@@ -120,6 +121,9 @@ def test_commit_confirm(net_connect, commands, expected_responses):
         net_connect, commands, expected_responses
     )
 
+    if net_connect.device_type in ["nokia_sros"]:
+        assert pytest.skip()
+
     # Perform commit-confirm test
     net_connect.send_config_set(config_commands)
     if net_connect.device_type == "cisco_xr":
@@ -144,6 +148,9 @@ def test_confirm_delay(net_connect, commands, expected_responses):
         net_connect, commands, expected_responses
     )
 
+    if net_connect.device_type in ["nokia_sros"]:
+        assert pytest.skip()
+
     # Perform commit-confirm test
     net_connect.send_config_set(config_commands)
     if net_connect.device_type == "cisco_xr":
@@ -167,6 +174,9 @@ def test_no_confirm(net_connect, commands, expected_responses):
     config_commands, support_commit, config_verify = setup_initial_state(
         net_connect, commands, expected_responses
     )
+
+    if net_connect.device_type in ["nokia_sros"]:
+        assert pytest.skip()
 
     # Perform commit-confirm test
     net_connect.send_config_set(config_commands)
@@ -209,7 +219,7 @@ def test_clear_msg(net_connect, commands, expected_responses):
             "commit", expect_string=r"Do you wish to"
         )
         output += net_connect.send_command_expect("yes", auto_find_prompt=False)
-    assert True is True
+    assert True
 
 
 def test_commit_check(net_connect, commands, expected_responses):
@@ -217,8 +227,8 @@ def test_commit_check(net_connect, commands, expected_responses):
     Test commit check
     """
     # IOS-XR does not support commit check
-    if net_connect.device_type == "cisco_xr":
-        assert True is True
+    if net_connect.device_type in ["cisco_xr", "nokia_sros"]:
+        assert pytest.skip()
     else:
 
         # Setup the initial config state
@@ -248,6 +258,9 @@ def test_commit_comment(net_connect, commands, expected_responses):
         net_connect, commands, expected_responses
     )
 
+    if net_connect.device_type in ["nokia_sros"]:
+        assert pytest.skip()
+
     # Perform commit with comment
     net_connect.send_config_set(config_commands)
     net_connect.commit(comment="Unit test on commit with comment")
@@ -273,8 +286,8 @@ def test_commit_andquit(net_connect, commands, expected_responses):
     """
 
     # IOS-XR does not support commit and quit
-    if net_connect.device_type == "cisco_xr":
-        assert True is True
+    if net_connect.device_type in ["cisco_xr", "nokia_sros"]:
+        assert pytest.skip()
     else:
 
         # Setup the initial config state
@@ -324,7 +337,7 @@ def test_commit_label_comment(net_connect, commands, expected_responses):
     """
     # IOS-XR only test
     if net_connect.device_type != "cisco_xr":
-        assert True is True
+        assert pytest.skip()
     else:
         # Setup the initial config state
         config_commands, support_commit, config_verify = setup_initial_state(
@@ -357,7 +370,7 @@ def test_commit_label_confirm(net_connect, commands, expected_responses):
     """
     # IOS-XR only test
     if net_connect.device_type != "cisco_xr":
-        assert True is True
+        assert pytest.skip()
     else:
         # Setup the initial config state
         config_commands, support_commit, config_verify = setup_initial_state(

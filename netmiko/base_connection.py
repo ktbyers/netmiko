@@ -31,6 +31,7 @@ from netmiko.utilities import (
     get_structured_data_genie,
     select_cmd_verify,
 )
+from netmiko.utilities import m_exec_time  # noqa
 
 
 class BaseConnection(object):
@@ -78,6 +79,7 @@ class BaseConnection(object):
         response_return=None,
         serial_settings=None,
         fast_cli=False,
+        _legacy_mode=True,
         session_log=None,
         session_log_record_writes=False,
         session_log_file_mode="write",
@@ -297,6 +299,7 @@ class BaseConnection(object):
             self.serial_settings.update({"port": comm_port})
 
         self.fast_cli = fast_cli
+        self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
         self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
@@ -790,8 +793,8 @@ class BaseConnection(object):
         """
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
+        self.disable_paging()
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -935,11 +938,29 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
                 msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
+            except paramiko.ssh_exception.SSHException as no_session_err:
+                self.paramiko_cleanup()
+                if "No existing session" in str(no_session_err):
+                    msg = (
+                        "Paramiko: 'No existing session' error: "
+                        "try increasing 'conn_timeout' to 10 seconds or larger."
+                    )
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    raise
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
-                msg = "Authentication failure: unable to connect {device_type} {ip}:{port}".format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f"""Authentication to device failed.
+
+Common causes of this problem are:
+1. Invalid username and password
+2. Incorrect SSH-key file
+3. Connecting to the wrong device
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+"""
+
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
 
@@ -1038,7 +1059,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
         pass
 
-    def disable_paging(self, command="terminal length 0", delay_factor=1):
+    def disable_paging(
+        self, command="terminal length 0", delay_factor=1, cmd_verify=True, pattern=None
+    ):
         """Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
@@ -1048,19 +1071,24 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :type delay_factor: int
         """
         delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
         command = self.normalize_cmd(command)
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
         self.write_channel(command)
-        # Do not use command_verify here as still in session_preparation stage.
-        output = self.read_until_prompt()
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        if cmd_verify and self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
+        else:
+            output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
         return output
 
-    def set_terminal_width(self, command="", delay_factor=1):
+    def set_terminal_width(
+        self, command="", delay_factor=1, cmd_verify=False, pattern=None
+    ):
         """CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
@@ -1077,8 +1105,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Do not use command_verify here as still in session_preparation stage.
-        output = self.read_until_prompt()
+        # Avoid cmd_verify here as terminal width must be set before doing cmd_verify
+        if cmd_verify and self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
+        else:
+            output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -1123,11 +1156,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         time.sleep(sleep_time)
 
         # Initial attempt to get prompt
-        prompt = self.read_channel()
+        prompt = self.read_channel().strip()
 
         # Check if the only thing you received was a newline
         count = 0
-        prompt = prompt.strip()
         while count <= 12 and not prompt:
             prompt = self.read_channel().strip()
             if not prompt:
@@ -1759,7 +1791,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
             output += self.config_mode(*cfg_mode_args)
 
-        if self.fast_cli:
+        if self.fast_cli and self._legacy_mode:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output

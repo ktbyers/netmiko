@@ -10,6 +10,12 @@ from netmiko.base_connection import BaseConnection
 class CiscoWlcSSH(BaseConnection):
     """Netmiko Cisco WLC support."""
 
+    def __init__(self, *args, **kwargs):
+        # WLC/AireOS has an issue where you can get "No Existing Session" with
+        # the default conn_timeout (so increase conn_timeout to 10-seconds).
+        kwargs.setdefault("conn_timeout", 10)
+        return super().__init__(*args, **kwargs)
+
     def special_login_handler(self, delay_factor=1):
         """WLC presents with the following on login (in certain OS versions)
 

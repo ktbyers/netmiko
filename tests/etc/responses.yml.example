@@ -276,6 +276,13 @@ sophos_sfos:
   version_banner: "Serial Number"
   multiple_line_output: ""
 
+adtran_os:
+  base_prompt: "adtrantest"
+  router_prompt: "adtrantest>"
+  enable_prompt: "adtrantest#"
+  interface_ip: 192.0.2.1
+  version_banner: "Serial number"
+
 huawei_smartax:
   base_prompt: "ol01.test-lab.xyz"
   router_prompt: "ol01.test-lab.xyz>"

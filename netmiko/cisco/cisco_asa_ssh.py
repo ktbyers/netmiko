@@ -12,11 +12,12 @@ class CiscoAsaSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
+
         if self.secret:
             self.enable()
         else:
             self.asa_login()
-        self.disable_paging(command="terminal pager 0")
+
         if self.allow_auto_change:
             try:
                 self.send_config_set("terminal width 511")
@@ -26,6 +27,8 @@ class CiscoAsaSSH(CiscoSSHConnection):
         else:
             # Disable cmd_verify if the terminal width can't be set
             self.global_cmd_verify = False
+
+        self.disable_paging(command="terminal pager 0")
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)

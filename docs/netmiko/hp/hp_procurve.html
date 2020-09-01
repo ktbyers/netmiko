@@ -50,8 +50,8 @@ class HPProcurveBase(CiscoSSHConnection):
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         command = self.RETURN + &#34;no page&#34;
+        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging(command=command)
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -371,8 +371,8 @@ class HPProcurveTelnet(HPProcurveBase):
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         command = self.RETURN + &#34;no page&#34;
+        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging(command=command)
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -564,8 +564,8 @@ class HPProcurveTelnet(HPProcurveBase):
     self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
     self.set_base_prompt()
     command = self.RETURN + &#34;no page&#34;
+    self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
     self.disable_paging(command=command)
-    self.set_terminal_width(command=&#34;terminal width 511&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>

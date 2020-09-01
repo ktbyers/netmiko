@@ -37,11 +37,12 @@ class CiscoAsaSSH(CiscoSSHConnection):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
+
         if self.secret:
             self.enable()
         else:
             self.asa_login()
-        self.disable_paging(command=&#34;terminal pager 0&#34;)
+
         if self.allow_auto_change:
             try:
                 self.send_config_set(&#34;terminal width 511&#34;)
@@ -51,6 +52,8 @@ class CiscoAsaSSH(CiscoSSHConnection):
         else:
             # Disable cmd_verify if the terminal width can&#39;t be set
             self.global_cmd_verify = False
+
+        self.disable_paging(command=&#34;terminal pager 0&#34;)
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -352,11 +355,12 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
+
         if self.secret:
             self.enable()
         else:
             self.asa_login()
-        self.disable_paging(command=&#34;terminal pager 0&#34;)
+
         if self.allow_auto_change:
             try:
                 self.send_config_set(&#34;terminal width 511&#34;)
@@ -366,6 +370,8 @@ class CiscoAsaFileTransfer(CiscoFileTransfer):
         else:
             # Disable cmd_verify if the terminal width can&#39;t be set
             self.global_cmd_verify = False
+
+        self.disable_paging(command=&#34;terminal pager 0&#34;)
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -605,11 +611,12 @@ updated after each context change.</p></section>
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
+
     if self.secret:
         self.enable()
     else:
         self.asa_login()
-    self.disable_paging(command=&#34;terminal pager 0&#34;)
+
     if self.allow_auto_change:
         try:
             self.send_config_set(&#34;terminal width 511&#34;)
@@ -619,6 +626,8 @@ updated after each context change.</p></section>
     else:
         # Disable cmd_verify if the terminal width can&#39;t be set
         self.global_cmd_verify = False
+
+    self.disable_paging(command=&#34;terminal pager 0&#34;)
 
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)

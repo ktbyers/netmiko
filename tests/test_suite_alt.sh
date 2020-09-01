@@ -11,9 +11,16 @@ echo "Starting tests...good luck:" \
 && py.test -x -s -v test_netmiko_show.py --test_device juniper_vmx \
 && py.test -x -s -v test_netmiko_config.py --test_device juniper_vmx \
 \
-&& echo "Nokia SR-OS" \
-&& py.test -x -s -v test_netmiko_show.py --test_device sros1 \
-&& py.test -x -s -v test_netmiko_config.py --test_device sros1 \
+&& echo "Nokia SR-OS CLI" \
+&& py.test -x -s -v test_netmiko_show.py --test_device sros2 \
+&& py.test -x -s -v test_netmiko_config.py --test_device sros2 \
+&& py.test -x -s -v test_netmiko_scp.py --test_device sros2 \
+\
+&& echo "SR-OS MD" \
+&& py.test -x -s -v test_netmiko_show.py --test_device sros1_md \
+&& py.test -x -s -v test_netmiko_config.py --test_device sros1_md \
+&& py.test -x -s -v test_netmiko_scp.py --test_device sros1_md \
+&& py.test -x -s -v test_netmiko_commit.py --test_device sros1_md \
 \
 && echo "Cisco IOS-XE SSH (including SCP)" \
 && py.test -v test_netmiko_scp.py --test_device cisco3 \
@@ -32,7 +39,6 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device cisco881 \
 && py.test -v test_netmiko_config.py --test_device cisco881 \
 && py.test -v test_netmiko_config_acl.py --test_device cisco881 \
-&& py.test -v test_netmiko_session_log.py --test_device cisco881_slog \
 \
 && echo "Cisco IOS SSH fast_cli (including SCP)" \
 && py.test -v test_netmiko_tcl.py --test_device cisco881_fast \
@@ -65,10 +71,10 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config_acl.py --test_device arista_sw \
 \
 && echo "Juniper" \
-&& py.test -v test_netmiko_scp.py --test_device juniper_srx \
-&& py.test -v test_netmiko_show.py --test_device juniper_srx \
-&& py.test -v test_netmiko_config.py --test_device juniper_srx \
-&& py.test -v test_netmiko_commit.py --test_device juniper_srx \
+&& py.test -x -v test_netmiko_scp.py --test_device juniper_srx \
+&& py.test -x -v test_netmiko_show.py --test_device juniper_srx \
+&& py.test -x -v test_netmiko_config.py --test_device juniper_srx \
+&& py.test -x -v test_netmiko_commit.py --test_device juniper_srx \
 \
 && echo "Cisco ASA" \
 && py.test -v test_netmiko_show.py --test_device cisco_asa \
@@ -81,11 +87,6 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_show.py --test_device cisco_xrv \
 && py.test -v test_netmiko_config.py --test_device cisco_xrv \
 && py.test -v test_netmiko_commit.py --test_device cisco_xrv \
-\
-&& echo "Cisco IOS-XR (Azure)" \
-&& py.test -v test_netmiko_show.py --test_device cisco_xr_azure \
-&& py.test -v test_netmiko_config.py --test_device cisco_xr_azure \
-&& py.test -v test_netmiko_commit.py --test_device cisco_xr_azure \
 \
 && echo "Cisco NXOS" \
 && py.test -v test_netmiko_scp.py --test_device nxos1 \
@@ -120,3 +121,10 @@ exit $RETURN_CODE
 # && py.test -v test_netmiko_scp.py --test_device cisco881_key \
 # && py.test -v test_netmiko_scp.py --test_device cisco881 \
 # && py.test -v test_netmiko_scp.py --test_device cisco881_fast \
+#
+# && echo "Cisco IOS-XR (Azure)" \
+# && py.test -v test_netmiko_show.py --test_device cisco_xr_azure \
+# && py.test -v test_netmiko_config.py --test_device cisco_xr_azure \
+# && py.test -v test_netmiko_commit.py --test_device cisco_xr_azure \
+#
+# && py.test -v test_netmiko_session_log.py --test_device cisco881_slog \

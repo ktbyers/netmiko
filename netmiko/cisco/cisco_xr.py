@@ -4,12 +4,16 @@ from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 
 class CiscoXrBase(CiscoBaseConnection):
+    def establish_connection(self):
+        """Establish SSH connection to the network device"""
+        super().establish_connection(width=511, height=511)
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
+        self.set_terminal_width(command="terminal width 511", pattern="terminal")
         self.disable_paging()
-        self.set_terminal_width(command="terminal width 511")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -63,12 +67,6 @@ class CiscoXrBase(CiscoBaseConnection):
             raise ValueError("Invalid arguments supplied to XR commit")
         if comment and confirm:
             raise ValueError("Invalid arguments supplied to XR commit")
-
-        # wrap the comment in quotes
-        if comment:
-            if '"' in comment:
-                raise ValueError("Invalid comment contains double quote")
-            comment = f'"{comment}"'
 
         label = str(label)
         error_marker = "Failed to"

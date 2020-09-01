@@ -16,6 +16,7 @@
 ###### Limited testing
 
 - 6Wind
+- Adtran OS
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
 - Broadcom ICOS
@@ -40,6 +41,7 @@
 - MikroTik RouterOS
 - MikroTik SwitchOS
 - NetApp cDOT
+- Netgear ProSafe
 - Nokia/Alcatel SR OS
 - OneAccess
 - Palo Alto PAN-OS

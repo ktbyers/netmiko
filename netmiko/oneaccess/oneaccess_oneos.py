@@ -14,8 +14,8 @@ class OneaccessOneOSBase(CiscoBaseConnection):
         """Prepare connection - disable paging"""
         self._test_channel_read()
         self.set_base_prompt()
+        self.set_terminal_width(command="stty columns 255", pattern="stty")
         self.disable_paging(command="term len 0")
-        self.set_terminal_width(command="stty columns 255")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()

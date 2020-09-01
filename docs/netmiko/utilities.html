@@ -30,7 +30,7 @@ import io
 import os
 from pathlib import Path
 import functools
-import serial.tools.list_ports
+from datetime import datetime
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 
@@ -42,6 +42,14 @@ try:
     GENIE_INSTALLED = True
 except ImportError:
     GENIE_INSTALLED = False
+
+try:
+    import serial.tools.list_ports
+
+    PYSERIAL_INSTALLED = True
+except ImportError:
+    PYSERIAL_INSTALLED = False
+
 
 # Dictionary mapping &#39;show run&#39; for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -221,6 +229,14 @@ def write_bytes(out_data, encoding=&#34;ascii&#34;):
 
 def check_serial_port(name):
     &#34;&#34;&#34;returns valid COM Port.&#34;&#34;&#34;
+
+    if not PYSERIAL_INSTALLED:
+        msg = (
+            &#34;\npyserial is not installed. Please PIP install pyserial:\n\n&#34;
+            &#34;pip install pyserial\n\n&#34;
+        )
+        raise ValueError(msg)
+
     try:
         cdc = next(serial.tools.list_ports.grep(name))
         return cdc[0]
@@ -371,6 +387,31 @@ def select_cmd_verify(func):
             kwargs[&#34;cmd_verify&#34;] = self.global_cmd_verify
         return func(self, *args, **kwargs)
 
+    return wrapper_decorator
+
+
+def m_exec_time(func):
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args, **kwargs):
+        start_time = datetime.now()
+        result = func(self, *args, **kwargs)
+        end_time = datetime.now()
+        method_name = str(func)
+        print(f&#34;{method_name}: Elapsed time: {end_time - start_time}&#34;)
+        return result
+
+    return wrapper_decorator
+
+
+def f_exec_time(func):
+    @functools.wraps(func)
+    def wrapper_decorator(*args, **kwargs):
+        start_time = datetime.now()
+        result = func(*args, **kwargs)
+        end_time = datetime.now()
+        print(f&#34;Elapsed time: {end_time - start_time}&#34;)
+        return result
+
     return wrapper_decorator</code></pre>
 </details>
 </section>
@@ -390,6 +431,14 @@ def select_cmd_verify(func):
 <summary>Source code</summary>
 <pre><code class="python">def check_serial_port(name):
     &#34;&#34;&#34;returns valid COM Port.&#34;&#34;&#34;
+
+    if not PYSERIAL_INSTALLED:
+        msg = (
+            &#34;\npyserial is not installed. Please PIP install pyserial:\n\n&#34;
+            &#34;pip install pyserial\n\n&#34;
+        )
+        raise ValueError(msg)
+
     try:
         cdc = next(serial.tools.list_ports.grep(name))
         return cdc[0]
@@ -468,6 +517,25 @@ def select_cmd_verify(func):
         if not os.path.isdir(verify_dir):
             # Not a dir, raise an exception
             raise ValueError(f&#34;{verify_dir} is not a directory&#34;)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.f_exec_time"><code class="name flex">
+<span>def <span class="ident">f_exec_time</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def f_exec_time(func):
+    @functools.wraps(func)
+    def wrapper_decorator(*args, **kwargs):
+        start_time = datetime.now()
+        result = func(*args, **kwargs)
+        end_time = datetime.now()
+        print(f&#34;Elapsed time: {end_time - start_time}&#34;)
+        return result
+
+    return wrapper_decorator</code></pre>
 </details>
 </dd>
 <dt id="netmiko.utilities.find_cfg_file"><code class="name flex">
@@ -689,6 +757,26 @@ directory.&#34;&#34;&#34;
         sys.exit(f&#34;Unable to open YAML file: {yaml_file}&#34;)</code></pre>
 </details>
 </dd>
+<dt id="netmiko.utilities.m_exec_time"><code class="name flex">
+<span>def <span class="ident">m_exec_time</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def m_exec_time(func):
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args, **kwargs):
+        start_time = datetime.now()
+        result = func(self, *args, **kwargs)
+        end_time = datetime.now()
+        method_name = str(func)
+        print(f&#34;{method_name}: Elapsed time: {end_time - start_time}&#34;)
+        return result
+
+    return wrapper_decorator</code></pre>
+</details>
+</dd>
 <dt id="netmiko.utilities.obtain_all_devices"><code class="name flex">
 <span>def <span class="ident">obtain_all_devices</span></span>(<span>my_devices)</span>
 </code></dt>
@@ -797,6 +885,7 @@ directory.&#34;&#34;&#34;
 <li><code><a title="netmiko.utilities.clitable_to_dict" href="#netmiko.utilities.clitable_to_dict">clitable_to_dict</a></code></li>
 <li><code><a title="netmiko.utilities.display_inventory" href="#netmiko.utilities.display_inventory">display_inventory</a></code></li>
 <li><code><a title="netmiko.utilities.ensure_dir_exists" href="#netmiko.utilities.ensure_dir_exists">ensure_dir_exists</a></code></li>
+<li><code><a title="netmiko.utilities.f_exec_time" href="#netmiko.utilities.f_exec_time">f_exec_time</a></code></li>
 <li><code><a title="netmiko.utilities.find_cfg_file" href="#netmiko.utilities.find_cfg_file">find_cfg_file</a></code></li>
 <li><code><a title="netmiko.utilities.find_netmiko_dir" href="#netmiko.utilities.find_netmiko_dir">find_netmiko_dir</a></code></li>
 <li><code><a title="netmiko.utilities.get_structured_data" href="#netmiko.utilities.get_structured_data">get_structured_data</a></code></li>
@@ -804,6 +893,7 @@ directory.&#34;&#34;&#34;
 <li><code><a title="netmiko.utilities.get_template_dir" href="#netmiko.utilities.get_template_dir">get_template_dir</a></code></li>
 <li><code><a title="netmiko.utilities.load_devices" href="#netmiko.utilities.load_devices">load_devices</a></code></li>
 <li><code><a title="netmiko.utilities.load_yaml_file" href="#netmiko.utilities.load_yaml_file">load_yaml_file</a></code></li>
+<li><code><a title="netmiko.utilities.m_exec_time" href="#netmiko.utilities.m_exec_time">m_exec_time</a></code></li>
 <li><code><a title="netmiko.utilities.obtain_all_devices" href="#netmiko.utilities.obtain_all_devices">obtain_all_devices</a></code></li>
 <li><code><a title="netmiko.utilities.obtain_netmiko_filename" href="#netmiko.utilities.obtain_netmiko_filename">obtain_netmiko_filename</a></code></li>
 <li><code><a title="netmiko.utilities.select_cmd_verify" href="#netmiko.utilities.select_cmd_verify">select_cmd_verify</a></code></li>

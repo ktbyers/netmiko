@@ -47,7 +47,7 @@ from netmiko.scp_functions import file_transfer, progress_bar
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = &#34;3.2.0&#34;
+__version__ = &#34;3.3.0&#34;
 __all__ = (
     &#34;ConnectHandler&#34;,
     &#34;ssh_dispatcher&#34;,
@@ -79,6 +79,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <section class="desc"></section>
 </dd>
 <dt><code class="name"><a title="netmiko.accedian" href="accedian/index.html">netmiko.accedian</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="netmiko.adtran" href="adtran/index.html">netmiko.adtran</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -215,6 +219,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <section class="desc"></section>
 </dd>
 <dt><code class="name"><a title="netmiko.netapp" href="netapp/index.html">netmiko.netapp</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="netmiko.netgear" href="netgear/index.html">netmiko.netgear</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -763,6 +771,7 @@ with terminal server.</p></section>
         response_return=None,
         serial_settings=None,
         fast_cli=False,
+        _legacy_mode=True,
         session_log=None,
         session_log_record_writes=False,
         session_log_file_mode=&#34;write&#34;,
@@ -982,6 +991,7 @@ with terminal server.</p></section>
             self.serial_settings.update({&#34;port&#34;: comm_port})
 
         self.fast_cli = fast_cli
+        self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
         self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
@@ -1475,8 +1485,8 @@ with terminal server.</p></section>
         &#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
+        self.disable_paging()
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -1620,11 +1630,29 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
                 msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
+            except paramiko.ssh_exception.SSHException as no_session_err:
+                self.paramiko_cleanup()
+                if &#34;No existing session&#34; in str(no_session_err):
+                    msg = (
+                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
+                        &#34;try increasing &#39;conn_timeout&#39; to 10 seconds or larger.&#34;
+                    )
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    raise
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
-                msg = &#34;Authentication failure: unable to connect {device_type} {ip}:{port}&#34;.format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f&#34;&#34;&#34;Authentication to device failed.
+
+Common causes of this problem are:
+1. Invalid username and password
+2. Incorrect SSH-key file
+3. Connecting to the wrong device
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
 
@@ -1723,7 +1751,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         &#34;&#34;&#34;Handler for devices like WLC, Extreme ERS that throw up characters prior to login.&#34;&#34;&#34;
         pass
 
-    def disable_paging(self, command=&#34;terminal length 0&#34;, delay_factor=1):
+    def disable_paging(
+        self, command=&#34;terminal length 0&#34;, delay_factor=1, cmd_verify=True, pattern=None
+    ):
         &#34;&#34;&#34;Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
@@ -1733,19 +1763,24 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :type delay_factor: int
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
         command = self.normalize_cmd(command)
         log.debug(&#34;In disable_paging&#34;)
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
-        # Do not use command_verify here as still in session_preparation stage.
-        output = self.read_until_prompt()
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        if cmd_verify and self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
+        else:
+            output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
 
-    def set_terminal_width(self, command=&#34;&#34;, delay_factor=1):
+    def set_terminal_width(
+        self, command=&#34;&#34;, delay_factor=1, cmd_verify=False, pattern=None
+    ):
         &#34;&#34;&#34;CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
@@ -1762,8 +1797,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Do not use command_verify here as still in session_preparation stage.
-        output = self.read_until_prompt()
+        # Avoid cmd_verify here as terminal width must be set before doing cmd_verify
+        if cmd_verify and self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
+        else:
+            output = self.read_until_prompt()
         return output
 
     def set_base_prompt(
@@ -1808,11 +1848,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         time.sleep(sleep_time)
 
         # Initial attempt to get prompt
-        prompt = self.read_channel()
+        prompt = self.read_channel().strip()
 
         # Check if the only thing you received was a newline
         count = 0
-        prompt = prompt.strip()
         while count &lt;= 12 and not prompt:
             prompt = self.read_channel().strip()
             if not prompt:
@@ -2444,7 +2483,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
             output += self.config_mode(*cfg_mode_args)
 
-        if self.fast_cli:
+        if self.fast_cli and self._legacy_mode:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
@@ -2820,7 +2859,7 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.disable_paging"><code class="name flex">
-<span>def <span class="ident">disable_paging</span></span>(<span>self, command='terminal length 0', delay_factor=1)</span>
+<span>def <span class="ident">disable_paging</span></span>(<span>self, command='terminal length 0', delay_factor=1, cmd_verify=True, pattern=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Disable paging default to a Cisco CLI method.</p>
@@ -2830,7 +2869,9 @@ def strip_backspaces(output):
 :type delay_factor: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def disable_paging(self, command=&#34;terminal length 0&#34;, delay_factor=1):
+<pre><code class="python">def disable_paging(
+    self, command=&#34;terminal length 0&#34;, delay_factor=1, cmd_verify=True, pattern=None
+):
     &#34;&#34;&#34;Disable paging default to a Cisco CLI method.
 
     :param command: Device command to disable pagination of output
@@ -2840,14 +2881,17 @@ def strip_backspaces(output):
     :type delay_factor: int
     &#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
-    time.sleep(delay_factor * 0.1)
-    self.clear_buffer()
     command = self.normalize_cmd(command)
     log.debug(&#34;In disable_paging&#34;)
     log.debug(f&#34;Command: {command}&#34;)
     self.write_channel(command)
-    # Do not use command_verify here as still in session_preparation stage.
-    output = self.read_until_prompt()
+    # Make sure you read until you detect the command echo (avoid getting out of sync)
+    if cmd_verify and self.global_cmd_verify is not False:
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    elif pattern:
+        output = self.read_until_pattern(pattern=pattern)
+    else:
+        output = self.read_until_prompt()
     log.debug(f&#34;{output}&#34;)
     log.debug(&#34;Exiting disable_paging&#34;)
     return output</code></pre>
@@ -2986,11 +3030,29 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
                 msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
+            except paramiko.ssh_exception.SSHException as no_session_err:
+                self.paramiko_cleanup()
+                if &#34;No existing session&#34; in str(no_session_err):
+                    msg = (
+                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
+                        &#34;try increasing &#39;conn_timeout&#39; to 10 seconds or larger.&#34;
+                    )
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    raise
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
-                msg = &#34;Authentication failure: unable to connect {device_type} {ip}:{port}&#34;.format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f&#34;&#34;&#34;Authentication to device failed.
+
+Common causes of this problem are:
+1. Invalid username and password
+2. Incorrect SSH-key file
+3. Connecting to the wrong device
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
 
@@ -3093,11 +3155,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
     time.sleep(sleep_time)
 
     # Initial attempt to get prompt
-    prompt = self.read_channel()
+    prompt = self.read_channel().strip()
 
     # Check if the only thing you received was a newline
     count = 0
-    prompt = prompt.strip()
     while count &lt;= 12 and not prompt:
         prompt = self.read_channel().strip()
         if not prompt:
@@ -3853,7 +3914,7 @@ The commands will be executed one after the other.</p>
         cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
         output += self.config_mode(*cfg_mode_args)
 
-    if self.fast_cli:
+    if self.fast_cli and self._legacy_mode:
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
         # Gather output
@@ -3949,8 +4010,8 @@ self.clear_buffer()</p></section>
     &#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
-    self.disable_paging()
     self.set_terminal_width()
+    self.disable_paging()
 
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
@@ -4006,7 +4067,7 @@ entering/exiting config mode.</p>
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.set_terminal_width"><code class="name flex">
-<span>def <span class="ident">set_terminal_width</span></span>(<span>self, command='', delay_factor=1)</span>
+<span>def <span class="ident">set_terminal_width</span></span>(<span>self, command='', delay_factor=1, cmd_verify=False, pattern=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>CLI terminals try to automatically adjust the line based on the width of the terminal.
@@ -4018,7 +4079,9 @@ This causes the output to get distorted when accessed programmatically.</p>
 :type delay_factor: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def set_terminal_width(self, command=&#34;&#34;, delay_factor=1):
+<pre><code class="python">def set_terminal_width(
+    self, command=&#34;&#34;, delay_factor=1, cmd_verify=False, pattern=None
+):
     &#34;&#34;&#34;CLI terminals try to automatically adjust the line based on the width of the terminal.
     This causes the output to get distorted when accessed programmatically.
 
@@ -4035,8 +4098,13 @@ This causes the output to get distorted when accessed programmatically.</p>
     delay_factor = self.select_delay_factor(delay_factor)
     command = self.normalize_cmd(command)
     self.write_channel(command)
-    # Do not use command_verify here as still in session_preparation stage.
-    output = self.read_until_prompt()
+    # Avoid cmd_verify here as terminal width must be set before doing cmd_verify
+    if cmd_verify and self.global_cmd_verify is not False:
+        output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    elif pattern:
+        output = self.read_until_pattern(pattern=pattern)
+    else:
+        output = self.read_until_prompt()
     return output</code></pre>
 </details>
 </dd>
@@ -4760,7 +4828,14 @@ Move cursor position leftward by x characters (1 in this case)</p>
 
     def scp_get_file(self, source_file, dest_file):
         &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
-        self.scp_client.get(source_file, dest_file)
+        platform = self.ssh_ctl_chan.device_type
+        if &#34;cisco_ios&#34; in platform or &#34;cisco_xe&#34; in platform:
+            try:
+                self.scp_client.get(source_file, dest_file)
+            except EOFError:
+                pass
+        else:
+            self.scp_client.get(source_file, dest_file)
 
     def scp_put_file(self, source_file, dest_file):
         &#34;&#34;&#34;Put file using SCP.&#34;&#34;&#34;
@@ -4813,7 +4888,14 @@ Move cursor position leftward by x characters (1 in this case)</p>
 <summary>Source code</summary>
 <pre><code class="python">def scp_get_file(self, source_file, dest_file):
     &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
-    self.scp_client.get(source_file, dest_file)</code></pre>
+    platform = self.ssh_ctl_chan.device_type
+    if &#34;cisco_ios&#34; in platform or &#34;cisco_xe&#34; in platform:
+        try:
+            self.scp_client.get(source_file, dest_file)
+        except EOFError:
+            pass
+    else:
+        self.scp_client.get(source_file, dest_file)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.SCPConn.scp_put_file"><code class="name flex">
@@ -5134,6 +5216,7 @@ Try to determine the device type.</p>
 <ul>
 <li><code><a title="netmiko.a10" href="a10/index.html">netmiko.a10</a></code></li>
 <li><code><a title="netmiko.accedian" href="accedian/index.html">netmiko.accedian</a></code></li>
+<li><code><a title="netmiko.adtran" href="adtran/index.html">netmiko.adtran</a></code></li>
 <li><code><a title="netmiko.alcatel" href="alcatel/index.html">netmiko.alcatel</a></code></li>
 <li><code><a title="netmiko.apresia" href="apresia/index.html">netmiko.apresia</a></code></li>
 <li><code><a title="netmiko.arista" href="arista/index.html">netmiko.arista</a></code></li>
@@ -5168,6 +5251,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.mikrotik" href="mikrotik/index.html">netmiko.mikrotik</a></code></li>
 <li><code><a title="netmiko.mrv" href="mrv/index.html">netmiko.mrv</a></code></li>
 <li><code><a title="netmiko.netapp" href="netapp/index.html">netmiko.netapp</a></code></li>
+<li><code><a title="netmiko.netgear" href="netgear/index.html">netmiko.netgear</a></code></li>
 <li><code><a title="netmiko.netmiko_globals" href="netmiko_globals.html">netmiko.netmiko_globals</a></code></li>
 <li><code><a title="netmiko.nokia" href="nokia/index.html">netmiko.nokia</a></code></li>
 <li><code><a title="netmiko.oneaccess" href="oneaccess/index.html">netmiko.oneaccess</a></code></li>

@@ -1,6 +1,7 @@
 """Controls selection of proper class based on the device type."""
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
+from netmiko.adtran import AdtranOSSSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
@@ -65,6 +66,7 @@ from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
 from netmiko.nokia import NokiaSrosSSH, NokiaSrosFileTransfer
+from netmiko.netgear import NetgearProSafeSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
@@ -98,6 +100,7 @@ GenericTelnet = TerminalServerTelnet
 CLASS_MAPPER_BASE = {
     "a10": A10SSH,
     "accedian": AccedianSSH,
+    "adtran_os": AdtranOSSSH,
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "apresia_aeos": ApresiaAeosSSH,
@@ -173,6 +176,7 @@ CLASS_MAPPER_BASE = {
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "netapp_cdot": NetAppcDotSSH,
+    "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
     "nokia_sros": NokiaSrosSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,

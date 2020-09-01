@@ -33,12 +33,12 @@ class F5TmshSSH(BaseConnection):
         self.set_base_prompt()
         self.tmsh_mode()
         self.set_base_prompt()
+        cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
+        self.set_terminal_width(command=cmd, pattern=&#34;run&#34;)
         self.disable_paging(
             command=&#34;modify cli preference pager disabled display-threshold 0&#34;
         )
         self.clear_buffer()
-        cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
-        self.set_terminal_width(command=cmd)
 
     def tmsh_mode(self, delay_factor=1):
         &#34;&#34;&#34;tmsh command is equivalent to config command on F5.&#34;&#34;&#34;
@@ -206,12 +206,12 @@ class F5TmshSSH(BaseConnection):
         self.set_base_prompt()
         self.tmsh_mode()
         self.set_base_prompt()
+        cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
+        self.set_terminal_width(command=cmd, pattern=&#34;run&#34;)
         self.disable_paging(
             command=&#34;modify cli preference pager disabled display-threshold 0&#34;
         )
         self.clear_buffer()
-        cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
-        self.set_terminal_width(command=cmd)
 
     def tmsh_mode(self, delay_factor=1):
         &#34;&#34;&#34;tmsh command is equivalent to config command on F5.&#34;&#34;&#34;
@@ -242,12 +242,12 @@ class F5TmshSSH(BaseConnection):
     self.set_base_prompt()
     self.tmsh_mode()
     self.set_base_prompt()
+    cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
+    self.set_terminal_width(command=cmd, pattern=&#34;run&#34;)
     self.disable_paging(
         command=&#34;modify cli preference pager disabled display-threshold 0&#34;
     )
-    self.clear_buffer()
-    cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
-    self.set_terminal_width(command=cmd)</code></pre>
+    self.clear_buffer()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.f5.f5_tmsh_ssh.F5TmshSSH.tmsh_mode"><code class="name flex">
