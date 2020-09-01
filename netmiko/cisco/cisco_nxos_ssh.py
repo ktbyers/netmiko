@@ -1,12 +1,10 @@
 import re
-import time
 import os
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
-
     def __init__(self, *args, **kwargs):
         # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
         kwargs.setdefault("fast_cli", True)
@@ -18,7 +16,9 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.ansi_escape_codes = True
         # NX-OS has an issue where it echoes the command even though it hasn't returned the prompt
         self._test_channel_read(pattern=r"[>#]")
-        self.set_terminal_width(command="terminal width 511", pattern=r"terminal width 511")
+        self.set_terminal_width(
+            command="terminal width 511", pattern=r"terminal width 511"
+        )
         self.disable_paging()
         self.set_base_prompt()
 
