@@ -1,14 +1,11 @@
 from netmiko import ConnectHandler, __version__
 import os
-from ipaddress import ip_address
 import yaml
 import functools
 from datetime import datetime
 import csv
 
-# import logging
-# logging.basicConfig(filename="test.log", level=logging.DEBUG)
-# logger = logging.getLogger("netmiko")
+from network_utilities import generate_ios_acl, generate_nxos_acl
 
 PRINT_DEBUG = False
 
@@ -102,24 +99,6 @@ def send_config_large_acl(device):
         cfg = func(entries=100)
         output = conn.send_config_set(cfg)
         PRINT_DEBUG and print(output)
-
-
-def generate_ios_acl(entries=100):
-    base_cmd = "ip access-list extended netmiko_test_large_acl"
-    acl = [base_cmd]
-    for i in range(1, entries + 1):
-        cmd = f"permit ip host {ip_address('192.168.0.0') + i} any"
-        acl.append(cmd)
-    return acl
-
-
-def generate_nxos_acl(entries=100):
-    base_cmd = "ip access-list netmiko_test_large_acl"
-    acl = [base_cmd]
-    for i in range(1, entries + 1):
-        cmd = f"permit ip host {ip_address('192.168.0.0') + i} any"
-        acl.append(cmd)
-    return acl
 
 
 @f_exec_time

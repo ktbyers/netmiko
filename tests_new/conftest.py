@@ -166,7 +166,9 @@ def delete_file_nxos(ssh_conn, dest_file_system, dest_file):
     cmd = "delete {}".format(full_file_name)
     output = ssh_conn.send_command(cmd, expect_string=r"Do you want to delete")
     if "yes/no/abort" in output and dest_file in output:
-        output += ssh_conn.send_command("y", expect_string=r"#", strip_command=False, strip_prompt=False)
+        output += ssh_conn.send_command(
+            "y", expect_string=r"#", strip_command=False, strip_prompt=False
+        )
         return output
     else:
         output += ssh_conn.send_command_timing("abort")
