@@ -1,0 +1,3 @@
+logging buffered 9990
+logging buffered 8880
+no logging console

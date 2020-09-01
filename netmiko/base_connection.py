@@ -980,7 +980,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 print("Interactive SSH session established")
         return ""
 
-    @m_exec_time
+    # @m_exec_time
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back.
 
