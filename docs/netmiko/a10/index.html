@@ -189,10 +189,10 @@ __all__ = [&#34;A10SSH&#34;]</code></pre>
         self._test_channel_read()
         self.set_base_prompt()
         self.enable()
-        self.disable_paging(command=&#34;terminal length 0&#34;)
 
         # Will not do anything without A10 specific command
-        self.set_terminal_width()
+        # self.set_terminal_width()
+        self.disable_paging(command=&#34;terminal length 0&#34;)
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -234,10 +234,10 @@ __all__ = [&#34;A10SSH&#34;]</code></pre>
     self._test_channel_read()
     self.set_base_prompt()
     self.enable()
-    self.disable_paging(command=&#34;terminal length 0&#34;)
 
     # Will not do anything without A10 specific command
-    self.set_terminal_width()
+    # self.set_terminal_width()
+    self.disable_paging(command=&#34;terminal length 0&#34;)
 
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)

@@ -32,8 +32,8 @@ class AristaBase(CiscoSSHConnection):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -284,8 +284,8 @@ class AristaFileTransfer(CiscoFileTransfer):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -371,8 +371,8 @@ loc1-core01(s1)#</p>
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
     self.set_base_prompt()
+    self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
     self.disable_paging()
-    self.set_terminal_width(command=&#34;terminal width 511&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>

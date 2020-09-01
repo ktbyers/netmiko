@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
-<title>netmiko.broadcom API documentation</title>
+<title>netmiko.netgear API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,23 +17,22 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>netmiko.broadcom</code></h1>
+<h1 class="title">Module <code>netmiko.netgear</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">from netmiko.broadcom.broadcom_icos_ssh import BroadcomIcosSSH
+<pre><code class="python">from netmiko.netgear.netgear_prosafe_ssh import NetgearProSafeSSH
 
-
-__all__ = [&#34;BroadcomIcosSSH&#34;]</code></pre>
+__all__ = [&#34;NetgearProSafeSSH&#34;]</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="netmiko.broadcom.broadcom_icos_ssh" href="broadcom_icos_ssh.html">netmiko.broadcom.broadcom_icos_ssh</a></code></dt>
+<dt><code class="name"><a title="netmiko.netgear.netgear_prosafe_ssh" href="netgear_prosafe_ssh.html">netmiko.netgear.netgear_prosafe_ssh</a></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>ProSafe OS support</p></section>
 </dd>
 </dl>
 </section>
@@ -44,13 +43,12 @@ __all__ = [&#34;BroadcomIcosSSH&#34;]</code></pre>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="netmiko.broadcom.BroadcomIcosSSH"><code class="flex name class">
-<span>class <span class="ident">BroadcomIcosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<dt id="netmiko.netgear.NetgearProSafeSSH"><code class="flex name class">
+<span>class <span class="ident">NetgearProSafeSSH</span></span>
+<span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Implements support for Broadcom Icos devices.
-Syntax its almost identical to Cisco IOS in most cases</p>
+<section class="desc"><p>ProSafe OS support</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
     :param ip: IP address of target device. Not required if `host` is
@@ -183,44 +181,44 @@ Syntax its almost identical to Cisco IOS in most cases</p>
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class BroadcomIcosSSH(CiscoSSHConnection):
-    &#34;&#34;&#34;
-    Implements support for Broadcom Icos devices.
-    Syntax its almost identical to Cisco IOS in most cases
-    &#34;&#34;&#34;
+<pre><code class="python">class NetgearProSafeSSH(CiscoSSHConnection):
+    &#34;&#34;&#34;ProSafe OS support&#34;&#34;&#34;
+
+    def __init__(self, **kwargs):
+        if kwargs.get(&#34;default_enter&#34;) is None:
+            kwargs[&#34;default_enter&#34;] = &#34;\r&#34;
+        return super().__init__(**kwargs)
 
     def session_preparation(self):
+        &#34;&#34;&#34;ProSafe OS requires enabe mode to disable paging.&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
         self.enable()
-        self.set_base_prompt()
-        self.set_terminal_width()
-        self.disable_paging()
+        self.disable_paging(command=&#34;terminal length 0&#34;)
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string=&#34;)#&#34;):
-        &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
+    def check_config_mode(self, check_string=&#34;(Config)#&#34;):
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command=&#34;configure&#34;):
-        &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
-        return super().config_mode(config_command=config_command)
+    def config_mode(self, config_command=&#34;configure&#34;, pattern=r&#34;)#&#34;):
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def exit_config_mode(self, exit_config=&#34;exit&#34;):
-        &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
-        return super().exit_config_mode(exit_config=exit_config)
+    def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=&#34;#&#34;):
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def exit_enable_mode(self, exit_command=&#34;exit&#34;):
-        &#34;&#34;&#34;Exit enable mode.&#34;&#34;&#34;
-        return super().exit_enable_mode(exit_command=exit_command)
+    def save_config(
+        self, save_cmd=&#34;write memory confirm&#34;, confirm=False, confirm_response=&#34;&#34;
+    ):
+        self.enable()
+        &#34;&#34;&#34;ProSafe doesn&#39;t allow saving whilst within configuration mode&#34;&#34;&#34;
+        if self.check_config_mode():
+            self.exit_config_mode()
 
-    def save_config(self, cmd=&#34;write memory&#34;, confirm=False, confirm_response=&#34;&#34;):
-        &#34;&#34;&#34;Saves configuration.&#34;&#34;&#34;
         return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+            cmd=save_cmd, confirm=confirm, confirm_response=confirm_response
         )</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -231,66 +229,23 @@ Syntax its almost identical to Cisco IOS in most cases</p>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.broadcom.BroadcomIcosSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=')#')</span>
+<dt id="netmiko.netgear.NetgearProSafeSSH.session_preparation"><code class="name flex">
+<span>def <span class="ident">session_preparation</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks if the device is in configuration mode or not.</p></section>
+<section class="desc"><p>ProSafe OS requires enabe mode to disable paging.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, check_string=&#34;)#&#34;):
-    &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-    return super().check_config_mode(check_string=check_string)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.broadcom.BroadcomIcosSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Enter configuration mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;configure&#34;):
-    &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
-    return super().config_mode(config_command=config_command)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.broadcom.BroadcomIcosSSH.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='exit')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Exit configuration mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config=&#34;exit&#34;):
-    &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
-    return super().exit_config_mode(exit_config=exit_config)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.broadcom.BroadcomIcosSSH.exit_enable_mode"><code class="name flex">
-<span>def <span class="ident">exit_enable_mode</span></span>(<span>self, exit_command='exit')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Exit enable mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def exit_enable_mode(self, exit_command=&#34;exit&#34;):
-    &#34;&#34;&#34;Exit enable mode.&#34;&#34;&#34;
-    return super().exit_enable_mode(exit_command=exit_command)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.broadcom.BroadcomIcosSSH.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, cmd='write memory', confirm=False, confirm_response='')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Saves configuration.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def save_config(self, cmd=&#34;write memory&#34;, confirm=False, confirm_response=&#34;&#34;):
-    &#34;&#34;&#34;Saves configuration.&#34;&#34;&#34;
-    return super().save_config(
-        cmd=cmd, confirm=confirm, confirm_response=confirm_response
-    )</code></pre>
+<pre><code class="python">def session_preparation(self):
+    &#34;&#34;&#34;ProSafe OS requires enabe mode to disable paging.&#34;&#34;&#34;
+    self._test_channel_read()
+    self.set_base_prompt()
+    self.enable()
+    self.disable_paging(command=&#34;terminal length 0&#34;)
+
+    # Clear the read buffer
+    time.sleep(0.3 * self.global_delay_factor)
+    self.clear_buffer()</code></pre>
 </details>
 </dd>
 </dl>
@@ -298,15 +253,19 @@ Syntax its almost identical to Cisco IOS in most cases</p>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
@@ -317,13 +276,13 @@ Syntax its almost identical to Cisco IOS in most cases</p>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -353,19 +312,15 @@ Syntax its almost identical to Cisco IOS in most cases</p>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="netmiko.broadcom.broadcom_icos_ssh" href="broadcom_icos_ssh.html">netmiko.broadcom.broadcom_icos_ssh</a></code></li>
+<li><code><a title="netmiko.netgear.netgear_prosafe_ssh" href="netgear_prosafe_ssh.html">netmiko.netgear.netgear_prosafe_ssh</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="netmiko.broadcom.BroadcomIcosSSH" href="#netmiko.broadcom.BroadcomIcosSSH">BroadcomIcosSSH</a></code></h4>
+<h4><code><a title="netmiko.netgear.NetgearProSafeSSH" href="#netmiko.netgear.NetgearProSafeSSH">NetgearProSafeSSH</a></code></h4>
 <ul class="">
-<li><code><a title="netmiko.broadcom.BroadcomIcosSSH.check_config_mode" href="#netmiko.broadcom.BroadcomIcosSSH.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.broadcom.BroadcomIcosSSH.config_mode" href="#netmiko.broadcom.BroadcomIcosSSH.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.broadcom.BroadcomIcosSSH.exit_config_mode" href="#netmiko.broadcom.BroadcomIcosSSH.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.broadcom.BroadcomIcosSSH.exit_enable_mode" href="#netmiko.broadcom.BroadcomIcosSSH.exit_enable_mode">exit_enable_mode</a></code></li>
-<li><code><a title="netmiko.broadcom.BroadcomIcosSSH.save_config" href="#netmiko.broadcom.BroadcomIcosSSH.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.netgear.NetgearProSafeSSH.session_preparation" href="#netmiko.netgear.NetgearProSafeSSH.session_preparation">session_preparation</a></code></li>
 </ul>
 </li>
 </ul>

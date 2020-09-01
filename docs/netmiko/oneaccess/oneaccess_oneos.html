@@ -39,8 +39,8 @@ class OneaccessOneOSBase(CiscoBaseConnection):
         &#34;&#34;&#34;Prepare connection - disable paging&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;stty columns 255&#34;, pattern=&#34;stty&#34;)
         self.disable_paging(command=&#34;term len 0&#34;)
-        self.set_terminal_width(command=&#34;stty columns 255&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -89,8 +89,8 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
         &#34;&#34;&#34;Prepare connection - disable paging&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;stty columns 255&#34;, pattern=&#34;stty&#34;)
         self.disable_paging(command=&#34;term len 0&#34;)
-        self.set_terminal_width(command=&#34;stty columns 255&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -138,8 +138,8 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
     &#34;&#34;&#34;Prepare connection - disable paging&#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
+    self.set_terminal_width(command=&#34;stty columns 255&#34;, pattern=&#34;stty&#34;)
     self.disable_paging(command=&#34;term len 0&#34;)
-    self.set_terminal_width(command=&#34;stty columns 255&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>

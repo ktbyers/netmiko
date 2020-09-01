@@ -2095,8 +2095,8 @@ __all__ = [
         &#34;&#34;&#34;Disable paging and set Max term width&#34;&#34;&#34;
         self._test_channel_read(pattern=r&#34;&gt;|#&#34;)
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 512&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging(command=&#34;no page&#34;)
-        self.set_terminal_width(command=&#34;terminal width 512&#34;)
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()</code></pre>
 </details>
@@ -2119,8 +2119,8 @@ __all__ = [
     &#34;&#34;&#34;Disable paging and set Max term width&#34;&#34;&#34;
     self._test_channel_read(pattern=r&#34;&gt;|#&#34;)
     self.set_base_prompt()
+    self.set_terminal_width(command=&#34;terminal width 512&#34;, pattern=&#34;terminal&#34;)
     self.disable_paging(command=&#34;no page&#34;)
-    self.set_terminal_width(command=&#34;terminal width 512&#34;)
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>
 </details>

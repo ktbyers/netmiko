@@ -188,8 +188,8 @@ __all__ = [&#34;VyOSSSH&#34;]</code></pre>
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;set terminal width 512&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging(command=&#34;set terminal length 0&#34;)
-        self.set_terminal_width(command=&#34;set terminal width 512&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -458,8 +458,8 @@ command_string = commit comment <comment></p></section>
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
+    self.set_terminal_width(command=&#34;set terminal width 512&#34;, pattern=&#34;terminal&#34;)
     self.disable_paging(command=&#34;set terminal length 0&#34;)
-    self.set_terminal_width(command=&#34;set terminal width 512&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>
