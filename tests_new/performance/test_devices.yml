@@ -13,3 +13,10 @@ cisco5:
   device_type: cisco_xe
   host: cisco5.lasthop.io
   username: pyclass
+
+nxos1:
+  device_type: cisco_nxos
+  host: nxos1.lasthop.io
+  username: pyclass
+  conn_timeout: 20
+  # session_log: nxos1.out

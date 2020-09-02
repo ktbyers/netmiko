@@ -980,6 +980,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 print("Interactive SSH session established")
         return ""
 
+    # @m_exec_time
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back.
 
@@ -1011,6 +1012,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 break
             else:
                 self.write_channel(self.RETURN)
+
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
             i += 1
@@ -1045,7 +1047,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :type delay_factor: int
         """
         if self.fast_cli:
-            if delay_factor <= self.global_delay_factor:
+            if delay_factor and delay_factor <= self.global_delay_factor:
                 return delay_factor
             else:
                 return self.global_delay_factor
