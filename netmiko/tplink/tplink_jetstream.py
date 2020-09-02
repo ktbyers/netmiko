@@ -1,8 +1,13 @@
 import re
 import time
-from netmiko.cisco_base_connection import CiscoSSHConnection
-from cryptography.hazmat.primitives.asymmetric import dsa
+
 from cryptography import utils as crypto_utils
+from cryptography.hazmat.primitives.asymmetric import dsa
+
+from netmiko import log
+from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.ssh_exception import NetmikoTimeoutException
+
 
 class TPLinkBase(CiscoSSHConnection):
     def __init__(self, **kwargs):
@@ -47,8 +52,8 @@ class TPLinkBase(CiscoSSHConnection):
                 self.write_channel(self.normalize_cmd(cmd))
                 try:
                     output += self.read_until_prompt_or_pattern(
-                           pattern=pattern, re_flags=re_flags
-                           )
+                        pattern=pattern, re_flags=re_flags
+                    )
                     self.write_channel(self.normalize_cmd(self.secret))
                     output += self.read_until_prompt()
                 except NetmikoTimeoutException:
@@ -64,8 +69,8 @@ class TPLinkBase(CiscoSSHConnection):
     def exit_config_mode(self, exit_config="exit", pattern=r"#"):
         """
         Exit config mode.
-        
-        Like the Mellanox equipments, the TP-Link Jetstream does not 
+
+        Like the Mellanox equipments, the TP-Link Jetstream does not
         support a single command to completely exit the configuration mode.
 
         Consequently, need to keep checking and sending "exit".
@@ -99,7 +104,7 @@ class TPLinkBase(CiscoSSHConnection):
         Used as delimiter for stripping of trailing prompt in output.
 
         Should be set to something that is general and applies in multiple
-        contexts. For TP-Link  this will be the router prompt with > or # 
+        contexts. For TP-Link  this will be the router prompt with > or #
         stripped off.
 
         This will be set on logging in, but not when entering system-view
@@ -110,8 +115,6 @@ class TPLinkBase(CiscoSSHConnection):
             delay_factor=delay_factor,
         )
 
-        # Strip off leading character
-        prompt = prompt[1:]
         prompt = prompt.strip()
         self.base_prompt = prompt
         return self.base_prompt
@@ -126,14 +129,14 @@ class TPLinkSSH(TPLinkBase):
 
         ValueError: p must be exactly 1024, 2048, or 3072 bits long
 
-        Allows for shorter or longer parameters.p to be returned 
+        Allows for shorter or longer parameters.p to be returned
         from the server's host key. This is a HORRIBLE hack and a
         security risk, please remove if possible!
 
         By now, with firmware:
 
         2.0.5 Build 20200109 Rel.36203(s)
-        
+
         It's still not possible to remove this hack
         """
         if crypto_utils.bit_length(parameters.q) not in [160, 256]:
@@ -164,4 +167,3 @@ class TPLinkTelnet(TPLinkBase):
             delay_factor=delay_factor,
             max_loops=max_loops,
         )
-

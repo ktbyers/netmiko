@@ -290,3 +290,21 @@ huawei_smartax:
   interface_ip: 192.0.2.1
   version_banner: "VERSION :"
   multiple_line_output: ""
+
+tplink_jetstream:
+  base_prompt: "T1500G-10PS"
+  router_prompt: "T1500G-10PS>"
+  enable_prompt: "T1500G-10PS#"
+  interface_ip: 192.168.0.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface vlan 1"
+  cmd_response_final: "no clipaging"
+
+tplink_jetstream_telnet:
+  base_prompt: "T1500G-10PS"
+  router_prompt: "T1500G-10PS>"
+  enable_prompt: "T1500G-10PS#"
+  interface_ip: 192.168.0.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface vlan 1"
+  cmd_response_final: "no clipaging"
