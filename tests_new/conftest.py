@@ -51,6 +51,7 @@ def net_connect_cmd_verify(request):
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device["verbose"] = False
+    device["fast_cli"] = False
     device["global_cmd_verify"] = False
     conn = ConnectHandler(**device)
     return conn

@@ -104,7 +104,7 @@ def test_config_from_file(net_connect, commands, expected_responses):
         config_commands_output = net_connect.send_command_expect(config_verify)
         assert expected_responses["file_check_cmd"] in config_commands_output
     else:
-        print("Skipping test (no file specified)...")
+        assert pytest.skip()
 
     if "nokia_sros" in net_connect.device_type:
         net_connect.save_config()
