@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import pytest
 
 
 def test_ssh_connect(net_connect, commands, expected_responses):
