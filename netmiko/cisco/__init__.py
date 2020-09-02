@@ -7,6 +7,7 @@ from netmiko.cisco.cisco_ios import (
 from netmiko.cisco.cisco_ios import CiscoIosFileTransfer
 from netmiko.cisco.cisco_ios import InLineTransfer
 from netmiko.cisco.cisco_asa_ssh import CiscoAsaSSH, CiscoAsaFileTransfer
+from netmiko.cisco.cisco_ftd_ssh import CiscoFtdSSH
 from netmiko.cisco.cisco_nxos_ssh import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco.cisco_xr import CiscoXrSSH, CiscoXrTelnet, CiscoXrFileTransfer
 from netmiko.cisco.cisco_wlc_ssh import CiscoWlcSSH
@@ -17,6 +18,7 @@ __all__ = [
     "CiscoIosSSH",
     "CiscoIosTelnet",
     "CiscoAsaSSH",
+    "CiscoFtdSSH",
     "CiscoNxosSSH",
     "CiscoXrSSH",
     "CiscoXrTelnet",
