@@ -442,3 +442,19 @@ huawei_smartax:
   config:
     - acl 2456
   config_verification: "display current-configuration | include acl 2456"
+
+tplink_jetstream:
+  version: "show system-info"
+  basic: "show interface vlan 1"
+  extended_output: "show running-config all"
+  config:
+    - "no clipaging"
+  config_verification: "show running-config | include clipaging"
+
+tplink_jetstream_telnet:
+  version: "show system-info"
+  basic: "show interface vlan 1"
+  extended_output: "show running-config all"
+  config:
+    - "no clipaging"
+  config_verification: "show running-config | include clipaging"
