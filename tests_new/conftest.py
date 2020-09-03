@@ -490,6 +490,11 @@ def get_platform_args():
             "enable_scp": True,
             "delete_file": delete_file_ios,
         },
+        "cisco_xe": {
+            "file_system": "flash:",
+            "enable_scp": True,
+            "delete_file": delete_file_ios,
+        },
         "juniper_junos": {
             "file_system": "/var/tmp",
             "enable_scp": False,
