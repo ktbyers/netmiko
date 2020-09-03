@@ -6,10 +6,9 @@ from cryptography.hazmat.primitives.asymmetric import dsa
 
 from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.ssh_exception import NetmikoTimeoutException
 
 
-class TPLinkBase(CiscoSSHConnection):
+class TPLinkJetStreamBase(CiscoSSHConnection):
     def __init__(self, **kwargs):
         # TP-Link doesn't have a way to set terminal width which breaks cmd_verify
         if kwargs.get("global_cmd_verify") is None:
@@ -34,33 +33,18 @@ class TPLinkBase(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def enable(self, cmd="", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
         """
         Enter enable mode.
 
         If the user does not have the Admin role it will need to execute
         enable-admin to really enable all functions.
         """
-        output = ""
-        msg = (
-            "Failed to enter enable mode. Please ensure you pass "
-            "the 'secret' argument to ConnectHandler."
-        )
-        cmds = ["enable", "enable-admin"]
-        if not self.check_enable_mode():
-            for cmd in cmds:
-                self.write_channel(self.normalize_cmd(cmd))
-                try:
-                    output += self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
-                    )
-                    self.write_channel(self.normalize_cmd(self.secret))
-                    output += self.read_until_prompt()
-                except NetmikoTimeoutException:
-                    raise ValueError(msg)
-                if not self.check_enable_mode():
-                    raise ValueError(msg)
-        return output
+        fallback_cmd = "enable-admin"
+        try:
+            return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        except ValueError:
+            return super().enable(cmd=fallback_cmd, pattern=pattern, re_flags=re_flags)
 
     def config_mode(self, config_command="configure"):
         """Enter configuration mode."""
@@ -70,7 +54,7 @@ class TPLinkBase(CiscoSSHConnection):
         """
         Exit config mode.
 
-        Like the Mellanox equipments, the TP-Link Jetstream does not
+        Like the Mellanox equipment, the TP-Link Jetstream does not
         support a single command to completely exit the configuration mode.
 
         Consequently, need to keep checking and sending "exit".
@@ -104,7 +88,7 @@ class TPLinkBase(CiscoSSHConnection):
         Used as delimiter for stripping of trailing prompt in output.
 
         Should be set to something that is general and applies in multiple
-        contexts. For TP-Link  this will be the router prompt with > or #
+        contexts. For TP-Link this will be the router prompt with > or #
         stripped off.
 
         This will be set on logging in, but not when entering system-view
@@ -120,7 +104,7 @@ class TPLinkBase(CiscoSSHConnection):
         return self.base_prompt
 
 
-class TPLinkSSH(TPLinkBase):
+class TPLinkJetStreamSSH(TPLinkJetStreamBase):
     def _override_check_dsa_parameters(parameters):
         """
         Override check_dsa_parameters from cryptography's dsa.py
@@ -137,7 +121,7 @@ class TPLinkSSH(TPLinkBase):
 
         2.0.5 Build 20200109 Rel.36203(s)
 
-        It's still not possible to remove this hack
+        It's still not possible to remove this hack.
         """
         if crypto_utils.bit_length(parameters.q) not in [160, 256]:
             raise ValueError("q must be exactly 160 or 256 bits long")
@@ -148,7 +132,7 @@ class TPLinkSSH(TPLinkBase):
     dsa._check_dsa_parameters = _override_check_dsa_parameters
 
 
-class TPLinkTelnet(TPLinkBase):
+class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
     def telnet_login(
         self,
         pri_prompt_terminator="#",

@@ -1,3 +1,3 @@
-from netmiko.tplink.tplink_jetstream import TPLinkSSH, TPLinkTelnet
+from netmiko.tplink.tplink_jetstream import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
 
-__all__ = ["TPLinkSSH", "TPLinkTelnet"]
+__all__ = ["TPLinkJetStreamSSH", "TPLinkJetStreamTelnet"]
