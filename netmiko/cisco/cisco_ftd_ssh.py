@@ -5,12 +5,6 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class CiscoFtdSSH(CiscoSSHConnection):
     """Subclass specific to Cisco FTD."""
 
-    def __init__(self, *args, **kwargs):
-        # FTD defaults to fast_cli=True and legacy_mode=False
-        kwargs.setdefault("fast_cli", True)
-        kwargs.setdefault("_legacy_mode", False)
-        return super().__init__(*args, **kwargs)
-
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
