@@ -5,22 +5,12 @@ from ipaddress import ip_address
 from network_utilities import generate_ios_acl, generate_nxos_acl
 
 
-def test_large_acl(net_connect, acl_entries=100):
+def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
     """
     Test creating an ACL with tons of lines
     """
 
     platforms = {
-        "cisco_xe": {
-            "base_cmd": "ip access-list extended netmiko_test_large_acl",
-            "verify_cmd": "show ip access-lists netmiko_test_large_acl",
-            "offset": 4,
-        },
-        "cisco_ios": {
-            "base_cmd": "ip access-list extended netmiko_test_large_acl",
-            "verify_cmd": "show ip access-lists netmiko_test_large_acl",
-            "offset": 4,
-        },
         "cisco_xr": {
             "base_cmd": "ipv4 access-list netmiko_test_large_acl",
             "verify_cmd": "show access-lists netmiko_test_large_acl",
@@ -33,13 +23,19 @@ def test_large_acl(net_connect, acl_entries=100):
         },
     }
 
-    if net_connect.device_type not in platforms.keys():
+    if commands.get("config_long_acl"):
+        acl_config = commands.get("config_long_acl")
+        cmd = acl_config["base_cmd"]
+        verify_cmd = acl_config["verify_cmd"]
+        offset = acl_config["offset"]
+    elif net_connect.device_type in platforms.keys():
+        cmd = platforms[net_connect.device_type]["base_cmd"]
+        verify_cmd = platforms[net_connect.device_type]["verify_cmd"]
+        offset = platforms[net_connect.device_type]["offset"]
+    else:
         pytest.skip("Platform not supported for ACL test")
-    verify_cmd = platforms[net_connect.device_type]["verify_cmd"]
-    offset = platforms[net_connect.device_type]["offset"]
 
     # Ensure ACL is removed
-    cmd = platforms[net_connect.device_type]["base_cmd"]
     net_connect.send_config_set(f"no {cmd}")
     if "cisco_xr" in net_connect.device_type:
         net_connect.commit()
