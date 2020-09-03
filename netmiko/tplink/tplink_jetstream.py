@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives.asymmetric import dsa
 
 from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.ssh_exception import NetmikoTimeoutException
 
 
 class TPLinkJetStreamBase(CiscoSSHConnection):
@@ -33,18 +34,40 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(self, cmd="", pattern="ssword", re_flags=re.IGNORECASE):
         """
-        Enter enable mode.
+        TPLink JetStream requires you to first execute "enable" and then execute "enable-admin".
+        This is necessary as "configure" is generally only available at "enable-admin" level
 
-        If the user does not have the Admin role it will need to execute
-        enable-admin to really enable all functions.
+        If the user does not have the Admin role, he will need to execute enable-admin to really
+        enable all functions.
         """
-        fallback_cmd = "enable-admin"
-        try:
+
+        # If end-user passes in "cmd" execute that using normal process.
+        if cmd:
             return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
-        except ValueError:
-            return super().enable(cmd=fallback_cmd, pattern=pattern, re_flags=re_flags)
+
+        output = ""
+        msg = (
+            "Failed to enter enable mode. Please ensure you pass "
+            "the 'secret' argument to ConnectHandler."
+        )
+
+        cmds = ["enable", "enable-admin"]
+        if not self.check_enable_mode():
+            for cmd in cmds:
+                self.write_channel(self.normalize_cmd(cmd))
+                try:
+                    output += self.read_until_prompt_or_pattern(
+                        pattern=pattern, re_flags=re_flags
+                    )
+                    self.write_channel(self.normalize_cmd(self.secret))
+                    output += self.read_until_prompt()
+                except NetmikoTimeoutException:
+                    raise ValueError(msg)
+                if not self.check_enable_mode():
+                    raise ValueError(msg)
+        return output
 
     def config_mode(self, config_command="configure"):
         """Enter configuration mode."""
@@ -93,15 +116,11 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
 
         This will be set on logging in, but not when entering system-view
         """
-        prompt = super().set_base_prompt(
+        return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
         )
-
-        prompt = prompt.strip()
-        self.base_prompt = prompt
-        return self.base_prompt
 
 
 class TPLinkJetStreamSSH(TPLinkJetStreamBase):
