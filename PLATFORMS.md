@@ -48,6 +48,7 @@
 - Pluribus
 - Ruckus ICX/FastIron
 - Ruijie Networks
+- TPLink JetStream
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
 - Yamaha
