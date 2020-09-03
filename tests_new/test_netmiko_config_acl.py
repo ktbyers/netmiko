@@ -16,11 +16,6 @@ def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
             "verify_cmd": "show access-lists netmiko_test_large_acl",
             "offset": 3,
         },
-        "cisco_nxos": {
-            "base_cmd": "ip access-list netmiko_test_large_acl",
-            "verify_cmd": "show ip access-lists netmiko_test_large_acl",
-            "offset": 4,
-        },
     }
 
     if commands.get("config_long_acl"):
