@@ -10,7 +10,7 @@ from test_utils import parse_yaml
 
 import network_utilities
 
-PRINT_DEBUG = True
+PRINT_DEBUG = False
 
 PWD = path.dirname(path.realpath(__file__))
 
@@ -134,8 +134,8 @@ def main():
     devices = read_devices()
     print("\n\n")
     for dev_name, dev_dict in devices.items():
-        # if dev_name != "cisco_xr_azure":
-        #    continue
+        if dev_name != "cisco_xr_azure":
+            continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
         print("-" * 12)
