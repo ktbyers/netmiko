@@ -116,29 +116,15 @@ def send_config_large_acl(device):
 def cleanup(device):
 
     # Results will be marginally distorted by generating the ACL here.
-    device_type = device["device_type"]
-    func_name = f"cleanup_{device_type}"
-    func = globals()[func_name]
-    func(device)
+    platform = device["device_type"]
+    base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
+    remove_acl_cmd = f"no {base_acl_cmd}"
+    cleanup_generic(device, remove_acl_cmd)
 
-def cleanup_cisco_ios(device):
+
+def cleanup_generic(device, command):
     with ConnectHandler(**device) as conn:
-        cfg = "no ip access-list extended netmiko_test_large_acl"
-        output = conn.send_config_set(cfg)
-        PRINT_DEBUG and print(output)
-cleanup_cisco_xe = cleanup_cisco_ios
-
-def cleanup_cisco_nxos(device):
-    with ConnectHandler(**device) as conn:
-        cfg = "no ip access-list netmiko_test_large_acl"
-        output = conn.send_config_set(cfg)
-        PRINT_DEBUG and print(output)
-
-
-def cleanup_cisco_xr(device):
-    with ConnectHandler(**device) as conn:
-        cfg = "no ipv4 access-list netmiko_test_large_acl"
-        output = conn.send_config_set(cfg)
+        output = conn.send_config_set(command)
         PRINT_DEBUG and print(output)
 
 
@@ -158,10 +144,10 @@ def main():
 
         # Run tests
         operations = [
-#            "connect",
-#            "send_command_simple",
-#            "send_config_simple",
-#            "send_config_large_acl",
+            "connect",
+            "send_command_simple",
+            "send_config_simple",
+            "send_config_large_acl",
             "cleanup",
         ]
         results = {}

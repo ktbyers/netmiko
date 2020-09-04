@@ -4,19 +4,25 @@ from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 
 class CiscoXrBase(CiscoBaseConnection):
+    def __init__(self, *args, **kwargs):
+        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        return super().__init__(*args, **kwargs)
+
     def establish_connection(self):
         """Establish SSH connection to the network device"""
         super().establish_connection(width=511, height=511)
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.set_terminal_width(command="terminal width 511", pattern="terminal")
+        # IOS-XR has an issue where it echoes the command even though it hasn't returned the prompt
+        self._test_channel_read(pattern=r"[>#]")
+        cmd = "terminal width 511"
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self._test_channel_read(pattern=r"[>#]")
+        self.set_base_prompt()
 
     def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
