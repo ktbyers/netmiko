@@ -8,7 +8,7 @@ import csv
 from netmiko import ConnectHandler, __version__
 from test_utils import parse_yaml
 
-from network_utilities import generate_cisco_ios_acl, generate_cisco_nxos_acl, generate_cisco_xr_acl
+import network_utilities
 
 PRINT_DEBUG = True
 
@@ -104,13 +104,7 @@ def send_config_large_acl(device):
     # Results will be marginally distorted by generating the ACL here.
     device_type = device["device_type"]
     func_name = f"generate_{device_type}_acl"
-    func = globals()[func_name]
-    #if "cisco_ios" in device_type or "cisco_xe" in device_type:
-    #    func = generate_cisco_ios_acl
-    #elif "cisco_nxos" in device_type:
-    #    func = generate_cisco_nxos_acl
-    #elif "cisco_xr" in device_type:
-    #    func = generate_cisco_xr_acl
+    func = getattr(network_utilities, func_name)
 
     with ConnectHandler(**device) as conn:
         cfg = func(entries=100)
@@ -123,17 +117,18 @@ def cleanup(device):
 
     # Results will be marginally distorted by generating the ACL here.
     device_type = device["device_type"]
-    if "cisco_ios" in device_type or "cisco_xe" in device_type:
-        return
-    elif "cisco_nxos" in device_type:
-        func = cleanup_nxos
-    elif "cisco_xr" in device_type:
-        func = cleanup_cisco_xr
-
+    func_name = f"cleanup_{device_type}"
+    func = globals()[func_name]
     func(device)
 
+def cleanup_cisco_ios(device):
+    with ConnectHandler(**device) as conn:
+        cfg = "no ip access-list extended netmiko_test_large_acl"
+        output = conn.send_config_set(cfg)
+        PRINT_DEBUG and print(output)
+cleanup_cisco_xe = cleanup_cisco_ios
 
-def cleanup_nxos(device):
+def cleanup_cisco_nxos(device):
     with ConnectHandler(**device) as conn:
         cfg = "no ip access-list netmiko_test_large_acl"
         output = conn.send_config_set(cfg)
@@ -163,11 +158,11 @@ def main():
 
         # Run tests
         operations = [
-            # "connect",
-            # "send_command_simple",
-            # "send_config_simple",
-            "send_config_large_acl",
-            # "cleanup",
+#            "connect",
+#            "send_command_simple",
+#            "send_config_simple",
+#            "send_config_large_acl",
+            "cleanup",
         ]
         results = {}
         for op in operations:
