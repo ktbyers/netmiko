@@ -1,13 +1,25 @@
-from netmiko import ConnectHandler, __version__
 import os
+from os import path
 import yaml
 import functools
 from datetime import datetime
 import csv
 
-from network_utilities import generate_ios_acl, generate_nxos_acl
+from netmiko import ConnectHandler, __version__
+from test_utils import parse_yaml
+
+import network_utilities
 
 PRINT_DEBUG = False
+
+PWD = path.dirname(path.realpath(__file__))
+
+
+def commands(platform):
+    """Parse the commands.yml file to get a commands dictionary."""
+    test_platform = platform
+    commands_yml = parse_yaml(PWD + "/../etc/commands.yml")
+    return commands_yml[test_platform]
 
 
 def generate_csv_timestamp():
@@ -71,16 +83,17 @@ def connect(device):
 @f_exec_time
 def send_command_simple(device):
     with ConnectHandler(**device) as conn:
-        output = conn.send_command("show ip int brief")
+        platform = device["device_type"]
+        cmd = commands(platform)["basic"]
+        output = conn.send_command(cmd)
         PRINT_DEBUG and print(output)
 
 
 @f_exec_time
 def send_config_simple(device):
     with ConnectHandler(**device) as conn:
-        cmd = "logging buffered 20000"
-        if "cisco_nxos" in device["device_type"]:
-            cmd = "logging console 4"
+        platform = device["device_type"]
+        cmd = commands(platform)["config"][0]
         output = conn.send_config_set(cmd)
         PRINT_DEBUG and print(output)
 
@@ -90,10 +103,8 @@ def send_config_large_acl(device):
 
     # Results will be marginally distorted by generating the ACL here.
     device_type = device["device_type"]
-    if "cisco_ios" in device_type or "cisco_xe" in device_type:
-        func = generate_ios_acl
-    elif "cisco_nxos" in device_type:
-        func = generate_nxos_acl
+    func_name = f"generate_{device_type}_acl"
+    func = getattr(network_utilities, func_name)
 
     with ConnectHandler(**device) as conn:
         cfg = func(entries=100)
@@ -105,19 +116,15 @@ def send_config_large_acl(device):
 def cleanup(device):
 
     # Results will be marginally distorted by generating the ACL here.
-    device_type = device["device_type"]
-    if "cisco_ios" in device_type or "cisco_xe" in device_type:
-        return
-    elif "cisco_nxos" in device_type:
-        func = cleanup_nxos
-
-    func(device)
+    platform = device["device_type"]
+    base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
+    remove_acl_cmd = f"no {base_acl_cmd}"
+    cleanup_generic(device, remove_acl_cmd)
 
 
-def cleanup_nxos(device):
+def cleanup_generic(device, command):
     with ConnectHandler(**device) as conn:
-        cfg = "no ip access-list netmiko_test_large_acl"
-        output = conn.send_config_set(cfg)
+        output = conn.send_config_set(command)
         PRINT_DEBUG and print(output)
 
 
@@ -127,8 +134,8 @@ def main():
     devices = read_devices()
     print("\n\n")
     for dev_name, dev_dict in devices.items():
-        # if dev_name == "nxos1":
-        #    continue
+        if dev_name != "cisco_xr_azure":
+            continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
         print("-" * 12)

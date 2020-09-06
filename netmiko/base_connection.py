@@ -1145,6 +1145,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
+    # @m_exec_time
     def find_prompt(self, delay_factor=1):
         """Finds the current network device prompt, last line only.
 
