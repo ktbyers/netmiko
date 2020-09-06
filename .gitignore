@@ -48,3 +48,5 @@ docs/build/doctrees/
 
 tests/cisco3-out.txt
 tests/test.log
+tests_new/test_out/*.out
+tests_new/test_out/*.stderr
