@@ -1,4 +1,3 @@
-import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
