@@ -81,10 +81,11 @@ def test_scp_get(scp_fixture_get):
 
 def test_md5_methods_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
-    if "nokia_sros" in ssh_conn.device_type:
+    platform = ssh_conn.device_type
+    if "nokia_sros" in platform:
         pytest.skip("MD5 not supported on this platform")
     md5_value = "d8df36973ff832b564ad84642d07a261"
-    local_md5 = scp_transfer.file_md5("test9.txt")
+    local_md5 = scp_transfer.file_md5(f"test_{platform}/test9.txt")
     assert local_md5 == md5_value
     assert scp_transfer.compare_md5() is True
 
@@ -98,7 +99,8 @@ def test_disconnect_get(scp_fixture_get):
 def test_file_transfer(scp_file_transfer):
     """Test Netmiko file_transfer function."""
     ssh_conn, file_system = scp_file_transfer
-    source_file = "test9.txt"
+    platform = ssh_conn.device_type
+    source_file = f"test_{platform}/test9.txt"
     dest_file = "test9.txt"
     direction = "put"
 
@@ -134,7 +136,7 @@ def test_file_transfer(scp_file_transfer):
     )
 
     # Don't allow a file overwrite (switch the source file, but same dest file name)
-    source_file = "test2_src.txt"
+    source_file = f"test_{platform}/test2_src.txt"
     with pytest.raises(Exception):
         transfer_dict = file_transfer(
             ssh_conn,
@@ -146,7 +148,7 @@ def test_file_transfer(scp_file_transfer):
         )
 
     # Don't allow MD5 and file overwrite not allowed
-    source_file = "test9.txt"
+    source_file = f"test_{platform}/test9.txt"
     with pytest.raises(Exception):
         transfer_dict = file_transfer(
             ssh_conn,

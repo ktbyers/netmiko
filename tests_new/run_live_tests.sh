@@ -12,4 +12,4 @@ cd test_cisco_xe
 cd ..
 cd test_cisco_xr
 ./test_iosxr.sh > ../test_out/test_cisco_xr_xrv.out 2> ../test_out/test_cisco_xr_xrv.stderr &
-./test_cisco_xe.sh > ../test_out/test_cisco_xr_azure.out 2> ../test_out/test_cisco_xr_azure.stderr &
+./test_iosxr_azure.sh > ../test_out/test_cisco_xr_azure.out 2> ../test_out/test_cisco_xr_azure.stderr &
