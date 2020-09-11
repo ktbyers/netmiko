@@ -13,3 +13,6 @@ echo "Starting tests...good luck:" \
 || RETURN_CODE=1
 
 exit $RETURN_CODE
+
+# FIX - some issue with SCP to the IOS-XR in Azure?
+#&& py.test -s -x -v test_netmiko_scp.py --test_device cisco_xr_azure \

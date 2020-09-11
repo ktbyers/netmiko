@@ -349,7 +349,7 @@ def scp_fixture_get(request):
     platform = device["device_type"]
     dest_file_system = platform_args[platform]["file_system"]
     source_file = "test9.txt"
-    local_file = "testx.txt"
+    local_file = f"test_{platform}/testx.txt"
     dest_file = local_file
     direction = "get"
 
