@@ -348,9 +348,6 @@ def test_commit_label_comment(net_connect, commands, expected_responses):
         net_connect.send_config_set(config_commands)
         label = "test_lbl_" + gen_random()
         comment = "Test with comment and label"
-        import ipdb
-
-        ipdb.set_trace()
         net_connect.commit(label=label, comment=comment)
 
         # Verify commit label
