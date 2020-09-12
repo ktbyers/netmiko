@@ -18,7 +18,7 @@ class YotcBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def send_command_more(
+    def _send_command_more(
         self,
         command_string,
         use_textfsm=False,
