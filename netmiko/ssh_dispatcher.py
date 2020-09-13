@@ -86,6 +86,7 @@ from netmiko.sophos import SophosSfosSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
+from netmiko.ubiquiti import UbiquitiEdgeRouterSSH
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ubiquiti import UbiquitiUnifiSwitchSSH
 from netmiko.vyos import VyOSSSH
@@ -195,6 +196,7 @@ CLASS_MAPPER_BASE = {
     "sophos_sfos": SophosSfosSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
+    "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
     "ubiquiti_unifiswitch": UbiquitiUnifiSwitchSSH,
     "vyatta_vyos": VyOSSSH,
