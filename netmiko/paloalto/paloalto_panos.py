@@ -51,6 +51,7 @@ class PaloAltoPanosBase(BaseConnection):
 
     def commit(
         self,
+        comment=None,
         force=False,
         partial=False,
         device_and_network=False,
@@ -87,6 +88,8 @@ class PaloAltoPanosBase(BaseConnection):
         # Select proper command string based on arguments provided
         command_string = "commit"
         commit_marker = "configuration committed successfully"
+        if comment:
+            command_string += f' description "{comment}"'
         if force:
             command_string += " force"
         if partial:
