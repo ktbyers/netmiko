@@ -11,8 +11,9 @@ class AristaBase(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         cmd = "terminal width 511"
-        self.set_terminal_width(command=cmd, pattern=cmd)
-        self.disable_paging()
+        # Arista will echo immediately and then when the device really responds (like NX-OS)
+        self.set_terminal_width(command=cmd, pattern=r"Width set to")
+        self.disable_paging(cmd_verify=False, pattern=r"Pagination disabled")
         self.set_base_prompt()
 
     def check_config_mode(self, check_string=")#", pattern=""):
