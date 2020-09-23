@@ -51,7 +51,8 @@ setup(
         "scp>=0.13.2",
         "pyserial",
         "textfsm",
+        "ntc-templates",
         "importlib_resources ; python_version<'3.7'",
     ],
-    extras_require={"test": ["pyyaml==5.1.2", "pytest>=5.1.2"]},
+    extras_require={"test": ["pyyaml>=5.1.2", "pytest>=5.1.2"]},
 )
