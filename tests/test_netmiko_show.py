@@ -28,9 +28,14 @@ def bogus_func(obj, *args, **kwargs):
 
 def test_disable_paging(net_connect, commands, expected_responses):
     """Verify paging is disabled by looking for string after when paging would normally occur."""
+    # FIX: these really shouldn't be necessary.
     if net_connect.device_type == "arista_eos":
         # Arista logging buffer gets enormous
         net_connect.send_command("clear logging")
+    elif net_connect.device_type == "arista_eos":
+        # NX-OS logging buffer gets enormous (NX-OS fails when testing very high-latency +
+        # packet loss)
+        net_connect.send_command("clear logging logfile")
     multiple_line_output = net_connect.send_command(commands["extended_output"])
     assert expected_responses["multiple_line_output"] in multiple_line_output
 
@@ -59,10 +64,19 @@ def test_send_command_timing(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully."""
     time.sleep(1)
     net_connect.clear_buffer()
-    show_ip = net_connect.send_command_timing(commands["basic"])
-    assert expected_responses["interface_ip"] in show_ip
     # Force verification of command echo
     show_ip = net_connect.send_command_timing(commands["basic"], cmd_verify=True)
+    assert expected_responses["interface_ip"] in show_ip
+
+
+def test_send_command_timing_no_cmd_verify(net_connect, commands, expected_responses):
+    # Skip devices that are performance optimized (i.e. cmd_verify is required there)
+    if net_connect.fast_cli is True:
+        assert pytest.skip()
+    time.sleep(1)
+    net_connect.clear_buffer()
+    # cmd_verify=False is the default
+    show_ip = net_connect.send_command_timing(commands["basic"], cmd_verify=False)
     assert expected_responses["interface_ip"] in show_ip
 
 
@@ -71,6 +85,13 @@ def test_send_command(net_connect, commands, expected_responses):
     net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip_alt
+
+
+def test_send_command_no_cmd_verify(net_connect, commands, expected_responses):
+    # Skip devices that are performance optimized (i.e. cmd_verify is required there)
+    if net_connect.fast_cli is True:
+        assert pytest.skip()
+    net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command(commands["basic"], cmd_verify=False)
     assert expected_responses["interface_ip"] in show_ip_alt
 
@@ -113,6 +134,8 @@ def test_send_command_global_cmd_verify(
     Disable cmd_verify globally.
     """
     net_connect = net_connect_cmd_verify
+    if net_connect.fast_cli is True:
+        assert pytest.skip()
     net_connect.clear_buffer()
     # cmd_verify should be disabled globally at this point
     assert net_connect.global_cmd_verify is False
@@ -120,13 +143,21 @@ def test_send_command_global_cmd_verify(
     assert expected_responses["interface_ip"] in show_ip_alt
 
 
-def test_send_command_juniper(net_connect, commands, expected_responses):
-    """Verify Juniper complete on space is disabled."""
-    # If complete on space is enabled will get re-written to "show ipv6 neighbors"
-    if net_connect.device_type == "juniper_junos":
-        net_connect.write_channel("show ip neighbors\n")
+def test_complete_on_space_disabled(net_connect, commands, expected_responses):
+    """Verify complete on space is disabled."""
+    # If complete on space is enabled will get re-written to "show configuration groups"
+    if net_connect.device_type in ["juniper_junos", "nokia_sros"]:
+        if (
+            net_connect.device_type == "nokia_sros"
+            and "@" not in net_connect.base_prompt
+        ):
+            # Only MD-CLI supports disable of command complete on space
+            assert pytest.skip()
+        cmd = commands.get("abbreviated_cmd")
+        cmd_full = commands.get("abbreviated_cmd_full")
+        net_connect.write_channel(f"{cmd}\n")
         output = net_connect.read_until_prompt()
-        assert "show ip neighbors" in output
+        assert cmd_full not in output
     else:
         assert pytest.skip()
 
@@ -244,7 +275,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
         enable_prompt = net_connect.find_prompt()
         assert enable_prompt == expected_responses["enable_prompt"]
     except AttributeError:
-        assert True is True
+        assert True
 
 
 def test_disconnect(net_connect, commands, expected_responses):

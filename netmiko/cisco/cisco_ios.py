@@ -10,15 +10,18 @@ from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 class CiscoIosBase(CiscoBaseConnection):
     """Common Methods for IOS (both SSH and telnet)."""
 
+    def __init__(self, *args, **kwargs):
+        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
-        self.set_base_prompt()
+        cmd = "terminal width 511"
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        self.set_terminal_width(command="terminal width 511")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def check_config_mode(self, check_string=")#", pattern="#"):
         """
@@ -71,12 +74,23 @@ class InLineTransfer(CiscoIosFileTransfer):
         direction="put",
         source_config=None,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
+
         if source_file and source_config:
             msg = "Invalid call to InLineTransfer both source_file and source_config specified."
             raise ValueError(msg)
         if direction != "put":
             raise ValueError("Only put operation supported by InLineTransfer.")
+
+        if progress is not None or progress4 is not None:
+            raise NotImplementedError(
+                "Progress bar is not supported on inline transfers."
+            )
+        else:
+            self.progress = progress
+            self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
         if source_file:
@@ -169,7 +183,10 @@ class InLineTransfer(CiscoIosFileTransfer):
         return hashlib.md5(file_contents).hexdigest()
 
     def config_md5(self, source_config):
-        return super().file_md5(source_config, add_newline=True)
+        """Compute MD5 hash of text."""
+        file_contents = source_config + "\n"  # Cisco IOS automatically adds this
+        file_contents = file_contents.encode("UTF-8")
+        return hashlib.md5(file_contents).hexdigest()
 
     def put_file(self):
         curlybrace = r"{"

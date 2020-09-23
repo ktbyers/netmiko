@@ -1,6 +1,6 @@
-cisco1#
-cisco1#terminal length 0
 cisco1#terminal width 511
+cisco1#terminal length 0
+cisco1#
 cisco1#
 cisco1#show ip interface brief
 Interface                  IP-Address      OK? Method Status                Protocol

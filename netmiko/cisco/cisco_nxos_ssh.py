@@ -1,21 +1,26 @@
 import re
-import time
 import os
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
+    def __init__(self, *args, **kwargs):
+        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
         self.ansi_escape_codes = True
-        self.set_base_prompt()
+        # NX-OS has an issue where it echoes the command even though it hasn't returned the prompt
+        self._test_channel_read(pattern=r"[>#]")
+        self.set_terminal_width(
+            command="terminal width 511", pattern=r"terminal width 511"
+        )
         self.disable_paging()
-        self.set_terminal_width(command="terminal width 511")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def normalize_linefeeds(self, a_string):
         """Convert '\r\n' or '\r\r\n' to '\n, and remove extra '\r's in the text."""
@@ -39,6 +44,8 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         file_system="bootflash:",
         direction="put",
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
@@ -60,6 +67,8 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             raise ValueError("Invalid direction specified")
 
         self.socket_timeout = socket_timeout
+        self.progress = progress
+        self.progress4 = progress4
 
     def check_file_exists(self, remote_cmd=""):
         """Check if the dest_file already exists on the file system (return boolean)."""

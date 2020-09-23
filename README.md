@@ -4,6 +4,7 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/ktbyers/netmiko.svg)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
+<img src="https://ktbyers.github.io/netmiko/images/netmiko_logo_gh.png" width="320">
 
 Netmiko
 =======
@@ -64,16 +65,9 @@ Netmiko has the following requirements (which pip will install for you)
 - [Netmiko and what constitutes done](https://pynet.twb-tech.com/blog/automation/netmiko-what-is-done.html)
 
 
-### Example Scripts:
+### Examples:
 
-See the following directory for [example scripts](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases), including examples of:
-
-- [Simple Connection](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case1_simple_conn/simple_conn.py)
-- [Sending Show Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case4_show_commands)
-- [Sending Configuration Commands](https://github.com/ktbyers/netmiko/tree/develop/examples/use_cases/case6_config_change)
-- [Handling Additional Prompting](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case5_prompting/send_command_prompting.py)
-- [Connecting with SSH Keys](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case9_ssh_keys/conn_ssh_keys.py)
-- [Cisco Genie Integration](https://github.com/ktbyers/netmiko/blob/develop/examples/use_cases/case18_structured_data_genie)
+A whole bunch of [examples](https://github.com/ktbyers/netmiko/blob/develop/EXAMPLES.md)
 
 
 ### Getting Started:

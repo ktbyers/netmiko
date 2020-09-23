@@ -415,6 +415,16 @@ ruijie_os:
   save_config_confirm: False
   save_config_response: 'OK'
 
+centec_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"
+  config:
+    - "ip access-list centec"
+  config_verification: "show running-config | include ip access-list centec"
+  save_config_cmd: 'write'
+  save_config_response: 'OK'
+
 supermicro_nos:
   version: "show version"
   basic: "show ip interface"
@@ -433,6 +443,11 @@ sophos_sfos:
   basic: "system diagnostics utilities route lookup 172.16.16.16"
   extended_output: "system diagnostics show version-info"
 
+adtran_os
+  version: "show version"
+  basic: "show system-management-evc"
+  extended_output: "show version"
+
 huawei_smartax:
   version: "display version"
   basic: "display system sys-info"
@@ -440,3 +455,19 @@ huawei_smartax:
   config:
     - acl 2456
   config_verification: "display current-configuration | include acl 2456"
+
+tplink_jetstream:
+  version: "show system-info"
+  basic: "show interface vlan 1"
+  extended_output: "show running-config all"
+  config:
+    - "no clipaging"
+  config_verification: "show running-config | include clipaging"
+
+tplink_jetstream_telnet:
+  version: "show system-info"
+  basic: "show interface vlan 1"
+  extended_output: "show running-config all"
+  config:
+    - "no clipaging"
+  config_verification: "show running-config | include clipaging"

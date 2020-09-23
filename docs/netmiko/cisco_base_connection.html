@@ -54,7 +54,7 @@ class CiscoBaseConnection(BaseConnection):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;
         Enter into configuration mode on remote device.
 
@@ -108,65 +108,76 @@ class CiscoBaseConnection(BaseConnection):
 
         output = &#34;&#34;
         return_msg = &#34;&#34;
+        outer_loops = 3
+        inner_loops = int(max_loops / outer_loops)
         i = 1
-        while i &lt;= max_loops:
-            try:
-                output = self.read_channel()
-                return_msg += output
-
-                # Search for username pattern / send username
-                if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
+        for _ in range(outer_loops):
+            while i &lt;= inner_loops:
+                try:
                     output = self.read_channel()
                     return_msg += output
 
-                # Search for password pattern / send password
-                if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
+                    # Search for username pattern / send username
+                    if re.search(username_pattern, output, flags=re.I):
+                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                        self.write_channel(self.username + &#34;\r&#34;)
+                        time.sleep(1 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+
+                    # Search for password pattern / send password
+                    if re.search(pwd_pattern, output, flags=re.I):
+                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                        self.write_channel(self.password + &#34;\r&#34;)
+                        time.sleep(0.5 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+                        if re.search(
+                            pri_prompt_terminator, output, flags=re.M
+                        ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                            return return_msg
+
+                    # Support direct telnet through terminal server
+                    if re.search(
+                        r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output
+                    ):
+                        self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
+                        time.sleep(0.5 * delay_factor)
+                        count = 0
+                        while count &lt; 15:
+                            output = self.read_channel()
+                            return_msg += output
+                            if re.search(r&#34;ress RETURN to get started&#34;, output):
+                                output = &#34;&#34;
+                                break
+                            time.sleep(2 * delay_factor)
+                            count += 1
+
+                    # Check for device with no password configured
+                    if re.search(r&#34;assword required, but none set&#34;, output):
+                        self.remote_conn.close()
+                        msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
+                            self.host
+                        )
+                        raise NetmikoAuthenticationException(msg)
+
+                    # Check if proper data received
                     if re.search(
                         pri_prompt_terminator, output, flags=re.M
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
-                # Support direct telnet through terminal server
-                if re.search(r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output):
-                    self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    count = 0
-                    while count &lt; 15:
-                        output = self.read_channel()
-                        return_msg += output
-                        if re.search(r&#34;ress RETURN to get started&#34;, output):
-                            output = &#34;&#34;
-                            break
-                        time.sleep(2 * delay_factor)
-                        count += 1
+                    i += 1
 
-                # Check for device with no password configured
-                if re.search(r&#34;assword required, but none set&#34;, output):
+                except EOFError:
                     self.remote_conn.close()
-                    msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
-                        self.host
-                    )
+                    msg = f&#34;Login failed: {self.host}&#34;
                     raise NetmikoAuthenticationException(msg)
 
-                # Check if proper data received
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
-                    return return_msg
-
-                self.write_channel(self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                i += 1
-            except EOFError:
-                self.remote_conn.close()
-                msg = f&#34;Login failed: {self.host}&#34;
-                raise NetmikoAuthenticationException(msg)
+            # Try sending an &lt;enter&gt; to restart the login process
+            self.write_channel(self.TELNET_RETURN)
+            time.sleep(0.5 * delay_factor)
+            i = 1
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -266,7 +277,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <dl>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoBaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -395,6 +406,10 @@ class CiscoFileTransfer(BaseFileTransfer):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -421,7 +436,7 @@ class CiscoFileTransfer(BaseFileTransfer):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;
         Enter into configuration mode on remote device.
 
@@ -475,65 +490,76 @@ class CiscoFileTransfer(BaseFileTransfer):
 
         output = &#34;&#34;
         return_msg = &#34;&#34;
+        outer_loops = 3
+        inner_loops = int(max_loops / outer_loops)
         i = 1
-        while i &lt;= max_loops:
-            try:
-                output = self.read_channel()
-                return_msg += output
-
-                # Search for username pattern / send username
-                if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
+        for _ in range(outer_loops):
+            while i &lt;= inner_loops:
+                try:
                     output = self.read_channel()
                     return_msg += output
 
-                # Search for password pattern / send password
-                if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
+                    # Search for username pattern / send username
+                    if re.search(username_pattern, output, flags=re.I):
+                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                        self.write_channel(self.username + &#34;\r&#34;)
+                        time.sleep(1 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+
+                    # Search for password pattern / send password
+                    if re.search(pwd_pattern, output, flags=re.I):
+                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                        self.write_channel(self.password + &#34;\r&#34;)
+                        time.sleep(0.5 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+                        if re.search(
+                            pri_prompt_terminator, output, flags=re.M
+                        ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                            return return_msg
+
+                    # Support direct telnet through terminal server
+                    if re.search(
+                        r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output
+                    ):
+                        self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
+                        time.sleep(0.5 * delay_factor)
+                        count = 0
+                        while count &lt; 15:
+                            output = self.read_channel()
+                            return_msg += output
+                            if re.search(r&#34;ress RETURN to get started&#34;, output):
+                                output = &#34;&#34;
+                                break
+                            time.sleep(2 * delay_factor)
+                            count += 1
+
+                    # Check for device with no password configured
+                    if re.search(r&#34;assword required, but none set&#34;, output):
+                        self.remote_conn.close()
+                        msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
+                            self.host
+                        )
+                        raise NetmikoAuthenticationException(msg)
+
+                    # Check if proper data received
                     if re.search(
                         pri_prompt_terminator, output, flags=re.M
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
-                # Support direct telnet through terminal server
-                if re.search(r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output):
-                    self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    count = 0
-                    while count &lt; 15:
-                        output = self.read_channel()
-                        return_msg += output
-                        if re.search(r&#34;ress RETURN to get started&#34;, output):
-                            output = &#34;&#34;
-                            break
-                        time.sleep(2 * delay_factor)
-                        count += 1
+                    i += 1
 
-                # Check for device with no password configured
-                if re.search(r&#34;assword required, but none set&#34;, output):
+                except EOFError:
                     self.remote_conn.close()
-                    msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
-                        self.host
-                    )
+                    msg = f&#34;Login failed: {self.host}&#34;
                     raise NetmikoAuthenticationException(msg)
 
-                # Check if proper data received
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
-                    return return_msg
-
-                self.write_channel(self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                i += 1
-            except EOFError:
-                self.remote_conn.close()
-                msg = f&#34;Login failed: {self.host}&#34;
-                raise NetmikoAuthenticationException(msg)
+            # Try sending an &lt;enter&gt; to restart the login process
+            self.write_channel(self.TELNET_RETURN)
+            time.sleep(0.5 * delay_factor)
+            i = 1
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -620,6 +646,8 @@ class CiscoFileTransfer(BaseFileTransfer):
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
+<li><a title="netmiko.adtran.adtran.AdtranOSBase" href="adtran/adtran.html#netmiko.adtran.adtran.AdtranOSBase">AdtranOSBase</a></li>
+<li><a title="netmiko.centec.centec_os.CentecOSBase" href="centec/centec_os.html#netmiko.centec.centec_os.CentecOSBase">CentecOSBase</a></li>
 <li><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="cisco/cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></li>
 <li><a title="netmiko.cisco.cisco_xr.CiscoXrBase" href="cisco/cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase">CiscoXrBase</a></li>
 <li><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase" href="dell/dell_powerconnect.html#netmiko.dell.dell_powerconnect.DellPowerConnectBase">DellPowerConnectBase</a></li>
@@ -627,7 +655,10 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH" href="huawei/huawei_smartax.html#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH">HuaweiSmartAXSSH</a></li>
 <li><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="ipinfusion/ipinfusion_ocnos.html#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></li>
 <li><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase" href="oneaccess/oneaccess_oneos.html#netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase">OneaccessOneOSBase</a></li>
+<li><a title="netmiko.raisecom.raisecom_roap.RaisecomRoapBase" href="raisecom/raisecom_roap.html#netmiko.raisecom.raisecom_roap.RaisecomRoapBase">RaisecomRoapBase</a></li>
 <li><a title="netmiko.ruijie.ruijie_os.RuijieOSBase" href="ruijie/ruijie_os.html#netmiko.ruijie.ruijie_os.RuijieOSBase">RuijieOSBase</a></li>
+<li><a title="netmiko.sixwind.sixwind_os.SixwindOSBase" href="sixwind/sixwind_os.html#netmiko.sixwind.sixwind_os.SixwindOSBase">SixwindOSBase</a></li>
+<li><a title="netmiko.zte.zte_zxros.ZteZxrosBase" href="zte/zte_zxros.html#netmiko.zte.zte_zxros.ZteZxrosBase">ZteZxrosBase</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -681,14 +712,14 @@ class CiscoFileTransfer(BaseFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='config term', pattern='')</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure terminal', pattern='')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter into configuration mode on remote device.</p>
 <p>Cisco IOS devices abbreviate the prompt at 20 chars in config mode</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;&#34;):
+<pre><code class="python">def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
     &#34;&#34;&#34;
     Enter into configuration mode on remote device.
 
@@ -826,65 +857,76 @@ class CiscoFileTransfer(BaseFileTransfer):
 
     output = &#34;&#34;
     return_msg = &#34;&#34;
+    outer_loops = 3
+    inner_loops = int(max_loops / outer_loops)
     i = 1
-    while i &lt;= max_loops:
-        try:
-            output = self.read_channel()
-            return_msg += output
-
-            # Search for username pattern / send username
-            if re.search(username_pattern, output, flags=re.I):
-                self.write_channel(self.username + self.TELNET_RETURN)
-                time.sleep(1 * delay_factor)
+    for _ in range(outer_loops):
+        while i &lt;= inner_loops:
+            try:
                 output = self.read_channel()
                 return_msg += output
 
-            # Search for password pattern / send password
-            if re.search(pwd_pattern, output, flags=re.I):
-                self.write_channel(self.password + self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                output = self.read_channel()
-                return_msg += output
+                # Search for username pattern / send username
+                if re.search(username_pattern, output, flags=re.I):
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.username + &#34;\r&#34;)
+                    time.sleep(1 * delay_factor)
+                    output = self.read_channel()
+                    return_msg += output
+
+                # Search for password pattern / send password
+                if re.search(pwd_pattern, output, flags=re.I):
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.password + &#34;\r&#34;)
+                    time.sleep(0.5 * delay_factor)
+                    output = self.read_channel()
+                    return_msg += output
+                    if re.search(
+                        pri_prompt_terminator, output, flags=re.M
+                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                        return return_msg
+
+                # Support direct telnet through terminal server
+                if re.search(
+                    r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output
+                ):
+                    self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
+                    time.sleep(0.5 * delay_factor)
+                    count = 0
+                    while count &lt; 15:
+                        output = self.read_channel()
+                        return_msg += output
+                        if re.search(r&#34;ress RETURN to get started&#34;, output):
+                            output = &#34;&#34;
+                            break
+                        time.sleep(2 * delay_factor)
+                        count += 1
+
+                # Check for device with no password configured
+                if re.search(r&#34;assword required, but none set&#34;, output):
+                    self.remote_conn.close()
+                    msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
+                        self.host
+                    )
+                    raise NetmikoAuthenticationException(msg)
+
+                # Check if proper data received
                 if re.search(
                     pri_prompt_terminator, output, flags=re.M
                 ) or re.search(alt_prompt_terminator, output, flags=re.M):
                     return return_msg
 
-            # Support direct telnet through terminal server
-            if re.search(r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output):
-                self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                count = 0
-                while count &lt; 15:
-                    output = self.read_channel()
-                    return_msg += output
-                    if re.search(r&#34;ress RETURN to get started&#34;, output):
-                        output = &#34;&#34;
-                        break
-                    time.sleep(2 * delay_factor)
-                    count += 1
+                i += 1
 
-            # Check for device with no password configured
-            if re.search(r&#34;assword required, but none set&#34;, output):
+            except EOFError:
                 self.remote_conn.close()
-                msg = &#34;Login failed - Password required, but none set: {}&#34;.format(
-                    self.host
-                )
+                msg = f&#34;Login failed: {self.host}&#34;
                 raise NetmikoAuthenticationException(msg)
 
-            # Check if proper data received
-            if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                alt_prompt_terminator, output, flags=re.M
-            ):
-                return return_msg
-
-            self.write_channel(self.TELNET_RETURN)
-            time.sleep(0.5 * delay_factor)
-            i += 1
-        except EOFError:
-            self.remote_conn.close()
-            msg = f&#34;Login failed: {self.host}&#34;
-            raise NetmikoAuthenticationException(msg)
+        # Try sending an &lt;enter&gt; to restart the login process
+        self.write_channel(self.TELNET_RETURN)
+        time.sleep(0.5 * delay_factor)
+        i = 1
 
     # Last try to see if we already logged in
     self.write_channel(self.TELNET_RETURN)
@@ -943,7 +985,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Class to manage SCP file transfer and associated SSH control channel.</p></section>
@@ -992,7 +1034,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoSSHConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoSSHConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -1121,6 +1163,10 @@ class CiscoFileTransfer(BaseFileTransfer):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1140,6 +1186,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.arista.arista.AristaBase" href="arista/arista.html#netmiko.arista.arista.AristaBase">AristaBase</a></li>
 <li><a title="netmiko.apresia.apresia_aeos.ApresiaAeosBase" href="apresia/apresia_aeos.html#netmiko.apresia.apresia_aeos.ApresiaAeosBase">ApresiaAeosBase</a></li>
 <li><a title="netmiko.aruba.aruba_ssh.ArubaSSH" href="aruba/aruba_ssh.html#netmiko.aruba.aruba_ssh.ArubaSSH">ArubaSSH</a></li>
+<li><a title="netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH" href="broadcom/broadcom_icos_ssh.html#netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH">BroadcomIcosSSH</a></li>
 <li><a title="netmiko.calix.calix_b6.CalixB6Base" href="calix/calix_b6.html#netmiko.calix.calix_b6.CalixB6Base">CalixB6Base</a></li>
 <li><a title="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH" href="cisco/cisco_asa_ssh.html#netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH">CiscoAsaSSH</a></li>
 <li><a title="netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH" href="cisco/cisco_nxos_ssh.html#netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH">CiscoNxosSSH</a></li>
@@ -1169,6 +1216,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.mellanox.mellanox_mlnxos_ssh.MellanoxMlnxosSSH" href="mellanox/mellanox_mlnxos_ssh.html#netmiko.mellanox.mellanox_mlnxos_ssh.MellanoxMlnxosSSH">MellanoxMlnxosSSH</a></li>
 <li><a title="netmiko.mrv.mrv_lx.MrvLxSSH" href="mrv/mrv_lx.html#netmiko.mrv.mrv_lx.MrvLxSSH">MrvLxSSH</a></li>
 <li><a title="netmiko.mrv.mrv_ssh.MrvOptiswitchSSH" href="mrv/mrv_ssh.html#netmiko.mrv.mrv_ssh.MrvOptiswitchSSH">MrvOptiswitchSSH</a></li>
+<li><a title="netmiko.netgear.netgear_prosafe_ssh.NetgearProSafeSSH" href="netgear/netgear_prosafe_ssh.html#netmiko.netgear.netgear_prosafe_ssh.NetgearProSafeSSH">NetgearProSafeSSH</a></li>
 <li><a title="netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH" href="quanta/quanta_mesh_ssh.html#netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH">QuantaMeshSSH</a></li>
 <li><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase" href="ruckus/ruckus_fastiron.html#netmiko.ruckus.ruckus_fastiron.RuckusFastironBase">RuckusFastironBase</a></li>
 <li><a title="netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH" href="sophos/sophos_sfos_ssh.html#netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH">SophosSfosSSH</a></li>

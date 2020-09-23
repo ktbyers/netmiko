@@ -39,8 +39,8 @@ class FlexvnfSSH(BaseConnection):
         self._test_channel_read()
         self.enter_cli_mode()
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;set screen width 511&#34;, pattern=&#34;set&#34;)
         self.disable_paging(command=&#34;set screen length 0&#34;)
-        self.set_terminal_width(command=&#34;set screen width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -239,7 +239,7 @@ class FlexvnfSSH(BaseConnection):
 <dl>
 <dt id="netmiko.flexvnf.flexvnf_ssh.FlexvnfSSH"><code class="flex name class">
 <span>class <span class="ident">FlexvnfSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -369,6 +369,10 @@ class FlexvnfSSH(BaseConnection):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -383,8 +387,8 @@ class FlexvnfSSH(BaseConnection):
         self._test_channel_read()
         self.enter_cli_mode()
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;set screen width 511&#34;, pattern=&#34;set&#34;)
         self.disable_paging(command=&#34;set screen length 0&#34;)
-        self.set_terminal_width(command=&#34;set screen width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -820,8 +824,8 @@ Set the base prompt for interaction ('&gt;').</p></section>
     self._test_channel_read()
     self.enter_cli_mode()
     self.set_base_prompt()
+    self.set_terminal_width(command=&#34;set screen width 511&#34;, pattern=&#34;set&#34;)
     self.disable_paging(command=&#34;set screen length 0&#34;)
-    self.set_terminal_width(command=&#34;set screen width 511&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>

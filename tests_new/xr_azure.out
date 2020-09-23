@@ -1,0 +1,24 @@
+
+
+RP/0/RP0/CPU0:iosxr3#show system
+
+% Incomplete command.
+RP/0/RP0/CPU0:iosxr3#show version
+
+Fri Sep 11 19:51:41.538 UTC
+Cisco IOS XR Software, Version 6.5.3
+Copyright (c) 2013-2019 by Cisco Systems, Inc.
+
+Build Information:
+ Built By     : ahoang
+ Built On     : Tue Mar 26 06:52:25 PDT 2019
+ Built Host   : iox-ucs-019
+ Workspace    : /auto/srcarchive13/prod/6.5.3/xrv9k/ws
+ Version      : 6.5.3
+ Location     : /opt/cisco/XR/packages/
+
+cisco IOS-XRv 9000 () processor
+System uptime is 4 weeks 2 days 22 hours 7 minutes
+
+
+RP/0/RP0/CPU0:iosxr3#

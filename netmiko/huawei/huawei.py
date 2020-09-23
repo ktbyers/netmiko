@@ -28,9 +28,6 @@ class HuaweiBase(CiscoBaseConnection):
         pattern = rf" {code_cursor_left}"
         output = re.sub(pattern, "", output)
 
-        log.debug("Stripping ANSI escape codes")
-        log.debug(f"new_output = {output}")
-        log.debug(f"repr = {repr(output)}")
         return super().strip_ansi_escape_codes(output)
 
     def config_mode(self, config_command="system-view"):

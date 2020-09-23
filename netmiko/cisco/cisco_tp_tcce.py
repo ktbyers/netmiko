@@ -34,8 +34,8 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         """
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
+        self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()

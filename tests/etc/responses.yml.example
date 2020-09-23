@@ -260,6 +260,14 @@ ruijie_os:
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
 
+centec_os:
+  base_prompt: Centec
+  router_prompt : Centec>
+  enable_prompt: Centec#
+  interface_ip: 172.30.31.101
+  version_banner: "Centec Networks"
+  multiple_line_output: ""
+
 supermicro_nos:
   base_prompt: SMIS
   router_prompt: SMIS>
@@ -279,6 +287,13 @@ sophos_sfos:
   version_banner: "Serial Number"
   multiple_line_output: ""
 
+adtran_os:
+  base_prompt: "adtrantest"
+  router_prompt: "adtrantest>"
+  enable_prompt: "adtrantest#"
+  interface_ip: 192.0.2.1
+  version_banner: "Serial number"
+
 huawei_smartax:
   base_prompt: "ol01.test-lab.xyz"
   router_prompt: "ol01.test-lab.xyz>"
@@ -286,3 +301,21 @@ huawei_smartax:
   interface_ip: 192.0.2.1
   version_banner: "VERSION :"
   multiple_line_output: ""
+
+tplink_jetstream:
+  base_prompt: "T1500G-10PS"
+  router_prompt: "T1500G-10PS>"
+  enable_prompt: "T1500G-10PS#"
+  interface_ip: 192.168.0.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface vlan 1"
+  cmd_response_final: "no clipaging"
+
+tplink_jetstream_telnet:
+  base_prompt: "T1500G-10PS"
+  router_prompt: "T1500G-10PS>"
+  enable_prompt: "T1500G-10PS#"
+  interface_ip: 192.168.0.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface vlan 1"
+  cmd_response_final: "no clipaging"

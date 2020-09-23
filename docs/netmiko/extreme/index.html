@@ -87,7 +87,7 @@ __all__ = [
 <dl>
 <dt id="netmiko.extreme.ExtremeErsSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeErsSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Netmiko support for Extreme Ethernet Routing Switch.</p>
@@ -216,6 +216,10 @@ __all__ = [
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -362,7 +366,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeExosSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeExosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Extreme Exos support.</p>
@@ -492,6 +496,10 @@ __all__ = [
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -685,6 +693,10 @@ __all__ = [
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -751,7 +763,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeNetironSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeNetironSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -880,6 +892,10 @@ __all__ = [
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1072,6 +1088,10 @@ __all__ = [
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1138,7 +1158,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeNosSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeNosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Support for Extreme NOS/VDX.</p>
@@ -1267,6 +1287,10 @@ __all__ = [
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1410,7 +1434,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeSlxSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeSlxSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Support for Extreme SLX.</p>
@@ -1539,6 +1563,10 @@ __all__ = [
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1682,7 +1710,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeVspSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeVspSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Extreme Virtual Services Platform Support.</p>
@@ -1811,6 +1839,10 @@ __all__ = [
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1920,7 +1952,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.extreme.ExtremeWingSSH"><code class="flex name class">
 <span>class <span class="ident">ExtremeWingSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Extreme WiNG support.</p>
@@ -2049,6 +2081,10 @@ __all__ = [
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -2059,8 +2095,8 @@ __all__ = [
         &#34;&#34;&#34;Disable paging and set Max term width&#34;&#34;&#34;
         self._test_channel_read(pattern=r&#34;&gt;|#&#34;)
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 512&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging(command=&#34;no page&#34;)
-        self.set_terminal_width(command=&#34;terminal width 512&#34;)
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()</code></pre>
 </details>
@@ -2083,8 +2119,8 @@ __all__ = [
     &#34;&#34;&#34;Disable paging and set Max term width&#34;&#34;&#34;
     self._test_channel_read(pattern=r&#34;&gt;|#&#34;)
     self.set_base_prompt()
+    self.set_terminal_width(command=&#34;terminal width 512&#34;, pattern=&#34;terminal&#34;)
     self.disable_paging(command=&#34;no page&#34;)
-    self.set_terminal_width(command=&#34;terminal width 512&#34;)
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>
 </details>

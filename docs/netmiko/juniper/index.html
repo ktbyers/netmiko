@@ -131,7 +131,7 @@ __all__ = [&#34;JuniperSSH&#34;, &#34;JuniperTelnet&#34;, &#34;JuniperFileTransf
 </dd>
 <dt id="netmiko.juniper.JuniperSSH"><code class="flex name class">
 <span>class <span class="ident">JuniperSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with Juniper Networks devices.</p>
@@ -263,6 +263,10 @@ Overrides several methods for Juniper-specific compatibility.</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -280,7 +284,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <ul class="hlist">
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_config_mode" href="juniper.html#netmiko.juniper.juniper.JuniperBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="juniper.html#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="juniper.html#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="juniper.html#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>
@@ -326,7 +330,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 </dd>
 <dt id="netmiko.juniper.JuniperScreenOsSSH"><code class="flex name class">
 <span>class <span class="ident">JuniperScreenOsSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with Juniper ScreenOS devices.</p>
@@ -455,6 +459,10 @@ Overrides several methods for Juniper-specific compatibility.</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -794,6 +802,10 @@ Overrides several methods for Juniper-specific compatibility.</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -814,7 +826,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <ul class="hlist">
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_config_mode" href="juniper.html#netmiko.juniper.juniper.JuniperBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="juniper.html#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="juniper.html#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="juniper.html#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>

@@ -22,9 +22,11 @@ class SCPConn(object):
     Must close the SCP connection to get the file to write to the remote filesystem
     """
 
-    def __init__(self, ssh_conn, socket_timeout=10.0):
+    def __init__(self, ssh_conn, socket_timeout=10.0, progress=None, progress4=None):
         self.ssh_ctl_chan = ssh_conn
         self.socket_timeout = socket_timeout
+        self.progress = progress
+        self.progress4 = progress4
         self.establish_scp_conn()
 
     def establish_scp_conn(self):
@@ -33,7 +35,10 @@ class SCPConn(object):
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
         self.scp_client = scp.SCPClient(
-            self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+            self.scp_conn.get_transport(),
+            socket_timeout=self.socket_timeout,
+            progress=self.progress,
+            progress4=self.progress4,
         )
 
     def scp_transfer_file(self, source_file, dest_file):
@@ -42,7 +47,14 @@ class SCPConn(object):
 
     def scp_get_file(self, source_file, dest_file):
         """Get file using SCP."""
-        self.scp_client.get(source_file, dest_file)
+        platform = self.ssh_ctl_chan.device_type
+        if "cisco_ios" in platform or "cisco_xe" in platform:
+            try:
+                self.scp_client.get(source_file, dest_file)
+            except EOFError:
+                pass
+        else:
+            self.scp_client.get(source_file, dest_file)
 
     def scp_put_file(self, source_file, dest_file):
         """Put file using SCP."""
@@ -64,6 +76,8 @@ class BaseFileTransfer(object):
         file_system=None,
         direction="put",
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
         hash_supported=True,
     ):
         self.ssh_ctl_chan = ssh_conn
@@ -71,6 +85,8 @@ class BaseFileTransfer(object):
         self.dest_file = dest_file
         self.direction = direction
         self.socket_timeout = socket_timeout
+        self.progress = progress
+        self.progress4 = progress4
 
         auto_flag = (
             "cisco_ios" in ssh_conn.device_type
@@ -107,7 +123,12 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         """Establish SCP connection."""
-        self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout)
+        self.scp_conn = SCPConn(
+            self.ssh_ctl_chan,
+            socket_timeout=self.socket_timeout,
+            progress=self.progress,
+            progress4=self.progress4,
+        )
 
     def close_scp_chan(self):
         """Close the SCP connection to the remote network device."""

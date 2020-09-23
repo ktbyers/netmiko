@@ -34,15 +34,18 @@ from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 class CiscoIosBase(CiscoBaseConnection):
     &#34;&#34;&#34;Common Methods for IOS (both SSH and telnet).&#34;&#34;&#34;
 
+    def __init__(self, *args, **kwargs):
+        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-        self.set_base_prompt()
+        cmd = &#34;terminal width 511&#34;
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
         &#34;&#34;&#34;
@@ -95,12 +98,23 @@ class InLineTransfer(CiscoIosFileTransfer):
         direction=&#34;put&#34;,
         source_config=None,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
+
         if source_file and source_config:
             msg = &#34;Invalid call to InLineTransfer both source_file and source_config specified.&#34;
             raise ValueError(msg)
         if direction != &#34;put&#34;:
             raise ValueError(&#34;Only put operation supported by InLineTransfer.&#34;)
+
+        if progress is not None or progress4 is not None:
+            raise NotImplementedError(
+                &#34;Progress bar is not supported on inline transfers.&#34;
+            )
+        else:
+            self.progress = progress
+            self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
         if source_file:
@@ -193,7 +207,10 @@ class InLineTransfer(CiscoIosFileTransfer):
         return hashlib.md5(file_contents).hexdigest()
 
     def config_md5(self, source_config):
-        return super().file_md5(source_config, add_newline=True)
+        &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
+        file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
+        file_contents = file_contents.encode(&#34;UTF-8&#34;)
+        return hashlib.md5(file_contents).hexdigest()
 
     def put_file(self):
         curlybrace = r&#34;{&#34;
@@ -264,7 +281,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <dl>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosBase"><code class="flex name class">
 <span>class <span class="ident">CiscoIosBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Common Methods for IOS (both SSH and telnet).</p>
@@ -393,21 +410,28 @@ class InLineTransfer(CiscoIosFileTransfer):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class CiscoIosBase(CiscoBaseConnection):
     &#34;&#34;&#34;Common Methods for IOS (both SSH and telnet).&#34;&#34;&#34;
 
+    def __init__(self, *args, **kwargs):
+        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-        self.set_base_prompt()
+        cmd = &#34;terminal width 511&#34;
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
         &#34;&#34;&#34;
@@ -461,13 +485,10 @@ class InLineTransfer(CiscoIosFileTransfer):
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self):
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-    self.set_base_prompt()
+    cmd = &#34;terminal width 511&#34;
+    self.set_terminal_width(command=cmd, pattern=cmd)
     self.disable_paging()
-    self.set_terminal_width(command=&#34;terminal width 511&#34;)
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
+    self.set_base_prompt()</code></pre>
 </details>
 </dd>
 </dl>
@@ -519,7 +540,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoIosFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS SCP File Transfer driver.</p></section>
@@ -566,7 +587,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS SSH driver.</p>
@@ -695,6 +716,10 @@ class InLineTransfer(CiscoIosFileTransfer):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -759,7 +784,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosSerial"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSerial</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS Serial driver.</p>
@@ -888,6 +913,10 @@ class InLineTransfer(CiscoIosFileTransfer):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -952,7 +981,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoIosTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS Telnet driver.</p>
@@ -1081,6 +1110,10 @@ class InLineTransfer(CiscoIosFileTransfer):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1145,7 +1178,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.InLineTransfer"><code class="flex name class">
 <span>class <span class="ident">InLineTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file=None, dest_file=None, file_system=None, direction='put', source_config=None, socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file=None, dest_file=None, file_system=None, direction='put', source_config=None, socket_timeout=10.0, progress=None, progress4=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Use TCL on Cisco IOS to directly transfer file.</p></section>
@@ -1163,12 +1196,23 @@ class InLineTransfer(CiscoIosFileTransfer):
         direction=&#34;put&#34;,
         source_config=None,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
+
         if source_file and source_config:
             msg = &#34;Invalid call to InLineTransfer both source_file and source_config specified.&#34;
             raise ValueError(msg)
         if direction != &#34;put&#34;:
             raise ValueError(&#34;Only put operation supported by InLineTransfer.&#34;)
+
+        if progress is not None or progress4 is not None:
+            raise NotImplementedError(
+                &#34;Progress bar is not supported on inline transfers.&#34;
+            )
+        else:
+            self.progress = progress
+            self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
         if source_file:
@@ -1261,7 +1305,10 @@ class InLineTransfer(CiscoIosFileTransfer):
         return hashlib.md5(file_contents).hexdigest()
 
     def config_md5(self, source_config):
-        return super().file_md5(source_config, add_newline=True)
+        &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
+        file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
+        file_contents = file_contents.encode(&#34;UTF-8&#34;)
+        return hashlib.md5(file_contents).hexdigest()
 
     def put_file(self):
         curlybrace = r&#34;{&#34;
@@ -1332,11 +1379,14 @@ class InLineTransfer(CiscoIosFileTransfer):
 <span>def <span class="ident">config_md5</span></span>(<span>self, source_config)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Compute MD5 hash of text.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def config_md5(self, source_config):
-    return super().file_md5(source_config, add_newline=True)</code></pre>
+    &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
+    file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
+    file_contents = file_contents.encode(&#34;UTF-8&#34;)
+    return hashlib.md5(file_contents).hexdigest()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco.cisco_ios.InLineTransfer.file_md5"><code class="name flex">

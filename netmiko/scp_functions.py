@@ -4,10 +4,32 @@ Netmiko SCP operations.
 Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
-
-Currently only supports Cisco IOS and Cisco ASA.
 """
 from netmiko import FileTransfer, InLineTransfer
+
+
+def progress_bar(filename, size, sent, peername=None):
+    max_width = 50
+    if isinstance(filename, bytes):
+        filename = filename.decode()
+    clear_screen = chr(27) + "[2J"
+    terminating_char = "|"
+
+    # Percentage done
+    percent_complete = sent / size
+    percent_str = f"{percent_complete*100:.2f}%"
+    hash_count = int(percent_complete * max_width)
+    progress = hash_count * ">"
+
+    if peername is None:
+        header_msg = f"Transferring file: {filename}\n"
+    else:
+        header_msg = f"Transferring file to {peername}: {filename}\n"
+
+    msg = f"{progress:<50}{terminating_char:1} ({percent_str})"
+    print(clear_screen)
+    print(header_msg)
+    print(msg)
 
 
 def verifyspace_and_transferfile(scp_transfer):
@@ -27,6 +49,8 @@ def file_transfer(
     inline_transfer=False,
     overwrite_file=False,
     socket_timeout=10.0,
+    progress=None,
+    progress4=None,
     verify_file=None,
 ):
     """Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
@@ -72,6 +96,8 @@ def file_transfer(
         "dest_file": dest_file,
         "direction": direction,
         "socket_timeout": socket_timeout,
+        "progress": progress,
+        "progress4": progress4,
     }
     if file_system is not None:
         scp_args["file_system"] = file_system

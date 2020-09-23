@@ -50,9 +50,11 @@ class SCPConn(object):
     Must close the SCP connection to get the file to write to the remote filesystem
     &#34;&#34;&#34;
 
-    def __init__(self, ssh_conn, socket_timeout=10.0):
+    def __init__(self, ssh_conn, socket_timeout=10.0, progress=None, progress4=None):
         self.ssh_ctl_chan = ssh_conn
         self.socket_timeout = socket_timeout
+        self.progress = progress
+        self.progress4 = progress4
         self.establish_scp_conn()
 
     def establish_scp_conn(self):
@@ -61,7 +63,10 @@ class SCPConn(object):
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
         self.scp_client = scp.SCPClient(
-            self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+            self.scp_conn.get_transport(),
+            socket_timeout=self.socket_timeout,
+            progress=self.progress,
+            progress4=self.progress4,
         )
 
     def scp_transfer_file(self, source_file, dest_file):
@@ -70,7 +75,14 @@ class SCPConn(object):
 
     def scp_get_file(self, source_file, dest_file):
         &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
-        self.scp_client.get(source_file, dest_file)
+        platform = self.ssh_ctl_chan.device_type
+        if &#34;cisco_ios&#34; in platform or &#34;cisco_xe&#34; in platform:
+            try:
+                self.scp_client.get(source_file, dest_file)
+            except EOFError:
+                pass
+        else:
+            self.scp_client.get(source_file, dest_file)
 
     def scp_put_file(self, source_file, dest_file):
         &#34;&#34;&#34;Put file using SCP.&#34;&#34;&#34;
@@ -92,6 +104,8 @@ class BaseFileTransfer(object):
         file_system=None,
         direction=&#34;put&#34;,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
         hash_supported=True,
     ):
         self.ssh_ctl_chan = ssh_conn
@@ -99,6 +113,8 @@ class BaseFileTransfer(object):
         self.dest_file = dest_file
         self.direction = direction
         self.socket_timeout = socket_timeout
+        self.progress = progress
+        self.progress4 = progress4
 
         auto_flag = (
             &#34;cisco_ios&#34; in ssh_conn.device_type
@@ -135,7 +151,12 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         &#34;&#34;&#34;Establish SCP connection.&#34;&#34;&#34;
-        self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout)
+        self.scp_conn = SCPConn(
+            self.ssh_ctl_chan,
+            socket_timeout=self.socket_timeout,
+            progress=self.progress,
+            progress4=self.progress4,
+        )
 
     def close_scp_chan(self):
         &#34;&#34;&#34;Close the SCP connection to the remote network device.&#34;&#34;&#34;
@@ -421,7 +442,7 @@ class BaseFileTransfer(object):
 <dl>
 <dt id="netmiko.scp_handler.BaseFileTransfer"><code class="flex name class">
 <span>class <span class="ident">BaseFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Class to manage SCP file transfer and associated SSH control channel.</p></section>
@@ -438,6 +459,8 @@ class BaseFileTransfer(object):
         file_system=None,
         direction=&#34;put&#34;,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
         hash_supported=True,
     ):
         self.ssh_ctl_chan = ssh_conn
@@ -445,6 +468,8 @@ class BaseFileTransfer(object):
         self.dest_file = dest_file
         self.direction = direction
         self.socket_timeout = socket_timeout
+        self.progress = progress
+        self.progress4 = progress4
 
         auto_flag = (
             &#34;cisco_ios&#34; in ssh_conn.device_type
@@ -481,7 +506,12 @@ class BaseFileTransfer(object):
 
     def establish_scp_conn(self):
         &#34;&#34;&#34;Establish SCP connection.&#34;&#34;&#34;
-        self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout)
+        self.scp_conn = SCPConn(
+            self.ssh_ctl_chan,
+            socket_timeout=self.socket_timeout,
+            progress=self.progress,
+            progress4=self.progress4,
+        )
 
     def close_scp_chan(self):
         &#34;&#34;&#34;Close the SCP connection to the remote network device.&#34;&#34;&#34;
@@ -903,7 +933,12 @@ def process_md5(md5_output, pattern=r&#34;=\s+(\S+)&#34;):
 <summary>Source code</summary>
 <pre><code class="python">def establish_scp_conn(self):
     &#34;&#34;&#34;Establish SCP connection.&#34;&#34;&#34;
-    self.scp_conn = SCPConn(self.ssh_ctl_chan, socket_timeout=self.socket_timeout)</code></pre>
+    self.scp_conn = SCPConn(
+        self.ssh_ctl_chan,
+        socket_timeout=self.socket_timeout,
+        progress=self.progress,
+        progress4=self.progress4,
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.scp_handler.BaseFileTransfer.file_md5"><code class="name flex">
@@ -1120,7 +1155,7 @@ the string</p>
 </dd>
 <dt id="netmiko.scp_handler.SCPConn"><code class="flex name class">
 <span>class <span class="ident">SCPConn</span></span>
-<span>(</span><span>ssh_conn, socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, socket_timeout=10.0, progress=None, progress4=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Establish a secure copy channel to the remote network device.</p>
@@ -1134,9 +1169,11 @@ the string</p>
     Must close the SCP connection to get the file to write to the remote filesystem
     &#34;&#34;&#34;
 
-    def __init__(self, ssh_conn, socket_timeout=10.0):
+    def __init__(self, ssh_conn, socket_timeout=10.0, progress=None, progress4=None):
         self.ssh_ctl_chan = ssh_conn
         self.socket_timeout = socket_timeout
+        self.progress = progress
+        self.progress4 = progress4
         self.establish_scp_conn()
 
     def establish_scp_conn(self):
@@ -1145,7 +1182,10 @@ the string</p>
         self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
         self.scp_conn.connect(**ssh_connect_params)
         self.scp_client = scp.SCPClient(
-            self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+            self.scp_conn.get_transport(),
+            socket_timeout=self.socket_timeout,
+            progress=self.progress,
+            progress4=self.progress4,
         )
 
     def scp_transfer_file(self, source_file, dest_file):
@@ -1154,7 +1194,14 @@ the string</p>
 
     def scp_get_file(self, source_file, dest_file):
         &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
-        self.scp_client.get(source_file, dest_file)
+        platform = self.ssh_ctl_chan.device_type
+        if &#34;cisco_ios&#34; in platform or &#34;cisco_xe&#34; in platform:
+            try:
+                self.scp_client.get(source_file, dest_file)
+            except EOFError:
+                pass
+        else:
+            self.scp_client.get(source_file, dest_file)
 
     def scp_put_file(self, source_file, dest_file):
         &#34;&#34;&#34;Put file using SCP.&#34;&#34;&#34;
@@ -1191,7 +1238,10 @@ the string</p>
     self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
     self.scp_conn.connect(**ssh_connect_params)
     self.scp_client = scp.SCPClient(
-        self.scp_conn.get_transport(), socket_timeout=self.socket_timeout
+        self.scp_conn.get_transport(),
+        socket_timeout=self.socket_timeout,
+        progress=self.progress,
+        progress4=self.progress4,
     )</code></pre>
 </details>
 </dd>
@@ -1204,7 +1254,14 @@ the string</p>
 <summary>Source code</summary>
 <pre><code class="python">def scp_get_file(self, source_file, dest_file):
     &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
-    self.scp_client.get(source_file, dest_file)</code></pre>
+    platform = self.ssh_ctl_chan.device_type
+    if &#34;cisco_ios&#34; in platform or &#34;cisco_xe&#34; in platform:
+        try:
+            self.scp_client.get(source_file, dest_file)
+        except EOFError:
+            pass
+    else:
+        self.scp_client.get(source_file, dest_file)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.scp_handler.SCPConn.scp_put_file"><code class="name flex">
