@@ -18,13 +18,18 @@ try:
 except ImportError:
     GENIE_INSTALLED = False
 
+# If we are on python < 3.7, we need to force the import of importlib.resources backport
+try:
+    from importlib.resources import path as importresources_path
+except ModuleNotFoundError:
+    from importlib_resources import path as importresources_path
+
 try:
     import serial.tools.list_ports
 
     PYSERIAL_INSTALLED = True
 except ImportError:
     PYSERIAL_INSTALLED = False
-
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -109,8 +114,8 @@ def find_cfg_file(file_name=None):
         if files:
             return files[0]
     raise IOError(
-        ".netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current "
-        "directory, or home directory."
+        ".netmiko.yml file not found in NETMIKO_TOOLS environment variable directory,"
+        " current directory, or home directory."
     )
 
 
@@ -224,25 +229,59 @@ def check_serial_port(name):
         raise ValueError(msg)
 
 
-def get_template_dir():
-    """Find and return the ntc-templates/templates dir."""
-    try:
-        template_dir = os.path.expanduser(os.environ["NET_TEXTFSM"])
+def get_template_dir(_skip_ntc_package=False):
+    """
+    Find and return the directory containing the TextFSM index file.
+
+    Order of preference is:
+    1) Find directory in `NET_TEXTFSM` Environment Variable.
+    2) Check for pip installed `ntc-templates` location in this environment.
+    3) ~/ntc-templates/templates.
+
+    If `index` file is not found in any of these locations, raise ValueError
+
+    :return: directory containing the TextFSM index file
+
+    """
+
+    msg = """
+Directory containing TextFSM index file not found.
+
+Please set the NET_TEXTFSM environment variable to point at the directory containing your TextFSM
+index file.
+
+Alternatively, `pip install ntc-templates` (if using ntc-templates).
+
+"""
+
+    # Try NET_TEXTFSM environment variable
+    template_dir = os.environ.get("NET_TEXTFSM")
+    if template_dir is not None:
+        template_dir = os.path.expanduser(template_dir)
         index = os.path.join(template_dir, "index")
         if not os.path.isfile(index):
             # Assume only base ./ntc-templates specified
             template_dir = os.path.join(template_dir, "templates")
-    except KeyError:
-        # Construct path ~/ntc-templates/templates
-        home_dir = os.path.expanduser("~")
-        template_dir = os.path.join(home_dir, "ntc-templates", "templates")
+
+    else:
+        # Try 'pip installed' ntc-templates
+        try:
+            with importresources_path(
+                package="ntc_templates", resource="templates"
+            ) as posix_path:
+                # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
+                template_dir = str(posix_path)
+                # This is for Netmiko automated testing
+                if _skip_ntc_package:
+                    raise ModuleNotFoundError()
+
+        except ModuleNotFoundError:
+            # Finally check in ~/ntc-templates/templates
+            home_dir = os.path.expanduser("~")
+            template_dir = os.path.join(home_dir, "ntc-templates", "templates")
 
     index = os.path.join(template_dir, "index")
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
-        msg = """
-Valid ntc-templates not found, please install https://github.com/networktocode/ntc-templates
-and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
-directory."""
         raise ValueError(msg)
     return os.path.abspath(template_dir)
 
@@ -345,7 +384,7 @@ def get_structured_data_genie(raw_output, platform, command):
     device.custom["abstraction"]["order"] = ["os"]
     device.cli = AttrDict({"execute": None})
     try:
-        # Test of whether their is a parser for the given command (will return Exception if fails)
+        # Test whether there is a parser for given command (return Exception if fails)
         get_parser(command, device)
         parsed_output = device.parse(command, output=raw_output)
         return parsed_output
