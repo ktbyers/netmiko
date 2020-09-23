@@ -1253,13 +1253,19 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         """
-        # For compatibility remove cmd_echo in Netmiko 4.x.x
+
+        # For compatibility; remove cmd_echo in Netmiko 4.x.x
         if cmd_echo is not None:
             cmd_verify = cmd_echo
 
         output = ""
+
         delay_factor = self.select_delay_factor(delay_factor)
-        self.clear_buffer()
+        # Cleanup in future versions of Netmiko
+        if delay_factor < 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         if normalize:
             command_string = self.normalize_cmd(command_string)
 
@@ -1487,7 +1493,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             new_data = self.read_channel()
         else:  # nobreak
             raise IOError(
-                "Search pattern never detected in send_command_expect: {}".format(
+                "Search pattern never detected in send_command: {}".format(
                     search_pattern
                 )
             )
