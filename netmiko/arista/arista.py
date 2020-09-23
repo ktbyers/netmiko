@@ -1,18 +1,19 @@
-import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
 
 class AristaBase(CiscoSSHConnection):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
-        self.set_base_prompt()
-        self.set_terminal_width(command="terminal width 511", pattern="terminal")
+        cmd = "terminal width 511"
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def check_config_mode(self, check_string=")#", pattern=""):
         """
