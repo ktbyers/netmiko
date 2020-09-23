@@ -3,6 +3,7 @@
 import os
 import sys
 from os.path import dirname, join, relpath
+import pytest
 
 from netmiko import utilities
 from netmiko._textfsm import _clitable as clitable
@@ -224,9 +225,14 @@ def test_ntc_templates_discovery():
     assert ntc_path == f"{packages_dir}/ntc_templates/templates"
 
     # Next should use local index file in ~
-    ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
     home_dir = os.path.expanduser("~")
-    assert ntc_path == f"{home_dir}/ntc-templates/templates"
+    # Will not work for CI-CD without pain so just test locally
+    if "kbyers" in home_dir:
+        ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
+        assert ntc_path == f"{home_dir}/ntc-templates/templates"
+    else:
+        with pytest.raises(ValueError):
+            ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
 
 
 def test_textfsm_index_relative_path():
