@@ -50,7 +50,6 @@ setup(
         "paramiko>=2.6.0",
         "scp>=0.13.2",
         "pyserial",
-        "textfsm",
         "ntc-templates",
         "importlib_resources ; python_version<'3.7'",
     ],
