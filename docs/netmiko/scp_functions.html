@@ -23,7 +23,6 @@
 <p>Netmiko SCP operations.</p>
 <p>Supports file get and file put operations.</p>
 <p>SCP requires a separate SSH connection for a control channel.</p>
-<p>Currently only supports Cisco IOS and Cisco ASA.</p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">&#34;&#34;&#34;
@@ -32,10 +31,31 @@ Netmiko SCP operations.
 Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
-
-Currently only supports Cisco IOS and Cisco ASA.
 &#34;&#34;&#34;
 from netmiko import FileTransfer, InLineTransfer
+
+
+def progress_bar(filename, size, sent, peername=None):
+    max_width = 50
+    filename = filename.decode()
+    clear_screen = chr(27) + &#34;[2J&#34;
+    terminating_char = &#34;|&#34;
+
+    # Percentage done
+    percent_complete = sent / size
+    percent_str = f&#34;{percent_complete*100:.2f}%&#34;
+    hash_count = int(percent_complete * max_width)
+    progress = hash_count * &#34;&gt;&#34;
+
+    if peername is None:
+        header_msg = f&#34;Transferring file: {filename}\n&#34;
+    else:
+        header_msg = f&#34;Transferring file to {peername}: {filename}\n&#34;
+
+    msg = f&#34;{progress:&lt;50}{terminating_char:1} ({percent_str})&#34;
+    print(clear_screen)
+    print(header_msg)
+    print(msg)
 
 
 def verifyspace_and_transferfile(scp_transfer):
@@ -55,6 +75,8 @@ def file_transfer(
     inline_transfer=False,
     overwrite_file=False,
     socket_timeout=10.0,
+    progress=None,
+    progress4=None,
     verify_file=None,
 ):
     &#34;&#34;&#34;Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
@@ -100,6 +122,8 @@ def file_transfer(
         &#34;dest_file&#34;: dest_file,
         &#34;direction&#34;: direction,
         &#34;socket_timeout&#34;: socket_timeout,
+        &#34;progress&#34;: progress,
+        &#34;progress4&#34;: progress4,
     }
     if file_system is not None:
         scp_args[&#34;file_system&#34;] = file_system
@@ -152,7 +176,7 @@ def file_transfer(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="netmiko.scp_functions.file_transfer"><code class="name flex">
-<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0, verify_file=None)</span>
+<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn, source_file, dest_file, file_system=None, direction='put', disable_md5=False, inline_transfer=False, overwrite_file=False, socket_timeout=10.0, progress=None, progress4=None, verify_file=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.</p>
@@ -174,6 +198,8 @@ def file_transfer(
     inline_transfer=False,
     overwrite_file=False,
     socket_timeout=10.0,
+    progress=None,
+    progress4=None,
     verify_file=None,
 ):
     &#34;&#34;&#34;Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
@@ -219,6 +245,8 @@ def file_transfer(
         &#34;dest_file&#34;: dest_file,
         &#34;direction&#34;: direction,
         &#34;socket_timeout&#34;: socket_timeout,
+        &#34;progress&#34;: progress,
+        &#34;progress4&#34;: progress4,
     }
     if file_system is not None:
         scp_args[&#34;file_system&#34;] = file_system
@@ -263,6 +291,36 @@ def file_transfer(
                 return transferred_and_notverified</code></pre>
 </details>
 </dd>
+<dt id="netmiko.scp_functions.progress_bar"><code class="name flex">
+<span>def <span class="ident">progress_bar</span></span>(<span>filename, size, sent, peername=None)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def progress_bar(filename, size, sent, peername=None):
+    max_width = 50
+    filename = filename.decode()
+    clear_screen = chr(27) + &#34;[2J&#34;
+    terminating_char = &#34;|&#34;
+
+    # Percentage done
+    percent_complete = sent / size
+    percent_str = f&#34;{percent_complete*100:.2f}%&#34;
+    hash_count = int(percent_complete * max_width)
+    progress = hash_count * &#34;&gt;&#34;
+
+    if peername is None:
+        header_msg = f&#34;Transferring file: {filename}\n&#34;
+    else:
+        header_msg = f&#34;Transferring file to {peername}: {filename}\n&#34;
+
+    msg = f&#34;{progress:&lt;50}{terminating_char:1} ({percent_str})&#34;
+    print(clear_screen)
+    print(header_msg)
+    print(msg)</code></pre>
+</details>
+</dd>
 <dt id="netmiko.scp_functions.verifyspace_and_transferfile"><code class="name flex">
 <span>def <span class="ident">verifyspace_and_transferfile</span></span>(<span>scp_transfer)</span>
 </code></dt>
@@ -296,6 +354,7 @@ def file_transfer(
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="netmiko.scp_functions.file_transfer" href="#netmiko.scp_functions.file_transfer">file_transfer</a></code></li>
+<li><code><a title="netmiko.scp_functions.progress_bar" href="#netmiko.scp_functions.progress_bar">progress_bar</a></code></li>
 <li><code><a title="netmiko.scp_functions.verifyspace_and_transferfile" href="#netmiko.scp_functions.verifyspace_and_transferfile">verifyspace_and_transferfile</a></code></li>
 </ul>
 </li>

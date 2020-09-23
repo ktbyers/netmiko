@@ -228,14 +228,12 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
 </dd>
 <dt id="netmiko.nokia.NokiaSrosSSH"><code class="flex name class">
 <span>class <span class="ident">NokiaSrosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with Nokia SR OS devices.</p>
 <p>Not applicable in Nokia SR OS (disabled):
-- enable()
-- exit_enable_mode()
-- check_enable_mode()</p>
+- exit_enable_mode()</p>
 <p>Overriden methods to adapt Nokia SR OS behavior (changed):
 - session_preparation()
 - set_base_prompt()
@@ -244,7 +242,9 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
 - check_config_mode()
 - save_config()
 - commit()
-- strip_prompt()</p>
+- strip_prompt()
+- enable()
+- check_enable_mode()</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
     :param ip: IP address of target device. Not required if `host` is
@@ -370,6 +370,10 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -378,9 +382,7 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
     Implement methods for interacting with Nokia SR OS devices.
 
     Not applicable in Nokia SR OS (disabled):
-        - enable()
         - exit_enable_mode()
-        - check_enable_mode()
 
     Overriden methods to adapt Nokia SR OS behavior (changed):
         - session_preparation()
@@ -391,6 +393,8 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
         - save_config()
         - commit()
         - strip_prompt()
+        - enable()
+        - check_enable_mode()
     &#34;&#34;&#34;
 
     def session_preparation(self):
@@ -398,12 +402,18 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
         self.set_base_prompt()
         # &#34;@&#34; indicates model-driven CLI (vs Classical CLI)
         if &#34;@&#34; in self.base_prompt:
+            self._disable_complete_on_space()
+            self.set_terminal_width(
+                command=&#34;environment console width 512&#34;, pattern=&#34;environment&#34;
+            )
             self.disable_paging(command=&#34;environment more false&#34;)
             # To perform file operations we need to disable paging in classical-CLI also
             self.disable_paging(command=&#34;//environment no more&#34;)
-            self.set_terminal_width(command=&#34;environment console width 512&#34;)
         else:
-            self.disable_paging(command=&#34;environment no more&#34;)
+            # Classical CLI has no method to set the terminal width nor to disable command
+            # complete on space; consequently, cmd_verify needs disabled.
+            self.global_cmd_verify = False
+            self.disable_paging(command=&#34;environment no more&#34;, pattern=&#34;environment&#34;)
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -418,16 +428,40 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
             self.base_prompt = match.group(1)
             return self.base_prompt
 
-    def enable(self, *args, **kwargs):
-        &#34;&#34;&#34;Nokia SR OS does not support enable-mode&#34;&#34;&#34;
-        return &#34;&#34;
+    def _disable_complete_on_space(self):
+        &#34;&#34;&#34;
+        SR-OS tries to auto complete commands when you type a &#34;space&#34; character.
 
-    def check_enable_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Nokia SR OS does not support enable-mode&#34;&#34;&#34;
-        return True
+        This is a bad idea for automation as what your program is sending no longer matches
+        the command echo from the device, so we disable this behavior.
+        &#34;&#34;&#34;
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        time.sleep(delay_factor * 0.1)
+        command = &#34;environment command-completion space false&#34;
+        self.write_channel(self.normalize_cmd(command))
+        time.sleep(delay_factor * 0.1)
+        return self.read_channel()
+
+    def enable(self, cmd=&#34;enable&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
+        &#34;&#34;&#34;Enable SR OS administrative mode&#34;&#34;&#34;
+        if &#34;@&#34; not in self.base_prompt:
+            cmd = &#34;enable-admin&#34;
+        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+
+    def check_enable_mode(self, check_string=&#34;in admin mode&#34;):
+        &#34;&#34;&#34;Check if in enable mode.&#34;&#34;&#34;
+        cmd = &#34;enable&#34;
+        if &#34;@&#34; not in self.base_prompt:
+            cmd = &#34;enable-admin&#34;
+        self.write_channel(self.normalize_cmd(cmd))
+        output = self.read_until_prompt_or_pattern(pattern=&#34;ssword&#34;)
+        if &#34;ssword&#34; in output:
+            self.write_channel(self.RETURN)  # send ENTER to pass the password prompt
+            self.read_until_prompt()
+        return check_string in output
 
     def exit_enable_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Nokia SR OS does not support enable-mode&#34;&#34;&#34;
+        &#34;&#34;&#34;Nokia SR OS does not have a notion of exiting administrative mode&#34;&#34;&#34;
         return &#34;&#34;
 
     def config_mode(self, config_command=&#34;edit-config exclusive&#34;, pattern=r&#34;\(ex\)\[&#34;):
@@ -470,8 +504,7 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
 
     def save_config(self, *args, **kwargs):
         &#34;&#34;&#34;Persist configuration to cflash for Nokia SR OS&#34;&#34;&#34;
-        output = self.send_command(command_string=&#34;/admin save&#34;)
-        return output
+        return self.send_command(command_string=&#34;/admin save&#34;, expect_string=r&#34;#&#34;)
 
     def send_config_set(self, config_commands=None, exit_config_mode=None, **kwargs):
         &#34;&#34;&#34;Model driven CLI requires you not exit from configuration mode.&#34;&#34;&#34;
@@ -569,15 +602,23 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
 </details>
 </dd>
 <dt id="netmiko.nokia.NokiaSrosSSH.check_enable_mode"><code class="name flex">
-<span>def <span class="ident">check_enable_mode</span></span>(<span>self, *args, **kwargs)</span>
+<span>def <span class="ident">check_enable_mode</span></span>(<span>self, check_string='in admin mode')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Nokia SR OS does not support enable-mode</p></section>
+<section class="desc"><p>Check if in enable mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_enable_mode(self, *args, **kwargs):
-    &#34;&#34;&#34;Nokia SR OS does not support enable-mode&#34;&#34;&#34;
-    return True</code></pre>
+<pre><code class="python">def check_enable_mode(self, check_string=&#34;in admin mode&#34;):
+    &#34;&#34;&#34;Check if in enable mode.&#34;&#34;&#34;
+    cmd = &#34;enable&#34;
+    if &#34;@&#34; not in self.base_prompt:
+        cmd = &#34;enable-admin&#34;
+    self.write_channel(self.normalize_cmd(cmd))
+    output = self.read_until_prompt_or_pattern(pattern=&#34;ssword&#34;)
+    if &#34;ssword&#34; in output:
+        self.write_channel(self.RETURN)  # send ENTER to pass the password prompt
+        self.read_until_prompt()
+    return check_string in output</code></pre>
 </details>
 </dd>
 <dt id="netmiko.nokia.NokiaSrosSSH.cleanup"><code class="name flex">
@@ -642,15 +683,17 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
 </details>
 </dd>
 <dt id="netmiko.nokia.NokiaSrosSSH.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, *args, **kwargs)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='ssword', re_flags=<RegexFlag.IGNORECASE: 2>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Nokia SR OS does not support enable-mode</p></section>
+<section class="desc"><p>Enable SR OS administrative mode</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def enable(self, *args, **kwargs):
-    &#34;&#34;&#34;Nokia SR OS does not support enable-mode&#34;&#34;&#34;
-    return &#34;&#34;</code></pre>
+<pre><code class="python">def enable(self, cmd=&#34;enable&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
+    &#34;&#34;&#34;Enable SR OS administrative mode&#34;&#34;&#34;
+    if &#34;@&#34; not in self.base_prompt:
+        cmd = &#34;enable-admin&#34;
+    return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.nokia.NokiaSrosSSH.exit_config_mode"><code class="name flex">
@@ -684,11 +727,11 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
 <span>def <span class="ident">exit_enable_mode</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Nokia SR OS does not support enable-mode</p></section>
+<section class="desc"><p>Nokia SR OS does not have a notion of exiting administrative mode</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def exit_enable_mode(self, *args, **kwargs):
-    &#34;&#34;&#34;Nokia SR OS does not support enable-mode&#34;&#34;&#34;
+    &#34;&#34;&#34;Nokia SR OS does not have a notion of exiting administrative mode&#34;&#34;&#34;
     return &#34;&#34;</code></pre>
 </details>
 </dd>
@@ -701,8 +744,7 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;]</code></pre>
 <summary>Source code</summary>
 <pre><code class="python">def save_config(self, *args, **kwargs):
     &#34;&#34;&#34;Persist configuration to cflash for Nokia SR OS&#34;&#34;&#34;
-    output = self.send_command(command_string=&#34;/admin save&#34;)
-    return output</code></pre>
+    return self.send_command(command_string=&#34;/admin save&#34;, expect_string=r&#34;#&#34;)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.nokia.NokiaSrosSSH.send_config_set"><code class="name flex">

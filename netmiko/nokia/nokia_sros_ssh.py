@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014 - 2019 Kirk Byers
-# Copyright (c) 2014 - 2019 Twin Bridges Technology
-# Copyright (c) 2019 NOKIA Inc.
+# Copyright (c) 2014 - 2020 Kirk Byers
+# Copyright (c) 2014 - 2020 Twin Bridges Technology
+# Copyright (c) 2019 - 2020 NOKIA Inc.
 # MIT License - See License file at:
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
 
@@ -20,9 +20,7 @@ class NokiaSrosSSH(BaseConnection):
     Implement methods for interacting with Nokia SR OS devices.
 
     Not applicable in Nokia SR OS (disabled):
-        - enable()
         - exit_enable_mode()
-        - check_enable_mode()
 
     Overriden methods to adapt Nokia SR OS behavior (changed):
         - session_preparation()
@@ -33,6 +31,8 @@ class NokiaSrosSSH(BaseConnection):
         - save_config()
         - commit()
         - strip_prompt()
+        - enable()
+        - check_enable_mode()
     """
 
     def session_preparation(self):
@@ -40,12 +40,18 @@ class NokiaSrosSSH(BaseConnection):
         self.set_base_prompt()
         # "@" indicates model-driven CLI (vs Classical CLI)
         if "@" in self.base_prompt:
+            self._disable_complete_on_space()
+            self.set_terminal_width(
+                command="environment console width 512", pattern="environment"
+            )
             self.disable_paging(command="environment more false")
             # To perform file operations we need to disable paging in classical-CLI also
             self.disable_paging(command="//environment no more")
-            self.set_terminal_width(command="environment console width 512")
         else:
-            self.disable_paging(command="environment no more")
+            # Classical CLI has no method to set the terminal width nor to disable command
+            # complete on space; consequently, cmd_verify needs disabled.
+            self.global_cmd_verify = False
+            self.disable_paging(command="environment no more", pattern="environment")
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -60,16 +66,40 @@ class NokiaSrosSSH(BaseConnection):
             self.base_prompt = match.group(1)
             return self.base_prompt
 
-    def enable(self, *args, **kwargs):
-        """Nokia SR OS does not support enable-mode"""
-        return ""
+    def _disable_complete_on_space(self):
+        """
+        SR-OS tries to auto complete commands when you type a "space" character.
 
-    def check_enable_mode(self, *args, **kwargs):
-        """Nokia SR OS does not support enable-mode"""
-        return True
+        This is a bad idea for automation as what your program is sending no longer matches
+        the command echo from the device, so we disable this behavior.
+        """
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        time.sleep(delay_factor * 0.1)
+        command = "environment command-completion space false"
+        self.write_channel(self.normalize_cmd(command))
+        time.sleep(delay_factor * 0.1)
+        return self.read_channel()
+
+    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
+        """Enable SR OS administrative mode"""
+        if "@" not in self.base_prompt:
+            cmd = "enable-admin"
+        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+
+    def check_enable_mode(self, check_string="in admin mode"):
+        """Check if in enable mode."""
+        cmd = "enable"
+        if "@" not in self.base_prompt:
+            cmd = "enable-admin"
+        self.write_channel(self.normalize_cmd(cmd))
+        output = self.read_until_prompt_or_pattern(pattern="ssword")
+        if "ssword" in output:
+            self.write_channel(self.RETURN)  # send ENTER to pass the password prompt
+            self.read_until_prompt()
+        return check_string in output
 
     def exit_enable_mode(self, *args, **kwargs):
-        """Nokia SR OS does not support enable-mode"""
+        """Nokia SR OS does not have a notion of exiting administrative mode"""
         return ""
 
     def config_mode(self, config_command="edit-config exclusive", pattern=r"\(ex\)\["):
@@ -112,8 +142,7 @@ class NokiaSrosSSH(BaseConnection):
 
     def save_config(self, *args, **kwargs):
         """Persist configuration to cflash for Nokia SR OS"""
-        output = self.send_command(command_string="/admin save")
-        return output
+        return self.send_command(command_string="/admin save", expect_string=r"#")
 
     def send_config_set(self, config_commands=None, exit_config_mode=None, **kwargs):
         """Model driven CLI requires you not exit from configuration mode."""

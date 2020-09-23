@@ -210,8 +210,26 @@ sophos_sfos:
   username: admin
   password: admin
 
+adtran_os:
+  device_type: adtran_os
+  ip: 192.0.2.1
+  username: adtran
+  password: adtran
+
 huawei_smartax:
   device_type: huawei_smartax
   ip: 192.0.2.1
   username: TEST
   password: TEST
+
+tplink_jetstream:
+  device_type: tplink_jetstream
+  ip: 192.168.0.1
+  username: admin
+  password: 'admin'
+
+tplink_jetstream_telnet:
+  device_type: tplink_jetstream_telnet
+  ip: 192.168.0.1
+  username: admin
+  password: 'admin'

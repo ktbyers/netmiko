@@ -10,8 +10,8 @@ class DellDNOS6Base(DellPowerConnectBase):
         self._test_channel_read()
         self.set_base_prompt()
         self.enable()
-        self.disable_paging(command="terminal length 0")
         self.set_terminal_width()
+        self.disable_paging(command="terminal length 0")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()

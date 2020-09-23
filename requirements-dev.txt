@@ -1,8 +1,8 @@
-PyYAML==5.1.2
+black==18.9b0
+PyYAML==5.3.1
 pytest==5.1.2
 pylama==7.7.1
-tox==3.14.5
 twine==1.13.0
-pysnmp==4.4.11
+pysnmp==4.4.12
 pdoc3==0.6.3
 -r requirements.txt

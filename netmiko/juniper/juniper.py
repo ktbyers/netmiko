@@ -24,8 +24,8 @@ class JuniperBase(BaseConnection):
         self.enter_cli_mode()
         self.set_base_prompt()
         self._disable_complete_on_space()
+        self.set_terminal_width(command="set cli screen-width 511", pattern="set")
         self.disable_paging(command="set cli screen-length 0")
-        self.set_terminal_width(command="set cli screen-width 511")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -227,6 +227,18 @@ class JuniperBase(BaseConnection):
             if re.search(pattern, last_line):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
+
+    def cleanup(self, command="exit"):
+        """Gracefully exit the SSH session."""
+        try:
+            # The pattern="" forces use of send_command_timing
+            if self.check_config_mode(pattern=""):
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final 'exit' (command)
+        self._session_log_fin = True
+        self.write_channel(command + self.RETURN)
 
 
 class JuniperSSH(JuniperBase):

@@ -17,6 +17,9 @@ class ArubaSSH(CiscoSSHConnection):
 
     def session_preparation(self):
         """Aruba OS requires enable mode to disable paging."""
+        # Aruba switches output ansi codes
+        self.ansi_escape_codes = True
+
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(1 * delay_factor)
         self._test_channel_read()

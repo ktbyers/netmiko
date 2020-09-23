@@ -2,6 +2,7 @@
 import re
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
+from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
 class CiscoAsaSSH(CiscoSSHConnection):
@@ -11,11 +12,12 @@ class CiscoAsaSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
+
         if self.secret:
             self.enable()
         else:
             self.asa_login()
-        self.disable_paging(command="terminal pager 0")
+
         if self.allow_auto_change:
             try:
                 self.send_config_set("terminal width 511")
@@ -25,6 +27,8 @@ class CiscoAsaSSH(CiscoSSHConnection):
         else:
             # Disable cmd_verify if the terminal width can't be set
             self.global_cmd_verify = False
+
+        self.disable_paging(command="terminal pager 0")
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -91,12 +95,14 @@ class CiscoAsaSSH(CiscoSSHConnection):
 
         twb-dc-fw1> login
         Username: admin
-        Password: ************
+
+        Raises NetmikoAuthenticationException, if we do not reach privilege
+        level 15 after 10 loops.
         """
         delay_factor = self.select_delay_factor(0)
 
         i = 1
-        max_attempts = 50
+        max_attempts = 10
         self.write_channel("login" + self.RETURN)
         while i <= max_attempts:
             time.sleep(0.5 * delay_factor)
@@ -106,10 +112,13 @@ class CiscoAsaSSH(CiscoSSHConnection):
             elif "ssword" in output:
                 self.write_channel(self.password + self.RETURN)
             elif "#" in output:
-                break
+                return
             else:
                 self.write_channel("login" + self.RETURN)
             i += 1
+
+        msg = "Unable to enter enable mode!"
+        raise NetmikoAuthenticationException(msg)
 
     def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
         """Saves Config"""

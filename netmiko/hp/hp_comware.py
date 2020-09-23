@@ -3,6 +3,13 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class HPComwareBase(CiscoSSHConnection):
+    def __init__(self, **kwargs):
+        # Comware doesn't have a way to set terminal width which breaks cmd_verify
+        global_cmd_verify = kwargs.get("global_cmd_verify")
+        if global_cmd_verify is None:
+            kwargs["global_cmd_verify"] = False
+        return super().__init__(**kwargs)
+
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.

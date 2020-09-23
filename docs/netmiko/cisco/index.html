@@ -101,7 +101,7 @@ Expressway/VCS …</p></section>
 <dl>
 <dt id="netmiko.cisco.CiscoAsaFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoAsaFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco ASA SCP File Transfer driver.</p></section>
@@ -144,7 +144,7 @@ Expressway/VCS …</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoAsaSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoAsaSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Subclass specific to Cisco ASA.</p>
@@ -273,6 +273,10 @@ Expressway/VCS …</p></section>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -283,11 +287,12 @@ Expressway/VCS …</p></section>
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
+
         if self.secret:
             self.enable()
         else:
             self.asa_login()
-        self.disable_paging(command=&#34;terminal pager 0&#34;)
+
         if self.allow_auto_change:
             try:
                 self.send_config_set(&#34;terminal width 511&#34;)
@@ -297,6 +302,8 @@ Expressway/VCS …</p></section>
         else:
             # Disable cmd_verify if the terminal width can&#39;t be set
             self.global_cmd_verify = False
+
+        self.disable_paging(command=&#34;terminal pager 0&#34;)
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -363,12 +370,14 @@ Expressway/VCS …</p></section>
 
         twb-dc-fw1&gt; login
         Username: admin
-        Password: ************
+
+        Raises NetmikoAuthenticationException, if we do not reach privilege
+        level 15 after 10 loops.
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(0)
 
         i = 1
-        max_attempts = 50
+        max_attempts = 10
         self.write_channel(&#34;login&#34; + self.RETURN)
         while i &lt;= max_attempts:
             time.sleep(0.5 * delay_factor)
@@ -378,10 +387,13 @@ Expressway/VCS …</p></section>
             elif &#34;ssword&#34; in output:
                 self.write_channel(self.password + self.RETURN)
             elif &#34;#&#34; in output:
-                break
+                return
             else:
                 self.write_channel(&#34;login&#34; + self.RETURN)
             i += 1
+
+        msg = &#34;Unable to enter enable mode!&#34;
+        raise NetmikoAuthenticationException(msg)
 
     def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
         &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
@@ -403,8 +415,9 @@ Expressway/VCS …</p></section>
 <dd>
 <section class="desc"><p>Handle ASA reaching privilege level 15 using login</p>
 <p>twb-dc-fw1&gt; login
-Username: admin
-Password: <strong><em>*</em></strong><strong>*</strong></p></section>
+Username: admin</p>
+<p>Raises NetmikoAuthenticationException, if we do not reach privilege
+level 15 after 10 loops.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def asa_login(self):
@@ -413,12 +426,14 @@ Password: <strong><em>*</em></strong><strong>*</strong></p></section>
 
     twb-dc-fw1&gt; login
     Username: admin
-    Password: ************
+
+    Raises NetmikoAuthenticationException, if we do not reach privilege
+    level 15 after 10 loops.
     &#34;&#34;&#34;
     delay_factor = self.select_delay_factor(0)
 
     i = 1
-    max_attempts = 50
+    max_attempts = 10
     self.write_channel(&#34;login&#34; + self.RETURN)
     while i &lt;= max_attempts:
         time.sleep(0.5 * delay_factor)
@@ -428,10 +443,13 @@ Password: <strong><em>*</em></strong><strong>*</strong></p></section>
         elif &#34;ssword&#34; in output:
             self.write_channel(self.password + self.RETURN)
         elif &#34;#&#34; in output:
-            break
+            return
         else:
             self.write_channel(&#34;login&#34; + self.RETURN)
-        i += 1</code></pre>
+        i += 1
+
+    msg = &#34;Unable to enter enable mode!&#34;
+    raise NetmikoAuthenticationException(msg)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco.CiscoAsaSSH.save_config"><code class="name flex">
@@ -525,11 +543,12 @@ updated after each context change.</p></section>
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
+
     if self.secret:
         self.enable()
     else:
         self.asa_login()
-    self.disable_paging(command=&#34;terminal pager 0&#34;)
+
     if self.allow_auto_change:
         try:
             self.send_config_set(&#34;terminal width 511&#34;)
@@ -539,6 +558,8 @@ updated after each context change.</p></section>
     else:
         # Disable cmd_verify if the terminal width can&#39;t be set
         self.global_cmd_verify = False
+
+    self.disable_paging(command=&#34;terminal pager 0&#34;)
 
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
@@ -616,7 +637,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosBase"><code class="flex name class">
 <span>class <span class="ident">CiscoIosBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Common Methods for IOS (both SSH and telnet).</p>
@@ -745,21 +766,28 @@ happens the trailing '(config*' needs stripped off.</p></section>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class CiscoIosBase(CiscoBaseConnection):
     &#34;&#34;&#34;Common Methods for IOS (both SSH and telnet).&#34;&#34;&#34;
 
+    def __init__(self, *args, **kwargs):
+        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-        self.set_base_prompt()
+        cmd = &#34;terminal width 511&#34;
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
         &#34;&#34;&#34;
@@ -813,13 +841,10 @@ happens the trailing '(config*' needs stripped off.</p></section>
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self):
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-    self.set_base_prompt()
+    cmd = &#34;terminal width 511&#34;
+    self.set_terminal_width(command=cmd, pattern=cmd)
     self.disable_paging()
-    self.set_terminal_width(command=&#34;terminal width 511&#34;)
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
+    self.set_base_prompt()</code></pre>
 </details>
 </dd>
 </dl>
@@ -871,7 +896,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoIosFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS SCP File Transfer driver.</p></section>
@@ -918,7 +943,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS SSH driver.</p>
@@ -1047,6 +1072,10 @@ happens the trailing '(config*' needs stripped off.</p></section>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1111,7 +1140,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosSerial"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSerial</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS Serial driver.</p>
@@ -1240,6 +1269,10 @@ happens the trailing '(config*' needs stripped off.</p></section>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1304,7 +1337,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoIosTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoIosTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS Telnet driver.</p>
@@ -1433,6 +1466,10 @@ happens the trailing '(config*' needs stripped off.</p></section>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1497,7 +1534,7 @@ happens the trailing '(config*' needs stripped off.</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoNxosFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoNxosFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system='bootflash:', direction='put', socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system='bootflash:', direction='put', socket_timeout=10.0, progress=None, progress4=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco NXOS SCP File Transfer driver.</p></section>
@@ -1514,6 +1551,8 @@ happens the trailing '(config*' needs stripped off.</p></section>
         file_system=&#34;bootflash:&#34;,
         direction=&#34;put&#34;,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
@@ -1535,6 +1574,8 @@ happens the trailing '(config*' needs stripped off.</p></section>
             raise ValueError(&#34;Invalid direction specified&#34;)
 
         self.socket_timeout = socket_timeout
+        self.progress = progress
+        self.progress4 = progress4
 
     def check_file_exists(self, remote_cmd=&#34;&#34;):
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
@@ -1644,7 +1685,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 </dd>
 <dt id="netmiko.cisco.CiscoNxosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoNxosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -1773,6 +1814,10 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1782,8 +1827,8 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.ansi_escape_codes = True
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -1848,8 +1893,8 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
     self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
     self.ansi_escape_codes = True
     self.set_base_prompt()
+    self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
     self.disable_paging()
-    self.set_terminal_width(command=&#34;terminal width 511&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>
@@ -1903,7 +1948,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 </dd>
 <dt id="netmiko.cisco.CiscoS300SSH"><code class="flex name class">
 <span>class <span class="ident">CiscoS300SSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Support for Cisco SG300 series of devices.</p>
@@ -2035,6 +2080,10 @@ ip ssh password-auth</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -2053,8 +2102,8 @@ ip ssh password-auth</p>
         self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
         self.disable_paging(command=&#34;terminal datadump&#34;)
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
 
@@ -2083,8 +2132,8 @@ ip ssh password-auth</p>
     self.ansi_escape_codes = True
     self._test_channel_read()
     self.set_base_prompt()
+    self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
     self.disable_paging(command=&#34;terminal datadump&#34;)
-    self.set_terminal_width(command=&#34;terminal width 511&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)</code></pre>
 </details>
@@ -2268,6 +2317,10 @@ ip ssh password-auth</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -2295,8 +2348,8 @@ ip ssh password-auth</p>
         &#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
+        self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -2443,8 +2496,8 @@ self.set_terminal_width()</p></section>
     &#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
-    self.disable_paging()
     self.set_terminal_width()
+    self.disable_paging()
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>
@@ -2525,7 +2578,7 @@ self.set_terminal_width()</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoWlcSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoWlcSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Netmiko Cisco WLC support.</p>
@@ -2654,11 +2707,21 @@ self.set_terminal_width()</p></section>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class CiscoWlcSSH(BaseConnection):
     &#34;&#34;&#34;Netmiko Cisco WLC support.&#34;&#34;&#34;
+
+    def __init__(self, *args, **kwargs):
+        # WLC/AireOS has an issue where you can get &#34;No Existing Session&#34; with
+        # the default conn_timeout (so increase conn_timeout to 10-seconds).
+        kwargs.setdefault(&#34;conn_timeout&#34;, 10)
+        return super().__init__(*args, **kwargs)
 
     def special_login_handler(self, delay_factor=1):
         &#34;&#34;&#34;WLC presents with the following on login (in certain OS versions)
@@ -3135,7 +3198,7 @@ Arguments are the same as send_command_timing() method</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoXrFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoXrFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, hash_supported=True)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS-XR SCP File Transfer driver.</p></section>
@@ -3266,7 +3329,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoXrSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoXrSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco XR SSH driver.</p>
@@ -3395,6 +3458,10 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -3423,7 +3490,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection" href="cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode" href="cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
@@ -3459,7 +3526,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoXrTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoXrTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco XR Telnet driver.</p>
@@ -3588,6 +3655,10 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -3616,7 +3687,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection" href="cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode" href="cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
@@ -3652,7 +3723,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </dd>
 <dt id="netmiko.cisco.InLineTransfer"><code class="flex name class">
 <span>class <span class="ident">InLineTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file=None, dest_file=None, file_system=None, direction='put', source_config=None, socket_timeout=10.0)</span>
+<span>(</span><span>ssh_conn, source_file=None, dest_file=None, file_system=None, direction='put', source_config=None, socket_timeout=10.0, progress=None, progress4=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Use TCL on Cisco IOS to directly transfer file.</p></section>
@@ -3670,12 +3741,23 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
         direction=&#34;put&#34;,
         source_config=None,
         socket_timeout=10.0,
+        progress=None,
+        progress4=None,
     ):
+
         if source_file and source_config:
             msg = &#34;Invalid call to InLineTransfer both source_file and source_config specified.&#34;
             raise ValueError(msg)
         if direction != &#34;put&#34;:
             raise ValueError(&#34;Only put operation supported by InLineTransfer.&#34;)
+
+        if progress is not None or progress4 is not None:
+            raise NotImplementedError(
+                &#34;Progress bar is not supported on inline transfers.&#34;
+            )
+        else:
+            self.progress = progress
+            self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
         if source_file:
@@ -3768,7 +3850,10 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
         return hashlib.md5(file_contents).hexdigest()
 
     def config_md5(self, source_config):
-        return super().file_md5(source_config, add_newline=True)
+        &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
+        file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
+        file_contents = file_contents.encode(&#34;UTF-8&#34;)
+        return hashlib.md5(file_contents).hexdigest()
 
     def put_file(self):
         curlybrace = r&#34;{&#34;
@@ -3839,11 +3924,14 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <span>def <span class="ident">config_md5</span></span>(<span>self, source_config)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Compute MD5 hash of text.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def config_md5(self, source_config):
-    return super().file_md5(source_config, add_newline=True)</code></pre>
+    &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
+    file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
+    file_contents = file_contents.encode(&#34;UTF-8&#34;)
+    return hashlib.md5(file_contents).hexdigest()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco.InLineTransfer.file_md5"><code class="name flex">

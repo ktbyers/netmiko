@@ -5,7 +5,7 @@ import io
 import os
 from pathlib import Path
 import functools
-import serial.tools.list_ports
+from datetime import datetime
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 
@@ -23,6 +23,13 @@ try:
     from importlib.resources import path as importresources_path
 except ModuleNotFoundError:
     from importlib_resources import path as importresources_path
+
+try:
+    import serial.tools.list_ports
+
+    PYSERIAL_INSTALLED = True
+except ImportError:
+    PYSERIAL_INSTALLED = False
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -202,6 +209,14 @@ def write_bytes(out_data, encoding="ascii"):
 
 def check_serial_port(name):
     """returns valid COM Port."""
+
+    if not PYSERIAL_INSTALLED:
+        msg = (
+            "\npyserial is not installed. Please PIP install pyserial:\n\n"
+            "pip install pyserial\n\n"
+        )
+        raise ValueError(msg)
+
     try:
         cdc = next(serial.tools.list_ports.grep(name))
         return cdc[0]
@@ -381,5 +396,30 @@ def select_cmd_verify(func):
         if self.global_cmd_verify is not None:
             kwargs["cmd_verify"] = self.global_cmd_verify
         return func(self, *args, **kwargs)
+
+    return wrapper_decorator
+
+
+def m_exec_time(func):
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args, **kwargs):
+        start_time = datetime.now()
+        result = func(self, *args, **kwargs)
+        end_time = datetime.now()
+        method_name = str(func)
+        print(f"{method_name}: Elapsed time: {end_time - start_time}")
+        return result
+
+    return wrapper_decorator
+
+
+def f_exec_time(func):
+    @functools.wraps(func)
+    def wrapper_decorator(*args, **kwargs):
+        start_time = datetime.now()
+        result = func(*args, **kwargs)
+        end_time = datetime.now()
+        print(f"Elapsed time: {end_time - start_time}")
+        return result
 
     return wrapper_decorator

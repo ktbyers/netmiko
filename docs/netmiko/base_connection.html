@@ -59,6 +59,7 @@ from netmiko.utilities import (
     get_structured_data_genie,
     select_cmd_verify,
 )
+from netmiko.utilities import m_exec_time  # noqa
 
 
 class BaseConnection(object):
@@ -90,22 +91,30 @@ class BaseConnection(object):
         alt_host_keys=False,
         alt_key_file=&#34;&#34;,
         ssh_config_file=None,
-        timeout=100,
-        session_timeout=60,
-        auth_timeout=None,
-        blocking_timeout=20,
-        banner_timeout=15,
+        #
+        # Connect timeouts
+        # ssh-connect --&gt; TCP conn (conn_timeout) --&gt; SSH-banner (banner_timeout)
+        #       --&gt; Auth response (auth_timeout)
+        conn_timeout=5,
+        auth_timeout=None,  # Timeout to wait for authentication response
+        banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        # Other timeouts
+        blocking_timeout=20,  # Read blocking timeout
+        timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
+        session_timeout=60,  # Used for locking/sharing the connection
         keepalive=0,
         default_enter=None,
         response_return=None,
         serial_settings=None,
         fast_cli=False,
+        _legacy_mode=True,
         session_log=None,
         session_log_record_writes=False,
         session_log_file_mode=&#34;write&#34;,
         allow_auto_change=False,
         encoding=&#34;ascii&#34;,
         sock=None,
+        auto_connect=True,
     ):
         &#34;&#34;&#34;
         Initialize attributes for establishing connection to target device.
@@ -232,6 +241,9 @@ class BaseConnection(object):
                 argument. Value of `None` indicates to use function `cmd_verify` argument.
         :type global_cmd_verify: bool|None
 
+        :param auto_connect: Control whether Netmiko automatically establishes the connection as
+                part of the object creation (default: True).
+        :type auto_connect: bool
         &#34;&#34;&#34;
         self.remote_conn = None
 
@@ -265,11 +277,12 @@ class BaseConnection(object):
         self.device_type = device_type
         self.ansi_escape_codes = False
         self.verbose = verbose
-        self.timeout = timeout
         self.auth_timeout = auth_timeout
         self.banner_timeout = banner_timeout
-        self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
+        self.conn_timeout = conn_timeout
+        self.session_timeout = session_timeout
+        self.timeout = timeout
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
@@ -314,6 +327,7 @@ class BaseConnection(object):
             self.serial_settings.update({&#34;port&#34;: comm_port})
 
         self.fast_cli = fast_cli
+        self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
         self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
@@ -340,7 +354,9 @@ class BaseConnection(object):
 
             # Options for SSH host_keys
             self.use_keys = use_keys
-            self.key_file = key_file
+            self.key_file = (
+                path.abspath(path.expanduser(key_file)) if key_file else None
+            )
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
@@ -352,7 +368,8 @@ class BaseConnection(object):
             self.ssh_config_file = ssh_config_file
 
         # Establish the remote connection
-        self._open()
+        if auto_connect:
+            self._open()
 
     def _open(self):
         &#34;&#34;&#34;Decouple connection creation from __init__ for mocking.&#34;&#34;&#34;
@@ -729,14 +746,16 @@ class BaseConnection(object):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.username + &#34;\r&#34;)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.password + &#34;\r&#34;)
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -802,8 +821,8 @@ class BaseConnection(object):
         &#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
+        self.disable_paging()
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -868,7 +887,7 @@ class BaseConnection(object):
             &#34;key_filename&#34;: self.key_file,
             &#34;pkey&#34;: self.pkey,
             &#34;passphrase&#34;: self.passphrase,
-            &#34;timeout&#34;: self.timeout,
+            &#34;timeout&#34;: self.conn_timeout,
             &#34;auth_timeout&#34;: self.auth_timeout,
             &#34;banner_timeout&#34;: self.banner_timeout,
             &#34;sock&#34;: self.sock,
@@ -925,17 +944,51 @@ class BaseConnection(object):
             # initiate SSH connection
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
-            except socket.error:
+            except socket.error as conn_error:
                 self.paramiko_cleanup()
-                msg = &#34;Connection to device timed-out: {device_type} {ip}:{port}&#34;.format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f&#34;&#34;&#34;TCP connection to device failed.
+
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
+                # Handle DNS failures separately
+                if &#34;Name or service not known&#34; in str(conn_error):
+                    msg = (
+                        f&#34;DNS failure--the hostname you provided was not resolvable &#34;
+                        f&#34;in DNS: {self.host}:{self.port}&#34;
+                    )
+
+                msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
+            except paramiko.ssh_exception.SSHException as no_session_err:
+                self.paramiko_cleanup()
+                if &#34;No existing session&#34; in str(no_session_err):
+                    msg = (
+                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
+                        &#34;try increasing &#39;conn_timeout&#39; to 10 seconds or larger.&#34;
+                    )
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    raise
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
-                msg = &#34;Authentication failure: unable to connect {device_type} {ip}:{port}&#34;.format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f&#34;&#34;&#34;Authentication to device failed.
+
+Common causes of this problem are:
+1. Invalid username and password
+2. Incorrect SSH-key file
+3. Connecting to the wrong device
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
 
@@ -1034,7 +1087,9 @@ class BaseConnection(object):
         &#34;&#34;&#34;Handler for devices like WLC, Extreme ERS that throw up characters prior to login.&#34;&#34;&#34;
         pass
 
-    def disable_paging(self, command=&#34;terminal length 0&#34;, delay_factor=1):
+    def disable_paging(
+        self, command=&#34;terminal length 0&#34;, delay_factor=1, cmd_verify=True, pattern=None
+    ):
         &#34;&#34;&#34;Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
@@ -1044,22 +1099,24 @@ class BaseConnection(object):
         :type delay_factor: int
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
         command = self.normalize_cmd(command)
         log.debug(&#34;In disable_paging&#34;)
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
+        if cmd_verify and self.global_cmd_verify is not False:
             output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
         else:
             output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
 
-    def set_terminal_width(self, command=&#34;&#34;, delay_factor=1):
+    def set_terminal_width(
+        self, command=&#34;&#34;, delay_factor=1, cmd_verify=False, pattern=None
+    ):
         &#34;&#34;&#34;CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
@@ -1076,9 +1133,11 @@ class BaseConnection(object):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
+        # Avoid cmd_verify here as terminal width must be set before doing cmd_verify
+        if cmd_verify and self.global_cmd_verify is not False:
             output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
         else:
             output = self.read_until_prompt()
         return output
@@ -1125,16 +1184,14 @@ class BaseConnection(object):
         time.sleep(sleep_time)
 
         # Initial attempt to get prompt
-        prompt = self.read_channel()
+        prompt = self.read_channel().strip()
 
         # Check if the only thing you received was a newline
         count = 0
-        prompt = prompt.strip()
         while count &lt;= 12 and not prompt:
             prompt = self.read_channel().strip()
             if not prompt:
                 self.write_channel(self.RETURN)
-                # log.debug(f&#34;find_prompt sleep time: {sleep_time}&#34;)
                 time.sleep(sleep_time)
                 if sleep_time &lt;= 3:
                     # Double the sleep_time when it is small
@@ -1762,7 +1819,7 @@ class BaseConnection(object):
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
             output += self.config_mode(*cfg_mode_args)
 
-        if self.fast_cli:
+        if self.fast_cli and self._legacy_mode:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
@@ -1831,8 +1888,6 @@ class BaseConnection(object):
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
         &#34;&#34;&#34;  # noqa
-        log.debug(&#34;In strip_ansi_escape_codes&#34;)
-        log.debug(f&#34;repr = {repr(string_buffer)}&#34;)
 
         code_position_cursor = chr(27) + r&#34;\[\d+;\d+H&#34;
         code_show_cursor = chr(27) + r&#34;\[\?25h&#34;
@@ -1841,19 +1896,19 @@ class BaseConnection(object):
         code_erase_line = chr(27) + r&#34;\[2K&#34;
         code_erase_start_line = chr(27) + r&#34;\[K&#34;
         code_enable_scroll = chr(27) + r&#34;\[\d+;\d+r&#34;
-        code_form_feed = chr(27) + r&#34;\[1L&#34;
+        code_insert_line = chr(27) + r&#34;\[(\d+)L&#34;
         code_carriage_return = chr(27) + r&#34;\[1M&#34;
         code_disable_line_wrapping = chr(27) + r&#34;\[\?7l&#34;
         code_reset_mode_screen_options = chr(27) + r&#34;\[\?\d+l&#34;
         code_reset_graphics_mode = chr(27) + r&#34;\[00m&#34;
         code_erase_display = chr(27) + r&#34;\[2J&#34;
+        code_erase_display_0 = chr(27) + r&#34;\[J&#34;
         code_graphics_mode = chr(27) + r&#34;\[\d\d;\d\dm&#34;
         code_graphics_mode2 = chr(27) + r&#34;\[\d\d;\d\d;\d\dm&#34;
         code_graphics_mode3 = chr(27) + r&#34;\[(3|4)\dm&#34;
         code_graphics_mode4 = chr(27) + r&#34;\[(9|10)[0-7]m&#34;
         code_get_cursor_position = chr(27) + r&#34;\[6n&#34;
         code_cursor_position = chr(27) + r&#34;\[m&#34;
-        code_erase_display = chr(27) + r&#34;\[J&#34;
         code_attrs_off = chr(27) + r&#34;\[0m&#34;
         code_reverse = chr(27) + r&#34;\[7m&#34;
         code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
@@ -1864,7 +1919,6 @@ class BaseConnection(object):
             code_erase_line,
             code_enable_scroll,
             code_erase_start_line,
-            code_form_feed,
             code_carriage_return,
             code_disable_line_wrapping,
             code_erase_line_end,
@@ -1878,6 +1932,7 @@ class BaseConnection(object):
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_erase_display_0,
             code_attrs_off,
             code_reverse,
             code_cursor_left,
@@ -1890,9 +1945,12 @@ class BaseConnection(object):
         # CODE_NEXT_LINE must substitute with return
         output = re.sub(code_next_line, self.RETURN, output)
 
-        log.debug(&#34;Stripping ANSI escape codes&#34;)
-        log.debug(f&#34;new_output = {output}&#34;)
-        log.debug(f&#34;repr = {repr(output)}&#34;)
+        # Aruba and ProCurve switches can use code_insert_line for &lt;enter&gt;
+        insert_line_match = re.search(code_insert_line, output)
+        if insert_line_match:
+            # Substitute each insert_line with a new &lt;enter&gt;
+            count = int(insert_line_match.group(1))
+            output = re.sub(code_insert_line, count * self.RETURN, output)
 
         return output
 
@@ -1934,9 +1992,9 @@ class BaseConnection(object):
     def open_session_log(self, filename, mode=&#34;write&#34;):
         &#34;&#34;&#34;Open the session_log file.&#34;&#34;&#34;
         if mode == &#34;append&#34;:
-            self.session_log = open(filename, mode=&#34;a&#34;)
+            self.session_log = open(filename, mode=&#34;a&#34;, encoding=self.encoding)
         else:
-            self.session_log = open(filename, mode=&#34;w&#34;)
+            self.session_log = open(filename, mode=&#34;w&#34;, encoding=self.encoding)
         self._session_log_close = True
 
     def close_session_log(self):
@@ -1961,7 +2019,7 @@ class TelnetConnection(BaseConnection):
 <dl>
 <dt id="netmiko.base_connection.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -2091,6 +2149,10 @@ class TelnetConnection(BaseConnection):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -2123,22 +2185,30 @@ class TelnetConnection(BaseConnection):
         alt_host_keys=False,
         alt_key_file=&#34;&#34;,
         ssh_config_file=None,
-        timeout=100,
-        session_timeout=60,
-        auth_timeout=None,
-        blocking_timeout=20,
-        banner_timeout=15,
+        #
+        # Connect timeouts
+        # ssh-connect --&gt; TCP conn (conn_timeout) --&gt; SSH-banner (banner_timeout)
+        #       --&gt; Auth response (auth_timeout)
+        conn_timeout=5,
+        auth_timeout=None,  # Timeout to wait for authentication response
+        banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        # Other timeouts
+        blocking_timeout=20,  # Read blocking timeout
+        timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
+        session_timeout=60,  # Used for locking/sharing the connection
         keepalive=0,
         default_enter=None,
         response_return=None,
         serial_settings=None,
         fast_cli=False,
+        _legacy_mode=True,
         session_log=None,
         session_log_record_writes=False,
         session_log_file_mode=&#34;write&#34;,
         allow_auto_change=False,
         encoding=&#34;ascii&#34;,
         sock=None,
+        auto_connect=True,
     ):
         &#34;&#34;&#34;
         Initialize attributes for establishing connection to target device.
@@ -2265,6 +2335,9 @@ class TelnetConnection(BaseConnection):
                 argument. Value of `None` indicates to use function `cmd_verify` argument.
         :type global_cmd_verify: bool|None
 
+        :param auto_connect: Control whether Netmiko automatically establishes the connection as
+                part of the object creation (default: True).
+        :type auto_connect: bool
         &#34;&#34;&#34;
         self.remote_conn = None
 
@@ -2298,11 +2371,12 @@ class TelnetConnection(BaseConnection):
         self.device_type = device_type
         self.ansi_escape_codes = False
         self.verbose = verbose
-        self.timeout = timeout
         self.auth_timeout = auth_timeout
         self.banner_timeout = banner_timeout
-        self.session_timeout = session_timeout
         self.blocking_timeout = blocking_timeout
+        self.conn_timeout = conn_timeout
+        self.session_timeout = session_timeout
+        self.timeout = timeout
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
@@ -2347,6 +2421,7 @@ class TelnetConnection(BaseConnection):
             self.serial_settings.update({&#34;port&#34;: comm_port})
 
         self.fast_cli = fast_cli
+        self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
         self.global_cmd_verify = global_cmd_verify
         if self.fast_cli and self.global_delay_factor == 1:
@@ -2373,7 +2448,9 @@ class TelnetConnection(BaseConnection):
 
             # Options for SSH host_keys
             self.use_keys = use_keys
-            self.key_file = key_file
+            self.key_file = (
+                path.abspath(path.expanduser(key_file)) if key_file else None
+            )
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
@@ -2385,7 +2462,8 @@ class TelnetConnection(BaseConnection):
             self.ssh_config_file = ssh_config_file
 
         # Establish the remote connection
-        self._open()
+        if auto_connect:
+            self._open()
 
     def _open(self):
         &#34;&#34;&#34;Decouple connection creation from __init__ for mocking.&#34;&#34;&#34;
@@ -2762,14 +2840,16 @@ class TelnetConnection(BaseConnection):
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.username + &#34;\r&#34;)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
+                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                    self.write_channel(self.password + &#34;\r&#34;)
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
@@ -2835,8 +2915,8 @@ class TelnetConnection(BaseConnection):
         &#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
+        self.disable_paging()
 
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -2901,7 +2981,7 @@ class TelnetConnection(BaseConnection):
             &#34;key_filename&#34;: self.key_file,
             &#34;pkey&#34;: self.pkey,
             &#34;passphrase&#34;: self.passphrase,
-            &#34;timeout&#34;: self.timeout,
+            &#34;timeout&#34;: self.conn_timeout,
             &#34;auth_timeout&#34;: self.auth_timeout,
             &#34;banner_timeout&#34;: self.banner_timeout,
             &#34;sock&#34;: self.sock,
@@ -2958,17 +3038,51 @@ class TelnetConnection(BaseConnection):
             # initiate SSH connection
             try:
                 self.remote_conn_pre.connect(**ssh_connect_params)
-            except socket.error:
+            except socket.error as conn_error:
                 self.paramiko_cleanup()
-                msg = &#34;Connection to device timed-out: {device_type} {ip}:{port}&#34;.format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f&#34;&#34;&#34;TCP connection to device failed.
+
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
+                # Handle DNS failures separately
+                if &#34;Name or service not known&#34; in str(conn_error):
+                    msg = (
+                        f&#34;DNS failure--the hostname you provided was not resolvable &#34;
+                        f&#34;in DNS: {self.host}:{self.port}&#34;
+                    )
+
+                msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
+            except paramiko.ssh_exception.SSHException as no_session_err:
+                self.paramiko_cleanup()
+                if &#34;No existing session&#34; in str(no_session_err):
+                    msg = (
+                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
+                        &#34;try increasing &#39;conn_timeout&#39; to 10 seconds or larger.&#34;
+                    )
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    raise
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
-                msg = &#34;Authentication failure: unable to connect {device_type} {ip}:{port}&#34;.format(
-                    device_type=self.device_type, ip=self.host, port=self.port
-                )
+                msg = f&#34;&#34;&#34;Authentication to device failed.
+
+Common causes of this problem are:
+1. Invalid username and password
+2. Incorrect SSH-key file
+3. Connecting to the wrong device
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
 
@@ -3067,7 +3181,9 @@ class TelnetConnection(BaseConnection):
         &#34;&#34;&#34;Handler for devices like WLC, Extreme ERS that throw up characters prior to login.&#34;&#34;&#34;
         pass
 
-    def disable_paging(self, command=&#34;terminal length 0&#34;, delay_factor=1):
+    def disable_paging(
+        self, command=&#34;terminal length 0&#34;, delay_factor=1, cmd_verify=True, pattern=None
+    ):
         &#34;&#34;&#34;Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
@@ -3077,22 +3193,24 @@ class TelnetConnection(BaseConnection):
         :type delay_factor: int
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
         command = self.normalize_cmd(command)
         log.debug(&#34;In disable_paging&#34;)
         log.debug(f&#34;Command: {command}&#34;)
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
+        if cmd_verify and self.global_cmd_verify is not False:
             output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
         else:
             output = self.read_until_prompt()
         log.debug(f&#34;{output}&#34;)
         log.debug(&#34;Exiting disable_paging&#34;)
         return output
 
-    def set_terminal_width(self, command=&#34;&#34;, delay_factor=1):
+    def set_terminal_width(
+        self, command=&#34;&#34;, delay_factor=1, cmd_verify=False, pattern=None
+    ):
         &#34;&#34;&#34;CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
@@ -3109,9 +3227,11 @@ class TelnetConnection(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
+        # Avoid cmd_verify here as terminal width must be set before doing cmd_verify
+        if cmd_verify and self.global_cmd_verify is not False:
             output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        elif pattern:
+            output = self.read_until_pattern(pattern=pattern)
         else:
             output = self.read_until_prompt()
         return output
@@ -3158,16 +3278,14 @@ class TelnetConnection(BaseConnection):
         time.sleep(sleep_time)
 
         # Initial attempt to get prompt
-        prompt = self.read_channel()
+        prompt = self.read_channel().strip()
 
         # Check if the only thing you received was a newline
         count = 0
-        prompt = prompt.strip()
         while count &lt;= 12 and not prompt:
             prompt = self.read_channel().strip()
             if not prompt:
                 self.write_channel(self.RETURN)
-                # log.debug(f&#34;find_prompt sleep time: {sleep_time}&#34;)
                 time.sleep(sleep_time)
                 if sleep_time &lt;= 3:
                     # Double the sleep_time when it is small
@@ -3795,7 +3913,7 @@ class TelnetConnection(BaseConnection):
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
             output += self.config_mode(*cfg_mode_args)
 
-        if self.fast_cli:
+        if self.fast_cli and self._legacy_mode:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
@@ -3864,8 +3982,6 @@ class TelnetConnection(BaseConnection):
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
         &#34;&#34;&#34;  # noqa
-        log.debug(&#34;In strip_ansi_escape_codes&#34;)
-        log.debug(f&#34;repr = {repr(string_buffer)}&#34;)
 
         code_position_cursor = chr(27) + r&#34;\[\d+;\d+H&#34;
         code_show_cursor = chr(27) + r&#34;\[\?25h&#34;
@@ -3874,19 +3990,19 @@ class TelnetConnection(BaseConnection):
         code_erase_line = chr(27) + r&#34;\[2K&#34;
         code_erase_start_line = chr(27) + r&#34;\[K&#34;
         code_enable_scroll = chr(27) + r&#34;\[\d+;\d+r&#34;
-        code_form_feed = chr(27) + r&#34;\[1L&#34;
+        code_insert_line = chr(27) + r&#34;\[(\d+)L&#34;
         code_carriage_return = chr(27) + r&#34;\[1M&#34;
         code_disable_line_wrapping = chr(27) + r&#34;\[\?7l&#34;
         code_reset_mode_screen_options = chr(27) + r&#34;\[\?\d+l&#34;
         code_reset_graphics_mode = chr(27) + r&#34;\[00m&#34;
         code_erase_display = chr(27) + r&#34;\[2J&#34;
+        code_erase_display_0 = chr(27) + r&#34;\[J&#34;
         code_graphics_mode = chr(27) + r&#34;\[\d\d;\d\dm&#34;
         code_graphics_mode2 = chr(27) + r&#34;\[\d\d;\d\d;\d\dm&#34;
         code_graphics_mode3 = chr(27) + r&#34;\[(3|4)\dm&#34;
         code_graphics_mode4 = chr(27) + r&#34;\[(9|10)[0-7]m&#34;
         code_get_cursor_position = chr(27) + r&#34;\[6n&#34;
         code_cursor_position = chr(27) + r&#34;\[m&#34;
-        code_erase_display = chr(27) + r&#34;\[J&#34;
         code_attrs_off = chr(27) + r&#34;\[0m&#34;
         code_reverse = chr(27) + r&#34;\[7m&#34;
         code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
@@ -3897,7 +4013,6 @@ class TelnetConnection(BaseConnection):
             code_erase_line,
             code_enable_scroll,
             code_erase_start_line,
-            code_form_feed,
             code_carriage_return,
             code_disable_line_wrapping,
             code_erase_line_end,
@@ -3911,6 +4026,7 @@ class TelnetConnection(BaseConnection):
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
+            code_erase_display_0,
             code_attrs_off,
             code_reverse,
             code_cursor_left,
@@ -3923,9 +4039,12 @@ class TelnetConnection(BaseConnection):
         # CODE_NEXT_LINE must substitute with return
         output = re.sub(code_next_line, self.RETURN, output)
 
-        log.debug(&#34;Stripping ANSI escape codes&#34;)
-        log.debug(f&#34;new_output = {output}&#34;)
-        log.debug(f&#34;repr = {repr(output)}&#34;)
+        # Aruba and ProCurve switches can use code_insert_line for &lt;enter&gt;
+        insert_line_match = re.search(code_insert_line, output)
+        if insert_line_match:
+            # Substitute each insert_line with a new &lt;enter&gt;
+            count = int(insert_line_match.group(1))
+            output = re.sub(code_insert_line, count * self.RETURN, output)
 
         return output
 
@@ -3967,9 +4086,9 @@ class TelnetConnection(BaseConnection):
     def open_session_log(self, filename, mode=&#34;write&#34;):
         &#34;&#34;&#34;Open the session_log file.&#34;&#34;&#34;
         if mode == &#34;append&#34;:
-            self.session_log = open(filename, mode=&#34;a&#34;)
+            self.session_log = open(filename, mode=&#34;a&#34;, encoding=self.encoding)
         else:
-            self.session_log = open(filename, mode=&#34;w&#34;)
+            self.session_log = open(filename, mode=&#34;w&#34;, encoding=self.encoding)
         self._session_log_close = True
 
     def close_session_log(self):
@@ -3998,6 +4117,7 @@ class TelnetConnection(BaseConnection):
 <li><a title="netmiko.rad.rad_etx.RadETXBase" href="rad/rad_etx.html#netmiko.rad.rad_etx.RadETXBase">RadETXBase</a></li>
 <li><a title="netmiko.terminal_server.terminal_server.TerminalServer" href="terminal_server/terminal_server.html#netmiko.terminal_server.terminal_server.TerminalServer">TerminalServer</a></li>
 <li><a title="netmiko.watchguard.fireware_ssh.WatchguardFirewareSSH" href="watchguard/fireware_ssh.html#netmiko.watchguard.fireware_ssh.WatchguardFirewareSSH">WatchguardFirewareSSH</a></li>
+<li><a title="netmiko.yamaha.yamaha.YamahaBase" href="yamaha/yamaha.html#netmiko.yamaha.yamaha.YamahaBase">YamahaBase</a></li>
 </ul>
 <h3>Static methods</h3>
 <dl>
@@ -4169,7 +4289,7 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.disable_paging"><code class="name flex">
-<span>def <span class="ident">disable_paging</span></span>(<span>self, command='terminal length 0', delay_factor=1)</span>
+<span>def <span class="ident">disable_paging</span></span>(<span>self, command='terminal length 0', delay_factor=1, cmd_verify=True, pattern=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Disable paging default to a Cisco CLI method.</p>
@@ -4179,7 +4299,9 @@ def strip_backspaces(output):
 :type delay_factor: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def disable_paging(self, command=&#34;terminal length 0&#34;, delay_factor=1):
+<pre><code class="python">def disable_paging(
+    self, command=&#34;terminal length 0&#34;, delay_factor=1, cmd_verify=True, pattern=None
+):
     &#34;&#34;&#34;Disable paging default to a Cisco CLI method.
 
     :param command: Device command to disable pagination of output
@@ -4189,15 +4311,15 @@ def strip_backspaces(output):
     :type delay_factor: int
     &#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
-    time.sleep(delay_factor * 0.1)
-    self.clear_buffer()
     command = self.normalize_cmd(command)
     log.debug(&#34;In disable_paging&#34;)
     log.debug(f&#34;Command: {command}&#34;)
     self.write_channel(command)
     # Make sure you read until you detect the command echo (avoid getting out of sync)
-    if self.global_cmd_verify is not False:
+    if cmd_verify and self.global_cmd_verify is not False:
         output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    elif pattern:
+        output = self.read_until_pattern(pattern=pattern)
     else:
         output = self.read_until_prompt()
     log.debug(f&#34;{output}&#34;)
@@ -4289,62 +4411,96 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
 :type height: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def establish_connection(self, width=511, height=1000):
-    &#34;&#34;&#34;Establish SSH connection to the network device
+<pre><code class="python">    def establish_connection(self, width=511, height=1000):
+        &#34;&#34;&#34;Establish SSH connection to the network device
 
-    Timeout will generate a NetmikoTimeoutException
-    Authentication failure will generate a NetmikoAuthenticationException
+        Timeout will generate a NetmikoTimeoutException
+        Authentication failure will generate a NetmikoAuthenticationException
 
-    :param width: Specified width of the VT100 terminal window (default: 511)
-    :type width: int
+        :param width: Specified width of the VT100 terminal window (default: 511)
+        :type width: int
 
-    :param height: Specified height of the VT100 terminal window (default: 1000)
-    :type height: int
-    &#34;&#34;&#34;
-    if self.protocol == &#34;telnet&#34;:
-        self.remote_conn = telnetlib.Telnet(
-            self.host, port=self.port, timeout=self.timeout
-        )
-        self.telnet_login()
-    elif self.protocol == &#34;serial&#34;:
-        self.remote_conn = serial.Serial(**self.serial_settings)
-        self.serial_login()
-    elif self.protocol == &#34;ssh&#34;:
-        ssh_connect_params = self._connect_params_dict()
-        self.remote_conn_pre = self._build_ssh_client()
-
-        # initiate SSH connection
-        try:
-            self.remote_conn_pre.connect(**ssh_connect_params)
-        except socket.error:
-            self.paramiko_cleanup()
-            msg = &#34;Connection to device timed-out: {device_type} {ip}:{port}&#34;.format(
-                device_type=self.device_type, ip=self.host, port=self.port
+        :param height: Specified height of the VT100 terminal window (default: 1000)
+        :type height: int
+        &#34;&#34;&#34;
+        if self.protocol == &#34;telnet&#34;:
+            self.remote_conn = telnetlib.Telnet(
+                self.host, port=self.port, timeout=self.timeout
             )
-            raise NetmikoTimeoutException(msg)
-        except paramiko.ssh_exception.AuthenticationException as auth_err:
-            self.paramiko_cleanup()
-            msg = &#34;Authentication failure: unable to connect {device_type} {ip}:{port}&#34;.format(
-                device_type=self.device_type, ip=self.host, port=self.port
+            self.telnet_login()
+        elif self.protocol == &#34;serial&#34;:
+            self.remote_conn = serial.Serial(**self.serial_settings)
+            self.serial_login()
+        elif self.protocol == &#34;ssh&#34;:
+            ssh_connect_params = self._connect_params_dict()
+            self.remote_conn_pre = self._build_ssh_client()
+
+            # initiate SSH connection
+            try:
+                self.remote_conn_pre.connect(**ssh_connect_params)
+            except socket.error as conn_error:
+                self.paramiko_cleanup()
+                msg = f&#34;&#34;&#34;TCP connection to device failed.
+
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
+                # Handle DNS failures separately
+                if &#34;Name or service not known&#34; in str(conn_error):
+                    msg = (
+                        f&#34;DNS failure--the hostname you provided was not resolvable &#34;
+                        f&#34;in DNS: {self.host}:{self.port}&#34;
+                    )
+
+                msg = msg.lstrip()
+                raise NetmikoTimeoutException(msg)
+            except paramiko.ssh_exception.SSHException as no_session_err:
+                self.paramiko_cleanup()
+                if &#34;No existing session&#34; in str(no_session_err):
+                    msg = (
+                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
+                        &#34;try increasing &#39;conn_timeout&#39; to 10 seconds or larger.&#34;
+                    )
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    raise
+            except paramiko.ssh_exception.AuthenticationException as auth_err:
+                self.paramiko_cleanup()
+                msg = f&#34;&#34;&#34;Authentication to device failed.
+
+Common causes of this problem are:
+1. Invalid username and password
+2. Incorrect SSH-key file
+3. Connecting to the wrong device
+
+Device settings: {self.device_type} {self.host}:{self.port}
+
+&#34;&#34;&#34;
+
+                msg += self.RETURN + str(auth_err)
+                raise NetmikoAuthenticationException(msg)
+
+            if self.verbose:
+                print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
+
+            # Use invoke_shell to establish an &#39;interactive session&#39;
+            self.remote_conn = self.remote_conn_pre.invoke_shell(
+                term=&#34;vt100&#34;, width=width, height=height
             )
-            msg += self.RETURN + str(auth_err)
-            raise NetmikoAuthenticationException(msg)
 
-        if self.verbose:
-            print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
-
-        # Use invoke_shell to establish an &#39;interactive session&#39;
-        self.remote_conn = self.remote_conn_pre.invoke_shell(
-            term=&#34;vt100&#34;, width=width, height=height
-        )
-
-        self.remote_conn.settimeout(self.blocking_timeout)
-        if self.keepalive:
-            self.remote_conn.transport.set_keepalive(self.keepalive)
-        self.special_login_handler()
-        if self.verbose:
-            print(&#34;Interactive SSH session established&#34;)
-    return &#34;&#34;</code></pre>
+            self.remote_conn.settimeout(self.blocking_timeout)
+            if self.keepalive:
+                self.remote_conn.transport.set_keepalive(self.keepalive)
+            self.special_login_handler()
+            if self.verbose:
+                print(&#34;Interactive SSH session established&#34;)
+        return &#34;&#34;</code></pre>
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.exit_config_mode"><code class="name flex">
@@ -4429,16 +4585,14 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
     time.sleep(sleep_time)
 
     # Initial attempt to get prompt
-    prompt = self.read_channel()
+    prompt = self.read_channel().strip()
 
     # Check if the only thing you received was a newline
     count = 0
-    prompt = prompt.strip()
     while count &lt;= 12 and not prompt:
         prompt = self.read_channel().strip()
         if not prompt:
             self.write_channel(self.RETURN)
-            # log.debug(f&#34;find_prompt sleep time: {sleep_time}&#34;)
             time.sleep(sleep_time)
             if sleep_time &lt;= 3:
                 # Double the sleep_time when it is small
@@ -4559,9 +4713,9 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
 <pre><code class="python">def open_session_log(self, filename, mode=&#34;write&#34;):
     &#34;&#34;&#34;Open the session_log file.&#34;&#34;&#34;
     if mode == &#34;append&#34;:
-        self.session_log = open(filename, mode=&#34;a&#34;)
+        self.session_log = open(filename, mode=&#34;a&#34;, encoding=self.encoding)
     else:
-        self.session_log = open(filename, mode=&#34;w&#34;)
+        self.session_log = open(filename, mode=&#34;w&#34;, encoding=self.encoding)
     self._session_log_close = True</code></pre>
 </details>
 </dd>
@@ -5190,7 +5344,7 @@ The commands will be executed one after the other.</p>
         cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
         output += self.config_mode(*cfg_mode_args)
 
-    if self.fast_cli:
+    if self.fast_cli and self._legacy_mode:
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
         # Gather output
@@ -5286,8 +5440,8 @@ self.clear_buffer()</p></section>
     &#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
-    self.disable_paging()
     self.set_terminal_width()
+    self.disable_paging()
 
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
@@ -5343,7 +5497,7 @@ entering/exiting config mode.</p>
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.set_terminal_width"><code class="name flex">
-<span>def <span class="ident">set_terminal_width</span></span>(<span>self, command='', delay_factor=1)</span>
+<span>def <span class="ident">set_terminal_width</span></span>(<span>self, command='', delay_factor=1, cmd_verify=False, pattern=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>CLI terminals try to automatically adjust the line based on the width of the terminal.
@@ -5355,7 +5509,9 @@ This causes the output to get distorted when accessed programmatically.</p>
 :type delay_factor: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def set_terminal_width(self, command=&#34;&#34;, delay_factor=1):
+<pre><code class="python">def set_terminal_width(
+    self, command=&#34;&#34;, delay_factor=1, cmd_verify=False, pattern=None
+):
     &#34;&#34;&#34;CLI terminals try to automatically adjust the line based on the width of the terminal.
     This causes the output to get distorted when accessed programmatically.
 
@@ -5372,9 +5528,11 @@ This causes the output to get distorted when accessed programmatically.</p>
     delay_factor = self.select_delay_factor(delay_factor)
     command = self.normalize_cmd(command)
     self.write_channel(command)
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    if self.global_cmd_verify is not False:
+    # Avoid cmd_verify here as terminal width must be set before doing cmd_verify
+    if cmd_verify and self.global_cmd_verify is not False:
         output = self.read_until_pattern(pattern=re.escape(command.strip()))
+    elif pattern:
+        output = self.read_until_pattern(pattern=pattern)
     else:
         output = self.read_until_prompt()
     return output</code></pre>
@@ -5464,8 +5622,6 @@ Move cursor position leftward by x characters (1 in this case)</p>
     :param string_buffer: The string to be processed to remove ANSI escape codes
     :type string_buffer: str
     &#34;&#34;&#34;  # noqa
-    log.debug(&#34;In strip_ansi_escape_codes&#34;)
-    log.debug(f&#34;repr = {repr(string_buffer)}&#34;)
 
     code_position_cursor = chr(27) + r&#34;\[\d+;\d+H&#34;
     code_show_cursor = chr(27) + r&#34;\[\?25h&#34;
@@ -5474,19 +5630,19 @@ Move cursor position leftward by x characters (1 in this case)</p>
     code_erase_line = chr(27) + r&#34;\[2K&#34;
     code_erase_start_line = chr(27) + r&#34;\[K&#34;
     code_enable_scroll = chr(27) + r&#34;\[\d+;\d+r&#34;
-    code_form_feed = chr(27) + r&#34;\[1L&#34;
+    code_insert_line = chr(27) + r&#34;\[(\d+)L&#34;
     code_carriage_return = chr(27) + r&#34;\[1M&#34;
     code_disable_line_wrapping = chr(27) + r&#34;\[\?7l&#34;
     code_reset_mode_screen_options = chr(27) + r&#34;\[\?\d+l&#34;
     code_reset_graphics_mode = chr(27) + r&#34;\[00m&#34;
     code_erase_display = chr(27) + r&#34;\[2J&#34;
+    code_erase_display_0 = chr(27) + r&#34;\[J&#34;
     code_graphics_mode = chr(27) + r&#34;\[\d\d;\d\dm&#34;
     code_graphics_mode2 = chr(27) + r&#34;\[\d\d;\d\d;\d\dm&#34;
     code_graphics_mode3 = chr(27) + r&#34;\[(3|4)\dm&#34;
     code_graphics_mode4 = chr(27) + r&#34;\[(9|10)[0-7]m&#34;
     code_get_cursor_position = chr(27) + r&#34;\[6n&#34;
     code_cursor_position = chr(27) + r&#34;\[m&#34;
-    code_erase_display = chr(27) + r&#34;\[J&#34;
     code_attrs_off = chr(27) + r&#34;\[0m&#34;
     code_reverse = chr(27) + r&#34;\[7m&#34;
     code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
@@ -5497,7 +5653,6 @@ Move cursor position leftward by x characters (1 in this case)</p>
         code_erase_line,
         code_enable_scroll,
         code_erase_start_line,
-        code_form_feed,
         code_carriage_return,
         code_disable_line_wrapping,
         code_erase_line_end,
@@ -5511,6 +5666,7 @@ Move cursor position leftward by x characters (1 in this case)</p>
         code_get_cursor_position,
         code_cursor_position,
         code_erase_display,
+        code_erase_display_0,
         code_attrs_off,
         code_reverse,
         code_cursor_left,
@@ -5523,9 +5679,12 @@ Move cursor position leftward by x characters (1 in this case)</p>
     # CODE_NEXT_LINE must substitute with return
     output = re.sub(code_next_line, self.RETURN, output)
 
-    log.debug(&#34;Stripping ANSI escape codes&#34;)
-    log.debug(f&#34;new_output = {output}&#34;)
-    log.debug(f&#34;repr = {repr(output)}&#34;)
+    # Aruba and ProCurve switches can use code_insert_line for &lt;enter&gt;
+    insert_line_match = re.search(code_insert_line, output)
+    if insert_line_match:
+        # Substitute each insert_line with a new &lt;enter&gt;
+        count = int(insert_line_match.group(1))
+        output = re.sub(code_insert_line, count * self.RETURN, output)
 
     return output</code></pre>
 </details>
@@ -5651,14 +5810,16 @@ Move cursor position leftward by x characters (1 in this case)</p>
 
             # Search for username pattern / send username
             if re.search(username_pattern, output, flags=re.I):
-                self.write_channel(self.username + self.TELNET_RETURN)
+                # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                self.write_channel(self.username + &#34;\r&#34;)
                 time.sleep(1 * delay_factor)
                 output = self.read_channel()
                 return_msg += output
 
             # Search for password pattern / send password
             if re.search(pwd_pattern, output, flags=re.I):
-                self.write_channel(self.password + self.TELNET_RETURN)
+                # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
+                self.write_channel(self.password + &#34;\r&#34;)
                 time.sleep(0.5 * delay_factor)
                 output = self.read_channel()
                 return_msg += output
@@ -5723,7 +5884,7 @@ Move cursor position leftward by x characters (1 in this case)</p>
 </dd>
 <dt id="netmiko.base_connection.TelnetConnection"><code class="flex name class">
 <span>class <span class="ident">TelnetConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -5853,6 +6014,10 @@ Move cursor position leftward by x characters (1 in this case)</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>

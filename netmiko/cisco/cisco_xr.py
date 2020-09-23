@@ -1,18 +1,27 @@
-import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 
 class CiscoXrBase(CiscoBaseConnection):
+    def __init__(self, *args, **kwargs):
+        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        return super().__init__(*args, **kwargs)
+
+    def establish_connection(self):
+        """Establish SSH connection to the network device"""
+        super().establish_connection(width=511, height=511)
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read()
-        self.set_base_prompt()
+        # IOS-XR has an issue where it echoes the command even though it hasn't returned the prompt
+        self._test_channel_read(pattern=r"[>#]")
+        cmd = "terminal width 511"
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        self.set_terminal_width(command="terminal width 511")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self._test_channel_read(pattern=r"[>#]")
+        self.set_base_prompt()
 
     def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         """IOS-XR requires you not exit from configuration mode."""
@@ -63,12 +72,6 @@ class CiscoXrBase(CiscoBaseConnection):
             raise ValueError("Invalid arguments supplied to XR commit")
         if comment and confirm:
             raise ValueError("Invalid arguments supplied to XR commit")
-
-        # wrap the comment in quotes
-        if comment:
-            if '"' in comment:
-                raise ValueError("Invalid comment contains double quote")
-            comment = f'"{comment}"'
 
         label = str(label)
         error_marker = "Failed to"
@@ -123,17 +126,21 @@ class CiscoXrBase(CiscoBaseConnection):
         output = output.replace("(admin)", "")
         return check_string in output
 
-    def exit_config_mode(self, exit_config="end"):
+    def exit_config_mode(self, exit_config="end", pattern=""):
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
-            output = self.send_command_timing(
-                exit_config, strip_prompt=False, strip_command=False
-            )
-            if "Uncommitted changes found" in output:
-                output += self.send_command_timing(
-                    "no", strip_prompt=False, strip_command=False
+            self.write_channel(self.normalize_cmd(exit_config))
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
                 )
+            if "Uncommitted changes found" in output:
+                self.write_channel(self.normalize_cmd("no\n"))
+                output += self.read_until_pattern(pattern=r"[>#]")
+            if not re.search(pattern, output, flags=re.M):
+                output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output

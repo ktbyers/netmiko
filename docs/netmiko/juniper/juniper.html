@@ -48,8 +48,8 @@ class JuniperBase(BaseConnection):
         self.enter_cli_mode()
         self.set_base_prompt()
         self._disable_complete_on_space()
+        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;, pattern=&#34;set&#34;)
         self.disable_paging(command=&#34;set cli screen-length 0&#34;)
-        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -252,6 +252,18 @@ class JuniperBase(BaseConnection):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
 
+    def cleanup(self, command=&#34;exit&#34;):
+        &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+        try:
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final &#39;exit&#39; (command)
+        self._session_log_fin = True
+        self.write_channel(command + self.RETURN)
+
 
 class JuniperSSH(JuniperBase):
     pass
@@ -320,7 +332,7 @@ class JuniperFileTransfer(BaseFileTransfer):
 <dl>
 <dt id="netmiko.juniper.juniper.JuniperBase"><code class="flex name class">
 <span>class <span class="ident">JuniperBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with Juniper Networks devices.</p>
@@ -452,6 +464,10 @@ Overrides several methods for Juniper-specific compatibility.</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -474,8 +490,8 @@ Overrides several methods for Juniper-specific compatibility.</p>
         self.enter_cli_mode()
         self.set_base_prompt()
         self._disable_complete_on_space()
+        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;, pattern=&#34;set&#34;)
         self.disable_paging(command=&#34;set cli screen-length 0&#34;)
-        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -676,7 +692,19 @@ Overrides several methods for Juniper-specific compatibility.</p>
         for pattern in strings_to_strip:
             if re.search(pattern, last_line):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
-        return a_string</code></pre>
+        return a_string
+
+    def cleanup(self, command=&#34;exit&#34;):
+        &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+        try:
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final &#39;exit&#39; (command)
+        self._session_log_fin = True
+        self.write_channel(command + self.RETURN)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -711,6 +739,26 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <pre><code class="python">def check_enable_mode(self, *args, **kwargs):
     &#34;&#34;&#34;No enable mode on Juniper.&#34;&#34;&#34;
     pass</code></pre>
+</details>
+</dd>
+<dt id="netmiko.juniper.juniper.JuniperBase.cleanup"><code class="name flex">
+<span>def <span class="ident">cleanup</span></span>(<span>self, command='exit')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Gracefully exit the SSH session.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def cleanup(self, command=&#34;exit&#34;):
+    &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+    try:
+        # The pattern=&#34;&#34; forces use of send_command_timing
+        if self.check_config_mode(pattern=&#34;&#34;):
+            self.exit_config_mode()
+    except Exception:
+        pass
+    # Always try to send final &#39;exit&#39; (command)
+    self._session_log_fin = True
+    self.write_channel(command + self.RETURN)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.commit"><code class="name flex">
@@ -930,8 +978,8 @@ Set the base prompt for interaction ('&gt;').</p></section>
     self.enter_cli_mode()
     self.set_base_prompt()
     self._disable_complete_on_space()
+    self.set_terminal_width(command=&#34;set cli screen-width 511&#34;, pattern=&#34;set&#34;)
     self.disable_paging(command=&#34;set cli screen-length 0&#34;)
-    self.set_terminal_width(command=&#34;set cli screen-width 511&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>
@@ -996,7 +1044,6 @@ Set the base prompt for interaction ('&gt;').</p></section>
 <ul class="hlist">
 <li><code><b><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.base_connection.BaseConnection.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -1114,7 +1161,7 @@ Set the base prompt for interaction ('&gt;').</p></section>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperSSH"><code class="flex name class">
 <span>class <span class="ident">JuniperSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with Juniper Networks devices.</p>
@@ -1246,6 +1293,10 @@ Overrides several methods for Juniper-specific compatibility.</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1263,7 +1314,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <ul class="hlist">
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_config_mode" href="#netmiko.juniper.juniper.JuniperBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>
@@ -1441,6 +1492,10 @@ Overrides several methods for Juniper-specific compatibility.</p>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1461,7 +1516,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <ul class="hlist">
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_config_mode" href="#netmiko.juniper.juniper.JuniperBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>
@@ -1526,6 +1581,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <ul class="two-column">
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_config_mode" href="#netmiko.juniper.juniper.JuniperBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.config_mode" href="#netmiko.juniper.juniper.JuniperBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.enable" href="#netmiko.juniper.juniper.JuniperBase.enable">enable</a></code></li>

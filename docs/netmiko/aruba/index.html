@@ -174,6 +174,10 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -190,6 +194,9 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
 
     def session_preparation(self):
         &#34;&#34;&#34;Aruba OS requires enable mode to disable paging.&#34;&#34;&#34;
+        # Aruba switches output ansi codes
+        self.ansi_escape_codes = True
+
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(1 * delay_factor)
         self._test_channel_read()
@@ -266,6 +273,9 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self):
     &#34;&#34;&#34;Aruba OS requires enable mode to disable paging.&#34;&#34;&#34;
+    # Aruba switches output ansi codes
+    self.ansi_escape_codes = True
+
     delay_factor = self.select_delay_factor(delay_factor=0)
     time.sleep(1 * delay_factor)
     self._test_channel_read()

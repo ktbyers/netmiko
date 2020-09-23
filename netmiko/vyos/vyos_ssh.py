@@ -9,8 +9,8 @@ class VyOSSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
+        self.set_terminal_width(command="set terminal width 512", pattern="terminal")
         self.disable_paging(command="set terminal length 0")
-        self.set_terminal_width(command="set terminal width 512")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()

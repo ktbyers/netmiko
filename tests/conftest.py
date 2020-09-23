@@ -142,6 +142,12 @@ def commands(request):
     test_platform = device["device_type"]
 
     commands_yml = parse_yaml(PWD + "/etc/commands.yml")
+
+    # Nokia SR-OS driver is overloaded with both classical-CLI and MD-CLI
+    # Swap out the commands to be the MD-CLI commands
+    if device_under_test == "sros1_md":
+        test_platform = "nokia_sros_md"
+
     return commands_yml[test_platform]
 
 
@@ -158,10 +164,10 @@ def delete_file_nxos(ssh_conn, dest_file_system, dest_file):
     full_file_name = "{}{}".format(dest_file_system, dest_file)
 
     cmd = "delete {}".format(full_file_name)
-    output = ssh_conn.send_command_timing(cmd)
+    output = ssh_conn.send_command(cmd, expect_string=r"Do you want to delete")
     if "yes/no/abort" in output and dest_file in output:
-        output += ssh_conn.send_command_timing(
-            "y", strip_command=False, strip_prompt=False
+        output += ssh_conn.send_command(
+            "y", expect_string=r"#", strip_command=False, strip_prompt=False
         )
         return output
     else:
@@ -169,8 +175,14 @@ def delete_file_nxos(ssh_conn, dest_file_system, dest_file):
     raise ValueError("An error happened deleting file on Cisco NX-OS")
 
 
-def delete_file_ios(ssh_conn, dest_file_system, dest_file):
-    """Delete a remote file for a Cisco IOS device."""
+def delete_file_xr(ssh_conn, dest_file_system, dest_file):
+    """
+    Delete a remote file for a Cisco IOS-XR device:
+
+    delete disk0:/test9.txt
+    Mon Aug 31 17:56:15.008 UTC
+    Delete disk0:/test9.txt[confirm]
+    """
     if not dest_file_system:
         raise ValueError("Invalid file system specified")
     if not dest_file:
@@ -179,14 +191,39 @@ def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     full_file_name = f"{dest_file_system}/{dest_file}"
 
     cmd = f"delete {full_file_name}"
-    output = ssh_conn.send_command_timing(cmd, delay_factor=2)
+    output = ssh_conn.send_command(cmd, expect_string=r"Delete.*confirm")
     if "Delete" in output and dest_file in output:
-        output += ssh_conn.send_command_timing("\n", delay_factor=2)
-        if "Delete" in output and full_file_name in output and "confirm" in output:
-            output += ssh_conn.send_command_timing("y", delay_factor=2)
-            return output
-        else:
-            output += ssh_conn.send_command_timing("n", delay_factor=2)
+        output += ssh_conn.send_command("\n", expect_string=r"#")
+        return output
+
+    raise ValueError("An error happened deleting file on Cisco IOS-XR")
+
+
+def delete_file_ios(ssh_conn, dest_file_system, dest_file):
+    """
+    Delete a remote file for a Cisco IOS device:
+
+    cisco1#del flash:/useless_file.cfg
+    Delete filename [useless_file.cfg]?
+    Delete flash:/useless_file.cfg? [confirm]y
+
+delete disk0:/test9.txt
+Mon Aug 31 17:56:15.008 UTC
+Delete disk0:/test9.txt[confirm]
+    """
+    if not dest_file_system:
+        raise ValueError("Invalid file system specified")
+    if not dest_file:
+        raise ValueError("Invalid dest file specified")
+
+    full_file_name = f"{dest_file_system}/{dest_file}"
+
+    cmd = f"delete {full_file_name}"
+    output = ssh_conn.send_command(cmd, expect_string=r"Delete filename")
+    if "Delete" in output and dest_file in output:
+        output += ssh_conn.send_command("\n", expect_string=r"confirm")
+        output += ssh_conn.send_command("y", expect_string=r"#")
+        return output
 
     raise ValueError("An error happened deleting file on Cisco IOS")
 
@@ -470,8 +507,7 @@ def get_platform_args():
         "cisco_xr": {
             "file_system": "disk0:",
             "enable_scp": False,
-            # Delete pattern is the same on IOS-XR
-            "delete_file": delete_file_ios,
+            "delete_file": delete_file_xr,
         },
         "linux": {
             "file_system": "/var/tmp",

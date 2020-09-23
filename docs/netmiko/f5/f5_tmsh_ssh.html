@@ -33,12 +33,12 @@ class F5TmshSSH(BaseConnection):
         self.set_base_prompt()
         self.tmsh_mode()
         self.set_base_prompt()
+        cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
+        self.set_terminal_width(command=cmd, pattern=&#34;run&#34;)
         self.disable_paging(
             command=&#34;modify cli preference pager disabled display-threshold 0&#34;
         )
         self.clear_buffer()
-        cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
-        self.set_terminal_width(command=cmd)
 
     def tmsh_mode(self, delay_factor=1):
         &#34;&#34;&#34;tmsh command is equivalent to config command on F5.&#34;&#34;&#34;
@@ -62,7 +62,7 @@ class F5TmshSSH(BaseConnection):
 <dl>
 <dt id="netmiko.f5.f5_tmsh_ssh.F5TmshSSH"><code class="flex name class">
 <span>class <span class="ident">F5TmshSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=20, banner_timeout=15, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -192,6 +192,10 @@ class F5TmshSSH(BaseConnection):
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
     :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -202,12 +206,12 @@ class F5TmshSSH(BaseConnection):
         self.set_base_prompt()
         self.tmsh_mode()
         self.set_base_prompt()
+        cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
+        self.set_terminal_width(command=cmd, pattern=&#34;run&#34;)
         self.disable_paging(
             command=&#34;modify cli preference pager disabled display-threshold 0&#34;
         )
         self.clear_buffer()
-        cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
-        self.set_terminal_width(command=cmd)
 
     def tmsh_mode(self, delay_factor=1):
         &#34;&#34;&#34;tmsh command is equivalent to config command on F5.&#34;&#34;&#34;
@@ -238,12 +242,12 @@ class F5TmshSSH(BaseConnection):
     self.set_base_prompt()
     self.tmsh_mode()
     self.set_base_prompt()
+    cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
+    self.set_terminal_width(command=cmd, pattern=&#34;run&#34;)
     self.disable_paging(
         command=&#34;modify cli preference pager disabled display-threshold 0&#34;
     )
-    self.clear_buffer()
-    cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
-    self.set_terminal_width(command=cmd)</code></pre>
+    self.clear_buffer()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.f5.f5_tmsh_ssh.F5TmshSSH.tmsh_mode"><code class="name flex">
