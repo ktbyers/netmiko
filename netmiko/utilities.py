@@ -229,7 +229,7 @@ def check_serial_port(name):
         raise ValueError(msg)
 
 
-def get_template_dir():
+def get_template_dir(_skip_ntc_package=False):
     """
     Find and return the directory containing the TextFSM index file.
 
@@ -241,6 +241,7 @@ def get_template_dir():
     If `index` file is not found in any of these locations, raise ValueError
 
     :return: directory containing the TextFSM index file
+
     """
 
     msg = """
@@ -270,6 +271,9 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
             ) as posix_path:
                 # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
                 template_dir = str(posix_path)
+                # This is for Netmiko automated testing
+                if _skip_ntc_package:
+                    raise ModuleNotFoundError()
 
         except ModuleNotFoundError:
             # Finally check in ~/ntc-templates/templates

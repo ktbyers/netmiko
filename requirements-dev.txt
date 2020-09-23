@@ -5,4 +5,5 @@ pylama==7.7.1
 twine==1.13.0
 pysnmp==4.4.12
 pdoc3==0.6.3
+ntc-templates>=1.5.0
 -r requirements.txt

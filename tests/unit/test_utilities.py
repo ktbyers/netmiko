@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 from os.path import dirname, join, relpath
 
 from netmiko import utilities
@@ -194,6 +195,38 @@ def test_textfsm_w_index():
         raw_output, platform="cisco_ios", command="show version"
     )
     assert result == [{"model": "4500"}]
+
+
+def test_ntc_templates_discovery():
+    """
+    Verify Netmiko uses proper ntc-templates:
+
+    Order of preference is:
+    1. Find directory in `NET_TEXTFSM` Environment Variable.
+    2. Check for pip installed `ntc-templates` location in this environment.
+    3. ~/ntc-templates/templates.
+
+    If `index` file is not found in any of these locations, raise ValueError
+    """
+
+    # Check environment variable first
+    os.environ["NET_TEXTFSM"] = RELATIVE_RESOURCE_FOLDER
+    ntc_path = utilities.get_template_dir()
+    assert ntc_path == RESOURCE_FOLDER
+
+    # Next should be PIP installed ntc-tempaltes
+    del os.environ["NET_TEXTFSM"]
+    ntc_path = utilities.get_template_dir()
+    for py_path in sys.path:
+        if "site-packages" in py_path:
+            packages_dir = py_path
+            break
+    assert ntc_path == f"{packages_dir}/ntc_templates/templates"
+
+    # Next should use local index file in ~
+    ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
+    home_dir = os.path.expanduser("~")
+    assert ntc_path == f"{home_dir}/ntc-templates/templates"
 
 
 def test_textfsm_index_relative_path():
