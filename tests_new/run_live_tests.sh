@@ -13,3 +13,7 @@ cd ..
 cd test_cisco_xr
 ./test_iosxr.sh > ../test_out/test_cisco_xr_xrv.out 2> ../test_out/test_cisco_xr_xrv.stderr &
 ./test_iosxr_azure.sh > ../test_out/test_cisco_xr_azure.out 2> ../test_out/test_cisco_xr_azure.stderr &
+
+cd ..
+cd test_arista_eos
+./test_arista_eos.sh > ../test_out/test_arista_eos.out 2> ../test_out/test_arista_eos.stderr &
