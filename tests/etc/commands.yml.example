@@ -458,3 +458,13 @@ tplink_jetstream_telnet:
   config:
     - "no clipaging"
   config_verification: "show running-config | include clipaging"
+
+ubiquiti_edgerouter:
+  version: "show version"
+  basic: "show interfaces switch switch0"
+  extended_output: "show configuration all"
+  config:
+    - "set system coredump enabled true"
+    - "set system coredump enabled false"
+  support_commit: True
+  config_verification: "show system coredump enabled"
