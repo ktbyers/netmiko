@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import re
 import pytest
-from network_utilities import generate_ios_acl, generate_nxos_acl, generate_cisco_xr_acl, generate_arista_eos_acl
+from network_utilities import generate_ios_acl, generate_nxos_acl
+from network_utilities import generate_cisco_xr_acl  # noqa
+from network_utilities import generate_arista_eos_acl  # noqa
 
 
 def remove_acl(net_connect, cmd, commit=False):
