@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import re
 import pytest
-from network_utilities import generate_ios_acl, generate_nxos_acl, generate_cisco_xr_acl
+from network_utilities import generate_ios_acl, generate_nxos_acl
+from network_utilities import generate_cisco_xr_acl  # noqa
+from network_utilities import generate_arista_eos_acl  # noqa
 
 
 def remove_acl(net_connect, cmd, commit=False):
@@ -26,12 +28,15 @@ def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
     remove_acl(net_connect, cmd=base_cmd, commit=support_commit)
 
     # Generate the ACL
+    platform = net_connect.device_type
     if "cisco_ios" in net_connect.device_type or "cisco_xe" in net_connect.device_type:
         cfg_lines = generate_ios_acl()
     elif "cisco_nxos" in net_connect.device_type:
         cfg_lines = generate_nxos_acl()
-    elif "cisco_xr" in net_connect.device_type:
-        cfg_lines = generate_cisco_xr_acl()
+    else:
+        func_name = f"generate_{platform}_acl"
+        acl_func = globals()[func_name]
+        cfg_lines = acl_func()
 
     # Send ACL to remote devices
     result = net_connect.send_config_set(cfg_lines)

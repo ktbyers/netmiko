@@ -27,6 +27,17 @@ def generate_ios_acl(
     )
 
 
+def generate_arista_eos_acl(
+    acl_name="netmiko_test_large_acl",
+    entries=100,
+    base_cmd="ip access-list",
+    base_addr="192.168.0.0",
+):
+    return generate_acl(
+        acl_name=acl_name, entries=entries, base_cmd=base_cmd, base_addr=base_addr
+    )
+
+
 generate_cisco_ios_acl = generate_ios_acl
 generate_cisco_xe_acl = generate_ios_acl
 

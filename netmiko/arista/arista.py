@@ -1,18 +1,20 @@
-import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
 
 class AristaBase(CiscoSSHConnection):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
+        cmd = "terminal width 511"
+        # Arista will echo immediately and then when the device really responds (like NX-OS)
+        self.set_terminal_width(command=cmd, pattern=r"Width set to")
+        self.disable_paging(cmd_verify=False, pattern=r"Pagination disabled")
         self.set_base_prompt()
-        self.set_terminal_width(command="terminal width 511", pattern="terminal")
-        self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def check_config_mode(self, check_string=")#", pattern=""):
         """

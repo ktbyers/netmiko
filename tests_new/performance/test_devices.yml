@@ -27,3 +27,9 @@ cisco_xr_azure:
   username: pyclass
   secret: ''
   session_log: xr.out
+
+arista1:
+  device_type: arista_eos
+  host: arista1.lasthop.io
+  username: pyclass
+  session_log: arista1.out
