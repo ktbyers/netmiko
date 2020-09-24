@@ -10,6 +10,14 @@ from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 
 try:
+    from ttp import ttp
+
+    TTP_INSTALLED = True
+
+except ImportError:
+    TTP_INSTALLED = False
+
+try:
     from genie.conf.base import Device
     from genie.libs.parser.utils import get_parser
     from pyats.datastructures import AttrDict
@@ -342,6 +350,25 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
         return _textfsm_parse(
             textfsm_obj, raw_output, attrs, template_file=template_file
         )
+
+
+def get_structured_data_ttp(raw_output, template=None):
+    """
+    Convert raw CLI output to structured data using TTP template.
+
+    You can use a straight TextFSM file i.e. specify "template"
+    """
+    if not TTP_INSTALLED:
+        msg = "\nTTP is not installed. Please PIP install ttp:\n" "pip install ttp\n"
+        raise ValueError(msg)
+
+    try:
+        if template:
+            ttp_parser = ttp(data=raw_output, template=template)
+            ttp_parser.parse()
+            return ttp_parser.result(format="raw")
+    except Exception:
+        return raw_output
 
 
 def get_structured_data_genie(raw_output, platform, command):
