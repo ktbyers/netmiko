@@ -192,7 +192,10 @@ def test_send_command_textfsm(net_connect, commands, expected_responses):
 
 
 def test_send_command_ttp(net_connect):
-    """Verify a command can be sent down the channel successfully using send_command method."""
+    """
+    Verify a command can be sent down the channel
+    successfully using send_command method.
+    """
 
     base_platform = net_connect.device_type
     if base_platform.count("_") >= 2:
