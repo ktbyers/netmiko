@@ -16,6 +16,7 @@ test_disconnect: cleanly disconnect the SSH session
 """
 import pytest
 import time
+import os
 from datetime import datetime
 from netmiko.utilities import select_cmd_verify
 
@@ -209,15 +210,17 @@ def test_send_command_ttp(net_connect):
         # write a simple template to file
         ttp_raw_template = """
         interface {{ interface }}
-        description {{ description }}
+         description {{ description }}
         """
-        with open("show_run_interfaces.ttp", "w") as writer:
+        ttp_temp_filename = "show_run_interfaces.ttp"
+        with open(ttp_temp_filename, "w") as writer:
             writer.write(ttp_raw_template)
 
-        command = "show run | s interfaces"
+        command = "show run"
         show_ip_alt = net_connect.send_command(
-            command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
+            command, use_ttp=True, ttp_template=ttp_temp_filename
         )
+        os.remove(ttp_temp_filename)
         assert isinstance(show_ip_alt, list)
 
 

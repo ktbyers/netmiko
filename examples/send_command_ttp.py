@@ -19,7 +19,7 @@ interface {{ interface }}
 with open("show_run_interfaces.ttp", "w") as writer:
     writer.write(ttp_raw_template)
 
-command = "show run | s interfaces"
+command = "show run"
 with ConnectHandler(**cisco1) as net_connect:
     # Use TTP to retrieve structured data
     output = net_connect.send_command(

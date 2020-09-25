@@ -362,19 +362,13 @@ def get_structured_data_ttp(raw_output, template=None):
         msg = "\nTTP is not installed. Please PIP install ttp:\n" "pip install ttp\n"
         raise ValueError(msg)
 
-    if os.path.exists(template):
-        with open(template) as f:
-            ttp_template = f.read()
-        try:
-            if template:
-                ttp_parser = ttp(data=raw_output, template=ttp_template)
-                ttp_parser.parse()
-                # print(ttp_parser.result(format="json")[0])
-                return ttp_parser.result(format="raw")
-        except Exception:
-            return raw_output
-    else:
-        raise ValueError(f"File not found: {template}")
+    try:
+        if template:
+            ttp_parser = ttp(data=raw_output, template=template)
+            ttp_parser.parse(one=True)
+            return ttp_parser.result(format="raw")
+    except Exception:
+        return raw_output
 
 
 def get_structured_data_genie(raw_output, platform, command):
