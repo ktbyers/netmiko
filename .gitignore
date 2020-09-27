@@ -50,3 +50,6 @@ tests/cisco3-out.txt
 tests/test.log
 tests_new/test_out/*.out
 tests_new/test_out/*.stderr
+tests_new/cisco-xrv.txt
+tests_new/*.out
+tests/*.out

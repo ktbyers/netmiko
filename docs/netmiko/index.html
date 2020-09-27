@@ -1900,6 +1900,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         normalize=True,
         use_textfsm=False,
         textfsm_template=None,
+        use_ttp=False,
+        ttp_template=None,
         use_genie=False,
         cmd_verify=False,
         cmd_echo=None,
@@ -1932,6 +1934,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
         :type textfsm_template: str
+
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
@@ -2094,6 +2103,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
+
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool

@@ -29,6 +29,7 @@ from netmiko.utilities import (
     check_serial_port,
     get_structured_data,
     get_structured_data_genie,
+    get_structured_data_ttp,
     select_cmd_verify,
 )
 from netmiko.utilities import m_exec_time  # noqa
@@ -1211,6 +1212,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         normalize=True,
         use_textfsm=False,
         textfsm_template=None,
+        use_ttp=False,
+        ttp_template=None,
         use_genie=False,
         cmd_verify=False,
         cmd_echo=None,
@@ -1243,6 +1246,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
         :type textfsm_template: str
+
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
@@ -1300,7 +1310,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             strip_prompt=strip_prompt,
         )
 
-        # If both TextFSM and Genie are set, try TextFSM then Genie
+        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
         if use_textfsm:
             structured_output = get_structured_data(
                 output,
@@ -1308,6 +1318,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 command=command_string.strip(),
                 template=textfsm_template,
             )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_ttp:
+            structured_output = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output
@@ -1375,6 +1390,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         normalize=True,
         use_textfsm=False,
         textfsm_template=None,
+        use_ttp=False,
+        ttp_template=None,
         use_genie=False,
         cmd_verify=True,
     ):
@@ -1411,6 +1428,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
+
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
@@ -1505,7 +1529,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             strip_prompt=strip_prompt,
         )
 
-        # If both TextFSM and Genie are set, try TextFSM then Genie
+        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
         if use_textfsm:
             structured_output = get_structured_data(
                 output,
@@ -1513,6 +1537,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 command=command_string.strip(),
                 template=textfsm_template,
             )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_ttp:
+            structured_output = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output
