@@ -1322,10 +1322,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             if not isinstance(structured_output, str):
                 return structured_output
         if use_ttp:
-            structured_output = get_structured_data_ttp(
-                output,
-                template=ttp_template,
-            )
+            structured_output = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output
@@ -1544,10 +1541,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             if not isinstance(structured_output, str):
                 return structured_output
         if use_ttp:
-            structured_output = get_structured_data_ttp(
-                output,
-                template=ttp_template,
-            )
+            structured_output = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output

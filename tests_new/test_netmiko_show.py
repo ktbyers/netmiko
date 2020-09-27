@@ -147,9 +147,7 @@ def test_send_command_ttp(net_connect):
         # Strip off the _ssh, _telnet, _serial
         base_platform = base_platform.split("_")[:-1]
         base_platform = "_".join(base_platform)
-    if base_platform not in [
-        "cisco_ios",
-    ]:
+    if base_platform not in ["cisco_ios"]:
         assert pytest.skip("TTP template not existing for this platform")
     else:
         time.sleep(1)
