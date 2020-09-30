@@ -1,3 +1,4 @@
+import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
@@ -34,6 +35,20 @@ class AristaBase(CiscoSSHConnection):
         output = output.replace("(s1)", "")
         output = output.replace("(s2)", "")
         return check_string in output
+
+    def config_mode(self, config_command="configure terminal", pattern="", re_flags=0):
+        """Force arista to read pattern all the way to prompt on the next line."""
+
+        if not re_flags:
+            re_flags = re.DOTALL
+        check_string = re.escape(")#")
+
+        if not pattern:
+            pattern = re.escape(self.base_prompt[:16])
+            pattern = f"{pattern}.*{check_string}"
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def _enter_shell(self):
         """Enter the Bourne Shell."""
