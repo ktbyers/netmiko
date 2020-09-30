@@ -109,6 +109,7 @@ CLASS_MAPPER_BASE = {
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "aruba_os": ArubaSSH,
+    "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
