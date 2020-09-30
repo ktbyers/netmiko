@@ -192,7 +192,7 @@ def test_file_transfer(scp_file_transfer):
     # GET Operations
     direction = "get"
     source_file = "test9.txt"
-    dest_file = "testx.txt"
+    dest_file = f"test_{platform}/testx.txt"
     transfer_dict = file_transfer(
         ssh_conn,
         source_file=source_file,
@@ -226,8 +226,8 @@ def test_file_transfer(scp_file_transfer):
     )
 
     # Don't allow a file overwrite (switch the file, but same dest file name)
-    source_file = "test2.txt"
-    dest_file = "testx.txt"
+    source_file = f"test_{platform}/test2.txt"
+    dest_file = f"test_{platform}/testx.txt"
     with pytest.raises(Exception):
         transfer_dict = file_transfer(
             ssh_conn,
@@ -239,8 +239,8 @@ def test_file_transfer(scp_file_transfer):
         )
 
     # Don't allow MD5 and file overwrite not allowed
-    source_file = "test9.txt"
-    dest_file = "testx.txt"
+    source_file = f"test9.txt"
+    dest_file = f"test_{platform}/testx.txt"
     with pytest.raises(Exception):
         transfer_dict = file_transfer(
             ssh_conn,
