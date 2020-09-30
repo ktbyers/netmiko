@@ -1,4 +1,9 @@
-"""Aruba OS support"""
+"""
+Aruba OS support.
+
+For use with Aruba OS Controllers.
+
+"""
 import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
