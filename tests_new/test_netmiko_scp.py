@@ -239,7 +239,7 @@ def test_file_transfer(scp_file_transfer):
         )
 
     # Don't allow MD5 and file overwrite not allowed
-    source_file = f"test9.txt"
+    source_file = "test9.txt"
     dest_file = f"test_{platform}/testx.txt"
     with pytest.raises(Exception):
         transfer_dict = file_transfer(

@@ -388,6 +388,7 @@ def tcl_fixture(request):
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device["verbose"] = False
+    platform = device["device_type"]
     ssh_conn = ConnectHandler(**device)
 
     dest_file_system = "flash:"
