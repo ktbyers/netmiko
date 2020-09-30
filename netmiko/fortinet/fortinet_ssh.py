@@ -46,7 +46,7 @@ class FortinetSSH(CiscoSSHConnection):
         self.vdoms = False
         self._output_mode = "more"
 
-        if "Virtual domain configuration: enable" in output:
+        if re.search(r"Virtual domain configuration: (multiple|enable)", output):
             self.vdoms = True
             vdom_additional_command = "config global"
             output = self.send_command_timing(vdom_additional_command, delay_factor=2)
