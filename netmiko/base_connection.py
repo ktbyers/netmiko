@@ -17,6 +17,7 @@ from threading import Lock
 
 import paramiko
 import serial
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
@@ -1117,6 +1118,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output = self.read_until_prompt()
         return output
 
+    # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
+    @retry(
+        wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)
+    )
     def set_base_prompt(
         self, pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
     ):
@@ -1146,7 +1151,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    # @m_exec_time
     def find_prompt(self, delay_factor=1):
         """Finds the current network device prompt, last line only.
 
@@ -1701,7 +1705,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
-    def config_mode(self, config_command="", pattern=""):
+    def config_mode(self, config_command="", pattern="", re_flags=0):
         """Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
@@ -1709,6 +1713,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
+
+        :param re_flags: Regular expression flags
+        :type re_flags: RegexFlag
         """
         output = ""
         if not self.check_config_mode():
@@ -1718,8 +1725,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 output += self.read_until_pattern(
                     pattern=re.escape(config_command.strip())
                 )
-            if not re.search(pattern, output, flags=re.M):
-                output += self.read_until_pattern(pattern=pattern)
+            if not re.search(pattern, output, flags=re_flags):
+                output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode.")
         return output
