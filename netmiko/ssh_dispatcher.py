@@ -109,6 +109,7 @@ CLASS_MAPPER_BASE = {
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "aruba_os": ArubaSSH,
+    "aruba_procurve": HPProcurveSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
     "broadcom_icos": BroadcomIcosSSH,
@@ -238,6 +239,7 @@ FILE_TRANSFER_MAP = new_mapper
 # Add telnet drivers
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
+CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet

@@ -5,14 +5,14 @@ RP/0/0/CPU0:pynet-iosxr1#show system
 % Incomplete command.
 RP/0/0/CPU0:pynet-iosxr1#show version
 
-Fri Sep 11 19:43:40.669 UTC
+Wed Sep 30 14:11:20.438 UTC
 [K
 Cisco IOS XR Software, Version 5.3.1[Default]
 Copyright (c) 2015 by Cisco Systems, Inc.
 
 ROM: GRUB, Version 1.99(0), DEV RELEASE
 
-pynet-iosxr1 uptime is 1 year, 25 weeks, 2 days, 26 minutes
+pynet-iosxr1 uptime is 1 year, 27 weeks, 6 days, 18 hours, 54 minutes
 System image file is "bootflash:disk0/xrvr-os-mbi-5.3.1/mbixrvr-rp.vm"
 
 cisco IOS XRv Series (Intel 686 F6M13S3) processor with 4193904K bytes of memory.
