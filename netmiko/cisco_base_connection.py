@@ -37,7 +37,9 @@ class CiscoBaseConnection(BaseConnection):
         """
         if not pattern:
             pattern = re.escape(self.base_prompt[:16])
-        return super().config_mode(config_command=config_command, pattern=pattern, re_flags=re_flags)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="end", pattern="#"):
         """Exit from configuration mode."""
