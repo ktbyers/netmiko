@@ -12,32 +12,60 @@ def convert_time(time_str):
     return secs
 
 
-if __name__ == "__main__":
-
+def read_csv(device):
     csv_file = "netmiko_performance_releases.csv"
-
-    cisco1_entries = []
+    entries = []
     with open(csv_file) as f:
         read_csv = csv.DictReader(f)
         for entry in read_csv:
             entry = dict(entry)
-            if entry["device_name"] == "cisco1":
-                cisco1_entries.append(entry)
+            if entry["device_name"] == device:
+                entries.append(entry)
 
-    netmiko_versions = [v["netmiko_version"] for v in cisco1_entries]
-    connect = [convert_time(v["connect"]) for v in cisco1_entries]
-    send_command = [convert_time(v["send_command_simple"]) for v in cisco1_entries]
-    send_config = [convert_time(v["send_config_simple"]) for v in cisco1_entries]
-    send_config_acl = [convert_time(v["send_config_large_acl"]) for v in cisco1_entries]
-    pprint(cisco1_entries)
+    return entries
+
+
+if __name__ == "__main__":
+
+    cisco3 = {
+        "device": "cisco3",
+        "title": "Netmiko: Cisco IOS-XE Performance (Cisco C1111-4P)",
+        "outfile": "netmiko_cisco_xe.svg",
+    }
+    nxos1 = {
+        "device": "nxos1",
+        "title": "Netmiko: Cisco NX-OS Performance (nx9k virtual)",
+        "outfile": "netmiko_cisco_nxos.svg",
+    }
+    xr_azure = {
+        "device": "cisco_xr_azure",
+        "title": "Netmiko: Cisco IOS-XR Performance (cisco IOS-XRv 9000)",
+        "outfile": "netmiko_cisco_xr.svg",
+    }
+
+    test_device = xr_azure
+
+    device = test_device["device"]
+    title = test_device["title"]
+    outfile = test_device["outfile"]
+    entries = read_csv(device)
+
+    # Create relevant lists
+    netmiko_versions = [v["netmiko_version"] for v in entries]
+    connect = [convert_time(v["connect"]) for v in entries]
+    send_command = [convert_time(v["send_command_simple"]) for v in entries]
+    send_config = [convert_time(v["send_config_simple"]) for v in entries]
+    send_config_acl = [convert_time(v["send_config_large_acl"]) for v in entries]
+    pprint(entries)
     print(netmiko_versions)
     print(connect)
 
+    # Graph It
     line_chart = pygal.Line(include_x_axis=True)
-    line_chart.title = "Netmiko: Cisco IOS Performance"
+    line_chart.title = title
     line_chart.x_labels = netmiko_versions
     line_chart.add("Connect", connect)
     line_chart.add("Show Command", send_command)
     line_chart.add("Simple Config", send_config)
     line_chart.add("Large ACL", send_config_acl)
-    line_chart.render_to_file("netmiko_cisco_ios.svg")
+    line_chart.render_to_file(outfile)
