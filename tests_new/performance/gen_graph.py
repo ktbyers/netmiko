@@ -27,6 +27,11 @@ def read_csv(device):
 
 if __name__ == "__main__":
 
+    cisco1 = {
+        "device": "cisco1",
+        "title": "Netmiko: Cisco IOS Performance (Cisco 881)",
+        "outfile": "netmiko_cisco_ios.svg",
+    }
     cisco3 = {
         "device": "cisco3",
         "title": "Netmiko: Cisco IOS-XE Performance (Cisco C1111-4P)",
@@ -42,8 +47,13 @@ if __name__ == "__main__":
         "title": "Netmiko: Cisco IOS-XR Performance (cisco IOS-XRv 9000)",
         "outfile": "netmiko_cisco_xr.svg",
     }
+    arista1 = {
+        "device": "arista1",
+        "title": "Netmiko: Arista EOS Performance (vEOS)",
+        "outfile": "netmiko_arista_eos.svg",
+    }
 
-    test_device = xr_azure
+    test_device = cisco1
 
     device = test_device["device"]
     title = test_device["title"]
