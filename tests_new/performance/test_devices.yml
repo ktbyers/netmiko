@@ -18,18 +18,14 @@ nxos1:
   device_type: cisco_nxos
   host: nxos1.lasthop.io
   username: pyclass
-  # conn_timeout: 20
-  # session_log: nxos1.out
 
 cisco_xr_azure:
   device_type: cisco_xr
   host: iosxr3.lasthop.io
   username: pyclass
   secret: ''
-  session_log: xr.out
 
 arista1:
   device_type: arista_eos
   host: arista1.lasthop.io
   username: pyclass
-  session_log: arista1.out
