@@ -22,25 +22,30 @@
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">import time
-import re
+<pre><code class="python">import re
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 
 class CiscoXrBase(CiscoBaseConnection):
+    def __init__(self, *args, **kwargs):
+        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        return super().__init__(*args, **kwargs)
+
     def establish_connection(self):
         &#34;&#34;&#34;Establish SSH connection to the network device&#34;&#34;&#34;
         super().establish_connection(width=511, height=511)
 
     def session_preparation(self):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
+        # IOS-XR has an issue where it echoes the command even though it hasn&#39;t returned the prompt
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        cmd = &#34;terminal width 511&#34;
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.set_base_prompt()
 
     def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         &#34;&#34;&#34;IOS-XR requires you not exit from configuration mode.&#34;&#34;&#34;
@@ -145,17 +150,21 @@ class CiscoXrBase(CiscoBaseConnection):
         output = output.replace(&#34;(admin)&#34;, &#34;&#34;)
         return check_string in output
 
-    def exit_config_mode(self, exit_config=&#34;end&#34;):
+    def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
         output = &#34;&#34;
         if self.check_config_mode():
-            output = self.send_command_timing(
-                exit_config, strip_prompt=False, strip_command=False
-            )
-            if &#34;Uncommitted changes found&#34; in output:
-                output += self.send_command_timing(
-                    &#34;no&#34;, strip_prompt=False, strip_command=False
+            self.write_channel(self.normalize_cmd(exit_config))
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
                 )
+            if &#34;Uncommitted changes found&#34; in output:
+                self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
+                output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
+            if not re.search(pattern, output, flags=re.M):
+                output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError(&#34;Failed to exit configuration mode&#34;)
         return output
@@ -229,7 +238,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
 <dl>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrBase"><code class="flex name class">
 <span>class <span class="ident">CiscoXrBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -366,19 +375,25 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class CiscoXrBase(CiscoBaseConnection):
+    def __init__(self, *args, **kwargs):
+        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        return super().__init__(*args, **kwargs)
+
     def establish_connection(self):
         &#34;&#34;&#34;Establish SSH connection to the network device&#34;&#34;&#34;
         super().establish_connection(width=511, height=511)
 
     def session_preparation(self):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
+        # IOS-XR has an issue where it echoes the command even though it hasn&#39;t returned the prompt
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        cmd = &#34;terminal width 511&#34;
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.set_base_prompt()
 
     def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         &#34;&#34;&#34;IOS-XR requires you not exit from configuration mode.&#34;&#34;&#34;
@@ -483,17 +498,21 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         output = output.replace(&#34;(admin)&#34;, &#34;&#34;)
         return check_string in output
 
-    def exit_config_mode(self, exit_config=&#34;end&#34;):
+    def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
         output = &#34;&#34;
         if self.check_config_mode():
-            output = self.send_command_timing(
-                exit_config, strip_prompt=False, strip_command=False
-            )
-            if &#34;Uncommitted changes found&#34; in output:
-                output += self.send_command_timing(
-                    &#34;no&#34;, strip_prompt=False, strip_command=False
+            self.write_channel(self.normalize_cmd(exit_config))
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
                 )
+            if &#34;Uncommitted changes found&#34; in output:
+                self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
+                output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
+            if not re.search(pattern, output, flags=re.M):
+                output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError(&#34;Failed to exit configuration mode&#34;)
         return output
@@ -666,23 +685,27 @@ an exception to be generated.</p></section>
 </details>
 </dd>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='end')</span>
+<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='end', pattern='')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Exit configuration mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config=&#34;end&#34;):
+<pre><code class="python">def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;&#34;):
     &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
     output = &#34;&#34;
     if self.check_config_mode():
-        output = self.send_command_timing(
-            exit_config, strip_prompt=False, strip_command=False
-        )
-        if &#34;Uncommitted changes found&#34; in output:
-            output += self.send_command_timing(
-                &#34;no&#34;, strip_prompt=False, strip_command=False
+        self.write_channel(self.normalize_cmd(exit_config))
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(
+                pattern=re.escape(exit_config.strip())
             )
+        if &#34;Uncommitted changes found&#34; in output:
+            self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
+            output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
+        if not re.search(pattern, output, flags=re.M):
+            output += self.read_until_pattern(pattern=pattern)
         if self.check_config_mode():
             raise ValueError(&#34;Failed to exit configuration mode&#34;)
     return output</code></pre>
@@ -723,13 +746,13 @@ an exception to be generated.</p></section>
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self):
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    self._test_channel_read()
-    self.set_base_prompt()
-    self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
+    # IOS-XR has an issue where it echoes the command even though it hasn&#39;t returned the prompt
+    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+    cmd = &#34;terminal width 511&#34;
+    self.set_terminal_width(command=cmd, pattern=cmd)
     self.disable_paging()
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
+    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+    self.set_base_prompt()</code></pre>
 </details>
 </dd>
 </dl>
@@ -907,7 +930,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </dd>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoXrSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco XR SSH driver.</p>
@@ -1104,7 +1127,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </dd>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoXrTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco XR Telnet driver.</p>

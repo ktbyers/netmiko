@@ -54,7 +54,7 @@ class CiscoBaseConnection(BaseConnection):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;, re_flags=0):
         &#34;&#34;&#34;
         Enter into configuration mode on remote device.
 
@@ -62,7 +62,9 @@ class CiscoBaseConnection(BaseConnection):
         &#34;&#34;&#34;
         if not pattern:
             pattern = re.escape(self.base_prompt[:16])
-        return super().config_mode(config_command=config_command, pattern=pattern)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;#&#34;):
         &#34;&#34;&#34;Exit from configuration mode.&#34;&#34;&#34;
@@ -436,7 +438,7 @@ class CiscoFileTransfer(BaseFileTransfer):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;, re_flags=0):
         &#34;&#34;&#34;
         Enter into configuration mode on remote device.
 
@@ -444,7 +446,9 @@ class CiscoFileTransfer(BaseFileTransfer):
         &#34;&#34;&#34;
         if not pattern:
             pattern = re.escape(self.base_prompt[:16])
-        return super().config_mode(config_command=config_command, pattern=pattern)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;#&#34;):
         &#34;&#34;&#34;Exit from configuration mode.&#34;&#34;&#34;
@@ -712,14 +716,14 @@ class CiscoFileTransfer(BaseFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure terminal', pattern='')</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure terminal', pattern='', re_flags=0)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter into configuration mode on remote device.</p>
 <p>Cisco IOS devices abbreviate the prompt at 20 chars in config mode</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;):
+<pre><code class="python">def config_mode(self, config_command=&#34;configure terminal&#34;, pattern=&#34;&#34;, re_flags=0):
     &#34;&#34;&#34;
     Enter into configuration mode on remote device.
 
@@ -727,11 +731,13 @@ class CiscoFileTransfer(BaseFileTransfer):
     &#34;&#34;&#34;
     if not pattern:
         pattern = re.escape(self.base_prompt[:16])
-    return super().config_mode(config_command=config_command, pattern=pattern)</code></pre>
+    return super().config_mode(
+        config_command=config_command, pattern=pattern, re_flags=re_flags
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='ssword', re_flags=<RegexFlag.IGNORECASE: 2>)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='ssword', re_flags=re.IGNORECASE)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter enable mode.</p></section>
@@ -1189,6 +1195,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH" href="broadcom/broadcom_icos_ssh.html#netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH">BroadcomIcosSSH</a></li>
 <li><a title="netmiko.calix.calix_b6.CalixB6Base" href="calix/calix_b6.html#netmiko.calix.calix_b6.CalixB6Base">CalixB6Base</a></li>
 <li><a title="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH" href="cisco/cisco_asa_ssh.html#netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH">CiscoAsaSSH</a></li>
+<li><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH" href="cisco/cisco_ftd_ssh.html#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH">CiscoFtdSSH</a></li>
 <li><a title="netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH" href="cisco/cisco_nxos_ssh.html#netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH">CiscoNxosSSH</a></li>
 <li><a title="netmiko.cisco.cisco_s300.CiscoS300SSH" href="cisco/cisco_s300.html#netmiko.cisco.cisco_s300.CiscoS300SSH">CiscoS300SSH</a></li>
 <li><a title="netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH" href="cisco/cisco_tp_tcce.html#netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH">CiscoTpTcCeSSH</a></li>
@@ -1220,6 +1227,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH" href="quanta/quanta_mesh_ssh.html#netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH">QuantaMeshSSH</a></li>
 <li><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase" href="ruckus/ruckus_fastiron.html#netmiko.ruckus.ruckus_fastiron.RuckusFastironBase">RuckusFastironBase</a></li>
 <li><a title="netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH" href="sophos/sophos_sfos_ssh.html#netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH">SophosSfosSSH</a></li>
+<li><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase" href="tplink/tplink_jetstream.html#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase">TPLinkJetStreamBase</a></li>
 <li><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH" href="ubiquiti/edge_ssh.html#netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH">UbiquitiEdgeSSH</a></li>
 <li><a title="netmiko.vyos.vyos_ssh.VyOSSSH" href="vyos/vyos_ssh.html#netmiko.vyos.vyos_ssh.VyOSSSH">VyOSSSH</a></li>
 </ul>

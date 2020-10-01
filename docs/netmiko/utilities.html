@@ -35,6 +35,14 @@ from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 
 try:
+    from ttp import ttp
+
+    TTP_INSTALLED = True
+
+except ImportError:
+    TTP_INSTALLED = False
+
+try:
     from genie.conf.base import Device
     from genie.libs.parser.utils import get_parser
     from pyats.datastructures import AttrDict
@@ -43,13 +51,18 @@ try:
 except ImportError:
     GENIE_INSTALLED = False
 
+# If we are on python &lt; 3.7, we need to force the import of importlib.resources backport
+try:
+    from importlib.resources import path as importresources_path
+except ModuleNotFoundError:
+    from importlib_resources import path as importresources_path
+
 try:
     import serial.tools.list_ports
 
     PYSERIAL_INSTALLED = True
 except ImportError:
     PYSERIAL_INSTALLED = False
-
 
 # Dictionary mapping &#39;show run&#39; for vendors with different command
 SHOW_RUN_MAPPER = {
@@ -134,8 +147,8 @@ def find_cfg_file(file_name=None):
         if files:
             return files[0]
     raise IOError(
-        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current &#34;
-        &#34;directory, or home directory.&#34;
+        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory,&#34;
+        &#34; current directory, or home directory.&#34;
     )
 
 
@@ -249,25 +262,59 @@ def check_serial_port(name):
         raise ValueError(msg)
 
 
-def get_template_dir():
-    &#34;&#34;&#34;Find and return the ntc-templates/templates dir.&#34;&#34;&#34;
-    try:
-        template_dir = os.path.expanduser(os.environ[&#34;NET_TEXTFSM&#34;])
+def get_template_dir(_skip_ntc_package=False):
+    &#34;&#34;&#34;
+    Find and return the directory containing the TextFSM index file.
+
+    Order of preference is:
+    1) Find directory in `NET_TEXTFSM` Environment Variable.
+    2) Check for pip installed `ntc-templates` location in this environment.
+    3) ~/ntc-templates/templates.
+
+    If `index` file is not found in any of these locations, raise ValueError
+
+    :return: directory containing the TextFSM index file
+
+    &#34;&#34;&#34;
+
+    msg = &#34;&#34;&#34;
+Directory containing TextFSM index file not found.
+
+Please set the NET_TEXTFSM environment variable to point at the directory containing your TextFSM
+index file.
+
+Alternatively, `pip install ntc-templates` (if using ntc-templates).
+
+&#34;&#34;&#34;
+
+    # Try NET_TEXTFSM environment variable
+    template_dir = os.environ.get(&#34;NET_TEXTFSM&#34;)
+    if template_dir is not None:
+        template_dir = os.path.expanduser(template_dir)
         index = os.path.join(template_dir, &#34;index&#34;)
         if not os.path.isfile(index):
             # Assume only base ./ntc-templates specified
             template_dir = os.path.join(template_dir, &#34;templates&#34;)
-    except KeyError:
-        # Construct path ~/ntc-templates/templates
-        home_dir = os.path.expanduser(&#34;~&#34;)
-        template_dir = os.path.join(home_dir, &#34;ntc-templates&#34;, &#34;templates&#34;)
+
+    else:
+        # Try &#39;pip installed&#39; ntc-templates
+        try:
+            with importresources_path(
+                package=&#34;ntc_templates&#34;, resource=&#34;templates&#34;
+            ) as posix_path:
+                # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
+                template_dir = str(posix_path)
+                # This is for Netmiko automated testing
+                if _skip_ntc_package:
+                    raise ModuleNotFoundError()
+
+        except ModuleNotFoundError:
+            # Finally check in ~/ntc-templates/templates
+            home_dir = os.path.expanduser(&#34;~&#34;)
+            template_dir = os.path.join(home_dir, &#34;ntc-templates&#34;, &#34;templates&#34;)
 
     index = os.path.join(template_dir, &#34;index&#34;)
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
-        msg = &#34;&#34;&#34;
-Valid ntc-templates not found, please install https://github.com/networktocode/ntc-templates
-and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
-directory.&#34;&#34;&#34;
         raise ValueError(msg)
     return os.path.abspath(template_dir)
 
@@ -330,6 +377,25 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
         )
 
 
+def get_structured_data_ttp(raw_output, template=None):
+    &#34;&#34;&#34;
+    Convert raw CLI output to structured data using TTP template.
+
+    You can use a straight TextFSM file i.e. specify &#34;template&#34;
+    &#34;&#34;&#34;
+    if not TTP_INSTALLED:
+        msg = &#34;\nTTP is not installed. Please PIP install ttp:\n&#34; &#34;pip install ttp\n&#34;
+        raise ValueError(msg)
+
+    try:
+        if template:
+            ttp_parser = ttp(data=raw_output, template=template)
+            ttp_parser.parse(one=True)
+            return ttp_parser.result(format=&#34;raw&#34;)
+    except Exception:
+        return raw_output
+
+
 def get_structured_data_genie(raw_output, platform, command):
     if not sys.version_info &gt;= (3, 4):
         raise ValueError(&#34;Genie requires Python &gt;= 3.4&#34;)
@@ -370,7 +436,7 @@ def get_structured_data_genie(raw_output, platform, command):
     device.custom[&#34;abstraction&#34;][&#34;order&#34;] = [&#34;os&#34;]
     device.cli = AttrDict({&#34;execute&#34;: None})
     try:
-        # Test of whether their is a parser for the given command (will return Exception if fails)
+        # Test whether there is a parser for given command (return Exception if fails)
         get_parser(command, device)
         parsed_output = device.parse(command, output=raw_output)
         return parsed_output
@@ -573,8 +639,8 @@ Also allow NETMIKO_TOOLS_CFG to point directly at a file</p></section>
         if files:
             return files[0]
     raise IOError(
-        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory, current &#34;
-        &#34;directory, or home directory.&#34;
+        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory,&#34;
+        &#34; current directory, or home directory.&#34;
     )</code></pre>
 </details>
 </dd>
@@ -686,10 +752,37 @@ then you must use an CliTable index file.</p></section>
     device.custom[&#34;abstraction&#34;][&#34;order&#34;] = [&#34;os&#34;]
     device.cli = AttrDict({&#34;execute&#34;: None})
     try:
-        # Test of whether their is a parser for the given command (will return Exception if fails)
+        # Test whether there is a parser for given command (return Exception if fails)
         get_parser(command, device)
         parsed_output = device.parse(command, output=raw_output)
         return parsed_output
+    except Exception:
+        return raw_output</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.get_structured_data_ttp"><code class="name flex">
+<span>def <span class="ident">get_structured_data_ttp</span></span>(<span>raw_output, template=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Convert raw CLI output to structured data using TTP template.</p>
+<p>You can use a straight TextFSM file i.e. specify "template"</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_structured_data_ttp(raw_output, template=None):
+    &#34;&#34;&#34;
+    Convert raw CLI output to structured data using TTP template.
+
+    You can use a straight TextFSM file i.e. specify &#34;template&#34;
+    &#34;&#34;&#34;
+    if not TTP_INSTALLED:
+        msg = &#34;\nTTP is not installed. Please PIP install ttp:\n&#34; &#34;pip install ttp\n&#34;
+        raise ValueError(msg)
+
+    try:
+        if template:
+            ttp_parser = ttp(data=raw_output, template=template)
+            ttp_parser.parse(one=True)
+            return ttp_parser.result(format=&#34;raw&#34;)
     except Exception:
         return raw_output</code></pre>
 </details>
@@ -698,28 +791,68 @@ then you must use an CliTable index file.</p></section>
 <span>def <span class="ident">get_template_dir</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Find and return the ntc-templates/templates dir.</p></section>
+<section class="desc"><p>Find and return the directory containing the TextFSM index file.</p>
+<p>Order of preference is:
+1) Find directory in <code>NET_TEXTFSM</code> Environment Variable.
+2) Check for pip installed <code>ntc-templates</code> location in this environment.
+3) ~/ntc-templates/templates.</p>
+<p>If <code>index</code> file is not found in any of these locations, raise ValueError</p>
+<p>:return: directory containing the TextFSM index file</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def get_template_dir():
-    &#34;&#34;&#34;Find and return the ntc-templates/templates dir.&#34;&#34;&#34;
-    try:
-        template_dir = os.path.expanduser(os.environ[&#34;NET_TEXTFSM&#34;])
+<pre><code class="python">def get_template_dir(_skip_ntc_package=False):
+    &#34;&#34;&#34;
+    Find and return the directory containing the TextFSM index file.
+
+    Order of preference is:
+    1) Find directory in `NET_TEXTFSM` Environment Variable.
+    2) Check for pip installed `ntc-templates` location in this environment.
+    3) ~/ntc-templates/templates.
+
+    If `index` file is not found in any of these locations, raise ValueError
+
+    :return: directory containing the TextFSM index file
+
+    &#34;&#34;&#34;
+
+    msg = &#34;&#34;&#34;
+Directory containing TextFSM index file not found.
+
+Please set the NET_TEXTFSM environment variable to point at the directory containing your TextFSM
+index file.
+
+Alternatively, `pip install ntc-templates` (if using ntc-templates).
+
+&#34;&#34;&#34;
+
+    # Try NET_TEXTFSM environment variable
+    template_dir = os.environ.get(&#34;NET_TEXTFSM&#34;)
+    if template_dir is not None:
+        template_dir = os.path.expanduser(template_dir)
         index = os.path.join(template_dir, &#34;index&#34;)
         if not os.path.isfile(index):
             # Assume only base ./ntc-templates specified
             template_dir = os.path.join(template_dir, &#34;templates&#34;)
-    except KeyError:
-        # Construct path ~/ntc-templates/templates
-        home_dir = os.path.expanduser(&#34;~&#34;)
-        template_dir = os.path.join(home_dir, &#34;ntc-templates&#34;, &#34;templates&#34;)
+
+    else:
+        # Try &#39;pip installed&#39; ntc-templates
+        try:
+            with importresources_path(
+                package=&#34;ntc_templates&#34;, resource=&#34;templates&#34;
+            ) as posix_path:
+                # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
+                template_dir = str(posix_path)
+                # This is for Netmiko automated testing
+                if _skip_ntc_package:
+                    raise ModuleNotFoundError()
+
+        except ModuleNotFoundError:
+            # Finally check in ~/ntc-templates/templates
+            home_dir = os.path.expanduser(&#34;~&#34;)
+            template_dir = os.path.join(home_dir, &#34;ntc-templates&#34;, &#34;templates&#34;)
 
     index = os.path.join(template_dir, &#34;index&#34;)
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
-        msg = &#34;&#34;&#34;
-Valid ntc-templates not found, please install https://github.com/networktocode/ntc-templates
-and then set the NET_TEXTFSM environment variable to point to the ./ntc-templates/templates
-directory.&#34;&#34;&#34;
         raise ValueError(msg)
     return os.path.abspath(template_dir)</code></pre>
 </details>
@@ -890,6 +1023,7 @@ directory.&#34;&#34;&#34;
 <li><code><a title="netmiko.utilities.find_netmiko_dir" href="#netmiko.utilities.find_netmiko_dir">find_netmiko_dir</a></code></li>
 <li><code><a title="netmiko.utilities.get_structured_data" href="#netmiko.utilities.get_structured_data">get_structured_data</a></code></li>
 <li><code><a title="netmiko.utilities.get_structured_data_genie" href="#netmiko.utilities.get_structured_data_genie">get_structured_data_genie</a></code></li>
+<li><code><a title="netmiko.utilities.get_structured_data_ttp" href="#netmiko.utilities.get_structured_data_ttp">get_structured_data_ttp</a></code></li>
 <li><code><a title="netmiko.utilities.get_template_dir" href="#netmiko.utilities.get_template_dir">get_template_dir</a></code></li>
 <li><code><a title="netmiko.utilities.load_devices" href="#netmiko.utilities.load_devices">load_devices</a></code></li>
 <li><code><a title="netmiko.utilities.load_yaml_file" href="#netmiko.utilities.load_yaml_file">load_yaml_file</a></code></li>
