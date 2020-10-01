@@ -15,9 +15,10 @@ from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class NokiaSrosSSH(BaseConnection):
+class NokiaSros(BaseConnection):
     """
-    Implement methods for interacting with Nokia SR OS devices.
+    Implement methods for interacting with Nokia SR OS devices
+    for both SSH and telnet.
 
     Not applicable in Nokia SR OS (disabled):
         - exit_enable_mode()
@@ -215,6 +216,18 @@ class NokiaSrosSSH(BaseConnection):
         # Always try to send final 'logout'.
         self._session_log_fin = True
         self.write_channel(command + self.RETURN)
+
+
+class NokiaSrosSSH(NokiaSros):
+    """Nokia SR OS SSH driver."""
+
+    pass
+
+
+class NokiaSrosTelnet(NokiaSros):
+    """Nokia SR OS Telnet driver."""
+
+    pass
 
 
 class NokiaSrosFileTransfer(BaseFileTransfer):
