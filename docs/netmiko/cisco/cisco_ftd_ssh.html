@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
-<title>netmiko.mellanox API documentation</title>
-<meta name="description" content="" />
+<title>netmiko.cisco.cisco_ftd_ssh API documentation</title>
+<meta name="description" content="Subclass specific to Cisco FTD." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,24 +17,42 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>netmiko.mellanox</code></h1>
+<h1 class="title">Module <code>netmiko.cisco.cisco_ftd_ssh</code></h1>
 </header>
 <section id="section-intro">
+<p>Subclass specific to Cisco FTD.</p>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">from netmiko.mellanox.mellanox_mlnxos_ssh import MellanoxMlnxosSSH
+<pre><code class="python">&#34;&#34;&#34;Subclass specific to Cisco FTD.&#34;&#34;&#34;
+from netmiko.cisco_base_connection import CiscoSSHConnection
 
-__all__ = [&#34;MellanoxMlnxosSSH&#34;]</code></pre>
+
+class CiscoFtdSSH(CiscoSSHConnection):
+    &#34;&#34;&#34;Subclass specific to Cisco FTD.&#34;&#34;&#34;
+
+    def session_preparation(self):
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read()
+        self.set_base_prompt()
+
+    def send_config_set(self, *args, **kwargs):
+        &#34;&#34;&#34;Canot change config on FTD via ssh&#34;&#34;&#34;
+        raise NotImplementedError
+
+    def enable(self, *args, **kwargs):
+        &#34;&#34;&#34;No enable mode on firepower ssh&#34;&#34;&#34;
+        return &#34;&#34;
+
+    def config_mode(self, *args, **kwargs):
+        &#34;&#34;&#34;No config mode on firepower ssh&#34;&#34;&#34;
+        return &#34;&#34;
+
+    def check_config_mode(self, *args, **kwargs):
+        &#34;&#34;&#34;No config mode on firepower ssh&#34;&#34;&#34;
+        return False</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
-<dl>
-<dt><code class="name"><a title="netmiko.mellanox.mellanox_mlnxos_ssh" href="mellanox_mlnxos_ssh.html">netmiko.mellanox.mellanox_mlnxos_ssh</a></code></dt>
-<dd>
-<section class="desc"><p>Mellanox MLNX-OS Switch support.</p></section>
-</dd>
-</dl>
 </section>
 <section>
 </section>
@@ -43,12 +61,12 @@ __all__ = [&#34;MellanoxMlnxosSSH&#34;]</code></pre>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="netmiko.mellanox.MellanoxMlnxosSSH"><code class="flex name class">
-<span>class <span class="ident">MellanoxMlnxosSSH</span></span>
+<dt id="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH"><code class="flex name class">
+<span>class <span class="ident">CiscoFtdSSH</span></span>
 <span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Mellanox MLNX-OS Switch support.</p>
+<section class="desc"><p>Subclass specific to Cisco FTD.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
     :param ip: IP address of target device. Not required if `host` is
@@ -181,61 +199,29 @@ __all__ = [&#34;MellanoxMlnxosSSH&#34;]</code></pre>
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class MellanoxMlnxosSSH(CiscoSSHConnection):
-    &#34;&#34;&#34;Mellanox MLNX-OS Switch support.&#34;&#34;&#34;
+<pre><code class="python">class CiscoFtdSSH(CiscoSSHConnection):
+    &#34;&#34;&#34;Subclass specific to Cisco FTD.&#34;&#34;&#34;
 
-    def enable(self, cmd=&#34;enable&#34;, pattern=&#34;#&#34;, re_flags=re.IGNORECASE):
-        &#34;&#34;&#34;Enter into enable mode.&#34;&#34;&#34;
-        output = &#34;&#34;
-        if not self.check_enable_mode():
-            self.write_channel(self.normalize_cmd(cmd))
-            output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
-            )
-            if not self.check_enable_mode():
-                raise ValueError(&#34;Failed to enter enable mode.&#34;)
-        return output
+    def session_preparation(self):
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read()
+        self.set_base_prompt()
 
-    def config_mode(self, config_command=&#34;config term&#34;, pattern=&#34;#&#34;):
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def send_config_set(self, *args, **kwargs):
+        &#34;&#34;&#34;Canot change config on FTD via ssh&#34;&#34;&#34;
+        raise NotImplementedError
 
-    def check_config_mode(self, check_string=&#34;(config&#34;, pattern=r&#34;#&#34;):
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+    def enable(self, *args, **kwargs):
+        &#34;&#34;&#34;No enable mode on firepower ssh&#34;&#34;&#34;
+        return &#34;&#34;
 
-    def disable_paging(self, command=&#34;no cli session paging enable&#34;, delay_factor=1):
-        return super().disable_paging(command=command, delay_factor=delay_factor)
+    def config_mode(self, *args, **kwargs):
+        &#34;&#34;&#34;No config mode on firepower ssh&#34;&#34;&#34;
+        return &#34;&#34;
 
-    def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=&#34;#&#34;):
-        &#34;&#34;&#34;Mellanox does not support a single command to completely exit configuration mode.
-
-        Consequently, need to keep checking and sending &#34;exit&#34;.
-        &#34;&#34;&#34;
-        output = &#34;&#34;
-        check_count = 12
-        while check_count &gt;= 0:
-            if self.check_config_mode():
-                self.write_channel(self.normalize_cmd(exit_config))
-                output += self.read_until_pattern(pattern=pattern)
-            else:
-                break
-            check_count -= 1
-
-        # One last check for whether we successfully exited config mode
-        if self.check_config_mode():
-            raise ValueError(&#34;Failed to exit configuration mode&#34;)
-
-        log.debug(f&#34;exit_config_mode: {output}&#34;)
-        return output
-
-    def save_config(
-        self, cmd=&#34;configuration write&#34;, confirm=False, confirm_response=&#34;&#34;
-    ):
-        &#34;&#34;&#34;Save Config on Mellanox devices Enters and Leaves Config Mode&#34;&#34;&#34;
-        output = self.enable()
-        output += self.config_mode()
-        output += self.send_command(cmd)
-        output += self.exit_config_mode()
-        return output</code></pre>
+    def check_config_mode(self, *args, **kwargs):
+        &#34;&#34;&#34;No config mode on firepower ssh&#34;&#34;&#34;
+        return False</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -245,73 +231,65 @@ __all__ = [&#34;MellanoxMlnxosSSH&#34;]</code></pre>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.mellanox.MellanoxMlnxosSSH.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='#', re_flags=re.IGNORECASE)</span>
+<dt id="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.check_config_mode"><code class="name flex">
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Enter into enable mode.</p></section>
+<section class="desc"><p>No config mode on firepower ssh</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def enable(self, cmd=&#34;enable&#34;, pattern=&#34;#&#34;, re_flags=re.IGNORECASE):
-    &#34;&#34;&#34;Enter into enable mode.&#34;&#34;&#34;
-    output = &#34;&#34;
-    if not self.check_enable_mode():
-        self.write_channel(self.normalize_cmd(cmd))
-        output += self.read_until_prompt_or_pattern(
-            pattern=pattern, re_flags=re_flags
-        )
-        if not self.check_enable_mode():
-            raise ValueError(&#34;Failed to enter enable mode.&#34;)
-    return output</code></pre>
+<pre><code class="python">def check_config_mode(self, *args, **kwargs):
+    &#34;&#34;&#34;No config mode on firepower ssh&#34;&#34;&#34;
+    return False</code></pre>
 </details>
 </dd>
-<dt id="netmiko.mellanox.MellanoxMlnxosSSH.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='exit', pattern='#')</span>
+<dt id="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.config_mode"><code class="name flex">
+<span>def <span class="ident">config_mode</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Mellanox does not support a single command to completely exit configuration mode.</p>
-<p>Consequently, need to keep checking and sending "exit".</p></section>
+<section class="desc"><p>No config mode on firepower ssh</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=&#34;#&#34;):
-    &#34;&#34;&#34;Mellanox does not support a single command to completely exit configuration mode.
-
-    Consequently, need to keep checking and sending &#34;exit&#34;.
-    &#34;&#34;&#34;
-    output = &#34;&#34;
-    check_count = 12
-    while check_count &gt;= 0:
-        if self.check_config_mode():
-            self.write_channel(self.normalize_cmd(exit_config))
-            output += self.read_until_pattern(pattern=pattern)
-        else:
-            break
-        check_count -= 1
-
-    # One last check for whether we successfully exited config mode
-    if self.check_config_mode():
-        raise ValueError(&#34;Failed to exit configuration mode&#34;)
-
-    log.debug(f&#34;exit_config_mode: {output}&#34;)
-    return output</code></pre>
+<pre><code class="python">def config_mode(self, *args, **kwargs):
+    &#34;&#34;&#34;No config mode on firepower ssh&#34;&#34;&#34;
+    return &#34;&#34;</code></pre>
 </details>
 </dd>
-<dt id="netmiko.mellanox.MellanoxMlnxosSSH.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, cmd='configuration write', confirm=False, confirm_response='')</span>
+<dt id="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.enable"><code class="name flex">
+<span>def <span class="ident">enable</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Save Config on Mellanox devices Enters and Leaves Config Mode</p></section>
+<section class="desc"><p>No enable mode on firepower ssh</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def save_config(
-    self, cmd=&#34;configuration write&#34;, confirm=False, confirm_response=&#34;&#34;
-):
-    &#34;&#34;&#34;Save Config on Mellanox devices Enters and Leaves Config Mode&#34;&#34;&#34;
-    output = self.enable()
-    output += self.config_mode()
-    output += self.send_command(cmd)
-    output += self.exit_config_mode()
-    return output</code></pre>
+<pre><code class="python">def enable(self, *args, **kwargs):
+    &#34;&#34;&#34;No enable mode on firepower ssh&#34;&#34;&#34;
+    return &#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.send_config_set"><code class="name flex">
+<span>def <span class="ident">send_config_set</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Canot change config on FTD via ssh</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def send_config_set(self, *args, **kwargs):
+    &#34;&#34;&#34;Canot change config on FTD via ssh&#34;&#34;&#34;
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+<dt id="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.session_preparation"><code class="name flex">
+<span>def <span class="ident">session_preparation</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Prepare the session after the connection has been established.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def session_preparation(self):
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    self._test_channel_read()
+    self.set_base_prompt()</code></pre>
 </details>
 </dd>
 </dl>
@@ -319,16 +297,15 @@ __all__ = [&#34;MellanoxMlnxosSSH&#34;]</code></pre>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
@@ -340,13 +317,12 @@ __all__ = [&#34;MellanoxMlnxosSSH&#34;]</code></pre>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -371,22 +347,19 @@ __all__ = [&#34;MellanoxMlnxosSSH&#34;]</code></pre>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="netmiko" href="../index.html">netmiko</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
-<ul>
-<li><code><a title="netmiko.mellanox.mellanox_mlnxos_ssh" href="mellanox_mlnxos_ssh.html">netmiko.mellanox.mellanox_mlnxos_ssh</a></code></li>
+<li><code><a title="netmiko.cisco" href="index.html">netmiko.cisco</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="netmiko.mellanox.MellanoxMlnxosSSH" href="#netmiko.mellanox.MellanoxMlnxosSSH">MellanoxMlnxosSSH</a></code></h4>
+<h4><code><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH" href="#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH">CiscoFtdSSH</a></code></h4>
 <ul class="">
-<li><code><a title="netmiko.mellanox.MellanoxMlnxosSSH.enable" href="#netmiko.mellanox.MellanoxMlnxosSSH.enable">enable</a></code></li>
-<li><code><a title="netmiko.mellanox.MellanoxMlnxosSSH.exit_config_mode" href="#netmiko.mellanox.MellanoxMlnxosSSH.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.mellanox.MellanoxMlnxosSSH.save_config" href="#netmiko.mellanox.MellanoxMlnxosSSH.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.check_config_mode" href="#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.config_mode" href="#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.enable" href="#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.enable">enable</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.send_config_set" href="#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.session_preparation" href="#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH.session_preparation">session_preparation</a></code></li>
 </ul>
 </li>
 </ul>

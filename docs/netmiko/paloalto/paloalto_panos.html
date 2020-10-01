@@ -75,6 +75,7 @@ class PaloAltoPanosBase(BaseConnection):
 
     def commit(
         self,
+        comment=None,
         force=False,
         partial=False,
         device_and_network=False,
@@ -111,6 +112,8 @@ class PaloAltoPanosBase(BaseConnection):
         # Select proper command string based on arguments provided
         command_string = &#34;commit&#34;
         commit_marker = &#34;configuration committed successfully&#34;
+        if comment:
+            command_string += f&#39; description &#34;{comment}&#34;&#39;
         if force:
             command_string += &#34; force&#34;
         if partial:
@@ -402,6 +405,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 
     def commit(
         self,
+        comment=None,
         force=False,
         partial=False,
         device_and_network=False,
@@ -438,6 +442,8 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
         # Select proper command string based on arguments provided
         command_string = &#34;commit&#34;
         commit_marker = &#34;configuration committed successfully&#34;
+        if comment:
+            command_string += f&#39; description &#34;{comment}&#34;&#39;
         if force:
             command_string += &#34; force&#34;
         if partial:
@@ -578,7 +584,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 </details>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.commit"><code class="name flex">
-<span>def <span class="ident">commit</span></span>(<span>self, force=False, partial=False, device_and_network=False, policy_and_objects=False, vsys='', no_vsys=False, delay_factor=0.1)</span>
+<span>def <span class="ident">commit</span></span>(<span>self, comment=None, force=False, partial=False, device_and_network=False, policy_and_objects=False, vsys='', no_vsys=False, delay_factor=0.1)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Commit the candidate configuration.</p>
@@ -594,6 +600,7 @@ Exception</p></section>
 <summary>Source code</summary>
 <pre><code class="python">def commit(
     self,
+    comment=None,
     force=False,
     partial=False,
     device_and_network=False,
@@ -630,6 +637,8 @@ Exception</p></section>
     # Select proper command string based on arguments provided
     command_string = &#34;commit&#34;
     commit_marker = &#34;configuration committed successfully&#34;
+    if comment:
+        command_string += f&#39; description &#34;{comment}&#34;&#39;
     if force:
         command_string += &#34; force&#34;
     if partial:

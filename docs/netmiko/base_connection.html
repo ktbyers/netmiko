@@ -45,6 +45,7 @@ from threading import Lock
 
 import paramiko
 import serial
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
@@ -57,6 +58,7 @@ from netmiko.utilities import (
     check_serial_port,
     get_structured_data,
     get_structured_data_genie,
+    get_structured_data_ttp,
     select_cmd_verify,
 )
 from netmiko.utilities import m_exec_time  # noqa
@@ -1008,6 +1010,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 print(&#34;Interactive SSH session established&#34;)
         return &#34;&#34;
 
+    # @m_exec_time
     def _test_channel_read(self, count=40, pattern=&#34;&#34;):
         &#34;&#34;&#34;Try to read the channel (generally post login) verify you receive data back.
 
@@ -1039,6 +1042,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 break
             else:
                 self.write_channel(self.RETURN)
+
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
             i += 1
@@ -1073,7 +1077,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :type delay_factor: int
         &#34;&#34;&#34;
         if self.fast_cli:
-            if delay_factor &lt;= self.global_delay_factor:
+            if delay_factor and delay_factor &lt;= self.global_delay_factor:
                 return delay_factor
             else:
                 return self.global_delay_factor
@@ -1142,6 +1146,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output = self.read_until_prompt()
         return output
 
+    # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
+    @retry(
+        wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)
+    )
     def set_base_prompt(
         self, pri_prompt_terminator=&#34;#&#34;, alt_prompt_terminator=&#34;&gt;&#34;, delay_factor=1
     ):
@@ -1236,6 +1244,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         normalize=True,
         use_textfsm=False,
         textfsm_template=None,
+        use_ttp=False,
+        ttp_template=None,
         use_genie=False,
         cmd_verify=False,
         cmd_echo=None,
@@ -1269,6 +1279,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
             path, relative path, or name of file in current directory. (default: None).
         :type textfsm_template: str
 
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
+
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
 
@@ -1278,13 +1295,19 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         &#34;&#34;&#34;
-        # For compatibility remove cmd_echo in Netmiko 4.x.x
+
+        # For compatibility; remove cmd_echo in Netmiko 4.x.x
         if cmd_echo is not None:
             cmd_verify = cmd_echo
 
         output = &#34;&#34;
+
         delay_factor = self.select_delay_factor(delay_factor)
-        self.clear_buffer()
+        # Cleanup in future versions of Netmiko
+        if delay_factor &lt; 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         if normalize:
             command_string = self.normalize_cmd(command_string)
 
@@ -1319,7 +1342,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             strip_prompt=strip_prompt,
         )
 
-        # If both TextFSM and Genie are set, try TextFSM then Genie
+        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
         if use_textfsm:
             structured_output = get_structured_data(
                 output,
@@ -1327,6 +1350,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 command=command_string.strip(),
                 template=textfsm_template,
             )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_ttp:
+            structured_output = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output
@@ -1394,6 +1422,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         normalize=True,
         use_textfsm=False,
         textfsm_template=None,
+        use_ttp=False,
+        ttp_template=None,
         use_genie=False,
         cmd_verify=True,
     ):
@@ -1430,6 +1460,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
+
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
@@ -1512,7 +1549,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             new_data = self.read_channel()
         else:  # nobreak
             raise IOError(
-                &#34;Search pattern never detected in send_command_expect: {}&#34;.format(
+                &#34;Search pattern never detected in send_command: {}&#34;.format(
                     search_pattern
                 )
             )
@@ -1524,7 +1561,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             strip_prompt=strip_prompt,
         )
 
-        # If both TextFSM and Genie are set, try TextFSM then Genie
+        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
         if use_textfsm:
             structured_output = get_structured_data(
                 output,
@@ -1532,6 +1569,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 command=command_string.strip(),
                 template=textfsm_template,
             )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_ttp:
+            structured_output = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output
@@ -1691,7 +1733,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
-    def config_mode(self, config_command=&#34;&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;&#34;, pattern=&#34;&#34;, re_flags=0):
         &#34;&#34;&#34;Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
@@ -1699,6 +1741,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
+
+        :param re_flags: Regular expression flags
+        :type re_flags: RegexFlag
         &#34;&#34;&#34;
         output = &#34;&#34;
         if not self.check_config_mode():
@@ -1708,8 +1753,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 output += self.read_until_pattern(
                     pattern=re.escape(config_command.strip())
                 )
-            if not re.search(pattern, output, flags=re.M):
-                output += self.read_until_pattern(pattern=pattern)
+            if not re.search(pattern, output, flags=re_flags):
+                output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
             if not self.check_config_mode():
                 raise ValueError(&#34;Failed to enter configuration mode.&#34;)
         return output
@@ -3102,6 +3147,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 print(&#34;Interactive SSH session established&#34;)
         return &#34;&#34;
 
+    # @m_exec_time
     def _test_channel_read(self, count=40, pattern=&#34;&#34;):
         &#34;&#34;&#34;Try to read the channel (generally post login) verify you receive data back.
 
@@ -3133,6 +3179,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 break
             else:
                 self.write_channel(self.RETURN)
+
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
             i += 1
@@ -3167,7 +3214,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :type delay_factor: int
         &#34;&#34;&#34;
         if self.fast_cli:
-            if delay_factor &lt;= self.global_delay_factor:
+            if delay_factor and delay_factor &lt;= self.global_delay_factor:
                 return delay_factor
             else:
                 return self.global_delay_factor
@@ -3236,6 +3283,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output = self.read_until_prompt()
         return output
 
+    # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
+    @retry(
+        wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)
+    )
     def set_base_prompt(
         self, pri_prompt_terminator=&#34;#&#34;, alt_prompt_terminator=&#34;&gt;&#34;, delay_factor=1
     ):
@@ -3330,6 +3381,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         normalize=True,
         use_textfsm=False,
         textfsm_template=None,
+        use_ttp=False,
+        ttp_template=None,
         use_genie=False,
         cmd_verify=False,
         cmd_echo=None,
@@ -3363,6 +3416,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
             path, relative path, or name of file in current directory. (default: None).
         :type textfsm_template: str
 
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
+
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type use_genie: bool
 
@@ -3372,13 +3432,19 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         &#34;&#34;&#34;
-        # For compatibility remove cmd_echo in Netmiko 4.x.x
+
+        # For compatibility; remove cmd_echo in Netmiko 4.x.x
         if cmd_echo is not None:
             cmd_verify = cmd_echo
 
         output = &#34;&#34;
+
         delay_factor = self.select_delay_factor(delay_factor)
-        self.clear_buffer()
+        # Cleanup in future versions of Netmiko
+        if delay_factor &lt; 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         if normalize:
             command_string = self.normalize_cmd(command_string)
 
@@ -3413,7 +3479,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             strip_prompt=strip_prompt,
         )
 
-        # If both TextFSM and Genie are set, try TextFSM then Genie
+        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
         if use_textfsm:
             structured_output = get_structured_data(
                 output,
@@ -3421,6 +3487,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 command=command_string.strip(),
                 template=textfsm_template,
             )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_ttp:
+            structured_output = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output
@@ -3488,6 +3559,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         normalize=True,
         use_textfsm=False,
         textfsm_template=None,
+        use_ttp=False,
+        ttp_template=None,
         use_genie=False,
         cmd_verify=True,
     ):
@@ -3524,6 +3597,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
+
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
         :type normalize: bool
@@ -3606,7 +3686,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             new_data = self.read_channel()
         else:  # nobreak
             raise IOError(
-                &#34;Search pattern never detected in send_command_expect: {}&#34;.format(
+                &#34;Search pattern never detected in send_command: {}&#34;.format(
                     search_pattern
                 )
             )
@@ -3618,7 +3698,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             strip_prompt=strip_prompt,
         )
 
-        # If both TextFSM and Genie are set, try TextFSM then Genie
+        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
         if use_textfsm:
             structured_output = get_structured_data(
                 output,
@@ -3626,6 +3706,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 command=command_string.strip(),
                 template=textfsm_template,
             )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_ttp:
+            structured_output = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output
@@ -3785,7 +3870,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
-    def config_mode(self, config_command=&#34;&#34;, pattern=&#34;&#34;):
+    def config_mode(self, config_command=&#34;&#34;, pattern=&#34;&#34;, re_flags=0):
         &#34;&#34;&#34;Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
@@ -3793,6 +3878,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
+
+        :param re_flags: Regular expression flags
+        :type re_flags: RegexFlag
         &#34;&#34;&#34;
         output = &#34;&#34;
         if not self.check_config_mode():
@@ -3802,8 +3890,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 output += self.read_until_pattern(
                     pattern=re.escape(config_command.strip())
                 )
-            if not re.search(pattern, output, flags=re.M):
-                output += self.read_until_pattern(pattern=pattern)
+            if not re.search(pattern, output, flags=re_flags):
+                output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
             if not self.check_config_mode():
                 raise ValueError(&#34;Failed to enter configuration mode.&#34;)
         return output
@@ -4254,17 +4342,19 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='', pattern='')</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='', pattern='', re_flags=0)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter into config_mode.</p>
 <p>:param config_command: Configuration command to send to the device
 :type config_command: str</p>
 <p>:param pattern: Pattern to terminate reading of channel
-:type pattern: str</p></section>
+:type pattern: str</p>
+<p>:param re_flags: Regular expression flags
+:type re_flags: RegexFlag</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;&#34;, pattern=&#34;&#34;):
+<pre><code class="python">def config_mode(self, config_command=&#34;&#34;, pattern=&#34;&#34;, re_flags=0):
     &#34;&#34;&#34;Enter into config_mode.
 
     :param config_command: Configuration command to send to the device
@@ -4272,6 +4362,9 @@ def strip_backspaces(output):
 
     :param pattern: Pattern to terminate reading of channel
     :type pattern: str
+
+    :param re_flags: Regular expression flags
+    :type re_flags: RegexFlag
     &#34;&#34;&#34;
     output = &#34;&#34;
     if not self.check_config_mode():
@@ -4281,8 +4374,8 @@ def strip_backspaces(output):
             output += self.read_until_pattern(
                 pattern=re.escape(config_command.strip())
             )
-        if not re.search(pattern, output, flags=re.M):
-            output += self.read_until_pattern(pattern=pattern)
+        if not re.search(pattern, output, flags=re_flags):
+            output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
         if not self.check_config_mode():
             raise ValueError(&#34;Failed to enter configuration mode.&#34;)
     return output</code></pre>
@@ -4354,7 +4447,7 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', re_flags=<RegexFlag.IGNORECASE: 2>)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', re_flags=re.IGNORECASE)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter enable mode.</p>
@@ -4839,7 +4932,7 @@ In fast_cli choose the lesser of delay_factor of self.global_delay_factor.</p>
     :type delay_factor: int
     &#34;&#34;&#34;
     if self.fast_cli:
-        if delay_factor &lt;= self.global_delay_factor:
+        if delay_factor and delay_factor &lt;= self.global_delay_factor:
             return delay_factor
         else:
             return self.global_delay_factor
@@ -4851,7 +4944,7 @@ In fast_cli choose the lesser of delay_factor of self.global_delay_factor.</p>
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.send_command"><code class="name flex">
-<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False, cmd_verify=True)</span>
+<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_ttp=False, ttp_template=None, use_genie=False, cmd_verify=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a pattern-based mechanism. Generally
@@ -4878,6 +4971,11 @@ based upon self.timeout.
 :type normalize: bool</p>
 <p>:param textfsm_template: Name of template to parse output with; can be fully qualified
 path, relative path, or name of file in current directory. (default: None).</p>
+<p>:param use_ttp: Process command output through TTP template (default: False).
+:type use_ttp: bool</p>
+<p>:param ttp_template: Name of template to parse output with; can be fully qualified
+path, relative path, or name of file in current directory. (default: None).
+:type ttp_template: str</p>
 <p>:param use_genie: Process command output through PyATS/Genie parser (default: False).
 :type normalize: bool</p>
 <p>:param cmd_verify: Verify command echo before proceeding (default: True).
@@ -4897,6 +4995,8 @@ def send_command(
     normalize=True,
     use_textfsm=False,
     textfsm_template=None,
+    use_ttp=False,
+    ttp_template=None,
     use_genie=False,
     cmd_verify=True,
 ):
@@ -4933,6 +5033,13 @@ def send_command(
 
     :param textfsm_template: Name of template to parse output with; can be fully qualified
         path, relative path, or name of file in current directory. (default: None).
+
+    :param use_ttp: Process command output through TTP template (default: False).
+    :type use_ttp: bool
+
+    :param ttp_template: Name of template to parse output with; can be fully qualified
+        path, relative path, or name of file in current directory. (default: None).
+    :type ttp_template: str
 
     :param use_genie: Process command output through PyATS/Genie parser (default: False).
     :type normalize: bool
@@ -5015,7 +5122,7 @@ def send_command(
         new_data = self.read_channel()
     else:  # nobreak
         raise IOError(
-            &#34;Search pattern never detected in send_command_expect: {}&#34;.format(
+            &#34;Search pattern never detected in send_command: {}&#34;.format(
                 search_pattern
             )
         )
@@ -5027,7 +5134,7 @@ def send_command(
         strip_prompt=strip_prompt,
     )
 
-    # If both TextFSM and Genie are set, try TextFSM then Genie
+    # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
     if use_textfsm:
         structured_output = get_structured_data(
             output,
@@ -5035,6 +5142,11 @@ def send_command(
             command=command_string.strip(),
             template=textfsm_template,
         )
+        # If we have structured data; return it.
+        if not isinstance(structured_output, str):
+            return structured_output
+    if use_ttp:
+        structured_output = get_structured_data_ttp(output, template=ttp_template)
         # If we have structured data; return it.
         if not isinstance(structured_output, str):
             return structured_output
@@ -5072,7 +5184,7 @@ def send_command(
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.send_command_timing"><code class="name flex">
-<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_genie=False, cmd_verify=False, cmd_echo=None)</span>
+<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_ttp=False, ttp_template=None, use_genie=False, cmd_verify=False, cmd_echo=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a delay-based mechanism. Generally
@@ -5095,6 +5207,11 @@ based upon self.timeout.
 <p>:param textfsm_template: Name of template to parse output with; can be fully qualified
 path, relative path, or name of file in current directory. (default: None).
 :type textfsm_template: str</p>
+<p>:param use_ttp: Process command output through TTP template (default: False).
+:type use_ttp: bool</p>
+<p>:param ttp_template: Name of template to parse output with; can be fully qualified
+path, relative path, or name of file in current directory. (default: None).
+:type ttp_template: str</p>
 <p>:param use_genie: Process command output through PyATS/Genie parser (default: False).
 :type use_genie: bool</p>
 <p>:param cmd_verify: Verify command echo before proceeding (default: False).
@@ -5114,6 +5231,8 @@ def send_command_timing(
     normalize=True,
     use_textfsm=False,
     textfsm_template=None,
+    use_ttp=False,
+    ttp_template=None,
     use_genie=False,
     cmd_verify=False,
     cmd_echo=None,
@@ -5147,6 +5266,13 @@ def send_command_timing(
         path, relative path, or name of file in current directory. (default: None).
     :type textfsm_template: str
 
+    :param use_ttp: Process command output through TTP template (default: False).
+    :type use_ttp: bool
+
+    :param ttp_template: Name of template to parse output with; can be fully qualified
+        path, relative path, or name of file in current directory. (default: None).
+    :type ttp_template: str
+
     :param use_genie: Process command output through PyATS/Genie parser (default: False).
     :type use_genie: bool
 
@@ -5156,13 +5282,19 @@ def send_command_timing(
     :param cmd_echo: Deprecated (use cmd_verify instead)
     :type cmd_echo: bool
     &#34;&#34;&#34;
-    # For compatibility remove cmd_echo in Netmiko 4.x.x
+
+    # For compatibility; remove cmd_echo in Netmiko 4.x.x
     if cmd_echo is not None:
         cmd_verify = cmd_echo
 
     output = &#34;&#34;
+
     delay_factor = self.select_delay_factor(delay_factor)
-    self.clear_buffer()
+    # Cleanup in future versions of Netmiko
+    if delay_factor &lt; 1:
+        if not self._legacy_mode and self.fast_cli:
+            delay_factor = 1
+
     if normalize:
         command_string = self.normalize_cmd(command_string)
 
@@ -5197,7 +5329,7 @@ def send_command_timing(
         strip_prompt=strip_prompt,
     )
 
-    # If both TextFSM and Genie are set, try TextFSM then Genie
+    # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
     if use_textfsm:
         structured_output = get_structured_data(
             output,
@@ -5205,6 +5337,11 @@ def send_command_timing(
             command=command_string.strip(),
             template=textfsm_template,
         )
+        # If we have structured data; return it.
+        if not isinstance(structured_output, str):
+            return structured_output
+    if use_ttp:
+        structured_output = get_structured_data_ttp(output, template=ttp_template)
         # If we have structured data; return it.
         if not isinstance(structured_output, str):
             return structured_output
@@ -5466,7 +5603,10 @@ entering/exiting config mode.</p>
 :type delay_factor: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def set_base_prompt(
+<pre><code class="python">@retry(
+    wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)
+)
+def set_base_prompt(
     self, pri_prompt_terminator=&#34;#&#34;, alt_prompt_terminator=&#34;&gt;&#34;, delay_factor=1
 ):
     &#34;&#34;&#34;Sets self.base_prompt
