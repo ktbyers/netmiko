@@ -66,7 +66,7 @@ from netmiko.mellanox import MellanoxMlnxosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
-from netmiko.nokia import NokiaSrosSSH, NokiaSrosFileTransfer
+from netmiko.nokia import NokiaSrosSSH, NokiaSrosFileTransfer, NokiaSrosTelnet
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
@@ -271,6 +271,7 @@ CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
+CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
