@@ -1,21 +1,26 @@
 import re
-import time
 import os
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
+    def __init__(self, *args, **kwargs):
+        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
         self.ansi_escape_codes = True
-        self.set_base_prompt()
-        self.set_terminal_width(command="terminal width 511", pattern="terminal")
+        # NX-OS has an issue where it echoes the command even though it hasn't returned the prompt
+        self._test_channel_read(pattern=r"[>#]")
+        self.set_terminal_width(
+            command="terminal width 511", pattern=r"terminal width 511"
+        )
         self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def normalize_linefeeds(self, a_string):
         """Convert '\r\n' or '\r\r\n' to '\n, and remove extra '\r's in the text."""

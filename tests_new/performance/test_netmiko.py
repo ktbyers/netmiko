@@ -1,16 +1,25 @@
-from netmiko import ConnectHandler, __version__
 import os
-from ipaddress import ip_address
+from os import path
 import yaml
 import functools
 from datetime import datetime
 import csv
 
-# import logging
-# logging.basicConfig(filename="test.log", level=logging.DEBUG)
-# logger = logging.getLogger("netmiko")
+from netmiko import ConnectHandler, __version__
+from test_utils import parse_yaml
+
+import network_utilities
 
 PRINT_DEBUG = False
+
+PWD = path.dirname(path.realpath(__file__))
+
+
+def commands(platform):
+    """Parse the commands.yml file to get a commands dictionary."""
+    test_platform = platform
+    commands_yml = parse_yaml(PWD + "/../etc/commands.yml")
+    return commands_yml[test_platform]
 
 
 def generate_csv_timestamp():
@@ -74,33 +83,49 @@ def connect(device):
 @f_exec_time
 def send_command_simple(device):
     with ConnectHandler(**device) as conn:
-        output = conn.send_command("show ip int brief")
+        platform = device["device_type"]
+        cmd = commands(platform)["basic"]
+        output = conn.send_command(cmd)
         PRINT_DEBUG and print(output)
 
 
 @f_exec_time
 def send_config_simple(device):
     with ConnectHandler(**device) as conn:
-        output = conn.send_config_set("logging buffered 20000")
+        platform = device["device_type"]
+        cmd = commands(platform)["config"][0]
+        output = conn.send_config_set(cmd)
         PRINT_DEBUG and print(output)
 
 
 @f_exec_time
 def send_config_large_acl(device):
+
+    # Results will be marginally distorted by generating the ACL here.
+    device_type = device["device_type"]
+    func_name = f"generate_{device_type}_acl"
+    func = getattr(network_utilities, func_name)
+
     with ConnectHandler(**device) as conn:
-        # Results will be marginally distorted by generating the ACL here.
-        cfg = generate_ios_acl(entries=100)
+        cfg = func(entries=100)
         output = conn.send_config_set(cfg)
         PRINT_DEBUG and print(output)
 
 
-def generate_ios_acl(entries=100):
-    base_cmd = "ip access-list extended netmiko_test_large_acl"
-    acl = [base_cmd]
-    for i in range(1, entries + 1):
-        cmd = f"permit ip host {ip_address('192.168.0.0') + i} any"
-        acl.append(cmd)
-    return acl
+@f_exec_time
+def cleanup(device):
+
+    # Results will be marginally distorted by generating the ACL here.
+    platform = device["device_type"]
+    base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
+    remove_acl_cmd = f"no {base_acl_cmd}"
+    cleanup_generic(device, remove_acl_cmd)
+
+
+def cleanup_generic(device, command):
+    with ConnectHandler(**device) as conn:
+        output = conn.send_config_set(command)
+        PRINT_DEBUG and print(output)
 
 
 def main():
@@ -109,6 +134,8 @@ def main():
     devices = read_devices()
     print("\n\n")
     for dev_name, dev_dict in devices.items():
+        if dev_name != "arista1":
+            continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
         print("-" * 12)
@@ -121,12 +148,14 @@ def main():
             "send_command_simple",
             "send_config_simple",
             "send_config_large_acl",
+            "cleanup",
         ]
         results = {}
         for op in operations:
             func = globals()[op]
             time_delta, result = func(dev_dict)
-            results[op] = time_delta
+            if op != "cleanup":
+                results[op] = time_delta
         print("-" * 80)
         print()
 

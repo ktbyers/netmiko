@@ -3,6 +3,7 @@
 RETURN_CODE=0
 
 echo "Starting tests...good luck:" \
+&& cd .. \
 && echo "Cisco IOS-XE" \
 && py.test -v test_netmiko_show.py --test_device cisco3 \
 && py.test -v test_netmiko_config.py --test_device cisco3 \

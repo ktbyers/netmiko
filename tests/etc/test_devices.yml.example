@@ -221,3 +221,21 @@ huawei_smartax:
   ip: 192.0.2.1
   username: TEST
   password: TEST
+
+tplink_jetstream:
+  device_type: tplink_jetstream
+  ip: 192.168.0.1
+  username: admin
+  password: 'admin'
+
+tplink_jetstream_telnet:
+  device_type: tplink_jetstream_telnet
+  ip: 192.168.0.1
+  username: admin
+  password: 'admin'
+
+ubiquiti_edgerouter:
+  device_type: ubiquiti_edgerouter
+  ip: 192.168.1.1
+  username: ubnt
+  password: ubnt

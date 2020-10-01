@@ -13,6 +13,7 @@ from netmiko.centec import CentecOSSSH, CentecOSTelnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH, CienaSaosTelnet, CienaSaosFileTransfer
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
+from netmiko.cisco import CiscoFtdSSH
 from netmiko.cisco import (
     CiscoIosSSH,
     CiscoIosFileTransfer,
@@ -84,6 +85,8 @@ from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
+from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
+from netmiko.ubiquiti import UbiquitiEdgeRouterSSH
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ubiquiti import UbiquitiUnifiSwitchSSH
 from netmiko.vyos import VyOSSSH
@@ -106,6 +109,8 @@ CLASS_MAPPER_BASE = {
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "aruba_os": ArubaSSH,
+    "aruba_osswitch": HPProcurveSSH,
+    "aruba_procurve": HPProcurveSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
     "broadcom_icos": BroadcomIcosSSH,
@@ -119,6 +124,7 @@ CLASS_MAPPER_BASE = {
     "centec_os": CentecOSSSH,
     "ciena_saos": CienaSaosSSH,
     "cisco_asa": CiscoAsaSSH,
+    "cisco_ftd": CiscoFtdSSH,
     "cisco_ios": CiscoIosSSH,
     "cisco_nxos": CiscoNxosSSH,
     "cisco_s300": CiscoS300SSH,
@@ -190,7 +196,9 @@ CLASS_MAPPER_BASE = {
     "ruijie_os": RuijieOSSSH,
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
+    "tplink_jetstream": TPLinkJetStreamSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
+    "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
     "ubiquiti_unifiswitch": UbiquitiUnifiSwitchSSH,
     "vyatta_vyos": VyOSSSH,
@@ -232,6 +240,7 @@ FILE_TRANSFER_MAP = new_mapper
 # Add telnet drivers
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
+CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
@@ -259,6 +268,7 @@ CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
+CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
 

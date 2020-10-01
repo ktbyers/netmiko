@@ -1,0 +1,35 @@
+---
+cisco1:
+  device_type: cisco_ios
+  host: cisco1.lasthop.io
+  username: pyclass
+
+cisco3:
+  device_type: cisco_xe
+  host: cisco3.lasthop.io
+  username: pyclass
+
+cisco5:
+  device_type: cisco_xe
+  host: cisco5.lasthop.io
+  username: pyclass
+
+nxos1:
+  device_type: cisco_nxos
+  host: nxos1.lasthop.io
+  username: pyclass
+  # conn_timeout: 20
+  # session_log: nxos1.out
+
+cisco_xr_azure:
+  device_type: cisco_xr
+  host: iosxr3.lasthop.io
+  username: pyclass
+  secret: ''
+  session_log: xr.out
+
+arista1:
+  device_type: arista_eos
+  host: arista1.lasthop.io
+  username: pyclass
+  session_log: arista1.out
