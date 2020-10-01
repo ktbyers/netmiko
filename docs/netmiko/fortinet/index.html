@@ -223,7 +223,7 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
         self.vdoms = False
         self._output_mode = &#34;more&#34;
 
-        if &#34;Virtual domain configuration: enable&#34; in output:
+        if re.search(r&#34;Virtual domain configuration: (multiple|enable)&#34;, output):
             self.vdoms = True
             vdom_additional_command = &#34;config global&#34;
             output = self.send_command_timing(vdom_additional_command, delay_factor=2)
@@ -343,7 +343,7 @@ __all__ = [&#34;FortinetSSH&#34;]</code></pre>
     self.vdoms = False
     self._output_mode = &#34;more&#34;
 
-    if &#34;Virtual domain configuration: enable&#34; in output:
+    if re.search(r&#34;Virtual domain configuration: (multiple|enable)&#34;, output):
         self.vdoms = True
         vdom_additional_command = &#34;config global&#34;
         output = self.send_command_timing(vdom_additional_command, delay_factor=2)

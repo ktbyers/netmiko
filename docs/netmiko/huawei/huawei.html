@@ -52,9 +52,6 @@ class HuaweiBase(CiscoBaseConnection):
         pattern = rf&#34; {code_cursor_left}&#34;
         output = re.sub(pattern, &#34;&#34;, output)
 
-        log.debug(&#34;Stripping ANSI escape codes&#34;)
-        log.debug(f&#34;new_output = {output}&#34;)
-        log.debug(f&#34;repr = {repr(output)}&#34;)
         return super().strip_ansi_escape_codes(output)
 
     def config_mode(self, config_command=&#34;system-view&#34;):
@@ -431,9 +428,6 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         pattern = rf&#34; {code_cursor_left}&#34;
         output = re.sub(pattern, &#34;&#34;, output)
 
-        log.debug(&#34;Stripping ANSI escape codes&#34;)
-        log.debug(f&#34;new_output = {output}&#34;)
-        log.debug(f&#34;repr = {repr(output)}&#34;)
         return super().strip_ansi_escape_codes(output)
 
     def config_mode(self, config_command=&#34;system-view&#34;):
@@ -697,9 +691,6 @@ to move the cursor to the left one.</p>
     pattern = rf&#34; {code_cursor_left}&#34;
     output = re.sub(pattern, &#34;&#34;, output)
 
-    log.debug(&#34;Stripping ANSI escape codes&#34;)
-    log.debug(f&#34;new_output = {output}&#34;)
-    log.debug(f&#34;repr = {repr(output)}&#34;)
     return super().strip_ansi_escape_codes(output)</code></pre>
 </details>
 </dd>

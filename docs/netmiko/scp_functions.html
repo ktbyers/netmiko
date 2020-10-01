@@ -37,7 +37,8 @@ from netmiko import FileTransfer, InLineTransfer
 
 def progress_bar(filename, size, sent, peername=None):
     max_width = 50
-    filename = filename.decode()
+    if isinstance(filename, bytes):
+        filename = filename.decode()
     clear_screen = chr(27) + &#34;[2J&#34;
     terminating_char = &#34;|&#34;
 
@@ -300,7 +301,8 @@ def file_transfer(
 <summary>Source code</summary>
 <pre><code class="python">def progress_bar(filename, size, sent, peername=None):
     max_width = 50
-    filename = filename.decode()
+    if isinstance(filename, bytes):
+        filename = filename.decode()
     clear_screen = chr(27) + &#34;[2J&#34;
     terminating_char = &#34;|&#34;
 
