@@ -6,6 +6,7 @@ echo "Starting tests...good luck:" \
 && echo "Cisco IOS" \
 && cd .. \
 && py.test -s -x -v test_netmiko_show.py --test_device cisco1 \
+&& py.test -s -x -v test_netmiko_save.py --test_device cisco1 \
 && py.test -s -x -v test_netmiko_cmd_verify.py --test_device cisco1 \
 && py.test -s -x -v test_netmiko_config.py --test_device cisco1 \
 && py.test -s -x -v test_netmiko_config_acl.py --test_device cisco1 \
