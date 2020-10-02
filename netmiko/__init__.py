@@ -23,7 +23,7 @@ from netmiko.scp_functions import file_transfer, progress_bar
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = "3.3.2"
+__version__ = "3.3.3a_dev"
 __all__ = (
     "ConnectHandler",
     "ssh_dispatcher",

@@ -42,26 +42,28 @@ class CiscoNxosSSH(CiscoSSHConnection):
 
         if confirm:
             output = self.send_command_timing(
-                command_string=cmd, strip_prompt=False, strip_command=False, delay_factor=delay_factor
+                command_string=cmd, strip_prompt=False, strip_command=False
             )
             if confirm_response:
                 output += self.send_command_timing(
-                    confirm_response, strip_prompt=False, strip_command=False, delay_factor=delay_factor
+                    confirm_response, strip_prompt=False, strip_command=False
                 )
             else:
                 # Send enter by default
                 output += self.send_command_timing(
-                    self.RETURN, strip_prompt=False, strip_command=False, delay_factor=delay_factor
+                    self.RETURN, strip_prompt=False, strip_command=False
                 )
         else:
             # NX-OS is very slow on save_config ensure it waits long enough.
             # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
             # send_command so increase max_loops.
             output = self.send_command(
-                command_string=cmd, strip_prompt=False, strip_command=False, max_loops=5000
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                max_loops=5000,
             )
         return output
-
 
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):

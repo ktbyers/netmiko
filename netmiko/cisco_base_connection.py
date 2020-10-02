@@ -81,6 +81,12 @@ class CiscoBaseConnection(BaseConnection):
     ):
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
+
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor < 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         time.sleep(1 * delay_factor)
 
         output = ""
