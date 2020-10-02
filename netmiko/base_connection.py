@@ -708,6 +708,12 @@ class BaseConnection(object):
         (default: 20)
         """
         delay_factor = self.select_delay_factor(delay_factor)
+
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor < 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         time.sleep(1 * delay_factor)
 
         output = ""
@@ -1275,7 +1281,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         output = ""
 
         delay_factor = self.select_delay_factor(delay_factor)
-        # Cleanup in future versions of Netmiko
+        # FIX: Cleanup in future versions of Netmiko
         if delay_factor < 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
