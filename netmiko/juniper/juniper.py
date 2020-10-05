@@ -12,23 +12,21 @@ class JuniperBase(BaseConnection):
     Disables `enable()` and `check_enable_mode()`
     methods.  Overrides several methods for Juniper-specific compatibility.
     """
+    def __init__(self, *args, **kwargs):
+        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        return super().__init__(*args, **kwargs)
 
     def session_preparation(self):
-        """
-        Prepare the session after the connection has been established.
-
-        Disable paging (the '--more--' prompts).
-        Set the base prompt for interaction ('>').
-        """
-        self._test_channel_read()
+        """Prepare the session after the connection has been established."""
         self.enter_cli_mode()
+        cmd = "set cli screen-width 511"
+        self.set_terminal_width(command=cmd, pattern=r"Screen width set to")
+        # Overloading disable_paging which is confusing
+        self.disable_paging(command="set cli complete-on-space off", pattern=r"Disabling complete-on-space")
+        self.disable_paging(command="set cli screen-length 0", pattern=r"Screen length set to")
         self.set_base_prompt()
-        self._disable_complete_on_space()
-        self.set_terminal_width(command="set cli screen-width 511", pattern="set")
-        self.disable_paging(command="set cli screen-length 0")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def _enter_shell(self):
         """Enter the Bourne Shell."""
@@ -37,21 +35,6 @@ class JuniperBase(BaseConnection):
     def _return_cli(self):
         """Return to the Juniper CLI."""
         return self.send_command("exit", expect_string=r"[#>]")
-
-    def _disable_complete_on_space(self):
-        """
-        Juniper tries to auto complete commands when you type a "space" character.
-
-        This is a bad idea for automation as what your program is sending no longer matches
-        the command echo from the device. So we disable this behavior.
-        """
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        time.sleep(delay_factor * 0.1)
-        command = "set cli complete-on-space off"
-        self.write_channel(self.normalize_cmd(command))
-        time.sleep(delay_factor * 0.1)
-        output = self.read_channel()
-        return output
 
     def enter_cli_mode(self):
         """Check if at shell prompt root@ and go into CLI."""
@@ -87,9 +70,9 @@ class JuniperBase(BaseConnection):
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configure"):
+    def config_mode(self, config_command="configure", pattern=r"Entering configuration mode", **kwargs):
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+        return super().config_mode(config_command=config_command, pattern=pattern, **kwargs)
 
     def exit_config_mode(self, exit_config="exit configuration-mode"):
         """Exit configuration mode."""
@@ -139,6 +122,12 @@ class JuniperBase(BaseConnection):
         """
         delay_factor = self.select_delay_factor(delay_factor)
 
+        # Commit is very slow so this is needed.
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor < 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         if check and (confirm or confirm_delay or comment):
             raise ValueError("Invalid arguments supplied with commit check")
 
@@ -183,7 +172,7 @@ class JuniperBase(BaseConnection):
                 delay_factor=delay_factor,
             )
         else:
-            output += self.send_command_expect(
+            output += self.send_command(
                 command_string,
                 strip_prompt=False,
                 strip_command=False,

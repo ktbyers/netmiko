@@ -73,6 +73,20 @@ def generate_cisco_xr_acl(
     return acl
 
 
+def generate_juniper_junos_acl(
+    acl_name="netmiko_test_large_acl",
+    entries=100,
+    base_cmd="set firewall family inet filter",
+    base_addr="192.168.0.0",
+):
+    acl = []
+    for i in range(1, entries + 1):
+        addr = ip_address(base_addr)
+        cmd = f"{base_cmd} {acl_name} term 10 from address {addr + i}"
+        acl.append(cmd)
+    return acl
+
+
 if __name__ == "__main__":
     # Test code
     acl = generate_ios_acl(entries=10)
@@ -123,3 +137,28 @@ if __name__ == "__main__":
         "permit ipv4 host 192.168.0.10 any",
     ]
     assert acl == xr_ref_acl
+
+    acl = generate_juniper_junos_acl(entries=10)
+    ref_acl = [
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.1',
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.2',
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.3',
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.4',
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.5',
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.6',
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.7',
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.8',
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.9',
+        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
+        '192.168.0.10',
+    ]
+    assert acl == ref_acl
