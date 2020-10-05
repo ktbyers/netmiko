@@ -29,3 +29,9 @@ arista1:
   device_type: arista_eos
   host: arista1.lasthop.io
   username: pyclass
+
+juniper_vmx:
+  device_type: juniper_junos
+  host: vmx1.lasthop.io
+  username: pyclass
+  session_log: vmx1.out

@@ -117,8 +117,11 @@ def cleanup(device):
 
     # Results will be marginally distorted by generating the ACL here.
     platform = device["device_type"]
-    base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
-    remove_acl_cmd = f"no {base_acl_cmd}"
+    if "juniper_junos" in platform:
+        remove_acl_cmd = "rollback 0"
+    else:
+        base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
+        remove_acl_cmd = f"no {base_acl_cmd}"
     cleanup_generic(device, remove_acl_cmd)
 
 
@@ -134,8 +137,8 @@ def main():
     devices = read_devices()
     print("\n\n")
     for dev_name, dev_dict in devices.items():
-        # if dev_name != "arista1":
-        #    continue
+        if dev_name != "juniper_vmx":
+            continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
         print("-" * 12)
