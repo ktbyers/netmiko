@@ -140,25 +140,25 @@ if __name__ == "__main__":
 
     acl = generate_juniper_junos_acl(entries=10)
     ref_acl = [
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.1',
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.2',
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.3',
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.4',
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.5',
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.6',
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.7',
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.8',
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.9',
-        'set firewall family inet filter netmiko_test_large_acl term 10 from address '
-        '192.168.0.10',
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.1",
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.2",
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.3",
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.4",
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.5",
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.6",
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.7",
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.8",
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.9",
+        "set firewall family inet filter netmiko_test_large_acl term 10 from address "
+        "192.168.0.10",
     ]
     assert acl == ref_acl

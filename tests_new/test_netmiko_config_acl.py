@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import re
 import pytest
-from network_utilities import generate_ios_acl, generate_nxos_acl
+from network_utilities import generate_ios_acl
+from network_utilities import generate_cisco_nxos_acl  # noqa
 from network_utilities import generate_cisco_xr_acl  # noqa
 from network_utilities import generate_arista_eos_acl  # noqa
 from network_utilities import generate_juniper_junos_acl  # noqa
@@ -39,8 +40,6 @@ def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
     platform = net_connect.device_type
     if "cisco_ios" in net_connect.device_type or "cisco_xe" in net_connect.device_type:
         cfg_lines = generate_ios_acl()
-    elif "cisco_nxos" in net_connect.device_type:
-        cfg_lines = generate_nxos_acl()
     else:
         func_name = f"generate_{platform}_acl"
         acl_func = globals()[func_name]

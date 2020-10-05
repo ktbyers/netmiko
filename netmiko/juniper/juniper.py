@@ -12,6 +12,7 @@ class JuniperBase(BaseConnection):
     Disables `enable()` and `check_enable_mode()`
     methods.  Overrides several methods for Juniper-specific compatibility.
     """
+
     def __init__(self, *args, **kwargs):
         # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
         kwargs.setdefault("fast_cli", True)
@@ -24,8 +25,13 @@ class JuniperBase(BaseConnection):
         cmd = "set cli screen-width 511"
         self.set_terminal_width(command=cmd, pattern=r"Screen width set to")
         # Overloading disable_paging which is confusing
-        self.disable_paging(command="set cli complete-on-space off", pattern=r"Disabling complete-on-space")
-        self.disable_paging(command="set cli screen-length 0", pattern=r"Screen length set to")
+        self.disable_paging(
+            command="set cli complete-on-space off",
+            pattern=r"Disabling complete-on-space",
+        )
+        self.disable_paging(
+            command="set cli screen-length 0", pattern=r"Screen length set to"
+        )
         self.set_base_prompt()
 
     def _enter_shell(self):
@@ -70,9 +76,16 @@ class JuniperBase(BaseConnection):
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configure", pattern=r"Entering configuration mode", **kwargs):
+    def config_mode(
+        self,
+        config_command="configure",
+        pattern=r"Entering configuration mode",
+        **kwargs,
+    ):
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command, pattern=pattern, **kwargs)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, **kwargs
+        )
 
     def exit_config_mode(self, exit_config="exit configuration-mode"):
         """Exit configuration mode."""
