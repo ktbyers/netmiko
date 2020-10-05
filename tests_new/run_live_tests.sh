@@ -17,3 +17,7 @@ cd test_cisco_xr
 cd ..
 cd test_arista_eos
 ./test_arista_eos.sh > ../test_out/test_arista_eos.out 2> ../test_out/test_arista_eos.stderr &
+
+cd ..
+cd test_juniper_junos
+./test_juniper_junos.sh > ../test_out/test_juniper_junos.out 2> ../test_out/test_juniper_junos.stderr &

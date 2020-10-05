@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 import re
 import pytest
-from network_utilities import generate_ios_acl, generate_nxos_acl
+from network_utilities import generate_ios_acl
+from network_utilities import generate_cisco_nxos_acl  # noqa
 from network_utilities import generate_cisco_xr_acl  # noqa
 from network_utilities import generate_arista_eos_acl  # noqa
+from network_utilities import generate_juniper_junos_acl  # noqa
 
 
 def remove_acl(net_connect, cmd, commit=False):
     """Ensure ACL is removed."""
-    net_connect.send_config_set(f"no {cmd}")
+    net_connect.send_config_set(cmd)
     if commit:
         net_connect.commit()
         net_connect.exit_config_mode()
@@ -20,19 +22,24 @@ def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
         acl_config = commands.get("config_long_acl")
         base_cmd = acl_config["base_cmd"]
         verify_cmd = acl_config["verify_cmd"]
+        delete_cmd = acl_config.get("delete_cmd")
         offset = acl_config["offset"]
     else:
         pytest.skip("Platform not supported for ACL test")
 
+    platform = net_connect.device_type
     support_commit = commands.get("support_commit")
-    remove_acl(net_connect, cmd=base_cmd, commit=support_commit)
+
+    if "juniper_junos" in platform:
+        cmd = delete_cmd
+    else:
+        cmd = f"no {base_cmd}"
+    remove_acl(net_connect, cmd=cmd, commit=support_commit)
 
     # Generate the ACL
     platform = net_connect.device_type
     if "cisco_ios" in net_connect.device_type or "cisco_xe" in net_connect.device_type:
         cfg_lines = generate_ios_acl()
-    elif "cisco_nxos" in net_connect.device_type:
-        cfg_lines = generate_nxos_acl()
     else:
         func_name = f"generate_{platform}_acl"
         acl_func = globals()[func_name]
@@ -56,7 +63,15 @@ def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
     # IOS-XR potentially has a timestamp on the show command
     if "UTC" in verify_list[0]:
         verify_list.pop(0)
-    assert len(verify_list) == len(cfg_lines)
+    if "juniper_junos" in platform:
+        offset = 6
+        assert len(verify_list) - offset == len(cfg_lines)
+    else:
+        assert len(verify_list) == len(cfg_lines)
 
-    remove_acl(net_connect, cmd=base_cmd, commit=support_commit)
+    if "juniper_junos" in platform:
+        cmd = delete_cmd
+    else:
+        cmd = f"no {base_cmd}"
+    remove_acl(net_connect, cmd=cmd, commit=support_commit)
     net_connect.disconnect()
