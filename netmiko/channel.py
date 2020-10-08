@@ -1,3 +1,4 @@
+from os import path
 import socket
 import telnetlib
 import paramiko
@@ -11,10 +12,45 @@ from netmiko.ssh_exception import (
 from netmiko.netmiko_globals import MAX_BUFFER
 
 
+class Channel:
+    def __init__(self, protocol):
+        self.protocol = protocol
+        self.remote_conn = None
+
+    def _read_channel(self):
+        """Generic handler that will read all the data from an SSH or telnet channel."""
+        if self.protocol == "ssh":
+            output = ""
+            while True:
+                if self.remote_conn.recv_ready():
+                    outbuf = self.remote_conn.recv(MAX_BUFFER)
+                    if len(outbuf) == 0:
+                        raise EOFError("Channel stream closed by remote device.")
+                    output += outbuf.decode("utf-8", "ignore")
+                else:
+                    break
+        elif self.protocol == "telnet":
+            output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
+        elif self.protocol == "serial":
+            output = ""
+            while self.remote_conn.in_waiting > 0:
+                output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
+                    "utf-8", "ignore"
+                )
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
+        log.debug(f"read_channel: {output}")
+        self._write_session_log(output)
+        return output
+
+
 class TelnetChannel(Channel):
     def __init__(self):
         self.protocol = "telnet"
         self.remote_conn = None
+
+    def __repr__(self):
+        return "TelnetChannel()"
 
     def establish_connection(self, width=511, height=1000):
         self.remote_conn = telnetlib.Telnet(
@@ -25,17 +61,46 @@ class TelnetChannel(Channel):
 
 
 class SSHChannel(Channel):
-    def __init__(self):
+    def __init__(self, ssh_params, ssh_hostkey_args=None):
+        self.ssh_params = ssh_params
+        if ssh_hostkey_args is None:
+            self.ssh_hostkey_args = {}
+        else:
+            self.ssh_hostkey_args = ssh_hostkey_args
         self.protocol = "ssh"
         self.remote_conn = None
 
+    def __repr__(self):
+        return "SSHChannel(ssh_params)"
+
+    def _build_ssh_client(self):
+        """Prepare for Paramiko SSH connection."""
+        # Create instance of SSHClient object
+        remote_conn_pre = paramiko.SSHClient()
+
+        # Load host_keys for better SSH security
+        if self.ssh_hostkey_args.get("system_host_keys"):
+            remote_conn_pre.load_system_host_keys()
+        if self.ssh_hostkey_args.get("alt_host_keys"):
+            alt_key_file = self.ssh_hostkey_args["alt_key_file"]
+            if path.isfile(alt_key_file):
+                remote_conn_pre.load_host_keys(alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        if not self.ssh_hostkey_args.get("ssh_strict", False):
+            key_policy = paramiko.AutoAddPolicy()
+        else:
+            key_policy = paramiko.RejectPolicy()
+
+        remote_conn_pre.set_missing_host_key_policy(key_policy)
+        return remote_conn_pre
+
     def establish_connection(self, width=511, height=1000):
-        ssh_connect_params = self._connect_params_dict()
         self.remote_conn_pre = self._build_ssh_client()
 
         # initiate SSH connection
         try:
-            self.remote_conn_pre.connect(**ssh_connect_params)
+            self.remote_conn_pre.connect(**self.ssh_params)
         except socket.error as conn_error:
             self.paramiko_cleanup()
             msg = f"""TCP connection to device failed.
@@ -105,38 +170,9 @@ class SerialChannel(Channel):
         self.protocol = "serial"
         self.remote_conn = None
 
+    def __repr__(self):
+        return "SerialChannel()"
+
     def establish_connection(self, width=511, height=1000):
         self.remote_conn = serial.Serial(**self.serial_settings)
         self.serial_login()
-
-
-class Channel:
-    def __init__(self, protocol):
-        self.protocol = protocol
-        self.remote_conn = None
-
-    def _read_channel(self):
-        """Generic handler that will read all the data from an SSH or telnet channel."""
-        if self.protocol == "ssh":
-            output = ""
-            while True:
-                if self.remote_conn.recv_ready():
-                    outbuf = self.remote_conn.recv(MAX_BUFFER)
-                    if len(outbuf) == 0:
-                        raise EOFError("Channel stream closed by remote device.")
-                    output += outbuf.decode("utf-8", "ignore")
-                else:
-                    break
-        elif self.protocol == "telnet":
-            output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
-        elif self.protocol == "serial":
-            output = ""
-            while self.remote_conn.in_waiting > 0:
-                output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                    "utf-8", "ignore"
-                )
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
-        log.debug(f"read_channel: {output}")
-        self._write_session_log(output)
-        return output

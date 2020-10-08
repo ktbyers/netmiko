@@ -21,7 +21,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
-from netmiko.channel import Channel
+from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.ssh_exception import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
@@ -322,12 +322,14 @@ class BaseConnection(object):
         else:
             self.protocol = "ssh"
 
-            if not ssh_strict:
-                self.key_policy = paramiko.AutoAddPolicy()
-            else:
-                self.key_policy = paramiko.RejectPolicy()
+            # Options for SSH Keys
+            self.ssh_hostkey_args = {
+                "system_host_keys": system_host_keys,
+                "alt_host_keys": alt_host_keys,
+                "alt_key_file": alt_key_file,
+                "ssh_strict": ssh_strict,
+            }
 
-            # Options for SSH host_keys
             self.use_keys = use_keys
             self.key_file = (
                 path.abspath(path.expanduser(key_file)) if key_file else None
@@ -335,9 +337,6 @@ class BaseConnection(object):
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
-            self.system_host_keys = system_host_keys
-            self.alt_host_keys = alt_host_keys
-            self.alt_key_file = alt_key_file
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
@@ -351,7 +350,10 @@ class BaseConnection(object):
         self._modify_connection_params()
 
         if self.protocol == "ssh":
-            self.remote_conn = SSHChannel()
+            ssh_params = self._connect_params_dict()
+            self.remote_conn = SSHChannel(
+                ssh_params, ssh_hostkey_args=self.ssh_hostkey_args
+            )
             self.remote_conn.establish_connection()
         elif self.protocol == "telnet":
             self.remote_conn = TelnetChannel()
@@ -884,98 +886,6 @@ class BaseConnection(object):
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, width=511, height=1000):
-        """Establish SSH connection to the network device
-
-        Timeout will generate a NetmikoTimeoutException
-        Authentication failure will generate a NetmikoAuthenticationException
-
-        :param width: Specified width of the VT100 terminal window (default: 511)
-        :type width: int
-
-        :param height: Specified height of the VT100 terminal window (default: 1000)
-        :type height: int
-        """
-        self.channel = Channel()
-        if self.protocol == "telnet":
-            self.channel.remote_conn = telnetlib.Telnet(
-                self.host, port=self.port, timeout=self.timeout
-            )
-            self.telnet_login()
-        elif self.protocol == "serial":
-            self.remote_conn = serial.Serial(**self.serial_settings)
-            self.serial_login()
-        elif self.protocol == "ssh":
-            ssh_connect_params = self._connect_params_dict()
-            self.remote_conn_pre = self._build_ssh_client()
-
-            # initiate SSH connection
-            try:
-                self.remote_conn_pre.connect(**ssh_connect_params)
-            except socket.error as conn_error:
-                self.paramiko_cleanup()
-                msg = f"""TCP connection to device failed.
-
-Common causes of this problem are:
-1. Incorrect hostname or IP address.
-2. Wrong TCP port.
-3. Intermediate firewall blocking access.
-
-Device settings: {self.device_type} {self.host}:{self.port}
-
-"""
-
-                # Handle DNS failures separately
-                if "Name or service not known" in str(conn_error):
-                    msg = (
-                        f"DNS failure--the hostname you provided was not resolvable "
-                        f"in DNS: {self.host}:{self.port}"
-                    )
-
-                msg = msg.lstrip()
-                raise NetmikoTimeoutException(msg)
-            except paramiko.ssh_exception.SSHException as no_session_err:
-                self.paramiko_cleanup()
-                if "No existing session" in str(no_session_err):
-                    msg = (
-                        "Paramiko: 'No existing session' error: "
-                        "try increasing 'conn_timeout' to 10 seconds or larger."
-                    )
-                    raise NetmikoTimeoutException(msg)
-                else:
-                    raise
-            except paramiko.ssh_exception.AuthenticationException as auth_err:
-                self.paramiko_cleanup()
-                msg = f"""Authentication to device failed.
-
-Common causes of this problem are:
-1. Invalid username and password
-2. Incorrect SSH-key file
-3. Connecting to the wrong device
-
-Device settings: {self.device_type} {self.host}:{self.port}
-
-"""
-
-                msg += self.RETURN + str(auth_err)
-                raise NetmikoAuthenticationException(msg)
-
-            if self.verbose:
-                print(f"SSH connection established to {self.host}:{self.port}")
-
-            # Use invoke_shell to establish an 'interactive session'
-            self.remote_conn = self.remote_conn_pre.invoke_shell(
-                term="vt100", width=width, height=height
-            )
-
-            self.remote_conn.settimeout(self.blocking_timeout)
-            if self.keepalive:
-                self.remote_conn.transport.set_keepalive(self.keepalive)
-            self.special_login_handler()
-            if self.verbose:
-                print("Interactive SSH session established")
-        return ""
-
     # @m_exec_time
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back.
@@ -1018,21 +928,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
             return new_data
         else:
             raise NetmikoTimeoutException("Timed out waiting for data")
-
-    def _build_ssh_client(self):
-        """Prepare for Paramiko SSH connection."""
-        # Create instance of SSHClient object
-        remote_conn_pre = paramiko.SSHClient()
-
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
 
     def select_delay_factor(self, delay_factor):
         """
