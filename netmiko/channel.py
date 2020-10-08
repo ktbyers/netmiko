@@ -10,6 +10,28 @@ from netmiko.ssh_exception import (
     NetmikoAuthenticationException,
 )
 from netmiko.netmiko_globals import MAX_BUFFER
+from netmiko.utilities import write_bytes
+
+
+def log_writes(func):
+    """Handle both session_log and log of writes."""
+    @functools.wraps(func)
+    def wrapper_decorator(self, out_data):
+        func(self, out_data)
+        try:
+            log.debug(
+                "write_channel: {}".format(
+                    write_bytes(out_data, encoding=self.encoding)
+                )
+            )
+            # HERE - FIX `session_log_record_writes`
+            if self._session_log_fin or self.session_log_record_writes:
+                self._write_session_log(out_data)
+        except UnicodeDecodeError:
+            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
+            pass
+        return None
+    return wrapper_decorator
 
 
 class Channel:
@@ -48,6 +70,9 @@ class TelnetChannel(Channel):
     def __init__(self):
         self.protocol = "telnet"
         self.remote_conn = None
+        # Ensures last write operations prior to disconnect are recorded.
+        self._session_log_fin = False
+        self.session_log_record_writes = False
 
     def __repr__(self):
         return "TelnetChannel()"
@@ -56,19 +81,27 @@ class TelnetChannel(Channel):
         self.remote_conn = telnetlib.Telnet(
             self.host, port=self.port, timeout=self.timeout
         )
-        # FIX - move telnet_login into this class
+        # FIX - move telnet_login into this class?
         self.telnet_login()
+
+    def write_channel(self, out_data):
+        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
 
 
 class SSHChannel(Channel):
     def __init__(self, ssh_params, ssh_hostkey_args=None):
         self.ssh_params = ssh_params
+        self.blocking_timeout = ssh_params.pop("blocking_timeout", 20)
+        self.keepalive = ssh_params.pop("keepalive", 0)
         if ssh_hostkey_args is None:
             self.ssh_hostkey_args = {}
         else:
             self.ssh_hostkey_args = ssh_hostkey_args
         self.protocol = "ssh"
         self.remote_conn = None
+        # Ensures last write operations prior to disconnect are recorded.
+        self._session_log_fin = False
+        self.session_log_record_writes = False
 
     def __repr__(self):
         return "SSHChannel(ssh_params)"
@@ -149,9 +182,6 @@ ce settings: {self.device_type} {self.host}:{self.port}
             msg += self.RETURN + str(auth_err)
             raise NetmikoAuthenticationException(msg)
 
-        if self.verbose:
-            print(f"SSH connection established to {self.host}:{self.port}")
-
         # Use invoke_shell to establish an 'interactive session'
         self.remote_conn = self.remote_conn_pre.invoke_shell(
             term="vt100", width=width, height=height
@@ -160,15 +190,30 @@ ce settings: {self.device_type} {self.host}:{self.port}
         self.remote_conn.settimeout(self.blocking_timeout)
         if self.keepalive:
             self.remote_conn.transport.set_keepalive(self.keepalive)
-        self.special_login_handler()
-        if self.verbose:
-            print("Interactive SSH session established")
+
+    def write_channel(self, out_data):
+        self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
+
+        try:
+            log.debug(
+                "write_channel: {}".format(
+                    write_bytes(out_data, encoding=self.encoding)
+                )   
+            )   
+            if self._session_log_fin or self.session_log_record_writes:
+                self._write_session_log(out_data)
+        except UnicodeDecodeError:
+            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
+            pass
 
 
 class SerialChannel(Channel):
     def __init__(self):
         self.protocol = "serial"
         self.remote_conn = None
+        # Ensures last write operations prior to disconnect are recorded.
+        self._session_log_fin = False
+        self.session_log_record_writes = False
 
     def __repr__(self):
         return "SerialChannel()"
@@ -176,3 +221,14 @@ class SerialChannel(Channel):
     def establish_connection(self, width=511, height=1000):
         self.remote_conn = serial.Serial(**self.serial_settings)
         self.serial_login()
+
+    def write_channel(self, out_data):
+        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
+        self.remote_conn.flush()
+
+class SessionLog:
+    def __init__(self, file_name="", enabled=False, record_writes=False, file_mode="write"):
+        self.file_name = file_name
+        self.enabled = enabled
+        self.record_writes = False
+        self.file_mode = file_mode

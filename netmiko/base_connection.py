@@ -220,7 +220,7 @@ class BaseConnection(object):
                 part of the object creation (default: True).
         :type auto_connect: bool
         """
-        self.remote_conn = None
+        self.channel = None
 
         self.TELNET_RETURN = "\r\n"
         if default_enter is None:
@@ -267,8 +267,6 @@ class BaseConnection(object):
         self.session_log = None
         self.session_log_record_writes = session_log_record_writes
         self._session_log_close = False
-        # Ensures last write operations prior to disconnect are recorded.
-        self._session_log_fin = False
         if session_log is not None:
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
@@ -351,16 +349,17 @@ class BaseConnection(object):
 
         if self.protocol == "ssh":
             ssh_params = self._connect_params_dict()
-            self.remote_conn = SSHChannel(
+            self.channel = SSHChannel(
                 ssh_params, ssh_hostkey_args=self.ssh_hostkey_args
             )
-            self.remote_conn.establish_connection()
+            self.channel.establish_connection()
+            self.special_login_handler()
         elif self.protocol == "telnet":
-            self.remote_conn = TelnetChannel()
-            self.remote_conn.establish_connection()
+            self.channel = TelnetChannel()
+            self.channel.establish_connection()
         elif self.protocol == "serial":
-            self.remote_conn = SerialChannel()
-            self.remote_conn.establish_connection()
+            self.channel = SerialChannel()
+            self.channel.establish_connection()
         else:
             raise ValueError(f"Unknown protocol specified: {self.protocol}")
 
@@ -418,33 +417,6 @@ class BaseConnection(object):
         if self._session_locker.locked():
             self._session_locker.release()
 
-    def _write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel.
-
-        :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
-        """
-        if self.protocol == "ssh":
-            self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
-        elif self.protocol == "telnet":
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-        elif self.protocol == "serial":
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-            self.remote_conn.flush()
-        else:
-            raise ValueError("Invalid protocol specified")
-        try:
-            log.debug(
-                "write_channel: {}".format(
-                    write_bytes(out_data, encoding=self.encoding)
-                )
-            )
-            if self._session_log_fin or self.session_log_record_writes:
-                self._write_session_log(out_data)
-        except UnicodeDecodeError:
-            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
-            pass
-
     def _write_session_log(self, data):
         if self.session_log is not None and len(data) > 0:
             # Hide the password and secret in the session_log
@@ -467,7 +439,7 @@ class BaseConnection(object):
         """
         self._lock_netmiko_session()
         try:
-            self._write_channel(out_data)
+            self.channel.write_channel(out_data)
         finally:
             # Always unlock the SSH channel, even on exception.
             self._unlock_netmiko_session()
@@ -859,6 +831,8 @@ class BaseConnection(object):
             "timeout": self.conn_timeout,
             "auth_timeout": self.auth_timeout,
             "banner_timeout": self.banner_timeout,
+            "blocking_timeout": self.blocking_timeout,
+            "keepalive": self.keepalive,
             "sock": self.sock,
         }
 
