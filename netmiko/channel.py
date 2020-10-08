@@ -11,21 +11,25 @@ from netmiko.ssh_exception import (
 from netmiko.netmiko_globals import MAX_BUFFER
 
 
-class Channel:
-    def __init__(self, protocol):
-        self.protocol = protocol
+class TelnetChannel(Channel):
+    def __init__(self):
+        self.protocol = "telnet"
+        self.remote_conn = None
 
-    def establish_connection_telnet(self, width=511, height=1000):
-        self.channel.remote_conn = telnetlib.Telnet(
+    def establish_connection(self, width=511, height=1000):
+        self.remote_conn = telnetlib.Telnet(
             self.host, port=self.port, timeout=self.timeout
         )
+        # FIX - move telnet_login into this class
         self.telnet_login()
 
-    def establish_connection_serial(self, width=511, height=1000):
-        self.remote_conn = serial.Serial(**self.serial_settings)
-        self.serial_login()
 
-    def establish_connection_ssh(self, width=511, height=1000):
+class SSHChannel(Channel):
+    def __init__(self):
+        self.protocol = "ssh"
+        self.remote_conn = None
+
+    def establish_connection(self, width=511, height=1000):
         ssh_connect_params = self._connect_params_dict()
         self.remote_conn_pre = self._build_ssh_client()
 
@@ -95,27 +99,21 @@ ce settings: {self.device_type} {self.host}:{self.port}
         if self.verbose:
             print("Interactive SSH session established")
 
+
+class SerialChannel(Channel):
+    def __init__(self):
+        self.protocol = "serial"
+        self.remote_conn = None
+
     def establish_connection(self, width=511, height=1000):
-        """Establish connection to the network device
+        self.remote_conn = serial.Serial(**self.serial_settings)
+        self.serial_login()
 
-        Timeout will generate a NetmikoTimeoutException
-        Authentication failure will generate a NetmikoAuthenticationException
 
-        :param width: Specified width of the VT100 terminal window (default: 511)
-        :type width: int
-
-        :param height: Specified height of the VT100 terminal window (default: 1000)
-        :type height: int
-        """
-        self.channel = Channel()
-        if self.protocol == "telnet":
-            self.establish_connection_telnet()
-        elif self.protocol == "serial":
-            self.establish_connection_serial()
-        elif self.protocol == "ssh":
-            self.establish_connection_ssh(width=width, height=height)
-
-        return None
+class Channel:
+    def __init__(self, protocol):
+        self.protocol = protocol
+        self.remote_conn = None
 
     def _read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""

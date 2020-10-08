@@ -21,6 +21,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
+from netmiko.channel import Channel
 from netmiko.ssh_exception import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
@@ -348,7 +349,19 @@ class BaseConnection(object):
     def _open(self):
         """Decouple connection creation from __init__ for mocking."""
         self._modify_connection_params()
-        self.establish_connection()
+
+        if self.protocol == "ssh":
+            self.remote_conn = SSHChannel()
+            self.remote_conn.establish_connection()
+        elif self.protocol == "telnet":
+            self.remote_conn = TelnetChannel()
+            self.remote_conn.establish_connection()
+        elif self.protocol == "serial":
+            self.remote_conn = SerialChannel()
+            self.remote_conn.establish_connection()
+        else:
+            raise ValueError(f"Unknown protocol specified: {self.protocol}")
+
         self._try_session_preparation()
 
     def __enter__(self):
@@ -487,32 +500,6 @@ class BaseConnection(object):
                 # If unable to send, we can tell for sure that the connection is unusable
                 return False
         return False
-
-    def _read_channel(self):
-        """Generic handler that will read all the data from an SSH or telnet channel."""
-        if self.protocol == "ssh":
-            output = ""
-            while True:
-                if self.remote_conn.recv_ready():
-                    outbuf = self.remote_conn.recv(MAX_BUFFER)
-                    if len(outbuf) == 0:
-                        raise EOFError("Channel stream closed by remote device.")
-                    output += outbuf.decode("utf-8", "ignore")
-                else:
-                    break
-        elif self.protocol == "telnet":
-            output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
-        elif self.protocol == "serial":
-            output = ""
-            while self.remote_conn.in_waiting > 0:
-                output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                    "utf-8", "ignore"
-                )
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
-        log.debug(f"read_channel: {output}")
-        self._write_session_log(output)
-        return output
 
     def read_channel(self):
         """Generic handler that will read all the data from an SSH or telnet channel."""
@@ -909,8 +896,9 @@ class BaseConnection(object):
         :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         """
+        self.channel = Channel()
         if self.protocol == "telnet":
-            self.remote_conn = telnetlib.Telnet(
+            self.channel.remote_conn = telnetlib.Telnet(
                 self.host, port=self.port, timeout=self.timeout
             )
             self.telnet_login()
