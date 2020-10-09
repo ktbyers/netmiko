@@ -26,7 +26,6 @@ def log_writes(func):
                     write_bytes(out_data, encoding=self.encoding)
                 )
             )
-            # HERE - FIX `session_log_record_writes`
             if self.session_log.fin or self.session_log.record_writes:
                 self.session_log.write(out_data)
         except UnicodeDecodeError:

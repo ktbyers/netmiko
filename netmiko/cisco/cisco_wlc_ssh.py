@@ -143,7 +143,7 @@ class CiscoWlcSSH(BaseConnection):
 
             # Don't automatically save the config (user's responsibility)
             if "Would you like to save them now" in output:
-                self.channel._session_log_fin = True
+                self.session_log.fin = True
                 self.write_channel("n" + self.RETURN)
 
             try:

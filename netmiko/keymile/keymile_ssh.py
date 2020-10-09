@@ -45,7 +45,6 @@ class KeymileSSH(CiscoIosBase):
 
     def strip_prompt(self, a_string):
         """Remove appending empty line and prompt from output"""
-        self._write_session_log(a_string)
         a_string = a_string[:-1]
         return super().strip_prompt(a_string=a_string)
 
