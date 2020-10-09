@@ -1,33 +1,59 @@
+import io
+from netmiko.utilities import write_bytes
+
+
 class SessionLog:
-    def __init__(self, file_name="", record_writes=False, file_mode="write", buffered_io=None):
+    def __init__(
+        self,
+        file_name=None,
+        file_mode="write",
+        file_encoding="ascii",
+        record_writes=False,
+        buffered_io=None,
+    ):
         self.file_name = file_name
-        self.record_writes = False
         self.file_mode = file_mode
+        self.file_encoding = file_encoding
+        self.record_writes = record_writes
+        self._session_log_close = False
 
-1876     def open_session_log(self, filename, mode="write"):
-1877         """Open the session_log file."""
-1878         if mode == "append":
-1879             self.session_log = open(filename, mode="a", encoding=self.encoding)
-1880         else:
-1881             self.session_log = open(filename, mode="w", encoding=self.encoding)
-1882         self._session_log_close = True
-1883 
-1884     def close_session_log(self):
-1885         """Close the session_log file (if it is a file that we opened)."""
-1886         if self.session_log is not None and self._session_log_close:
-1887             self.session_log.close()
-1888             self.session_log = None
+        # Actual file/file-handle/buffered-IO that will be written to.
+        if file_name is None and buffered_io:
+            self.session_log = buffered_io
+        else:
+            self.session_log = None
 
- 427     def _write_session_log(self, data):
- 428         if self.session_log is not None and len(data) > 0:
- 429             # Hide the password and secret in the session_log
- 430             if self.password:
- 431                 data = data.replace(self.password, "********")
- 432             if self.secret:
- 433                 data = data.replace(self.secret, "********")
- 434             if isinstance(self.session_log, io.BufferedIOBase):
- 435                 data = self.normalize_linefeeds(data)
- 436                 self.session_log.write(write_bytes(data, encoding=self.encoding))
- 437             else:
- 438                 self.session_log.write(self.normalize_linefeeds(data))
- 439             self.session_log.flush()
+        # Ensures last write operations prior to disconnect are recorded.
+        self.fin = False
+
+    def open(self):
+        """Open the session_log file."""
+        if self.file_mode == "append":
+            self.session_log = open(
+                self.file_name, mode="a", encoding=self.file_encoding
+            )
+        else:
+            self.session_log = open(
+                self.file_name, mode="w", encoding=self.file_encoding
+            )
+        self._session_log_close = True
+
+    def close(self):
+        """Close the session_log file (if it is a file that we opened)."""
+        if self.session_log and self._session_log_close:
+            self.session_log.close()
+            self.session_log = None
+
+    def write(self, data):
+        if self.session_log is not None and len(data) > 0:
+            # Hide the password and secret in the session_log
+            if self.password:
+                data = data.replace(self.password, "********")
+            if self.secret:
+                data = data.replace(self.secret, "********")
+            if isinstance(self.session_log, io.BufferedIOBase):
+                data = self.normalize_linefeeds(data)
+                self.session_log.write(write_bytes(data, encoding=self.encoding))
+            else:
+                self.session_log.write(self.normalize_linefeeds(data))
+            self.session_log.flush()

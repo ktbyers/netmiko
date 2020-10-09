@@ -22,12 +22,12 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from netmiko import log
 from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
+from netmiko.session_log import SessionLog
 from netmiko.ssh_exception import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
 )
 from netmiko.utilities import (
-    write_bytes,
     check_serial_port,
     get_structured_data,
     get_structured_data_genie,
@@ -263,17 +263,24 @@ class BaseConnection(object):
         self.encoding = encoding
         self.sock = sock
 
-        # Netmiko will close the session_log if we open the file
+        # Netmiko will close the session_log if Netmiko opens the file
         self.session_log = None
-        self.session_log_record_writes = session_log_record_writes
         self._session_log_close = False
         if session_log is not None:
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
-                self.open_session_log(filename=session_log, mode=session_log_file_mode)
+                self.session_log = SessionLog(
+                    file_name=session_log,
+                    file_mode=session_log_file_mode,
+                    file_encoding=encoding,
+                    record_writes=session_log_record_writes,
+                )
+                self.session_log.open()
             elif isinstance(session_log, io.BufferedIOBase):
                 # In-memory buffer or an already open file handle
-                self.session_log = session_log
+                self.session_log = SessionLog(
+                    buffered_io=session_log, record_writes=session_log_record_writes
+                )
             else:
                 raise ValueError(
                     "session_log must be a path to a file, a file handle, "
@@ -350,15 +357,17 @@ class BaseConnection(object):
         if self.protocol == "ssh":
             ssh_params = self._connect_params_dict()
             self.channel = SSHChannel(
-                ssh_params, ssh_hostkey_args=self.ssh_hostkey_args
+                ssh_params,
+                ssh_hostkey_args=self.ssh_hostkey_args,
+                session_log=self.session_log,
             )
             self.channel.establish_connection()
             self.special_login_handler()
         elif self.protocol == "telnet":
-            self.channel = TelnetChannel()
+            self.channel = TelnetChannel(session_log=self.session_log)
             self.channel.establish_connection()
         elif self.protocol == "serial":
-            self.channel = SerialChannel()
+            self.channel = SerialChannel(session_log=self.session_log)
             self.channel.establish_connection()
         else:
             raise ValueError(f"Unknown protocol specified: {self.protocol}")
@@ -416,20 +425,6 @@ class BaseConnection(object):
         """
         if self._session_locker.locked():
             self._session_locker.release()
-
-    def _write_session_log(self, data):
-        if self.session_log is not None and len(data) > 0:
-            # Hide the password and secret in the session_log
-            if self.password:
-                data = data.replace(self.password, "********")
-            if self.secret:
-                data = data.replace(self.secret, "********")
-            if isinstance(self.session_log, io.BufferedIOBase):
-                data = self.normalize_linefeeds(data)
-                self.session_log.write(write_bytes(data, encoding=self.encoding))
-            else:
-                self.session_log.write(self.normalize_linefeeds(data))
-            self.session_log.flush()
 
     def write_channel(self, out_data):
         """Generic handler that will write to both SSH and telnet channel.
@@ -535,7 +530,7 @@ class BaseConnection(object):
                         new_data = self.strip_ansi_escape_codes(new_data)
                     log.debug(f"_read_channel_expect read_data: {new_data}")
                     output += new_data
-                    self._write_session_log(new_data)
+                    self.session_log.write(new_data)
                 except socket.timeout:
                     raise NetmikoTimeoutException(
                         "Timed-out reading channel, data not available."
@@ -1859,7 +1854,7 @@ class BaseConnection(object):
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
-            self.close_session_log()
+            self.session_log.close()
 
     def commit(self):
         """Commit method for platforms that support this."""
@@ -1868,20 +1863,6 @@ class BaseConnection(object):
     def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError
-
-    def open_session_log(self, filename, mode="write"):
-        """Open the session_log file."""
-        if mode == "append":
-            self.session_log = open(filename, mode="a", encoding=self.encoding)
-        else:
-            self.session_log = open(filename, mode="w", encoding=self.encoding)
-        self._session_log_close = True
-
-    def close_session_log(self):
-        """Close the session_log file (if it is a file that we opened)."""
-        if self.session_log is not None and self._session_log_close:
-            self.session_log.close()
-            self.session_log = None
 
 
 class TelnetConnection(BaseConnection):
