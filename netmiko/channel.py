@@ -4,6 +4,7 @@ import functools
 import telnetlib
 import paramiko
 import serial
+from abc import ABC, abstractmethod
 
 from netmiko import log
 from netmiko.ssh_exception import (
@@ -51,10 +52,26 @@ def log_writes(func):
     return wrapper_decorator
 
 
-class Channel:
-    def __init__(self, protocol):
-        self.protocol = protocol
-        self.remote_conn = None
+class Channel(ABC):
+    @abstractmethod
+    def __init__(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def __repr__(self):
+        pass
+
+    @abstractmethod
+    def establish_connection(self, width=511, height=1000):
+        pass
+
+    @abstractmethod
+    def write_channel(self, out_data):
+        pass
+
+    @abstractmethod
+    def read_channel(self):
+        pass
 
 
 class TelnetChannel(Channel):
