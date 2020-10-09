@@ -54,28 +54,28 @@ def log_writes(func):
 
 class Channel(ABC):
     @abstractmethod
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         pass
 
     @abstractmethod
-    def __repr__(self):
+    def __repr__(self) -> str:
         pass
 
     @abstractmethod
-    def establish_connection(self, width=511, height=1000):
+    def establish_connection(self, width: int = 511, height: int = 1000) -> None:
         pass
 
     @abstractmethod
-    def write_channel(self, out_data):
+    def write_channel(self, out_data: str ) -> None:
         pass
 
     @abstractmethod
-    def read_channel(self):
+    def read_channel(self) -> str:
         pass
 
 
 class TelnetChannel(Channel):
-    def __init__(self, encoding="ascii", session_log=None):
+    def __init__(self, encoding: str = "ascii", session_log=None) -> None:
         self.protocol = "telnet"
         self.remote_conn = None
         self.encoding = encoding
