@@ -359,15 +359,20 @@ class BaseConnection(object):
             self.channel = SSHChannel(
                 ssh_params,
                 ssh_hostkey_args=self.ssh_hostkey_args,
+                encoding=self.encoding,
                 session_log=self.session_log,
             )
             self.channel.establish_connection()
             self.special_login_handler()
         elif self.protocol == "telnet":
-            self.channel = TelnetChannel(session_log=self.session_log)
+            self.channel = TelnetChannel(
+                encoding=self.encoding, session_log=self.session_log
+            )
             self.channel.establish_connection()
         elif self.protocol == "serial":
-            self.channel = SerialChannel(session_log=self.session_log)
+            self.channel = SerialChannel(
+                encoding=self.encoding, session_log=self.session_log
+            )
             self.channel.establish_connection()
         else:
             raise ValueError(f"Unknown protocol specified: {self.protocol}")
@@ -441,6 +446,7 @@ class BaseConnection(object):
 
     def is_alive(self):
         """Returns a boolean flag with the state of the connection."""
+        # FIX: move to channel.py and wrap i.e. call self.channel.is_alive()
         null = chr(0)
         if self.remote_conn is None:
             log.error("Connection is not initialised, is_alive returns False")
@@ -471,11 +477,11 @@ class BaseConnection(object):
         return False
 
     def read_channel(self):
-        """Generic handler that will read all the data from an SSH or telnet channel."""
+        """Generic handler that will read all the data from a Netmiko channel with locking."""
         output = ""
         self._lock_netmiko_session()
         try:
-            output = self._read_channel()
+            output = self.channel.read_channel()
         finally:
             # Always unlock the SSH channel, even on exception.
             self._unlock_netmiko_session()
@@ -522,7 +528,7 @@ class BaseConnection(object):
                 try:
                     # If no data available will wait timeout seconds trying to read
                     self._lock_netmiko_session()
-                    new_data = self.remote_conn.recv(MAX_BUFFER)
+                    new_data = self.channel.remote_conn.recv(MAX_BUFFER)
                     if len(new_data) == 0:
                         raise EOFError("Channel stream closed by remote device.")
                     new_data = new_data.decode("utf-8", "ignore")
@@ -530,7 +536,8 @@ class BaseConnection(object):
                         new_data = self.strip_ansi_escape_codes(new_data)
                     log.debug(f"_read_channel_expect read_data: {new_data}")
                     output += new_data
-                    self.session_log.write(new_data)
+                    if self.session_log:
+                        self.session_log.write(new_data)
                 except socket.timeout:
                     raise NetmikoTimeoutException(
                         "Timed-out reading channel, data not available."
@@ -665,6 +672,7 @@ class BaseConnection(object):
         """
         delay_factor = self.select_delay_factor(delay_factor)
 
+        # FIX: Move to channel.py
         # FIX: Cleanup in future versions of Netmiko
         if delay_factor < 1:
             if not self._legacy_mode and self.fast_cli:
@@ -1854,7 +1862,8 @@ class BaseConnection(object):
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
-            self.session_log.close()
+            if self.session_log:
+                self.session_log.close()
 
     def commit(self):
         """Commit method for platforms that support this."""

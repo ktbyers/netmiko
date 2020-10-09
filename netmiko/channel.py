@@ -14,6 +14,20 @@ from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.utilities import write_bytes
 
 
+def log_reads(func):
+    """Handle both session_log and log of reads."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self):
+        output = func(self)
+        log.debug(f"read_channel: {output}")
+        if self.session_log:
+            self.session_log.write(output)
+        return output
+
+    return wrapper_decorator
+
+
 def log_writes(func):
     """Handle both session_log and log of writes."""
 
@@ -26,8 +40,9 @@ def log_writes(func):
                     write_bytes(out_data, encoding=self.encoding)
                 )
             )
-            if self.session_log.fin or self.session_log.record_writes:
-                self.session_log.write(out_data)
+            if self.session_log:
+                if self.session_log.fin or self.session_log.record_writes:
+                    self.session_log.write(out_data)
         except UnicodeDecodeError:
             # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
             pass
@@ -41,37 +56,12 @@ class Channel:
         self.protocol = protocol
         self.remote_conn = None
 
-    def _read_channel(self):
-        """Generic handler that will read all the data from an SSH or telnet channel."""
-        if self.protocol == "ssh":
-            output = ""
-            while True:
-                if self.remote_conn.recv_ready():
-                    outbuf = self.remote_conn.recv(MAX_BUFFER)
-                    if len(outbuf) == 0:
-                        raise EOFError("Channel stream closed by remote device.")
-                    output += outbuf.decode("utf-8", "ignore")
-                else:
-                    break
-        elif self.protocol == "telnet":
-            output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
-        elif self.protocol == "serial":
-            output = ""
-            while self.remote_conn.in_waiting > 0:
-                output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                    "utf-8", "ignore"
-                )
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
-        log.debug(f"read_channel: {output}")
-        self._write_session_log(output)
-        return output
-
 
 class TelnetChannel(Channel):
-    def __init__(self, session_log=None):
+    def __init__(self, encoding="ascii", session_log=None):
         self.protocol = "telnet"
         self.remote_conn = None
+        self.encoding = encoding
         self.session_log = session_log
 
     def __repr__(self):
@@ -88,9 +78,20 @@ class TelnetChannel(Channel):
     def write_channel(self, out_data):
         self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
 
+    @log_reads
+    def read_channel(self):
+        """Read all of the available data from the telnet channel."""
+        output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
+        # FIX?
+        if self.ansi_escape_codes:
+            output = self.strip_ansi_escape_codes(output)
+        return output
+
 
 class SSHChannel(Channel):
-    def __init__(self, ssh_params, ssh_hostkey_args=None, session_log=None):
+    def __init__(
+        self, ssh_params, ssh_hostkey_args=None, encoding="ascii", session_log=None
+    ):
         self.ssh_params = ssh_params
         self.blocking_timeout = ssh_params.pop("blocking_timeout", 20)
         self.keepalive = ssh_params.pop("keepalive", 0)
@@ -101,6 +102,7 @@ class SSHChannel(Channel):
         self.protocol = "ssh"
         self.remote_conn = None
         self.session_log = session_log
+        self.encoding = encoding
 
     def __repr__(self):
         return "SSHChannel(ssh_params)"
@@ -194,11 +196,30 @@ ce settings: {self.device_type} {self.host}:{self.port}
     def write_channel(self, out_data):
         self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
+    @log_reads
+    def read_channel(self):
+        """Read all of the available data from the SSH channel."""
+        output = ""
+        while True:
+            if self.remote_conn.recv_ready():
+                outbuf = self.remote_conn.recv(MAX_BUFFER)
+                if len(outbuf) == 0:
+                    raise EOFError("Channel stream closed by remote device.")
+                output += outbuf.decode("utf-8", "ignore")
+            else:
+                break
+
+        # FIX: Move back to base_connection i.e. this a higher-level function?
+        # if self.ansi_escape_codes:
+        #    output = self.strip_ansi_escape_codes(output)
+        return output
+
 
 class SerialChannel(Channel):
-    def __init__(self, session_log=None):
+    def __init__(self, encoding="ascii", session_log=None):
         self.protocol = "serial"
         self.remote_conn = None
+        self.encoding = encoding
         self.session_log = session_log
 
     def __repr__(self):
@@ -212,3 +233,17 @@ class SerialChannel(Channel):
     def write_channel(self, out_data):
         self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
         self.remote_conn.flush()
+
+    @log_reads
+    def read_channel(self):
+        """Read all of the available data from the serial channel."""
+        output = ""
+        while self.remote_conn.in_waiting > 0:
+            output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
+                "utf-8", "ignore"
+            )
+
+        # FIX: Move back to base_connection i.e. this a higher-level function?
+        # if self.ansi_escape_codes:
+        #    output = self.strip_ansi_escape_codes(output)
+        return output
