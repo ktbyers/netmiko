@@ -162,12 +162,12 @@ class SSHChannel(Channel):
             self.paramiko_cleanup()
             msg = f"""TCP connection to device failed.
 
-on causes of this problem are:
-ncorrect hostname or IP address.
-rong TCP port.
-ntermediate firewall blocking access.
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
 
-ce settings: {self.device_type} {self.host}:{self.port}
+Device settings: {self.device_type} {self.host}:{self.port}
 
 """
 
@@ -194,12 +194,12 @@ ce settings: {self.device_type} {self.host}:{self.port}
             self.paramiko_cleanup()
             msg = f"""Authentication to device failed.
 
-on causes of this problem are:
-nvalid username and password
-ncorrect SSH-key file
-onnecting to the wrong device
+Common causes of this problem are:
+1. Invalid username and password
+2. Incorrect SSH-key file
+3. Connecting to the wrong device
 
-ce settings: {self.device_type} {self.host}:{self.port}
+Device settings: {self.device_type} {self.host}:{self.port}
 
 """
 
