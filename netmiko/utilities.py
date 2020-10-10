@@ -3,6 +3,7 @@ from glob import glob
 import sys
 import io
 import os
+import re
 from pathlib import Path
 import functools
 from datetime import datetime
@@ -454,3 +455,103 @@ def f_exec_time(func):
         return result
 
     return wrapper_decorator
+
+
+def strip_ansi_escape_codes(string_buffer, return_str="\n"):
+    """
+    Remove any ANSI (VT100) ESC codes from the output
+
+    http://en.wikipedia.org/wiki/ANSI_escape_code
+
+    Note: this does not capture ALL possible ANSI Escape Codes only the ones
+    I have encountered
+
+    Current codes that are filtered:
+    ESC = '\x1b' or chr(27)
+    ESC = is the escape character [^ in hex ('\x1b')
+    ESC[24;27H   Position cursor
+    ESC[?25h     Show the cursor
+    ESC[E        Next line (HP does ESC-E)
+    ESC[K        Erase line from cursor to the end of line
+    ESC[2K       Erase entire line
+    ESC[1;24r    Enable scrolling from start to row end
+    ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
+    ESC[?7l      Disable line wrapping
+    ESC[2J       Code erase display
+    ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
+                 ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
+    ESC[6n       Get cursor position
+    ESC[1D       Move cursor position leftward by x characters (1 in this case)
+
+    HP ProCurve and Cisco SG300 require this (possible others).
+
+    :param string_buffer: The string to be processed to remove ANSI escape codes
+    :type string_buffer: str
+    """  # noqa
+
+    code_position_cursor = chr(27) + r"\[\d+;\d+H"
+    code_show_cursor = chr(27) + r"\[\?25h"
+    code_next_line = chr(27) + r"E"
+    code_erase_line_end = chr(27) + r"\[K"
+    code_erase_line = chr(27) + r"\[2K"
+    code_erase_start_line = chr(27) + r"\[K"
+    code_enable_scroll = chr(27) + r"\[\d+;\d+r"
+    code_insert_line = chr(27) + r"\[(\d+)L"
+    code_carriage_return = chr(27) + r"\[1M"
+    code_disable_line_wrapping = chr(27) + r"\[\?7l"
+    code_reset_mode_screen_options = chr(27) + r"\[\?\d+l"
+    code_reset_graphics_mode = chr(27) + r"\[00m"
+    code_erase_display = chr(27) + r"\[2J"
+    code_erase_display_0 = chr(27) + r"\[J"
+    code_graphics_mode = chr(27) + r"\[\d\d;\d\dm"
+    code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
+    code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
+    code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
+    code_get_cursor_position = chr(27) + r"\[6n"
+    code_cursor_position = chr(27) + r"\[m"
+    code_attrs_off = chr(27) + r"\[0m"
+    code_reverse = chr(27) + r"\[7m"
+    code_cursor_left = chr(27) + r"\[\d+D"
+
+    code_set = [
+        code_position_cursor,
+        code_show_cursor,
+        code_erase_line,
+        code_enable_scroll,
+        code_erase_start_line,
+        code_carriage_return,
+        code_disable_line_wrapping,
+        code_erase_line_end,
+        code_reset_mode_screen_options,
+        code_reset_graphics_mode,
+        code_erase_display,
+        code_graphics_mode,
+        code_graphics_mode2,
+        code_graphics_mode3,
+        code_graphics_mode4,
+        code_get_cursor_position,
+        code_cursor_position,
+        code_erase_display,
+        code_erase_display_0,
+        code_attrs_off,
+        code_reverse,
+        code_cursor_left,
+    ]
+
+    # FIX - so that this is not a loop, but a single regex invocation using
+    # a logical or (compare performance of the two).
+    output = string_buffer
+    for ansi_esc_code in code_set:
+        output = re.sub(ansi_esc_code, "", output)
+
+    # CODE_NEXT_LINE must substitute with return
+    output = re.sub(code_next_line, return_str, output)
+
+    # Aruba and ProCurve switches can use code_insert_line for <enter>
+    insert_line_match = re.search(code_insert_line, output)
+    if insert_line_match:
+        # Substitute each insert_line with a new <enter>
+        count = int(insert_line_match.group(1))
+        output = re.sub(code_insert_line, count * return_str, output)
+
+    return output

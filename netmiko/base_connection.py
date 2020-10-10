@@ -20,7 +20,7 @@ import serial
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from netmiko import log
-from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
+from netmiko.netmiko_globals import BACKSPACE_CHAR
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.ssh_exception import (
@@ -73,7 +73,9 @@ class BaseConnection(object):
         conn_timeout=5,
         auth_timeout=None,  # Timeout to wait for authentication response
         banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        read_timeout=10,  # Default timeout to wait for data in core read loop
         # Other timeouts
+        # FIX - this will probably go away and read_timeout will replace
         blocking_timeout=20,  # Read blocking timeout
         timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
         session_timeout=60,  # Used for locking/sharing the connection
@@ -250,10 +252,12 @@ class BaseConnection(object):
         self.password = password
         self.secret = secret
         self.device_type = device_type
+        # FIX - eliminate this attribute and always strip ANSI codes
         self.ansi_escape_codes = False
         self.verbose = verbose
         self.auth_timeout = auth_timeout
         self.banner_timeout = banner_timeout
+        self.read_timeout = read_timeout
         self.blocking_timeout = blocking_timeout
         self.conn_timeout = conn_timeout
         self.session_timeout = session_timeout
@@ -267,19 +271,28 @@ class BaseConnection(object):
         self.session_log = None
         self._session_log_close = False
         if session_log is not None:
+            no_log = {}
+            if self.password:
+                no_log["password"] = self.password
+            if self.secret:
+                no_log["secret"] = self.secret
+
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
                 self.session_log = SessionLog(
                     file_name=session_log,
                     file_mode=session_log_file_mode,
                     file_encoding=encoding,
+                    no_log=no_log,
                     record_writes=session_log_record_writes,
                 )
                 self.session_log.open()
             elif isinstance(session_log, io.BufferedIOBase):
                 # In-memory buffer or an already open file handle
                 self.session_log = SessionLog(
-                    buffered_io=session_log, record_writes=session_log_record_writes
+                    buffered_io=session_log,
+                    no_log=no_log,
+                    record_writes=session_log_record_writes,
                 )
             else:
                 raise ValueError(
@@ -523,27 +536,22 @@ class BaseConnection(object):
         # argument for backwards compatibility).
         if max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
+
+        if self.protocol == "ssh":
+            try:
+                # FIX: should this locking be happening with telnet/serial?
+                self._lock_netmiko_session()
+                # FIX: need a way to adjust the read_timeout
+                output = self.channel.read_channel_expect(
+                    pattern=pattern, timeout=self.read_timeout, re_flags=re_flags
+                )
+            finally:
+                self._unlock_netmiko_session()
+
         while i < max_loops:
             if self.protocol == "ssh":
-                try:
-                    # If no data available will wait timeout seconds trying to read
-                    self._lock_netmiko_session()
-                    new_data = self.channel.remote_conn.recv(MAX_BUFFER)
-                    if len(new_data) == 0:
-                        raise EOFError("Channel stream closed by remote device.")
-                    new_data = new_data.decode("utf-8", "ignore")
-                    if self.ansi_escape_codes:
-                        new_data = self.strip_ansi_escape_codes(new_data)
-                    log.debug(f"_read_channel_expect read_data: {new_data}")
-                    output += new_data
-                    if self.session_log:
-                        self.session_log.write(new_data)
-                except socket.timeout:
-                    raise NetmikoTimeoutException(
-                        "Timed-out reading channel, data not available."
-                    )
-                finally:
-                    self._unlock_netmiko_session()
+                break
+            # FIX need to migrate telnet and serial to use the Channel class
             elif self.protocol == "telnet" or "serial":
                 output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
@@ -1738,103 +1746,6 @@ class BaseConnection(object):
             output += self.exit_config_mode()
         output = self._sanitize_output(output)
         log.debug(f"{output}")
-        return output
-
-    def strip_ansi_escape_codes(self, string_buffer):
-        """
-        Remove any ANSI (VT100) ESC codes from the output
-
-        http://en.wikipedia.org/wiki/ANSI_escape_code
-
-        Note: this does not capture ALL possible ANSI Escape Codes only the ones
-        I have encountered
-
-        Current codes that are filtered:
-        ESC = '\x1b' or chr(27)
-        ESC = is the escape character [^ in hex ('\x1b')
-        ESC[24;27H   Position cursor
-        ESC[?25h     Show the cursor
-        ESC[E        Next line (HP does ESC-E)
-        ESC[K        Erase line from cursor to the end of line
-        ESC[2K       Erase entire line
-        ESC[1;24r    Enable scrolling from start to row end
-        ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
-        ESC[?7l      Disable line wrapping
-        ESC[2J       Code erase display
-        ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
-                     ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
-        ESC[6n       Get cursor position
-        ESC[1D       Move cursor position leftward by x characters (1 in this case)
-
-        HP ProCurve and Cisco SG300 require this (possible others).
-
-        :param string_buffer: The string to be processed to remove ANSI escape codes
-        :type string_buffer: str
-        """  # noqa
-
-        code_position_cursor = chr(27) + r"\[\d+;\d+H"
-        code_show_cursor = chr(27) + r"\[\?25h"
-        code_next_line = chr(27) + r"E"
-        code_erase_line_end = chr(27) + r"\[K"
-        code_erase_line = chr(27) + r"\[2K"
-        code_erase_start_line = chr(27) + r"\[K"
-        code_enable_scroll = chr(27) + r"\[\d+;\d+r"
-        code_insert_line = chr(27) + r"\[(\d+)L"
-        code_carriage_return = chr(27) + r"\[1M"
-        code_disable_line_wrapping = chr(27) + r"\[\?7l"
-        code_reset_mode_screen_options = chr(27) + r"\[\?\d+l"
-        code_reset_graphics_mode = chr(27) + r"\[00m"
-        code_erase_display = chr(27) + r"\[2J"
-        code_erase_display_0 = chr(27) + r"\[J"
-        code_graphics_mode = chr(27) + r"\[\d\d;\d\dm"
-        code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
-        code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
-        code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
-        code_get_cursor_position = chr(27) + r"\[6n"
-        code_cursor_position = chr(27) + r"\[m"
-        code_attrs_off = chr(27) + r"\[0m"
-        code_reverse = chr(27) + r"\[7m"
-        code_cursor_left = chr(27) + r"\[\d+D"
-
-        code_set = [
-            code_position_cursor,
-            code_show_cursor,
-            code_erase_line,
-            code_enable_scroll,
-            code_erase_start_line,
-            code_carriage_return,
-            code_disable_line_wrapping,
-            code_erase_line_end,
-            code_reset_mode_screen_options,
-            code_reset_graphics_mode,
-            code_erase_display,
-            code_graphics_mode,
-            code_graphics_mode2,
-            code_graphics_mode3,
-            code_graphics_mode4,
-            code_get_cursor_position,
-            code_cursor_position,
-            code_erase_display,
-            code_erase_display_0,
-            code_attrs_off,
-            code_reverse,
-            code_cursor_left,
-        ]
-
-        output = string_buffer
-        for ansi_esc_code in code_set:
-            output = re.sub(ansi_esc_code, "", output)
-
-        # CODE_NEXT_LINE must substitute with return
-        output = re.sub(code_next_line, self.RETURN, output)
-
-        # Aruba and ProCurve switches can use code_insert_line for <enter>
-        insert_line_match = re.search(code_insert_line, output)
-        if insert_line_match:
-            # Substitute each insert_line with a new <enter>
-            count = int(insert_line_match.group(1))
-            output = re.sub(code_insert_line, count * self.RETURN, output)
-
         return output
 
     def cleanup(self, command=""):

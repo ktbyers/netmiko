@@ -1,10 +1,12 @@
 from os import path
 import socket
 import functools
+import re
+import time
+from abc import ABC, abstractmethod
 import telnetlib
 import paramiko
 import serial
-from abc import ABC, abstractmethod
 
 from netmiko import log
 from netmiko.ssh_exception import (
@@ -12,15 +14,15 @@ from netmiko.ssh_exception import (
     NetmikoAuthenticationException,
 )
 from netmiko.netmiko_globals import MAX_BUFFER
-from netmiko.utilities import write_bytes
+from netmiko.utilities import write_bytes, strip_ansi_escape_codes
 
 
 def log_reads(func):
     """Handle both session_log and log of reads."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self):
-        output = func(self)
+    def wrapper_decorator(self, *args, **kwargs):
+        output = func(self, *args, **kwargs)
         log.debug(f"read_channel: {output}")
         if self.session_log:
             self.session_log.write(output)
@@ -66,11 +68,17 @@ class Channel(ABC):
         pass
 
     @abstractmethod
-    def write_channel(self, out_data: str ) -> None:
+    def write_channel(self, out_data: str) -> None:
         pass
 
     @abstractmethod
     def read_channel(self) -> str:
+        pass
+
+    @abstractmethod
+    def read_channel_expect(
+        self, pattern: str, timeout: int = 10, re_flags: int = 0
+    ) -> str:
         pass
 
 
@@ -99,9 +107,7 @@ class TelnetChannel(Channel):
     def read_channel(self):
         """Read all of the available data from the telnet channel."""
         output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
-        # FIX?
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
+        output = strip_ansi_escape_codes(output)
         return output
 
 
@@ -226,9 +232,40 @@ ce settings: {self.device_type} {self.host}:{self.port}
             else:
                 break
 
-        # FIX: Move back to base_connection i.e. this a higher-level function?
-        # if self.ansi_escape_codes:
-        #    output = self.strip_ansi_escape_codes(output)
+        output = strip_ansi_escape_codes(output)
+        return output
+
+    @log_reads
+    def read_channel_expect(self, pattern, timeout=10, re_flags=0):
+        """Read until pattern or timeout."""
+
+        loop_sleep_time = 0.02
+        read_timeout = time.time() + timeout
+        output = ""
+        while True:
+            if self.remote_conn.recv_ready():
+                outbuf = self.remote_conn.recv(MAX_BUFFER)
+                if len(outbuf) == 0:
+                    raise EOFError("Channel stream closed by remote device.")
+                output += outbuf.decode("utf-8", "ignore")
+            else:
+                if re.search(pattern, output, flags=re_flags):
+                    break
+                elif time.time() > read_timeout:
+                    output = strip_ansi_escape_codes(output)
+                    msg = f"""
+
+Timed-out reading channel, pattern not found in output: {pattern}
+Data retrieved before timeout:\n\n{output}
+
+"""
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    # Delay and then repeat the loop
+                    time.sleep(loop_sleep_time)
+
+        output = strip_ansi_escape_codes(output)
+        log.debug(f"Pattern found: {pattern} {output}")
         return output
 
 
@@ -260,7 +297,5 @@ class SerialChannel(Channel):
                 "utf-8", "ignore"
             )
 
-        # FIX: Move back to base_connection i.e. this a higher-level function?
-        # if self.ansi_escape_codes:
-        #    output = self.strip_ansi_escape_codes(output)
+        output = strip_ansi_escape_codes(output)
         return output
