@@ -6,11 +6,16 @@ class SessionLog:
     def __init__(
         self,
         file_name=None,
+        buffered_io=None,
         file_mode="write",
         file_encoding="ascii",
+        no_log=None,
         record_writes=False,
-        buffered_io=None,
     ):
+        if no_log is None:
+            self.no_log = {}
+        else:
+            self.no_log = no_log
         self.file_name = file_name
         self.file_mode = file_mode
         self.file_encoding = file_encoding
@@ -47,10 +52,9 @@ class SessionLog:
     def write(self, data):
         if self.session_log is not None and len(data) > 0:
             # Hide the password and secret in the session_log
-            if self.password:
-                data = data.replace(self.password, "********")
-            if self.secret:
-                data = data.replace(self.secret, "********")
+            for hidden_data in self.no_log.values():
+                data = data.replace(hidden_data, "********")
+
             if isinstance(self.session_log, io.BufferedIOBase):
                 data = self.normalize_linefeeds(data)
                 self.session_log.write(write_bytes(data, encoding=self.file_encoding))
