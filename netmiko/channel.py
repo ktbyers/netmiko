@@ -239,7 +239,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
     def read_channel_expect(self, pattern, timeout=10, re_flags=0):
         """Read until pattern or timeout."""
 
-        loop_sleep_time = 0.02
+        loop_sleep_time = 0.01
         read_timeout = time.time() + timeout
         output = ""
         while True:

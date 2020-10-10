@@ -500,6 +500,7 @@ class BaseConnection(object):
             self._unlock_netmiko_session()
         return output
 
+    @m_exec_time
     def _read_channel_expect(self, pattern="", re_flags=0, max_loops=150):
         """Function that reads channel until pattern is detected.
 
@@ -550,7 +551,7 @@ class BaseConnection(object):
 
         while i < max_loops:
             if self.protocol == "ssh":
-                break
+                return output
             # FIX need to migrate telnet and serial to use the Channel class
             elif self.protocol == "telnet" or "serial":
                 output += self.read_channel()
