@@ -56,8 +56,7 @@ class SessionLog:
                 data = data.replace(hidden_data, "********")
 
             if isinstance(self.session_log, io.BufferedIOBase):
-                data = self.normalize_linefeeds(data)
                 self.session_log.write(write_bytes(data, encoding=self.file_encoding))
             else:
-                self.session_log.write(self.normalize_linefeeds(data))
+                self.session_log.write(data)
             self.session_log.flush()

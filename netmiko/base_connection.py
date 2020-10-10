@@ -871,7 +871,6 @@ class BaseConnection(object):
             output = self.strip_prompt(output)
         return output
 
-    # @m_exec_time
     def _test_channel_read(self, count=40, pattern=""):
         """Try to read the channel (generally post login) verify you receive data back.
 
