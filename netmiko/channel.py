@@ -119,6 +119,10 @@ Data retrieved before timeout:\n\n{output}
         log.debug(f"Pattern found: {pattern} {output}")
         return output
 
+    @abstractmethod
+    def read_channel_timing(self, delay_factor: int, timeout: int) -> str:
+        pass
+
 
 class TelnetChannel(Channel):
     def __init__(self, encoding: str = "ascii", session_log=None) -> None:
@@ -167,6 +171,10 @@ class TelnetChannel(Channel):
         return super().read_channel_expect(
             pattern=pattern, timeout=timeout, re_flags=re_flags
         )
+
+    def read_channel_timing(self, delay_factor: int, timeout: int) -> str:
+        # FIX: needs implemented
+        pass
 
 
 class SSHChannel(Channel):
@@ -379,5 +387,9 @@ class SerialChannel(Channel):
         return output
 
     def read_channel_expect(self, pattern, timeout=10, re_flags=0):
+        # FIX: needs implemented
+        pass
+
+    def read_channel_timing(self, delay_factor: int, timeout: int) -> str:
         # FIX: needs implemented
         pass
