@@ -94,6 +94,7 @@ class Channel(ABC):
     ) -> str:
         """Read until pattern or timeout."""
 
+        log.debug(f"Pattern is: {pattern}")
         loop_sleep_time = 0.01
         read_timeout = time.time() + timeout
         output = ""
@@ -303,6 +304,44 @@ Device settings: {self.device_type} {self.host}:{self.port}
         return super().read_channel_expect(
             pattern=pattern, timeout=timeout, re_flags=re_flags
         )
+
+    def read_channel_timing(self, delay_factor=1, timeout=10):
+        """
+        Read data on the channel based on timing delays.
+
+        This is really a network device specific behavior where we are trying to guess when we
+        are done based on:
+        1. We have read some data.
+        2. And there is no more present after some amount of waiting.
+        3. Will completely give up after timeout seconds regardless of whether there is more data
+           or not.
+        """
+        # Time to sleep in each read loop
+        loop_sleep_time = 0.01
+        final_delay = 2
+        read_timeout = time.time() + timeout
+
+        channel_data = ""
+        while True:
+            time.sleep(loop_sleep_time * delay_factor)
+            new_data = self.read_channel()
+            if new_data:
+                channel_data += new_data
+            else:
+                # Safeguard to make sure really done
+                time.sleep(final_delay * delay_factor)
+                new_data = self.read_channel()
+                if not new_data:
+                    break
+                else:
+                    channel_data += new_data
+
+            if time.time() > read_timeout:
+                # FIX: should it raise an exception or return incomplete data
+                # Probably should raise an exception and recommend they increase
+                # the timeout.
+                break
+        return channel_data
 
 
 class SerialChannel(Channel):

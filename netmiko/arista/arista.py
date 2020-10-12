@@ -29,7 +29,7 @@ class AristaBase(CiscoSSHConnection):
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
         if not pattern:
-            output = self._read_channel_timing()
+            output = self.read_channel_timing()
         else:
             output = self.read_until_pattern(pattern=pattern)
         output = output.replace("(s1)", "")

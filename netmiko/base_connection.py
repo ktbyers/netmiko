@@ -14,6 +14,7 @@ import time
 from collections import deque
 from os import path
 from threading import Lock
+import functools
 
 import paramiko
 import serial
@@ -35,6 +36,20 @@ from netmiko.utilities import (
     select_cmd_verify,
 )
 from netmiko.utilities import m_exec_time  # noqa
+
+
+def lock_channel(func):
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args, **kwargs):
+        self._lock_netmiko_session()
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always unlock the channel, even on exception.
+            self._unlock_netmiko_session()
+        return return_val
+
+    return wrapper_decorator
 
 
 class BaseConnection(object):
@@ -422,7 +437,8 @@ class BaseConnection(object):
         return False
 
     def _lock_netmiko_session(self, start=None):
-        """Try to acquire the Netmiko session lock. If not available, wait in the queue until
+        """
+        Try to acquire the Netmiko session lock. If not available, wait in the queue until
         the channel is available again.
 
         :param start: Initial start time to measure the session timeout
@@ -438,24 +454,14 @@ class BaseConnection(object):
         return True
 
     def _unlock_netmiko_session(self):
-        """
-        Release the channel at the end of the task.
-        """
+        """Release the channel at the end of the task."""
         if self._session_locker.locked():
             self._session_locker.release()
 
+    @lock_channel
     def write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel.
-
-        :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
-        """
-        self._lock_netmiko_session()
-        try:
-            self.channel.write_channel(out_data)
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
+        """Wrapper function that will write data to the Channel class with locking."""
+        self.channel.write_channel(out_data)
 
     def is_alive(self):
         """Returns a boolean flag with the state of the connection."""
@@ -489,151 +495,56 @@ class BaseConnection(object):
                 return False
         return False
 
-    def read_channel(self):
-        """Generic handler that will read all the data from a Netmiko channel with locking."""
-        output = ""
-        self._lock_netmiko_session()
-        try:
-            output = self.channel.read_channel()
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
-        return output
+    @lock_channel
+    def read_channel(self) -> str:
+        """Wrapper function that will read all the available data from the Channel with locking."""
+        return self.channel.read_channel()
 
-    @m_exec_time
-    def _read_channel_expect(self, pattern="", re_flags=0, max_loops=150):
-        """Function that reads channel until pattern is detected.
+    @lock_channel
+    def read_channel_timing(self, delay_factor: int = 1, timeout: int = None) -> str:
+        """Read data on the channel based on timing delays."""
 
-        pattern takes a regular expression.
-
-        By default pattern will be self.base_prompt
-
-        Note: this currently reads beyond pattern. In the case of SSH it reads MAX_BUFFER.
-        In the case of telnet it reads all non-blocking data.
-
-        There are dependencies here like determining whether in config_mode that are actually
-        depending on reading beyond pattern.
-
-        :param pattern: Regular expression pattern used to identify the command is done \
-        (defaults to self.base_prompt)
-        :type pattern: str (regular expression)
-
-        :param re_flags: regex flags used in conjunction with pattern to search for prompt \
-        (defaults to no flags)
-        :type re_flags: int
-
-        :param max_loops: max number of iterations to read the channel before raising exception.
-            Will default to be based upon self.timeout.
-        :type max_loops: int
-        """
-        output = ""
-        if not pattern:
-            pattern = re.escape(self.base_prompt)
-        log.debug(f"Pattern is: {pattern}")
-
-        i = 1
-        loop_delay = 0.1
-        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
-        # argument for backwards compatibility).
-        if max_loops == 150:
-            max_loops = int(self.timeout / loop_delay)
-
-        if self.protocol == "ssh":
-            try:
-                # FIX: should this locking be happening with telnet/serial?
-                self._lock_netmiko_session()
-                # FIX: need a way to adjust the read_timeout
-                output = self.channel.read_channel_expect(
-                    pattern=pattern, timeout=self.read_timeout, re_flags=re_flags
-                )
-            finally:
-                self._unlock_netmiko_session()
-
-        while i < max_loops:
-            if self.protocol == "ssh":
-                return output
-            # FIX need to migrate telnet and serial to use the Channel class
-            elif self.protocol == "telnet" or "serial":
-                output += self.read_channel()
-            if re.search(pattern, output, flags=re_flags):
-                log.debug(f"Pattern found: {pattern} {output}")
-                return output
-            time.sleep(loop_delay * self.global_delay_factor)
-            i += 1
-        raise NetmikoTimeoutException(
-            f"Timed-out reading channel, pattern not found in output: {pattern}"
+        # Don't allow delay_factor to be less than one for delay_channel_timing.
+        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor < 1:
+            delay_factor = 1
+        if timeout is None:
+            timeout = self.read_timeout
+        return self.channel.read_channel_timing(
+            delay_factor=delay_factor, timeout=timeout
         )
 
-    def _read_channel_timing(self, delay_factor=1, max_loops=150):
-        """Read data on the channel based on timing delays.
-
-        Attempt to read channel max_loops number of times. If no data this will cause a 15 second
-        delay.
-
-        Once data is encountered read channel for another two seconds (2 * delay_factor) to make
-        sure reading of channel is complete.
-
-        :param delay_factor: multiplicative factor to adjust delay when reading channel (delays
-            get multiplied by this factor)
-        :type delay_factor: int or float
-
-        :param max_loops: maximum number of loops to iterate through before returning channel data.
-            Will default to be based upon self.timeout.
-        :type max_loops: int
-        """
-        # Time to delay in each read loop
-        loop_delay = 0.1
-        final_delay = 2
-
-        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
-        # and delay_factor arguments for backwards compatibility).
-        delay_factor = self.select_delay_factor(delay_factor)
-        if delay_factor == 1 and max_loops == 150:
-            max_loops = int(self.timeout / loop_delay)
-
-        channel_data = ""
-        i = 0
-        while i <= max_loops:
-            time.sleep(loop_delay * delay_factor)
-            new_data = self.read_channel()
-            if new_data:
-                channel_data += new_data
-            else:
-                # Safeguard to make sure really done
-                time.sleep(final_delay * delay_factor)
-                new_data = self.read_channel()
-                if not new_data:
-                    break
-                else:
-                    channel_data += new_data
-            i += 1
-        return channel_data
-
-    def read_until_prompt(self, *args, **kwargs):
+    @lock_channel
+    def read_until_prompt(self, timeout: int = None, re_flags: int = 0) -> str:
         """Read channel until self.base_prompt detected. Return ALL data available."""
-        return self._read_channel_expect(*args, **kwargs)
+        if timeout is None:
+            timeout = self.read_timeout
+        pattern = self.base_prompt
+        return self.channel.read_channel_expect(
+            pattern=pattern, timeout=timeout, re_flags=re_flags
+        )
 
-    def read_until_pattern(self, *args, **kwargs):
+    @lock_channel
+    def read_until_pattern(
+        self, pattern: str, timeout: int = None, re_flags: int = 0
+    ) -> str:
         """Read channel until pattern detected. Return ALL data available."""
-        return self._read_channel_expect(*args, **kwargs)
+        if timeout is None:
+            timeout = self.read_timeout
+        return self.channel.read_channel_expect(
+            pattern=pattern, timeout=timeout, re_flags=re_flags
+        )
 
-    def read_until_prompt_or_pattern(self, pattern="", re_flags=0):
-        """Read until either self.base_prompt or pattern is detected.
-
-        :param pattern: the pattern used to identify that the output is complete (i.e. stop \
-        reading when pattern is detected). pattern will be combined with self.base_prompt to \
-        terminate output reading when the first of self.base_prompt or pattern is detected.
-        :type pattern: regular expression string
-
-        :param re_flags: regex flags used in conjunction with pattern to search for prompt \
-        (defaults to no flags)
-        :type re_flags: int
-
-        """
-        combined_pattern = re.escape(self.base_prompt)
-        if pattern:
-            combined_pattern = r"({}|{})".format(combined_pattern, pattern)
-        return self._read_channel_expect(combined_pattern, re_flags=re_flags)
+    @lock_channel
+    def read_until_prompt_or_pattern(
+        self, pattern: str, timeout: int = None, re_flags: int = 0
+    ) -> str:
+        """Read until either self.base_prompt or pattern is detected."""
+        prompt = re.escape(self.base_prompt)
+        combined_pattern = r"({}|{})".format(prompt, pattern)
+        return self.channel.read_channel_expect(
+            pattern=combined_pattern, timeout=timeout, re_flags=re_flags
+        )
 
     def serial_login(
         self,
@@ -895,7 +806,7 @@ class BaseConnection(object):
         time.sleep(main_delay * 10)
         new_data = ""
         while i <= count:
-            new_data += self._read_channel_timing()
+            new_data += self.read_channel_timing()
             if new_data and pattern:
                 if re.search(pattern, new_data):
                     break
@@ -1178,7 +1089,7 @@ class BaseConnection(object):
 
         log.debug(f"send_command_timing current output: {output}")
 
-        output += self._read_channel_timing(
+        output += self.read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
         )
         output = self._sanitize_output(
@@ -1574,7 +1485,7 @@ class BaseConnection(object):
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
         if not pattern:
-            output = self._read_channel_timing()
+            output = self.read_channel_timing()
         else:
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
@@ -1714,7 +1625,7 @@ class BaseConnection(object):
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
-            output += self._read_channel_timing(
+            output += self.read_channel_timing(
                 delay_factor=delay_factor, max_loops=max_loops
             )
         elif not cmd_verify:
@@ -1722,7 +1633,7 @@ class BaseConnection(object):
                 self.write_channel(self.normalize_cmd(cmd))
                 time.sleep(delay_factor * 0.05)
             # Gather output
-            output += self._read_channel_timing(
+            output += self.read_channel_timing(
                 delay_factor=delay_factor, max_loops=max_loops
             )
         else:
