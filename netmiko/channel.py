@@ -16,6 +16,14 @@ from netmiko.ssh_exception import (
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.utilities import write_bytes, strip_ansi_escape_codes
 
+def ansi_strip(func):
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args, **kwargs):
+        output = func(self, *args, **kwargs)
+        output = strip_ansi_escape_codes(output)
+        return output
+
+    return wrapper_decorator
 
 def log_reads(func):
     """Handle both session_log and log of reads."""
@@ -144,11 +152,11 @@ class TelnetChannel(Channel):
         """
         return self.remote_conn.read_eager().decode("utf-8", "ignore")
 
+    @ansi_strip
     @log_reads
     def read_channel(self):
         """Read all of the available data from the telnet channel. No sleeps"""
         output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
-        output = strip_ansi_escape_codes(output)
         return output
 
     def read_channel_expect(self, pattern, timeout=10, re_flags=0):
@@ -277,6 +285,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output += outbuf.decode("utf-8", "ignore")
         return output
 
+    @ansi_strip
     def read_channel(self):
         """Read all of the available data from the SSH channel. No sleeps."""
         output = ""
@@ -285,7 +294,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output += new_output
             if new_output == "":
                 break
-        output = strip_ansi_escape_codes(output)
         return output
 
     def read_channel_expect(self, pattern, timeout=10, re_flags=0):
@@ -318,6 +326,7 @@ class SerialChannel(Channel):
         # FIX: needs implemented
         pass
 
+    @ansi_strip
     @log_reads
     def read_channel(self):
         """Read all of the available data from the serial channel."""
@@ -326,8 +335,6 @@ class SerialChannel(Channel):
             output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
                 "utf-8", "ignore"
             )
-
-        output = strip_ansi_escape_codes(output)
         return output
 
     def read_channel_expect(self, pattern, timeout=10, re_flags=0):
