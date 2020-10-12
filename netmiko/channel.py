@@ -16,6 +16,7 @@ from netmiko.ssh_exception import (
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.utilities import write_bytes, strip_ansi_escape_codes
 
+
 def ansi_strip(func):
     @functools.wraps(func)
     def wrapper_decorator(self, *args, **kwargs):
@@ -24,6 +25,7 @@ def ansi_strip(func):
         return output
 
     return wrapper_decorator
+
 
 def log_reads(func):
     """Handle both session_log and log of reads."""
