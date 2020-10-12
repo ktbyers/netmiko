@@ -72,14 +72,41 @@ class Channel(ABC):
         pass
 
     @abstractmethod
-    def read_channel(self) -> str:
+    def read_buffer(self) -> str:
         pass
 
     @abstractmethod
+    def read_channel(self) -> str:
+        pass
+
     def read_channel_expect(
         self, pattern: str, timeout: int = 10, re_flags: int = 0
     ) -> str:
-        pass
+        """Read until pattern or timeout."""
+
+        loop_sleep_time = 0.01
+        read_timeout = time.time() + timeout
+        output = ""
+        while True:
+            output += self.read_buffer()
+            if re.search(pattern, output, flags=re_flags):
+                break
+            elif time.time() > read_timeout:
+                output = strip_ansi_escape_codes(output)
+                msg = f"""
+
+Timed-out reading channel, pattern not found in output: {pattern}
+Data retrieved before timeout:\n\n{output}
+
+"""
+                raise NetmikoTimeoutException(msg)
+            else:
+                # Delay and then repeat the loop
+                time.sleep(loop_sleep_time)
+
+        output = strip_ansi_escape_codes(output)
+        log.debug(f"Pattern found: {pattern} {output}")
+        return output
 
 
 class TelnetChannel(Channel):
@@ -104,7 +131,7 @@ class TelnetChannel(Channel):
         self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
 
     @log_reads
-    def _read_buffer(self):
+    def read_buffer(self):
         """
         Single read of available data. No sleeps.
 
@@ -125,47 +152,10 @@ class TelnetChannel(Channel):
         return output
 
     def read_channel_expect(self, pattern, timeout=10, re_flags=0):
-
-        loop_sleep_time = 0.01
-        read_timeout = time.time() + timeout
-        output = ""
-        while True:
-            output += self._read_buffer()
-            if re.search(pattern, output, flags=re_flags):
-                break
-            elif time.time() > read_timeout:
-                output = strip_ansi_escape_codes(output)
-                msg = f"""
-
-Timed-out reading channel, pattern not found in output: {pattern}
-Data retrieved before timeout:\n\n{output}
-
-"""
-                raise NetmikoTimeoutException(msg)
-            else:
-                # Delay and then repeat the loop
-                time.sleep(loop_sleep_time)
-
-        output = strip_ansi_escape_codes(output)
-        log.debug(f"Pattern found: {pattern} {output}")
-        return output
-
-
-class SSHChannel(Channel):
-    def __init__(
-        self, ssh_params, ssh_hostkey_args=None, encoding="ascii", session_log=None
-    ):
-        self.ssh_params = ssh_params
-        self.blocking_timeout = ssh_params.pop("blocking_timeout", 20)
-        self.keepalive = ssh_params.pop("keepalive", 0)
-        if ssh_hostkey_args is None:
-            self.ssh_hostkey_args = {}
-        else:
-            self.ssh_hostkey_args = ssh_hostkey_args
-        self.protocol = "ssh"
-        self.remote_conn = None
-        self.session_log = session_log
-        pass
+        """Read until pattern or timeout."""
+        return super().read_channel_expect(
+            pattern=pattern, timeout=timeout, re_flags=re_flags
+        )
 
 
 class SSHChannel(Channel):
@@ -277,7 +267,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
     @log_reads
-    def _read_buffer(self):
+    def read_buffer(self):
         """Single read of available data. No sleeps."""
         output = ""
         if self.remote_conn.recv_ready():
@@ -291,39 +281,18 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """Read all of the available data from the SSH channel. No sleeps."""
         output = ""
         while True:
-            new_output = self._read_buffer()
+            new_output = self.read_buffer()
             output += new_output
-            if new_output is "":
+            if new_output == "":
                 break
         output = strip_ansi_escape_codes(output)
         return output
 
     def read_channel_expect(self, pattern, timeout=10, re_flags=0):
         """Read until pattern or timeout."""
-
-        loop_sleep_time = 0.01
-        read_timeout = time.time() + timeout
-        output = ""
-        while True:
-            output += self._read_buffer()
-            if re.search(pattern, output, flags=re_flags):
-                break
-            elif time.time() > read_timeout:
-                output = strip_ansi_escape_codes(output)
-                msg = f"""
-
-Timed-out reading channel, pattern not found in output: {pattern}
-Data retrieved before timeout:\n\n{output}
-
-"""
-                raise NetmikoTimeoutException(msg)
-            else:
-                # Delay and then repeat the loop
-                time.sleep(loop_sleep_time)
-
-        output = strip_ansi_escape_codes(output)
-        log.debug(f"Pattern found: {pattern} {output}")
-        return output
+        return super().read_channel_expect(
+            pattern=pattern, timeout=timeout, re_flags=re_flags
+        )
 
 
 class SerialChannel(Channel):
@@ -345,6 +314,10 @@ class SerialChannel(Channel):
         self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
         self.remote_conn.flush()
 
+    def read_buffer(self):
+        # FIX: needs implemented
+        pass
+
     @log_reads
     def read_channel(self):
         """Read all of the available data from the serial channel."""
@@ -357,8 +330,6 @@ class SerialChannel(Channel):
         output = strip_ansi_escape_codes(output)
         return output
 
-    def read_channel_all(self):
-        pass
-
     def read_channel_expect(self, pattern, timeout=10, re_flags=0):
+        # FIX: needs implemented
         pass
