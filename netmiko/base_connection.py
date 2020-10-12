@@ -463,38 +463,6 @@ class BaseConnection(object):
         """Wrapper function that will write data to the Channel class with locking."""
         self.channel.write_channel(out_data)
 
-    def is_alive(self):
-        """Returns a boolean flag with the state of the connection."""
-        # FIX: move to channel.py and wrap i.e. call self.channel.is_alive()
-        null = chr(0)
-        if self.remote_conn is None:
-            log.error("Connection is not initialised, is_alive returns False")
-            return False
-        if self.protocol == "telnet":
-            try:
-                # Try sending IAC + NOP (IAC is telnet way of sending command)
-                # IAC = Interpret as Command; it comes before the NOP.
-                log.debug("Sending IAC + NOP")
-                # Need to send multiple times to test connection
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                return True
-            except AttributeError:
-                return False
-        else:
-            # SSH
-            try:
-                # Try sending ASCII null byte to maintain the connection alive
-                log.debug("Sending the NULL byte")
-                self.write_channel(null)
-                return self.remote_conn.transport.is_active()
-            except (socket.error, EOFError):
-                log.error("Unable to send", exc_info=True)
-                # If unable to send, we can tell for sure that the connection is unusable
-                return False
-        return False
-
     @lock_channel
     def read_channel(self) -> str:
         """Wrapper function that will read all the available data from the Channel with locking."""
@@ -546,6 +514,38 @@ class BaseConnection(object):
             pattern=combined_pattern, timeout=timeout, re_flags=re_flags
         )
 
+    def is_alive(self):
+        """Returns a boolean flag with the state of the connection."""
+        # FIX: move to channel.py and wrap i.e. call self.channel.is_alive()
+        null = chr(0)
+        if self.remote_conn is None:
+            log.error("Connection is not initialised, is_alive returns False")
+            return False
+        if self.protocol == "telnet":
+            try:
+                # Try sending IAC + NOP (IAC is telnet way of sending command)
+                # IAC = Interpret as Command; it comes before the NOP.
+                log.debug("Sending IAC + NOP")
+                # Need to send multiple times to test connection
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                return True
+            except AttributeError:
+                return False
+        else:
+            # SSH
+            try:
+                # Try sending ASCII null byte to maintain the connection alive
+                log.debug("Sending the NULL byte")
+                self.write_channel(null)
+                return self.remote_conn.transport.is_active()
+            except (socket.error, EOFError):
+                log.error("Unable to send", exc_info=True)
+                # If unable to send, we can tell for sure that the connection is unusable
+                return False
+        return False
+
     def serial_login(
         self,
         pri_prompt_terminator=r"#\s*$",
@@ -555,6 +555,8 @@ class BaseConnection(object):
         delay_factor=1,
         max_loops=20,
     ):
+        # FIX: move to channel.py or somewhere else. Need to think about this and
+        # telnet_login how they should be structured (too much code duplication).
         self.telnet_login(
             pri_prompt_terminator,
             alt_prompt_terminator,
@@ -590,9 +592,10 @@ class BaseConnection(object):
         :param max_loops: Controls the wait time in conjunction with the delay_factor
         (default: 20)
         """
+        # FIX: move to channel.py or somewhere else. Need to think about this and
+        # telnet_login how they should be structured (too much code duplication).
         delay_factor = self.select_delay_factor(delay_factor)
 
-        # FIX: Move to channel.py
         # FIX: Cleanup in future versions of Netmiko
         if delay_factor < 1:
             if not self._legacy_mode and self.fast_cli:
@@ -677,11 +680,9 @@ class BaseConnection(object):
         early on in the session.
 
         In general, it should include:
-        self._test_channel_read()
-        self.set_base_prompt()
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        self.set_terminal_width()
-        self.clear_buffer()
+        self.set_base_prompt()
         """
         self._test_channel_read()
         self.set_base_prompt()
@@ -698,6 +699,9 @@ class BaseConnection(object):
         :param dict_arg: Dictionary of SSH connection parameters
         :type dict_arg: dict
         """
+        # FIX: move to channel.py?
+        # might need to stay here given how we are passing in a dictionary of arguments
+        # to channel.py
         connect_dict = dict_arg.copy()
 
         # Use SSHConfig to generate source content.
@@ -793,6 +797,8 @@ class BaseConnection(object):
         :type pattern: str
         """
 
+        # FIX: move to channel.py and refactor?
+
         def _increment_delay(main_delay, increment=1.1, maximum=8):
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
@@ -833,6 +839,9 @@ class BaseConnection(object):
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
+
+        # FIX: what to do about this? Can global_delay_factor completely go away
+        # and only be left with a delay_factor to send_command_timing?
         if self.fast_cli:
             if delay_factor and delay_factor <= self.global_delay_factor:
                 return delay_factor
@@ -859,6 +868,10 @@ class BaseConnection(object):
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
+        # FIX: NetworkDevice behavior should be stubbed out in ABC.
+        # Should consider writing some common behavior that is more general than
+        # disable_paging that could be used by set_terminal_width + disable_paging
+        # + others.
         delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         log.debug("In disable_paging")
@@ -889,6 +902,7 @@ class BaseConnection(object):
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
+        # FIX: same as disable_paging (essentially)
         if not command:
             return ""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -929,6 +943,7 @@ class BaseConnection(object):
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
+        # FIX: NetworkDevice behavior
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
@@ -942,6 +957,8 @@ class BaseConnection(object):
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
         """
+        # FIX: NetworkDevice behavior.
+        # Not sure what to do about this / if anything.
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
@@ -978,6 +995,8 @@ class BaseConnection(object):
 
     def clear_buffer(self, backoff=True):
         """Read any data available in the channel."""
+        # FIX: Move to channel.py. Can't we just call read_channel() and be done with it.
+        # This is clear_buffer, plus delay with a backoff if there is more data present.
         sleep_time = 0.1 * self.global_delay_factor
         for _ in range(10):
             time.sleep(sleep_time)
@@ -1052,6 +1071,9 @@ class BaseConnection(object):
         :param cmd_echo: Deprecated (use cmd_verify instead)
         :type cmd_echo: bool
         """
+
+        # FIX: NetworkDevice class. Maybe just move the low-level read_channel_timing into 
+        # here and completely get rid of that from the channel.py class.
 
         # For compatibility; remove cmd_echo in Netmiko 4.x.x
         if cmd_echo is not None:
@@ -1132,6 +1154,7 @@ class BaseConnection(object):
         :param a_string: Returned string from device
         :type a_string: str
         """
+        # FIX: Output/response processing in NetworkDevice class
         response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
         if self.base_prompt in last_line:
@@ -1152,6 +1175,7 @@ class BaseConnection(object):
         and the first_line_processed is a flag indicating that we have handled the
         first line.
         """
+        # FIX: have to look into this...
         try:
             # First line is the echo line containing the command. In certain situations
             # it gets repainted and needs filtered
@@ -1231,6 +1255,11 @@ class BaseConnection(object):
         :param cmd_verify: Verify command echo before proceeding (default: True).
         :type cmd_verify: bool
         """
+
+        # FIX: NetworkDevice class. Should rationalize the behavior.
+        # Probably should move parts of this into other functions (like all of the
+        # structured data handling)
+
         # Time to delay in each read loop
         loop_delay = 0.2
 
@@ -1361,6 +1390,7 @@ class BaseConnection(object):
         :param output: Output obtained from a remote network device.
         :type output: str
         """
+        # FIX: output/response handling from devices
         backspace_char = "\x08"
         return output.replace(backspace_char, "")
 
@@ -1376,6 +1406,7 @@ class BaseConnection(object):
         :param output: The returned output as a result of the command string sent to the device
         :type output: str
         """
+        # FIX: output/response handling from devices
         backspace_char = "\x08"
 
         # Check for line wrap (remove backspaces)
@@ -1400,6 +1431,7 @@ class BaseConnection(object):
             i.e. output returned from device, or a device prompt
         :type a_string: str
         """
+        # FIX: output/response handling from devices
         newline = re.compile("(\r\r\r\n|\r\r\n|\r\n|\n\r)")
         a_string = newline.sub(self.RESPONSE_RETURN, a_string)
         if self.RESPONSE_RETURN == "\n":
@@ -1414,6 +1446,7 @@ class BaseConnection(object):
         :param command: Command that may require line feed to be normalized
         :type command: str
         """
+        # FIX: write_channel preprocessing for devices
         command = command.rstrip()
         command += self.RETURN
         return command
@@ -1424,6 +1457,7 @@ class BaseConnection(object):
         :param check_string: Identification of privilege mode from device
         :type check_string: str
         """
+        # FIX: NetworkDevice class
         self.write_channel(self.RETURN)
         output = self.read_until_prompt()
         return check_string in output
@@ -1440,6 +1474,7 @@ class BaseConnection(object):
         :param re_flags: Regular expression flags used in conjunction with pattern
         :type re_flags: int
         """
+        # FIX: NetworkDevice class
         output = ""
         msg = (
             "Failed to enter enable mode. Please ensure you pass "
@@ -1465,6 +1500,7 @@ class BaseConnection(object):
         :param exit_command: Command that exits the session from privileged mode
         :type exit_command: str
         """
+        # FIX: NetworkDevice class
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
@@ -1482,6 +1518,7 @@ class BaseConnection(object):
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
         """
+        # FIX: NetworkDevice class
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
         if not pattern:
@@ -1502,6 +1539,7 @@ class BaseConnection(object):
         :param re_flags: Regular expression flags
         :type re_flags: RegexFlag
         """
+        # FIX: NetworkDevice class
         output = ""
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
@@ -1525,6 +1563,7 @@ class BaseConnection(object):
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
         """
+        # FIX: NetworkDevice class
         output = ""
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
@@ -1555,6 +1594,7 @@ class BaseConnection(object):
         :param kwargs: params to be sent to send_config_set method
         :type kwargs: dict
         """
+        # FIX: NetworkDevice class
         with io.open(config_file, "rt", encoding="utf-8") as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
@@ -1606,6 +1646,7 @@ class BaseConnection(object):
         :type exit_config_mode: bool
 
         """
+        # FIX: NetworkDevice class
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
             return ""
@@ -1661,15 +1702,18 @@ class BaseConnection(object):
 
     def cleanup(self, command=""):
         """Logout of the session on the network device plus any additional cleanup."""
+        # FIX: NetworkDevice class
         pass
 
     def paramiko_cleanup(self):
         """Cleanup Paramiko to try to gracefully handle SSH session ending."""
+        # FIX: Where should this go? Is this channel.py or NetworkDevice?
         self.remote_conn_pre.close()
         del self.remote_conn_pre
 
     def disconnect(self):
         """Try to gracefully close the session."""
+        # FIX: NetworkDevice class
         try:
             self.cleanup()
             if self.protocol == "ssh":
@@ -1689,9 +1733,11 @@ class BaseConnection(object):
 
     def commit(self):
         """Commit method for platforms that support this."""
+        # FIX: NetworkDevice class
         raise AttributeError("Network device does not support 'commit()' method")
 
     def save_config(self, *args, **kwargs):
+        # FIX: NetworkDevice class
         """Not Implemented"""
         raise NotImplementedError
 
