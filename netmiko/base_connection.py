@@ -494,7 +494,7 @@ class BaseConnection(object):
         output = ""
         self._lock_netmiko_session()
         try:
-            output = self.channel.read_channel()
+            output = self.channel.read_channel_all()
         finally:
             # Always unlock the SSH channel, even on exception.
             self._unlock_netmiko_session()

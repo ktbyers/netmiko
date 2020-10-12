@@ -104,11 +104,68 @@ class TelnetChannel(Channel):
         self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
 
     @log_reads
+    def _read_buffer(self):
+        """
+        Single read of available data. No sleeps.
+
+        From telnetlib documenation on `read_eager`:
+        ---
+        Read readily available data.
+
+        Raise EOFError if connection closed and no cooked data available. Return '' if no cooked
+        data available otherwise. Do not block unless in the midst of an IAC sequence.
+        """
+        return self.remote_conn.read_eager().decode("utf-8", "ignore")
+
+    @log_reads
     def read_channel(self):
-        """Read all of the available data from the telnet channel."""
+        """Read all of the available data from the telnet channel. No sleeps"""
         output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
         output = strip_ansi_escape_codes(output)
         return output
+
+    def read_channel_expect(self, pattern, timeout=10, re_flags=0):
+
+        loop_sleep_time = 0.01
+        read_timeout = time.time() + timeout
+        output = ""
+        while True:
+            output += self._read_buffer()
+            if re.search(pattern, output, flags=re_flags):
+                break
+            elif time.time() > read_timeout:
+                output = strip_ansi_escape_codes(output)
+                msg = f"""
+
+Timed-out reading channel, pattern not found in output: {pattern}
+Data retrieved before timeout:\n\n{output}
+
+"""
+                raise NetmikoTimeoutException(msg)
+            else:
+                # Delay and then repeat the loop
+                time.sleep(loop_sleep_time)
+
+        output = strip_ansi_escape_codes(output)
+        log.debug(f"Pattern found: {pattern} {output}")
+        return output
+
+
+class SSHChannel(Channel):
+    def __init__(
+        self, ssh_params, ssh_hostkey_args=None, encoding="ascii", session_log=None
+    ):
+        self.ssh_params = ssh_params
+        self.blocking_timeout = ssh_params.pop("blocking_timeout", 20)
+        self.keepalive = ssh_params.pop("keepalive", 0)
+        if ssh_hostkey_args is None:
+            self.ssh_hostkey_args = {}
+        else:
+            self.ssh_hostkey_args = ssh_hostkey_args
+        self.protocol = "ssh"
+        self.remote_conn = None
+        self.session_log = session_log
+        pass
 
 
 class SSHChannel(Channel):
@@ -220,22 +277,27 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
     @log_reads
+    def _read_buffer(self):
+        """Single read of available data. No sleeps."""
+        output = ""
+        if self.remote_conn.recv_ready():
+            outbuf = self.remote_conn.recv(MAX_BUFFER)
+            if len(outbuf) == 0:
+                raise EOFError("Channel stream closed by remote device.")
+            output += outbuf.decode("utf-8", "ignore")
+        return output
+
     def read_channel(self):
-        """Read all of the available data from the SSH channel."""
+        """Read all of the available data from the SSH channel. No sleeps."""
         output = ""
         while True:
-            if self.remote_conn.recv_ready():
-                outbuf = self.remote_conn.recv(MAX_BUFFER)
-                if len(outbuf) == 0:
-                    raise EOFError("Channel stream closed by remote device.")
-                output += outbuf.decode("utf-8", "ignore")
-            else:
+            new_output = self._read_buffer()
+            output += new_output
+            if new_output is "":
                 break
-
         output = strip_ansi_escape_codes(output)
         return output
 
-    @log_reads
     def read_channel_expect(self, pattern, timeout=10, re_flags=0):
         """Read until pattern or timeout."""
 
@@ -243,26 +305,21 @@ Device settings: {self.device_type} {self.host}:{self.port}
         read_timeout = time.time() + timeout
         output = ""
         while True:
-            if self.remote_conn.recv_ready():
-                outbuf = self.remote_conn.recv(MAX_BUFFER)
-                if len(outbuf) == 0:
-                    raise EOFError("Channel stream closed by remote device.")
-                output += outbuf.decode("utf-8", "ignore")
-            else:
-                if re.search(pattern, output, flags=re_flags):
-                    break
-                elif time.time() > read_timeout:
-                    output = strip_ansi_escape_codes(output)
-                    msg = f"""
+            output += self._read_buffer()
+            if re.search(pattern, output, flags=re_flags):
+                break
+            elif time.time() > read_timeout:
+                output = strip_ansi_escape_codes(output)
+                msg = f"""
 
 Timed-out reading channel, pattern not found in output: {pattern}
 Data retrieved before timeout:\n\n{output}
 
 """
-                    raise NetmikoTimeoutException(msg)
-                else:
-                    # Delay and then repeat the loop
-                    time.sleep(loop_sleep_time)
+                raise NetmikoTimeoutException(msg)
+            else:
+                # Delay and then repeat the loop
+                time.sleep(loop_sleep_time)
 
         output = strip_ansi_escape_codes(output)
         log.debug(f"Pattern found: {pattern} {output}")
@@ -299,3 +356,9 @@ class SerialChannel(Channel):
 
         output = strip_ansi_escape_codes(output)
         return output
+
+    def read_channel_all(self):
+        pass
+
+    def read_channel_expect(self, pattern, timeout=10, re_flags=0):
+        pass
