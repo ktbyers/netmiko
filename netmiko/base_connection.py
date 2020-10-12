@@ -15,6 +15,8 @@ from collections import deque
 from os import path
 from threading import Lock
 import functools
+from abc import ABC, abstractmethod
+from typing import Optional
 
 import paramiko
 import serial
@@ -51,6 +53,55 @@ def lock_channel(func):
 
     return wrapper_decorator
 
+class NetworkDevice(ABC):
+    
+    @abstractmethod
+    def __init__(self) -> None:
+        pass
+
+    @abstractmethod
+    def disable_paging(
+        self, command: str, delay_factor: int = 1, cmd_verify: bool = True, pattern: Optional[str] = None
+    ) -> str:
+        pass
+
+    @abstractmethod
+    def set_terminal_width(
+        self, command: str, delay_factor: int = 1, cmd_verify: bool = False, pattern: Optional[str] = None
+    ) -> str:
+        pass
+
+    @abstractmethod
+    def set_base_prompt(self, pri_prompt_terminator: str, alt_prompt_terminator: str, delay_factor: int = 1) -> str:
+        pass
+
+    @abstractmethod
+    def find_prompt(self, delay_factor: int = 1) -> str:
+        pass
+
+    def clear_buffer(self, backoff=True):
+    def send_command_timing(
+    def strip_prompt(self, a_string):
+    def _first_line_handler(self, data, search_pattern):
+    def send_command(
+    def send_command_expect(self, *args, **kwargs):
+    def strip_backspaces(output):
+    def strip_command(self, command_string, output):
+    def normalize_linefeeds(self, a_string):
+    def normalize_cmd(self, command):
+    def check_enable_mode(self, check_string=""):
+    def enable(self, cmd="", pattern="ssword", re_flags=re.IGNORECASE):
+    def exit_enable_mode(self, exit_command=""):
+    def check_config_mode(self, check_string="", pattern=""):
+    def config_mode(self, config_command="", pattern="", re_flags=0):
+    def exit_config_mode(self, exit_config="", pattern=""):
+    def send_config_from_file(self, config_file=None, **kwargs):
+    def send_config_set(
+    def cleanup(self, command=""):
+    def paramiko_cleanup(self):
+    def disconnect(self):
+    def commit(self):
+    def save_config(self, *args, **kwargs):
 
 class BaseConnection(object):
     """
@@ -515,36 +566,8 @@ class BaseConnection(object):
         )
 
     def is_alive(self):
-        """Returns a boolean flag with the state of the connection."""
-        # FIX: move to channel.py and wrap i.e. call self.channel.is_alive()
-        null = chr(0)
-        if self.remote_conn is None:
-            log.error("Connection is not initialised, is_alive returns False")
-            return False
-        if self.protocol == "telnet":
-            try:
-                # Try sending IAC + NOP (IAC is telnet way of sending command)
-                # IAC = Interpret as Command; it comes before the NOP.
-                log.debug("Sending IAC + NOP")
-                # Need to send multiple times to test connection
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                return True
-            except AttributeError:
-                return False
-        else:
-            # SSH
-            try:
-                # Try sending ASCII null byte to maintain the connection alive
-                log.debug("Sending the NULL byte")
-                self.write_channel(null)
-                return self.remote_conn.transport.is_active()
-            except (socket.error, EOFError):
-                log.error("Unable to send", exc_info=True)
-                # If unable to send, we can tell for sure that the connection is unusable
-                return False
-        return False
+        """Wrapper function that the state of the communication channel."""
+        return self.channel.is_alive()
 
     def serial_login(
         self,

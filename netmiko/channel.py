@@ -123,6 +123,10 @@ Data retrieved before timeout:\n\n{output}
     def read_channel_timing(self, delay_factor: int, timeout: int) -> str:
         pass
 
+    @abstractmethod
+    def is_alive(self) -> bool:
+        pass
+
 
 class TelnetChannel(Channel):
     def __init__(self, encoding: str = "ascii", session_log=None) -> None:
@@ -176,6 +180,26 @@ class TelnetChannel(Channel):
         # FIX: needs implemented
         pass
 
+    def is_alive(self) -> bool:
+        """Returns a boolean flag with the state of the connection."""
+
+        if self.remote_conn is None:
+            log.error("Connection is not initialised, is_alive returns False")
+            return False
+
+        try:
+            # Try sending IAC + NOP (IAC is telnet way of sending command)
+            # IAC = Interpret as Command; it comes before the NOP.
+            log.debug("Sending IAC + NOP")
+            # Need to send multiple times to test connection
+            self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+            self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+            self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+            return True
+        except AttributeError:
+            return False
+
+        return False
 
 class SSHChannel(Channel):
     def __init__(
@@ -351,6 +375,25 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 break
         return channel_data
 
+    def is_alive(self) -> bool:
+        """Returns a boolean flag with the state of the connection."""
+        null = chr(0)
+        if self.remote_conn is None:
+            log.error("Connection is not initialised, is_alive returns False")
+            return False
+
+        try:
+            # Try sending ASCII null byte to maintain the connection alive
+            log.debug("Sending the NULL byte")
+            self.write_channel(null)
+            return self.remote_conn.transport.is_active()
+        except (socket.error, EOFError):
+            log.error("Unable to send", exc_info=True)
+            # If unable to send, we can tell for sure that the connection is unusable
+            return False
+
+        return False
+
 
 class SerialChannel(Channel):
     def __init__(self, encoding="ascii", session_log=None):
@@ -391,5 +434,9 @@ class SerialChannel(Channel):
         pass
 
     def read_channel_timing(self, delay_factor: int, timeout: int) -> str:
+        # FIX: needs implemented
+        pass
+
+    def is_alive(self) -> bool:
         # FIX: needs implemented
         pass
