@@ -1111,8 +1111,9 @@ class BaseConnection(object):
 
         log.debug(f"send_command_timing current output: {output}")
 
+        # FIX: need to rationalized max_loops behavior (used to pass in here as an argument).
         output += self.read_channel_timing(
-            delay_factor=delay_factor, max_loops=max_loops
+            delay_factor=delay_factor
         )
         output = self._sanitize_output(
             output,
