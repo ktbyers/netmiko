@@ -201,6 +201,7 @@ class TelnetChannel(Channel):
 
         return False
 
+
 class SSHChannel(Channel):
     def __init__(
         self, ssh_params, ssh_hostkey_args=None, encoding="ascii", session_log=None

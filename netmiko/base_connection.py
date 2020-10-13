@@ -8,8 +8,6 @@ Also defines methods that should generally be supported by child classes
 """
 import io
 import re
-import socket
-import telnetlib
 import time
 from collections import deque
 from os import path
@@ -53,55 +51,206 @@ def lock_channel(func):
 
     return wrapper_decorator
 
+
 class NetworkDevice(ABC):
-    
     @abstractmethod
     def __init__(self) -> None:
         pass
 
+    # Modify device behavior
     @abstractmethod
     def disable_paging(
-        self, command: str, delay_factor: int = 1, cmd_verify: bool = True, pattern: Optional[str] = None
+        self,
+        command: str,
+        delay_factor: int = 1,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
     ) -> str:
         pass
 
+    # Modify device behavior
     @abstractmethod
     def set_terminal_width(
-        self, command: str, delay_factor: int = 1, cmd_verify: bool = False, pattern: Optional[str] = None
+        self,
+        command: str,
+        delay_factor: int = 1,
+        cmd_verify: bool = False,
+        pattern: Optional[str] = None,
     ) -> str:
         pass
 
+    # Retrieve characteristic of device
     @abstractmethod
-    def set_base_prompt(self, pri_prompt_terminator: str, alt_prompt_terminator: str, delay_factor: int = 1) -> str:
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str,
+        alt_prompt_terminator: str,
+        delay_factor: int = 1,
+    ) -> str:
         pass
 
+    # Retrieve characteristic of device
     @abstractmethod
     def find_prompt(self, delay_factor: int = 1) -> str:
         pass
 
-    def clear_buffer(self, backoff=True):
+    # Modify device (what is waiting to be read)
+    @abstractmethod
+    def clear_buffer(self, backoff: bool = True) -> None:
+        pass
+
+    # Read Device
+    @abstractmethod
     def send_command_timing(
-    def strip_prompt(self, a_string):
-    def _first_line_handler(self, data, search_pattern):
+        self,
+        command_string: str,
+        delay_factor: int = 1,
+        max_loops: int = 150,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = False,
+        cmd_echo: Optional[bool] = None,
+    ) -> str:
+        pass
+
+    # Output processing
+    @abstractmethod
+    def strip_prompt(self, a_string) -> str:
+        pass
+
+    # Read Device
+    @abstractmethod
     def send_command(
-    def send_command_expect(self, *args, **kwargs):
-    def strip_backspaces(output):
-    def strip_command(self, command_string, output):
-    def normalize_linefeeds(self, a_string):
-    def normalize_cmd(self, command):
-    def check_enable_mode(self, check_string=""):
-    def enable(self, cmd="", pattern="ssword", re_flags=re.IGNORECASE):
-    def exit_enable_mode(self, exit_command=""):
-    def check_config_mode(self, check_string="", pattern=""):
-    def config_mode(self, config_command="", pattern="", re_flags=0):
-    def exit_config_mode(self, exit_config="", pattern=""):
-    def send_config_from_file(self, config_file=None, **kwargs):
+        self,
+        command_string: str,
+        expect_string: Optional[str] = None,
+        delay_factor: int = 1,
+        max_loops: int = 500,
+        auto_find_prompt: bool = True,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = True,
+    ) -> str:
+        pass
+
+    # Read device
+    @abstractmethod
+    def send_command_expect(self, *args, **kwargs) -> str:
+        pass
+
+    # Output processing
+    @staticmethod
+    @abstractmethod
+    def strip_backspaces(output: str) -> str:
+        pass
+
+    # Output processing
+    @abstractmethod
+    def strip_command(self, command_string: str, output: str) -> str:
+        pass
+
+    # Output processing
+    @abstractmethod
+    def normalize_linefeeds(self, a_string: str) -> str:
+        pass
+
+    # Write preprocessing
+    @abstractmethod
+    def normalize_cmd(self, command: str) -> str:
+        pass
+
+    # State verification
+    @abstractmethod
+    def check_enable_mode(self, check_string: str = "") -> bool:
+        pass
+
+    # State change
+    @abstractmethod
+    def enable(
+        self, cmd: str = "", pattern: str = "ssword", re_flags: int = re.IGNORECASE
+    ) -> str:
+        pass
+
+    # State change
+    @abstractmethod
+    def exit_enable_mode(self, exit_command: str = "") -> str:
+        pass
+
+    # State verification
+    @abstractmethod
+    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
+        pass
+
+    # State change
+    @abstractmethod
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        pass
+
+    # State change
+    @abstractmethod
+    def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
+        pass
+
+    # Config Change
+    @abstractmethod
+    def send_config_from_file(self, config_file: Optional[str] = None, **kwargs) -> str:
+        pass
+
+    # Config Change
+    @abstractmethod
     def send_config_set(
-    def cleanup(self, command=""):
-    def paramiko_cleanup(self):
-    def disconnect(self):
-    def commit(self):
-    def save_config(self, *args, **kwargs):
+        self,
+        config_commands: Optional[str] = None,
+        exit_config_mode: bool = True,
+        delay_factor: int = 1,
+        max_loops: int = 150,
+        strip_prompt: bool = False,
+        strip_command: bool = False,
+        config_mode_command: Optional[str] = None,
+        cmd_verify: bool = True,
+        enter_config_mode: bool = True,
+    ) -> str:
+        pass
+
+    # Cleanup method
+    @abstractmethod
+    def cleanup(self, command: str = "") -> None:
+        pass
+
+    # Should be moved to channel.py
+    @abstractmethod
+    def paramiko_cleanup(self) -> None:
+        pass
+
+    # Should be movied to channel.py and a wrapper func
+    @abstractmethod
+    def disconnect(self) -> None:
+        pass
+
+    # Modify State / Apply Config
+    @abstractmethod
+    def commit(self) -> str:
+        pass
+
+    # Modify State / Apply Config
+    @abstractmethod
+    def save_config(self, *args, **kwargs) -> str:
+        pass
+
 
 class BaseConnection(object):
     """
@@ -1095,7 +1244,7 @@ class BaseConnection(object):
         :type cmd_echo: bool
         """
 
-        # FIX: NetworkDevice class. Maybe just move the low-level read_channel_timing into 
+        # FIX: NetworkDevice class. Maybe just move the low-level read_channel_timing into
         # here and completely get rid of that from the channel.py class.
 
         # For compatibility; remove cmd_echo in Netmiko 4.x.x
@@ -1135,9 +1284,7 @@ class BaseConnection(object):
         log.debug(f"send_command_timing current output: {output}")
 
         # FIX: need to rationalized max_loops behavior (used to pass in here as an argument).
-        output += self.read_channel_timing(
-            delay_factor=delay_factor
-        )
+        output += self.read_channel_timing(delay_factor=delay_factor)
         output = self._sanitize_output(
             output,
             strip_command=strip_command,
