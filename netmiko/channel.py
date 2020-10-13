@@ -120,6 +120,10 @@ Data retrieved before timeout:\n\n{output}
         return output
 
     @abstractmethod
+    def close(self) -> None:
+        pass
+
+    @abstractmethod
     def read_channel_timing(self, delay_factor: int, timeout: int) -> str:
         pass
 
@@ -144,6 +148,15 @@ class TelnetChannel(Channel):
         )
         # FIX - move telnet_login into this class?
         self.telnet_login()
+
+    def close(self) -> None:
+        try:
+            self.remote_conn.close()
+        except Exception:
+            # There have been race conditions observed on disconnect.
+            pass
+        finally:
+            self.remote_conn = None
 
     @log_writes
     def write_channel(self, out_data):
@@ -306,6 +319,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if self.keepalive:
             self.remote_conn.transport.set_keepalive(self.keepalive)
 
+    def close(self) -> None:
+        """Cleanup Paramiko to try to gracefully handle SSH session ending."""
+        try:
+            self.remote_conn_pre.close()
+            del self.remote_conn_pre
+        # There have been race conditions observed on disconnect.
+        finally:
+            self.remote_conn_pre = None
+            self.remote_conn = None
+
     @log_writes
     def write_channel(self, out_data):
         self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
@@ -409,6 +432,13 @@ class SerialChannel(Channel):
     def establish_connection(self, width=511, height=1000):
         self.remote_conn = serial.Serial(**self.serial_settings)
         self.serial_login()
+
+    def close(self) -> None:
+        try:
+            self.remote_conn.close()
+        finally:
+            # There have been race conditions observed on disconnect.
+            self.remote_conn = None
 
     @log_writes
     def write_channel(self, out_data):

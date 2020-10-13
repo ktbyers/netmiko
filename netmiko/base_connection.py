@@ -231,12 +231,7 @@ class NetworkDevice(ABC):
     def cleanup(self, command: str = "") -> None:
         pass
 
-    # Should be moved to channel.py
-    @abstractmethod
-    def paramiko_cleanup(self) -> None:
-        pass
-
-    # Should be movied to channel.py and a wrapper func
+    # Cleanup method
     @abstractmethod
     def disconnect(self) -> None:
         pass
@@ -813,7 +808,7 @@ class BaseConnection(object):
                 time.sleep(0.5 * delay_factor)
                 i += 1
             except EOFError:
-                self.remote_conn.close()
+                self.channel.close()
                 msg = f"Login failed: {self.host}"
                 raise NetmikoAuthenticationException(msg)
 
@@ -828,7 +823,7 @@ class BaseConnection(object):
             return return_msg
 
         msg = f"Login failed: {self.host}"
-        self.remote_conn.close()
+        self.channel.close()
         raise NetmikoAuthenticationException(msg)
 
     def _try_session_preparation(self):
@@ -1876,29 +1871,23 @@ class BaseConnection(object):
         # FIX: NetworkDevice class
         pass
 
-    def paramiko_cleanup(self):
-        """Cleanup Paramiko to try to gracefully handle SSH session ending."""
-        # FIX: Where should this go? Is this channel.py or NetworkDevice?
-        self.remote_conn_pre.close()
-        del self.remote_conn_pre
-
     def disconnect(self):
-        """Try to gracefully close the session."""
+        """
+        Try to gracefully close the session:
+
+        Should do the following:
+        1. Gracefully disconnect from device (right now in "cleanup" method)
+        2. Should close the channel / cleanup the channel
+        3. Should close the Session Log
+        """
         # FIX: NetworkDevice class
         try:
             self.cleanup()
-            if self.protocol == "ssh":
-                self.paramiko_cleanup()
-            elif self.protocol == "telnet":
-                self.remote_conn.close()
-            elif self.protocol == "serial":
-                self.remote_conn.close()
         except Exception:
             # There have been race conditions observed on disconnect.
             pass
         finally:
-            self.remote_conn_pre = None
-            self.remote_conn = None
+            self.channel.close()
             if self.session_log:
                 self.session_log.close()
 

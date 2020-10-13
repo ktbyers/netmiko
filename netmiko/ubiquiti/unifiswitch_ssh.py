@@ -33,6 +33,8 @@ class UbiquitiUnifiSwitchSSH(UbiquitiEdgeSSH):
                 self.exit_config_mode()
 
             # Exit from the first 'telnet localhost'
+            if self.session_log:
+                self.session_log.fin = True
             self.write_channel(command + self.RETURN)
         except Exception:
             pass

@@ -116,7 +116,8 @@ class HPProcurveBase(CiscoSSHConnection):
             count += 1
 
         # Set outside of loop
-        self.session_log.fin = True
+        if self.session_log:
+            self.session_log.fin = True
 
     def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
         """Save Config."""

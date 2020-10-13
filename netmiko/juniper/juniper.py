@@ -239,7 +239,8 @@ class JuniperBase(BaseConnection):
         except Exception:
             pass
         # Always try to send final 'exit' (command)
-        self.session_log.fin = True
+        if self.session_log:
+            self.session_log.fin = True
         self.write_channel(command + self.RETURN)
 
 

@@ -138,7 +138,7 @@ class CiscoBaseConnection(BaseConnection):
 
                     # Check for device with no password configured
                     if re.search(r"assword required, but none set", output):
-                        self.remote_conn.close()
+                        self.channel.close()
                         msg = "Login failed - Password required, but none set: {}".format(
                             self.host
                         )
@@ -153,7 +153,7 @@ class CiscoBaseConnection(BaseConnection):
                     i += 1
 
                 except EOFError:
-                    self.remote_conn.close()
+                    self.channel.close()
                     msg = f"Login failed: {self.host}"
                     raise NetmikoAuthenticationException(msg)
 
@@ -172,7 +172,7 @@ class CiscoBaseConnection(BaseConnection):
         ):
             return return_msg
 
-        self.remote_conn.close()
+        self.channel.close()
         msg = f"Login failed: {self.host}"
         raise NetmikoAuthenticationException(msg)
 
@@ -185,7 +185,8 @@ class CiscoBaseConnection(BaseConnection):
         except Exception:
             pass
         # Always try to send final 'exit' (command)
-        self.session_log.fin = True
+        if self.session_log:
+            self.session_log.fin = True
         self.write_channel(command + self.RETURN)
 
     def _autodetect_fs(self, cmd="dir", pattern=r"Directory of (.*)/"):
