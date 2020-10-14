@@ -107,3 +107,29 @@ class DellPowerConnectTelnet(DellPowerConnectBase):
     """Dell PowerConnect Telnet Driver."""
 
     pass
+
+
+class DellPowerConnectSSHAuth(DellPowerConnectSSH):
+    """Dell PowerConnect Driver.
+
+    To make it work, we have to override the SSHClient _auth method.
+    """
+
+    def _build_ssh_client(self):
+        """Prepare for Paramiko SSH connection.
+
+        See base_connection.py file for any updates.
+        """
+        # Create instance of SSHClient object
+        # Use always auth
+        remote_conn_pre = SSHClient()
+
+        # Load host_keys for better SSH security
+        if self.system_host_keys:
+            remote_conn_pre.load_system_host_keys()
+        if self.alt_host_keys and path.isfile(self.alt_key_file):
+            remote_conn_pre.load_host_keys(self.alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+        return remote_conn_pre
