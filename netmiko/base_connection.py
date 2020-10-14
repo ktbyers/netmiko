@@ -573,13 +573,14 @@ class BaseConnection(object):
         if auto_connect:
             self._open()
 
-    def _open(self):
+    def _open(self, channel_class=None) -> None:
         """Decouple connection creation from __init__ for mocking."""
         self._modify_connection_params()
 
         if self.protocol == "ssh":
             ssh_params = self._connect_params_dict()
-            self.channel = SSHChannel(
+            ChannelClass = SSHChannel if channel_class is None else channel_class
+            self.channel = ChannelClass(
                 ssh_params,
                 ssh_hostkey_args=self.ssh_hostkey_args,
                 encoding=self.encoding,
@@ -588,12 +589,14 @@ class BaseConnection(object):
             self.channel.establish_connection()
             self.special_login_handler()
         elif self.protocol == "telnet":
-            self.channel = TelnetChannel(
+            ChannelClass = TelnetChannel if channel_class is None else channel_class
+            self.channel = ChannelClass(
                 encoding=self.encoding, session_log=self.session_log
             )
             self.channel.establish_connection()
         elif self.protocol == "serial":
-            self.channel = SerialChannel(
+            ChannelClass = SerialChannel if channel_class is None else channel_class
+            self.channel = ChannelClass(
                 encoding=self.encoding, session_log=self.session_log
             )
             self.channel.establish_connection()

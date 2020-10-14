@@ -63,12 +63,14 @@ def log_writes(func):
 
     return wrapper_decorator
 
+
 class SSHClient_noauth(paramiko.SSHClient):
     """Set noauth when manually handling SSH authentication."""
 
-    def _auth(self, username, *args):
+    def _auth(self, username, *args, **kwargs) -> None:
         self._transport.auth_none(username)
         return
+
 
 class Channel(ABC):
     @abstractmethod

@@ -1,18 +1,17 @@
 """Calix B6 SSH Driver for Netmiko"""
 import time
-from os import path
 
-from paramiko import SSHClient
-
+from netmiko.channel import SSHChannel
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class SSHClient_noauth(SSHClient):
-    """Set noauth when manually handling SSH authentication."""
-
-    def _auth(self, username, *args):
-        self._transport.auth_none(username)
-        return
+class CalixB6Channel(SSHChannel):
+    def _build_ssh_client(self, no_auth=True):
+        """Allow passwordless authentication for HP devices being provisioned."""
+        if not self.use_keys:
+            super._build_ssh_client(no_auth=no_auth)
+        else:
+            super._build_ssh_client(no_auth=False)
 
 
 class CalixB6Base(CiscoSSHConnection):
@@ -76,24 +75,10 @@ class CalixB6SSH(CalixB6Base):
     the username/password.
     """
 
-    def _build_ssh_client(self):
-        """Prepare for Paramiko SSH connection."""
-        # Create instance of SSHClient object
-        # If not using SSH keys, we use noauth
-        if not self.use_keys:
-            remote_conn_pre = SSHClient_noauth()
-        else:
-            remote_conn_pre = SSHClient()
+    def _open(self, channel_class=CalixB6Channel):
+        """Override channel object creation."""
 
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
+        super()._open(channel_class=channel_class)
 
 
 class CalixB6Telnet(CalixB6Base):

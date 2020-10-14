@@ -1,11 +1,9 @@
 import re
 import time
 import socket
-from os import path
 from netmiko.channel import SSHChannel
-from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko import log
-
 
 
 class HPProcurveChannel(SSHChannel):
@@ -16,7 +14,8 @@ class HPProcurveChannel(SSHChannel):
         else:
             super._build_ssh_client(no_auth=False)
 
-class HPProcurveBase(CiscoSSHConnection):
+
+class HPProcurveBase(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
 
@@ -127,6 +126,11 @@ class HPProcurveBase(CiscoSSHConnection):
 
 
 class HPProcurveSSH(HPProcurveBase):
+    def _open(self, channel_class=HPProcurveChannel):
+        """Override channel object creation."""
+
+        super()._open(channel_class=channel_class)
+
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
