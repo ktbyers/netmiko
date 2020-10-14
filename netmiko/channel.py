@@ -63,6 +63,12 @@ def log_writes(func):
 
     return wrapper_decorator
 
+class SSHClient_noauth(paramiko.SSHClient):
+    """Set noauth when manually handling SSH authentication."""
+
+    def _auth(self, username, *args):
+        self._transport.auth_none(username)
+        return
 
 class Channel(ABC):
     @abstractmethod
@@ -234,10 +240,16 @@ class SSHChannel(Channel):
     def __repr__(self):
         return "SSHChannel(ssh_params)"
 
-    def _build_ssh_client(self):
+    def _build_ssh_client(self, no_auth=False):
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
-        remote_conn_pre = paramiko.SSHClient()
+
+        # 'no_auth' is usually because a device has a non-standard auth mechanism
+        # that needs handled directly by Netmiko.
+        if no_auth:
+            remote_conn_pre = SSHClient_noauth()
+        else:
+            remote_conn_pre = paramiko.SSHClient()
 
         # Load host_keys for better SSH security
         if self.ssh_hostkey_args.get("system_host_keys"):
