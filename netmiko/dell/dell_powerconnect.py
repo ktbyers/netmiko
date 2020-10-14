@@ -1,15 +1,17 @@
 """Dell PowerConnect Driver."""
-from paramiko import SSHClient
 import time
 from os import path
+from netmiko.channel import SSHChannel
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
-class SSHClient_noauth(SSHClient):
-    def _auth(self, username, *args):
-        self._transport.auth_none(username)
-        return
-
+class DellPowerConnectChannel(SSHChannel):
+    def _build_ssh_client(self, no_auth=True):
+        """Allow passwordless authentication for HP devices being provisioned."""
+        if not self.use_keys:
+            super._build_ssh_client(no_auth=no_auth)
+        else:
+            super._build_ssh_client(no_auth=False)
 
 class DellPowerConnectBase(CiscoBaseConnection):
     """Dell PowerConnect Driver."""
@@ -53,28 +55,11 @@ class DellPowerConnectSSH(DellPowerConnectBase):
     To make it work, we have to override the SSHClient _auth method.
     If we use login/password, the ssh server use the (none) auth mechanism.
     """
+    def _open(self, channel_class=DellPowerConnectChannel):
+        """Override channel object creation."""
 
-    def _build_ssh_client(self):
-        """Prepare for Paramiko SSH connection.
+        super()._open(channel_class=channel_class)
 
-        See base_connection.py file for any updates.
-        """
-        # Create instance of SSHClient object
-        # If user does not provide SSH key, we use noauth
-        if not self.use_keys:
-            remote_conn_pre = SSHClient_noauth()
-        else:
-            remote_conn_pre = SSHClient()
-
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
 
     def special_login_handler(self, delay_factor=1):
         """
