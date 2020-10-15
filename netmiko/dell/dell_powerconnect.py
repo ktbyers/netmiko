@@ -1,6 +1,5 @@
 """Dell PowerConnect Driver."""
 import time
-from os import path
 from netmiko.channel import SSHChannel
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
@@ -12,6 +11,7 @@ class DellPowerConnectChannel(SSHChannel):
             super._build_ssh_client(no_auth=no_auth)
         else:
             super._build_ssh_client(no_auth=False)
+
 
 class DellPowerConnectBase(CiscoBaseConnection):
     """Dell PowerConnect Driver."""
@@ -55,11 +55,11 @@ class DellPowerConnectSSH(DellPowerConnectBase):
     To make it work, we have to override the SSHClient _auth method.
     If we use login/password, the ssh server use the (none) auth mechanism.
     """
+
     def _open(self, channel_class=DellPowerConnectChannel):
         """Override channel object creation."""
 
         super()._open(channel_class=channel_class)
-
 
     def special_login_handler(self, delay_factor=1):
         """

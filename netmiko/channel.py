@@ -222,6 +222,7 @@ class TelnetChannel(Channel):
 
         return False
 
+
 #    def telnet_login(
 #        self,
 #        pri_prompt_terminator=r"#\s*$",
@@ -297,6 +298,7 @@ class TelnetChannel(Channel):
 #        msg = f"Login failed: {self.host}"
 #        self.channel.close()
 #        raise NetmikoAuthenticationException(msg)
+
 
 class SSHChannel(Channel):
     def __init__(
@@ -560,4 +562,3 @@ class SerialChannel(Channel):
     def is_alive(self) -> bool:
         # FIX: needs implemented
         pass
-
