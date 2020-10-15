@@ -222,6 +222,81 @@ class TelnetChannel(Channel):
 
         return False
 
+#    def telnet_login(
+#        self,
+#        pri_prompt_terminator=r"#\s*$",
+#        alt_prompt_terminator=r">\s*$",
+#        username_pattern=r"(?:user:|username|login|user name)",
+#        pwd_pattern=r"assword",
+#        delay_factor=1,
+#        max_loops=20,
+#    ):
+#        # FIX: move to channel.py or somewhere else. Need to think about this and
+#        # telnet_login how they should be structured (too much code duplication).
+#        delay_factor = self.select_delay_factor(delay_factor)
+#
+#        # FIX: Cleanup in future versions of Netmiko
+#        if delay_factor < 1:
+#            if not self._legacy_mode and self.fast_cli:
+#                delay_factor = 1
+#
+#        time.sleep(1 * delay_factor)
+#
+#        output = ""
+#        return_msg = ""
+#        i = 1
+#        while i <= max_loops:
+#            try:
+#                output = self.read_channel()
+#                return_msg += output
+#
+#                # Search for username pattern / send username
+#                if re.search(username_pattern, output, flags=re.I):
+#                    # Sometimes username/password must be terminated with "\r" and not "\r\n"
+#                    self.write_channel(self.username + "\r")
+#                    time.sleep(1 * delay_factor)
+#                    output = self.read_channel()
+#                    return_msg += output
+#
+#                # Search for password pattern / send password
+#                if re.search(pwd_pattern, output, flags=re.I):
+#                    # Sometimes username/password must be terminated with "\r" and not "\r\n"
+#                    self.write_channel(self.password + "\r")
+#                    time.sleep(0.5 * delay_factor)
+#                    output = self.read_channel()
+#                    return_msg += output
+#                    if re.search(
+#                        pri_prompt_terminator, output, flags=re.M
+#                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+#                        return return_msg
+#
+#                # Check if proper data received
+#                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+#                    alt_prompt_terminator, output, flags=re.M
+#                ):
+#                    return return_msg
+#
+#                self.write_channel(self.TELNET_RETURN)
+#                time.sleep(0.5 * delay_factor)
+#                i += 1
+#            except EOFError:
+#                self.channel.close()
+#                msg = f"Login failed: {self.host}"
+#                raise NetmikoAuthenticationException(msg)
+#
+#        # Last try to see if we already logged in
+#        self.write_channel(self.TELNET_RETURN)
+#        time.sleep(0.5 * delay_factor)
+#        output = self.read_channel()
+#        return_msg += output
+#        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+#            alt_prompt_terminator, output, flags=re.M
+#        ):
+#            return return_msg
+#
+#        msg = f"Login failed: {self.host}"
+#        self.channel.close()
+#        raise NetmikoAuthenticationException(msg)
 
 class SSHChannel(Channel):
     def __init__(
@@ -485,3 +560,4 @@ class SerialChannel(Channel):
     def is_alive(self) -> bool:
         # FIX: needs implemented
         pass
+

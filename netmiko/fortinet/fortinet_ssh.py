@@ -5,6 +5,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class FortinetSSH(CiscoSSHConnection):
+    # FIX: Probably should move to channel.py
     def _modify_connection_params(self):
         """Modify connection parameters prior to SSH connection."""
         paramiko.Transport._preferred_kex = (
@@ -52,8 +53,9 @@ class FortinetSSH(CiscoSSHConnection):
             output = self.send_command_timing(vdom_additional_command, delay_factor=2)
             if "Command fail" in output:
                 self.allow_disable_global = False
-                self.remote_conn.close()
-                self.establish_connection(width=100, height=1000)
+                # FIX: this looks broken (i.e. Netmiko should not do this)
+                self.channel.close()
+                self.channel.establish_connection(width=100, height=1000)
 
         new_output = ""
         if self.allow_disable_global:
