@@ -15,6 +15,7 @@ from netmiko.ssh_exception import (
     NetmikoAuthenticationException,
 )
 from netmiko.netmiko_globals import MAX_BUFFER
+from netmiko.telnet_state import TelnetLogin
 from netmiko.utilities import write_bytes, strip_ansi_escape_codes
 
 
@@ -146,7 +147,9 @@ Data retrieved before timeout:\n\n{output}
 
 
 class TelnetChannel(Channel):
-    def __init__(self, telnet_params: Dict, encoding: str = "ascii", session_log=None) -> None:
+    def __init__(
+        self, telnet_params: Dict, encoding: str = "ascii", session_log=None
+    ) -> None:
         self.protocol = "telnet"
 
         self.telnet_params = telnet_params
@@ -173,6 +176,26 @@ class TelnetChannel(Channel):
     def login(self) -> None:
         # FIX: Needs implemented
         pass
+
+        username_pattern = self.telnet_params["username_pattern"]
+        password_pattern = self.telnet_params["pwd_pattern"]
+        pri_prompt_terminator = self.telnet_params["pri_prompt_terminator"]
+        alt_prompt_terminator = self.telnet_params["alt_prompt_terminator"]
+
+        login = TelnetLogin(
+            channel=self,
+            username=self.username,
+            password=self.password,
+            username_pattern=username_pattern,
+            password_pattern=password_pattern,
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+        )
+        import ipdb
+
+        ipdb.set_trace()
+        login.state
+        login.start()
 
     def close(self) -> None:
         try:

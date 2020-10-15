@@ -956,12 +956,21 @@ class BaseConnection(object):
         Consequently, need to map that most logically from Netmiko arguments and
         'conn_timeout' was chosen.
         """
+        pri_prompt_terminator = r"#\s*$"
+        alt_prompt_terminator = r">\s*$"
+        username_pattern = r"(?:user:|username|login|user name)"
+        pwd_pattern = r"assword"
+
         conn_dict = {
             "hostname": self.host,
             "port": self.port,
             "username": self.username,
             "password": self.password,
-            "timeout": self.conn_timeout
+            "timeout": self.conn_timeout,
+            "pri_prompt_terminator": pri_prompt_terminator,
+            "alt_prompt_terminator": alt_prompt_terminator,
+            "username_pattern": username_pattern,
+            "pwd_pattern": pwd_pattern,
         }
 
         return conn_dict
