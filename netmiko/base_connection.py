@@ -14,7 +14,7 @@ from os import path
 from threading import Lock
 import functools
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Dict
 
 import paramiko
 import serial
@@ -589,9 +589,10 @@ class BaseConnection(object):
             self.channel.establish_connection()
             self.special_login_handler()
         elif self.protocol == "telnet":
+            telnet_params = self._telnet_params_dict()
             ChannelClass = TelnetChannel if channel_class is None else channel_class
             self.channel = ChannelClass(
-                encoding=self.encoding, session_log=self.session_log
+                telnet_params, encoding=self.encoding, session_log=self.session_log
             )
             self.channel.establish_connection()
         elif self.protocol == "serial":
@@ -762,6 +763,11 @@ class BaseConnection(object):
         :param max_loops: Controls the wait time in conjunction with the delay_factor
         (default: 20)
         """
+
+        import ipdb
+
+        ipdb.set_trace()
+        self.channel.login()
         # FIX: move to channel.py or somewhere else. Need to think about this and
         # telnet_login how they should be structured (too much code duplication).
         delay_factor = self.select_delay_factor(delay_factor)
@@ -936,6 +942,28 @@ class BaseConnection(object):
         # Check if using SSH 'config' file mainly for SSH proxy support
         if self.ssh_config_file:
             conn_dict = self._use_ssh_config(conn_dict)
+        return conn_dict
+
+    def _telnet_params_dict(self) -> Dict:
+        """
+        Generate dictionary of telnetlib connection parameters.
+
+        Note: telnetlib describes it timeout as follows:
+
+        'The optional timeout parameter specifies a timeout in seconds for blocking
+        operations like the connection attempt'
+
+        Consequently, need to map that most logically from Netmiko arguments and
+        'conn_timeout' was chosen.
+        """
+        conn_dict = {
+            "hostname": self.host,
+            "port": self.port,
+            "username": self.username,
+            "password": self.password,
+            "timeout": self.conn_timeout
+        }
+
         return conn_dict
 
     def _sanitize_output(

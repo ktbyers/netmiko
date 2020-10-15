@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 import telnetlib
 import paramiko
 import serial
+from typing import Dict
 
 from netmiko import log
 from netmiko.ssh_exception import (
@@ -84,7 +85,7 @@ class Channel(ABC):
     @abstractmethod
     def establish_connection(self, width: int = 511, height: int = 1000) -> None:
         pass
-    
+
     @abstractmethod
     def login(self) -> None:
         pass
@@ -145,8 +146,16 @@ Data retrieved before timeout:\n\n{output}
 
 
 class TelnetChannel(Channel):
-    def __init__(self, encoding: str = "ascii", session_log=None) -> None:
+    def __init__(self, telnet_params: Dict, encoding: str = "ascii", session_log=None) -> None:
         self.protocol = "telnet"
+
+        self.telnet_params = telnet_params
+        self.host = self.telnet_params["hostname"]
+        self.port = self.telnet_params.get("port", 23)
+        self.username = self.telnet_params["username"]
+        self.password = self.telnet_params["password"]
+        self.timeout = self.telnet_params["timeout"]
+
         self.remote_conn = None
         self.encoding = encoding
         self.session_log = session_log
@@ -155,6 +164,7 @@ class TelnetChannel(Channel):
         return "TelnetChannel()"
 
     def establish_connection(self, width=511, height=1000):
+
         self.remote_conn = telnetlib.Telnet(
             self.host, port=self.port, timeout=self.timeout
         )
@@ -228,84 +238,6 @@ class TelnetChannel(Channel):
             return False
 
         return False
-
-    # FIX: add a retry decorator
-    def telnet_login(
-        self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
-    ):
-        # FIX: move to channel.py or somewhere else. Need to think about this and
-        # telnet_login how they should be structured (too much code duplication).
-        delay_factor = delay_factor
-        time.sleep(1 * delay_factor)
-
-        output = ""
-        return_msg = ""
-
-        try:
-            core_telnet_loop()
-            --------
-            output = self.read_channel()
-            return_msg += output
-
-            return_msg += check_username_pattern()
-            return_msg += check_password_pattern()
-            return_msg += check_alternate_pattern()
-            check_for_terminating_pattern:
-                return return_msg
-
-            # Send return and sleep a bit
-            self.write_channel(self.TELNET_RETURN)
-            time.sleep(0.5 * delay_factor)
-            --------
-            end
-
-            state_machine -> Start: look for username pattern or password pattern
-            if username -> Username_found state: look for password pattern
-            if password -> Look for suc
-
-            STATES:
-            1. Start -> Action: Send <enter> delay a bit, read_data
-            2. Username Pattern Found -> Action: Send username, delay a bit, read response
-            3. Password Pattern Found -> Action: Send password, delay a bit, read response
-            4. Prompt Found
-
-            STATES:
-            NoLogin:
-                Events: 
-                * Transition to LoginPending State
-
-            SendUsername:
-                Events:
-                * Sends the username -> Transition to LoginPending
-
-            LoginPending
-                Events:
-                * Detect username_pattern -> Transition to SendUsername
-                * Detect password_pattern -> Transition to SendPassword
-                * Detect prompt pattern -> Transition to LoggedIn
-                * Special Events
-                    a. Receive initial configuration dialog message
-                    b. Receive password not set message
-                    
-             
-            SendPassword:
-                Events:
-                * Sends the password -> Transition to LoginPending 
-
-            
-
-        except EOFError:
-            self.channel.close()
-            msg = f"Login failed: {self.host}"
-            raise NetmikoAuthenticationException(msg)
-
-        msg = f"Login failed: {self.host}"
-        self.channel.close()
-        raise NetmikoAuthenticationException(msg)
 
 
 class SSHChannel(Channel):
