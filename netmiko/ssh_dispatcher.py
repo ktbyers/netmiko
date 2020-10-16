@@ -39,6 +39,7 @@ from netmiko.dlink import DlinkDSTelnet, DlinkDSSSH
 from netmiko.eltex import EltexSSH, EltexEsrSSH
 from netmiko.endace import EndaceSSH
 from netmiko.enterasys import EnterasysSSH
+from netmiko.ericsson import EricssonIposSSH
 from netmiko.extreme import ExtremeErsSSH
 from netmiko.extreme import ExtremeExosSSH
 from netmiko.extreme import ExtremeExosTelnet
@@ -146,6 +147,7 @@ CLASS_MAPPER_BASE = {
     "eltex": EltexSSH,
     "eltex_esr": EltexEsrSSH,
     "enterasys": EnterasysSSH,
+    "ericsson_ipos": EricssonIposSSH,
     "extreme": ExtremeExosSSH,
     "extreme_ers": ExtremeErsSSH,
     "extreme_exos": ExtremeExosSSH,
