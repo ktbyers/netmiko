@@ -287,6 +287,8 @@ class BaseConnection(object):
         # Other timeouts
         # FIX - this will probably go away and read_timeout will replace
         blocking_timeout=20,  # Read blocking timeout
+        # FIX, not sure what to do here WRT to passing args from other libs and old timeout
+        telnet_timeout=20,    
         timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
         session_timeout=60,  # Used for locking/sharing the connection
         keepalive=0,
@@ -472,6 +474,7 @@ class BaseConnection(object):
         self.conn_timeout = conn_timeout
         self.session_timeout = session_timeout
         self.timeout = timeout
+        self.telnet_timeout = telnet_timeout
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
@@ -868,7 +871,7 @@ class BaseConnection(object):
             "port": self.port,
             "username": self.username,
             "password": self.password,
-            "timeout": self.conn_timeout,
+            "timeout": self.telnet_timeout,
             "pri_prompt_terminator": pri_prompt_terminator,
             "alt_prompt_terminator": alt_prompt_terminator,
             "username_pattern": username_pattern,

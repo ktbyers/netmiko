@@ -1,7 +1,15 @@
 import re
+import time
 from typing import TYPE_CHECKING
 from transitions import Machine, State
-import time
+
+from netmiko import log
+from netmiko.ssh_exception import NetmikoAuthenticationException
+
+import logging
+# Make Transitions log less as it is way too noisy
+logging.getLogger('transitions').setLevel(logging.CRITICAL)
+
 
 if TYPE_CHECKING:
     from netmiko.channel import TelnetChannel
@@ -17,9 +25,11 @@ class TelnetLogin:
         password_pattern: str,
         pri_prompt_terminator: str,
         alt_prompt_terminator: str,
+        login_timeout: int,
     ) -> None:
 
         self.channel = channel
+        self.login_timeout = login_timeout
 
         self.username = username
         self.password = password
@@ -27,11 +37,11 @@ class TelnetLogin:
         self.username_pattern = username_pattern
         self.password_pattern = password_pattern
 
-        prompt_regex = r"(pri_prompt_terminator|alt_prompt_terminator)"
+        prompt_regex = rf"({pri_prompt_terminator}|{alt_prompt_terminator})"
         self.prompt_regex = prompt_regex
 
         # Record the entire interaction
-        self.output = ""
+        self.capture = ""
 
         # Define the state machine
         self.states = self.define_states()
@@ -48,7 +58,7 @@ class TelnetLogin:
 
     def define_states(self):
         states = [
-            State(name="Start"),
+            State(name="Start", on_exit=["start_timer"]),
             State(name="LoginPending", on_enter=["random_sleep", "read_channel"]),
             State(name="SleepLonger", on_enter=["sleep_longer"]),
             State(name="SendUsername", on_enter=["send_username"]),
@@ -96,11 +106,14 @@ class TelnetLogin:
         ]
         return transitions
 
+    def start_timer(self) -> None:
+        self.start_time = time.time()
+
     def read_channel(self) -> str:
-        print(f"State: {self.state} read_channel() method")
+        log.debug(f"State: {self.state} read_channel() method")
         data = self.channel.read_channel()
-        print(data)
-        self.output += data
+        log.debug(f"Data on read_channel:\n\n{data}")
+        self.capture += data
         self.parse_output(data)
         return data
 
@@ -110,26 +123,26 @@ class TelnetLogin:
         time.sleep(0.5)
 
     def sleep_longer(self):
-        print(f"State: {self.state} sleep_longer() method")
+        log.debug(f"State: {self.state} sleep_longer() method")
         self.random_sleep()
         self.done_sleeping()
 
     def send_username(self) -> None:
-        print(f"State: {self.state} send_username() method")
+        log.debug(f"State: {self.state} send_username() method")
         # Sometimes username must be terminated with "\r" and not "\r\n"
         self.channel.write_channel(self.username + "\r")
         self.random_sleep()
         self.username_sent()
 
     def send_password(self) -> None:
-        print(f"State: {self.state} send_password() method")
+        log.debug(f"State: {self.state} send_password() method")
         # Sometimes username must be terminated with "\r" and not "\r\n"
         self.channel.write_channel(self.password + "\r")
         self.random_sleep()
         self.password_sent()
 
     def parse_output(self, data: str):
-        print(f"State: {self.state} parse_output() method")
+        log.debug(f"State: {self.state} parse_output() method")
 
         patterns = [
             {"name": "username", "pattern": self.username_pattern},
@@ -148,8 +161,28 @@ class TelnetLogin:
                 elif name == "password":
                     self.password_prompt_detected()
                 elif name == "prompt":
+                    msg = f"""
+Successfully logged in. Entire output capture:
+
+{self.capture}
+
+"""
+                    log.debug(msg)
                     self.logged_in()
-                    print(self.output)
+
                 break
 
-        self.no_match()
+        if time.time() > self.start_time + self.login_timeout:
+            msg = f"""
+
+Telnet login timed-out to {self.channel.host}:
+
+Please ensure your username and password are correct.
+
+"""
+            raise NetmikoAuthenticationException(msg)
+
+        if self.state == "LoggedIn":
+            return
+        else:
+            self.no_match()

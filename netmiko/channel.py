@@ -174,6 +174,7 @@ class TelnetChannel(Channel):
         self.login()
 
     def login(self) -> None:
+
         username_pattern = self.telnet_params["username_pattern"]
         password_pattern = self.telnet_params["pwd_pattern"]
         pri_prompt_terminator = self.telnet_params["pri_prompt_terminator"]
@@ -181,17 +182,20 @@ class TelnetChannel(Channel):
 
         login = TelnetLogin(
             channel=self,
-        #    username=self.username,
-            username="wrong",
+            username=self.username,
             password=self.password,
             username_pattern=username_pattern,
             password_pattern=password_pattern,
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
+            login_timeout=self.timeout,
         )
 
         # Start the state machine login process
         login.start()
+
+        # Cleanup the state machine
+        del login
 
     def close(self) -> None:
         try:
