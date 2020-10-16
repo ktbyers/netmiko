@@ -166,7 +166,7 @@ class TelnetChannel(Channel):
     def __repr__(self):
         return "TelnetChannel()"
 
-    def establish_connection(self, width=511, height=1000):
+    def establish_connection(self, width=511, height=1000) -> None:
 
         self.remote_conn = telnetlib.Telnet(
             self.host, port=self.port, timeout=self.timeout
@@ -174,9 +174,6 @@ class TelnetChannel(Channel):
         self.login()
 
     def login(self) -> None:
-        # FIX: Needs implemented
-        pass
-
         username_pattern = self.telnet_params["username_pattern"]
         password_pattern = self.telnet_params["pwd_pattern"]
         pri_prompt_terminator = self.telnet_params["pri_prompt_terminator"]
@@ -184,7 +181,8 @@ class TelnetChannel(Channel):
 
         login = TelnetLogin(
             channel=self,
-            username=self.username,
+        #    username=self.username,
+            username="wrong",
             password=self.password,
             username_pattern=username_pattern,
             password_pattern=password_pattern,

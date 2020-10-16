@@ -737,38 +737,6 @@ class BaseConnection(object):
             max_loops,
         )
 
-    def telnet_login(
-        self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
-        """Telnet login. Can be username/password or just password.
-
-        :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
-        :type pri_prompt_terminator: str
-
-        :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
-        :type alt_prompt_terminator: str
-
-        :param username_pattern: Pattern used to identify the username prompt
-        :type username_pattern: str
-
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
-
-        :param max_loops: Controls the wait time in conjunction with the delay_factor
-        (default: 20)
-        """
-
-        import ipdb
-
-        ipdb.set_trace()
-        self.channel.login()
-
     def _try_session_preparation(self):
         """
         In case of an exception happening during `session_preparation()` Netmiko should

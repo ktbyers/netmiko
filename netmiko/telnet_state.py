@@ -50,6 +50,7 @@ class TelnetLogin:
         states = [
             State(name="Start"),
             State(name="LoginPending", on_enter=["random_sleep", "read_channel"]),
+            State(name="SleepLonger", on_enter=["sleep_longer"]),
             State(name="SendUsername", on_enter=["send_username"]),
             State(name="SendPassword", on_enter=["send_password"]),
             State(name="LoggedIn"),
@@ -61,6 +62,16 @@ class TelnetLogin:
     def define_transitions(self):
         transitions = [
             {"trigger": "start", "source": "Start", "dest": "LoginPending"},
+            {
+                "trigger": "no_match",
+                "source": "LoginPending",
+                "dest": "SleepLonger",
+            },
+            {
+                "trigger": "done_sleeping",
+                "source": "SleepLonger",
+                "dest": "LoginPending",
+            },
             {
                 "trigger": "username_prompt_detected",
                 "source": "LoginPending",
@@ -97,6 +108,11 @@ class TelnetLogin:
     def random_sleep():
         # FIX: do something different here
         time.sleep(0.5)
+
+    def sleep_longer(self):
+        print(f"State: {self.state} sleep_longer() method")
+        self.random_sleep()
+        self.done_sleeping()
 
     def send_username(self) -> None:
         print(f"State: {self.state} send_username() method")
@@ -135,3 +151,5 @@ class TelnetLogin:
                     self.logged_in()
                     print(self.output)
                 break
+
+        self.no_match()
