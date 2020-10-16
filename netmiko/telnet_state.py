@@ -1,5 +1,6 @@
 import re
 import time
+from typing import List
 from typing import TYPE_CHECKING
 from transitions import Machine, State
 
@@ -50,13 +51,13 @@ class TelnetLogin:
         # Create the state machine
         self.fsm = self.create_machine()
 
-    def create_machine(self):
+    def create_machine(self) -> Machine:
         machine = Machine(
             self, states=self.states, transitions=self.transitions, initial="Start"
         )
         return machine
 
-    def define_states(self):
+    def define_states(self) -> List:
         states = [
             State(name="Start", on_exit=["start_timer"]),
             State(name="LoginPending", on_enter=["random_sleep", "read_channel"]),
@@ -69,7 +70,7 @@ class TelnetLogin:
 
         return states
 
-    def define_transitions(self):
+    def define_transitions(self) -> List:
         transitions = [
             {"trigger": "start", "source": "Start", "dest": "LoginPending"},
             {
@@ -118,11 +119,11 @@ class TelnetLogin:
         return data
 
     @staticmethod
-    def random_sleep():
+    def random_sleep() -> None:
         # FIX: do something different here
-        time.sleep(0.5)
+        time.sleep(0.01)
 
-    def sleep_longer(self):
+    def sleep_longer(self) -> None:
         log.debug(f"State: {self.state} sleep_longer() method")
         self.random_sleep()
         self.done_sleeping()
@@ -141,7 +142,7 @@ class TelnetLogin:
         self.random_sleep()
         self.password_sent()
 
-    def parse_output(self, data: str):
+    def parse_output(self, data: str) -> None:
         log.debug(f"State: {self.state} parse_output() method")
 
         patterns = [
