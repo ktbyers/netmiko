@@ -1,6 +1,6 @@
 import re
 import time
-from typing import List
+from typing import List, Dict, Callable
 from typing import TYPE_CHECKING
 from transitions import Machine, State
 
@@ -8,8 +8,9 @@ from netmiko import log
 from netmiko.ssh_exception import NetmikoAuthenticationException
 
 import logging
+
 # Make Transitions log less as it is way too noisy
-logging.getLogger('transitions').setLevel(logging.CRITICAL)
+logging.getLogger("transitions").setLevel(logging.CRITICAL)
 
 
 if TYPE_CHECKING:
@@ -17,6 +18,16 @@ if TYPE_CHECKING:
 
 
 class TelnetLogin:
+    if TYPE_CHECKING:
+        state: str
+        done_sleeping: Callable[..., bool]
+        username_sent: Callable[..., bool]
+        password_sent: Callable[..., bool]
+        username_prompt_detected: Callable[..., bool]
+        password_prompt_detected: Callable[..., bool]
+        logged_in: Callable[..., bool]
+        no_match: Callable[..., bool]
+
     def __init__(
         self,
         channel: "TelnetChannel",
@@ -57,7 +68,7 @@ class TelnetLogin:
         )
         return machine
 
-    def define_states(self) -> List:
+    def define_states(self) -> List[State]:
         states = [
             State(name="Start", on_exit=["start_timer"]),
             State(name="LoginPending", on_enter=["random_sleep", "read_channel"]),
@@ -70,14 +81,10 @@ class TelnetLogin:
 
         return states
 
-    def define_transitions(self) -> List:
+    def define_transitions(self) -> List[Dict[str, str]]:
         transitions = [
             {"trigger": "start", "source": "Start", "dest": "LoginPending"},
-            {
-                "trigger": "no_match",
-                "source": "LoginPending",
-                "dest": "SleepLonger",
-            },
+            {"trigger": "no_match", "source": "LoginPending", "dest": "SleepLonger"},
             {
                 "trigger": "done_sleeping",
                 "source": "SleepLonger",
@@ -151,6 +158,7 @@ class TelnetLogin:
             {"name": "prompt", "pattern": self.prompt_regex},
         ]
 
+        import ipdb; ipdb.set_trace()
         for case in patterns:
             pattern = case["pattern"]
             name = case["name"]

@@ -457,7 +457,7 @@ def f_exec_time(func):
     return wrapper_decorator
 
 
-def strip_ansi_escape_codes(string_buffer, return_str="\n"):
+def strip_ansi_escape_codes(string_buffer: str, return_str: str = "\n") -> str:
     """
     Remove any ANSI (VT100) ESC codes from the output
 

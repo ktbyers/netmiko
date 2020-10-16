@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 import telnetlib
 import paramiko
 import serial
-from typing import Dict
+from typing import Dict, Callable, Any
 
 from netmiko import log
 from netmiko.ssh_exception import (
@@ -19,9 +19,10 @@ from netmiko.telnet_state import TelnetLogin
 from netmiko.utilities import write_bytes, strip_ansi_escape_codes
 
 
-def ansi_strip(func):
+def ansi_strip(func: Callable[..., str]) -> Callable[..., str]:
     @functools.wraps(func)
-    def wrapper_decorator(self, *args, **kwargs):
+    def wrapper_decorator(self: object, *args: Any, **kwargs: Any) -> str:
+        output: str
         output = func(self, *args, **kwargs)
         output = strip_ansi_escape_codes(output)
         return output
@@ -29,11 +30,12 @@ def ansi_strip(func):
     return wrapper_decorator
 
 
-def log_reads(func):
+def log_reads(func: Callable[..., str]) -> Callable[..., str]:
     """Handle both session_log and log of reads."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self, *args, **kwargs):
+    def wrapper_decorator(self: Channel, *args: Any, **kwargs: Any) -> str:
+        output: str
         output = func(self, *args, **kwargs)
         log.debug(f"read_channel: {output}")
         if self.session_log:
@@ -226,7 +228,7 @@ class TelnetChannel(Channel):
 
     @ansi_strip
     @log_reads
-    def read_channel(self):
+    def read_channel(self) -> str:
         """Read all of the available data from the telnet channel. No sleeps"""
         output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
         return output
@@ -399,7 +401,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         return output
 
     @ansi_strip
-    def read_channel(self):
+    def read_channel(self) -> str:
         """Read all of the available data from the SSH channel. No sleeps."""
         output = ""
         while True:
@@ -509,7 +511,7 @@ class SerialChannel(Channel):
 
     @ansi_strip
     @log_reads
-    def read_channel(self):
+    def read_channel(self) -> str:
         """Read all of the available data from the serial channel."""
         output = ""
         while self.remote_conn.in_waiting > 0:
