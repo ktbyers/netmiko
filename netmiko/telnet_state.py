@@ -49,7 +49,7 @@ class TelnetLogin:
     def define_states(self):
         states = [
             State(name="Start"),
-            State(name="LoginPending", on_enter=["read_channel"]),
+            State(name="LoginPending", on_enter=["random_sleep", "read_channel"]),
             State(name="SendUsername", on_enter=["send_username"]),
             State(name="SendPassword", on_enter=["send_password"]),
             State(name="LoggedIn"),
@@ -86,10 +86,11 @@ class TelnetLogin:
         return transitions
 
     def read_channel(self) -> str:
+        print(f"State: {self.state} read_channel() method")
         data = self.channel.read_channel()
+        print(data)
         self.output += data
         self.parse_output(data)
-        print(data)
         return data
 
     @staticmethod
@@ -98,18 +99,21 @@ class TelnetLogin:
         time.sleep(0.5)
 
     def send_username(self) -> None:
+        print(f"State: {self.state} send_username() method")
         # Sometimes username must be terminated with "\r" and not "\r\n"
         self.channel.write_channel(self.username + "\r")
         self.random_sleep()
         self.username_sent()
 
     def send_password(self) -> None:
+        print(f"State: {self.state} send_password() method")
         # Sometimes username must be terminated with "\r" and not "\r\n"
         self.channel.write_channel(self.password + "\r")
         self.random_sleep()
         self.password_sent()
 
     def parse_output(self, data: str):
+        print(f"State: {self.state} parse_output() method")
 
         patterns = [
             {"name": "username", "pattern": self.username_pattern},
