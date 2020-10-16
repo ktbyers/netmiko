@@ -191,10 +191,8 @@ class TelnetChannel(Channel):
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
         )
-        import ipdb
 
-        ipdb.set_trace()
-        login.state
+        # Start the state machine login process
         login.start()
 
     def close(self) -> None:

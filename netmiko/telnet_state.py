@@ -1,6 +1,7 @@
 import re
 from typing import TYPE_CHECKING
 from transitions import Machine, State
+import time
 
 if TYPE_CHECKING:
     from netmiko.channel import TelnetChannel
@@ -50,10 +51,9 @@ class TelnetLogin:
             State(name="Start"),
             State(name="LoginPending", on_enter=["read_channel"]),
             State(name="SendUsername", on_enter=["send_username"]),
-            #        'SendUsername',
-            #        'SendPassword',
-            #        "LoggedIn",
-            #        "SpecialCase",
+            State(name="SendPassword", on_enter=["send_password"]),
+            State(name="LoggedIn"),
+            # "SpecialCase",
         ]
 
         return states
@@ -66,6 +66,22 @@ class TelnetLogin:
                 "source": "LoginPending",
                 "dest": "SendUsername",
             },
+            {
+                "trigger": "password_prompt_detected",
+                "source": "LoginPending",
+                "dest": "SendPassword",
+            },
+            {"trigger": "logged_in", "source": "LoginPending", "dest": "LoggedIn"},
+            {
+                "trigger": "username_sent",
+                "source": "SendUsername",
+                "dest": "LoginPending",
+            },
+            {
+                "trigger": "password_sent",
+                "source": "SendPassword",
+                "dest": "LoginPending",
+            },
         ]
         return transitions
 
@@ -73,14 +89,25 @@ class TelnetLogin:
         data = self.channel.read_channel()
         self.output += data
         self.parse_output(data)
-        import ipdb
-
-        ipdb.set_trace()
         print(data)
         return data
 
-    def send_username(self):
-        print("Made it here")
+    @staticmethod
+    def random_sleep():
+        # FIX: do something different here
+        time.sleep(0.5)
+
+    def send_username(self) -> None:
+        # Sometimes username must be terminated with "\r" and not "\r\n"
+        self.channel.write_channel(self.username + "\r")
+        self.random_sleep()
+        self.username_sent()
+
+    def send_password(self) -> None:
+        # Sometimes username must be terminated with "\r" and not "\r\n"
+        self.channel.write_channel(self.password + "\r")
+        self.random_sleep()
+        self.password_sent()
 
     def parse_output(self, data: str):
 
@@ -94,21 +121,13 @@ class TelnetLogin:
             pattern = case["pattern"]
             name = case["name"]
 
-            # HERE!!!!
-            ipdb.set_trace()
-
             if re.search(pattern, data, flags=re.I):
                 # Execute the transitions
                 if name == "username":
                     self.username_prompt_detected()
+                elif name == "password":
+                    self.password_prompt_detected()
+                elif name == "prompt":
+                    self.logged_in()
+                    print(self.output)
                 break
-
-
-if __name__ == "__main__":
-    login = TelnetLogin()
-
-    import ipdb
-
-    ipdb.set_trace()
-    login.state
-    login.start()
