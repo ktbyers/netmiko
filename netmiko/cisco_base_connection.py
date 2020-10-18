@@ -1,9 +1,47 @@
 """CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
+import re
+import time
+from typing import List, Dict, Optional
+from typing import TYPE_CHECKING
+from netmiko.telnet_state import TelnetLogin
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 from netmiko.ssh_exception import NetmikoAuthenticationException
-import re
-import time
+
+
+if TYPE_CHECKING:
+    from netmiko.channel import TelnetChannel
+
+
+class CiscoTelnetLogin(TelnetLogin):
+    def __init__(
+        self,
+        channel: "TelnetChannel",
+        username: str,
+        password: str,
+        username_pattern: str,
+        password_pattern: str,
+        pri_prompt_terminator: str,
+        alt_prompt_terminator: str,
+        login_timeout: int,
+        addl_patterns: Optional[List[Dict[str, str]]] = None,
+    ) -> None:
+
+        if addl_patterns is None:
+            addl_patterns = [
+                {
+                    "name": "prompt",
+                    "pattern": re.escape(
+                        "Would you like to enter the initial configuration dialog? [yes/no]:"
+                    ),
+                    "tr_method": "cisco_config_dialog",
+                },
+                {
+                    "name": "prompt",
+                    "pattern": r"ress RETURN to get started",
+                    "tr_method": "hit_enter",
+                },
+            ]
 
 
 class CiscoBaseConnection(BaseConnection):

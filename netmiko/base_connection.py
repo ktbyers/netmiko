@@ -24,10 +24,7 @@ from netmiko import log
 from netmiko.netmiko_globals import BACKSPACE_CHAR
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
-from netmiko.ssh_exception import (
-    NetmikoTimeoutException,
-    NetmikoAuthenticationException,
-)
+from netmiko.ssh_exception import NetmikoTimeoutException
 from netmiko.utilities import (
     check_serial_port,
     get_structured_data,
@@ -288,7 +285,7 @@ class BaseConnection(object):
         # FIX - this will probably go away and read_timeout will replace
         blocking_timeout=20,  # Read blocking timeout
         # FIX, not sure what to do here WRT to passing args from other libs and old timeout
-        telnet_timeout=20,    
+        telnet_timeout=20,
         timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
         session_timeout=60,  # Used for locking/sharing the connection
         keepalive=0,

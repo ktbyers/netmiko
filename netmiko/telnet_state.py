@@ -1,6 +1,6 @@
 import re
 import time
-from typing import List, Dict, Callable
+from typing import List, Dict, Callable, Optional
 from typing import TYPE_CHECKING
 from transitions import Machine, State
 
@@ -38,6 +38,7 @@ class TelnetLogin:
         pri_prompt_terminator: str,
         alt_prompt_terminator: str,
         login_timeout: int,
+        addl_patterns: Optional[List[Dict[str, str]]] = None,
     ) -> None:
 
         self.channel = channel
@@ -62,6 +63,23 @@ class TelnetLogin:
         # Create the state machine
         self.fsm = self.create_machine()
 
+        self.patterns = [
+            {
+                "name": "username",
+                "pattern": self.username_pattern,
+                "tr_method": "username_prompt_detected",
+            },
+            {
+                "name": "password",
+                "pattern": self.password_pattern,
+                "tr_method": "password_prompt_detected",
+            },
+            {"name": "prompt", "pattern": self.prompt_regex, "tr_method": "logged_in"},
+        ]
+
+        if addl_patterns is not None:
+            self.patterns += addl_patterns
+
     def create_machine(self) -> Machine:
         machine = Machine(
             self, states=self.states, transitions=self.transitions, initial="Start"
@@ -76,7 +94,8 @@ class TelnetLogin:
             State(name="SendUsername", on_enter=["send_username"]),
             State(name="SendPassword", on_enter=["send_password"]),
             State(name="LoggedIn"),
-            # "SpecialCase",
+            State(name="CiscoConfigDialog", on_enter=["handle_config_dialog"]),
+            State(name="HitEnter", on_enter=["hit_enter"]),
         ]
 
         return states
@@ -96,6 +115,12 @@ class TelnetLogin:
                 "dest": "SendUsername",
             },
             {
+                "trigger": "cisco_config_dialog",
+                "source": "LoginPending",
+                "dest": "CiscoConfigDialog",
+            },
+            {"trigger": "hit_enter", "source": "LoginPending", "dest": "HitEnter"},
+            {
                 "trigger": "password_prompt_detected",
                 "source": "LoginPending",
                 "dest": "SendPassword",
@@ -109,6 +134,12 @@ class TelnetLogin:
             {
                 "trigger": "password_sent",
                 "source": "SendPassword",
+                "dest": "LoginPending",
+            },
+            {"trigger": "enter_sent", "source": "HitEnter", "dest": "LoginPending"},
+            {
+                "trigger": "finish_config_dialog",
+                "source": "CiscoConfigDialog",
                 "dest": "LoginPending",
             },
         ]
@@ -149,27 +180,35 @@ class TelnetLogin:
         self.random_sleep()
         self.password_sent()
 
+    def hit_enter(self) -> None:
+        # FIX: use telnet enter
+        self.channel.write_channel("\r\n")
+        self.enter_sent()
+
+    def handle_config_dialog(self) -> None:
+        """
+        Cisco devices via a terminal server might prompt with:
+
+        Would you like to enter the initial configuration dialog? [yes/no]:
+
+        Send "no"
+        """
+        log.debug(f"State: {self.state} handle_config_dialog() method")
+        # Sometimes username must be terminated with "\r" and not "\r\n"
+        # FIX: use self.TELNET_RETURN
+        self.channel.write_channel("no" + "\r\n")
+        self.finish_config_dialog()
+
     def parse_output(self, data: str) -> None:
         log.debug(f"State: {self.state} parse_output() method")
 
-        patterns = [
-            {"name": "username", "pattern": self.username_pattern},
-            {"name": "password", "pattern": self.password_pattern},
-            {"name": "prompt", "pattern": self.prompt_regex},
-        ]
-
-        import ipdb; ipdb.set_trace()
-        for case in patterns:
+        for case in self.patterns:
             pattern = case["pattern"]
             name = case["name"]
+            tr_method = case["tr_method"]
 
             if re.search(pattern, data, flags=re.I):
-                # Execute the transitions
-                if name == "username":
-                    self.username_prompt_detected()
-                elif name == "password":
-                    self.password_prompt_detected()
-                elif name == "prompt":
+                if name == "prompt":
                     msg = f"""
 Successfully logged in. Entire output capture:
 
@@ -177,8 +216,10 @@ Successfully logged in. Entire output capture:
 
 """
                     log.debug(msg)
-                    self.logged_in()
 
+                # Execute the transitions
+                method = getattr(self, tr_method)
+                method()
                 break
 
         if time.time() > self.start_time + self.login_timeout:
