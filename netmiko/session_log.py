@@ -49,7 +49,7 @@ class SessionLog:
             self.session_log.close()
             self.session_log = None
 
-    def write(self, data):
+    def write(self, data: str) -> None:
         if self.session_log is not None and len(data) > 0:
             # Hide the password and secret in the session_log
             for hidden_data in self.no_log.values():

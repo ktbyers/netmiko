@@ -8,6 +8,7 @@ import telnetlib
 import paramiko
 import serial
 from typing import Dict, Callable, Any
+from typing import TYPE_CHECKING
 
 from netmiko import log
 from netmiko.ssh_exception import (
@@ -17,6 +18,9 @@ from netmiko.ssh_exception import (
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.telnet_state import TelnetLogin
 from netmiko.utilities import write_bytes, strip_ansi_escape_codes
+
+if TYPE_CHECKING:
+    from netmiko.session_log import SessionLog
 
 
 def ansi_strip(func: Callable[..., str]) -> Callable[..., str]:
@@ -34,7 +38,7 @@ def log_reads(func: Callable[..., str]) -> Callable[..., str]:
     """Handle both session_log and log of reads."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self: Channel, *args: Any, **kwargs: Any) -> str:
+    def wrapper_decorator(self: "Channel", *args: Any, **kwargs: Any) -> str:
         output: str
         output = func(self, *args, **kwargs)
         log.debug(f"read_channel: {output}")
@@ -45,16 +49,16 @@ def log_reads(func: Callable[..., str]) -> Callable[..., str]:
     return wrapper_decorator
 
 
-def log_writes(func):
+def log_writes(func: Callable[[Channel, str], None]) -> Callable[[Channel, str], None]:
     """Handle both session_log and log of writes."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self, out_data):
+    def wrapper_decorator(self: "Channel", out_data: str) -> None:
         func(self, out_data)
         try:
             log.debug(
                 "write_channel: {}".format(
-                    write_bytes(out_data, encoding=self.encoding)
+                    str(write_bytes(out_data, encoding=self.encoding))
                 )
             )
             if self.session_log:
@@ -77,6 +81,11 @@ class SSHClient_noauth(paramiko.SSHClient):
 
 
 class Channel(ABC):
+
+    if TYPE_CHECKING:
+        session_log: SessionLog
+        encoding: str
+
     @abstractmethod
     def __init__(self, *args, **kwargs) -> None:
         pass
@@ -209,7 +218,7 @@ class TelnetChannel(Channel):
             self.remote_conn = None
 
     @log_writes
-    def write_channel(self, out_data):
+    def write_channel(self, out_data: str) -> None:
         self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
 
     @log_reads
@@ -386,7 +395,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             self.remote_conn = None
 
     @log_writes
-    def write_channel(self, out_data):
+    def write_channel(self, out_data: str) -> None:
         self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
     @log_reads

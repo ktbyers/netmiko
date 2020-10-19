@@ -7,6 +7,9 @@ import re
 from pathlib import Path
 import functools
 from datetime import datetime
+
+from typing import AnyStr
+
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 
@@ -200,7 +203,7 @@ def find_netmiko_dir():
     return (netmiko_base_dir, netmiko_full_dir)
 
 
-def write_bytes(out_data, encoding="ascii"):
+def write_bytes(out_data: AnyStr, encoding: str = "ascii") -> bytes:
     """Legacy for Python2 and Python3 compatible byte stream."""
     if sys.version_info[0] >= 3:
         if isinstance(out_data, type("")):

@@ -27,6 +27,8 @@ class TelnetLogin:
         password_prompt_detected: Callable[..., bool]
         logged_in: Callable[..., bool]
         no_match: Callable[..., bool]
+        enter_sent: Callable[..., bool]
+        finish_config_dialog: Callable[..., bool]
 
     def __init__(
         self,
