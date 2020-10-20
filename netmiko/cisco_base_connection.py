@@ -14,11 +14,7 @@ if TYPE_CHECKING:
 
 
 class CiscoTelnetLogin(TelnetLogin):
-    def __init__(
-        self,
-        *args,
-        **kwargs,
-    ) -> None:
+    def __init__(self, *args, **kwargs) -> None:
 
         if kwargs.get("addl_patterns") is None:
             addl_patterns = [
@@ -38,6 +34,7 @@ class CiscoTelnetLogin(TelnetLogin):
 
             kwargs["addl_patterns"] = addl_patterns
             super.__init__(*args, **kwargs)
+
 
 class CiscoBaseConnection(BaseConnection):
     """Base Class for cisco-like behavior."""

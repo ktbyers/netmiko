@@ -77,7 +77,7 @@ def log_writes(
 class SSHClient_noauth(paramiko.SSHClient):
     """Set noauth when manually handling SSH authentication."""
 
-    def _auth(self, username, *args, **kwargs) -> None:
+    def _auth(self, username: str, *args: Any, **kwargs: Any) -> None:
         self._transport.auth_none(username)
         return
 

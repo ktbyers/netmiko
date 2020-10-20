@@ -79,6 +79,19 @@ class TelnetLogin:
             {"name": "prompt", "pattern": self.prompt_regex, "tr_method": "logged_in"},
         ]
 
+        addl_patterns = [
+            {
+                "name": "initial_config",
+                "pattern": r"Would you like to enter the initial configuration dialog",
+                "tr_method": "cisco_config_dialog",
+            },
+            {
+                "name": "press_enter",
+                "pattern": r"ress RETURN to get started",
+                "tr_method": "press_enter_to_continue",
+            },
+        ]
+
         if addl_patterns is not None:
             self.patterns += addl_patterns
 
@@ -121,7 +134,11 @@ class TelnetLogin:
                 "source": "LoginPending",
                 "dest": "CiscoConfigDialog",
             },
-            {"trigger": "hit_enter", "source": "LoginPending", "dest": "HitEnter"},
+            {
+                "trigger": "press_enter_to_continue",
+                "source": "LoginPending",
+                "dest": "HitEnter",
+            },
             {
                 "trigger": "password_prompt_detected",
                 "source": "LoginPending",
@@ -162,11 +179,11 @@ class TelnetLogin:
     @staticmethod
     def random_sleep() -> None:
         # FIX: do something different here
-        time.sleep(0.01)
+        time.sleep(0.1)
 
     def sleep_longer(self) -> None:
         log.debug(f"State: {self.state} sleep_longer() method")
-        self.random_sleep()
+        time.sleep(0.5)
         self.done_sleeping()
 
     def send_username(self) -> None:
@@ -205,6 +222,7 @@ class TelnetLogin:
     def parse_output(self, data: str) -> None:
         log.debug(f"State: {self.state} parse_output() method")
 
+        # import ipdb; ipdb.set_trace()
         for case in self.patterns:
             pattern = case["pattern"]
             name = case["name"]
@@ -243,6 +261,6 @@ Please ensure your username and password are correct.
             # import ipdb; ipdb.set_trace()
             if data == "" and time.time() - self.reset_time > 1:
                 self.channel.write_channel("\r\n")
-                time.sleep(.5)
+                time.sleep(0.5)
                 self.reset_time = time.time()
             self.no_match()
