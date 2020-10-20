@@ -16,18 +16,11 @@ if TYPE_CHECKING:
 class CiscoTelnetLogin(TelnetLogin):
     def __init__(
         self,
-        channel: "TelnetChannel",
-        username: str,
-        password: str,
-        username_pattern: str,
-        password_pattern: str,
-        pri_prompt_terminator: str,
-        alt_prompt_terminator: str,
-        login_timeout: int,
-        addl_patterns: Optional[List[Dict[str, str]]] = None,
+        *args,
+        **kwargs,
     ) -> None:
 
-        if addl_patterns is None:
+        if kwargs.get("addl_patterns") is None:
             addl_patterns = [
                 {
                     "name": "prompt",
@@ -43,6 +36,8 @@ class CiscoTelnetLogin(TelnetLogin):
                 },
             ]
 
+            kwargs["addl_patterns"] = addl_patterns
+            super.__init__(*args, **kwargs)
 
 class CiscoBaseConnection(BaseConnection):
     """Base Class for cisco-like behavior."""

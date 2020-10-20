@@ -149,6 +149,7 @@ class TelnetLogin:
 
     def start_timer(self) -> None:
         self.start_time = time.time()
+        self.reset_time = time.time()
 
     def read_channel(self) -> str:
         log.debug(f"State: {self.state} read_channel() method")
@@ -237,4 +238,11 @@ Please ensure your username and password are correct.
         if self.state == "LoggedIn":
             return
         else:
+            # Certain situations can require hitting an enter to activate
+            # the channel (for example, a device connected via a terminal server)
+            # import ipdb; ipdb.set_trace()
+            if data == "" and time.time() - self.reset_time > 1:
+                self.channel.write_channel("\r\n")
+                time.sleep(.5)
+                self.reset_time = time.time()
             self.no_match()
