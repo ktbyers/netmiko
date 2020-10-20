@@ -1,16 +1,19 @@
 """CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
 import re
 import time
-from typing import List, Dict, Optional
-from typing import TYPE_CHECKING
 from netmiko.telnet_state import TelnetLogin
+from netmiko.channel import TelnetChannel
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
-if TYPE_CHECKING:
-    from netmiko.channel import TelnetChannel
+class CiscoTelnetChannel(TelnetChannel):
+    def __init__(self, *args, **kwargs) -> None:
+        if kwargs.get("login_class") is None:
+            kwargs["login_class"] = CiscoTelnetLogin
+
+        super().__init__(*args, **kwargs)
 
 
 class CiscoTelnetLogin(TelnetLogin):
@@ -33,11 +36,16 @@ class CiscoTelnetLogin(TelnetLogin):
             ]
 
             kwargs["addl_patterns"] = addl_patterns
-            super.__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
 
 class CiscoBaseConnection(BaseConnection):
     """Base Class for cisco-like behavior."""
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get("telnet_channel") is None:
+            kwargs["telnet_channel"] = CiscoTelnetChannel
+        super().__init__(*args, **kwargs)
 
     def check_enable_mode(self, check_string="#"):
         """Check if in enable mode. Return boolean."""

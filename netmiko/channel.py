@@ -7,7 +7,8 @@ from abc import ABC, abstractmethod
 import telnetlib
 import paramiko
 import serial
-from typing import Dict, Callable, Any
+from typing import Dict, Callable, Any, Optional, List
+from typing import Type
 from typing import TYPE_CHECKING
 
 from netmiko import log
@@ -161,7 +162,11 @@ Data retrieved before timeout:\n\n{output}
 
 class TelnetChannel(Channel):
     def __init__(
-        self, telnet_params: Dict, encoding: str = "ascii", session_log=None
+        self,
+        telnet_params: Dict,
+        encoding: str = "ascii",
+        session_log=None,
+        login_class: Type[TelnetLogin] = TelnetLogin,
     ) -> None:
         self.protocol = "telnet"
 
@@ -176,6 +181,8 @@ class TelnetChannel(Channel):
         self.encoding = encoding
         self.session_log = session_log
 
+        self.login_class = login_class
+
     def __repr__(self):
         return "TelnetChannel()"
 
@@ -186,14 +193,14 @@ class TelnetChannel(Channel):
         )
         self.login()
 
-    def login(self) -> None:
+    def login(self, addl_patterns: Optional[List[Dict[str, str]]] = None) -> None:
 
         username_pattern = self.telnet_params["username_pattern"]
         password_pattern = self.telnet_params["pwd_pattern"]
         pri_prompt_terminator = self.telnet_params["pri_prompt_terminator"]
         alt_prompt_terminator = self.telnet_params["alt_prompt_terminator"]
 
-        login = TelnetLogin(
+        login = self.login_class(
             channel=self,
             username=self.username,
             password=self.password,
@@ -202,6 +209,7 @@ class TelnetChannel(Channel):
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             login_timeout=self.timeout,
+            addl_patterns=addl_patterns,
         )
 
         # Start the state machine login process

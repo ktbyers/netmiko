@@ -301,6 +301,7 @@ class BaseConnection(object):
         encoding="ascii",
         sock=None,
         auto_connect=True,
+        telnet_channel=TelnetChannel,
     ):
         """
         Initialize attributes for establishing connection to target device.
@@ -432,6 +433,7 @@ class BaseConnection(object):
         :type auto_connect: bool
         """
         self.channel = None
+        self.telnet_channel = telnet_channel
 
         self.TELNET_RETURN = "\r\n"
         if default_enter is None:
@@ -573,13 +575,20 @@ class BaseConnection(object):
         if auto_connect:
             self._open()
 
-    def _open(self, channel_class=None) -> None:
+    def _open(
+        self,
+        ssh_channel_class=None,
+        telnet_channel_class=None,
+        serial_channel_class=None,
+    ) -> None:
         """Decouple connection creation from __init__ for mocking."""
         self._modify_connection_params()
 
         if self.protocol == "ssh":
             ssh_params = self._connect_params_dict()
-            ChannelClass = SSHChannel if channel_class is None else channel_class
+            ChannelClass = (
+                SSHChannel if ssh_channel_class is None else ssh_channel_class
+            )
             self.channel = ChannelClass(
                 ssh_params,
                 ssh_hostkey_args=self.ssh_hostkey_args,
@@ -590,13 +599,15 @@ class BaseConnection(object):
             self.special_login_handler()
         elif self.protocol == "telnet":
             telnet_params = self._telnet_params_dict()
-            ChannelClass = TelnetChannel if channel_class is None else channel_class
+            ChannelClass = self.telnet_channel
             self.channel = ChannelClass(
                 telnet_params, encoding=self.encoding, session_log=self.session_log
             )
             self.channel.establish_connection()
         elif self.protocol == "serial":
-            ChannelClass = SerialChannel if channel_class is None else channel_class
+            ChannelClass = (
+                SerialChannel if serial_channel_class is None else serial_channel_class
+            )
             self.channel = ChannelClass(
                 encoding=self.encoding, session_log=self.session_log
             )
