@@ -49,7 +49,9 @@ def log_reads(func: Callable[..., str]) -> Callable[..., str]:
     return wrapper_decorator
 
 
-def log_writes(func: Callable[[Channel, str], None]) -> Callable[[Channel, str], None]:
+def log_writes(
+    func: Callable[["Channel", str], None]
+) -> Callable[["Channel", str], None]:
     """Handle both session_log and log of writes."""
 
     @functools.wraps(func)
