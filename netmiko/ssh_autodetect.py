@@ -40,6 +40,7 @@ Examples
 """
 import re
 import time
+from collections import OrderedDict
 from netmiko.ssh_dispatcher import ConnectHandler
 from netmiko.base_connection import BaseConnection
 
@@ -47,165 +48,167 @@ from netmiko.base_connection import BaseConnection
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
 # remaining keys indicate kwargs that will be passed to dispatch method.
 # Note, the 'cmd' needs to avoid output paging.
-SSH_MAPPER_BASE = {
-    "alcatel_aos": {
-        "cmd": "show system",
-        "search_patterns": [r"Alcatel-Lucent"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "alcatel_sros": {
-        "cmd": "show version",
-        "search_patterns": ["Nokia", "Alcatel"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "apresia_aeos": {
-        "cmd": "show system",
-        "search_patterns": ["Apresia"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "arista_eos": {
-        "cmd": "show version",
-        "search_patterns": [r"Arista"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "cisco_asa": {
-        "cmd": "show version",
-        "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "cisco_ios": {
-        "cmd": "show version",
-        "search_patterns": [
-            "Cisco IOS Software",
-            "Cisco Internetwork Operating System Software",
-        ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "cisco_nxos": {
-        "cmd": "show version",
-        "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "cisco_xr": {
-        "cmd": "show version",
-        "search_patterns": [r"Cisco IOS XR"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "dell_force10": {
-        "cmd": "show version",
-        "search_patterns": [r"S4048-ON"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "dell_os9": {
-        "cmd": "show system",
-        "search_patterns": [
-            r"Dell Application Software Version:  9",
-            r"Dell Networking OS Version : 9",
-        ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "dell_os10": {
-        "cmd": "show version",
-        "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "dell_powerconnect": {
-        "cmd": "show system",
-        "search_patterns": [r"PowerConnect"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "f5_tmsh": {
-        "cmd": "show sys version",
-        "search_patterns": [r"BIG-IP"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "f5_linux": {
-        "cmd": "cat /etc/issue",
-        "search_patterns": [r"BIG-IP"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "hp_comware": {
-        "cmd": "display version",
-        "search_patterns": ["HPE Comware"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "huawei": {
-        "cmd": "display version",
-        "search_patterns": [
-            r"Huawei Technologies",
-            r"Huawei Versatile Routing Platform Software",
-        ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "juniper_junos": {
-        "cmd": "show version",
-        "search_patterns": [
-            r"JUNOS Software Release",
-            r"JUNOS .+ Software",
-            r"JUNOS OS Kernel",
-            r"JUNOS Base Version",
-        ],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "linux": {
-        "cmd": "uname -a",
-        "search_patterns": [r"Linux"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "brocade_netiron": {
-        "cmd": "show version",
-        "search_patterns": [r"NetIron"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "extreme_slx": {
-        "cmd": "show version",
-        "search_patterns": [r"SLX-OS Operating System Software"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "ubiquiti_edgeswitch": {
-        "cmd": "show version",
-        "search_patterns": [r"EdgeSwitch"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "cisco_wlc": {
-        "dispatch": "_autodetect_remote_version",
-        "search_patterns": [r"CISCO_WLC"],
-        "priority": 99,
-    },
-    "mellanox_mlnxos": {
-        "cmd": "show version",
-        "search_patterns": [r"Onyx", r"SX_PPC_M460EX"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "yamaha": {
-        "cmd": "show copyright",
-        "search_patterns": [r"Yamaha Corporation"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-}
+SSH_MAPPER_BASE = OrderedDict(
+    {
+        "dell_os10": {
+            "cmd": "show version",
+            "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "alcatel_aos": {
+            "cmd": "show system",
+            "search_patterns": [r"Alcatel-Lucent"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "alcatel_sros": {
+            "cmd": "show version",
+            "search_patterns": ["Nokia", "Alcatel"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "apresia_aeos": {
+            "cmd": "show system",
+            "search_patterns": ["Apresia"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "arista_eos": {
+            "cmd": "show version",
+            "search_patterns": [r"Arista"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "cisco_asa": {
+            "cmd": "show version",
+            "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "cisco_ios": {
+            "cmd": "show version",
+            "search_patterns": [
+                "Cisco IOS Software",
+                "Cisco Internetwork Operating System Software",
+            ],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "cisco_nxos": {
+            "cmd": "show version",
+            "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "cisco_xr": {
+            "cmd": "show version",
+            "search_patterns": [r"Cisco IOS XR"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "dell_force10": {
+            "cmd": "show version",
+            "search_patterns": [r"S4048-ON"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "dell_os9": {
+            "cmd": "show system",
+            "search_patterns": [
+                r"Dell Application Software Version:  9",
+                r"Dell Networking OS Version : 9",
+            ],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "dell_powerconnect": {
+            "cmd": "show system",
+            "search_patterns": [r"PowerConnect"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "f5_tmsh": {
+            "cmd": "show sys version",
+            "search_patterns": [r"BIG-IP"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "f5_linux": {
+            "cmd": "cat /etc/issue",
+            "search_patterns": [r"BIG-IP"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "hp_comware": {
+            "cmd": "display version",
+            "search_patterns": ["HPE Comware"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "huawei": {
+            "cmd": "display version",
+            "search_patterns": [
+                r"Huawei Technologies",
+                r"Huawei Versatile Routing Platform Software",
+            ],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "juniper_junos": {
+            "cmd": "show version",
+            "search_patterns": [
+                r"JUNOS Software Release",
+                r"JUNOS .+ Software",
+                r"JUNOS OS Kernel",
+                r"JUNOS Base Version",
+            ],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "linux": {
+            "cmd": "uname -a",
+            "search_patterns": [r"Linux"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "brocade_netiron": {
+            "cmd": "show version",
+            "search_patterns": [r"NetIron"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "extreme_slx": {
+            "cmd": "show version",
+            "search_patterns": [r"SLX-OS Operating System Software"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "ubiquiti_edgeswitch": {
+            "cmd": "show version",
+            "search_patterns": [r"EdgeSwitch"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "cisco_wlc": {
+            "dispatch": "_autodetect_remote_version",
+            "search_patterns": [r"CISCO_WLC"],
+            "priority": 99,
+        },
+        "mellanox_mlnxos": {
+            "cmd": "show version",
+            "search_patterns": [r"Onyx", r"SX_PPC_M460EX"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+        "yamaha": {
+            "cmd": "show copyright",
+            "search_patterns": [r"Yamaha Corporation"],
+            "priority": 99,
+            "dispatch": "_autodetect_std",
+        },
+    }
+)
 
 
 class SSHDetect(object):
