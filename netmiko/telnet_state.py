@@ -79,19 +79,6 @@ class TelnetLogin:
             {"name": "prompt", "pattern": self.prompt_regex, "tr_method": "logged_in"},
         ]
 
-        addl_patterns = [
-            {
-                "name": "initial_config",
-                "pattern": r"Would you like to enter the initial configuration dialog",
-                "tr_method": "cisco_config_dialog",
-            },
-            {
-                "name": "press_enter",
-                "pattern": r"ress RETURN to get started",
-                "tr_method": "press_enter_to_continue",
-            },
-        ]
-
         if addl_patterns is not None:
             self.patterns += addl_patterns
 

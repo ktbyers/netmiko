@@ -22,16 +22,14 @@ class CiscoTelnetLogin(TelnetLogin):
         if kwargs.get("addl_patterns") is None:
             addl_patterns = [
                 {
-                    "name": "prompt",
-                    "pattern": re.escape(
-                        "Would you like to enter the initial configuration dialog? [yes/no]:"
-                    ),
+                    "name": "initial_config",
+                    "pattern": r"Would you like to enter the initial configuration dialog",
                     "tr_method": "cisco_config_dialog",
                 },
                 {
-                    "name": "prompt",
+                    "name": "press_enter",
                     "pattern": r"ress RETURN to get started",
-                    "tr_method": "hit_enter",
+                    "tr_method": "press_enter_to_continue",
                 },
             ]
 
