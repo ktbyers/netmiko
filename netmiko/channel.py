@@ -86,11 +86,11 @@ class SSHClient_noauth(paramiko.SSHClient):
 class Channel(ABC):
 
     if TYPE_CHECKING:
-        session_log: SessionLog
+        session_log: Optional["SessionLog"]
         encoding: str
 
     @abstractmethod
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         pass
 
     @abstractmethod
@@ -163,9 +163,9 @@ Data retrieved before timeout:\n\n{output}
 class TelnetChannel(Channel):
     def __init__(
         self,
-        telnet_params: Dict,
+        telnet_params: Dict["str", Any],
         encoding: str = "ascii",
-        session_log=None,
+        session_log: Optional["SessionLog"] = None,
         login_class: Type[TelnetLogin] = TelnetLogin,
     ) -> None:
         self.protocol = "telnet"
@@ -177,16 +177,16 @@ class TelnetChannel(Channel):
         self.password = self.telnet_params["password"]
         self.timeout = self.telnet_params["timeout"]
 
-        self.remote_conn = None
+        self.remote_conn: Optional[telnetlib.Telnet] = None
         self.encoding = encoding
         self.session_log = session_log
 
         self.login_class = login_class
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "TelnetChannel()"
 
-    def establish_connection(self, width=511, height=1000) -> None:
+    def establish_connection(self, width: int = 511, height: int = 1000) -> None:
 
         self.remote_conn = telnetlib.Telnet(
             self.host, port=self.port, timeout=self.timeout
@@ -220,7 +220,8 @@ class TelnetChannel(Channel):
 
     def close(self) -> None:
         try:
-            self.remote_conn.close()
+            if self.remote_conn is not None:
+                self.remote_conn.close()
         except Exception:
             # There have been race conditions observed on disconnect.
             pass
@@ -229,7 +230,8 @@ class TelnetChannel(Channel):
 
     @log_writes
     def write_channel(self, out_data: str) -> None:
-        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
+        if self.remote_conn is not None:
+            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
 
     @log_reads
     def read_buffer(self):
