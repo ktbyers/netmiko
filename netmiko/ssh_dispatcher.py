@@ -238,7 +238,7 @@ for k, v in FILE_TRANSFER_MAP.items():
 FILE_TRANSFER_MAP = new_mapper
 
 # Add telnet drivers
-CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet,
+CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
 CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
