@@ -1,7 +1,7 @@
 """Controls selection of proper class based on the device type."""
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
-from netmiko.adtran import AdtranOSSSH
+from netmiko.adtran import AdtranOSSSH, AdtranOSTelnet
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
@@ -238,6 +238,7 @@ for k, v in FILE_TRANSFER_MAP.items():
 FILE_TRANSFER_MAP = new_mapper
 
 # Add telnet drivers
+CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
 CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet

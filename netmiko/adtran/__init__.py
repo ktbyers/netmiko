@@ -1,3 +1,3 @@
-from netmiko.adtran.adtran import AdtranOSSSH
+from netmiko.adtran.adtran import AdtranOSSSH, AdtranOSTelnet
 
-__all__ = ["AdtranOSSSH"]
+__all__ = ["AdtranOSSSH", "AdtranOSTelnet"]
