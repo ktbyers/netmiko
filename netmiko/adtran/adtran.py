@@ -22,7 +22,7 @@ class AdtranOSBase(CiscoBaseConnection):
     def check_enable_mode(self, check_string="#"):
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd="enable", pattern="", re_flags=re.IGNORECASE):
+    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
     def exit_enable_mode(self, exit_command="disable"):
