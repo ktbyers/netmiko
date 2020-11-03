@@ -946,16 +946,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
                 msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
-            except paramiko.ssh_exception.SSHException as no_session_err:
-                self.paramiko_cleanup()
-                if "No existing session" in str(no_session_err):
-                    msg = (
-                        "Paramiko: 'No existing session' error: "
-                        "try increasing 'conn_timeout' to 10 seconds or larger."
-                    )
-                    raise NetmikoTimeoutException(msg)
-                else:
-                    raise
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
                 msg = f"""Authentication to device failed.
@@ -971,6 +961,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
+            except paramiko.ssh_exception.SSHException as no_session_err:
+                self.paramiko_cleanup()
+                if "No existing session" in str(no_session_err):
+                    msg = (
+                        "Paramiko: 'No existing session' error: "
+                        "try increasing 'conn_timeout' to 10 seconds or larger."
+                    )
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    raise
 
             if self.verbose:
                 print(f"SSH connection established to {self.host}:{self.port}")
