@@ -17,7 +17,11 @@ class DellPowerConnectBase(CiscoBaseConnection):
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.enable()
-        self.disable_paging(command="terminal datadump")
+        self.disable_paging(command="terminal datadump")  # Dell 34xx
+        self.disable_paging(command="terminal length 0")  # Dell 7xxx
+        # Clear the read buffer
+        time.sleep(0.3 * self.global_delay_factor)
+        self.clear_buffer()
 
     def set_base_prompt(
         self,
