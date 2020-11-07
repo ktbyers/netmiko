@@ -10,7 +10,7 @@ The **SSHDetect** class is instantiated using the same parameters than a standar
 connection (see the *netmiko.ssh_dispatacher.ConnectHandler* function). The only acceptable value
 for the 'device_type' argument is 'autodetect'.
 
-The auto-detection is solely based on the *SSH_MAPPER_BASE* dictionary. The keys are the name of
+The auto-detection is solely based on *SSH_MAPPER_BASE*. The keys are the name of
 the 'device_type' supported for auto-detection and the value is another dictionary describing how
 to handle the auto-detection.
 
@@ -189,6 +189,7 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
     "cisco_wlc": {
+        "cmd": "",
         "dispatch": "_autodetect_remote_version",
         "search_patterns": [r"CISCO_WLC"],
         "priority": 99,
@@ -206,6 +207,19 @@ SSH_MAPPER_BASE = {
         "dispatch": "_autodetect_std",
     },
 }
+
+# Sort SSH_MAPPER_BASE such that the most common commands are first
+cmd_count = {}
+for k, v in SSH_MAPPER_BASE.items():
+    count = cmd_count.setdefault(v["cmd"], 0)
+    cmd_count[v["cmd"]] = count + 1
+cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])}
+
+# SSH_MAPPER_BASE will be a list after this
+SSH_MAPPER_BASE = sorted(
+    SSH_MAPPER_BASE.items(), key=lambda item: int(cmd_count[item[1]["cmd"]])
+)
+SSH_MAPPER_BASE.reverse()
 
 
 class SSHDetect(object):
@@ -259,7 +273,7 @@ class SSHDetect(object):
         best_match : str or None
             The device type that is currently the best to use to interact with the device
         """
-        for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+        for device_type, autodetect_dict in SSH_MAPPER_BASE:
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop("dispatch")
             autodetect_method = getattr(self, call_method)
