@@ -8,15 +8,41 @@ from netmiko.ssh_exception import NetmikoAuthenticationException
 class CiscoAsaSSH(CiscoSSHConnection):
     """Subclass specific to Cisco ASA."""
 
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        kwargs.setdefault("allow_auto_change", True)
+        return super().__init__(*args, **kwargs)
+
+    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
+        """Adds in more command verify checks."""
+        output = ""
+        msg = (
+            "Failed to enter enable mode. Please ensure you pass "
+            "the 'secret' argument to ConnectHandler."
+        )
+        if not self.check_enable_mode():
+            self.write_channel(self.normalize_cmd(cmd))
+            try:
+                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                if pattern not in output:
+                    output += self.read_until_prompt_or_pattern(
+                        pattern=pattern, re_flags=re_flags
+                    )
+                self.write_channel(self.normalize_cmd(self.secret))
+                output += self.read_until_pattern(pattern=r"#")
+            except NetmikoTimeoutException:
+                raise ValueError(msg)
+        return output
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read()
-        self.set_base_prompt()
 
         if self.secret:
             self.enable()
         else:
             self.asa_login()
+        self.disable_paging(command="terminal pager 0")
 
         if self.allow_auto_change:
             try:
@@ -28,11 +54,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
             # Disable cmd_verify if the terminal width can't be set
             self.global_cmd_verify = False
 
-        self.disable_paging(command="terminal pager 0")
-
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def send_command_timing(self, *args, **kwargs):
         """
@@ -104,9 +126,10 @@ class CiscoAsaSSH(CiscoSSHConnection):
         i = 1
         max_attempts = 10
         self.write_channel("login" + self.RETURN)
+        output = self.read_until_pattern(pattern=r"login")
         while i <= max_attempts:
             time.sleep(0.5 * delay_factor)
-            output = self.read_channel()
+            output += self.read_channel()
             if "sername" in output:
                 self.write_channel(self.username + self.RETURN)
             elif "ssword" in output:

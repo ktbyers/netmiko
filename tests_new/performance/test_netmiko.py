@@ -119,6 +119,8 @@ def cleanup(device):
     platform = device["device_type"]
     if "juniper_junos" in platform:
         remove_acl_cmd = "rollback 0"
+    elif "cisco_asa" in platform:
+        remove_acl_cmd = "clear configure access-list netmiko_test_large_acl"
     else:
         base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
         remove_acl_cmd = f"no {base_acl_cmd}"
@@ -133,17 +135,22 @@ def cleanup_generic(device, command):
 
 def main():
     PASSWORD = os.environ["NORNIR_PASSWORD"]
+    ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
     for dev_name, dev_dict in devices.items():
-        if dev_name != "juniper_vmx":
+        if dev_name != "cisco_asa":
             continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
         print("-" * 12)
 
-        dev_dict["password"] = PASSWORD
+        if dev_name == "cisco_asa":
+            dev_dict["password"] = ADMIN_PASSWORD
+            dev_dict["secret"] = ADMIN_PASSWORD
+        else:
+            dev_dict["password"] = PASSWORD
 
         # Run tests
         operations = [

@@ -35,3 +35,10 @@ juniper_vmx:
   host: vmx1.lasthop.io
   username: pyclass
   session_log: vmx1.out
+
+cisco_asa:
+  device_type: cisco_asa
+  ip: 184.105.247.66
+  username: admin
+  allow_auto_change: True
+  session_log: asa1.out

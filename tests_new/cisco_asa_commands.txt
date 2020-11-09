@@ -1,0 +1,3 @@
+logging buffered notifications
+no logging console
+logging buffered warnings
