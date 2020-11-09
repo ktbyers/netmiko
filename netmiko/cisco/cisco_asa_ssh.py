@@ -14,6 +14,9 @@ class CiscoAsaSSH(CiscoSSHConnection):
         kwargs.setdefault("allow_auto_change", True)
         return super().__init__(*args, **kwargs)
 
+    def check_config_mode(self, check_string=")#", pattern=r"[>\#]"):
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
     def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
         """Adds in more command verify checks."""
         output = ""
