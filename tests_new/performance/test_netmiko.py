@@ -10,6 +10,11 @@ from test_utils import parse_yaml
 
 import network_utilities
 
+
+# import logging
+# logging.basicConfig(filename='test.log', level=logging.DEBUG)
+# logger = logging.getLogger("netmiko")
+
 PRINT_DEBUG = False
 
 PWD = path.dirname(path.realpath(__file__))
@@ -135,7 +140,6 @@ def cleanup_generic(device, command):
 
 def main():
     PASSWORD = os.environ["NORNIR_PASSWORD"]
-    ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
@@ -146,11 +150,9 @@ def main():
         print(f"Device name: {dev_name}")
         print("-" * 12)
 
+        dev_dict["password"] = PASSWORD
         if dev_name == "cisco_asa":
-            dev_dict["password"] = ADMIN_PASSWORD
-            dev_dict["secret"] = ADMIN_PASSWORD
-        else:
-            dev_dict["password"] = PASSWORD
+            dev_dict["secret"] = PASSWORD
 
         # Run tests
         operations = [
