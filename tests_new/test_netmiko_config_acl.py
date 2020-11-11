@@ -3,6 +3,7 @@ import re
 import pytest
 from network_utilities import generate_ios_acl
 from network_utilities import generate_cisco_nxos_acl  # noqa
+from network_utilities import generate_cisco_asa_acl  # noqa
 from network_utilities import generate_cisco_xr_acl  # noqa
 from network_utilities import generate_arista_eos_acl  # noqa
 from network_utilities import generate_juniper_junos_acl  # noqa
@@ -30,7 +31,7 @@ def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
     platform = net_connect.device_type
     support_commit = commands.get("support_commit")
 
-    if "juniper_junos" in platform:
+    if "juniper_junos" in platform or "cisco_asa" in platform:
         cmd = delete_cmd
     else:
         cmd = f"no {base_cmd}"
@@ -66,10 +67,13 @@ def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
     if "juniper_junos" in platform:
         offset = 6
         assert len(verify_list) - offset == len(cfg_lines)
+    elif "cisco_asa" in platform:
+        offset = 1
+        assert len(verify_list) - offset == len(cfg_lines)
     else:
         assert len(verify_list) == len(cfg_lines)
 
-    if "juniper_junos" in platform:
+    if "juniper_junos" in platform or "cisco_asa" in platform:
         cmd = delete_cmd
     else:
         cmd = f"no {base_cmd}"

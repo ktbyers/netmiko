@@ -187,7 +187,9 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         time.sleep(1)
         net_connect.clear_buffer()
         fallback_cmd = commands.get("basic")
-        command = commands.get("basic_textfsm", fallback_cmd)
+        command = commands.get("basic_genie")
+        if not command:
+            command = commands.get("basic_textfsm", fallback_cmd)
         show_ip_alt = net_connect.send_command(command, use_genie=True)
         assert isinstance(show_ip_alt, dict)
 
