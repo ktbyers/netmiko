@@ -157,8 +157,8 @@ class CiscoAsaSSH(CiscoSSHConnection):
         newline = re.compile("(\r\n\r|\r\r\r\n|\r\r\n|\r\n|\n\r)")
         a_string = newline.sub(self.RESPONSE_RETURN, a_string)
         if self.RESPONSE_RETURN == "\n":
-            # Convert any remaining \r to \n
-            return re.sub("\r", self.RESPONSE_RETURN, a_string)
+            # Delete any remaining \r
+            return re.sub("\r", "", a_string)
         else:
             return a_string
 
