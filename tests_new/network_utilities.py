@@ -190,5 +190,4 @@ if __name__ == "__main__":
         "access-list netmiko_test_large_acl extended permit ip host 192.168.0.9 any",
         "access-list netmiko_test_large_acl extended permit ip host 192.168.0.10 any",
     ]
-    from pprint import pprint
     assert acl == ref_acl

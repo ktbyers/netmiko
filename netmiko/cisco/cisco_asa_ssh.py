@@ -17,26 +17,16 @@ class CiscoAsaSSH(CiscoSSHConnection):
     def check_config_mode(self, check_string=")#", pattern=r"[>\#]"):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
-        """Adds in more command verify checks."""
-        output = ""
-        msg = (
-            "Failed to enter enable mode. Please ensure you pass "
-            "the 'secret' argument to ConnectHandler."
+    def enable(
+        self,
+        cmd="enable",
+        pattern="ssword",
+        enable_pattern=r"#",
+        re_flags=re.IGNORECASE,
+    ):
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
         )
-        if not self.check_enable_mode():
-            self.write_channel(self.normalize_cmd(cmd))
-            try:
-                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
-                if pattern not in output:
-                    output += self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
-                    )
-                self.write_channel(self.normalize_cmd(self.secret))
-                output += self.read_until_pattern(pattern=r"#")
-            except NetmikoTimeoutException:
-                raise ValueError(msg)
-        return output
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""

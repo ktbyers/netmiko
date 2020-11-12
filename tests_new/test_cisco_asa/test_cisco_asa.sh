@@ -15,9 +15,3 @@ echo "Starting tests...good luck:" \
 || RETURN_CODE=1
 
 exit $RETURN_CODE
-
-# Newline normalization has a problem here in session_log
-# Test "login" process
-# Strongly consider making that new enable with cmd_verify baked in the new cmd_verify
-# Strongly consider making that check_config_mode with a pattern backed in the new normal (potentially abstracting the prompts
-# to attributes)
