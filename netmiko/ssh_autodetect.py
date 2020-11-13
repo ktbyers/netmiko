@@ -101,7 +101,7 @@ SSH_MAPPER_BASE = {
     },
     "dell_force10": {
         "cmd": "show version",
-        "search_patterns": [r"S4048-ON"],
+        "search_patterns": [r"Real Time Operating System Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
