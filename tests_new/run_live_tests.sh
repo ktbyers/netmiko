@@ -21,3 +21,7 @@ cd test_arista_eos
 cd ..
 cd test_juniper_junos
 ./test_juniper_junos.sh > ../test_out/test_juniper_junos.out 2> ../test_out/test_juniper_junos.stderr &
+
+cd ..
+cd test_cisco_asa
+./test_cisco_asa.sh > ../test_out/test_cisco_asa.out 2> ../test_out/test_cisco_asa.stderr &
