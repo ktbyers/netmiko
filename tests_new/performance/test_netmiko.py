@@ -10,6 +10,11 @@ from test_utils import parse_yaml
 
 import network_utilities
 
+
+# import logging
+# logging.basicConfig(filename='test.log', level=logging.DEBUG)
+# logger = logging.getLogger("netmiko")
+
 PRINT_DEBUG = False
 
 PWD = path.dirname(path.realpath(__file__))
@@ -119,6 +124,8 @@ def cleanup(device):
     platform = device["device_type"]
     if "juniper_junos" in platform:
         remove_acl_cmd = "rollback 0"
+    elif "cisco_asa" in platform:
+        remove_acl_cmd = "clear configure access-list netmiko_test_large_acl"
     else:
         base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
         remove_acl_cmd = f"no {base_acl_cmd}"
@@ -137,13 +144,15 @@ def main():
     devices = read_devices()
     print("\n\n")
     for dev_name, dev_dict in devices.items():
-        if dev_name != "juniper_vmx":
+        if dev_name != "cisco_asa":
             continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
         print("-" * 12)
 
         dev_dict["password"] = PASSWORD
+        if dev_name == "cisco_asa":
+            dev_dict["secret"] = PASSWORD
 
         # Run tests
         operations = [

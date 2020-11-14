@@ -17,7 +17,18 @@ class AristaBase(CiscoSSHConnection):
         self.disable_paging(cmd_verify=False, pattern=r"Pagination disabled")
         self.set_base_prompt()
 
-    def check_config_mode(self, check_string=")#", pattern=""):
+    def enable(
+        self,
+        cmd="enable",
+        pattern="ssword",
+        enable_pattern=r"\#",
+        re_flags=re.IGNORECASE,
+    ):
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        )
+
+    def check_config_mode(self, check_string=")#", pattern=r"[>\#]"):
         """
         Checks if the device is in configuration mode or not.
 
@@ -27,11 +38,7 @@ class AristaBase(CiscoSSHConnection):
         Can also be (s2)
         """
         self.write_channel(self.RETURN)
-        # You can encounter an issue here (on router name changes) prefer delay-based solution
-        if not pattern:
-            output = self._read_channel_timing()
-        else:
-            output = self.read_until_pattern(pattern=pattern)
+        output = self.read_until_pattern(pattern=pattern)
         output = output.replace("(s1)", "")
         output = output.replace("(s2)", "")
         return check_string in output

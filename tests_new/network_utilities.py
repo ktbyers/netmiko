@@ -87,6 +87,20 @@ def generate_juniper_junos_acl(
     return acl
 
 
+def generate_cisco_asa_acl(
+    acl_name="netmiko_test_large_acl",
+    entries=100,
+    base_cmd=None,
+    base_addr="192.168.0.0",
+):
+    acl = []
+    for i in range(1, entries + 1):
+        addr = ip_address(base_addr)
+        cmd = f"access-list {acl_name} extended permit ip host {addr + i} any"
+        acl.append(cmd)
+    return acl
+
+
 if __name__ == "__main__":
     # Test code
     acl = generate_ios_acl(entries=10)
@@ -160,5 +174,20 @@ if __name__ == "__main__":
         "192.168.0.9",
         "set firewall family inet filter netmiko_test_large_acl term 10 from address "
         "192.168.0.10",
+    ]
+    assert acl == ref_acl
+
+    acl = generate_cisco_asa_acl(entries=10)
+    ref_acl = [
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.1 any",
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.2 any",
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.3 any",
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.4 any",
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.5 any",
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.6 any",
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.7 any",
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.8 any",
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.9 any",
+        "access-list netmiko_test_large_acl extended permit ip host 192.168.0.10 any",
     ]
     assert acl == ref_acl

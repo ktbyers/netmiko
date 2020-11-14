@@ -8,15 +8,34 @@ from netmiko.ssh_exception import NetmikoAuthenticationException
 class CiscoAsaSSH(CiscoSSHConnection):
     """Subclass specific to Cisco ASA."""
 
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("fast_cli", True)
+        kwargs.setdefault("_legacy_mode", False)
+        kwargs.setdefault("allow_auto_change", True)
+        return super().__init__(*args, **kwargs)
+
+    def check_config_mode(self, check_string=")#", pattern=r"[>\#]"):
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def enable(
+        self,
+        cmd="enable",
+        pattern="ssword",
+        enable_pattern=r"\#",
+        re_flags=re.IGNORECASE,
+    ):
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        )
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
-        self._test_channel_read()
-        self.set_base_prompt()
 
         if self.secret:
             self.enable()
         else:
             self.asa_login()
+        self.disable_paging(command="terminal pager 0")
 
         if self.allow_auto_change:
             try:
@@ -28,11 +47,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
             # Disable cmd_verify if the terminal width can't be set
             self.global_cmd_verify = False
 
-        self.disable_paging(command="terminal pager 0")
-
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def send_command_timing(self, *args, **kwargs):
         """
@@ -104,9 +119,10 @@ class CiscoAsaSSH(CiscoSSHConnection):
         i = 1
         max_attempts = 10
         self.write_channel("login" + self.RETURN)
+        output = self.read_until_pattern(pattern=r"login")
         while i <= max_attempts:
             time.sleep(0.5 * delay_factor)
-            output = self.read_channel()
+            output += self.read_channel()
             if "sername" in output:
                 self.write_channel(self.username + self.RETURN)
             elif "ssword" in output:
@@ -125,6 +141,16 @@ class CiscoAsaSSH(CiscoSSHConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+
+    def normalize_linefeeds(self, a_string):
+        """Cisco ASA needed that extra \r\n\r"""
+        newline = re.compile("(\r\n\r|\r\r\r\n|\r\r\n|\r\n|\n\r)")
+        a_string = newline.sub(self.RESPONSE_RETURN, a_string)
+        if self.RESPONSE_RETURN == "\n":
+            # Delete any remaining \r
+            return re.sub("\r", "", a_string)
+        else:
+            return a_string
 
 
 class CiscoAsaFileTransfer(CiscoFileTransfer):

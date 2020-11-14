@@ -1649,13 +1649,18 @@ Device settings: {self.device_type} {self.host}:{self.port}
         output = self.read_until_prompt()
         return check_string in output
 
-    def enable(self, cmd="", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(
+        self, cmd="", pattern="ssword", enable_pattern=None, re_flags=re.IGNORECASE
+    ):
         """Enter enable mode.
 
         :param cmd: Device command to enter enable mode
         :type cmd: str
 
         :param pattern: pattern to search for indicating device is waiting for password
+        :type pattern: str
+
+        :param enable_pattern: pattern indicating you have entered enable mode
         :type pattern: str
 
         :param re_flags: Regular expression flags used in conjunction with pattern
@@ -1669,14 +1674,19 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
             try:
-                output += self.read_until_prompt_or_pattern(
-                    pattern=pattern, re_flags=re_flags
-                )
+                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                if pattern not in output:
+                    output += self.read_until_prompt_or_pattern(
+                        pattern=pattern, re_flags=re_flags
+                    )
                 self.write_channel(self.normalize_cmd(self.secret))
-                output += self.read_until_prompt()
+                if enable_pattern:
+                    output += self.read_until_pattern(pattern=enable_pattern)
+                else:
+                    output += self.read_until_prompt()
+                    if not self.check_enable_mode():
+                        raise ValueError(msg)
             except NetmikoTimeoutException:
-                raise ValueError(msg)
-            if not self.check_enable_mode():
                 raise ValueError(msg)
         return output
 
