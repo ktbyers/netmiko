@@ -18,6 +18,7 @@ import pytest
 import time
 from datetime import datetime
 
+
 def test_disable_paging(net_connect, commands, expected_responses):
     """Verify paging is disabled by looking for string after when paging would normally occur."""
     # FIX: these really shouldn't be necessary.
