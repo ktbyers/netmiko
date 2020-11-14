@@ -21,7 +21,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         self,
         cmd="enable",
         pattern="ssword",
-        enable_pattern=r"#",
+        enable_pattern=r"\#",
         re_flags=re.IGNORECASE,
     ):
         return super().enable(
