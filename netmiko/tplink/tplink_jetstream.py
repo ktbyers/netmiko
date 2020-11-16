@@ -124,7 +124,12 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
 
 
 class TPLinkJetStreamSSH(TPLinkJetStreamBase):
-    def _override_check_dsa_parameters(parameters):
+    def __init__(self, **kwargs):
+        dsa._check_dsa_parameters = self._override_check_dsa_parameters
+
+        return super().__init__(**kwargs)
+
+    def _override_check_dsa_parameters(self, parameters):
         """
         Override check_dsa_parameters from cryptography's dsa.py
 
@@ -148,7 +153,6 @@ class TPLinkJetStreamSSH(TPLinkJetStreamBase):
         if not (1 < parameters.g < parameters.p):
             raise ValueError("g, p don't satisfy 1 < g < p.")
 
-    dsa._check_dsa_parameters = _override_check_dsa_parameters
 
 
 class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
