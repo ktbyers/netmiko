@@ -154,7 +154,6 @@ class TPLinkJetStreamSSH(TPLinkJetStreamBase):
             raise ValueError("g, p don't satisfy 1 < g < p.")
 
 
-
 class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
     def telnet_login(
         self,
