@@ -1,7 +1,6 @@
 import re
 import time
 
-from cryptography import utils as crypto_utils
 from cryptography.hazmat.primitives.asymmetric import dsa
 
 from netmiko import log
@@ -147,7 +146,7 @@ class TPLinkJetStreamSSH(TPLinkJetStreamBase):
 
         It's still not possible to remove this hack.
         """
-        if crypto_utils.bit_length(parameters.q) not in [160, 256]:
+        if parameters.q.bit_length() not in [160, 256]:
             raise ValueError("q must be exactly 160 or 256 bits long")
 
         if not (1 < parameters.g < parameters.p):
