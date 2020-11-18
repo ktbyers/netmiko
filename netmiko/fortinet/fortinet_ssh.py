@@ -117,7 +117,7 @@ class FortinetSSH(CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config=""):
+    def exit_config_mode(self, exit_config="", pattern=""):
         """No config mode for Fortinet devices."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
