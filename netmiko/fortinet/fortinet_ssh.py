@@ -97,14 +97,27 @@ class FortinetSSH(CiscoSSHConnection):
             for command in enable_paging_commands:
                 self.send_command_timing(command)
         return super().cleanup(command=command)
+    def check_config_mode(self, check_string=") #", pattern=""):
+        """
+        Checks if the device is in configuration mode or not.
+        """
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=""):
-        """No config mode for Fortinet devices."""
-        return ""
+    def config_mode(self, config_command="config global", pattern="", re_flags=0):
+        """
+        Enter into configuration mode on remote device.
 
-    def exit_config_mode(self, exit_config=""):
-        """No config mode for Fortinet devices."""
-        return ""
+        Several commands available only in config global mode or config vdom mode
+        """
+        if not pattern:
+            pattern = re.escape(self.base_prompt[:16])
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
+
+    def exit_config_mode(self, exit_config="end", pattern='#'):
+        """Exit from configuration mode."""
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(self, *args, **kwargs):
         """Not Implemented"""
