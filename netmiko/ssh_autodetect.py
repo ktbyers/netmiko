@@ -116,7 +116,7 @@ SSH_MAPPER_BASE = {
     },
     "dell_os10": {
         "cmd": "show version",
-        "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
+        "search_patterns": [r"Dell EMC Networking OS10.Enterprise"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
