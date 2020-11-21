@@ -27,6 +27,7 @@
 - Dell OS9 (Force10)
 - Dell OS10
 - Dell PowerConnect
+- Ericsson IPOS
 - Extreme ERS (Avaya)
 - Extreme VSP (Avaya)
 - Extreme VDX (Brocade)
