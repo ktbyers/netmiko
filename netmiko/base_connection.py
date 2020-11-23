@@ -934,6 +934,7 @@ Common causes of this problem are:
 3. Intermediate firewall blocking access.
 
 Device settings: {self.device_type} {self.host}:{self.port}
+Error info: [{conn_error.__class__.__name__}] {conn_error}
 
 """
 
