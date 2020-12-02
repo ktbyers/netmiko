@@ -279,7 +279,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         if "File Not Found" in remote_out:
             raise IOError("Unable to find file on remote system")
 
-        dest_file_name = remote_file.replace('\\', '/').split('/')[-1]
+        dest_file_name = remote_file.replace("\\", "/").split("/")[-1]
         # Parse dir output for filename. Output format is:
         # "10/16/2019  10:00p                6738 {dest_file_name}"
 
