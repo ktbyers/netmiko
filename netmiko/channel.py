@@ -51,8 +51,8 @@ def log_reads(func: Callable[..., str]) -> Callable[..., str]:
 
 
 def log_writes(
-    func: Callable[["Channel", str], None]
-) -> Callable[["Channel", str], None]:
+    func: Callable[..., None]
+) -> Callable[..., None]:
     """Handle both session_log and log of writes."""
 
     @functools.wraps(func)
@@ -177,11 +177,12 @@ class TelnetChannel(Channel):
         self.password = self.telnet_params["password"]
         self.timeout = self.telnet_params["timeout"]
 
-        self.remote_conn: Optional[telnetlib.Telnet] = None
         self.encoding = encoding
         self.session_log = session_log
 
         self.login_class = login_class
+
+        self.remote_conn: Optional[telnetlib.Telnet] = None
 
     def __repr__(self) -> str:
         return "TelnetChannel()"
@@ -234,27 +235,29 @@ class TelnetChannel(Channel):
             self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
 
     @log_reads
-    def read_buffer(self):
+    def read_buffer(self) -> str:
         """
         Single read of available data. No sleeps.
 
-        From telnetlib documenation on `read_eager`:
+        From telnetlib documentation on `read_eager`:
         ---
         Read readily available data.
 
         Raise EOFError if connection closed and no cooked data available. Return '' if no cooked
         data available otherwise. Do not block unless in the midst of an IAC sequence.
         """
+        assert isinstance(self.remote_conn, telnetlib.Telnet)
         return self.remote_conn.read_eager().decode("utf-8", "ignore")
 
     @ansi_strip
     @log_reads
     def read_channel(self) -> str:
         """Read all of the available data from the telnet channel. No sleeps"""
+        assert isinstance(self.remote_conn, telnetlib.Telnet)
         output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
         return output
 
-    def read_channel_expect(self, pattern, timeout=10, re_flags=0):
+    def read_channel_expect(self, pattern: str, timeout: int = 10, re_flags: int = 0) -> str:
         """Read until pattern or timeout."""
         return super().read_channel_expect(
             pattern=pattern, timeout=timeout, re_flags=re_flags

@@ -29,6 +29,7 @@ class TelnetLogin:
         no_match: Callable[..., bool]
         enter_sent: Callable[..., bool]
         finish_config_dialog: Callable[..., bool]
+        start: Callable[..., bool]
 
     def __init__(
         self,
