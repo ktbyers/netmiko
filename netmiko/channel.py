@@ -50,9 +50,7 @@ def log_reads(func: Callable[..., str]) -> Callable[..., str]:
     return wrapper_decorator
 
 
-def log_writes(
-    func: Callable[..., None]
-) -> Callable[..., None]:
+def log_writes(func: Callable[..., None]) -> Callable[..., None]:
     """Handle both session_log and log of writes."""
 
     @functools.wraps(func)
@@ -257,7 +255,9 @@ class TelnetChannel(Channel):
         output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
         return output
 
-    def read_channel_expect(self, pattern: str, timeout: int = 10, re_flags: int = 0) -> str:
+    def read_channel_expect(
+        self, pattern: str, timeout: int = 10, re_flags: int = 0
+    ) -> str:
         """Read until pattern or timeout."""
         return super().read_channel_expect(
             pattern=pattern, timeout=timeout, re_flags=re_flags
@@ -408,6 +408,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
+
+    def login(self) -> None:
+        """Generally not used with SSH."""
+        return
 
     @log_writes
     def write_channel(self, out_data: str) -> None:

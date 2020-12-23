@@ -585,37 +585,44 @@ class BaseConnection(object):
         self._modify_connection_params()
 
         if self.protocol == "ssh":
-            ssh_params = self._connect_params_dict()
-            ChannelClass = (
-                SSHChannel if ssh_channel_class is None else ssh_channel_class
-            )
-            self.channel = ChannelClass(
-                ssh_params,
-                ssh_hostkey_args=self.ssh_hostkey_args,
-                encoding=self.encoding,
-                session_log=self.session_log,
-            )
-            self.channel.establish_connection()
-            self.special_login_handler()
+            self._open_ssh(ssh_channel_class)
         elif self.protocol == "telnet":
-            telnet_params = self._telnet_params_dict()
-            ChannelClass = self.telnet_channel
-            self.channel = ChannelClass(
-                telnet_params, encoding=self.encoding, session_log=self.session_log
-            )
-            self.channel.establish_connection()
+            self._open_ssh(telnet_channel_class)
         elif self.protocol == "serial":
-            ChannelClass = (
-                SerialChannel if serial_channel_class is None else serial_channel_class
-            )
-            self.channel = ChannelClass(
-                encoding=self.encoding, session_log=self.session_log
-            )
-            self.channel.establish_connection()
+            self._open_serial(serial_channel_class)
         else:
             raise ValueError(f"Unknown protocol specified: {self.protocol}")
 
         self._try_session_preparation()
+
+    def _open_ssh(self, ssh_channel_class) -> None:
+        ssh_params = self._connect_params_dict()
+        ChannelClass = SSHChannel if ssh_channel_class is None else ssh_channel_class
+        self.channel = ChannelClass(
+            ssh_params,
+            ssh_hostkey_args=self.ssh_hostkey_args,
+            encoding=self.encoding,
+            session_log=self.session_log,
+        )
+        self.channel.establish_connection()
+        self.special_login_handler()
+
+    def _open_telnet(self, telnet_channel_class) -> None:
+        telnet_params = self._telnet_params_dict()
+        ChannelClass = self.telnet_channel
+        self.channel = ChannelClass(
+            telnet_params, encoding=self.encoding, session_log=self.session_log
+        )
+        self.channel.establish_connection()
+
+    def _open_serial(self, serial_channel_class) -> None:
+        ChannelClass = (
+            SerialChannel if serial_channel_class is None else serial_channel_class
+        )
+        self.channel = ChannelClass(
+            encoding=self.encoding, session_log=self.session_log
+        )
+        self.channel.establish_connection()
 
     def __enter__(self):
         """Establish a session using a Context Manager."""
