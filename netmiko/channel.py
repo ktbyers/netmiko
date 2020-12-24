@@ -292,8 +292,12 @@ class TelnetChannel(Channel):
 
 class SSHChannel(Channel):
     def __init__(
-        self, ssh_params, ssh_hostkey_args=None, encoding="ascii", session_log=None
-    ):
+        self, 
+        ssh_params: Dict["str", Any],
+        ssh_hostkey_args: Optional[Dict["str", Any]] = None, 
+        encoding: str ="ascii", 
+        session_log: Optional["SessionLog"] = None,
+    ) -> None:
         self.ssh_params = ssh_params
         self.blocking_timeout = ssh_params.pop("blocking_timeout", 20)
         self.keepalive = ssh_params.pop("keepalive", 0)
@@ -306,10 +310,10 @@ class SSHChannel(Channel):
         self.session_log = session_log
         self.encoding = encoding
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "SSHChannel(ssh_params)"
 
-    def _build_ssh_client(self, no_auth=False):
+    def _build_ssh_client(self, no_auth: bool = False) -> paramiko.SSHClient:
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
 
@@ -337,14 +341,14 @@ class SSHChannel(Channel):
         remote_conn_pre.set_missing_host_key_policy(key_policy)
         return remote_conn_pre
 
-    def establish_connection(self, width=511, height=1000):
+    def establish_connection(self, width: int = 511, height: int = 1000) -> None:
         self.remote_conn_pre = self._build_ssh_client()
 
         # initiate SSH connection
         try:
             self.remote_conn_pre.connect(**self.ssh_params)
         except socket.error as conn_error:
-            self.paramiko_cleanup()
+            self.close()
             msg = f"""TCP connection to device failed.
 
 Common causes of this problem are:
@@ -366,7 +370,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             msg = msg.lstrip()
             raise NetmikoTimeoutException(msg)
         except paramiko.ssh_exception.SSHException as no_session_err:
-            self.paramiko_cleanup()
+            self.close()
             if "No existing session" in str(no_session_err):
                 msg = (
                     "Paramiko: 'No existing session' error: "
@@ -376,7 +380,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             else:
                 raise
         except paramiko.ssh_exception.AuthenticationException as auth_err:
-            self.paramiko_cleanup()
+            self.close()
             msg = f"""Authentication to device failed.
 
 Common causes of this problem are:
