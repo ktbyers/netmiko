@@ -278,10 +278,11 @@ class TelnetChannel(Channel):
             # Try sending IAC + NOP (IAC is telnet way of sending command)
             # IAC = Interpret as Command; it comes before the NOP.
             log.debug("Sending IAC + NOP")
+            telnet_socket = self.remote_conn.get_socket()
             # Need to send multiple times to test connection
-            self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-            self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-            self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+            telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
+            telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
+            telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
             return True
         except AttributeError:
             return False
