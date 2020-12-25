@@ -392,7 +392,12 @@ class SSHDetect(object):
         return 0
 
     def _autodetect_std(
-        self, cmd="", search_patterns=None, re_flags=re.IGNORECASE, priority=99, read_after=1
+        self,
+        cmd="",
+        search_patterns=None,
+        re_flags=re.IGNORECASE,
+        priority=99,
+        read_after=1,
     ):
         """
         Standard method to try to auto-detect the device type. This method will be called for each
