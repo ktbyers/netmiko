@@ -14,7 +14,7 @@ from os import path
 from threading import Lock
 import functools
 from abc import ABC, abstractmethod
-from typing import Optional, Dict
+from typing import Optional, Dict, Callable, Any
 
 import paramiko
 import serial
@@ -35,9 +35,9 @@ from netmiko.utilities import (
 from netmiko.utilities import m_exec_time  # noqa
 
 
-def lock_channel(func):
+def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(func)
-    def wrapper_decorator(self, *args, **kwargs):
+    def wrapper_decorator(self: BaseConnection, *args: Any, **kwargs: Any) -> Any:
         self._lock_netmiko_session()
         try:
             return_val = func(self, *args, **kwargs)
@@ -118,7 +118,7 @@ class NetworkDevice(ABC):
 
     # Output processing
     @abstractmethod
-    def strip_prompt(self, a_string) -> str:
+    def strip_prompt(self, a_string: str) -> str:
         pass
 
     # Read Device
@@ -144,7 +144,7 @@ class NetworkDevice(ABC):
 
     # Read device
     @abstractmethod
-    def send_command_expect(self, *args, **kwargs) -> str:
+    def send_command_expect(self, *args: Any, **kwargs: Any) -> str:
         pass
 
     # Output processing
@@ -204,7 +204,9 @@ class NetworkDevice(ABC):
 
     # Config Change
     @abstractmethod
-    def send_config_from_file(self, config_file: Optional[str] = None, **kwargs) -> str:
+    def send_config_from_file(
+        self, config_file: Optional[str] = None, **kwargs: Any
+    ) -> str:
         pass
 
     # Config Change
@@ -240,7 +242,7 @@ class NetworkDevice(ABC):
 
     # Modify State / Apply Config
     @abstractmethod
-    def save_config(self, *args, **kwargs) -> str:
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         pass
 
 
@@ -660,7 +662,7 @@ class BaseConnection(object):
             raise NetmikoTimeoutException(msg)
         return False
 
-    def _lock_netmiko_session(self, start=None):
+    def _lock_netmiko_session(self, start=None) -> bool:
         """
         Try to acquire the Netmiko session lock. If not available, wait in the queue until
         the channel is available again.
@@ -677,7 +679,7 @@ class BaseConnection(object):
             time.sleep(0.1)
         return True
 
-    def _unlock_netmiko_session(self):
+    def _unlock_netmiko_session(self) -> None:
         """Release the channel at the end of the task."""
         if self._session_locker.locked():
             self._session_locker.release()
