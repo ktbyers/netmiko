@@ -347,9 +347,8 @@ class SSHChannel(Channel):
 
     def establish_connection(self, width: int = 511, height: int = 1000) -> None:
         self.remote_conn_pre = self._build_ssh_client()
-        import ipdb
-
-        ipdb.set_trace()
+        host = self.ssh_params.get("hostname")
+        port = self.ssh_params.get("port", 22)
 
         # initiate SSH connection
         try:
@@ -363,7 +362,7 @@ Common causes of this problem are:
 2. Wrong TCP port.
 3. Intermediate firewall blocking access.
 
-Device settings: {self.device_type} {self.host}:{self.port}
+Device settings: {self.device_type} {host}:{port}
 
 """
 
@@ -371,7 +370,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             if "Name or service not known" in str(conn_error):
                 msg = (
                     f"DNS failure--the hostname you provided was not resolvable "
-                    f"in DNS: {self.host}:{self.port}"
+                    f"in DNS: {host}:{port}"
                 )
 
             msg = msg.lstrip()
@@ -395,11 +394,11 @@ Common causes of this problem are:
 2. Incorrect SSH-key file
 3. Connecting to the wrong device
 
-Device settings: {self.device_type} {self.host}:{self.port}
+Device settings: {self.device_type} {host}:{port}
 
 """
 
-            msg += self.RETURN + str(auth_err)
+            msg += "\n" + str(auth_err)
             raise NetmikoAuthenticationException(msg)
 
         # Use invoke_shell to establish an 'interactive session'
@@ -407,6 +406,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             term="vt100", width=width, height=height
         )
 
+        assert isinstance(self.remote_conn, paramiko.channel.Channel)
         self.remote_conn.settimeout(self.blocking_timeout)
         if self.keepalive:
             self.remote_conn.transport.set_keepalive(self.keepalive)
@@ -427,13 +427,14 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
     @log_writes
     def write_channel(self, out_data: str) -> None:
-        self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
+        if self.remote_conn is not None:
+            self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
     @log_reads
-    def read_buffer(self):
+    def read_buffer(self) -> str:
         """Single read of available data. No sleeps."""
         output = ""
-        if self.remote_conn.recv_ready():
+        if self.remote_conn is not None and self.remote_conn.recv_ready():
             outbuf = self.remote_conn.recv(MAX_BUFFER)
             if len(outbuf) == 0:
                 raise EOFError("Channel stream closed by remote device.")
@@ -451,13 +452,15 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 break
         return output
 
-    def read_channel_expect(self, pattern, timeout=10, re_flags=0):
+    def read_channel_expect(
+        self, pattern: str, timeout: int = 10, re_flags: int = 0
+    ) -> str:
         """Read until pattern or timeout."""
         return super().read_channel_expect(
             pattern=pattern, timeout=timeout, re_flags=re_flags
         )
 
-    def read_channel_timing(self, delay_factor=1, timeout=10):
+    def read_channel_timing(self, delay_factor: int = 1, timeout: int = 10) -> str:
         """
         Read data on the channel based on timing delays.
 
@@ -521,8 +524,8 @@ class SerialChannel(Channel):
         serial_settings: Dict["str", Any],
         device_type: str,
         encoding: str = "ascii",
-        session_log=None,
-    ):
+        session_log: Optional["SessionLog"] = None,
+    ) -> None:
         self.protocol = "serial"
         self.serial_settings = serial_settings
         self.device_type = device_type
@@ -530,12 +533,12 @@ class SerialChannel(Channel):
         self.encoding = encoding
         self.session_log = session_log
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "SerialChannel()"
 
-    def establish_connection(self, width=511, height=1000):
+    def establish_connection(self, width: int = 511, height: int = 1000) -> None:
         self.remote_conn = serial.Serial(**self.serial_settings)
-        self.serial_login()
+        self.login()
 
     def login(self) -> None:
         # FIX: Needs implemented
@@ -543,32 +546,38 @@ class SerialChannel(Channel):
 
     def close(self) -> None:
         try:
-            self.remote_conn.close()
+            if self.remote_conn is not None:
+                self.remote_conn.close()
         finally:
             # There have been race conditions observed on disconnect.
             self.remote_conn = None
 
     @log_writes
-    def write_channel(self, out_data):
-        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-        self.remote_conn.flush()
+    def write_channel(self, out_data: str) -> None:
+        if self.remote_conn is not None:
+            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
+            self.remote_conn.flush()
 
-    def read_buffer(self):
+    def read_buffer(self) -> str:
         # FIX: needs implemented
-        pass
+        return ""
 
     @ansi_strip
     @log_reads
     def read_channel(self) -> str:
         """Read all of the available data from the serial channel."""
         output = ""
+        if self.remote_conn is None:
+            return output
         while self.remote_conn.in_waiting > 0:
             output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
                 "utf-8", "ignore"
             )
         return output
 
-    def read_channel_expect(self, pattern, timeout=10, re_flags=0):
+    def read_channel_expect(
+        self, pattern: str, timeout: int = 10, re_flags: int = 0
+    ) -> str:
         # FIX: needs implemented
         pass
 
