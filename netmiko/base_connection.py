@@ -14,7 +14,7 @@ from os import path
 from threading import Lock
 import functools
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Callable, Any
+from typing import Optional, Dict, Callable, Any, Type
 
 import paramiko
 import serial
@@ -255,56 +255,56 @@ class BaseConnection(object):
 
     def __init__(
         self,
-        ip="",
-        host="",
-        username="",
-        password=None,
-        secret="",
-        port=None,
-        device_type="",
-        verbose=False,
-        global_delay_factor=1,
-        global_cmd_verify=None,
-        use_keys=False,
-        key_file=None,
-        pkey=None,
-        passphrase=None,
-        allow_agent=False,
-        ssh_strict=False,
-        system_host_keys=False,
-        alt_host_keys=False,
-        alt_key_file="",
-        ssh_config_file=None,
+        ip: str = "",
+        host: str = "",
+        username: str = "",
+        password: Optional[str] = None,
+        secret: str = "",
+        port: Optional[int] = None,
+        device_type: str = "",
+        verbose: bool = False,
+        global_delay_factor: float = 1.0,
+        global_cmd_verify: bool = None,
+        use_keys: bool = False,
+        key_file: Optional[str] = None,
+        pkey: Optional[paramiko.Pkey] = None,
+        passphrase: Optional[str] = None,
+        allow_agent: bool = False,
+        ssh_strict: bool = False,
+        system_host_keys: bool = False,
+        alt_host_keys: bool = False,
+        alt_key_file: str = "",
+        ssh_config_file: Optional[str] = None,
         #
         # Connect timeouts
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
-        conn_timeout=5,
-        auth_timeout=None,  # Timeout to wait for authentication response
-        banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
-        read_timeout=10,  # Default timeout to wait for data in core read loop
+        conn_timeout: int = 5,
+        auth_timeout: Optional[int] = None,  # Timeout to wait for authentication response
+        banner_timeout: int = 15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        read_timeout: int = 10,  # Default timeout to wait for data in core read loop
         # Other timeouts
         # FIX - this will probably go away and read_timeout will replace
-        blocking_timeout=20,  # Read blocking timeout
+        blocking_timeout: int = 20,  # Read blocking timeout
         # FIX, not sure what to do here WRT to passing args from other libs and old timeout
-        telnet_timeout=20,
-        timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
-        session_timeout=60,  # Used for locking/sharing the connection
-        keepalive=0,
-        default_enter=None,
-        response_return=None,
-        serial_settings=None,
-        fast_cli=False,
-        _legacy_mode=True,
-        session_log=None,
-        session_log_record_writes=False,
-        session_log_file_mode="write",
-        allow_auto_change=False,
-        encoding="ascii",
-        sock=None,
-        auto_connect=True,
-        telnet_channel=TelnetChannel,
-    ):
+        telnet_timeout: int = 20,
+        timeout: int = 100,  # TCP connect timeout | overloaded to read-loop timeout
+        session_timeout: int = 60,  # Used for locking/sharing the connection
+        keepalive: int = 0,
+        default_enter: Optional[str] = None,
+        response_return: Optional[str] = None,
+        serial_settings: Optional[Dict[str, Any]] = None,
+        fast_cli: bool = False,
+        _legacy_mode: bool = True,
+        session_log: Optional[SessionLog] = None,
+        session_log_record_writes: bool = False,
+        session_log_file_mode: str = "write",
+        allow_auto_change: bool = False,
+        encoding: str = "ascii",
+        sock: Optional[Any] = None,
+        auto_connect: bool = True,
+        telnet_channel: Type[TelnetChannel] = TelnetChannel,
+    ) -> None:
         """
         Initialize attributes for establishing connection to target device.
 
@@ -579,9 +579,9 @@ class BaseConnection(object):
 
     def _open(
         self,
-        ssh_channel_class=None,
-        telnet_channel_class=None,
-        serial_channel_class=None,
+        ssh_channel_class: Optional[Type[SSHChannel]] = None,
+        telnet_channel_class: Optional[Type[TelnetChannel]] = None,
+        serial_channel_class: Optional[Type[SerialChannel]] = None,
     ) -> None:
         """Decouple connection creation from __init__ for mocking."""
         self._modify_connection_params()
@@ -589,7 +589,7 @@ class BaseConnection(object):
         if self.protocol == "ssh":
             self._open_ssh(ssh_channel_class)
         elif self.protocol == "telnet":
-            self._open_ssh(telnet_channel_class)
+            self._open_telnet(telnet_channel_class)
         elif self.protocol == "serial":
             self._open_serial(serial_channel_class)
         else:
@@ -597,7 +597,7 @@ class BaseConnection(object):
 
         self._try_session_preparation()
 
-    def _open_ssh(self, ssh_channel_class) -> None:
+    def _open_ssh(self, ssh_channel_class: Optional[Type[SSHChannel]]) -> None:
         ssh_params = self._connect_params_dict()
         ChannelClass = SSHChannel if ssh_channel_class is None else ssh_channel_class
         self.channel = ChannelClass(
@@ -610,9 +610,11 @@ class BaseConnection(object):
         self.channel.establish_connection()
         self.special_login_handler()
 
-    def _open_telnet(self, telnet_channel_class) -> None:
+    def _open_telnet(self, telnet_channel_class: Optional[Type[TelnetChannel]]) -> None:
         telnet_params = self._telnet_params_dict()
-        ChannelClass = self.telnet_channel
+        ChannelClass = TelnetChannel if telnet_channel_class is None else telnet_channel_class
+        # FIX: What is this about?
+        # ChannelClass = self.telnet_channel
         self.channel = ChannelClass(
             telnet_params,
             device_type=self.device_type,
@@ -621,7 +623,7 @@ class BaseConnection(object):
         )
         self.channel.establish_connection()
 
-    def _open_serial(self, serial_channel_class) -> None:
+    def _open_serial(self, serial_channel_class: Optional[Type[SerialChannel]]) -> None:
         ChannelClass = (
             SerialChannel if serial_channel_class is None else serial_channel_class
         )
@@ -633,19 +635,19 @@ class BaseConnection(object):
         )
         self.channel.establish_connection()
 
-    def __enter__(self):
+    def __enter__(self) -> BaseConnection:
         """Establish a session using a Context Manager."""
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Gracefully close connection on Context Manager exit."""
         self.disconnect()
 
-    def _modify_connection_params(self):
+    def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
         pass
 
-    def _timeout_exceeded(self, start, msg="Timeout exceeded!"):
+    def _timeout_exceeded(self, start: float, msg: str = "Timeout exceeded!"):
         """Raise NetmikoTimeoutException if waiting too much in the serving queue.
 
         :param start: Initial start time to see if session lock timeout has been exceeded
@@ -662,7 +664,7 @@ class BaseConnection(object):
             raise NetmikoTimeoutException(msg)
         return False
 
-    def _lock_netmiko_session(self, start=None) -> bool:
+    def _lock_netmiko_session(self, start: Optional[float] = None) -> bool:
         """
         Try to acquire the Netmiko session lock. If not available, wait in the queue until
         the channel is available again.
@@ -685,7 +687,7 @@ class BaseConnection(object):
             self._session_locker.release()
 
     @lock_channel
-    def write_channel(self, out_data):
+    def write_channel(self, out_data: str) -> None:
         """Wrapper function that will write data to the Channel class with locking."""
         self.channel.write_channel(out_data)
 
@@ -740,19 +742,19 @@ class BaseConnection(object):
             pattern=combined_pattern, timeout=timeout, re_flags=re_flags
         )
 
-    def is_alive(self):
+    def is_alive(self) -> bool:
         """Wrapper function that the state of the communication channel."""
         return self.channel.is_alive()
 
     def serial_login(
         self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:[Uu]ser:|sername|ogin)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"#\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(?:[Uu]ser:|sername|ogin)",
+        pwd_pattern: str = r"assword",
+        delay_factor: int = 1,
+        max_loops: int = 20,
+    ) -> str:
         # FIX: move to channel.py or somewhere else. Need to think about this and
         # telnet_login how they should be structured (too much code duplication).
         self.telnet_login(
@@ -764,7 +766,7 @@ class BaseConnection(object):
             max_loops,
         )
 
-    def _try_session_preparation(self):
+    def _try_session_preparation(self) -> None:
         """
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
@@ -777,7 +779,7 @@ class BaseConnection(object):
             self.disconnect()
             raise
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established
 
@@ -798,7 +800,7 @@ class BaseConnection(object):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def _use_ssh_config(self, dict_arg):
+    def _use_ssh_config(self, dict_arg: Dict[str, Any]) -> Dict[str, Any]:
         """Update SSH connection parameters based on contents of SSH config file.
 
         :param dict_arg: Dictionary of SSH connection parameters
@@ -848,7 +850,7 @@ class BaseConnection(object):
 
         return connect_dict
 
-    def _connect_params_dict(self):
+    def _connect_params_dict(self) -> Dict[str, Any]:
         """Generate dictionary of Paramiko connection parameters."""
         conn_dict = {
             "hostname": self.host,
@@ -873,7 +875,7 @@ class BaseConnection(object):
             conn_dict = self._use_ssh_config(conn_dict)
         return conn_dict
 
-    def _telnet_params_dict(self) -> Dict:
+    def _telnet_params_dict(self) -> Dict[str, Any]:
         """
         Generate dictionary of telnetlib connection parameters.
 
@@ -905,8 +907,8 @@ class BaseConnection(object):
         return conn_dict
 
     def _sanitize_output(
-        self, output, strip_command=False, command_string=None, strip_prompt=False
-    ):
+        self, output: str, strip_command: bool = False, command_string: Optional[str] = None, strip_prompt: bool = False
+    ) -> str:
         """Strip out command echo, trailing router prompt and ANSI escape codes.
 
         :param output: Output from a remote network device
@@ -923,7 +925,7 @@ class BaseConnection(object):
             output = self.strip_prompt(output)
         return output
 
-    def _test_channel_read(self, count=40, pattern=""):
+    def _test_channel_read(self, count: int = 40, pattern: str = "") -> str:
         """Try to read the channel (generally post login) verify you receive data back.
 
         :param count: the number of times to check the channel for data
@@ -935,7 +937,7 @@ class BaseConnection(object):
 
         # FIX: move to channel.py and refactor?
 
-        def _increment_delay(main_delay, increment=1.1, maximum=8):
+        def _increment_delay(main_delay: float, increment: float = 1.1, maximum: int = 8) -> float:
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
             if main_delay >= maximum:
