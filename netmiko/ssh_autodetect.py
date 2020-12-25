@@ -270,9 +270,14 @@ class SSHDetect(object):
         self.potential_matches = {}
         self._results_cache = {}
 
-    def autodetect(self):
+    def autodetect(self, read_after=1):
         """
         Try to guess the best 'device_type' based on patterns defined in SSH_MAPPER_BASE
+
+        Parameters
+        ----------
+        read_after : int, optional
+            Time to wait before of reading CLI output (default: 1s).
 
         Returns
         -------
@@ -283,7 +288,7 @@ class SSHDetect(object):
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop("dispatch")
             autodetect_method = getattr(self, call_method)
-            accuracy = autodetect_method(**tmp_dict)
+            accuracy = autodetect_method(**tmp_dict, read_after=read_after)
             if accuracy:
                 self.potential_matches[device_type] = accuracy
                 if accuracy >= 99:  # Stop the loop as we are sure of our match
@@ -303,7 +308,7 @@ class SSHDetect(object):
         self.connection.disconnect()
         return best_match[0][0]
 
-    def _send_command(self, cmd=""):
+    def _send_command(self, cmd="", read_after=1):
         """
         Handle reading/writing channel directly. It is also sanitizing the output received.
 
@@ -311,6 +316,8 @@ class SSHDetect(object):
         ----------
         cmd : str, optional
             The command to send to the remote device (default : "", just send a new line)
+        read_after : int, optional
+            Time to wait before of reading CLI output (default: 1s).
 
         Returns
         -------
@@ -318,12 +325,12 @@ class SSHDetect(object):
             The output from the command sent
         """
         self.connection.write_channel(cmd + "\n")
-        time.sleep(1)
+        time.sleep(read_after)
         output = self.connection._read_channel_timing()
         output = self.connection.strip_backspaces(output)
         return output
 
-    def _send_command_wrapper(self, cmd):
+    def _send_command_wrapper(self, cmd, read_after=1):
         """
         Send command to the remote device with a caching feature to avoid sending the same command
         twice based on the SSH_MAPPER_BASE dict cmd key.
@@ -332,6 +339,8 @@ class SSHDetect(object):
         ----------
         cmd : str
             The command to send to the remote device after checking cache.
+        read_after : int, optional
+            Time to wait before of reading CLI output (default: 1s).
 
         Returns
         -------
@@ -340,7 +349,7 @@ class SSHDetect(object):
         """
         cached_results = self._results_cache.get(cmd)
         if not cached_results:
-            response = self._send_command(cmd)
+            response = self._send_command(cmd, read_after)
             self._results_cache[cmd] = response
             return response
         else:
@@ -383,7 +392,7 @@ class SSHDetect(object):
         return 0
 
     def _autodetect_std(
-        self, cmd="", search_patterns=None, re_flags=re.IGNORECASE, priority=99
+        self, cmd="", search_patterns=None, re_flags=re.IGNORECASE, priority=99, read_after=1
     ):
         """
         Standard method to try to auto-detect the device type. This method will be called for each
@@ -401,6 +410,8 @@ class SSHDetect(object):
             Any flags from the python re module to modify the regular expression (default: re.I).
         priority: int, optional
             The confidence the match is right between 0 and 99 (default: 99).
+        read_after : int, optional
+            Time to wait before of reading CLI output (default: 1s).
         """
         invalid_responses = [
             r"% Invalid input detected",
@@ -414,7 +425,7 @@ class SSHDetect(object):
             return 0
         try:
             # _send_command_wrapper will use already cached results if available
-            response = self._send_command_wrapper(cmd)
+            response = self._send_command_wrapper(cmd, read_after)
             # Look for error conditions in output
             for pattern in invalid_responses:
                 match = re.search(pattern, response, flags=re.I)
