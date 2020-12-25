@@ -600,6 +600,7 @@ class BaseConnection(object):
         ChannelClass = SSHChannel if ssh_channel_class is None else ssh_channel_class
         self.channel = ChannelClass(
             ssh_params,
+            device_type=self.device_type,
             ssh_hostkey_args=self.ssh_hostkey_args,
             encoding=self.encoding,
             session_log=self.session_log,
@@ -611,7 +612,10 @@ class BaseConnection(object):
         telnet_params = self._telnet_params_dict()
         ChannelClass = self.telnet_channel
         self.channel = ChannelClass(
-            telnet_params, encoding=self.encoding, session_log=self.session_log
+            telnet_params,
+            device_type=self.device_type,
+            encoding=self.encoding,
+            session_log=self.session_log,
         )
         self.channel.establish_connection()
 
@@ -620,7 +624,10 @@ class BaseConnection(object):
             SerialChannel if serial_channel_class is None else serial_channel_class
         )
         self.channel = ChannelClass(
-            encoding=self.encoding, session_log=self.session_log
+            self.serial_settings,
+            device_type=self.device_type,
+            encoding=self.encoding,
+            session_log=self.session_log,
         )
         self.channel.establish_connection()
 

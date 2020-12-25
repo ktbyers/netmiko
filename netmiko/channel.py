@@ -162,6 +162,7 @@ class TelnetChannel(Channel):
     def __init__(
         self,
         telnet_params: Dict["str", Any],
+        device_type: str,
         encoding: str = "ascii",
         session_log: Optional["SessionLog"] = None,
         login_class: Type[TelnetLogin] = TelnetLogin,
@@ -169,6 +170,7 @@ class TelnetChannel(Channel):
         self.protocol = "telnet"
 
         self.telnet_params = telnet_params
+        self.device_type = device_type
         self.host = self.telnet_params["hostname"]
         self.port = self.telnet_params.get("port", 23)
         self.username = self.telnet_params["username"]
@@ -292,15 +294,17 @@ class TelnetChannel(Channel):
 
 class SSHChannel(Channel):
     def __init__(
-        self, 
+        self,
         ssh_params: Dict["str", Any],
-        ssh_hostkey_args: Optional[Dict["str", Any]] = None, 
-        encoding: str ="ascii", 
+        device_type: str,
+        ssh_hostkey_args: Optional[Dict["str", Any]] = None,
+        encoding: str = "ascii",
         session_log: Optional["SessionLog"] = None,
     ) -> None:
         self.ssh_params = ssh_params
         self.blocking_timeout = ssh_params.pop("blocking_timeout", 20)
         self.keepalive = ssh_params.pop("keepalive", 0)
+        self.device_type = device_type
         if ssh_hostkey_args is None:
             self.ssh_hostkey_args = {}
         else:
@@ -343,6 +347,9 @@ class SSHChannel(Channel):
 
     def establish_connection(self, width: int = 511, height: int = 1000) -> None:
         self.remote_conn_pre = self._build_ssh_client()
+        import ipdb
+
+        ipdb.set_trace()
 
         # initiate SSH connection
         try:
@@ -509,8 +516,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
 
 class SerialChannel(Channel):
-    def __init__(self, encoding="ascii", session_log=None):
+    def __init__(
+        self,
+        serial_settings: Dict["str", Any],
+        device_type: str,
+        encoding: str = "ascii",
+        session_log=None,
+    ):
         self.protocol = "serial"
+        self.serial_settings = serial_settings
+        self.device_type = device_type
         self.remote_conn = None
         self.encoding = encoding
         self.session_log = session_log

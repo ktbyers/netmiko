@@ -234,7 +234,9 @@ class InLineTransfer(CiscoIosFileTransfer):
         time.sleep(1)
         # Read all data remaining from the TCLSH session
         pattern = re.escape(self.ssh_ctl_chan.base_prompt)
-        output += self.ssh_ctl_chan.channel.read_channel_expect(pattern=pattern, timeout=read_timeout)
+        output += self.ssh_ctl_chan.channel.read_channel_expect(
+            pattern=pattern, timeout=read_timeout
+        )
         return output
 
     def get_file(self):
