@@ -14,7 +14,8 @@ from os import path
 from threading import Lock
 import functools
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Callable, Any, Type
+from typing import Optional, Dict, Callable, Any, Type, Tuple
+from typing import TYPE_CHECKING
 
 import paramiko
 import serial
@@ -33,6 +34,9 @@ from netmiko.utilities import (
     select_cmd_verify,
 )
 from netmiko.utilities import m_exec_time  # noqa
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 
 def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -280,8 +284,10 @@ class BaseConnection(object):
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
         conn_timeout: int = 5,
-        auth_timeout: Optional[int] = None,  # Timeout to wait for authentication response
-        banner_timeout: int = 15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        # Timeout to wait for authentication response
+        auth_timeout: Optional[int] = None,
+        # Timeout to wait for the banner to be presented (post TCP-connect)
+        banner_timeout: int = 15,
         read_timeout: int = 10,  # Default timeout to wait for data in core read loop
         # Other timeouts
         # FIX - this will probably go away and read_timeout will replace
@@ -612,7 +618,9 @@ class BaseConnection(object):
 
     def _open_telnet(self, telnet_channel_class: Optional[Type[TelnetChannel]]) -> None:
         telnet_params = self._telnet_params_dict()
-        ChannelClass = TelnetChannel if telnet_channel_class is None else telnet_channel_class
+        ChannelClass = (
+            TelnetChannel if telnet_channel_class is None else telnet_channel_class
+        )
         # FIX: What is this about?
         # ChannelClass = self.telnet_channel
         self.channel = ChannelClass(
@@ -635,11 +643,16 @@ class BaseConnection(object):
         )
         self.channel.establish_connection()
 
-    def __enter__(self) -> BaseConnection:
+    def __enter__(self) -> object:
         """Establish a session using a Context Manager."""
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         """Gracefully close connection on Context Manager exit."""
         self.disconnect()
 
@@ -647,7 +660,7 @@ class BaseConnection(object):
         """Modify connection parameters prior to SSH connection."""
         pass
 
-    def _timeout_exceeded(self, start: float, msg: str = "Timeout exceeded!"):
+    def _timeout_exceeded(self, start: float, msg: str = "Timeout exceeded!") -> bool:
         """Raise NetmikoTimeoutException if waiting too much in the serving queue.
 
         :param start: Initial start time to see if session lock timeout has been exceeded
@@ -907,7 +920,11 @@ class BaseConnection(object):
         return conn_dict
 
     def _sanitize_output(
-        self, output: str, strip_command: bool = False, command_string: Optional[str] = None, strip_prompt: bool = False
+        self,
+        output: str,
+        strip_command: bool = False,
+        command_string: Optional[str] = None,
+        strip_prompt: bool = False,
     ) -> str:
         """Strip out command echo, trailing router prompt and ANSI escape codes.
 
@@ -937,7 +954,9 @@ class BaseConnection(object):
 
         # FIX: move to channel.py and refactor?
 
-        def _increment_delay(main_delay: float, increment: float = 1.1, maximum: int = 8) -> float:
+        def _increment_delay(
+            main_delay: float, increment: float = 1.1, maximum: int = 8
+        ) -> float:
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
             if main_delay >= maximum:
@@ -969,13 +988,13 @@ class BaseConnection(object):
         else:
             raise NetmikoTimeoutException("Timed out waiting for data")
 
-    def select_delay_factor(self, delay_factor):
+    def select_delay_factor(self, delay_factor: float) -> float:
         """
         Choose the greater of delay_factor or self.global_delay_factor (default).
         In fast_cli choose the lesser of delay_factor of self.global_delay_factor.
 
         :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
+        :type delay_factor: float
         """
 
         # FIX: what to do about this? Can global_delay_factor completely go away
@@ -991,13 +1010,17 @@ class BaseConnection(object):
             else:
                 return self.global_delay_factor
 
-    def special_login_handler(self, delay_factor=1):
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
         pass
 
     def disable_paging(
-        self, command="terminal length 0", delay_factor=1, cmd_verify=True, pattern=None
-    ):
+        self,
+        command: str = "terminal length 0",
+        delay_factor: float = 1.0,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -> str:
         """Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
@@ -1027,8 +1050,12 @@ class BaseConnection(object):
         return output
 
     def set_terminal_width(
-        self, command="", delay_factor=1, cmd_verify=False, pattern=None
-    ):
+        self,
+        command: str = "",
+        delay_factor: float = 1.0,
+        cmd_verify: bool = False,
+        pattern: Optional[str] = None,
+    ) -> str:
         """CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
@@ -1060,8 +1087,11 @@ class BaseConnection(object):
         wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)
     )
     def set_base_prompt(
-        self, pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+    ) -> str:
         """Sets self.base_prompt
 
         Used as delimiter for stripping of trailing prompt in output.
@@ -1079,7 +1109,7 @@ class BaseConnection(object):
         :type alt_prompt_terminator: str
 
         :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
+        :type delay_factor: float
         """
         # FIX: NetworkDevice behavior
         prompt = self.find_prompt(delay_factor=delay_factor)
@@ -1089,11 +1119,11 @@ class BaseConnection(object):
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(self, delay_factor=1):
+    def find_prompt(self, delay_factor: float = 1.0) -> str:
         """Finds the current network device prompt, last line only.
 
         :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
+        :type delay_factor: float
         """
         # FIX: NetworkDevice behavior.
         # Not sure what to do about this / if anything.
@@ -1131,7 +1161,7 @@ class BaseConnection(object):
         log.debug(f"[find_prompt()]: prompt is {prompt}")
         return prompt
 
-    def clear_buffer(self, backoff=True):
+    def clear_buffer(self, backoff: bool = True) -> None:
         """Read any data available in the channel."""
         # FIX: Move to channel.py. Can't we just call read_channel() and be done with it.
         # This is clear_buffer, plus delay with a backoff if there is more data present.
@@ -1150,20 +1180,19 @@ class BaseConnection(object):
     @select_cmd_verify
     def send_command_timing(
         self,
-        command_string,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=False,
-        cmd_echo=None,
-    ):
+        command_string: str,
+        delay_factor: float = 1.0,
+        max_loops: int = 150,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = False,
+    ) -> str:
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
@@ -1171,7 +1200,7 @@ class BaseConnection(object):
         :type command_string: str
 
         :param delay_factor: Multiplying factor used to adjust delays (default: 1).
-        :type delay_factor: int or float
+        :type delay_factor: float
 
         :param max_loops: Controls wait time in conjunction with delay_factor. Will default to be
             based upon self.timeout.
@@ -1205,17 +1234,10 @@ class BaseConnection(object):
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
         :type cmd_verify: bool
-
-        :param cmd_echo: Deprecated (use cmd_verify instead)
-        :type cmd_echo: bool
         """
 
         # FIX: NetworkDevice class. Maybe just move the low-level read_channel_timing into
         # here and completely get rid of that from the channel.py class.
-
-        # For compatibility; remove cmd_echo in Netmiko 4.x.x
-        if cmd_echo is not None:
-            cmd_verify = cmd_echo
 
         output = ""
 
@@ -1285,7 +1307,7 @@ class BaseConnection(object):
         log.debug(f"send_command_timing final output: {output}")
         return output
 
-    def strip_prompt(self, a_string):
+    def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output.
 
         :param a_string: Returned string from device
@@ -1299,7 +1321,7 @@ class BaseConnection(object):
         else:
             return a_string
 
-    def _first_line_handler(self, data, search_pattern):
+    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple:
         """
         In certain situations the first line will get repainted which causes a false
         match on the terminating pattern.
