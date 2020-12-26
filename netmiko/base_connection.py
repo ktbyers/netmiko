@@ -23,7 +23,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from netmiko import log
 from netmiko.netmiko_globals import BACKSPACE_CHAR
-from netmiko.channel import Channel, SSHChannel, TelnetChannel, SerialChannel
+from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.ssh_exception import NetmikoTimeoutException
 from netmiko.utilities import (
@@ -715,7 +715,9 @@ class BaseConnection(object):
         return self.channel.read_channel()
 
     @lock_channel
-    def read_channel_timing(self, delay_factor: float = 1.0, timeout: Optional[int] = None) -> str:
+    def read_channel_timing(
+        self, delay_factor: float = 1.0, timeout: Optional[int] = None
+    ) -> str:
         """Read data on the channel based on timing delays."""
 
         # Don't allow delay_factor to be less than one for delay_channel_timing.
@@ -729,7 +731,9 @@ class BaseConnection(object):
         )
 
     @lock_channel
-    def read_until_prompt(self, timeout: Optional[int] = None, re_flags: int = 0) -> str:
+    def read_until_prompt(
+        self, timeout: Optional[int] = None, re_flags: int = 0
+    ) -> str:
         """Read channel until self.base_prompt detected. Return ALL data available."""
         if timeout is None:
             timeout = self.read_timeout
@@ -1628,7 +1632,9 @@ class BaseConnection(object):
         output = self.read_until_prompt()
         return check_string in output
 
-    def enable(self, cmd: str = "", pattern: str = "ssword", re_flags: int = re.IGNORECASE) -> str:
+    def enable(
+        self, cmd: str = "", pattern: str = "ssword", re_flags: int = re.IGNORECASE
+    ) -> str:
         """Enter enable mode.
 
         :param cmd: Device command to enter enable mode
@@ -1693,7 +1699,9 @@ class BaseConnection(object):
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
-    def config_mode(self, config_command: str = "", pattern: str = "", re_flags: int = 0) -> str:
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
@@ -1745,7 +1753,9 @@ class BaseConnection(object):
         log.debug(f"exit_config_mode: {output}")
         return output
 
-    def send_config_from_file(self, config_file: Optional[str] = None, **kwargs: Any) -> str:
+    def send_config_from_file(
+        self, config_file: Optional[str] = None, **kwargs: Any
+    ) -> str:
         """
         Send configuration commands down the SSH channel from a file.
 
