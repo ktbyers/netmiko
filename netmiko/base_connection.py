@@ -781,14 +781,7 @@ class BaseConnection(object):
     ) -> str:
         # FIX: move to channel.py or somewhere else. Need to think about this and
         # telnet_login how they should be structured (too much code duplication).
-        return self.telnet_login(
-            pri_prompt_terminator,
-            alt_prompt_terminator,
-            username_pattern,
-            pwd_pattern,
-            delay_factor,
-            max_loops,
-        )
+        return ""
 
     def _try_session_preparation(self) -> None:
         """
@@ -836,6 +829,9 @@ class BaseConnection(object):
         connect_dict = dict_arg.copy()
 
         # Use SSHConfig to generate source content.
+        if self.ssh_config_file is None:
+            raise ValueError("ssh_config_file not specified.")
+    
         full_path = path.abspath(path.expanduser(self.ssh_config_file))
         if path.exists(full_path):
             ssh_config_instance = paramiko.SSHConfig()
