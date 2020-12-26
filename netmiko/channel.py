@@ -150,7 +150,7 @@ Data retrieved before timeout:\n\n{output}
         pass
 
     @abstractmethod
-    def read_channel_timing(self, delay_factor: int, timeout: int) -> str:
+    def read_channel_timing(self, delay_factor: float, timeout: int) -> str:
         pass
 
     @abstractmethod
@@ -265,7 +265,7 @@ class TelnetChannel(Channel):
             pattern=pattern, timeout=timeout, re_flags=re_flags
         )
 
-    def read_channel_timing(self, delay_factor: int, timeout: int) -> str:
+    def read_channel_timing(self, delay_factor: float, timeout: int) -> str:
         # FIX: needs implemented
         pass
 
@@ -460,7 +460,7 @@ Device settings: {self.device_type} {host}:{port}
             pattern=pattern, timeout=timeout, re_flags=re_flags
         )
 
-    def read_channel_timing(self, delay_factor: int = 1, timeout: int = 10) -> str:
+    def read_channel_timing(self, delay_factor: float = 1.0, timeout: int = 10) -> str:
         """
         Read data on the channel based on timing delays.
 
@@ -581,7 +581,7 @@ class SerialChannel(Channel):
         # FIX: needs implemented
         pass
 
-    def read_channel_timing(self, delay_factor: int, timeout: int) -> str:
+    def read_channel_timing(self, delay_factor: float, timeout: int) -> str:
         # FIX: needs implemented
         pass
 

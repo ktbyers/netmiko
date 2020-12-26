@@ -14,7 +14,7 @@ from os import path
 from threading import Lock
 import functools
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Callable, Any, Type, Tuple
+from typing import Optional, Dict, Callable, Any, Type, Tuple, Union
 from typing import TYPE_CHECKING
 
 import paramiko
@@ -23,7 +23,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from netmiko import log
 from netmiko.netmiko_globals import BACKSPACE_CHAR
-from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
+from netmiko.channel import Channel, SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.ssh_exception import NetmikoTimeoutException
 from netmiko.utilities import (
@@ -440,7 +440,7 @@ class BaseConnection(object):
                 part of the object creation (default: True).
         :type auto_connect: bool
         """
-        self.channel = None
+        self.channel: Union[SSHChannel, TelnetChannel, SerialChannel]
         self.telnet_channel = telnet_channel
 
         self.TELNET_RETURN = "\r\n"
@@ -605,7 +605,10 @@ class BaseConnection(object):
 
     def _open_ssh(self, ssh_channel_class: Optional[Type[SSHChannel]]) -> None:
         ssh_params = self._connect_params_dict()
-        ChannelClass = SSHChannel if ssh_channel_class is None else ssh_channel_class
+        if ssh_channel_class is None:
+            ChannelClass = SSHChannel
+        else:
+            ChannelClass = ssh_channel_class
         self.channel = ChannelClass(
             ssh_params,
             device_type=self.device_type,
@@ -618,9 +621,10 @@ class BaseConnection(object):
 
     def _open_telnet(self, telnet_channel_class: Optional[Type[TelnetChannel]]) -> None:
         telnet_params = self._telnet_params_dict()
-        ChannelClass = (
-            TelnetChannel if telnet_channel_class is None else telnet_channel_class
-        )
+        if telnet_channel_class is None:
+            ChannelClass = TelnetChannel
+        else:
+            ChannelClass = telnet_channel_class
         # FIX: What is this about?
         # ChannelClass = self.telnet_channel
         self.channel = ChannelClass(
@@ -632,9 +636,10 @@ class BaseConnection(object):
         self.channel.establish_connection()
 
     def _open_serial(self, serial_channel_class: Optional[Type[SerialChannel]]) -> None:
-        ChannelClass = (
-            SerialChannel if serial_channel_class is None else serial_channel_class
-        )
+        if serial_channel_class is None:
+            ChannelClass = SerialChannel
+        else:
+            ChannelClass = serial_channel_class
         self.channel = ChannelClass(
             self.serial_settings,
             device_type=self.device_type,
@@ -710,7 +715,7 @@ class BaseConnection(object):
         return self.channel.read_channel()
 
     @lock_channel
-    def read_channel_timing(self, delay_factor: int = 1, timeout: int = None) -> str:
+    def read_channel_timing(self, delay_factor: float = 1.0, timeout: Optional[int] = None) -> str:
         """Read data on the channel based on timing delays."""
 
         # Don't allow delay_factor to be less than one for delay_channel_timing.
@@ -724,7 +729,7 @@ class BaseConnection(object):
         )
 
     @lock_channel
-    def read_until_prompt(self, timeout: int = None, re_flags: int = 0) -> str:
+    def read_until_prompt(self, timeout: Optional[int] = None, re_flags: int = 0) -> str:
         """Read channel until self.base_prompt detected. Return ALL data available."""
         if timeout is None:
             timeout = self.read_timeout
@@ -735,7 +740,7 @@ class BaseConnection(object):
 
     @lock_channel
     def read_until_pattern(
-        self, pattern: str, timeout: int = None, re_flags: int = 0
+        self, pattern: str, timeout: Optional[int] = None, re_flags: int = 0
     ) -> str:
         """Read channel until pattern detected. Return ALL data available."""
         if timeout is None:
@@ -746,11 +751,13 @@ class BaseConnection(object):
 
     @lock_channel
     def read_until_prompt_or_pattern(
-        self, pattern: str, timeout: int = None, re_flags: int = 0
+        self, pattern: str, timeout: Optional[int] = None, re_flags: int = 0
     ) -> str:
         """Read until either self.base_prompt or pattern is detected."""
         prompt = re.escape(self.base_prompt)
         combined_pattern = r"({}|{})".format(prompt, pattern)
+        if timeout is None:
+            timeout = self.read_timeout
         return self.channel.read_channel_expect(
             pattern=combined_pattern, timeout=timeout, re_flags=re_flags
         )
@@ -770,7 +777,7 @@ class BaseConnection(object):
     ) -> str:
         # FIX: move to channel.py or somewhere else. Need to think about this and
         # telnet_login how they should be structured (too much code duplication).
-        self.telnet_login(
+        return self.telnet_login(
             pri_prompt_terminator,
             alt_prompt_terminator,
             username_pattern,
@@ -1352,21 +1359,21 @@ class BaseConnection(object):
     @select_cmd_verify
     def send_command(
         self,
-        command_string,
-        expect_string=None,
-        delay_factor=1,
-        max_loops=500,
-        auto_find_prompt=True,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=True,
-    ):
+        command_string: str,
+        expect_string: Optional[str] = None,
+        delay_factor: float = 1.0,
+        max_loops: int = 500,
+        auto_find_prompt: bool = True,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = True,
+    ) -> str:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
@@ -1531,7 +1538,7 @@ class BaseConnection(object):
                 return structured_output
         return output
 
-    def send_command_expect(self, *args, **kwargs):
+    def send_command_expect(self, *args: Any, **kwargs: Any) -> str:
         """Support previous name of send_command method.
 
         :param args: Positional arguments to send to send_command()
@@ -1543,7 +1550,7 @@ class BaseConnection(object):
         return self.send_command(*args, **kwargs)
 
     @staticmethod
-    def strip_backspaces(output):
+    def strip_backspaces(output: str) -> str:
         """Strip any backspace characters out of the output.
 
         :param output: Output obtained from a remote network device.
@@ -1553,7 +1560,7 @@ class BaseConnection(object):
         backspace_char = "\x08"
         return output.replace(backspace_char, "")
 
-    def strip_command(self, command_string, output):
+    def strip_command(self, command_string: str, output: str) -> str:
         """
         Strip command_string from output string
 
@@ -1583,7 +1590,7 @@ class BaseConnection(object):
             # command_string isn't there; do nothing
             return output
 
-    def normalize_linefeeds(self, a_string):
+    def normalize_linefeeds(self, a_string: str) -> str:
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
 
         :param a_string: A string that may have non-normalized line feeds
@@ -1599,7 +1606,7 @@ class BaseConnection(object):
         else:
             return a_string
 
-    def normalize_cmd(self, command):
+    def normalize_cmd(self, command: str) -> str:
         """Normalize CLI commands to have a single trailing newline.
 
         :param command: Command that may require line feed to be normalized
@@ -1610,7 +1617,7 @@ class BaseConnection(object):
         command += self.RETURN
         return command
 
-    def check_enable_mode(self, check_string=""):
+    def check_enable_mode(self, check_string: str = "") -> bool:
         """Check if in enable mode. Return boolean.
 
         :param check_string: Identification of privilege mode from device
@@ -1621,7 +1628,7 @@ class BaseConnection(object):
         output = self.read_until_prompt()
         return check_string in output
 
-    def enable(self, cmd="", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(self, cmd: str = "", pattern: str = "ssword", re_flags: int = re.IGNORECASE) -> str:
         """Enter enable mode.
 
         :param cmd: Device command to enter enable mode
@@ -1653,7 +1660,7 @@ class BaseConnection(object):
                 raise ValueError(msg)
         return output
 
-    def exit_enable_mode(self, exit_command=""):
+    def exit_enable_mode(self, exit_command: str = "") -> str:
         """Exit enable mode.
 
         :param exit_command: Command that exits the session from privileged mode
@@ -1668,7 +1675,7 @@ class BaseConnection(object):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def check_config_mode(self, check_string="", pattern=""):
+    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not.
 
         :param check_string: Identification of configuration mode from the device
@@ -1686,7 +1693,7 @@ class BaseConnection(object):
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
-    def config_mode(self, config_command="", pattern="", re_flags=0):
+    def config_mode(self, config_command: str = "", pattern: str = "", re_flags: int = 0) -> str:
         """Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
@@ -1713,7 +1720,7 @@ class BaseConnection(object):
                 raise ValueError("Failed to enter configuration mode.")
         return output
 
-    def exit_config_mode(self, exit_config="", pattern=""):
+    def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
         """Exit from configuration mode.
 
         :param exit_config: Command to exit configuration mode
@@ -1738,7 +1745,7 @@ class BaseConnection(object):
         log.debug(f"exit_config_mode: {output}")
         return output
 
-    def send_config_from_file(self, config_file=None, **kwargs):
+    def send_config_from_file(self, config_file: Optional[str] = None, **kwargs: Any) -> str:
         """
         Send configuration commands down the SSH channel from a file.
 
@@ -1759,16 +1766,16 @@ class BaseConnection(object):
 
     def send_config_set(
         self,
-        config_commands=None,
-        exit_config_mode=True,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=False,
-        strip_command=False,
-        config_mode_command=None,
-        cmd_verify=True,
-        enter_config_mode=True,
-    ):
+        config_commands: Optional[str] = None,
+        exit_config_mode: bool = True,
+        delay_factor: float = 1.0,
+        max_loops: int = 150,
+        strip_prompt: bool = False,
+        strip_command: bool = False,
+        config_mode_command: Optional[str] = None,
+        cmd_verify: bool = True,
+        enter_config_mode: bool = True,
+    ) -> str:
         """
         Send configuration commands down the SSH channel.
 
@@ -1859,12 +1866,12 @@ class BaseConnection(object):
         log.debug(f"{output}")
         return output
 
-    def cleanup(self, command=""):
+    def cleanup(self, command: str = "") -> None:
         """Logout of the session on the network device plus any additional cleanup."""
         # FIX: NetworkDevice class
         pass
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """
         Try to gracefully close the session:
 
@@ -1884,12 +1891,12 @@ class BaseConnection(object):
             if self.session_log:
                 self.session_log.close()
 
-    def commit(self):
+    def commit(self) -> str:
         """Commit method for platforms that support this."""
         # FIX: NetworkDevice class
         raise AttributeError("Network device does not support 'commit()' method")
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         # FIX: NetworkDevice class
         """Not Implemented"""
         raise NotImplementedError

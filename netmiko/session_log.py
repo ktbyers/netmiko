@@ -11,7 +11,7 @@ class SessionLog:
         file_encoding="ascii",
         no_log=None,
         record_writes=False,
-    ):
+    ) -> None:
         if no_log is None:
             self.no_log = {}
         else:
@@ -31,7 +31,7 @@ class SessionLog:
         # Ensures last write operations prior to disconnect are recorded.
         self.fin = False
 
-    def open(self):
+    def open(self) -> None:
         """Open the session_log file."""
         if self.file_mode == "append":
             self.session_log = open(
@@ -43,7 +43,7 @@ class SessionLog:
             )
         self._session_log_close = True
 
-    def close(self):
+    def close(self) -> None:
         """Close the session_log file (if it is a file that we opened)."""
         if self.session_log and self._session_log_close:
             self.session_log.close()
