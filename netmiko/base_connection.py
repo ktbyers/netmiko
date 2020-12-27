@@ -14,7 +14,7 @@ from os import path
 from threading import Lock
 import functools
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Callable, Any, Type, Tuple, Union
+from typing import Optional, Dict, Callable, Any, Type, Tuple, Union, List, Deque
 from typing import TYPE_CHECKING
 
 import paramiko
@@ -1054,6 +1054,7 @@ class BaseConnection(object):
             output = self.read_until_prompt()
         log.debug(f"{output}")
         log.debug("Exiting disable_paging")
+        assert isinstance(output, str)
         return output
 
     def set_terminal_width(
@@ -1087,12 +1088,13 @@ class BaseConnection(object):
             output = self.read_until_pattern(pattern=pattern)
         else:
             output = self.read_until_prompt()
+        assert isinstance(output, str)
         return output
 
     # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
     @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)
-    )
+        wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)   # type: ignore
+    )   
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
@@ -1166,6 +1168,7 @@ class BaseConnection(object):
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
         log.debug(f"[find_prompt()]: prompt is {prompt}")
+        assert isinstance(prompt, str)
         return prompt
 
     def clear_buffer(self, backoff: bool = True) -> None:
@@ -1199,7 +1202,7 @@ class BaseConnection(object):
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = False,
-    ) -> str:
+    ) -> Union[List[Any], Dict[str, Any], str]:
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
@@ -1328,7 +1331,7 @@ class BaseConnection(object):
         else:
             return a_string
 
-    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple:
+    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple[str, bool]:
         """
         In certain situations the first line will get repainted which causes a false
         match on the terminating pattern.
@@ -1373,7 +1376,7 @@ class BaseConnection(object):
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = True,
-    ) -> str:
+    ) -> Union[List[Any], Dict[str, Any], str]:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
@@ -1465,14 +1468,14 @@ class BaseConnection(object):
             new_data = self.normalize_linefeeds(new_data)
             # Strip off everything before the command echo (to avoid false positives on the prompt)
             if new_data.count(cmd) == 1:
-                new_data = new_data.split(cmd)[1:]
-                new_data = self.RESPONSE_RETURN.join(new_data)
+                tmp_list = new_data.split(cmd)[1:]
+                new_data = self.RESPONSE_RETURN.join(tmp_list)
                 new_data = new_data.lstrip()
                 new_data = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
 
         i = 1
         output = ""
-        past_three_reads = deque(maxlen=3)
+        past_three_reads: Deque[str] = deque(maxlen=3)
         first_line_processed = False
 
         # Keep reading data until search_pattern is found or until max_loops is reached.
@@ -1547,7 +1550,9 @@ class BaseConnection(object):
         :param kwargs: Keyword arguments to send to send_command()
         :type kwargs: dict
         """
-        return self.send_command(*args, **kwargs)
+        output = self.send_command(*args, **kwargs)
+        assert isinstance(output, str)
+        return output
 
     @staticmethod
     def strip_backspaces(output: str) -> str:
@@ -1767,12 +1772,13 @@ class BaseConnection(object):
         :type kwargs: dict
         """
         # FIX: NetworkDevice class
+        assert isinstance(config_file, str)
         with io.open(config_file, "rt", encoding="utf-8") as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
     def send_config_set(
         self,
-        config_commands: Optional[str] = None,
+        config_commands: Union[str, List[str], io.TextIOWrapper, None] = None,
         exit_config_mode: bool = True,
         delay_factor: float = 1.0,
         max_loops: int = 150,
@@ -1791,7 +1797,7 @@ class BaseConnection(object):
         Automatically exits/enters configuration mode.
 
         :param config_commands: Multiple configuration commands to be sent to the device
-        :type config_commands: list or string
+        :type config_commands: list, string, or io.TextIOWrapper
 
         :param exit_config_mode: Determines whether or not to exit config mode after complete
         :type exit_config_mode: bool
@@ -1823,7 +1829,7 @@ class BaseConnection(object):
         if config_commands is None:
             return ""
         elif isinstance(config_commands, str):
-            config_commands = (config_commands,)
+            config_commands = [config_commands,]
 
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
@@ -1831,8 +1837,10 @@ class BaseConnection(object):
         # Send config commands
         output = ""
         if enter_config_mode:
-            cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-            output += self.config_mode(*cfg_mode_args)
+            if config_mode_command:
+                output += self.config_mode(config_mode_command)
+            else:
+                output += self.config_mode()
 
         if self.fast_cli and self._legacy_mode:
             for cmd in config_commands:

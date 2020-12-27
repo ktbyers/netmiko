@@ -9,6 +9,7 @@ import functools
 from datetime import datetime
 
 from typing import AnyStr
+from typing import Dict, List, Union
 
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
@@ -324,7 +325,7 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
         return raw_output
 
 
-def get_structured_data(raw_output, platform=None, command=None, template=None):
+def get_structured_data(raw_output: str, platform: Optional[str] = None, command: Optional[str] = None, template: Optional[str] = None) -> Union[List, Dict, str]:
     """
     Convert raw CLI output to structured data using TextFSM template.
 
@@ -356,7 +357,7 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
         )
 
 
-def get_structured_data_ttp(raw_output, template=None):
+def get_structured_data_ttp(raw_output: str, template: Optional[str] = None) -> Union[List, Dict, str]:
     """
     Convert raw CLI output to structured data using TTP template.
 
@@ -375,7 +376,7 @@ def get_structured_data_ttp(raw_output, template=None):
         return raw_output
 
 
-def get_structured_data_genie(raw_output, platform, command):
+def get_structured_data_genie(raw_output: str, platform: str, command: str) -> Union[List, Dict, str]:
     if not sys.version_info >= (3, 4):
         raise ValueError("Genie requires Python >= 3.4")
 
@@ -423,11 +424,11 @@ def get_structured_data_genie(raw_output, platform, command):
         return raw_output
 
 
-def select_cmd_verify(func):
+def select_cmd_verify(func: Callable[..., Any]) -> Callable[..., Any]:
     """Override function cmd_verify argument with global setting."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self, *args, **kwargs):
+    def wrapper_decorator(self, *args: Any, **kwargs: Any) -> Any:
         if self.global_cmd_verify is not None:
             kwargs["cmd_verify"] = self.global_cmd_verify
         return func(self, *args, **kwargs)
