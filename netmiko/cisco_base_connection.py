@@ -108,6 +108,7 @@ class CiscoBaseConnection(BaseConnection):
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
             alt_prompt_terminator, output, flags=re.M
         ):
+            assert isinstance(output, str)
             return output
         else:
             return self.telnet_login(
@@ -160,6 +161,7 @@ class CiscoBaseConnection(BaseConnection):
                     # Search for password pattern / send password
                     if re.search(pwd_pattern, output, flags=re.I):
                         # Sometimes username/password must be terminated with "\r" and not "\r\n"
+                        assert isinstance(self.password, str)
                         self.write_channel(self.password + "\r")
                         time.sleep(0.5 * delay_factor)
                         output = self.read_channel()
@@ -290,6 +292,7 @@ class CiscoBaseConnection(BaseConnection):
             output = self.send_command(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
+        assert isinstance(output, str)
         return output
 
 

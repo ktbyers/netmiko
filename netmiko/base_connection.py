@@ -1093,7 +1093,7 @@ class BaseConnection(object):
 
     # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
     @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5),
+        wait=wait_exponential(multiplier=0.33, min=0, max=5),  # type: ignore
         stop=stop_after_attempt(5),  # type: ignore
     )
     def set_base_prompt(
@@ -1911,7 +1911,9 @@ class BaseConnection(object):
         # FIX: NetworkDevice class
         raise AttributeError("Network device does not support 'commit()' method")
 
-    def save_config(self, *args: Any, **kwargs: Any) -> str:
+    def save_config(
+        self, cmd: str, confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         # FIX: NetworkDevice class
         """Not Implemented"""
         raise NotImplementedError

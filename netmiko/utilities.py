@@ -9,7 +9,7 @@ import functools
 from datetime import datetime
 
 from typing import AnyStr
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional, Callable, Any
 
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
