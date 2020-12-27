@@ -1,6 +1,9 @@
 """CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
 import re
 import time
+
+from typing import Any
+
 from netmiko.telnet_state import TelnetLogin
 from netmiko.channel import TelnetChannel
 from netmiko.base_connection import BaseConnection
@@ -9,7 +12,7 @@ from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
 class CiscoTelnetChannel(TelnetChannel):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         if kwargs.get("login_class") is None:
             kwargs["login_class"] = CiscoTelnetLogin
 
@@ -17,7 +20,7 @@ class CiscoTelnetChannel(TelnetChannel):
 
 
 class CiscoTelnetLogin(TelnetLogin):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
 
         if kwargs.get("addl_patterns") is None:
             addl_patterns = [
@@ -40,24 +43,29 @@ class CiscoTelnetLogin(TelnetLogin):
 class CiscoBaseConnection(BaseConnection):
     """Base Class for cisco-like behavior."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         if kwargs.get("telnet_channel") is None:
             kwargs["telnet_channel"] = CiscoTelnetChannel
         super().__init__(*args, **kwargs)
 
-    def check_enable_mode(self, check_string="#"):
+    def check_enable_mode(self, check_string: str = "#") -> bool:
         """Check if in enable mode. Return boolean."""
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(
+        self,
+        cmd: str = "enable",
+        pattern: str = "ssword",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Enter enable mode."""
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
-    def exit_enable_mode(self, exit_command="disable"):
+    def exit_enable_mode(self, exit_command: str = "disable") -> str:
         """Exits enable (privileged exec) mode."""
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string=")#", pattern=""):
+    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
         """
         Checks if the device is in configuration mode or not.
 
@@ -65,7 +73,12 @@ class CiscoBaseConnection(BaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="configure terminal", pattern="", re_flags=0):
+    def config_mode(
+        self,
+        config_command: str = "configure terminal",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
         """
         Enter into configuration mode on remote device.
 
@@ -77,19 +90,19 @@ class CiscoBaseConnection(BaseConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="end", pattern="#"):
+    def exit_config_mode(self, exit_config: str = "end", pattern: str = "#") -> str:
         """Exit from configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def serial_login(
         self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"#\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(?:user:|username|login)",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
         self.write_channel(self.TELNET_RETURN)
         output = self.read_channel()
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
@@ -108,13 +121,13 @@ class CiscoBaseConnection(BaseConnection):
 
     def telnet_login(
         self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"#\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(?:user:|username|login|user name)",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
 
@@ -212,7 +225,7 @@ class CiscoBaseConnection(BaseConnection):
         msg = f"Login failed: {self.host}"
         raise NetmikoAuthenticationException(msg)
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
@@ -225,7 +238,9 @@ class CiscoBaseConnection(BaseConnection):
             self.session_log.fin = True
         self.write_channel(command + self.RETURN)
 
-    def _autodetect_fs(self, cmd="dir", pattern=r"Directory of (.*)/"):
+    def _autodetect_fs(
+        self, cmd: str = "dir", pattern: str = r"Directory of (.*)/"
+    ) -> str:
         """Autodetect the file system on the remote device. Used by SCP operations."""
         if not self.check_enable_mode():
             raise ValueError("Must be in enable mode to auto-detect the file-system.")
@@ -251,10 +266,10 @@ class CiscoBaseConnection(BaseConnection):
 
     def save_config(
         self,
-        cmd="copy running-config startup-config",
-        confirm=False,
-        confirm_response="",
-    ):
+        cmd: str = "copy running-config startup-config",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves Config."""
         self.enable()
         if confirm:

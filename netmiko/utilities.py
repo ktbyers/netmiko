@@ -325,7 +325,12 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
         return raw_output
 
 
-def get_structured_data(raw_output: str, platform: Optional[str] = None, command: Optional[str] = None, template: Optional[str] = None) -> Union[List, Dict, str]:
+def get_structured_data(
+    raw_output: str,
+    platform: Optional[str] = None,
+    command: Optional[str] = None,
+    template: Optional[str] = None,
+) -> Union[List, Dict, str]:
     """
     Convert raw CLI output to structured data using TextFSM template.
 
@@ -357,7 +362,9 @@ def get_structured_data(raw_output: str, platform: Optional[str] = None, command
         )
 
 
-def get_structured_data_ttp(raw_output: str, template: Optional[str] = None) -> Union[List, Dict, str]:
+def get_structured_data_ttp(
+    raw_output: str, template: Optional[str] = None
+) -> Union[List, Dict, str]:
     """
     Convert raw CLI output to structured data using TTP template.
 
@@ -376,7 +383,9 @@ def get_structured_data_ttp(raw_output: str, template: Optional[str] = None) -> 
         return raw_output
 
 
-def get_structured_data_genie(raw_output: str, platform: str, command: str) -> Union[List, Dict, str]:
+def get_structured_data_genie(
+    raw_output: str, platform: str, command: str
+) -> Union[List, Dict, str]:
     if not sys.version_info >= (3, 4):
         raise ValueError("Genie requires Python >= 3.4")
 

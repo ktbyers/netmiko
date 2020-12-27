@@ -831,7 +831,7 @@ class BaseConnection(object):
         # Use SSHConfig to generate source content.
         if self.ssh_config_file is None:
             raise ValueError("ssh_config_file not specified.")
-    
+
         full_path = path.abspath(path.expanduser(self.ssh_config_file))
         if path.exists(full_path):
             ssh_config_instance = paramiko.SSHConfig()
@@ -1093,8 +1093,9 @@ class BaseConnection(object):
 
     # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
     @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)   # type: ignore
-    )   
+        wait=wait_exponential(multiplier=0.33, min=0, max=5),
+        stop=stop_after_attempt(5),  # type: ignore
+    )
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
@@ -1829,7 +1830,7 @@ class BaseConnection(object):
         if config_commands is None:
             return ""
         elif isinstance(config_commands, str):
-            config_commands = [config_commands,]
+            config_commands = [config_commands]
 
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
