@@ -704,6 +704,9 @@ class BaseConnection(object):
         if self._session_locker.locked():
             self._session_locker.release()
 
+    def _autodetect_fs(self, cmd: str, pattern: str) -> str:
+        raise NotImplementedError
+
     @lock_channel
     def write_channel(self, out_data: str) -> None:
         """Wrapper function that will write data to the Channel class with locking."""
