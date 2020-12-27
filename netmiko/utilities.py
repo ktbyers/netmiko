@@ -9,10 +9,17 @@ import functools
 from datetime import datetime
 
 from typing import AnyStr
-from typing import Dict, List, Union, Optional, Callable, Any
+from typing import Dict, List, Union, Callable, Any, Optional, Tuple
+from typing import TYPE_CHECKING
 
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
+
+if TYPE_CHECKING:
+    from netmiko import BaseConnection
+    from netmiko._textfsm._clitable import CliTable
+
+    # from pathlib import PosixPath
 
 try:
     from ttp import ttp
@@ -33,7 +40,7 @@ except ImportError:
 
 # If we are on python < 3.7, we need to force the import of importlib.resources backport
 try:
-    from importlib.resources import path as importresources_path
+    from importlib.resources import path as importresources_path  # type: ignore
 except ModuleNotFoundError:
     from importlib_resources import path as importresources_path
 
@@ -85,7 +92,7 @@ SHOW_RUN_MAPPER = new_dict
 NETMIKO_BASE_DIR = "~/.netmiko"
 
 
-def load_yaml_file(yaml_file):
+def load_yaml_file(yaml_file: str) -> Any:
     """Read YAML file."""
     try:
         import yaml
@@ -98,13 +105,13 @@ def load_yaml_file(yaml_file):
         sys.exit(f"Unable to open YAML file: {yaml_file}")
 
 
-def load_devices(file_name=None):
+def load_devices(file_name: Optional[str] = None) -> Any:
     """Find and load .netmiko.yml file."""
     yaml_devices_file = find_cfg_file(file_name)
     return load_yaml_file(yaml_devices_file)
 
 
-def find_cfg_file(file_name=None):
+def find_cfg_file(file_name: Optional[str] = None) -> str:
     """
     Search for netmiko_tools inventory file in the following order:
     NETMIKO_TOOLS_CFG environment variable
@@ -132,7 +139,7 @@ def find_cfg_file(file_name=None):
     )
 
 
-def display_inventory(my_devices):
+def display_inventory(my_devices: Dict[str, Any]) -> None:
     """Print out inventory devices and groups."""
     inventory_groups = ["all"]
     inventory_devices = []
@@ -156,7 +163,7 @@ def display_inventory(my_devices):
     print()
 
 
-def obtain_all_devices(my_devices):
+def obtain_all_devices(my_devices: Dict[str, Any]) -> Dict[str, Any]:
     """Dynamically create 'all' group."""
     new_devices = {}
     for device_name, device_or_group in my_devices.items():
@@ -166,20 +173,20 @@ def obtain_all_devices(my_devices):
     return new_devices
 
 
-def obtain_netmiko_filename(device_name):
+def obtain_netmiko_filename(device_name: str) -> str:
     """Create file name based on device_name."""
     _, netmiko_full_dir = find_netmiko_dir()
     return f"{netmiko_full_dir}/{device_name}.txt"
 
 
-def write_tmp_file(device_name, output):
+def write_tmp_file(device_name: str, output: str) -> str:
     file_name = obtain_netmiko_filename(device_name)
     with open(file_name, "w") as f:
         f.write(output)
     return file_name
 
 
-def ensure_dir_exists(verify_dir):
+def ensure_dir_exists(verify_dir: str) -> None:
     """Ensure directory exists. Create if necessary."""
     if not os.path.exists(verify_dir):
         # Doesn't exist create dir
@@ -191,7 +198,7 @@ def ensure_dir_exists(verify_dir):
             raise ValueError(f"{verify_dir} is not a directory")
 
 
-def find_netmiko_dir():
+def find_netmiko_dir() -> Tuple[str, str]:
     """Check environment first, then default dir"""
     try:
         netmiko_base_dir = os.environ["NETMIKO_DIR"]
@@ -205,7 +212,6 @@ def find_netmiko_dir():
 
 
 def write_bytes(out_data: AnyStr, encoding: str = "ascii") -> bytes:
-    """Legacy for Python2 and Python3 compatible byte stream."""
     if sys.version_info[0] >= 3:
         if isinstance(out_data, type("")):
             if encoding == "utf-8":
@@ -214,13 +220,11 @@ def write_bytes(out_data: AnyStr, encoding: str = "ascii") -> bytes:
                 return out_data.encode("ascii", "ignore")
         elif isinstance(out_data, type(b"")):
             return out_data
-    msg = "Invalid value for out_data neither unicode nor byte string: {}".format(
-        out_data
-    )
+    msg = "Invalid value for out_data neither unicode nor byte string"
     raise ValueError(msg)
 
 
-def check_serial_port(name) -> str:
+def check_serial_port(name: str) -> str:
     """returns valid COM Port."""
 
     if not PYSERIAL_INSTALLED:
@@ -232,7 +236,9 @@ def check_serial_port(name) -> str:
 
     try:
         cdc = next(serial.tools.list_ports.grep(name))
-        return cdc[0]
+        comm_port = cdc[0]
+        assert isinstance(comm_port, str)
+        return comm_port
     except StopIteration:
         msg = f"device {name} not found. "
         msg += "available devices are: "
@@ -242,7 +248,7 @@ def check_serial_port(name) -> str:
         raise ValueError(msg)
 
 
-def get_template_dir(_skip_ntc_package=False):
+def get_template_dir(_skip_ntc_package: bool = False) -> str:
     """
     Find and return the directory containing the TextFSM index file.
 
@@ -299,7 +305,7 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     return os.path.abspath(template_dir)
 
 
-def clitable_to_dict(cli_table):
+def clitable_to_dict(cli_table: "CliTable") -> List[Dict[str, Any]]:
     """Converts TextFSM cli_table object to list of dictionaries."""
     objs = []
     for row in cli_table:
@@ -310,17 +316,26 @@ def clitable_to_dict(cli_table):
     return objs
 
 
-def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
+def _textfsm_parse(
+    textfsm_obj: "CliTable",
+    raw_output: str,
+    attrs: Dict[str, Any],
+    template_file: Optional[str] = None,
+) -> Union[List[Dict[str, Any]], str]:
     """Perform the actual TextFSM parsing using the CliTable object."""
     try:
         # Parse output through template
         if template_file is not None:
-            textfsm_obj.ParseCmd(raw_output, templates=template_file)
+            textfsm_obj.ParseCmd(raw_output, templates=template_file)  # type: ignore
         else:
-            textfsm_obj.ParseCmd(raw_output, attrs)
+            textfsm_obj.ParseCmd(raw_output, attrs)  # type: ignore
         structured_data = clitable_to_dict(textfsm_obj)
-        output = raw_output if structured_data == [] else structured_data
-        return output
+        if structured_data == []:
+            assert isinstance(raw_output, str)
+            return raw_output
+        else:
+            assert isinstance(structured_data, list)
+            return structured_data
     except (FileNotFoundError, CliTableError):
         return raw_output
 
@@ -330,7 +345,7 @@ def get_structured_data(
     platform: Optional[str] = None,
     command: Optional[str] = None,
     template: Optional[str] = None,
-) -> Union[List, Dict, str]:
+) -> Union[List[Dict[str, Any]], str]:
     """
     Convert raw CLI output to structured data using TextFSM template.
 
@@ -354,9 +369,9 @@ def get_structured_data(
     else:
         template_path = Path(os.path.expanduser(template))
         template_file = template_path.name
-        template_dir = template_path.parents[0]
+        template_dir_path = template_path.parents[0]
         # CliTable with no index will fall-back to a TextFSM parsing behavior
-        textfsm_obj = clitable.CliTable(template_dir=template_dir)
+        textfsm_obj = clitable.CliTable(template_dir=template_dir_path)
         return _textfsm_parse(
             textfsm_obj, raw_output, attrs, template_file=template_file
         )
@@ -364,7 +379,7 @@ def get_structured_data(
 
 def get_structured_data_ttp(
     raw_output: str, template: Optional[str] = None
-) -> Union[List, Dict, str]:
+) -> Union[List[Dict[str, Any]], str]:
     """
     Convert raw CLI output to structured data using TTP template.
 
@@ -378,7 +393,9 @@ def get_structured_data_ttp(
         if template:
             ttp_parser = ttp(data=raw_output, template=template)
             ttp_parser.parse(one=True)
-            return ttp_parser.result(format="raw")
+            ttp_output = ttp_parser.result(format="raw")
+            # Strip off outer TTP list-of-lists
+            return ttp_output[0][0]
     except Exception:
         return raw_output
 
@@ -416,7 +433,8 @@ def get_structured_data_genie(
         base_platform = platform
 
     os = genie_device_mapper.get(base_platform)
-    if os is None:
+    if not os:
+        assert isinstance(raw_output, str)
         return raw_output
 
     # Genie specific construct for doing parsing (based on Genie in Ansible)
@@ -428,6 +446,7 @@ def get_structured_data_genie(
         # Test whether there is a parser for given command (return Exception if fails)
         get_parser(command, device)
         parsed_output = device.parse(command, output=raw_output)
+        assert isinstance(parsed_output, list) or isinstance(parsed_output, dict)
         return parsed_output
     except Exception:
         return raw_output
@@ -437,7 +456,7 @@ def select_cmd_verify(func: Callable[..., Any]) -> Callable[..., Any]:
     """Override function cmd_verify argument with global setting."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self, *args: Any, **kwargs: Any) -> Any:
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
         if self.global_cmd_verify is not None:
             kwargs["cmd_verify"] = self.global_cmd_verify
         return func(self, *args, **kwargs)
@@ -445,9 +464,9 @@ def select_cmd_verify(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper_decorator
 
 
-def m_exec_time(func):
+def m_exec_time(func: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(func)
-    def wrapper_decorator(self, *args, **kwargs):
+    def wrapper_decorator(self: object, *args: Any, **kwargs: Any) -> Any:
         start_time = datetime.now()
         result = func(self, *args, **kwargs)
         end_time = datetime.now()
@@ -458,9 +477,9 @@ def m_exec_time(func):
     return wrapper_decorator
 
 
-def f_exec_time(func):
+def f_exec_time(func: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(func)
-    def wrapper_decorator(*args, **kwargs):
+    def wrapper_decorator(*args: Any, **kwargs: Any) -> Any:
         start_time = datetime.now()
         result = func(*args, **kwargs)
         end_time = datetime.now()

@@ -223,6 +223,8 @@ def test_send_command_ttp(net_connect):
         )
         os.remove(ttp_temp_filename)
         assert isinstance(show_ip_alt, list)
+        # Ensures it isn't an empty data structure
+        assert isinstance(show_ip_alt[0]["intf"], str)
 
 
 def test_send_command_genie(net_connect, commands, expected_responses):
