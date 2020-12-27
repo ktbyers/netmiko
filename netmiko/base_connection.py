@@ -14,8 +14,19 @@ from os import path
 from threading import Lock
 import functools
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Callable, Any, Type, Tuple, Union, List, Deque
-from typing import TYPE_CHECKING
+from typing import (
+    Optional,
+    Dict,
+    Callable,
+    Any,
+    Type,
+    Tuple,
+    Union,
+    Iterable,
+    Deque,
+    List,
+)
+from types import TracebackType
 
 import paramiko
 import serial
@@ -35,13 +46,10 @@ from netmiko.utilities import (
 )
 from netmiko.utilities import m_exec_time  # noqa
 
-if TYPE_CHECKING:
-    from types import TracebackType
-
 
 def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(func)
-    def wrapper_decorator(self: BaseConnection, *args: Any, **kwargs: Any) -> Any:
+    def wrapper_decorator(self: object, *args: Any, **kwargs: Any) -> Any:
         self._lock_netmiko_session()
         try:
             return_val = func(self, *args, **kwargs)
@@ -271,7 +279,7 @@ class BaseConnection(object):
         global_cmd_verify: bool = None,
         use_keys: bool = False,
         key_file: Optional[str] = None,
-        pkey: Optional[paramiko.Pkey] = None,
+        pkey: Optional[paramiko.PKey] = None,
         passphrase: Optional[str] = None,
         allow_agent: bool = False,
         ssh_strict: bool = False,
@@ -704,7 +712,13 @@ class BaseConnection(object):
         if self._session_locker.locked():
             self._session_locker.release()
 
-    def _autodetect_fs(self, cmd: str, pattern: str) -> str:
+    def _autodetect_fs(self, cmd: str = "", pattern: str = "") -> str:
+        raise NotImplementedError
+
+    def _enter_shell(self) -> None:
+        raise NotImplementedError
+
+    def _return_cli(self) -> None:
         raise NotImplementedError
 
     @lock_channel
@@ -1782,7 +1796,7 @@ class BaseConnection(object):
 
     def send_config_set(
         self,
-        config_commands: Union[str, List[str], io.TextIOWrapper, None] = None,
+        config_commands: Union[str, Iterable[str], io.TextIOWrapper, None] = None,
         exit_config_mode: bool = True,
         delay_factor: float = 1.0,
         max_loops: int = 150,

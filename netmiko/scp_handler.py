@@ -13,13 +13,13 @@ import hashlib
 import platform
 from typing import TYPE_CHECKING
 from typing import Optional, Callable, Any, Union, Iterable, Type
+from types import TracebackType
 
 import scp
 from netmiko.channel import SSHChannel
 
 if TYPE_CHECKING:
     from netmiko import BaseConnection
-    from types import TracebackType
 
 
 class SCPConn(object):
@@ -31,7 +31,7 @@ class SCPConn(object):
 
     def __init__(
         self,
-        ssh_conn: BaseConnection,
+        ssh_conn: "BaseConnection",
         socket_timeout: float = 10.0,
         progress: Optional[Callable[..., Any]] = None,
         progress4: Optional[Callable[..., Any]] = None,
@@ -87,7 +87,7 @@ class BaseFileTransfer(object):
 
     def __init__(
         self,
-        ssh_conn: BaseConnection,
+        ssh_conn: "BaseConnection",
         source_file: str,
         dest_file: str,
         file_system: Optional[str] = None,
@@ -155,13 +155,17 @@ class BaseFileTransfer(object):
     def close_scp_chan(self) -> None:
         """Close the SCP connection to the remote network device."""
         self.scp_conn.close()
-        self.scp_conn = None
+        del self.scp_conn
 
     def remote_space_available(self, search_pattern: str = r"(\d+) \w+ free") -> int:
         """Return space available on remote device."""
         remote_cmd = f"dir {self.file_system}"
         remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
         match = re.search(search_pattern, remote_output)
+        if match is None:
+            raise ValueError(
+                "Pattern match not found in check for 'remote_space_available()'"
+            )
         if "kbytes" in match.group(0) or "Kbytes" in match.group(0):
             return int(match.group(1)) * 1000
         return int(match.group(1))
@@ -207,7 +211,7 @@ class BaseFileTransfer(object):
             import ctypes
 
             free_bytes = ctypes.c_ulonglong(0)
-            ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+            ctypes.windll.kernel32.GetDiskFreeSpaceExW(  # type: ignore
                 ctypes.c_wchar_p("."), None, None, ctypes.pointer(free_bytes)
             )
             return free_bytes.value
@@ -244,6 +248,7 @@ class BaseFileTransfer(object):
                 raise ValueError("Unexpected output from check_file_exists")
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
+        return False
 
     def _check_file_exists_unix(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
@@ -257,6 +262,7 @@ class BaseFileTransfer(object):
             return self.dest_file in remote_out
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
+        return False
 
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None
@@ -269,6 +275,8 @@ class BaseFileTransfer(object):
                 remote_file = self.source_file
         if not remote_cmd:
             remote_cmd = f"dir {self.file_system}/{remote_file}"
+
+        assert isinstance(remote_file, str)
         remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
         # Strip out "Directory of flash:/filename line
         remote_out = re.split(r"Directory of .*", remote_out)
@@ -364,6 +372,7 @@ class BaseFileTransfer(object):
         elif self.direction == "get":
             local_md5 = self.file_md5(self.dest_file)
             return self.source_md5 == local_md5
+        return False
 
     def remote_md5(
         self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None
@@ -380,6 +389,7 @@ class BaseFileTransfer(object):
         remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
+        assert isinstance(dest_md5, str)
         return dest_md5
 
     def transfer_file(self) -> None:
@@ -406,7 +416,7 @@ class BaseFileTransfer(object):
         """Verify the file has been transferred correctly."""
         return self.compare_md5()
 
-    def enable_scp(self, cmd: Union[Iterable, str, None]) -> None:
+    def enable_scp(self, cmd: Union[Iterable[str], str, None]) -> None:
         """
         Enable SCP on remote device.
 
@@ -415,10 +425,11 @@ class BaseFileTransfer(object):
         if cmd is None:
             cmd = ["ip scp server enable"]
         elif not hasattr(cmd, "__iter__"):
+            assert isinstance(cmd, str)
             cmd = [cmd]
         self.ssh_ctl_chan.send_config_set(cmd)
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: Union[Iterable[str], str, None] = None) -> None:
         """
         Disable SCP on remote device.
 
@@ -427,5 +438,6 @@ class BaseFileTransfer(object):
         if cmd is None:
             cmd = ["no ip scp server enable"]
         elif not hasattr(cmd, "__iter__"):
+            assert isinstance(cmd, str)
             cmd = [cmd]
         self.ssh_ctl_chan.send_config_set(cmd)

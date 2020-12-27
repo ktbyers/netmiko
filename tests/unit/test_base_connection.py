@@ -58,6 +58,8 @@ def test_use_ssh_file():
         passphrase=None,
         auth_timeout=None,
         banner_timeout=10,
+        blocking_timeout=20,
+        keepalive=0,
         conn_timeout=5,
         ssh_config_file=join(RESOURCE_FOLDER, "ssh_config"),
         sock=None,
@@ -78,6 +80,8 @@ def test_use_ssh_file():
         "passphrase": None,
         "auth_timeout": None,
         "banner_timeout": 10,
+        "blocking_timeout": 20,
+        "keepalive": 0,
     }
 
     result = connection._use_ssh_config(connect_dict)
@@ -104,6 +108,8 @@ def test_use_ssh_file_proxyjump():
         auth_timeout=None,
         conn_timeout=5,
         banner_timeout=10,
+        blocking_timeout=20,
+        keepalive=0,
         ssh_config_file=join(RESOURCE_FOLDER, "ssh_config_proxyjump"),
         sock=None,
     )
@@ -123,6 +129,8 @@ def test_use_ssh_file_proxyjump():
         "passphrase": None,
         "auth_timeout": None,
         "banner_timeout": 10,
+        "blocking_timeout": 20,
+        "keepalive": 0,
     }
 
     result = connection._use_ssh_config(connect_dict)
@@ -147,6 +155,8 @@ def test_connect_params_dict():
         passphrase=None,
         auth_timeout=None,
         banner_timeout=10,
+        blocking_timeout=20,
+        keepalive=0,
         conn_timeout=3,
         ssh_config_file=None,
         sock=None,
@@ -166,6 +176,8 @@ def test_connect_params_dict():
         "auth_timeout": None,
         "banner_timeout": 10,
         "sock": None,
+        "blocking_timeout": 20,
+        "keepalive": 0,
     }
     result = connection._connect_params_dict()
     assert result == expected
@@ -407,70 +419,3 @@ def test_lock_timeout():
 def test_lock_timeout_loop():
     """Try to lock when it is already locked, wait 100ms"""
     lock_unlock_timeout(0.2)
-
-
-def test_strip_ansi_codes():
-    connection = FakeBaseConnection(RETURN="\n")
-    ansi_codes_to_strip = [
-        "\x1b[30m",  # Black
-        "\x1b[31m",  # Red
-        "\x1b[32m",  # Green
-        "\x1b[33m",  # Yellow
-        "\x1b[34m",  # Blue
-        "\x1b[35m",  # Magenta
-        "\x1b[36m",  # Cyan
-        "\x1b[37m",  # White
-        "\x1b[39m",  # Default(foreground color at startup)
-        "\x1b[90m",  # Light Gray
-        "\x1b[91m",  # Light Red
-        "\x1b[92m",  # Light Green
-        "\x1b[93m",  # Light Yellow
-        "\x1b[94m",  # Light Blue
-        "\x1b[95m",  # Light Magenta
-        "\x1b[96m",  # Light Cyan
-        "\x1b[97m",  # Light White
-        "\x1b[40m",  # Black
-        "\x1b[41m",  # Red
-        "\x1b[42m",  # Green
-        "\x1b[43m",  # Yellow
-        "\x1b[44m",  # Blue
-        "\x1b[45m",  # Magenta
-        "\x1b[46m",  # Cyan
-        "\x1b[47m",  # White
-        "\x1b[49m",  # Default(background color at startup)
-        "\x1b[100m",  # Light Gray
-        "\x1b[101m",  # Light Red
-        "\x1b[102m",  # Light Green
-        "\x1b[103m",  # Light Yellow
-        "\x1b[104m",  # Light Blue
-        "\x1b[105m",  # Light Magenta
-        "\x1b[106m",  # Light Cyan
-        "\x1b[107m",  # Light White
-        "\x1b[1;5H",  # code_position_cursor r"\[\d+;\d+H"
-        "\x1b[?25h",  # code_show_cursor
-        "\x1b[K",  # code_erase_line_end
-        "\x1b[2K",  # code_erase_line
-        "\x1b[K",  # code_erase_start_line
-        "\x1b[1;2r",  # code_enable_scroll
-        "\x1b[1M",  # code_carriage_return
-        "\x1b[?7l",  # code_disable_line_wrapping
-        "\x1b[?7l",  # code_reset_mode_screen_options
-        "\x1b[00m",  # code_reset_graphics_mode
-        "\x1b[J",  # code_erase_display
-        "\x1b[6n",  # code_get_cursor_position
-        "\x1b[m",  # code_cursor_position
-        "\x1b[J",  # code_erase_display
-        "\x1b[0m",  # code_attrs_off
-        "\x1b[7m",  # code_reverse
-    ]
-    for ansi_code in ansi_codes_to_strip:
-        assert connection.strip_ansi_escape_codes(ansi_code) == ""
-
-    # code_insert_line must be substituted with n-returns
-    ansi_insert_line = "\x1b[1L"
-    assert connection.strip_ansi_escape_codes(ansi_insert_line) == "\n"
-    ansi_insert_line = "\x1b[3L"
-    assert connection.strip_ansi_escape_codes(ansi_insert_line) == "\n\n\n"
-
-    # code_next_line must be substituted with a return
-    assert connection.strip_ansi_escape_codes("\x1bE") == "\n"
