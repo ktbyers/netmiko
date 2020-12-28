@@ -348,7 +348,7 @@ def test_disconnect(net_connect, commands, expected_responses):
     end_time = datetime.now()
     time_delta = end_time - start_time
     assert time_delta.total_seconds() < 8
-    with pytest.raises(AttributeError) as e:    # noqa
+    with pytest.raises(AttributeError) as e:  # noqa
         net_connect.channel.remote_conn
 
 
@@ -362,7 +362,7 @@ def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses)
         end_time = datetime.now()
         time_delta = end_time - start_time
         assert time_delta.total_seconds() < 5
-        with pytest.raises(AttributeError) as e:    # noqa
+        with pytest.raises(AttributeError) as e:  # noqa
             net_connect.channel.remote_conn
     else:
         assert True
