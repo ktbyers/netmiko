@@ -138,7 +138,7 @@ def test_send_command_textfsm(net_connect, commands, expected_responses):
 
 
 def test_send_command_ttp(net_connect):
-    """Test TTP parsing works correctly.""" 
+    """Test TTP parsing works correctly."""
     base_platform = net_connect.device_type
     if base_platform.count("_") >= 2:
         # Strip off the _ssh, _telnet, _serial
@@ -292,7 +292,7 @@ def test_disconnect(net_connect, commands, expected_responses):
     net_connect.disconnect()
     end_time = datetime.now()
     time_delta = end_time - start_time
-    with pytest.raises(AttributeError) as e:
+    with pytest.raises(AttributeError) as e:    # noqa
         net_connect.channel.remote_conn
     assert time_delta.total_seconds() < 8
 
@@ -306,7 +306,7 @@ def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses)
         net_connect.disconnect()
         end_time = datetime.now()
         time_delta = end_time - start_time
-        with pytest.raises(AttributeError) as e:
+        with pytest.raises(AttributeError) as e:    # noqa
             net_connect.channel.remote_conn
         assert time_delta.total_seconds() < 5
     else:

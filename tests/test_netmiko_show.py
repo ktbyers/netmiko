@@ -252,6 +252,7 @@ def test_send_command_ttp_failed(net_connect):
         os.remove(ttp_temp_filename)
         assert isinstance(show_ip_alt, str)
 
+
 def test_send_command_genie(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully using send_command method."""
 
@@ -347,7 +348,7 @@ def test_disconnect(net_connect, commands, expected_responses):
     end_time = datetime.now()
     time_delta = end_time - start_time
     assert time_delta.total_seconds() < 8
-    with pytest.raises(AttributeError) as e:
+    with pytest.raises(AttributeError) as e:    # noqa
         net_connect.channel.remote_conn
 
 
@@ -361,7 +362,7 @@ def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses)
         end_time = datetime.now()
         time_delta = end_time - start_time
         assert time_delta.total_seconds() < 5
-        with pytest.raises(AttributeError) as e:
+        with pytest.raises(AttributeError) as e:    # noqa
             net_connect.channel.remote_conn
     else:
         assert True

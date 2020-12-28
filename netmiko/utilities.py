@@ -400,7 +400,7 @@ def get_structured_data_ttp(
                 return raw_output
             else:
                 assert isinstance(ttp_output, list)
-                return ttp_output 
+                return ttp_output
     except Exception:
         pass
 
