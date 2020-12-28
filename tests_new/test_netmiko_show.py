@@ -14,6 +14,7 @@ test_clear_buffer: clear text buffer
 test_enable_mode: verify enter enable mode
 test_disconnect: cleanly disconnect the SSH session
 """
+import os
 import pytest
 import time
 from datetime import datetime
@@ -137,11 +138,7 @@ def test_send_command_textfsm(net_connect, commands, expected_responses):
 
 
 def test_send_command_ttp(net_connect):
-    """
-    Verify a command can be sent down the channel
-    successfully using send_command method.
-    """
-
+    """Test TTP parsing works correctly.""" 
     base_platform = net_connect.device_type
     if base_platform.count("_") >= 2:
         # Strip off the _ssh, _telnet, _serial
@@ -154,17 +151,51 @@ def test_send_command_ttp(net_connect):
         net_connect.clear_buffer()
 
         # write a simple template to file
-        ttp_raw_template = """interface {{ intf }}"""
-        with open("show_run_interfaces.ttp", "w") as writer:
+        ttp_raw_template = """interface {{ intf }}
+ description {{ description }}
+        """
+        ttp_temp_filename = "show_run_interfaces.ttp"
+        with open(ttp_temp_filename, "w") as writer:
             writer.write(ttp_raw_template)
 
-        command = "show run | section interface"
+        command = "show run"
         show_ip_alt = net_connect.send_command(
-            command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
+            command, use_ttp=True, ttp_template=ttp_temp_filename
         )
+        os.remove(ttp_temp_filename)
         assert isinstance(show_ip_alt, list)
         # Ensures it isn't an empty data structure
         assert isinstance(show_ip_alt[0]["intf"], str)
+
+
+def test_send_command_ttp_failed(net_connect):
+    """Failed TTP parsing should return raw_output."""
+
+    base_platform = net_connect.device_type
+    if base_platform.count("_") >= 2:
+        # Strip off the _ssh, _telnet, _serial
+        base_platform = base_platform.split("_")[:-1]
+        base_platform = "_".join(base_platform)
+    if base_platform not in ["cisco_ios"]:
+        assert pytest.skip("TTP template not existing for this platform")
+    else:
+        time.sleep(1)
+        net_connect.clear_buffer()
+
+        # Break template by having leading space
+        ttp_raw_template = """   interface {{ intf }}
+ description {{ description }}
+        """
+        ttp_temp_filename = "show_run_interfaces.ttp"
+        with open(ttp_temp_filename, "w") as writer:
+            writer.write(ttp_raw_template)
+
+        command = "show run"
+        show_ip_alt = net_connect.send_command(
+            command, use_ttp=True, ttp_template=ttp_temp_filename
+        )
+        os.remove(ttp_temp_filename)
+        assert isinstance(show_ip_alt, str)
 
 
 def test_send_command_genie(net_connect, commands, expected_responses):
@@ -261,7 +292,8 @@ def test_disconnect(net_connect, commands, expected_responses):
     net_connect.disconnect()
     end_time = datetime.now()
     time_delta = end_time - start_time
-    assert net_connect.channel.remote_conn is None
+    with pytest.raises(AttributeError) as e:
+        net_connect.channel.remote_conn
     assert time_delta.total_seconds() < 8
 
 
@@ -274,7 +306,8 @@ def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses)
         net_connect.disconnect()
         end_time = datetime.now()
         time_delta = end_time - start_time
-        assert net_connect.channel.remote_conn is None
+        with pytest.raises(AttributeError) as e:
+            net_connect.channel.remote_conn
         assert time_delta.total_seconds() < 5
     else:
         assert True

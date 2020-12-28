@@ -415,11 +415,10 @@ Device settings: {self.device_type} {host}:{port}
         """Cleanup Paramiko to try to gracefully handle SSH session ending."""
         try:
             self.remote_conn_pre.close()
-            del self.remote_conn_pre
         # There have been race conditions observed on disconnect.
         finally:
-            self.remote_conn_pre = None
-            self.remote_conn = None
+            del self.remote_conn
+            del self.remote_conn_pre
 
     def login(self) -> None:
         """Generally not used with SSH."""

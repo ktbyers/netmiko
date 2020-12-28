@@ -395,7 +395,11 @@ def get_structured_data_ttp(
             ttp_parser.parse(one=True)
             ttp_output = ttp_parser.result(format="raw")
             # Strip off outer TTP list-of-lists
-            return ttp_output[0][0]
+            ttp_output = ttp_output[0][0]
+            if ttp_output == {}:
+                return raw_output
+            else:
+                return ttp_output 
     except Exception:
         return raw_output
 
