@@ -399,14 +399,17 @@ def get_structured_data_ttp(
             if ttp_output == {}:
                 return raw_output
             else:
+                assert isinstance(ttp_output, list)
                 return ttp_output 
     except Exception:
-        return raw_output
+        pass
+
+    return raw_output
 
 
 def get_structured_data_genie(
     raw_output: str, platform: str, command: str
-) -> Union[List, Dict, str]:
+) -> Union[Dict[str, Any], str]:
     if not sys.version_info >= (3, 4):
         raise ValueError("Genie requires Python >= 3.4")
 
@@ -431,8 +434,8 @@ def get_structured_data_genie(
     os = None
     # platform might be _ssh, _telnet, _serial strip that off
     if platform.count("_") > 1:
-        base_platform = platform.split("_")[:-1]
-        base_platform = "_".join(base_platform)
+        base_platform_list = platform.split("_")[:-1]
+        base_platform = "_".join(base_platform_list)
     else:
         base_platform = platform
 
@@ -450,7 +453,7 @@ def get_structured_data_genie(
         # Test whether there is a parser for given command (return Exception if fails)
         get_parser(command, device)
         parsed_output = device.parse(command, output=raw_output)
-        assert isinstance(parsed_output, list) or isinstance(parsed_output, dict)
+        assert isinstance(parsed_output, dict)
         return parsed_output
     except Exception:
         return raw_output
