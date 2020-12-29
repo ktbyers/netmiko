@@ -2036,6 +2036,157 @@ Device settings: {self.device_type} {self.host}:{self.port}
             self.session_log.close()
             self.session_log = None
 
+    def send_command_ps(
+        self,
+        command_string,
+        read_timeout=30,
+        timeout=120,
+        inter_loop_sleep=0.1,
+        strip_prompt=True,
+        strip_command=True,
+        normalize=True,
+        use_textfsm=False,
+        textfsm_template=None,
+        use_ttp=False,
+        ttp_template=None,
+        use_genie=False,
+    ):
+        """Execute command_string_ps on the SSH channel using promptless (ps) approach. Can be used
+        for any commands, including commands that change prompt. Multiple commands can be sent
+        separated by '\n' newline.
+
+        :param command_string: The command(s) to be executed on the remote device.
+        :type command_string: str
+
+        :param read_timeout: Timeout in seconds to wait for data from devices, default 30s, if
+            set to -1 will wait indefinitely
+        :type read_timeout: int
+
+        :param timeout: Timeout in seconds of overall wait, default 120s, if
+            set to -1 will wait indefinitely
+        :type timeout: int
+
+        :param inter_loop_sleep: Interval in seconds to sleep between loops, default 0.1s
+        :type inter_loop_sleep: int
+
+        :param strip_prompt: Remove the trailing router prompt from the output (default: True).
+        :type strip_prompt: bool
+
+        :param strip_command: Remove the echo of the command from the output (default: True).
+        :type strip_command: bool
+
+        :param normalize: Ensure the proper enter is sent at end of command (default: True).
+        :type normalize: bool
+
+        :param use_textfsm: Process command output through TextFSM template (default: False).
+        :type use_textfsm: bool
+
+        :param textfsm_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type textfsm_template: str
+
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
+
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
+        :type use_genie: bool
+        """
+        data_received = ""
+        previous_last_line = ""
+        no_data_elapsed = 0
+        start_time = time.time()
+
+        if normalize:
+            command_string = self.normalize_cmd(command_string)
+
+        self.clear_buffer()
+        self.write_channel(command_string)
+
+        # Main loop to get output from device
+        while True:
+            if read_timeout != -1 and no_data_elapsed > read_timeout:
+                raise NetmikoTimeoutException(
+                    "send_command_ps {}s read_timeout expired".format(read_timeout)
+                )
+            if timeout != -1 and (time.time() - start_time) > timeout:
+                raise NetmikoTimeoutException(
+                    "send_command_ps {}s timeout expired".format(timeout)
+                )
+
+            time.sleep(inter_loop_sleep)
+            no_data_elapsed += inter_loop_sleep
+
+            # read data from channel
+            chunk = self._read_channel()
+            if chunk:
+                no_data_elapsed = 0
+                data_received += chunk
+                new_last_line = data_received.splitlines()[-1]
+            else:
+                continue
+
+            # handle edge cases
+            if (
+                # ignore empty last line
+                not new_last_line.strip(" ")
+                # Unix systems echo command back before executing, ignore it
+                or new_last_line == command_string
+            ):
+                continue
+            # junos returns \x07 instead of space, replace it with spaces
+            if "\x07" in new_last_line:
+                new_last_line = new_last_line.replace("\x07", " ")
+
+            # Detect end of output by sending two space chars and checking if received it back in next cycle
+            is_end = "{}  ".format(previous_last_line) == new_last_line
+            log.debug(
+                "Detecting end of output; new_last_line: '{}'; previous_last_line: {}; IS END: {}".format(
+                    [new_last_line], [previous_last_line], is_end
+                )
+            )
+            if is_end:
+                break
+
+            previous_last_line = new_last_line
+            self.write_channel("  ")
+
+        output = self._sanitize_output(
+            data_received,
+            strip_command=strip_command,
+            command_string=command_string,
+            strip_prompt=strip_prompt,
+        )
+
+        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
+        if use_textfsm:
+            structured_output = get_structured_data(
+                output,
+                platform=self.device_type,
+                command=command_string.strip(),
+                template=textfsm_template,
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_ttp:
+            structured_output = get_structured_data_ttp(output, template=ttp_template)
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+        if use_genie:
+            structured_output = get_structured_data_genie(
+                output, platform=self.device_type, command=command_string.strip()
+            )
+            # If we have structured data; return it.
+            if not isinstance(structured_output, str):
+                return structured_output
+
+        return output
+
 
 class TelnetConnection(BaseConnection):
     pass
