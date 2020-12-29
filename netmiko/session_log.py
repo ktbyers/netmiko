@@ -1,16 +1,17 @@
 import io
 from netmiko.utilities import write_bytes
+from typing import Dict, Any, Union, Optional, TextIO
 
 
 class SessionLog:
     def __init__(
         self,
-        file_name=None,
-        buffered_io=None,
-        file_mode="write",
-        file_encoding="ascii",
-        no_log=None,
-        record_writes=False,
+        file_name: Optional[str] = None,
+        buffered_io: Optional[io.BufferedIOBase] = None,
+        file_mode: str = "write",
+        file_encoding: str = "ascii",
+        no_log: Dict[str, Any] = None,
+        record_writes: bool = False,
     ) -> None:
         if no_log is None:
             self.no_log = {}
@@ -23,6 +24,7 @@ class SessionLog:
         self._session_log_close = False
 
         # Actual file/file-handle/buffered-IO that will be written to.
+        self.session_log: Union[io.BufferedIOBase, TextIO, None]
         if file_name is None and buffered_io:
             self.session_log = buffered_io
         else:
@@ -33,6 +35,8 @@ class SessionLog:
 
     def open(self) -> None:
         """Open the session_log file."""
+        if self.file_name is None:
+            return None
         if self.file_mode == "append":
             self.session_log = open(
                 self.file_name, mode="a", encoding=self.file_encoding
@@ -59,4 +63,8 @@ class SessionLog:
                 self.session_log.write(write_bytes(data, encoding=self.file_encoding))
             else:
                 self.session_log.write(data)
+
+            assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
+                self.session_log, io.TextIOBase
+            )
             self.session_log.flush()

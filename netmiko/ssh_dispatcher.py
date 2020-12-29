@@ -1,4 +1,12 @@
 """Controls selection of proper class based on the device type."""
+from typing import Any, Type
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from netmiko import BaseConnection
+
+from netmiko.scp_handler import BaseFileTransfer
+
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.adtran import AdtranOSSSH
@@ -296,7 +304,7 @@ telnet_platforms_str = "\n".join(telnet_platforms)
 telnet_platforms_str = "\n" + telnet_platforms_str
 
 
-def ConnectHandler(*args, **kwargs):
+def ConnectHandler(*args: Any, **kwargs: Any) -> object:
     """Factory function selects the proper class and creates object based on device_type."""
     device_type = kwargs["device_type"]
     if device_type not in platforms:
@@ -312,12 +320,14 @@ def ConnectHandler(*args, **kwargs):
     return ConnectionClass(*args, **kwargs)
 
 
-def ssh_dispatcher(device_type):
+def ssh_dispatcher(device_type: str) -> Type["BaseConnection"]:
     """Select the class to be instantiated based on vendor/platform."""
     return CLASS_MAPPER[device_type]
 
 
-def redispatch(obj, device_type, session_prep=True):
+def redispatch(
+    obj: "BaseConnection", device_type: str, session_prep: bool = True
+) -> None:
     """Dynamically change Netmiko object's class to proper class.
     Generally used with terminal_server device_type when you need to redispatch after interacting
     with terminal server.
@@ -329,7 +339,7 @@ def redispatch(obj, device_type, session_prep=True):
         obj._try_session_preparation()
 
 
-def FileTransfer(*args, **kwargs):
+def FileTransfer(*args: Any, **kwargs: Any) -> BaseFileTransfer:
     """Factory function selects the proper SCP class and creates object based on device_type."""
     if len(args) >= 1:
         device_type = args[0].device_type
@@ -341,4 +351,6 @@ def FileTransfer(*args, **kwargs):
             "currently supported platforms are: {}".format(scp_platforms_str)
         )
     FileTransferClass = FILE_TRANSFER_MAP[device_type]
-    return FileTransferClass(*args, **kwargs)
+    file_transfer_obj = FileTransferClass(*args, **kwargs)
+    assert isinstance(file_transfer_obj, BaseFileTransfer)
+    return file_transfer_obj
