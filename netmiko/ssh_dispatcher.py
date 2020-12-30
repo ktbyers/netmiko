@@ -304,7 +304,7 @@ telnet_platforms_str = "\n".join(telnet_platforms)
 telnet_platforms_str = "\n" + telnet_platforms_str
 
 
-def ConnectHandler(*args: Any, **kwargs: Any) -> object:
+def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
     """Factory function selects the proper class and creates object based on device_type."""
     device_type = kwargs["device_type"]
     if device_type not in platforms:

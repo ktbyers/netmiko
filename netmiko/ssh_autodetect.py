@@ -40,8 +40,10 @@ Examples
 """
 import re
 import time
+from typing import Any, Optional, Dict
 from netmiko.ssh_dispatcher import ConnectHandler
 from netmiko.base_connection import BaseConnection
+from netmiko.channel import SSHChannel
 
 
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
@@ -235,7 +237,7 @@ class SSHDetect(object):
         Try to determine the device type.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Constructor of the SSHDetect class
         """
@@ -247,10 +249,10 @@ class SSHDetect(object):
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
         self.initial_buffer = output
-        self.potential_matches = {}
-        self._results_cache = {}
+        self.potential_matches: Dict[str, int] = {}
+        self._results_cache: Dict[str, str] = {}
 
-    def autodetect(self):
+    def autodetect(self) -> Optional[str]:
         """
         Try to guess the best 'device_type' based on patterns defined in SSH_MAPPER_BASE
 
@@ -262,6 +264,7 @@ class SSHDetect(object):
         for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop("dispatch")
+            assert isinstance(call_method, str)
             autodetect_method = getattr(self, call_method)
             accuracy = autodetect_method(**tmp_dict)
             if accuracy:
@@ -283,7 +286,7 @@ class SSHDetect(object):
         self.connection.disconnect()
         return best_match[0][0]
 
-    def _send_command(self, cmd=""):
+    def _send_command(self, cmd: str = "") -> str:
         """
         Handle reading/writing channel directly. It is also sanitizing the output received.
 
@@ -301,9 +304,10 @@ class SSHDetect(object):
         time.sleep(1)
         output = self.connection.read_channel_timing()
         output = self.connection.strip_backspaces(output)
+        assert isinstance(output, str)
         return output
 
-    def _send_command_wrapper(self, cmd):
+    def _send_command_wrapper(self, cmd: str) -> str:
         """
         Send command to the remote device with a caching feature to avoid sending the same command
         twice based on the SSH_MAPPER_BASE dict cmd key.
@@ -327,8 +331,11 @@ class SSHDetect(object):
             return cached_results
 
     def _autodetect_remote_version(
-        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
-    ):
+        self,
+        search_patterns: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+    ) -> int:
         """
         Method to try auto-detect the device type, by matching a regular expression on the reported
         remote version of the SSH server.
@@ -349,7 +356,13 @@ class SSHDetect(object):
             return 0
 
         try:
-            remote_version = self.connection.remote_conn.transport.remote_version
+            assert isinstance(self.connection.channel, SSHChannel)
+            if self.connection.channel.remote_conn is not None:
+                remote_version = (
+                    self.connection.channel.remote_conn.transport.remote_version
+                )
+            else:
+                raise ValueError("There is no active SSH Connection.")
             for pattern in invalid_responses:
                 match = re.search(pattern, remote_version, flags=re.I)
                 if match:
@@ -363,8 +376,12 @@ class SSHDetect(object):
         return 0
 
     def _autodetect_std(
-        self, cmd="", search_patterns=None, re_flags=re.IGNORECASE, priority=99
-    ):
+        self,
+        cmd: str = "",
+        search_patterns: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+    ) -> int:
         """
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
