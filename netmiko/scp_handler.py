@@ -129,7 +129,7 @@ class BaseFileTransfer(object):
         else:
             raise ValueError("Invalid direction specified")
 
-    def __enter__(self) -> object:
+    def __enter__(self) -> "BaseFileTransfer":
         """Context manager setup"""
         self.establish_scp_conn()
         return self

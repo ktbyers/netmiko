@@ -134,7 +134,7 @@ class InLineTransfer(CiscoIosFileTransfer):
             raise ValueError(msg)
         return tmp_string
 
-    def __enter__(self):
+    def __enter__(self) -> "InLineTransfer":
         self._enter_tcl_mode()
         return self
 
