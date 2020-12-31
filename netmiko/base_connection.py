@@ -49,7 +49,7 @@ from netmiko.utilities import m_exec_time  # noqa
 
 def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(func)
-    def wrapper_decorator(self: object, *args: Any, **kwargs: Any) -> Any:
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
         self._lock_netmiko_session()
         try:
             return_val = func(self, *args, **kwargs)
@@ -1310,27 +1310,27 @@ class BaseConnection(object):
 
         # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
         if use_textfsm:
-            structured_output = get_structured_data(
+            structured_output_textfsm = get_structured_data(
                 output,
                 platform=self.device_type,
                 command=command_string.strip(),
                 template=textfsm_template,
             )
             # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
+            if not isinstance(structured_output_textfsm, str):
+                return structured_output_textfsm
         if use_ttp:
-            structured_output = get_structured_data_ttp(output, template=ttp_template)
+            structured_output_ttp = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
+            if not isinstance(structured_output_ttp, str):
+                return structured_output_ttp
         if use_genie:
-            structured_output = get_structured_data_genie(
+            structured_output_genie = get_structured_data_genie(
                 output, platform=self.device_type, command=command_string.strip()
             )
             # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
+            if not isinstance(structured_output_genie, str):
+                return structured_output_genie
 
         log.debug(f"send_command_timing final output: {output}")
         return output
@@ -1536,27 +1536,27 @@ class BaseConnection(object):
 
         # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
         if use_textfsm:
-            structured_output = get_structured_data(
+            structured_output_textfsm = get_structured_data(
                 output,
                 platform=self.device_type,
                 command=command_string.strip(),
                 template=textfsm_template,
             )
             # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
+            if not isinstance(structured_output_textfsm, str):
+                return structured_output_textfsm
         if use_ttp:
-            structured_output = get_structured_data_ttp(output, template=ttp_template)
+            structured_output_ttp = get_structured_data_ttp(output, template=ttp_template)
             # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
+            if not isinstance(structured_output_ttp, str):
+                return structured_output_ttp
         if use_genie:
-            structured_output = get_structured_data_genie(
+            structured_output_genie = get_structured_data_genie(
                 output, platform=self.device_type, command=command_string.strip()
             )
             # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
+            if not isinstance(structured_output_genie, str):
+                return structured_output_genie
         return output
 
     def send_command_expect(self, *args: Any, **kwargs: Any) -> str:

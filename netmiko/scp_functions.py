@@ -49,7 +49,7 @@ def verifyspace_and_transferfile(scp_transfer: "BaseFileTransfer") -> None:
 
 
 def file_transfer(
-    ssh_conn: BaseConnection,
+    ssh_conn: "BaseConnection",
     source_file: str,
     dest_file: str,
     file_system: Optional[str] = None,

@@ -4,7 +4,7 @@ from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS
 
 
 class ZteZxrosBase(CiscoBaseConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
@@ -13,13 +13,17 @@ class ZteZxrosBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string=")#", pattern="#"):
+    def check_config_mode(self, check_string: str = ")#", pattern: str = "#") -> bool:
         """
         Checks if the device is in configuration mode or not.
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, cmd="write", confirm=False, confirm_response=""):
+    def save_config(
+        self, 
+        cmd: str = "write", 
+        confirm: bool = False, 
+        confirm_response: str = "") -> str:
         """Saves Config Using Copy Run Start"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -54,5 +58,5 @@ class ZteZxrosTelnet(ZteZxrosBase):
 
     def telnet_login(self, *args, **kwargs):
         # set callback function to handle telnet options.
-        self.remote_conn.set_option_negotiation_callback(self._process_option)
+        self.channel.remote_conn.set_option_negotiation_callback(self._process_option)
         return super().telnet_login(*args, **kwargs)
