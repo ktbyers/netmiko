@@ -1,4 +1,3 @@
-from typing import Any
 import time
 import re
 from netmiko.base_connection import BaseConnection
@@ -17,7 +16,10 @@ class YamahaBase(BaseConnection):
         return super().check_enable_mode(check_string=check_string)
 
     def enable(
-        self, cmd: str = "administrator", pattern: str = r"Password", re_flags: int = re.IGNORECASE
+        self,
+        cmd: str = "administrator",
+        pattern: str = r"Password",
+        re_flags: int = re.IGNORECASE,
     ) -> str:
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
@@ -42,7 +44,12 @@ class YamahaBase(BaseConnection):
         """Checks if the device is in administrator mode or not."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command: str = "administrator", pattern: str = "ssword", re_flags: int = re.IGNORECASE) -> str:
+    def config_mode(
+        self,
+        config_command: str = "administrator",
+        pattern: str = "ssword",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Enter into administrator mode and configure device."""
         return self.enable()
 
@@ -53,7 +60,9 @@ class YamahaBase(BaseConnection):
         """
         return ""
 
-    def save_config(self, cmd: str = "save", confirm: bool = False, confirm_response: str = "") -> str:
+    def save_config(
+        self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Saves Config."""
         if confirm is True:
             raise ValueError("Yamaha does not support save_config confirmation.")

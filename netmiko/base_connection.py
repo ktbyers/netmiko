@@ -1320,7 +1320,9 @@ class BaseConnection(object):
             if not isinstance(structured_output_textfsm, str):
                 return structured_output_textfsm
         if use_ttp:
-            structured_output_ttp = get_structured_data_ttp(output, template=ttp_template)
+            structured_output_ttp = get_structured_data_ttp(
+                output, template=ttp_template
+            )
             # If we have structured data; return it.
             if not isinstance(structured_output_ttp, str):
                 return structured_output_ttp
@@ -1546,7 +1548,9 @@ class BaseConnection(object):
             if not isinstance(structured_output_textfsm, str):
                 return structured_output_textfsm
         if use_ttp:
-            structured_output_ttp = get_structured_data_ttp(output, template=ttp_template)
+            structured_output_ttp = get_structured_data_ttp(
+                output, template=ttp_template
+            )
             # If we have structured data; return it.
             if not isinstance(structured_output_ttp, str):
                 return structured_output_ttp
