@@ -5,7 +5,7 @@ from netmiko.vyos.vyos_ssh import VyOSSSH
 class UbiquitiEdgeRouterSSH(VyOSSSH):
     """Implement methods for interacting with EdgeOS EdgeRouter network devices."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
@@ -15,11 +15,14 @@ class UbiquitiEdgeRouterSSH(VyOSSSH):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd="save", confirm=False, confirm_response=""):
+    def save_config(
+        self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Saves Config."""
         if confirm is True:
             raise ValueError("EdgeRouter does not support save_config confirmation.")
         output = self.send_command(command_string=cmd)
         if "Done" not in output:
             raise ValueError(f"Save failed with following errors:\n\n{output}")
+        assert isinstance(output, str)
         return output

@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, Union, Iterable
 import time
+import io
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -108,12 +109,19 @@ class VyOSSSH(CiscoSSHConnection):
         self.base_prompt = prompt[:-2].strip()
         return self.base_prompt
 
-    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
+    def send_config_set(  # type: ignore
+        self,
+        config_commands: Union[str, Iterable[str], io.TextIOWrapper, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -> str:
         """Remain in configuration mode."""
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def save_config(self, *args, **kwargs):
+    def save_config(
+        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Not Implemented"""
         raise NotImplementedError

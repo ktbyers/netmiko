@@ -3,7 +3,7 @@ from netmiko.ubiquiti.edge_ssh import UbiquitiEdgeSSH
 
 
 class UbiquitiUnifiSwitchSSH(UbiquitiEdgeSSH):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
         When SSHing to a UniFi switch, the session initially starts at a Linux
@@ -25,7 +25,7 @@ class UbiquitiUnifiSwitchSSH(UbiquitiEdgeSSH):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
