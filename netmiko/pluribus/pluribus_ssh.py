@@ -13,7 +13,7 @@ class PluribusSSH(BaseConnection):
     def disable_paging(
         self,
         command: str = "pager off",
-        delay_factor: float = 1.0, 
+        delay_factor: float = 1.0,
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:

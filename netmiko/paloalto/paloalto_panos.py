@@ -38,28 +38,32 @@ class PaloAltoPanosBase(BaseConnection):
         """No enable mode on PaloAlto."""
         return ""
 
-    def check_config_mode(self, check_string: str="]", pattern: str = "") -> bool:
+    def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command: str="configure", pattern: str = "", re_flags: int = 0) -> str:
+    def config_mode(
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command, pattern=pattern, re_flags=re_flags)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config: str="exit", pattern: str=r">") -> str:
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r">") -> str:
         """Exit configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def commit(
         self,
-        comment: Optional[str]=None,
-        force: bool=False,
-        partial: bool=False,
-        device_and_network: bool=False,
-        policy_and_objects: bool=False,
-        vsys: str="",
-        no_vsys: bool=False,
-        delay_factor: float=0.1,
+        comment: Optional[str] = None,
+        force: bool = False,
+        partial: bool = False,
+        device_and_network: bool = False,
+        policy_and_objects: bool = False,
+        vsys: str = "",
+        no_vsys: bool = False,
+        delay_factor: float = 0.1,
     ) -> str:
         """
         Commit the candidate configuration.
@@ -161,7 +165,7 @@ class PaloAltoPanosBase(BaseConnection):
         assert isinstance(output, str)
         return output
 
-    def cleanup(self, command: str="exit") -> None:
+    def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
