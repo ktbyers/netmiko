@@ -23,17 +23,24 @@ class NetgearProSafeSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string: str="(Config)#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "(Config)#", pattern: str = ""
+    ) -> bool:
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command: str="configure", pattern: str=r")#", re_flags: int = 0) -> str:
+    def config_mode(
+        self, config_command: str = "configure", pattern: str = r")#", re_flags: int = 0
+    ) -> str:
         return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def exit_config_mode(self, exit_config: str="exit", pattern: str="#") -> str:
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "#") -> str:
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(
-        self, cmd: str="write memory confirm", confirm: bool=False, confirm_response: str=""
+        self,
+        cmd: str = "write memory confirm",
+        confirm: bool = False,
+        confirm_response: str = "",
     ) -> str:
         self.enable()
         """ProSafe doesn't allow saving within configuration mode"""

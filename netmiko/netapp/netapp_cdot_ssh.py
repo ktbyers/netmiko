@@ -18,15 +18,24 @@ class NetAppcDotSSH(BaseConnection):
         assert isinstance(output, str)
         return output
 
-    def check_config_mode(self, check_string: str="*>", pattern: str = "") -> bool:
+    def check_config_mode(self, check_string: str = "*>", pattern: str = "") -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
-        self, config_command: str="set -privilege diagnostic -confirmations off", pattern: str = "", re_flags: int = 0
+        self,
+        config_command: str = "set -privilege diagnostic -confirmations off",
+        pattern: str = "",
+        re_flags: int = 0,
     ) -> str:
-        return super().config_mode(config_command=config_command, pattern=pattern, re_flags=re_flags)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config: str="set -privilege admin -confirmations off", pattern: str = "") -> str:
+    def exit_config_mode(
+        self,
+        exit_config: str = "set -privilege admin -confirmations off",
+        pattern: str = "",
+    ) -> str:
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def enable(self, *args: Any, **kwargs: Any) -> str:

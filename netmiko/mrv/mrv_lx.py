@@ -18,15 +18,25 @@ class MrvLxSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_enable_mode(self, check_string: str=">>") -> bool:
+    def check_enable_mode(self, check_string: str = ">>") -> bool:
         """MRV has a >> for enable mode instead of # like Cisco"""
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd: str="enable", pattern: str="assword", re_flags: int=re.IGNORECASE) -> str:
+    def enable(
+        self,
+        cmd: str = "enable",
+        pattern: str = "assword",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Enter enable mode."""
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
-    def save_config(self, cmd: str="save config flash", confirm: bool=False, confirm_response: str="") -> str:
+    def save_config(
+        self,
+        cmd: str = "save config flash",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves configuration."""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response

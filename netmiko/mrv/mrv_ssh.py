@@ -19,7 +19,9 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.clear_buffer()
 
-    def enable(self, cmd: str="enable", pattern: str=r"#", re_flags: int=re.IGNORECASE) -> str:
+    def enable(
+        self, cmd: str = "enable", pattern: str = r"#", re_flags: int = re.IGNORECASE
+    ) -> str:
         """Enable mode on MRV uses no password."""
         output = ""
         if not self.check_enable_mode():
@@ -35,7 +37,12 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
                 raise ValueError(msg)
         return output
 
-    def save_config(self, cmd: str="save config flash", confirm: bool=False, confirm_response: str="") -> str:
+    def save_config(
+        self,
+        cmd: str = "save config flash",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves configuration."""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
