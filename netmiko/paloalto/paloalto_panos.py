@@ -1,3 +1,4 @@
+from typing import Any, Optional
 import time
 import re
 from netmiko.base_connection import BaseConnection
@@ -11,7 +12,7 @@ class PaloAltoPanosBase(BaseConnection):
     methods.  Overrides several methods for PaloAlto-specific compatibility.
     """
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
 
@@ -25,41 +26,41 @@ class PaloAltoPanosBase(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_enable_mode(self, *args, **kwargs):
+    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
         """No enable mode on PaloAlto."""
-        pass
+        return True
 
-    def enable(self, *args, **kwargs):
+    def enable(self, *args: Any, **kwargs: Any) -> str:
         """No enable mode on PaloAlto."""
-        pass
+        return ""
 
-    def exit_enable_mode(self, *args, **kwargs):
+    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
         """No enable mode on PaloAlto."""
-        pass
+        return ""
 
-    def check_config_mode(self, check_string="]"):
+    def check_config_mode(self, check_string: str="]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="configure"):
+    def config_mode(self, config_command: str="configure", pattern: str = "", re_flags: int = 0) -> str:
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+        return super().config_mode(config_command=config_command, pattern=pattern, re_flags=re_flags)
 
-    def exit_config_mode(self, exit_config="exit", pattern=r">"):
+    def exit_config_mode(self, exit_config: str="exit", pattern: str=r">") -> str:
         """Exit configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def commit(
         self,
-        comment=None,
-        force=False,
-        partial=False,
-        device_and_network=False,
-        policy_and_objects=False,
-        vsys="",
-        no_vsys=False,
-        delay_factor=0.1,
-    ):
+        comment: Optional[str]=None,
+        force: bool=False,
+        partial: bool=False,
+        device_and_network: bool=False,
+        policy_and_objects: bool=False,
+        vsys: str="",
+        no_vsys: bool=False,
+        delay_factor: float=0.1,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -118,12 +119,12 @@ class PaloAltoPanosBase(BaseConnection):
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         return output
 
-    def strip_command(self, command_string, output):
+    def strip_command(self, command_string: str, output: str) -> str:
         """Strip command_string from output string."""
         output_list = output.split(command_string)
         return self.RESPONSE_RETURN.join(output_list)
 
-    def strip_prompt(self, a_string):
+    def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output."""
         response_list = a_string.split(self.RESPONSE_RETURN)
         new_response_list = []
@@ -134,7 +135,7 @@ class PaloAltoPanosBase(BaseConnection):
         output = self.RESPONSE_RETURN.join(new_response_list)
         return self.strip_context_items(output)
 
-    def strip_context_items(self, a_string):
+    def strip_context_items(self, a_string: str) -> str:
         """Strip PaloAlto-specific output.
 
         PaloAlto will also put a configuration context:
@@ -153,16 +154,14 @@ class PaloAltoPanosBase(BaseConnection):
 
         return a_string
 
-    def send_command_expect(self, *args, **kwargs):
-        """Palo Alto requires an extra delay"""
-        return self.send_command(*args, **kwargs)
-
-    def send_command(self, *args, **kwargs):
+    def send_command(self, *args: Any, **kwargs: Any) -> str:
         """Palo Alto requires an extra delay"""
         kwargs["delay_factor"] = kwargs.get("delay_factor", 2.5)
-        return super().send_command(*args, **kwargs)
+        output = super().send_command(*args, **kwargs)
+        assert isinstance(output, str)
+        return output
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str="exit") -> None:
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing

@@ -1,13 +1,14 @@
+from typing import Any
 import re
 import time
-from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT
+from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT, Telnet
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class RuckusFastironBase(CiscoSSHConnection):
     """Ruckus FastIron aka ICX support."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """FastIron requires to be enable mode to disable paging."""
         self._test_channel_read()
         self.set_base_prompt()
@@ -18,8 +19,11 @@ class RuckusFastironBase(CiscoSSHConnection):
         self.clear_buffer()
 
     def enable(
-        self, cmd="enable", pattern=r"(ssword|User Name)", re_flags=re.IGNORECASE
-    ):
+        self,
+        cmd: str = "enable",
+        pattern: str = r"(ssword|User Name)",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Enter enable mode.
         With RADIUS can prompt for User Name
         SSH@Lab-ICX7250>en
@@ -62,7 +66,11 @@ class RuckusFastironBase(CiscoSSHConnection):
             )
             raise ValueError(msg)
 
-    def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
+        return output
+
+    def save_config(
+        self, cmd: str = "write mem", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Saves configuration."""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -70,7 +78,7 @@ class RuckusFastironBase(CiscoSSHConnection):
 
 
 class RuckusFastironTelnet(RuckusFastironBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
@@ -88,9 +96,10 @@ class RuckusFastironTelnet(RuckusFastironBase):
         elif command in (WILL, WONT):
             tsocket.sendall(IAC + DONT + option)
 
-    def telnet_login(self, *args, **kwargs):
+    def telnet_login(self, *args: Any, **kwargs: Any) -> str:
         # set callback function to handle telnet options.
-        self.remote_conn.set_option_negotiation_callback(self._process_option)
+        assert isinstance(self.channel.remote_conn, Telnet)
+        self.channel.remote_conn.set_option_negotiation_callback(self._process_option)
         return super().telnet_login(*args, **kwargs)
 
 

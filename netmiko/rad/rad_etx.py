@@ -1,3 +1,4 @@
+from typing import Any
 import time
 from netmiko.base_connection import BaseConnection
 
@@ -5,7 +6,7 @@ from netmiko.base_connection import BaseConnection
 class RadETXBase(BaseConnection):
     """RAD ETX Support, Tested on RAD 203AX, 205A and 220A."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="config term length 0")
@@ -13,7 +14,9 @@ class RadETXBase(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd="admin save", confirm=False, confirm_response=""):
+    def save_config(
+        self, cmd: str = "admin save", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Saves Config Using admin save."""
         if confirm:
             output = self.send_command_timing(command_string=cmd)
@@ -25,25 +28,35 @@ class RadETXBase(BaseConnection):
         else:
             # Some devices are slow so match on trailing-prompt if you can
             output = self.send_command(command_string=cmd)
+        assert isinstance(output, str)
         return output
 
-    def check_enable_mode(self, *args, **kwargs):
+    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
         """The Rad ETX software does not have an enable."""
-        pass
+        return True
 
-    def enable(self, *args, **kwargs):
+    def enable(self, *args: Any, **kwargs: Any) -> str:
         """The Rad ETX software does not have an enable."""
-        pass
+        return ""
 
-    def exit_enable_mode(self, *args, **kwargs):
+    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
         """The Rad ETX software does not have an enable."""
-        pass
+        return ""
 
-    def config_mode(self, config_command="config", pattern=">config"):
+    def config_mode(
+        self,
+        config_command: str = "config",
+        pattern: str = ">config",
+        re_flags: int = 0,
+    ) -> str:
         """Enter into configuration mode on remote device."""
-        return super().config_mode(config_command=config_command, pattern=pattern)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def check_config_mode(self, check_string=">config", pattern=""):
+    def check_config_mode(
+        self, check_string: str = ">config", pattern: str = ""
+    ) -> bool:
         """
         Checks if the device is in configuration mode or not.
 
@@ -51,7 +64,9 @@ class RadETXBase(BaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def exit_config_mode(self, exit_config="exit all", pattern="#"):
+    def exit_config_mode(
+        self, exit_config: str = "exit all", pattern: str = "#"
+    ) -> str:
         """Exit from configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
@@ -59,7 +74,7 @@ class RadETXBase(BaseConnection):
 class RadETXSSH(RadETXBase):
     """RAD ETX SSH Support."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         # Found that a global_delay_factor of 2 is needed at minimum for SSH to the Rad ETX.
         kwargs.setdefault("global_delay_factor", 2)
         return super().__init__(**kwargs)
@@ -69,8 +84,11 @@ class RadETXTelnet(RadETXBase):
     """RAD ETX Telnet Support."""
 
     def telnet_login(
-        self, username_pattern=r"(?:user>)", alt_prompt_term=r"#\s*$", **kwargs
-    ):
+        self,
+        username_pattern: str = r"(?:user>)",
+        alt_prompt_term: str = r"#\s*$",
+        **kwargs: Any
+    ) -> str:
         """
         RAD presents with the following on login
 
@@ -79,8 +97,10 @@ class RadETXTelnet(RadETXBase):
         password> ****
         """
         self.TELNET_RETURN = self.RETURN
-        return super().telnet_login(
+        output = super().telnet_login(
             username_pattern=username_pattern,
             alt_prompt_terminator=alt_prompt_term,
             **kwargs
         )
+        assert isinstance(output, str)
+        return output
