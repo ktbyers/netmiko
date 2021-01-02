@@ -172,7 +172,7 @@ class NokiaSrosSSH(BaseConnection):
         assert isinstance(output, str)
         return output
 
-    def send_config_set(
+    def send_config_set(  # type: ignore
         self,
         config_commands: Union[str, Iterable[str], io.TextIOWrapper, None] = None,
         exit_config_mode: bool = True,
@@ -283,7 +283,13 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         remote_cmd = self._file_cmd_prefix() + "file dir {}".format(self.file_system)
         remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
         match = re.search(search_pattern, remote_output)
-        return int(match.group(1))
+        if match is not None:
+            return int(match.group(1))
+        else:
+            raise ValueError(
+                f"Regex pattern not found in remote_output:\n{remote_output}"
+            )
+        return -1
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if destination file exists (returns boolean)."""
@@ -301,8 +307,11 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
                 return True
             else:
                 raise ValueError("Unexpected output from check_file_exists")
+
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
+
+        return False
 
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None
@@ -326,6 +335,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         # Parse dir output for filename. Output format is:
         # "10/16/2019  10:00p                6738 {filename}"
 
+        assert isinstance(remote_file, str)
         pattern = r"\S+\s+\S+\s+(\d+)\s+{}".format(re.escape(remote_file))
         match = re.search(pattern, remote_out)
 
@@ -347,11 +357,13 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
                 == os.stat(self.dest_file).st_size
             )
 
-    def file_md5(self, **kwargs: Any) -> str:
+        return False
+
+    def file_md5(self, **kwargs: Any) -> str:  # type: ignore
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
         return ""
 
-    def process_md5(self, **kwargs: Any) -> str:
+    def process_md5(self, **kwargs: Any) -> str:  # type: ignore
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
         return ""
 
@@ -359,6 +371,6 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
         return True
 
-    def remote_md5(self, **kwargs: Any) -> str:
+    def remote_md5(self, **kwargs: Any) -> str:  # type: ignore
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
         return ""
