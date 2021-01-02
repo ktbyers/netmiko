@@ -10,20 +10,20 @@ from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 class CiscoIosBase(CiscoBaseConnection):
     """Common Methods for IOS (both SSH and telnet)."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
         kwargs.setdefault("fast_cli", True)
         kwargs.setdefault("_legacy_mode", False)
         return super().__init__(*args, **kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         cmd = "terminal width 511"
         self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
         self.set_base_prompt()
 
-    def check_config_mode(self, check_string=")#", pattern="#"):
+    def check_config_mode(self, check_string=")#", pattern="#") -> bool:
         """
         Checks if the device is in configuration mode or not.
 
@@ -31,7 +31,7 @@ class CiscoIosBase(CiscoBaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, cmd="write mem", confirm=False, confirm_response=""):
+    def save_config(self, cmd="write mem", confirm=False, confirm_response="") -> str:
         """Saves Config Using Copy Run Start"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
