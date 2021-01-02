@@ -1,10 +1,11 @@
+from typing import Any
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class MikrotikBase(CiscoSSHConnection):
     """Common Methods for Mikrotik RouterOS and SwitchOS"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r\n"
 
@@ -12,7 +13,7 @@ class MikrotikBase(CiscoSSHConnection):
 
         return super().__init__(**kwargs)
 
-    def session_preparation(self, *args, **kwargs):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         # Clear the read buffer
@@ -20,7 +21,7 @@ class MikrotikBase(CiscoSSHConnection):
         self.set_base_prompt()
         self.clear_buffer()
 
-    def _modify_connection_params(self):
+    def _modify_connection_params(self) -> None:
         """Append login options to username
         c: disable console colors
         e: enable dumb terminal mode
@@ -30,41 +31,41 @@ class MikrotikBase(CiscoSSHConnection):
         """
         self.username += "+cetw511h4098"
 
-    def disable_paging(self, *args, **kwargs):
+    def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Microtik does not have paging by default."""
         return ""
 
-    def check_enable_mode(self, *args, **kwargs):
+    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
         """No enable mode on RouterOS"""
-        pass
+        return True
 
-    def enable(self, *args, **kwargs):
-        """No enable mode on RouterOS."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
+    def enable(self, *args: Any, **kwargs: Any) -> str:
         """No enable mode on RouterOS."""
         return ""
 
-    def save_config(self, *args, **kwargs):
+    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
+        """No enable mode on RouterOS."""
+        return ""
+
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """No save command, all configuration is atomic"""
         pass
 
-    def config_mode(self):
+    def config_mode(self, *args: Any, **kwargs: Any) -> str:
         """No configuration mode on Microtik"""
         self._in_config_mode = True
         return ""
 
-    def check_config_mode(self, check_string=""):
+    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
         return self._in_config_mode
 
-    def exit_config_mode(self, exit_config=">"):
+    def exit_config_mode(self, exit_config: str = ">", pattern: str = "") -> str:
         """No configuration mode on Microtik"""
         self._in_config_mode = False
         return ""
 
-    def strip_prompt(self, a_string):
+    def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output.
         MT adds some garbage trailing newlines, so
         trim the last two lines from the output.
@@ -79,7 +80,7 @@ class MikrotikBase(CiscoSSHConnection):
         else:
             return a_string
 
-    def strip_command(self, command_string, output):
+    def strip_command(self, command_string: str, output: str) -> str:
         """
         Strip command_string from output string
 

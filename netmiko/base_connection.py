@@ -715,11 +715,13 @@ class BaseConnection(object):
     def _autodetect_fs(self, cmd: str = "", pattern: str = "") -> str:
         raise NotImplementedError
 
-    def _enter_shell(self) -> None:
+    def _enter_shell(self) -> str:
         raise NotImplementedError
+        return ""
 
-    def _return_cli(self) -> None:
+    def _return_cli(self) -> str:
         raise NotImplementedError
+        return ""
 
     @lock_channel
     def write_channel(self, out_data: str) -> None:
