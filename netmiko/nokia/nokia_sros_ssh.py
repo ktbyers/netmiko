@@ -1,11 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014 - 2020 Kirk Byers
-# Copyright (c) 2014 - 2020 Twin Bridges Technology
+# Copyright (c) 2014 - 2021 Kirk Byers
+# Copyright (c) 2014 - 2021 Twin Bridges Technology
 # Copyright (c) 2019 - 2020 NOKIA Inc.
 # MIT License - See License file at:
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
 
+from typing import Any, Union, Iterable, Optional
+
+import io
 import re
 import os
 import time
@@ -35,7 +38,7 @@ class NokiaSrosSSH(BaseConnection):
         - check_enable_mode()
     """
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         self._test_channel_read()
         self.set_base_prompt()
         # "@" indicates model-driven CLI (vs Classical CLI)
@@ -57,7 +60,7 @@ class NokiaSrosSSH(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def set_base_prompt(self, *args, **kwargs):
+    def set_base_prompt(self, *args: Any, **kwargs: Any) -> str:
         """Remove the > when navigating into the different config level."""
         cur_base_prompt = super().set_base_prompt(*args, **kwargs)
         match = re.search(r"\*?(.*?)(>.*)*#", cur_base_prompt)
@@ -65,8 +68,12 @@ class NokiaSrosSSH(BaseConnection):
             # strip off >... from base_prompt; strip off leading *
             self.base_prompt = match.group(1)
             return self.base_prompt
+        raise ValueError(
+            "Netmiko is not able to properly determine the device's prompt"
+        )
+        return ""
 
-    def _disable_complete_on_space(self):
+    def _disable_complete_on_space(self) -> str:
         """
         SR-OS tries to auto complete commands when you type a "space" character.
 
@@ -78,15 +85,22 @@ class NokiaSrosSSH(BaseConnection):
         command = "environment command-completion space false"
         self.write_channel(self.normalize_cmd(command))
         time.sleep(delay_factor * 0.1)
-        return self.read_channel()
+        output = self.read_channel()
+        assert isinstance(output, str)
+        return output
 
-    def enable(self, cmd="enable", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(
+        self,
+        cmd: str = "enable",
+        pattern: str = "ssword",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Enable SR OS administrative mode"""
         if "@" not in self.base_prompt:
             cmd = "enable-admin"
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
-    def check_enable_mode(self, check_string="in admin mode"):
+    def check_enable_mode(self, check_string: str = "in admin mode") -> bool:
         """Check if in enable mode."""
         cmd = "enable"
         if "@" not in self.base_prompt:
@@ -98,21 +112,26 @@ class NokiaSrosSSH(BaseConnection):
             self.read_until_prompt()
         return check_string in output
 
-    def exit_enable_mode(self, *args, **kwargs):
+    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
         """Nokia SR OS does not have a notion of exiting administrative mode"""
         return ""
 
-    def config_mode(self, config_command="edit-config exclusive", pattern=r"\(ex\)\["):
+    def config_mode(
+        self,
+        config_command: str = "edit-config exclusive",
+        pattern: str = r"\(ex\)\[",
+        re_flags: int = 0,
+    ) -> str:
         """Enable config edit-mode for Nokia SR OS"""
         output = ""
         # Only model-driven CLI supports config-mode
         if "@" in self.base_prompt:
             output += super().config_mode(
-                config_command=config_command, pattern=pattern
+                config_command=config_command, pattern=pattern, re_flags=re_flags
             )
         return output
 
-    def exit_config_mode(self, *args, **kwargs):
+    def exit_config_mode(self, *args: Any, **kwargs: Any) -> str:
         """Disable config edit-mode for Nokia SR OS"""
         output = self._exit_all()
         # Model-driven CLI
@@ -131,7 +150,9 @@ class NokiaSrosSSH(BaseConnection):
             raise ValueError("Failed to exit configuration mode")
         return output
 
-    def check_config_mode(self, check_string=r"(ex)[", pattern=r"@"):
+    def check_config_mode(
+        self, check_string: str = r"(ex)[", pattern: str = r"@"
+    ) -> bool:
         """Check config mode for Nokia SR OS"""
         if "@" not in self.base_prompt:
             # Classical CLI
@@ -140,20 +161,33 @@ class NokiaSrosSSH(BaseConnection):
             # Model-driven CLI look for "exclusive"
             return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, *args, **kwargs):
+    def save_config(
+        self,
+        cmd: str = "/admin save",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Persist configuration to cflash for Nokia SR OS"""
-        return self.send_command(command_string="/admin save", expect_string=r"#")
+        output = self.send_command(command_string="/admin save", expect_string=r"#")
+        assert isinstance(output, str)
+        return output
 
-    def send_config_set(self, config_commands=None, exit_config_mode=None, **kwargs):
+    def send_config_set(
+        self,
+        config_commands: Union[str, Iterable[str], io.TextIOWrapper, None] = None,
+        exit_config_mode: bool = True,
+        **kwargs: Any,
+    ) -> str:
         """Model driven CLI requires you not exit from configuration mode."""
-        if exit_config_mode is None:
-            # Set to False if model-driven CLI
-            exit_config_mode = False if "@" in self.base_prompt else True
+
+        # Set to False if model-driven CLI
+        if "@" in self.base_prompt:
+            exit_config_mode = False
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def commit(self, *args, **kwargs):
+    def commit(self, *args: Any, **kwargs: Any) -> str:
         """Activate changes from private candidate for Nokia SR OS"""
         output = self._exit_all()
         if "@" in self.base_prompt and "*(ex)[" in output:
@@ -168,7 +202,7 @@ class NokiaSrosSSH(BaseConnection):
             output += new_output
         return output
 
-    def _exit_all(self):
+    def _exit_all(self) -> str:
         """Return to the 'root' context."""
         output = ""
         exit_cmd = "exit all"
@@ -180,7 +214,7 @@ class NokiaSrosSSH(BaseConnection):
             output += self.read_until_prompt()
         return output
 
-    def _discard(self):
+    def _discard(self) -> str:
         """Discard changes from private candidate for Nokia SR OS"""
         output = ""
         if "@" in self.base_prompt:
@@ -194,7 +228,7 @@ class NokiaSrosSSH(BaseConnection):
             output += new_output
         return output
 
-    def strip_prompt(self, *args, **kwargs):
+    def strip_prompt(self, *args: Any, **kwargs: Any) -> str:
         """Strip prompt from the output."""
         output = super().strip_prompt(*args, **kwargs)
         if "@" in self.base_prompt:
@@ -204,7 +238,7 @@ class NokiaSrosSSH(BaseConnection):
         else:
             return output
 
-    def cleanup(self, command="logout"):
+    def cleanup(self, command: str = "logout") -> None:
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
@@ -220,13 +254,18 @@ class NokiaSrosSSH(BaseConnection):
 
 class NokiaSrosFileTransfer(BaseFileTransfer):
     def __init__(
-        self, ssh_conn, source_file, dest_file, hash_supported=False, **kwargs
-    ):
+        self,
+        ssh_conn: "BaseConnection",
+        source_file: str,
+        dest_file: str,
+        hash_supported: bool = False,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(
             ssh_conn, source_file, dest_file, hash_supported=hash_supported, **kwargs
         )
 
-    def _file_cmd_prefix(self):
+    def _file_cmd_prefix(self) -> str:
         """
         Allow MD-CLI to execute file operations by using classical CLI.
 
@@ -234,7 +273,9 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         """
         return "//" if "@" in self.ssh_ctl_chan.base_prompt else ""
 
-    def remote_space_available(self, search_pattern=r"(\d+)\s+\w+\s+free"):
+    def remote_space_available(
+        self, search_pattern: str = r"(\d+)\s+\w+\s+free"
+    ) -> int:
         """Return space available on remote device."""
 
         # Sample text for search_pattern.
@@ -244,7 +285,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         match = re.search(search_pattern, remote_output)
         return int(match.group(1))
 
-    def check_file_exists(self, remote_cmd=""):
+    def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if destination file exists (returns boolean)."""
 
         if self.direction == "put":
@@ -263,7 +304,9 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
 
-    def remote_file_size(self, remote_cmd=None, remote_file=None):
+    def remote_file_size(
+        self, remote_cmd: str = "", remote_file: Optional[str] = None
+    ) -> int:
         """Get the file size of the remote file."""
 
         if remote_file is None:
@@ -292,7 +335,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         file_size = int(match.group(1))
         return file_size
 
-    def verify_file(self):
+    def verify_file(self) -> bool:
         """Verify the file has been transferred correctly based on filesize."""
         if self.direction == "put":
             return os.stat(self.source_file).st_size == self.remote_file_size(
@@ -304,14 +347,18 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
                 == os.stat(self.dest_file).st_size
             )
 
-    def file_md5(self, **kwargs):
+    def file_md5(self, **kwargs: Any) -> str:
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
+        return ""
 
-    def process_md5(self, **kwargs):
+    def process_md5(self, **kwargs: Any) -> str:
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
+        return ""
 
-    def compare_md5(self, **kwargs):
+    def compare_md5(self, **kwargs: Any) -> bool:
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
+        return True
 
-    def remote_md5(self, **kwargs):
+    def remote_md5(self, **kwargs: Any) -> str:
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
+        return ""
