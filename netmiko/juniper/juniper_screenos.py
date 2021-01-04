@@ -1,3 +1,4 @@
+from typing import Any
 import time
 from netmiko.base_connection import BaseConnection
 
@@ -7,7 +8,7 @@ class JuniperScreenOsSSH(BaseConnection):
     Implement methods for interacting with Juniper ScreenOS devices.
     """
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
 
@@ -21,30 +22,37 @@ class JuniperScreenOsSSH(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_enable_mode(self, *args, **kwargs):
+    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
         """No enable mode on Juniper ScreenOS."""
         return True
 
-    def enable(self, *args, **kwargs):
+    def enable(self, *args: Any, **kwargs: Any) -> str:
         """No enable mode on Juniper ScreenOS."""
         return ""
 
-    def exit_enable_mode(self, *args, **kwargs):
+    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
         """No enable mode on Juniper ScreenOS."""
         return ""
 
-    def check_config_mode(self, *args, **kwargs):
+    def check_config_mode(self, *args: Any, **kwargs: Any) -> bool:
         """No configuration mode on Juniper ScreenOS."""
-        return False
+        return True
 
-    def config_mode(self, *args, **kwargs):
-        """No configuration mode on Juniper ScreenOS."""
-        return ""
-
-    def exit_config_mode(self, *args, **kwargs):
+    def config_mode(self, *args: Any, **kwargs: Any) -> str:
         """No configuration mode on Juniper ScreenOS."""
         return ""
 
-    def save_config(self, cmd="save config", confirm=False, confirm_response=""):
+    def exit_config_mode(self, *args: Any, **kwargs: Any) -> str:
+        """No configuration mode on Juniper ScreenOS."""
+        return ""
+
+    def save_config(
+        self,
+        cmd: str = "save config",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Save Config."""
-        return self.send_command(command_string=cmd)
+        output = self.send_command(command_string=cmd)
+        assert isinstance(output, str)
+        return output

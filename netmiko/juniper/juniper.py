@@ -1,3 +1,4 @@
+from typing import Any, Optional, Union, Iterable
 import re
 import time
 
@@ -13,13 +14,13 @@ class JuniperBase(BaseConnection):
     methods.  Overrides several methods for Juniper-specific compatibility.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
         kwargs.setdefault("fast_cli", True)
         kwargs.setdefault("_legacy_mode", False)
         return super().__init__(*args, **kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.enter_cli_mode()
         cmd = "set cli screen-width 511"
@@ -34,15 +35,19 @@ class JuniperBase(BaseConnection):
         )
         self.set_base_prompt()
 
-    def _enter_shell(self):
+    def _enter_shell(self) -> str:
         """Enter the Bourne Shell."""
-        return self.send_command("start shell sh", expect_string=r"[\$#]")
+        output = self.send_command("start shell sh", expect_string=r"[\$#]")
+        assert isinstance(output, str)
+        return output
 
-    def _return_cli(self):
+    def _return_cli(self) -> str:
         """Return to the Juniper CLI."""
-        return self.send_command("exit", expect_string=r"[#>]")
+        output = self.send_command("exit", expect_string=r"[#>]")
+        assert isinstance(output, str)
+        return output
 
-    def enter_cli_mode(self):
+    def enter_cli_mode(self) -> None:
         """Check if at shell prompt root@ and go into CLI."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         count = 0
@@ -60,34 +65,36 @@ class JuniperBase(BaseConnection):
                 break
             count += 1
 
-    def check_enable_mode(self, *args, **kwargs):
+    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
         """No enable mode on Juniper."""
-        pass
+        return True
 
-    def enable(self, *args, **kwargs):
+    def enable(self, *args: Any, **kwargs: Any) -> str:
         """No enable mode on Juniper."""
-        pass
+        return ""
 
-    def exit_enable_mode(self, *args, **kwargs):
+    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
         """No enable mode on Juniper."""
-        pass
+        return ""
 
-    def check_config_mode(self, check_string="]"):
+    def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string)
 
     def config_mode(
         self,
-        config_command="configure",
-        pattern=r"Entering configuration mode",
-        **kwargs,
-    ):
+        config_command: str = "configure",
+        pattern: str = r"Entering configuration mode",
+        re_flags: int = 0,
+    ) -> str:
         """Enter configuration mode."""
         return super().config_mode(
-            config_command=config_command, pattern=pattern, **kwargs
+            config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="exit configuration-mode"):
+    def exit_config_mode(
+        self, exit_config: str = "exit configuration-mode", pattern: str = ""
+    ) -> str:
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
@@ -104,13 +111,13 @@ class JuniperBase(BaseConnection):
 
     def commit(
         self,
-        confirm=False,
-        confirm_delay=None,
-        check=False,
-        comment="",
-        and_quit=False,
-        delay_factor=1,
-    ):
+        confirm: bool = False,
+        confirm_delay: Optional[int] = None,
+        check: bool = False,
+        comment: str = "",
+        and_quit: bool = False,
+        delay_factor: float = 1.0,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -197,12 +204,12 @@ class JuniperBase(BaseConnection):
 
         return output
 
-    def strip_prompt(self, *args, **kwargs):
+    def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output."""
-        a_string = super().strip_prompt(*args, **kwargs)
-        return self.strip_context_items(a_string)
+        output = super().strip_prompt(a_string)
+        return self.strip_context_items(output)
 
-    def strip_context_items(self, a_string):
+    def strip_context_items(self, a_string: str) -> str:
         """Strip Juniper-specific output.
 
         Juniper will also put a configuration context:
@@ -230,7 +237,7 @@ class JuniperBase(BaseConnection):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
@@ -249,7 +256,7 @@ class JuniperSSH(JuniperBase):
 
 
 class JuniperTelnet(JuniperBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
@@ -260,13 +267,13 @@ class JuniperFileTransfer(BaseFileTransfer):
 
     def __init__(
         self,
-        ssh_conn,
-        source_file,
-        dest_file,
-        file_system="/var/tmp",
-        direction="put",
-        **kwargs,
-    ):
+        ssh_conn: "BaseConnection",
+        source_file: str,
+        dest_file: str,
+        file_system: Optional[str] = "/var/tmp",
+        direction: str = "put",
+        **kwargs: Any,
+    ) -> None:
         return super().__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
@@ -276,25 +283,29 @@ class JuniperFileTransfer(BaseFileTransfer):
             **kwargs,
         )
 
-    def remote_space_available(self, search_pattern=""):
+    def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
-    def check_file_exists(self, remote_cmd=""):
+    def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         return self._check_file_exists_unix(remote_cmd=remote_cmd)
 
-    def remote_file_size(self, remote_cmd="", remote_file=None):
+    def remote_file_size(
+        self, remote_cmd: str = "", remote_file: Optional[str] = None
+    ) -> int:
         """Get the file size of the remote file."""
         return self._remote_file_size_unix(
             remote_cmd=remote_cmd, remote_file=remote_file
         )
 
-    def remote_md5(self, base_cmd="file checksum md5", remote_file=None):
+    def remote_md5(
+        self, base_cmd: str = "file checksum md5", remote_file: Optional[str] = None
+    ) -> str:
         return super().remote_md5(base_cmd=base_cmd, remote_file=remote_file)
 
-    def enable_scp(self, cmd=None):
+    def enable_scp(self, cmd: Union[Iterable[str], str, None]) -> None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: Union[Iterable[str], str, None] = None) -> None:
         raise NotImplementedError
