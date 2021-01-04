@@ -1,12 +1,17 @@
+from typing import Any
+from typing import TYPE_CHECKING
 import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko import log
 
+if TYPE_CHECKING:
+    from telnetlib import Telnet
+
 
 class HuaweiBase(CiscoBaseConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read()
@@ -16,6 +21,7 @@ class HuaweiBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    # FIX: this is now a decorator in channel.py via utilities
     def strip_ansi_escape_codes(self, string_buffer):
         """
         Huawei does a strange thing where they add a space and then add ESC[1D
@@ -30,33 +36,40 @@ class HuaweiBase(CiscoBaseConnection):
 
         return super().strip_ansi_escape_codes(output)
 
-    def config_mode(self, config_command="system-view"):
+    def config_mode(
+        self, config_command: str = "system-view", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config="return", pattern=r">"):
+    def exit_config_mode(self, exit_config: str = "return", pattern: str = r">") -> str:
         """Exit configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def check_config_mode(self, check_string="]"):
+    def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def check_enable_mode(self, *args, **kwargs):
+    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
         """Huawei has no enable mode."""
-        pass
+        return True
 
-    def enable(self, *args, **kwargs):
+    def enable(self, *args: Any, **kwargs: Any) -> str:
         """Huawei has no enable mode."""
         return ""
 
-    def exit_enable_mode(self, *args, **kwargs):
+    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
         """Huawei has no enable mode."""
         return ""
 
     def set_base_prompt(
-        self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = ">",
+        alt_prompt_terminator: str = "]",
+        delay_factor: float = 1.0,
+    ) -> str:
         """
         Sets self.base_prompt
 
@@ -95,7 +108,9 @@ class HuaweiBase(CiscoBaseConnection):
 
         return self.base_prompt
 
-    def save_config(self, cmd="save", confirm=True, confirm_response="y"):
+    def save_config(
+        self, cmd: str = "save", confirm: bool = True, confirm_response: str = "y"
+    ) -> str:
         """ Save Config for HuaweiSSH"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -105,7 +120,7 @@ class HuaweiBase(CiscoBaseConnection):
 class HuaweiSSH(HuaweiBase):
     """Huawei SSH driver."""
 
-    def special_login_handler(self):
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Handle password change request by ignoring it"""
 
         # Huawei can prompt for password change. Search for that or for normal prompt
@@ -114,7 +129,7 @@ class HuaweiSSH(HuaweiBase):
         if re.search(password_change_prompt, output):
             self.write_channel("N\n")
             self.clear_buffer()
-        return output
+        return None
 
 
 class HuaweiTelnet(HuaweiBase):
@@ -122,13 +137,13 @@ class HuaweiTelnet(HuaweiBase):
 
     def telnet_login(
         self,
-        pri_prompt_terminator=r"]\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"]\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(?:user:|username|login|user name)",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
         """Telnet login for Huawei Devices"""
 
         delay_factor = self.select_delay_factor(delay_factor)
@@ -152,6 +167,7 @@ class HuaweiTelnet(HuaweiBase):
                 # Search for password pattern / send password
                 output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
                 return_msg += output
+                assert isinstance(self.password, str)
                 self.write_channel(self.password + self.TELNET_RETURN)
 
                 # Waiting for combined output
@@ -175,7 +191,8 @@ class HuaweiTelnet(HuaweiBase):
                 i += 1
 
             except EOFError:
-                self.remote_conn.close()
+                assert isinstance(self.channel.remote_conn, Telnet)
+                self.channel.remote_conn.close()
                 msg = f"Login failed: {self.host}"
                 raise NetmikoAuthenticationException(msg)
 
@@ -189,13 +206,14 @@ class HuaweiTelnet(HuaweiBase):
         ):
             return return_msg
 
-        self.remote_conn.close()
+        assert isinstance(self.channel.remote_conn, Telnet)
+        self.channel.remote_conn.close()
         msg = f"Login failed: {self.host}"
         raise NetmikoAuthenticationException(msg)
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
-    def commit(self, comment="", delay_factor=1):
+    def commit(self, comment: str = "", delay_factor: float = 1.0) -> str:
         """
         Commit the candidate configuration.
 
@@ -229,6 +247,7 @@ class HuaweiVrpv8SSH(HuaweiSSH):
             raise ValueError(f"Commit failed with following errors:\n\n{output}")
         return output
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
         raise NotImplementedError
+        return ""
