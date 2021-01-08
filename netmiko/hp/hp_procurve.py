@@ -1,3 +1,5 @@
+from typing import Type, Optional
+from typing import TYPE_CHECKING
 import re
 import time
 import socket
@@ -5,9 +7,12 @@ from netmiko.channel import SSHChannel
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko import log
 
+if TYPE_CHECKING:
+    from netmiko.channel import TelnetChannel, SerialChannel
+
 
 class HPProcurveChannel(SSHChannel):
-    def _build_ssh_client(self, no_auth=True):
+    def _build_ssh_client(self, no_auth: bool = True) -> None:
         """Allow passwordless authentication for HP devices being provisioned."""
         if not self.use_keys and not self.password:
             super._build_ssh_client(no_auth=no_auth)
@@ -16,7 +21,7 @@ class HPProcurveChannel(SSHChannel):
 
 
 class HPProcurveBase(CiscoBaseConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
 
         # HP output contains VT100 escape codes
@@ -33,11 +38,11 @@ class HPProcurveBase(CiscoBaseConnection):
 
     def enable(
         self,
-        cmd="enable",
-        pattern="password",
-        re_flags=re.IGNORECASE,
-        default_username="manager",
-    ):
+        cmd: str = "enable",
+        pattern: str = "password",
+        re_flags: int = re.IGNORECASE,
+        default_username: str = "manager",
+    ) -> str:
         """Enter enable mode"""
         delay_factor = self.select_delay_factor(delay_factor=0)
         if self.check_enable_mode():
@@ -74,7 +79,7 @@ class HPProcurveBase(CiscoBaseConnection):
             raise ValueError(msg)
         return output
 
-    def cleanup(self, command="logout"):
+    def cleanup(self, command: str = "logout") -> None:
         """Gracefully exit the SSH session."""
 
         # Exit configuration mode.
@@ -118,7 +123,12 @@ class HPProcurveBase(CiscoBaseConnection):
         if self.session_log:
             self.session_log.fin = True
 
-    def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
+    def save_config(
+        self,
+        cmd: str = "write memory",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Save Config."""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -126,12 +136,21 @@ class HPProcurveBase(CiscoBaseConnection):
 
 
 class HPProcurveSSH(HPProcurveBase):
-    def _open(self, channel_class=HPProcurveChannel):
+    def _open(
+        self,
+        ssh_channel_class: Optional[Type[SSHChannel]] = HPProcurveChannel,
+        telnet_channel_class: Optional[Type["TelnetChannel"]] = None,
+        serial_channel_class: Optional[Type["SerialChannel"]] = None,
+    ) -> None:
         """Override channel object creation."""
 
-        super()._open(channel_class=channel_class)
+        super()._open(
+            ssh_channel_class=ssh_channel_class,
+            telnet_channel_class=telnet_channel_class,
+            serial_channel_class=serial_channel_class,
+        )
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
         """
@@ -157,15 +176,15 @@ class HPProcurveSSH(HPProcurveBase):
 class HPProcurveTelnet(HPProcurveBase):
     def telnet_login(
         self,
-        pri_prompt_terminator="#",
-        alt_prompt_terminator=">",
-        username_pattern=r"Login Name:",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=60,
-    ):
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        username_pattern: str = r"Login Name:",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 60,
+    ) -> str:
         """Telnet login: can be username/password or just password."""
-        super().telnet_login(
+        return super().telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             username_pattern=username_pattern,
