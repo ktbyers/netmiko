@@ -347,7 +347,7 @@ class SSHDetect(object):
             return cached_results
 
     def _autodetect_remote_version(
-        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99, **kwargs
     ):
         """
         Method to try auto-detect the device type, by matching a regular expression on the reported
