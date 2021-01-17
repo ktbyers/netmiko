@@ -10,6 +10,16 @@ class BrocadeFSOSSSH(CiscoSSHConnection):
             kwargs["default_enter"] = "\r"
         return super().__init__(**kwargs)
 
+    def check_enable_mode(self, check_string=">"):
+        """
+        Check if in enable mode. Return boolean.
+        """
+        return super().check_enable_mode(check_string=check_string)
+
+    def enable(self, cmd="", pattern=""):
+        """No Enable Mode"""
+        return super().enable(cmd=cmd, pattern=pattern)
+
     def session_preparation(self):
         self._test_channel_read()
         self.set_base_prompt()
@@ -21,10 +31,8 @@ class BrocadeFSOSSSH(CiscoSSHConnection):
     def check_config_mode(self, check_string=">"):
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configure", pattern=r")#"):
-        #No Configuration Mode
-        return
+    def config_mode(self, config_command="", pattern=r")#"):
+        return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def exit_config_mode(self, exit_config="exit", pattern="#"):
-        #No Configuration Mode
+    def exit_config_mode(self, exit_config="", pattern="#"):
         return
