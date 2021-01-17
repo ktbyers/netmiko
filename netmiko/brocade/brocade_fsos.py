@@ -1,0 +1,30 @@
+import time
+from netmiko.cisco_base_connection import CiscoSSHConnection
+
+
+class BrocadeFSOSSSH(CiscoSSHConnection):
+    """Brocade FS OS support"""
+
+    def __init__(self, **kwargs):
+        if kwargs.get("default_enter") is None:
+            kwargs["default_enter"] = "\r"
+        return super().__init__(**kwargs)
+
+    def session_preparation(self):
+        self._test_channel_read()
+        self.set_base_prompt()
+
+        # Clear the read buffer
+        time.sleep(0.3 * self.global_delay_factor)
+        self.clear_buffer()
+
+    def check_config_mode(self, check_string=">"):
+        return super().check_config_mode(check_string=check_string)
+
+    def config_mode(self, config_command="configure", pattern=r")#"):
+        #No Configuration Mode
+        return
+
+    def exit_config_mode(self, exit_config="exit", pattern="#"):
+        #No Configuration Mode
+        return
