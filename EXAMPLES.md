@@ -407,6 +407,10 @@ Password:
 ## Using TTP
 
 ```py
+from netmiko import ConnectHandler
+from getpass import getpass
+from pprint import pprint
+
 cisco1 = {
     "device_type": "cisco_ios",
     "host": "cisco1.lasthop.io",
