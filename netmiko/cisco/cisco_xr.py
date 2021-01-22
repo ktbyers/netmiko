@@ -99,7 +99,7 @@ class CiscoXr(CiscoBaseConnection):
                                                     exit_config_mode=False, **kwargs)
 
     def commit(self, confirm=False, confirm_delay=None, comment='', label='',
-               replace=False,
+               replace=False,best_effort = False, force= False,
                delay_factor=1,
                max_timeout=30, **kwargs):
         """
@@ -145,7 +145,7 @@ class CiscoXr(CiscoBaseConnection):
             raise ValueError("Invalid arguments supplied to XR commit")
         if comment and confirm:
             raise ValueError("Invalid arguments supplied to XR commit")
-
+        
         # wrap the comment in quotes
         # wrap the comment in quotes
         if comment:
@@ -171,12 +171,18 @@ class CiscoXr(CiscoBaseConnection):
             command_string = 'commit comment {0}'.format(comment)
         else:
             command_string = 'commit'
-
+        if best_effort:
+            command_string = command_string.replace("commit","commit best-effort")
+        if force:
+            command_string = command_string.replace("commit","commit force")
+        if replace:
+            command_string = command_string.replace("commit","commit replace")
+        print("command string is ",command_string)
         # Enter config mode (if necessary)
         #output = self.config_mode()
         output = ''
         if replace:
-            output += self.send_command_timing('commit replace', strip_prompt=False, strip_command=False,
+            output += self.send_command_timing(command_string, strip_prompt=False, strip_command=False,
                                                delay_factor=delay_factor)
             commit_replace_marker = "This commit will replace or remove the entire running configuration"
             if commit_replace_marker in output:
