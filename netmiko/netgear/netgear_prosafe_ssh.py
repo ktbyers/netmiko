@@ -25,7 +25,7 @@ class NetgearProSafeSSH(CiscoSSHConnection):
     def check_config_mode(self, check_string="(Config)#"):
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configure", pattern=r")#"):
+    def config_mode(self, config_command="configure", pattern=r"\)#"):
         return super().config_mode(config_command=config_command, pattern=pattern)
 
     def exit_config_mode(self, exit_config="exit", pattern="#"):
