@@ -33,7 +33,7 @@ A set of common Netmiko use cases.
 - [Genie example](#using-genie)
 
 #### Configuration Changes
-- [Configuration changes](#configuration-changes)
+- [Configuration changes](#configuration-changes-1)
 - [Configuration changes from a file](#configuration-changes-from-a-file)
 
 #### SSH keys and SSH config_file
