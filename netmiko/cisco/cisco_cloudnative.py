@@ -90,7 +90,7 @@ class CiscoCloudnative(CiscoBaseConnection):
                                                     exit_config_mode=False, **kwargs)
 
     def commit(self, confirm=False, confirm_delay=None, comment='', label='',
-               replace=False,
+               replace=False,best_effort = False, force= False,
                delay_factor=1,
                max_timeout=30, **kwargs):
         """
