@@ -24,7 +24,7 @@ class CiscoNxosSSH(CiscoSSHConnection):
 
     def normalize_linefeeds(self, a_string):
         """Convert '\r\n' or '\r\r\n' to '\n, and remove extra '\r's in the text."""
-        newline = re.compile(r"(\r\r\n|\r\n)")
+        newline = re.compile(r"(\r\r\n\r|\r\r\n|\r\n)")
         # NX-OS fix for incorrect MD5 on 9K (due to strange <enter> patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace("\r", "\n")
 
