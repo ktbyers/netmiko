@@ -122,7 +122,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         output = self.read_until_pattern(pattern=r"login")
         while i <= max_attempts:
             time.sleep(0.5 * delay_factor)
-            output += self.read_channel()
+            output = self.read_channel()
             if "sername" in output:
                 self.write_channel(self.username + self.RETURN)
             elif "ssword" in output:

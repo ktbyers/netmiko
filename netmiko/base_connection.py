@@ -619,6 +619,11 @@ class BaseConnection(object):
         if delay_factor == 1 and max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
 
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor < 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         channel_data = ""
         i = 0
         while i <= max_loops:
@@ -1279,16 +1284,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
             cmd_verify = cmd_echo
 
         output = ""
-
         delay_factor = self.select_delay_factor(delay_factor)
-        # FIX: Cleanup in future versions of Netmiko
-        if delay_factor < 1:
-            if not self._legacy_mode and self.fast_cli:
-                delay_factor = 1
 
         if normalize:
             command_string = self.normalize_cmd(command_string)
-
         self.write_channel(command_string)
 
         cmd = command_string.strip()
@@ -1452,6 +1451,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param cmd_verify: Verify command echo before proceeding (default: True).
         :type cmd_verify: bool
         """
+
         # Time to delay in each read loop
         loop_delay = 0.2
 
