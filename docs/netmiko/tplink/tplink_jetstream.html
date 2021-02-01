@@ -25,7 +25,6 @@
 <pre><code class="python">import re
 import time
 
-from cryptography import utils as crypto_utils
 from cryptography.hazmat.primitives.asymmetric import dsa
 
 from netmiko import log
@@ -148,7 +147,12 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
 
 
 class TPLinkJetStreamSSH(TPLinkJetStreamBase):
-    def _override_check_dsa_parameters(parameters):
+    def __init__(self, **kwargs):
+        dsa._check_dsa_parameters = self._override_check_dsa_parameters
+
+        return super().__init__(**kwargs)
+
+    def _override_check_dsa_parameters(self, parameters):
         &#34;&#34;&#34;
         Override check_dsa_parameters from cryptography&#39;s dsa.py
 
@@ -166,13 +170,11 @@ class TPLinkJetStreamSSH(TPLinkJetStreamBase):
 
         It&#39;s still not possible to remove this hack.
         &#34;&#34;&#34;
-        if crypto_utils.bit_length(parameters.q) not in [160, 256]:
+        if parameters.q.bit_length() not in [160, 256]:
             raise ValueError(&#34;q must be exactly 160 or 256 bits long&#34;)
 
         if not (1 &lt; parameters.g &lt; parameters.p):
             raise ValueError(&#34;g, p don&#39;t satisfy 1 &lt; g &lt; p.&#34;)
-
-    dsa._check_dsa_parameters = _override_check_dsa_parameters
 
 
 class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
@@ -494,7 +496,7 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
 </details>
 </dd>
 <dt id="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', re_flags=re.IGNORECASE)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', re_flags=<RegexFlag.IGNORECASE: 2>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>TPLink JetStream requires you to first execute "enable" and then execute "enable-admin".
@@ -813,7 +815,12 @@ stripped off.</p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class TPLinkJetStreamSSH(TPLinkJetStreamBase):
-    def _override_check_dsa_parameters(parameters):
+    def __init__(self, **kwargs):
+        dsa._check_dsa_parameters = self._override_check_dsa_parameters
+
+        return super().__init__(**kwargs)
+
+    def _override_check_dsa_parameters(self, parameters):
         &#34;&#34;&#34;
         Override check_dsa_parameters from cryptography&#39;s dsa.py
 
@@ -831,13 +838,11 @@ stripped off.</p>
 
         It&#39;s still not possible to remove this hack.
         &#34;&#34;&#34;
-        if crypto_utils.bit_length(parameters.q) not in [160, 256]:
+        if parameters.q.bit_length() not in [160, 256]:
             raise ValueError(&#34;q must be exactly 160 or 256 bits long&#34;)
 
         if not (1 &lt; parameters.g &lt; parameters.p):
-            raise ValueError(&#34;g, p don&#39;t satisfy 1 &lt; g &lt; p.&#34;)
-
-    dsa._check_dsa_parameters = _override_check_dsa_parameters</code></pre>
+            raise ValueError(&#34;g, p don&#39;t satisfy 1 &lt; g &lt; p.&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
