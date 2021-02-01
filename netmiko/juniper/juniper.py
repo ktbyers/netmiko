@@ -175,22 +175,24 @@ class JuniperBase(BaseConnection):
         # Enter config mode (if necessary)
         output = self.config_mode()
         # and_quit will get out of config mode on commit
+
         if and_quit:
-            prompt = self.base_prompt
-            output += self.send_command_expect(
-                command_string,
-                expect_string=prompt,
-                strip_prompt=False,
-                strip_command=False,
-                delay_factor=delay_factor,
-            )
+            expect_string = re.escape(self.base_prompt)
         else:
+            expect_string = None
+
+        try:
+            fast_cli_state = self.fast_cli
+            self.fast_cli = False
             output += self.send_command(
                 command_string,
+                expect_string=expect_string,
                 strip_prompt=False,
                 strip_command=False,
                 delay_factor=delay_factor,
             )
+        finally:
+            self.fast_cli = fast_cli_state
 
         if commit_marker not in output:
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
