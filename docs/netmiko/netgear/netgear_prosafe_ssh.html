@@ -50,10 +50,10 @@ class NetgearProSafeSSH(CiscoSSHConnection):
     def check_config_mode(self, check_string=&#34;(Config)#&#34;):
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command=&#34;configure&#34;, pattern=r&#34;)#&#34;):
+    def config_mode(self, config_command=&#34;configure&#34;, pattern=r&#34;\)\#&#34;):
         return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=&#34;#&#34;):
+    def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=r&#34;\#&#34;):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(
@@ -238,10 +238,10 @@ class NetgearProSafeSSH(CiscoSSHConnection):
     def check_config_mode(self, check_string=&#34;(Config)#&#34;):
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command=&#34;configure&#34;, pattern=r&#34;)#&#34;):
+    def config_mode(self, config_command=&#34;configure&#34;, pattern=r&#34;\)\#&#34;):
         return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=&#34;#&#34;):
+    def exit_config_mode(self, exit_config=&#34;exit&#34;, pattern=r&#34;\#&#34;):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(

@@ -47,7 +47,7 @@ from netmiko.scp_functions import file_transfer, progress_bar
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = &#34;3.3.2&#34;
+__version__ = &#34;3.3.3&#34;
 __all__ = (
     &#34;ConnectHandler&#34;,
     &#34;ssh_dispatcher&#34;,
@@ -163,6 +163,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <section class="desc"></section>
 </dd>
 <dt><code class="name"><a title="netmiko.enterasys" href="enterasys/index.html">netmiko.enterasys</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="netmiko.ericsson" href="ericsson/index.html">netmiko.ericsson</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -1314,6 +1318,11 @@ with terminal server.</p></section>
         if delay_factor == 1 and max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
 
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor &lt; 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         channel_data = &#34;&#34;
         i = 0
         while i &lt;= max_loops:
@@ -1403,6 +1412,12 @@ with terminal server.</p></section>
         (default: 20)
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
+
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor &lt; 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         time.sleep(1 * delay_factor)
 
         output = &#34;&#34;
@@ -1635,16 +1650,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
                 msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
-            except paramiko.ssh_exception.SSHException as no_session_err:
-                self.paramiko_cleanup()
-                if &#34;No existing session&#34; in str(no_session_err):
-                    msg = (
-                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
-                        &#34;try increasing &#39;conn_timeout&#39; to 10 seconds or larger.&#34;
-                    )
-                    raise NetmikoTimeoutException(msg)
-                else:
-                    raise
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
                 msg = f&#34;&#34;&#34;Authentication to device failed.
@@ -1660,6 +1665,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
+            except paramiko.ssh_exception.SSHException as no_session_err:
+                self.paramiko_cleanup()
+                if &#34;No existing session&#34; in str(no_session_err):
+                    msg = (
+                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
+                        &#34;try increasing &#39;conn_timeout&#39; to 10 seconds or larger.&#34;
+                    )
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    raise
 
             if self.verbose:
                 print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
@@ -1968,16 +1983,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
             cmd_verify = cmd_echo
 
         output = &#34;&#34;
-
         delay_factor = self.select_delay_factor(delay_factor)
-        # Cleanup in future versions of Netmiko
-        if delay_factor &lt; 1:
-            if not self._legacy_mode and self.fast_cli:
-                delay_factor = 1
 
         if normalize:
             command_string = self.normalize_cmd(command_string)
-
         self.write_channel(command_string)
 
         cmd = command_string.strip()
@@ -2141,6 +2150,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param cmd_verify: Verify command echo before proceeding (default: True).
         :type cmd_verify: bool
         &#34;&#34;&#34;
+
         # Time to delay in each read loop
         loop_delay = 0.2
 
@@ -2338,13 +2348,18 @@ Device settings: {self.device_type} {self.host}:{self.port}
         output = self.read_until_prompt()
         return check_string in output
 
-    def enable(self, cmd=&#34;&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
+    def enable(
+        self, cmd=&#34;&#34;, pattern=&#34;ssword&#34;, enable_pattern=None, re_flags=re.IGNORECASE
+    ):
         &#34;&#34;&#34;Enter enable mode.
 
         :param cmd: Device command to enter enable mode
         :type cmd: str
 
         :param pattern: pattern to search for indicating device is waiting for password
+        :type pattern: str
+
+        :param enable_pattern: pattern indicating you have entered enable mode
         :type pattern: str
 
         :param re_flags: Regular expression flags used in conjunction with pattern
@@ -2358,14 +2373,19 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
             try:
-                output += self.read_until_prompt_or_pattern(
-                    pattern=pattern, re_flags=re_flags
-                )
+                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                if pattern not in output:
+                    output += self.read_until_prompt_or_pattern(
+                        pattern=pattern, re_flags=re_flags
+                    )
                 self.write_channel(self.normalize_cmd(self.secret))
-                output += self.read_until_prompt()
+                if enable_pattern:
+                    output += self.read_until_pattern(pattern=enable_pattern)
+                else:
+                    output += self.read_until_prompt()
+                    if not self.check_enable_mode():
+                        raise ValueError(msg)
             except NetmikoTimeoutException:
-                raise ValueError(msg)
-            if not self.check_enable_mode():
                 raise ValueError(msg)
         return output
 
@@ -2724,6 +2744,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 <li><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH" href="cisco/cisco_wlc_ssh.html#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH">CiscoWlcSSH</a></li>
 <li><a title="netmiko.citrix.netscaler_ssh.NetscalerSSH" href="citrix/netscaler_ssh.html#netmiko.citrix.netscaler_ssh.NetscalerSSH">NetscalerSSH</a></li>
 <li><a title="netmiko.dell.dell_isilon_ssh.DellIsilonSSH" href="dell/dell_isilon_ssh.html#netmiko.dell.dell_isilon_ssh.DellIsilonSSH">DellIsilonSSH</a></li>
+<li><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH" href="ericsson/ericsson_ipos.html#netmiko.ericsson.ericsson_ipos.EricssonIposSSH">EricssonIposSSH</a></li>
 <li><a title="netmiko.f5.f5_tmsh_ssh.F5TmshSSH" href="f5/f5_tmsh_ssh.html#netmiko.f5.f5_tmsh_ssh.F5TmshSSH">F5TmshSSH</a></li>
 <li><a title="netmiko.flexvnf.flexvnf_ssh.FlexvnfSSH" href="flexvnf/flexvnf_ssh.html#netmiko.flexvnf.flexvnf_ssh.FlexvnfSSH">FlexvnfSSH</a></li>
 <li><a title="netmiko.juniper.juniper.JuniperBase" href="juniper/juniper.html#netmiko.juniper.juniper.JuniperBase">JuniperBase</a></li>
@@ -2977,7 +2998,7 @@ def strip_backspaces(output):
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', re_flags=re.IGNORECASE)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', enable_pattern=None, re_flags=<RegexFlag.IGNORECASE: 2>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter enable mode.</p>
@@ -2985,17 +3006,24 @@ def strip_backspaces(output):
 :type cmd: str</p>
 <p>:param pattern: pattern to search for indicating device is waiting for password
 :type pattern: str</p>
+<p>:param enable_pattern: pattern indicating you have entered enable mode
+:type pattern: str</p>
 <p>:param re_flags: Regular expression flags used in conjunction with pattern
 :type re_flags: int</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def enable(self, cmd=&#34;&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
+<pre><code class="python">def enable(
+    self, cmd=&#34;&#34;, pattern=&#34;ssword&#34;, enable_pattern=None, re_flags=re.IGNORECASE
+):
     &#34;&#34;&#34;Enter enable mode.
 
     :param cmd: Device command to enter enable mode
     :type cmd: str
 
     :param pattern: pattern to search for indicating device is waiting for password
+    :type pattern: str
+
+    :param enable_pattern: pattern indicating you have entered enable mode
     :type pattern: str
 
     :param re_flags: Regular expression flags used in conjunction with pattern
@@ -3009,14 +3037,19 @@ def strip_backspaces(output):
     if not self.check_enable_mode():
         self.write_channel(self.normalize_cmd(cmd))
         try:
-            output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
-            )
+            output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+            if pattern not in output:
+                output += self.read_until_prompt_or_pattern(
+                    pattern=pattern, re_flags=re_flags
+                )
             self.write_channel(self.normalize_cmd(self.secret))
-            output += self.read_until_prompt()
+            if enable_pattern:
+                output += self.read_until_pattern(pattern=enable_pattern)
+            else:
+                output += self.read_until_prompt()
+                if not self.check_enable_mode():
+                    raise ValueError(msg)
         except NetmikoTimeoutException:
-            raise ValueError(msg)
-        if not self.check_enable_mode():
             raise ValueError(msg)
     return output</code></pre>
 </details>
@@ -3083,16 +3116,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
                 msg = msg.lstrip()
                 raise NetmikoTimeoutException(msg)
-            except paramiko.ssh_exception.SSHException as no_session_err:
-                self.paramiko_cleanup()
-                if &#34;No existing session&#34; in str(no_session_err):
-                    msg = (
-                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
-                        &#34;try increasing &#39;conn_timeout&#39; to 10 seconds or larger.&#34;
-                    )
-                    raise NetmikoTimeoutException(msg)
-                else:
-                    raise
             except paramiko.ssh_exception.AuthenticationException as auth_err:
                 self.paramiko_cleanup()
                 msg = f&#34;&#34;&#34;Authentication to device failed.
@@ -3108,6 +3131,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
                 msg += self.RETURN + str(auth_err)
                 raise NetmikoAuthenticationException(msg)
+            except paramiko.ssh_exception.SSHException as no_session_err:
+                self.paramiko_cleanup()
+                if &#34;No existing session&#34; in str(no_session_err):
+                    msg = (
+                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
+                        &#34;try increasing &#39;conn_timeout&#39; to 10 seconds or larger.&#34;
+                    )
+                    raise NetmikoTimeoutException(msg)
+                else:
+                    raise
 
             if self.verbose:
                 print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
@@ -3577,6 +3610,7 @@ def send_command(
     :param cmd_verify: Verify command echo before proceeding (default: True).
     :type cmd_verify: bool
     &#34;&#34;&#34;
+
     # Time to delay in each read loop
     loop_delay = 0.2
 
@@ -3818,16 +3852,10 @@ def send_command_timing(
         cmd_verify = cmd_echo
 
     output = &#34;&#34;
-
     delay_factor = self.select_delay_factor(delay_factor)
-    # Cleanup in future versions of Netmiko
-    if delay_factor &lt; 1:
-        if not self._legacy_mode and self.fast_cli:
-            delay_factor = 1
 
     if normalize:
         command_string = self.normalize_cmd(command_string)
-
     self.write_channel(command_string)
 
     cmd = command_string.strip()
@@ -4468,6 +4496,12 @@ Move cursor position leftward by x characters (1 in this case)</p>
     (default: 20)
     &#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
+
+    # FIX: Cleanup in future versions of Netmiko
+    if delay_factor &lt; 1:
+        if not self._legacy_mode and self.fast_cli:
+            delay_factor = 1
+
     time.sleep(1 * delay_factor)
 
     output = &#34;&#34;
@@ -5104,7 +5138,7 @@ Try to determine the device type.</p>
         best_match : str or None
             The device type that is currently the best to use to interact with the device
         &#34;&#34;&#34;
-        for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+        for device_type, autodetect_dict in SSH_MAPPER_BASE:
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop(&#34;dispatch&#34;)
             autodetect_method = getattr(self, call_method)
@@ -5172,7 +5206,7 @@ Try to determine the device type.</p>
             return cached_results
 
     def _autodetect_remote_version(
-        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99, **kwargs
     ):
         &#34;&#34;&#34;
         Method to try auto-detect the device type, by matching a regular expression on the reported
@@ -5276,7 +5310,7 @@ Try to determine the device type.</p>
     best_match : str or None
         The device type that is currently the best to use to interact with the device
     &#34;&#34;&#34;
-    for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+    for device_type, autodetect_dict in SSH_MAPPER_BASE:
         tmp_dict = autodetect_dict.copy()
         call_method = tmp_dict.pop(&#34;dispatch&#34;)
         autodetect_method = getattr(self, call_method)
@@ -5337,6 +5371,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.eltex" href="eltex/index.html">netmiko.eltex</a></code></li>
 <li><code><a title="netmiko.endace" href="endace/index.html">netmiko.endace</a></code></li>
 <li><code><a title="netmiko.enterasys" href="enterasys/index.html">netmiko.enterasys</a></code></li>
+<li><code><a title="netmiko.ericsson" href="ericsson/index.html">netmiko.ericsson</a></code></li>
 <li><code><a title="netmiko.extreme" href="extreme/index.html">netmiko.extreme</a></code></li>
 <li><code><a title="netmiko.f5" href="f5/index.html">netmiko.f5</a></code></li>
 <li><code><a title="netmiko.flexvnf" href="flexvnf/index.html">netmiko.flexvnf</a></code></li>

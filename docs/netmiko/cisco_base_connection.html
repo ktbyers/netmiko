@@ -38,9 +38,17 @@ class CiscoBaseConnection(BaseConnection):
         &#34;&#34;&#34;Check if in enable mode. Return boolean.&#34;&#34;&#34;
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd=&#34;enable&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
+    def enable(
+        self,
+        cmd=&#34;enable&#34;,
+        pattern=&#34;ssword&#34;,
+        enable_pattern=None,
+        re_flags=re.IGNORECASE,
+    ):
         &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        )
 
     def exit_enable_mode(self, exit_command=&#34;disable&#34;):
         &#34;&#34;&#34;Exits enable (privileged exec) mode.&#34;&#34;&#34;
@@ -106,6 +114,12 @@ class CiscoBaseConnection(BaseConnection):
     ):
         &#34;&#34;&#34;Telnet login. Can be username/password or just password.&#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
+
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor &lt; 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         time.sleep(1 * delay_factor)
 
         output = &#34;&#34;
@@ -422,9 +436,17 @@ class CiscoFileTransfer(BaseFileTransfer):
         &#34;&#34;&#34;Check if in enable mode. Return boolean.&#34;&#34;&#34;
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd=&#34;enable&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
+    def enable(
+        self,
+        cmd=&#34;enable&#34;,
+        pattern=&#34;ssword&#34;,
+        enable_pattern=None,
+        re_flags=re.IGNORECASE,
+    ):
         &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        )
 
     def exit_enable_mode(self, exit_command=&#34;disable&#34;):
         &#34;&#34;&#34;Exits enable (privileged exec) mode.&#34;&#34;&#34;
@@ -490,6 +512,12 @@ class CiscoFileTransfer(BaseFileTransfer):
     ):
         &#34;&#34;&#34;Telnet login. Can be username/password or just password.&#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
+
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor &lt; 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         time.sleep(1 * delay_factor)
 
         output = &#34;&#34;
@@ -737,15 +765,23 @@ class CiscoFileTransfer(BaseFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='ssword', re_flags=re.IGNORECASE)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='ssword', enable_pattern=None, re_flags=<RegexFlag.IGNORECASE: 2>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter enable mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def enable(self, cmd=&#34;enable&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
+<pre><code class="python">def enable(
+    self,
+    cmd=&#34;enable&#34;,
+    pattern=&#34;ssword&#34;,
+    enable_pattern=None,
+    re_flags=re.IGNORECASE,
+):
     &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
-    return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)</code></pre>
+    return super().enable(
+        cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode"><code class="name flex">
@@ -859,6 +895,12 @@ class CiscoFileTransfer(BaseFileTransfer):
 ):
     &#34;&#34;&#34;Telnet login. Can be username/password or just password.&#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
+
+    # FIX: Cleanup in future versions of Netmiko
+    if delay_factor &lt; 1:
+        if not self._legacy_mode and self.fast_cli:
+            delay_factor = 1
+
     time.sleep(1 * delay_factor)
 
     output = &#34;&#34;
