@@ -48,13 +48,46 @@ class CiscoNxosSSH(CiscoSSHConnection):
 
     def normalize_linefeeds(self, a_string):
         &#34;&#34;&#34;Convert &#39;\r\n&#39; or &#39;\r\r\n&#39; to &#39;\n, and remove extra &#39;\r&#39;s in the text.&#34;&#34;&#34;
-        newline = re.compile(r&#34;(\r\r\n|\r\n)&#34;)
+        newline = re.compile(r&#34;(\r\r\n\r|\r\r\n|\r\n)&#34;)
         # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace(&#34;\r&#34;, &#34;\n&#34;)
 
     def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def save_config(
+        self,
+        cmd=&#34;copy running-config startup-config&#34;,
+        confirm=False,
+        confirm_response=&#34;&#34;,
+    ):
+        self.enable()
+
+        if confirm:
+            output = self.send_command_timing(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
+            if confirm_response:
+                output += self.send_command_timing(
+                    confirm_response, strip_prompt=False, strip_command=False
+                )
+            else:
+                # Send enter by default
+                output += self.send_command_timing(
+                    self.RETURN, strip_prompt=False, strip_command=False
+                )
+        else:
+            # NX-OS is very slow on save_config ensure it waits long enough.
+            # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
+            # send_command so increase max_loops.
+            output = self.send_command(
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                max_loops=5000,
+            )
+        return output
 
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):
@@ -474,13 +507,46 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 
     def normalize_linefeeds(self, a_string):
         &#34;&#34;&#34;Convert &#39;\r\n&#39; or &#39;\r\r\n&#39; to &#39;\n, and remove extra &#39;\r&#39;s in the text.&#34;&#34;&#34;
-        newline = re.compile(r&#34;(\r\r\n|\r\n)&#34;)
+        newline = re.compile(r&#34;(\r\r\n\r|\r\r\n|\r\n)&#34;)
         # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace(&#34;\r&#34;, &#34;\n&#34;)
 
     def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-        return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def save_config(
+        self,
+        cmd=&#34;copy running-config startup-config&#34;,
+        confirm=False,
+        confirm_response=&#34;&#34;,
+    ):
+        self.enable()
+
+        if confirm:
+            output = self.send_command_timing(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
+            if confirm_response:
+                output += self.send_command_timing(
+                    confirm_response, strip_prompt=False, strip_command=False
+                )
+            else:
+                # Send enter by default
+                output += self.send_command_timing(
+                    self.RETURN, strip_prompt=False, strip_command=False
+                )
+        else:
+            # NX-OS is very slow on save_config ensure it waits long enough.
+            # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
+            # send_command so increase max_loops.
+            output = self.send_command(
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                max_loops=5000,
+            )
+        return output</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -515,7 +581,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 <summary>Source code</summary>
 <pre><code class="python">def normalize_linefeeds(self, a_string):
     &#34;&#34;&#34;Convert &#39;\r\n&#39; or &#39;\r\r\n&#39; to &#39;\n, and remove extra &#39;\r&#39;s in the text.&#34;&#34;&#34;
-    newline = re.compile(r&#34;(\r\r\n|\r\n)&#34;)
+    newline = re.compile(r&#34;(\r\r\n\r|\r\r\n|\r\n)&#34;)
     # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
     return newline.sub(self.RESPONSE_RETURN, a_string).replace(&#34;\r&#34;, &#34;\n&#34;)</code></pre>
 </details>

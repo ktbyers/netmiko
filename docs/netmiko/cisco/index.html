@@ -150,7 +150,7 @@ Expressway/VCS …</p></section>
 </dd>
 <dt id="netmiko.cisco.CiscoAsaSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoAsaSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Subclass specific to Cisco ASA.</p>
@@ -289,15 +289,34 @@ Expressway/VCS …</p></section>
 <pre><code class="python">class CiscoAsaSSH(CiscoSSHConnection):
     &#34;&#34;&#34;Subclass specific to Cisco ASA.&#34;&#34;&#34;
 
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        kwargs.setdefault(&#34;allow_auto_change&#34;, True)
+        return super().__init__(*args, **kwargs)
+
+    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=r&#34;[&gt;\#]&#34;):
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def enable(
+        self,
+        cmd=&#34;enable&#34;,
+        pattern=&#34;ssword&#34;,
+        enable_pattern=r&#34;\#&#34;,
+        re_flags=re.IGNORECASE,
+    ):
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        )
+
     def session_preparation(self):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read()
-        self.set_base_prompt()
 
         if self.secret:
             self.enable()
         else:
             self.asa_login()
+        self.disable_paging(command=&#34;terminal pager 0&#34;)
 
         if self.allow_auto_change:
             try:
@@ -309,11 +328,7 @@ Expressway/VCS …</p></section>
             # Disable cmd_verify if the terminal width can&#39;t be set
             self.global_cmd_verify = False
 
-        self.disable_paging(command=&#34;terminal pager 0&#34;)
-
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def send_command_timing(self, *args, **kwargs):
         &#34;&#34;&#34;
@@ -385,6 +400,7 @@ Expressway/VCS …</p></section>
         i = 1
         max_attempts = 10
         self.write_channel(&#34;login&#34; + self.RETURN)
+        output = self.read_until_pattern(pattern=r&#34;login&#34;)
         while i &lt;= max_attempts:
             time.sleep(0.5 * delay_factor)
             output = self.read_channel()
@@ -405,7 +421,17 @@ Expressway/VCS …</p></section>
         &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )</code></pre>
+        )
+
+    def normalize_linefeeds(self, a_string):
+        &#34;&#34;&#34;Cisco ASA needed that extra \r\n\r&#34;&#34;&#34;
+        newline = re.compile(&#34;(\r\n\r|\r\r\r\n|\r\r\n|\r\n|\n\r)&#34;)
+        a_string = newline.sub(self.RESPONSE_RETURN, a_string)
+        if self.RESPONSE_RETURN == &#34;\n&#34;:
+            # Delete any remaining \r
+            return re.sub(&#34;\r&#34;, &#34;&#34;, a_string)
+        else:
+            return a_string</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -441,6 +467,7 @@ level 15 after 10 loops.</p></section>
     i = 1
     max_attempts = 10
     self.write_channel(&#34;login&#34; + self.RETURN)
+    output = self.read_until_pattern(pattern=r&#34;login&#34;)
     while i &lt;= max_attempts:
         time.sleep(0.5 * delay_factor)
         output = self.read_channel()
@@ -456,6 +483,24 @@ level 15 after 10 loops.</p></section>
 
     msg = &#34;Unable to enter enable mode!&#34;
     raise NetmikoAuthenticationException(msg)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.cisco.CiscoAsaSSH.normalize_linefeeds"><code class="name flex">
+<span>def <span class="ident">normalize_linefeeds</span></span>(<span>self, a_string)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Cisco ASA needed that extra</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def normalize_linefeeds(self, a_string):
+    &#34;&#34;&#34;Cisco ASA needed that extra \r\n\r&#34;&#34;&#34;
+    newline = re.compile(&#34;(\r\n\r|\r\r\r\n|\r\r\n|\r\n|\n\r)&#34;)
+    a_string = newline.sub(self.RESPONSE_RETURN, a_string)
+    if self.RESPONSE_RETURN == &#34;\n&#34;:
+        # Delete any remaining \r
+        return re.sub(&#34;\r&#34;, &#34;&#34;, a_string)
+    else:
+        return a_string</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco.CiscoAsaSSH.save_config"><code class="name flex">
@@ -547,13 +592,12 @@ updated after each context change.</p></section>
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self):
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    self._test_channel_read()
-    self.set_base_prompt()
 
     if self.secret:
         self.enable()
     else:
         self.asa_login()
+    self.disable_paging(command=&#34;terminal pager 0&#34;)
 
     if self.allow_auto_change:
         try:
@@ -565,11 +609,7 @@ updated after each context change.</p></section>
         # Disable cmd_verify if the terminal width can&#39;t be set
         self.global_cmd_verify = False
 
-    self.disable_paging(command=&#34;terminal pager 0&#34;)
-
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
+    self.set_base_prompt()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco.CiscoAsaSSH.set_base_prompt"><code class="name flex">
@@ -619,7 +659,6 @@ happens the trailing '(config*' needs stripped off.</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
@@ -2122,13 +2161,46 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 
     def normalize_linefeeds(self, a_string):
         &#34;&#34;&#34;Convert &#39;\r\n&#39; or &#39;\r\r\n&#39; to &#39;\n, and remove extra &#39;\r&#39;s in the text.&#34;&#34;&#34;
-        newline = re.compile(r&#34;(\r\r\n|\r\n)&#34;)
+        newline = re.compile(r&#34;(\r\r\n\r|\r\r\n|\r\n)&#34;)
         # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace(&#34;\r&#34;, &#34;\n&#34;)
 
     def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-        return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def save_config(
+        self,
+        cmd=&#34;copy running-config startup-config&#34;,
+        confirm=False,
+        confirm_response=&#34;&#34;,
+    ):
+        self.enable()
+
+        if confirm:
+            output = self.send_command_timing(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
+            if confirm_response:
+                output += self.send_command_timing(
+                    confirm_response, strip_prompt=False, strip_command=False
+                )
+            else:
+                # Send enter by default
+                output += self.send_command_timing(
+                    self.RETURN, strip_prompt=False, strip_command=False
+                )
+        else:
+            # NX-OS is very slow on save_config ensure it waits long enough.
+            # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
+            # send_command so increase max_loops.
+            output = self.send_command(
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                max_loops=5000,
+            )
+        return output</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2163,7 +2235,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 <summary>Source code</summary>
 <pre><code class="python">def normalize_linefeeds(self, a_string):
     &#34;&#34;&#34;Convert &#39;\r\n&#39; or &#39;\r\r\n&#39; to &#39;\n, and remove extra &#39;\r&#39;s in the text.&#34;&#34;&#34;
-    newline = re.compile(r&#34;(\r\r\n|\r\n)&#34;)
+    newline = re.compile(r&#34;(\r\r\n\r|\r\r\n|\r\n)&#34;)
     # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
     return newline.sub(self.RESPONSE_RETURN, a_string).replace(&#34;\r&#34;, &#34;\n&#34;)</code></pre>
 </details>
@@ -4296,6 +4368,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <h4><code><a title="netmiko.cisco.CiscoAsaSSH" href="#netmiko.cisco.CiscoAsaSSH">CiscoAsaSSH</a></code></h4>
 <ul class="two-column">
 <li><code><a title="netmiko.cisco.CiscoAsaSSH.asa_login" href="#netmiko.cisco.CiscoAsaSSH.asa_login">asa_login</a></code></li>
+<li><code><a title="netmiko.cisco.CiscoAsaSSH.normalize_linefeeds" href="#netmiko.cisco.CiscoAsaSSH.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoAsaSSH.save_config" href="#netmiko.cisco.CiscoAsaSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoAsaSSH.send_command" href="#netmiko.cisco.CiscoAsaSSH.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoAsaSSH.send_command_expect" href="#netmiko.cisco.CiscoAsaSSH.send_command_expect">send_command_expect</a></code></li>

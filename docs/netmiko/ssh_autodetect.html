@@ -28,7 +28,7 @@ a new SSH connection with a remote host. This auto-detection is based on a uniqu
 <p>The <strong>SSHDetect</strong> class is instantiated using the same parameters than a standard Netmiko
 connection (see the <em>netmiko.ssh_dispatacher.ConnectHandler</em> function). The only acceptable value
 for the 'device_type' argument is 'autodetect'.</p>
-<p>The auto-detection is solely based on the <em>SSH_MAPPER_BASE</em> dictionary. The keys are the name of
+<p>The auto-detection is solely based on <em>SSH_MAPPER_BASE</em>. The keys are the name of
 the 'device_type' supported for auto-detection and the value is another dictionary describing how
 to handle the auto-detection.</p>
 <ul>
@@ -71,7 +71,7 @@ The **SSHDetect** class is instantiated using the same parameters than a standar
 connection (see the *netmiko.ssh_dispatacher.ConnectHandler* function). The only acceptable value
 for the &#39;device_type&#39; argument is &#39;autodetect&#39;.
 
-The auto-detection is solely based on the *SSH_MAPPER_BASE* dictionary. The keys are the name of
+The auto-detection is solely based on *SSH_MAPPER_BASE*. The keys are the name of
 the &#39;device_type&#39; supported for auto-detection and the value is another dictionary describing how
 to handle the auto-detection.
 
@@ -162,7 +162,7 @@ SSH_MAPPER_BASE = {
     },
     &#34;dell_force10&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
-        &#34;search_patterns&#34;: [r&#34;S4048-ON&#34;],
+        &#34;search_patterns&#34;: [r&#34;Real Time Operating System Software&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
@@ -177,7 +177,7 @@ SSH_MAPPER_BASE = {
     },
     &#34;dell_os10&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
-        &#34;search_patterns&#34;: [r&#34;Dell EMC Networking OS10-Enterprise&#34;],
+        &#34;search_patterns&#34;: [r&#34;Dell EMC Networking OS10.Enterprise&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
@@ -250,6 +250,7 @@ SSH_MAPPER_BASE = {
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
     &#34;cisco_wlc&#34;: {
+        &#34;cmd&#34;: &#34;&#34;,
         &#34;dispatch&#34;: &#34;_autodetect_remote_version&#34;,
         &#34;search_patterns&#34;: [r&#34;CISCO_WLC&#34;],
         &#34;priority&#34;: 99,
@@ -266,7 +267,26 @@ SSH_MAPPER_BASE = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
+    &#34;fortinet&#34;: {
+        &#34;cmd&#34;: &#34;get system status&#34;,
+        &#34;search_patterns&#34;: [r&#34;FortiOS&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
 }
+
+# Sort SSH_MAPPER_BASE such that the most common commands are first
+cmd_count = {}
+for k, v in SSH_MAPPER_BASE.items():
+    count = cmd_count.setdefault(v[&#34;cmd&#34;], 0)
+    cmd_count[v[&#34;cmd&#34;]] = count + 1
+cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])}
+
+# SSH_MAPPER_BASE will be a list after this
+SSH_MAPPER_BASE = sorted(
+    SSH_MAPPER_BASE.items(), key=lambda item: int(cmd_count[item[1][&#34;cmd&#34;]])
+)
+SSH_MAPPER_BASE.reverse()
 
 
 class SSHDetect(object):
@@ -320,7 +340,7 @@ class SSHDetect(object):
         best_match : str or None
             The device type that is currently the best to use to interact with the device
         &#34;&#34;&#34;
-        for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+        for device_type, autodetect_dict in SSH_MAPPER_BASE:
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop(&#34;dispatch&#34;)
             autodetect_method = getattr(self, call_method)
@@ -388,7 +408,7 @@ class SSHDetect(object):
             return cached_results
 
     def _autodetect_remote_version(
-        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99, **kwargs
     ):
         &#34;&#34;&#34;
         Method to try auto-detect the device type, by matching a regular expression on the reported
@@ -559,7 +579,7 @@ Try to determine the device type.</p>
         best_match : str or None
             The device type that is currently the best to use to interact with the device
         &#34;&#34;&#34;
-        for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+        for device_type, autodetect_dict in SSH_MAPPER_BASE:
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop(&#34;dispatch&#34;)
             autodetect_method = getattr(self, call_method)
@@ -627,7 +647,7 @@ Try to determine the device type.</p>
             return cached_results
 
     def _autodetect_remote_version(
-        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99
+        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99, **kwargs
     ):
         &#34;&#34;&#34;
         Method to try auto-detect the device type, by matching a regular expression on the reported
@@ -731,7 +751,7 @@ Try to determine the device type.</p>
     best_match : str or None
         The device type that is currently the best to use to interact with the device
     &#34;&#34;&#34;
-    for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+    for device_type, autodetect_dict in SSH_MAPPER_BASE:
         tmp_dict = autodetect_dict.copy()
         call_method = tmp_dict.pop(&#34;dispatch&#34;)
         autodetect_method = getattr(self, call_method)

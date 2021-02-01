@@ -182,7 +182,12 @@ __all__ = [&#34;TPLinkJetStreamSSH&#34;, &#34;TPLinkJetStreamTelnet&#34;]</code>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class TPLinkJetStreamSSH(TPLinkJetStreamBase):
-    def _override_check_dsa_parameters(parameters):
+    def __init__(self, **kwargs):
+        dsa._check_dsa_parameters = self._override_check_dsa_parameters
+
+        return super().__init__(**kwargs)
+
+    def _override_check_dsa_parameters(self, parameters):
         &#34;&#34;&#34;
         Override check_dsa_parameters from cryptography&#39;s dsa.py
 
@@ -200,13 +205,11 @@ __all__ = [&#34;TPLinkJetStreamSSH&#34;, &#34;TPLinkJetStreamTelnet&#34;]</code>
 
         It&#39;s still not possible to remove this hack.
         &#34;&#34;&#34;
-        if crypto_utils.bit_length(parameters.q) not in [160, 256]:
+        if parameters.q.bit_length() not in [160, 256]:
             raise ValueError(&#34;q must be exactly 160 or 256 bits long&#34;)
 
         if not (1 &lt; parameters.g &lt; parameters.p):
-            raise ValueError(&#34;g, p don&#39;t satisfy 1 &lt; g &lt; p.&#34;)
-
-    dsa._check_dsa_parameters = _override_check_dsa_parameters</code></pre>
+            raise ValueError(&#34;g, p don&#39;t satisfy 1 &lt; g &lt; p.&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

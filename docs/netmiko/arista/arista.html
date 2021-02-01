@@ -41,7 +41,18 @@ class AristaBase(CiscoSSHConnection):
         self.disable_paging(cmd_verify=False, pattern=r&#34;Pagination disabled&#34;)
         self.set_base_prompt()
 
-    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;&#34;):
+    def enable(
+        self,
+        cmd=&#34;enable&#34;,
+        pattern=&#34;ssword&#34;,
+        enable_pattern=r&#34;\#&#34;,
+        re_flags=re.IGNORECASE,
+    ):
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        )
+
+    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=r&#34;[&gt;\#]&#34;):
         &#34;&#34;&#34;
         Checks if the device is in configuration mode or not.
 
@@ -51,11 +62,7 @@ class AristaBase(CiscoSSHConnection):
         Can also be (s2)
         &#34;&#34;&#34;
         self.write_channel(self.RETURN)
-        # You can encounter an issue here (on router name changes) prefer delay-based solution
-        if not pattern:
-            output = self._read_channel_timing()
-        else:
-            output = self.read_until_pattern(pattern=pattern)
+        output = self.read_until_pattern(pattern=pattern)
         output = output.replace(&#34;(s1)&#34;, &#34;&#34;)
         output = output.replace(&#34;(s2)&#34;, &#34;&#34;)
         return check_string in output
@@ -310,7 +317,18 @@ class AristaFileTransfer(CiscoFileTransfer):
         self.disable_paging(cmd_verify=False, pattern=r&#34;Pagination disabled&#34;)
         self.set_base_prompt()
 
-    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;&#34;):
+    def enable(
+        self,
+        cmd=&#34;enable&#34;,
+        pattern=&#34;ssword&#34;,
+        enable_pattern=r&#34;\#&#34;,
+        re_flags=re.IGNORECASE,
+    ):
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        )
+
+    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=r&#34;[&gt;\#]&#34;):
         &#34;&#34;&#34;
         Checks if the device is in configuration mode or not.
 
@@ -320,11 +338,7 @@ class AristaFileTransfer(CiscoFileTransfer):
         Can also be (s2)
         &#34;&#34;&#34;
         self.write_channel(self.RETURN)
-        # You can encounter an issue here (on router name changes) prefer delay-based solution
-        if not pattern:
-            output = self._read_channel_timing()
-        else:
-            output = self.read_until_pattern(pattern=pattern)
+        output = self.read_until_pattern(pattern=pattern)
         output = output.replace(&#34;(s1)&#34;, &#34;&#34;)
         output = output.replace(&#34;(s2)&#34;, &#34;&#34;)
         return check_string in output
@@ -365,7 +379,7 @@ class AristaFileTransfer(CiscoFileTransfer):
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.arista.arista.AristaBase.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=')#', pattern='')</span>
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=')#', pattern='[>\\#]')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Checks if the device is in configuration mode or not.</p>
@@ -374,7 +388,7 @@ loc1-core01(s1)#</p>
 <p>Can also be (s2)</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;&#34;):
+<pre><code class="python">def check_config_mode(self, check_string=&#34;)#&#34;, pattern=r&#34;[&gt;\#]&#34;):
     &#34;&#34;&#34;
     Checks if the device is in configuration mode or not.
 
@@ -384,11 +398,7 @@ loc1-core01(s1)#</p>
     Can also be (s2)
     &#34;&#34;&#34;
     self.write_channel(self.RETURN)
-    # You can encounter an issue here (on router name changes) prefer delay-based solution
-    if not pattern:
-        output = self._read_channel_timing()
-    else:
-        output = self.read_until_pattern(pattern=pattern)
+    output = self.read_until_pattern(pattern=pattern)
     output = output.replace(&#34;(s1)&#34;, &#34;&#34;)
     output = output.replace(&#34;(s2)&#34;, &#34;&#34;)
     return check_string in output</code></pre>
