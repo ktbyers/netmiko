@@ -6,7 +6,7 @@ echo
 VERSION=`cat netmiko/__init__.py | grep version | sed "s/^__version__ = \"//"`
 VERSION=`echo $VERSION | sed "s/\"$//"`
 PACKAGE=`echo 'netmiko-'$VERSION'.tar.gz'`
-WHL_PACKAGE=`echo 'netmiko-'$VERSION'-py2.py3-none-any.whl'`
+WHL_PACKAGE=`echo 'netmiko-'$VERSION'-py3-none-any.whl'`
 GLOB_PACKAGE=`echo 'netmiko-'$VERSION'*'`
 DIR_PACKAGE=`echo './dist/'$PACKAGE`
 DIR_WHL_PACKAGE=`echo './dist/'$WHL_PACKAGE`
