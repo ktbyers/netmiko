@@ -20,6 +20,7 @@
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
 - Broadcom ICOS
+- Brocade FS OS
 - Calix B6
 - Centec Networks
 - Cisco AireOS (Wireless LAN Controllers)
