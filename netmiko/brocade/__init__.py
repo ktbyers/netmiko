@@ -1,3 +1,3 @@
-from netmiko.brocade.brocade_fs_ssh import BrocadeFSOSSSH
+from netmiko.brocade.brocade_fos_ssh import BrocadeFOSSSH
 
-__all__ = ["BrocadeFSOSSSH"]
+__all__ = ["BrocadeFOSSSH"]

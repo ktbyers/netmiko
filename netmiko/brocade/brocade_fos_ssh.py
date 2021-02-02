@@ -2,8 +2,8 @@ import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class BrocadeFSOSSSH(CiscoSSHConnection):
-    """Brocade FS OS support"""
+class BrocadeFOSSSH(CiscoSSHConnection):
+    """Brocade Fabric OS support"""
 
     def __init__(self, **kwargs):
         if kwargs.get("default_enter") is None:

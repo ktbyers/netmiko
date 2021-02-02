@@ -7,7 +7,7 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
-from netmiko.brocade import BrocadeFSOSSSH
+from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.centec import CentecOSSSH, CentecOSTelnet
@@ -116,7 +116,7 @@ CLASS_MAPPER_BASE = {
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
     "broadcom_icos": BroadcomIcosSSH,
-    "brocade_fsos": BrocadeFSOSSSH,
+    "brocade_fos": BrocadeFOSSSH,
     "brocade_fastiron": RuckusFastironSSH,
     "brocade_netiron": ExtremeNetironSSH,
     "brocade_nos": ExtremeNosSSH,
