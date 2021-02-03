@@ -1,4 +1,5 @@
 import time
+import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -10,16 +11,6 @@ class BrocadeFOSSSH(CiscoSSHConnection):
             kwargs["default_enter"] = "\r"
         return super().__init__(**kwargs)
 
-    def check_enable_mode(self, check_string=">"):
-        """
-        Check if in enable mode. Return boolean.
-        """
-        return super().check_enable_mode(check_string=check_string)
-
-    def enable(self, cmd="", pattern=""):
-        """No Enable Mode"""
-        return super().enable(cmd=cmd, pattern=pattern)
-
     def session_preparation(self):
         self._test_channel_read()
         self.set_base_prompt()
@@ -28,11 +19,24 @@ class BrocadeFOSSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string=">"):
-        return super().check_config_mode(check_string=check_string)
+    def check_enable_mode(self, check_string=">"):
+        """No enable mode. Always return True."""
+        return True
 
-    def config_mode(self, config_command="", pattern=r")#"):
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def enable(self, cmd="", pattern="", enable_pattern=None, re_flags=re.IGNORECASE):
+        """No Enable Mode."""
+        return ""
+
+    def exit_enable_mode(self, exit_command=""):
+        """No Enable Mode."""
+        return ""
+
+    def check_config_mode(self, check_string="", pattern=""):
+        return True
+
+    def config_mode(self, config_command="", pattern="", re_flags=0):
+        """No config mode."""
+        return ""
 
     def exit_config_mode(self, exit_config="", pattern="#"):
-        return
+        return ""
