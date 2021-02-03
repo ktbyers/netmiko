@@ -41,7 +41,7 @@ except ImportError:
 
 # Dictionary mapping 'show run' for vendors with different command
 SHOW_RUN_MAPPER = {
-    "brocade_fs": "configShow",
+    "brocade_fos": "configShow",
     "juniper": "show configuration",
     "juniper_junos": "show configuration",
     "extreme": "show configuration",
