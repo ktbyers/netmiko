@@ -70,5 +70,5 @@ class YamahaTelnet(YamahaBase):
 
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get("default_enter")
-        kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
+        kwargs["default_enter"] = "\n" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
