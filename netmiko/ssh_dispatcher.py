@@ -7,8 +7,7 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
-from netmiko.awplus import AwplusSSH        # Add here
-from netmiko.awplus import AwplusTelnet     # Add here
+from netmiko.allied_telesis import AlliedTelesisAwplusSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
 from netmiko.centec import CentecOSSSH, CentecOSTelnet
@@ -116,7 +115,7 @@ CLASS_MAPPER_BASE = {
     "aruba_procurve": HPProcurveSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
-    "awplus": AwplusSSH,        # Add here
+    "allied_telesis_awplus": AlliedTelesisAwplusSSH,
     "broadcom_icos": BroadcomIcosSSH,
     "brocade_fastiron": RuckusFastironSSH,
     "brocade_netiron": ExtremeNetironSSH,
@@ -247,7 +246,6 @@ CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
 CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
-CLASS_MAPPER["awplus_telnet"] = AwplusTelnet        # Add here
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
