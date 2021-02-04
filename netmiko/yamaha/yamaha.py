@@ -28,7 +28,8 @@ class YamahaBase(BaseConnection):
             time.sleep(1)
             output = self.read_channel()
             if "(Y/N)" in output:
-                self.write_channel(f"N{self.default_enter}")
+                self.write_channel("N")
+            self.write_channel(self.RETURN)
             output += self.read_until_prompt()
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
