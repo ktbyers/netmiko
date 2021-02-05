@@ -617,12 +617,16 @@ class BaseConnection(object):
             ChannelClass = SSHChannel
         else:
             ChannelClass = ssh_channel_class
+        assert issubclass(ChannelClass, SSHChannel)
+
         self.channel = ChannelClass(
             ssh_params,
             device_type=self.device_type,
             ssh_hostkey_args=self.ssh_hostkey_args,
             encoding=self.encoding,
             session_log=self.session_log,
+            use_keys=self.use_keys,  # needed for making decision to use no_auth
+            password=self.password,  # needed for making decision to use no_auth
         )
         self.channel.establish_connection()
         self.special_login_handler()

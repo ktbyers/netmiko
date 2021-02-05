@@ -300,6 +300,10 @@ class SSHChannel(Channel):
         ssh_hostkey_args: Optional[Dict["str", Any]] = None,
         encoding: str = "ascii",
         session_log: Optional["SessionLog"] = None,
+        use_keys: bool = False,  # needed for making decision to use no_auth in some subclasses
+        password: Optional[
+            str
+        ] = None,  # needed for making decision to use no_auth in some subclasses
     ) -> None:
         self.ssh_params = ssh_params
         self.blocking_timeout = ssh_params.pop("blocking_timeout", 20)
@@ -313,6 +317,8 @@ class SSHChannel(Channel):
         self.remote_conn = None
         self.session_log = session_log
         self.encoding = encoding
+        self.use_keys = use_keys
+        self.password = password
 
     def __repr__(self) -> str:
         return "SSHChannel(ssh_params)"

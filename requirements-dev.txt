@@ -6,5 +6,6 @@ pylama==7.7.1
 twine==1.13.0
 pysnmp==4.4.12
 pdoc3==0.6.3
+transitions==0.8.6
 -r requirements.txt
 -r requirements-ttp.txt
