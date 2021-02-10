@@ -34,10 +34,14 @@ class F5TmshSSH(BaseConnection):
 
 
     def config_mode(self, config_command=""):
-        """No config mode for F5 devices."""
+        """
+        No config mode for F5 devices.
+        """
         return ""
                                               
     def exit_config_mode(self, exit_config=""):
-        """No config mode for F5 devices."""
+        """
+        No config mode for F5 devices.
+        """
         return ""
 
