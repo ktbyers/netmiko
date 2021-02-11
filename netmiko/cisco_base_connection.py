@@ -49,13 +49,13 @@ class CiscoBaseConnection(BaseConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="end", pattern="#"):
+    def exit_config_mode(self, exit_config="end", pattern=r"\#"):
         """Exit from configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def serial_login(
         self,
-        pri_prompt_terminator=r"#\s*$",
+        pri_prompt_terminator=r"\#\s*$",
         alt_prompt_terminator=r">\s*$",
         username_pattern=r"(?:user:|username|login)",
         pwd_pattern=r"assword",
@@ -80,7 +80,7 @@ class CiscoBaseConnection(BaseConnection):
 
     def telnet_login(
         self,
-        pri_prompt_terminator=r"#\s*$",
+        pri_prompt_terminator=r"\#\s*$",
         alt_prompt_terminator=r">\s*$",
         username_pattern=r"(?:user:|username|login|user name)",
         pwd_pattern=r"assword",

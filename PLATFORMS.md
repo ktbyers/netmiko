@@ -58,6 +58,7 @@
 
 - A10
 - Accedian
+- Allied Telesis AlliedWare Plus
 - Aruba
 - Brocade Fabric OS
 - Ciena SAOS
