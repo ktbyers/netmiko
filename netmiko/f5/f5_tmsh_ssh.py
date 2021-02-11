@@ -9,6 +9,7 @@ class F5TmshSSH(BaseConnection):
         self.set_base_prompt()
         self.tmsh_mode()
         self.set_base_prompt()
+        self._config_mode = False
         cmd = 'run /util bash -c "stty cols 255"'
         self.set_terminal_width(command=cmd, pattern="run")
         self.disable_paging(
@@ -26,9 +27,9 @@ class F5TmshSSH(BaseConnection):
         self.clear_buffer()
         return None
 
-    def check_config_mode(self, check_string=") #", pattern=""):
+    def check_config_mode(self, check_string="", pattern=""):
         """Checks if the device is in configuration mode or not."""
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        return True
 
     def config_mode(self, config_command=""):
         """No config mode for F5 devices."""

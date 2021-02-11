@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import pytest
 
 
 def test_ssh_connect(net_connect, commands, expected_responses):
@@ -31,15 +32,16 @@ def test_config_mode(net_connect, commands, expected_responses):
     if net_connect.config_mode() != "":
         assert net_connect.check_config_mode() is True
     else:
-        assert True
+        pytest.skip("Platform doesn't support config mode.")
 
 
 def test_exit_config_mode(net_connect, commands, expected_responses):
-    """
-    Test exit config mode
-    """
-    net_connect.exit_config_mode()
-    assert net_connect.check_config_mode() is False
+    """Test exit config mode."""
+    if net_connect._config_mode:
+        net_connect.exit_config_mode()
+        assert net_connect.check_config_mode() is False
+    else:
+        pytest.skip("Platform doesn't support config mode.")
 
 
 def test_config_set(net_connect, commands, expected_responses):
