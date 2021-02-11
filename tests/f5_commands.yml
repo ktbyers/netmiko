@@ -1,0 +1,9 @@
+f5_tmsh:
+  version: "show sys version"
+  basic: "show sys ip-address"
+  extended_output: "show sys version"
+  config: 
+    - "modify cli preference history-size 400"      # base command
+    - "modify cli preference history-size 500"      # something you can verify has changed
+  config_verification: "show running-config all-properties | grep history-size"
+  support_commit: False
