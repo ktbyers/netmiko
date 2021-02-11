@@ -220,6 +220,8 @@ class BaseConnection(object):
         :type auto_connect: bool
         """
         self.remote_conn = None
+        # Does the platform support a configuration mode
+        self._config_mode = True
 
         self.TELNET_RETURN = "\r\n"
         if default_enter is None:
