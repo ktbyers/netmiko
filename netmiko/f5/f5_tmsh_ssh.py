@@ -25,3 +25,15 @@ class F5TmshSSH(BaseConnection):
         time.sleep(1 * delay_factor)
         self.clear_buffer()
         return None
+
+    def check_config_mode(self, check_string=") #", pattern=""):
+        """Checks if the device is in configuration mode or not."""
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def config_mode(self, config_command=""):
+        """No config mode for F5 devices."""
+        return ""
+
+    def exit_config_mode(self, exit_config=""):
+        """No config mode for F5 devices."""
+        return ""
