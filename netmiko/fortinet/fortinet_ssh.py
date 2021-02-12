@@ -100,14 +100,14 @@ class FortinetSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string=") #", pattern=""):
         """
-        Checks if the device is in configuration mode or not.
+        #Checks if the device is in configuration mode or not.
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(self, config_command="", pattern="", re_flags=0):
         """
         #Enter into configuration mode on remote device.
-        #Function particularly usefull when VDOMs are configured on it
+        #Several commands available only in config global mode or config vdom mode
         """
 
         if not pattern:
@@ -116,8 +116,43 @@ class FortinetSSH(CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="end", pattern=""):
-        """No config mode for Fortinet devices."""
+    def config_mode_vdom(self, vdom_name="", new_vdom=False, pattern="", re_flags=0):
+        """
+        Function That will allow the user to enter in config vdom mode. This function will control 
+        if the VDOM exist or not if the new_VDOM is not changed to True
+
+        Args:
+            vdom_name (str, optional): [description]. Defaults to "". Supply here the name of the VDOM to edit
+            new_vdom (bool, optional): [description]. Defaults to False. Change it to True to create a new VDOM
+            pattern (str, optional): [description]. Defaults to "". The pattern used to identify that the output is complete
+            re_flags (int, optional): [description]. Defaults to 0. regex flags used in conjunction with pattern to search for prompt
+        """
+        delay_factor = self.select_delay_factor(delay_factor=0)
+        self.write_channel("config vdom\n")
+        time.sleep(0.33 * delay_factor)
+        if new_vdom==True:    
+            assert(vdom_name!=""), "If you would like the creation of a new VDOM, please provide it"
+            self.write_channel("edit " + vdom_name+"\n")
+        else:
+            assert (vdom_name!= ""), "Supply a VDOM name to enter in config mode on it"
+            self.write_channel("edit ?")
+            time.sleep(0.33 * delay_factor)
+            output = self.read_channel().splitlines()
+            self.clear_buffer()
+            vdom_list= output[2:-2]
+            assert (vdom_name in vdom_list), "VDOM Name not in the existing VDOMs. If you expect a creation of it, change new_vdom to True "          
+            command=vdom_name + "\n"
+            print(command)
+            self.write_channel(command)
+            time.sleep(0.33 * delay_factor)
+            self.set_base_prompt()
+            self.clear_buffer()
+            
+    def config_mode_global(self, config_command="config global", pattern="", re_flags=0):
+        self.config_mode(config_command, pattern, re_flags)
+    
+    def exit_config_mode(self, exit_config="end", pattern="#"):
+        #print(pattern)
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(self, *args, **kwargs):
