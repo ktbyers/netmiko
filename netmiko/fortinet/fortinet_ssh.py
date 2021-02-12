@@ -118,19 +118,22 @@ class FortinetSSH(CiscoSSHConnection):
 
     def config_mode_vdom(self, vdom_name="", new_vdom=False, pattern="", re_flags=0):
         """
-        Function That will allow the user to enter in config vdom mode. This function will control
-        if the VDOM exist or not if the new_VDOM is not changed to True
-
+        Function That will allow the user to enter in config vdom mode.
+        This function will control if the VDOM exist or not if the new_VDOM is not changed to True
         Args:
-            vdom_name (str, optional): [description]. Defaults to "". Supply here the name of the VDOM to edit
-            new_vdom (bool, optional): [description]. Defaults to False. Change it to True to create a new VDOM
-            pattern (str, optional): [description]. Defaults to "". The pattern used to identify that the output is complete
-            re_flags (int, optional): [description]. Defaults to 0. regex flags used in conjunction with pattern to search for prompt
+            vdom_name (str, optional): [description]. Defaults to "".
+                Supply here the name of the VDOM to edit
+            new_vdom (bool, optional): [description]. Defaults to False.
+                Change it to True to create a new VDOM
+            pattern (str, optional): [description]. Defaults to "".
+                The pattern used to identify that the output is complete
+            re_flags (int, optional): [description]. Defaults to 0.
+                regex flags used in conjunction with pattern to search for prompt
         """
         delay_factor = self.select_delay_factor(delay_factor=0)
         self.write_channel("config vdom\n")
         time.sleep(0.33 * delay_factor)
-        if new_vdom == True:
+        if new_vdom:
             assert (
                 vdom_name != ""
             ), "If you would like the creation of a new VDOM, please provide it"
@@ -144,7 +147,8 @@ class FortinetSSH(CiscoSSHConnection):
             vdom_list = output[2:-2]
             assert (
                 vdom_name in vdom_list
-            ), "VDOM Name not in the existing VDOMs. If you expect a creation of it, change new_vdom to True "
+            ), "VDOM Name not in the existing VDOMs. \
+            If you expect a creation of it, change new_vdom to True "
             command = vdom_name + "\n"
             print(command)
             self.write_channel(command)
