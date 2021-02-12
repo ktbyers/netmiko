@@ -1,11 +1,12 @@
 import re
 import time
+from typing import Optional
 
 from netmiko.base_connection import BaseConnection
 
 
 class FlexvnfSSH(BaseConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
 
@@ -21,7 +22,7 @@ class FlexvnfSSH(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def enter_cli_mode(self):
+    def enter_cli_mode(self) -> None:
         """Check if at shell prompt root@ and go into CLI."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         count = 0
@@ -41,27 +42,29 @@ class FlexvnfSSH(BaseConnection):
                 break
             count += 1
 
-    def check_enable_mode(self, *args, **kwargs):
+    def check_enable_mode(self, *args, **kwargs) -> bool:
         """No enable mode on flexvnf."""
-        pass
+        return False
 
-    def enable(self, *args, **kwargs):
+    def enable(self, *args, **kwargs) -> str:
         """No enable mode on flexvnf."""
-        pass
+        return ""
 
-    def exit_enable_mode(self, *args, **kwargs):
+    def exit_enable_mode(self, *args, **kwargs) -> str:
         """No enable mode on flexvnf."""
-        pass
+        return ""
 
-    def check_config_mode(self, check_string="]"):
+    def check_config_mode(self, check_string: str = "]", *args, **kwargs) -> bool:
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configure"):
+    def config_mode(self, config_command: str = "configure", *args, **kwargs) -> str:
         """Enter configuration mode."""
         return super().config_mode(config_command=config_command)
 
-    def exit_config_mode(self, exit_config="exit configuration-mode"):
+    def exit_config_mode(
+        self, exit_config: str = "exit configuration-mode", *args, **kwargs
+    ) -> str:
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
@@ -79,13 +82,13 @@ class FlexvnfSSH(BaseConnection):
 
     def commit(
         self,
-        confirm=False,
-        confirm_delay=None,
-        check=False,
-        comment="",
-        and_quit=False,
-        delay_factor=1,
-    ):
+        confirm: bool = False,
+        confirm_delay: Optional[int] = None,
+        check: bool = False,
+        comment: str = "",
+        and_quit: bool = False,
+        delay_factor: float = 1,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -166,12 +169,12 @@ class FlexvnfSSH(BaseConnection):
 
         return output
 
-    def strip_prompt(self, *args, **kwargs):
+    def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output."""
-        a_string = super().strip_prompt(*args, **kwargs)
+        a_string = super().strip_prompt(a_string)
         return self.strip_context_items(a_string)
 
-    def strip_context_items(self, a_string):
+    def strip_context_items(self, a_string: str) -> str:
         """Strip FLEXVNF-specific output.
 
         FLEXVNF will also put a configuration context:
