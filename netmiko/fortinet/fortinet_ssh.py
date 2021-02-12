@@ -106,8 +106,8 @@ class FortinetSSH(CiscoSSHConnection):
 
     def config_mode(self, config_command="", pattern="", re_flags=0):
         """
-        Enter into configuration mode on remote device. 
-        Function particularly usefull when VDOMs are configured on it
+        #Enter into configuration mode on remote device. 
+        #Function particularly usefull when VDOMs are configured on it
         """
 
         if not pattern:
