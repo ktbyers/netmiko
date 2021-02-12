@@ -104,7 +104,7 @@ class FortinetSSH(CiscoSSHConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="config global", pattern="", re_flags=0):
+    def config_mode(self, config_command="", pattern="", re_flags=0):
         """
         Enter into configuration mode on remote device.
 
