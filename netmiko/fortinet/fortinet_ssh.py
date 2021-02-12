@@ -118,7 +118,7 @@ class FortinetSSH(CiscoSSHConnection):
 
     def config_mode_vdom(self, vdom_name="", new_vdom=False, pattern="", re_flags=0):
         """
-        Function That will allow the user to enter in config vdom mode. This function will control 
+        Function That will allow the user to enter in config vdom mode. This function will control
         if the VDOM exist or not if the new_VDOM is not changed to True
 
         Args:
@@ -130,29 +130,35 @@ class FortinetSSH(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor=0)
         self.write_channel("config vdom\n")
         time.sleep(0.33 * delay_factor)
-        if new_vdom==True:    
-            assert(vdom_name!=""), "If you would like the creation of a new VDOM, please provide it"
-            self.write_channel("edit " + vdom_name+"\n")
+        if new_vdom == True:
+            assert (
+                vdom_name != ""
+            ), "If you would like the creation of a new VDOM, please provide it"
+            self.write_channel("edit " + vdom_name + "\n")
         else:
-            assert (vdom_name!= ""), "Supply a VDOM name to enter in config mode on it"
+            assert vdom_name != "", "Supply a VDOM name to enter in config mode on it"
             self.write_channel("edit ?")
             time.sleep(0.33 * delay_factor)
             output = self.read_channel().splitlines()
             self.clear_buffer()
-            vdom_list= output[2:-2]
-            assert (vdom_name in vdom_list), "VDOM Name not in the existing VDOMs. If you expect a creation of it, change new_vdom to True "          
-            command=vdom_name + "\n"
+            vdom_list = output[2:-2]
+            assert (
+                vdom_name in vdom_list
+            ), "VDOM Name not in the existing VDOMs. If you expect a creation of it, change new_vdom to True "
+            command = vdom_name + "\n"
             print(command)
             self.write_channel(command)
             time.sleep(0.33 * delay_factor)
             self.set_base_prompt()
             self.clear_buffer()
-            
-    def config_mode_global(self, config_command="config global", pattern="", re_flags=0):
+
+    def config_mode_global(
+        self, config_command="config global", pattern="", re_flags=0
+    ):
         self.config_mode(config_command, pattern, re_flags)
-    
+
     def exit_config_mode(self, exit_config="end", pattern="#"):
-        #print(pattern)
+        # print(pattern)
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(self, *args, **kwargs):
