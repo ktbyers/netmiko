@@ -212,6 +212,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "paloalto_panos": {
+        "cmd": "show system info",
+        "search_patterns": [r"model:\s+PA"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 # Sort SSH_MAPPER_BASE such that the most common commands are first
