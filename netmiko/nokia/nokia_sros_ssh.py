@@ -248,7 +248,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 
         if self.direction == "put":
             if not remote_cmd:
-                remote_cmd = self._file_cmd_prefix() + "file dir {}\\{}".format(
+                remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
                     self.file_system, self.dest_file
                 )
             dest_file_name = self.dest_file.replace("\\", "/").split("/")[-1]
