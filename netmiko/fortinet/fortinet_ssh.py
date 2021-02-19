@@ -6,7 +6,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class FortinetSSH(CiscoSSHConnection):
     # FIX: Probably should move to channel.py
-    def _modify_connection_params(self):
+    def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
         paramiko.Transport._preferred_kex = (
             "diffie-hellman-group14-sha1",
@@ -15,7 +15,7 @@ class FortinetSSH(CiscoSSHConnection):
             "diffie-hellman-group1-sha1",
         )
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
@@ -39,8 +39,12 @@ class FortinetSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, delay_factor=1, **kwargs):
-        """Disable paging is only available with specific roles so it may fail."""
+    def disable_paging(
+        self, command: str = "", delay_factor: float = 1, *args, **kwargs
+    ) -> str:
+        """Disable paging is only available with specific roles so it may fail.
+        Does not use `command`, `cmd_verify`, or `pattern` parameters"""
+
         check_command = "get system status | grep Virtual"
         output = self.send_command_timing(check_command)
         self.allow_disable_global = True
@@ -77,7 +81,7 @@ class FortinetSSH(CiscoSSHConnection):
 
         return output + new_output
 
-    def _retrieve_output_mode(self):
+    def _retrieve_output_mode(self) -> None:
         """Save the state of the output mode so it can be reset at the end of the session."""
         reg_mode = re.compile(r"output\s+:\s+(?P<mode>.*)\s+\n")
         output = self.send_command("get system console")
@@ -87,7 +91,7 @@ class FortinetSSH(CiscoSSHConnection):
             if result_mode in ["more", "standard"]:
                 self._output_mode = result_mode
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Re-enable paging globally."""
         if self.allow_disable_global:
             # Return paging state
@@ -100,14 +104,16 @@ class FortinetSSH(CiscoSSHConnection):
                 self.send_command_timing(command)
         return super().cleanup(command=command)
 
-    def config_mode(self, config_command=""):
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """No config mode for Fortinet devices."""
         return ""
 
-    def exit_config_mode(self, exit_config=""):
+    def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
         """No config mode for Fortinet devices."""
         return ""
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args, **kwargs) -> str:
         """Not Implemented"""
         raise NotImplementedError
