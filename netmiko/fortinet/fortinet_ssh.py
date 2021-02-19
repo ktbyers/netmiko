@@ -8,7 +8,7 @@ class FortinetSSH(CiscoSSHConnection):
     # FIX: Probably should move to channel.py
     def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
-        paramiko.Transport._preferred_kex = (  # type: ignore[attr-defined]
+        paramiko.Transport._preferred_kex = (
             "diffie-hellman-group14-sha1",
             "diffie-hellman-group-exchange-sha1",
             "diffie-hellman-group-exchange-sha256",
@@ -40,7 +40,7 @@ class FortinetSSH(CiscoSSHConnection):
         self.clear_buffer()
 
     def disable_paging(
-        self, command: str = None, delay_factor: float = 1, *args, **kwargs
+        self, command: str = "", delay_factor: float = 1, *args, **kwargs
     ) -> str:
         """Disable paging is only available with specific roles so it may fail.
         Does not use `command`, `cmd_verify`, or `pattern` parameters"""
@@ -104,11 +104,13 @@ class FortinetSSH(CiscoSSHConnection):
                 self.send_command_timing(command)
         return super().cleanup(command=command)
 
-    def config_mode(self, *args, **kwargs) -> str:
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """No config mode for Fortinet devices."""
         return ""
 
-    def exit_config_mode(self, *args, **kwargs) -> str:
+    def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
         """No config mode for Fortinet devices."""
         return ""
 
