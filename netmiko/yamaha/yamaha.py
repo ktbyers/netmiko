@@ -29,7 +29,7 @@ class YamahaBase(BaseConnection):
             output = self.read_channel()
             if "(Y/N)" in output:
                 self.write_channel(f"N{self.default_enter}")
-            output += self.read_until_prompt()
+                output += self.read_until_prompt()
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
