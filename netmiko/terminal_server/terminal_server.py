@@ -12,6 +12,18 @@ class TerminalServer(BaseConnection):
     def session_preparation(self):
         """Do nothing here; base_prompt is not set; paging is not disabled."""
         pass
+    
+    def check_config_mode(self, check_string="", pattern=""):
+        """Checks if the device is in configuration mode or not."""
+        return True
+
+    def config_mode(self, config_command=""):
+        """No config mode for F5 devices."""
+        return ""
+
+    def exit_config_mode(self, exit_config=""):
+        """No config mode for F5 devices."""
+        return ""    
 
 
 class TerminalServerSSH(TerminalServer):
