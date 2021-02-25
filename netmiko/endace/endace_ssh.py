@@ -1,18 +1,36 @@
+from typing import Any
+
 from netmiko.cisco_base_connection import CiscoSSHConnection
 import re
 
 
 class EndaceSSH(CiscoSSHConnection):
-    def disable_paging(self, command="no cli session paging enable", delay_factor=1):
+    def disable_paging(
+        self,
+        command: str = "no cli session paging enable",
+        delay_factor: float = 1.0,
+        *args: Any,
+        **kwargs: Any
+    ) -> str:
         return super().disable_paging(command=command, delay_factor=delay_factor)
 
-    def enable(self, cmd="enable", pattern="", re_flags=re.IGNORECASE):
+    def enable(
+        self, cmd: str = "enable", pattern: str = "", re_flags: int = re.IGNORECASE
+    ) -> str:
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
-    def check_config_mode(self, check_string="(config) #"):
+    def check_config_mode(
+        self, check_string: str = "(config) #", *args: Any, **kwargs: Any
+    ) -> bool:
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="conf t", pattern=""):
+    def config_mode(
+        self,
+        config_command: str = "conf t",
+        pattern: str = "",
+        *args: Any,
+        **kwargs: Any
+    ) -> str:
         output = ""
         if not self.check_config_mode():
             output = self.send_command_timing(
@@ -26,12 +44,15 @@ class EndaceSSH(CiscoSSHConnection):
                 raise ValueError("Failed to enter configuration mode")
         return output
 
-    def exit_config_mode(self, exit_config="exit", pattern="#"):
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "#") -> str:
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(
-        self, cmd="configuration write", confirm=False, confirm_response=""
-    ):
+        self,
+        cmd: str = "configuration write",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         self.enable()
         self.config_mode()
         return super().save_config(
