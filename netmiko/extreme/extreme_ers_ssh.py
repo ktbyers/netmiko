@@ -9,7 +9,7 @@ CTRL_Y = "\x19"
 class ExtremeErsSSH(CiscoSSHConnection):
     """Netmiko support for Extreme Ethernet Routing Switch."""
 
-    def special_login_handler(self, delay_factor=1):
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """
         Extreme ERS presents the following as part of the login process:
 
@@ -36,7 +36,12 @@ class ExtremeErsSSH(CiscoSSHConnection):
                 time.sleep(1 * delay_factor)
             i += 1
 
-    def save_config(self, cmd="save config", confirm=False, confirm_response=""):
+    def save_config(
+        self,
+        cmd: str = "save config",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Save Config"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
