@@ -1,11 +1,13 @@
 import time
+from typing import Any
+
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class EltexEsrSSH(CiscoSSHConnection):
     """Netmiko support for routers Eltex ESR."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read()
@@ -16,19 +18,27 @@ class EltexEsrSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command="configure", pattern=r")#"):
+    def config_mode(
+        self,
+        config_command: str = "configure",
+        pattern: str = r")#",
+        *args: Any,
+        **kwargs: Any
+    ) -> str:
         """Enter configuration mode."""
         return super().config_mode(config_command=config_command, pattern=pattern)
 
-    def check_config_mode(self, check_string="(config", pattern=""):
+    def check_config_mode(
+        self, check_string: str = "(config", pattern: str = ""
+    ) -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented (use commit() method)"""
         raise NotImplementedError
 
-    def commit(self, delay_factor=1):
+    def commit(self, delay_factor: float = 1.0) -> str:
         """
         Commit the candidate configuration.
         Commit the entered configuration.
@@ -55,7 +65,7 @@ class EltexEsrSSH(CiscoSSHConnection):
             )
         return output
 
-    def _confirm(self, delay_factor=1):
+    def _confirm(self, delay_factor: float = 1.0) -> str:
         """
         Confirm the candidate configuration.
         Raise an error and return the failure if the confirm fails.
@@ -78,7 +88,7 @@ class EltexEsrSSH(CiscoSSHConnection):
             )
         return output
 
-    def _restore(self, delay_factor=1):
+    def _restore(self, delay_factor: float = 1.0) -> str:
         """
         Restore the candidate configuration.
 
