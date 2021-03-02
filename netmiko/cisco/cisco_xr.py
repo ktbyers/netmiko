@@ -186,8 +186,8 @@ class CiscoXr(CiscoBaseConnection):
                                                delay_factor=delay_factor)
             commit_replace_marker = "This commit will replace or remove the entire running configuration"
             if commit_replace_marker in output:
-                output += self.send_command_timing("yes", strip_prompt=False, strip_command=False,
-                                                   delay_factor=delay_factor)
+                output += self.send_command_expect("yes", strip_prompt=False, strip_command=False,
+                                                   delay_factor=delay_factor, **kwargs)
                 return output
                                    
         else: 
