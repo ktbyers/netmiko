@@ -44,7 +44,7 @@ class CloudGenixIonSSH(CiscoSSHConnection):
 
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """No save method on ION SSH"""
-        pass
+        return ""
 
     def send_config_set(
         self,
