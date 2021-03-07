@@ -3,7 +3,6 @@ import time
 
 
 class TeldatSSH(BaseConnection):
-
     def session_preparation(self):
         # Prompt is *
         self._test_channel_read(pattern=r"\*")
@@ -12,11 +11,9 @@ class TeldatSSH(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-
     def disable_paging(self):
         """Teldat doesn't have pagging"""
         pass
-
 
     def set_base_prompt(
         self, pri_prompt_terminator="*", alt_prompt_terminator="", delay_factor=1
@@ -35,7 +32,6 @@ class TeldatSSH(BaseConnection):
             delay_factor=delay_factor,
         )
 
-
     def cleanup(self, command="logout"):
         """Gracefully exit the SSH session."""
         try:
@@ -49,7 +45,6 @@ class TeldatSSH(BaseConnection):
         self.write_channel(command + self.RETURN)
         self.write_channel("yes" + self.RETURN)
 
-
     def enable(self, *args, **kwargs):
         raise AttributeError("Teldat does not have enable mode")
 
@@ -58,4 +53,3 @@ class TeldatSSH(BaseConnection):
 
     def exit_enable_mode(self, *args, **kwargs):
         raise AttributeError("Teldat does not have enable mode")
-
