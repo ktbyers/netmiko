@@ -2,12 +2,7 @@ from netmiko.base_connection import BaseConnection
 import time
 
 
-class TeldatSSH(BaseConnection):
-    # def __init__(
-    #    self, ip, username, password, secret="", port=22, device_type="", verbose=True
-    # ):
-    #    pass
-
+class TeldatSSHuntested(BaseConnection):
     def session_preparation(self):
         # Prompt is *
         self._test_channel_read(pattern=r"\*")
@@ -82,17 +77,22 @@ class TeldatSSH(BaseConnection):
     def send_config_set(self, config_commands=None):
         pass
 
-    def save_config(self, cmd="save", confirm=True, confirm_response="y"):
+    def save_config(self, cmd="save yes", confirm=False, confirm_response=""):
         """Save Config"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        # Some devices are slow so match on trailing-prompt if you can
+        output = self.send_command(
+            command_string=cmd, strip_prompt=False, strip_command=False
         )
+        # return super().save_config(
+        #     cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        # )
+        return output
 
     def cleanup(self, command="logout"):
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
-            if self.check_config_mode(pattern=""):
+            if self.check_base_mode(pattern=""):
                 self.exit_config_mode()
         except Exception:
             pass
