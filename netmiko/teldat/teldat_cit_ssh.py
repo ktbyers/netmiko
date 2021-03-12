@@ -1,5 +1,7 @@
 from netmiko.base_connection import BaseConnection
 import time
+import re
+from netmiko import log
 
 
 class TeldatSSH(BaseConnection):
@@ -53,3 +55,71 @@ class TeldatSSH(BaseConnection):
 
     def exit_enable_mode(self, *args, **kwargs):
         raise AttributeError("Teldat does not have enable mode")
+
+    # def monitor_mode(self, monitor_command="p 3"):
+    #     """Enter monitor mode"""
+    #     # if self.check_base_mode():
+    #     #    return super().config_mode(config_command=monitor_command)
+    #     # else:
+    #     #    raise ValueError("Not in base mode, will not enter monitor mode.")
+    #     return super().config_mode(config_command=monitor_command, pattern="+")
+
+    def check_monitor_mode(self, check_string=" +", pattern=None):
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def check_config_mode(self, check_string="onfig>", pattern=None):
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def monitor_mode(self, monitor_command="p 3", pattern=r"\+", re_flags=0):
+        """Enter into monitor_mode.
+
+        :param monitor_command: Configuration command to send to the device
+        :type monitor_command: str
+
+        :param pattern: Pattern to terminate reading of channel
+        :type pattern: str
+
+        :param re_flags: Regular expression flags
+        :type re_flags: RegexFlag
+        """
+        output = ""
+        if not self.check_monitor_mode():
+            self.write_channel(self.normalize_cmd(monitor_command))
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(monitor_command.strip())
+                )
+            if not re.search(pattern, output, flags=re_flags):
+                output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
+            if not self.check_monitor_mode():
+                raise ValueError("Failed to enter monitor mode.")
+        return output
+
+    def config_mode(self, config_command="p 4", pattern="onfig>", re_flags=0):
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
+
+    def exit_to_base_mode(
+        self,
+    ):
+        """
+        Exit from other modes (monitor, config, running config).
+
+        Send CTRL+P to the device
+        """
+        exit_cmd = "\x10"
+        pattern = "\*"
+        output = ""
+        self.write_channel(self.normalize_cmd(exit_cmd))
+        # Teldat - exit_cmd not printable
+        # if not re.search(pattern, output, flags=re.M):
+        #     output += self.read_until_pattern(pattern=pattern)
+        output += self.read_until_pattern(pattern=pattern)
+
+        # TODO: test true exit
+        # if self.check_config_mode() or self.check_monitor_mode():
+        #    raise ValueError("Failed to return to base mode")
+        log.debug(f"exit_to_base_mode: {output}")
+        return output
