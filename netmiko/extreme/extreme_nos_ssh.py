@@ -1,6 +1,6 @@
 """Support for Extreme NOS/VDX."""
+import re
 import time
-from typing import Any
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -8,12 +8,18 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class ExtremeNosSSH(CiscoSSHConnection):
     """Support for Extreme NOS/VDX."""
 
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on Extreme VDX."""
+    def check_enable_mode(self, check_string: str = "") -> bool:
+        """Platform does not have an enable mode."""
+        return True
+
+    def enable(
+        self, cmd: str = "", pattern: str = "ssword", re_flags: int = re.IGNORECASE
+    ) -> str:
+        """Platform does not have an enable mode."""
         return ""
 
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on Extreme VDX."""
+    def exit_enable_mode(self, exit_command: str = "") -> str:
+        """Platform does not have an enable mode."""
         return ""
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:

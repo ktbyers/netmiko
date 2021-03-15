@@ -9,10 +9,11 @@ class EndaceSSH(CiscoSSHConnection):
         self,
         command: str = "no cli session paging enable",
         delay_factor: float = 1.0,
-        *args: Any,
         **kwargs: Any
     ) -> str:
-        return super().disable_paging(command=command, delay_factor=delay_factor)
+        return super().disable_paging(
+            command=command, delay_factor=delay_factor, **kwargs
+        )
 
     def enable(
         self, cmd: str = "enable", pattern: str = "", re_flags: int = re.IGNORECASE
@@ -20,16 +21,12 @@ class EndaceSSH(CiscoSSHConnection):
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
     def check_config_mode(
-        self, check_string: str = "(config) #", *args: Any, **kwargs: Any
+        self, check_string: str = "(config) #", pattern: str = ""
     ) -> bool:
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
-        self,
-        config_command: str = "conf t",
-        pattern: str = "",
-        *args: Any,
-        **kwargs: Any
+        self, config_command: str = "conf t", pattern: str = "", re_flags: int = 0
     ) -> str:
         output = ""
         if not self.check_config_mode():
