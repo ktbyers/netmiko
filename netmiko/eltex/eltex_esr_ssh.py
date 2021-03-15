@@ -21,12 +21,13 @@ class EltexEsrSSH(CiscoSSHConnection):
     def config_mode(
         self,
         config_command: str = "configure",
-        pattern: str = r")#",
-        *args: Any,
-        **kwargs: Any
+        pattern: str = r"\)\#",
+        re_flags: int = 0,
     ) -> str:
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command, pattern=pattern)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def check_config_mode(
         self, check_string: str = "(config", pattern: str = ""
@@ -58,6 +59,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         output = self.send_command(
             command_string=command_string, delay_factor=delay_factor
         )
+        assert isinstance(output, str)
 
         if error_marker in output:
             raise ValueError(
@@ -81,6 +83,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         output = self.send_command(
             command_string=command_string, delay_factor=delay_factor
         )
+        assert isinstance(output, str)
 
         if error_marker in output:
             raise ValueError(
@@ -105,6 +108,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         output = self.send_command(
             command_string=command_string, delay_factor=delay_factor
         )
+        assert isinstance(output, str)
 
         if error_marker in output:
             raise ValueError(
