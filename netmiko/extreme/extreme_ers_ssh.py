@@ -26,8 +26,10 @@ class ExtremeErsSSH(CiscoSSHConnection):
                 if "Ctrl-Y" in output:
                     self.write_channel(CTRL_Y)
                 if "sername" in output:
+                    assert isinstance(self.username, str)
                     self.write_channel(self.username + self.RETURN)
                 elif "ssword" in output:
+                    assert isinstance(self.password, str)
                     self.write_channel(self.password + self.RETURN)
                     break
                 time.sleep(0.5 * delay_factor)
