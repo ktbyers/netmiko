@@ -17,6 +17,11 @@ class CiscoAsaSSH(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
 
+        # Make sure the ASA is ready
+        command = "show curpriv\n"
+        self.write_channel(command)
+        self.read_until_pattern(pattern=re.escape(command.strip()))
+
         # The 'enable' call requires the base_prompt to be set.
         self.set_base_prompt()
         if self.secret:
