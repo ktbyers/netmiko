@@ -1,5 +1,5 @@
+import re
 from typing import Any
-
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -8,25 +8,32 @@ class CoriantSSH(CiscoSSHConnection):
         self._test_channel_read()
         self.set_base_prompt()
 
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        raise AttributeError("Coriant devices do not support enable mode!")
+    def check_enable_mode(self, check_string: str = "") -> bool:
+        """Platform does not have an enable mode."""
+        return True
 
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        raise AttributeError("Coriant devices do not support enable mode!")
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        raise AttributeError("Coriant devices do not support enable mode!")
-
-    def check_config_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """Coriant devices do not have a config mode."""
-        return False
-
-    def config_mode(self, *args: Any, **kwargs: Any) -> str:
-        """Coriant devices do not have a config mode."""
+    def enable(
+        self, cmd: str = "", pattern: str = "ssword", re_flags: int = re.IGNORECASE
+    ) -> str:
+        """Platform does not have an enable mode."""
         return ""
 
-    def exit_config_mode(self, *args: Any, **kwargs: Any) -> str:
-        """Coriant devices do not have a config mode."""
+    def exit_enable_mode(self, exit_command: str = "") -> str:
+        """Platform does not have an enable mode."""
+        return ""
+
+    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
+        """Platform does not have a configuration mode."""
+        return True
+
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        """Platform does not have a configuration mode."""
+        return ""
+
+    def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
+        """Devices do not have a config mode."""
         return ""
 
     def set_base_prompt(
