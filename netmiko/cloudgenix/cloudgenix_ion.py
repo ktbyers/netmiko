@@ -6,6 +6,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class CloudGenixIonSSH(CiscoSSHConnection):
     def establish_connection(self) -> None:
+        # FIX: this is broken (the passing of width/height like this)
         self.channel.establish_connection(width=100, height=1000)
 
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
@@ -24,21 +25,23 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         prompt = self.strip_backspaces(prompt).strip()
         return prompt
 
-    def strip_command(self, command_string: Any, output: Any) -> str:
+    def strip_command(self, command_string: str, output: str) -> str:
         output = super().strip_command(command_string, output)
         # command_string gets repainted potentially multiple times (grab everything after last one)
         output = output.split(command_string)[-1]
         return output
 
-    def check_config_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """Devices do not have a config mode."""
-        return False
+    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
+        """Platform does not have a configuration mode."""
+        return True
 
-    def config_mode(self, *args: Any, **kwargs: Any) -> str:
-        """Devices do not have a config mode."""
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        """Platform does not have a configuration mode."""
         return ""
 
-    def exit_config_mode(self, *args: Any, **kwargs: Any) -> str:
+    def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
         """Devices do not have a config mode."""
         return ""
 
