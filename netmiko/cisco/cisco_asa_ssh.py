@@ -14,23 +14,16 @@ class CiscoAsaSSH(CiscoSSHConnection):
         kwargs.setdefault("allow_auto_change", True)
         return super().__init__(*args, **kwargs)
 
-    def check_config_mode(self, check_string=")#", pattern=r"[>\#]"):
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
-
-    def enable(
-        self,
-        cmd="enable",
-        pattern="ssword",
-        enable_pattern=r"\#",
-        re_flags=re.IGNORECASE,
-    ):
-        return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
-        )
-
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
 
+        # Make sure the ASA is ready
+        command = "show curpriv\n"
+        self.write_channel(command)
+        self.read_until_pattern(pattern=re.escape(command.strip()))
+
+        # The 'enable' call requires the base_prompt to be set.
+        self.set_base_prompt()
         if self.secret:
             self.enable()
         else:
@@ -48,6 +41,20 @@ class CiscoAsaSSH(CiscoSSHConnection):
             self.global_cmd_verify = False
 
         self.set_base_prompt()
+
+    def check_config_mode(self, check_string=")#", pattern=r"[>\#]"):
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def enable(
+        self,
+        cmd="enable",
+        pattern="ssword",
+        enable_pattern=r"\#",
+        re_flags=re.IGNORECASE,
+    ):
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        )
 
     def send_command_timing(self, *args, **kwargs):
         """
