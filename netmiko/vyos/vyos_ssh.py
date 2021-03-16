@@ -1,10 +1,12 @@
 from typing import Any, Union, Iterable
 import time
 import io
+
+from netmiko.base_connection import NoEnableMixin
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class VyOSSSH(CiscoSSHConnection):
+class VyOSSSH(NoEnableMixin, CiscoSSHConnection):
     """Implement methods for interacting with VyOS network devices."""
 
     def session_preparation(self) -> None:
@@ -16,18 +18,6 @@ class VyOSSSH(CiscoSSHConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """No enable mode on VyOS."""
-        return True
-
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on VyOS."""
-        return ""
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on VyOS."""
-        return ""
 
     def check_config_mode(self, check_string: str = "#", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode"""

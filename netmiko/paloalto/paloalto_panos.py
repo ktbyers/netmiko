@@ -1,10 +1,10 @@
 from typing import Any, Optional
 import time
 import re
-from netmiko.base_connection import BaseConnection
+from netmiko.base_connection import BaseConnection, NoEnableMixin
 
 
-class PaloAltoPanosBase(BaseConnection):
+class PaloAltoPanosBase(NoEnableMixin, BaseConnection):
     """
     Implement methods for interacting with PaloAlto devices.
 
@@ -25,18 +25,6 @@ class PaloAltoPanosBase(BaseConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """No enable mode on PaloAlto."""
-        return True
-
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on PaloAlto."""
-        return ""
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on PaloAlto."""
-        return ""
 
     def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""

@@ -1,9 +1,11 @@
 from typing import Any
 import time
+
+from netmiko.base_connection import NoEnableMixin
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
-class SixwindOSBase(CiscoBaseConnection):
+class SixwindOSBase(NoEnableMixin, CiscoBaseConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -90,21 +92,6 @@ class SixwindOSBase(CiscoBaseConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
-
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """6WIND has no enable mode."""
-
-        return True
-
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """6WIND has no enable mode."""
-
-        return ""
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """6WIND has no enable mode."""
-
-        return ""
 
 
 class SixwindOSSSH(SixwindOSBase):

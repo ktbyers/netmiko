@@ -2,11 +2,11 @@ from typing import Any, Optional, Union, Iterable
 import re
 import time
 
-from netmiko.base_connection import BaseConnection
+from netmiko.base_connection import BaseConnection, NoEnableMixin
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class JuniperBase(BaseConnection):
+class JuniperBase(NoEnableMixin, BaseConnection):
     """
     Implement methods for interacting with Juniper Networks devices.
 
@@ -64,18 +64,6 @@ class JuniperBase(BaseConnection):
             elif ">" in cur_prompt or "#" in cur_prompt:
                 break
             count += 1
-
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """No enable mode on Juniper."""
-        return True
-
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on Juniper."""
-        return ""
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on Juniper."""
-        return ""
 
     def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""

@@ -1,10 +1,10 @@
 import time
 import re
 
-from netmiko.base_connection import BaseConnection
+from netmiko.base_connection import BaseConnection, NoEnableMixin
 
 
-class DellIsilonSSH(BaseConnection):
+class DellIsilonSSH(NoEnableMixin, BaseConnection):
     def set_base_prompt(
         self, pri_prompt_terminator="$", alt_prompt_terminator="#", delay_factor=1
     ):
@@ -49,18 +49,6 @@ class DellIsilonSSH(BaseConnection):
         """Isilon doesn't have paging by default."""
         pass
 
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on Isilon."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on Isilon."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Isilon."""
-        pass
-
     def check_config_mode(self, check_string="#"):
         return super().check_config_mode(check_string=check_string)
 
@@ -82,5 +70,5 @@ class DellIsilonSSH(BaseConnection):
         return output
 
     def exit_config_mode(self, exit_config="exit"):
-        """Exit enable mode."""
+        """Exit config mode."""
         return super().exit_config_mode(exit_config=exit_config)

@@ -2,11 +2,11 @@
 import time
 import re
 import os
-from netmiko.base_connection import BaseConnection
+from netmiko.base_connection import BaseConnection, NoConfigMixin, NoEnableMixin
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class CienaSaosBase(BaseConnection):
+class CienaSaosBase(NoEnableMixin, NoConfigMixin, BaseConnection):
     """
     Ciena SAOS support.
 
@@ -35,30 +35,6 @@ class CienaSaosBase(BaseConnection):
     def _return_cli(self):
         """Return to the Ciena SAOS CLI."""
         return self.send_command("exit", expect_string=r"[>]")
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on Ciena SAOS."""
-        return True
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on Ciena SAOS."""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Ciena SAOS."""
-        return ""
-
-    def check_config_mode(self, check_string=">", pattern=""):
-        """No config mode on Ciena SAOS."""
-        return False
-
-    def config_mode(self, config_command=""):
-        """No config mode on Ciena SAOS."""
-        return ""
-
-    def exit_config_mode(self, exit_config=""):
-        """No config mode on Ciena SAOS."""
-        return ""
 
     def save_config(self, cmd="configuration save", confirm=False, confirm_response=""):
         """Saves Config."""

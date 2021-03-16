@@ -1,17 +1,17 @@
 from typing import Any
+
+from netmiko.base_connection import NoEnableMixin, NoConfigMixin
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class MikrotikBase(CiscoSSHConnection):
+class MikrotikBase(NoEnableMixin, NoConfigMixin, CiscoSSHConnection):
     """Common Methods for Mikrotik RouterOS and SwitchOS"""
 
     def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r\n"
 
-        self._in_config_mode = False
-
-        return super().__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -35,35 +35,9 @@ class MikrotikBase(CiscoSSHConnection):
         """Microtik does not have paging by default."""
         return ""
 
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """No enable mode on RouterOS"""
-        return True
-
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on RouterOS."""
-        return ""
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on RouterOS."""
-        return ""
-
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """No save command, all configuration is atomic"""
         pass
-
-    def config_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No configuration mode on Microtik"""
-        self._in_config_mode = True
-        return ""
-
-    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
-        """Checks whether in configuration mode. Returns a boolean."""
-        return self._in_config_mode
-
-    def exit_config_mode(self, exit_config: str = ">", pattern: str = "") -> str:
-        """No configuration mode on Microtik"""
-        self._in_config_mode = False
-        return ""
 
     def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output.

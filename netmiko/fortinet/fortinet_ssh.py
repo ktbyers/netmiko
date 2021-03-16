@@ -1,10 +1,12 @@
 import paramiko
 import time
 import re
+
+from netmiko.base_connection import NoConfigMixin
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class FortinetSSH(CiscoSSHConnection):
+class FortinetSSH(NoConfigMixin, CiscoSSHConnection):
     # FIX: Probably should move to channel.py
     def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
@@ -103,16 +105,6 @@ class FortinetSSH(CiscoSSHConnection):
             for command in enable_paging_commands:
                 self.send_command_timing(command)
         return super().cleanup(command=command)
-
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """No config mode for Fortinet devices."""
-        return ""
-
-    def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
-        """No config mode for Fortinet devices."""
-        return ""
 
     def save_config(self, *args, **kwargs) -> str:
         """Not Implemented"""

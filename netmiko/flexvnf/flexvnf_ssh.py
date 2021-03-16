@@ -2,10 +2,10 @@ import re
 import time
 from typing import Optional
 
-from netmiko.base_connection import BaseConnection
+from netmiko.base_connection import BaseConnection, NoEnableMixin
 
 
-class FlexvnfSSH(BaseConnection):
+class FlexvnfSSH(NoEnableMixin, BaseConnection):
     def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
@@ -41,18 +41,6 @@ class FlexvnfSSH(BaseConnection):
             elif ">" in cur_prompt or "%" in cur_prompt:
                 break
             count += 1
-
-    def check_enable_mode(self, *args, **kwargs) -> bool:
-        """No enable mode on flexvnf."""
-        return False
-
-    def enable(self, *args, **kwargs) -> str:
-        """No enable mode on flexvnf."""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs) -> str:
-        """No enable mode on flexvnf."""
-        return ""
 
     def check_config_mode(self, check_string: str = "]", *args, **kwargs) -> bool:
         """Checks if the device is in configuration mode or not."""

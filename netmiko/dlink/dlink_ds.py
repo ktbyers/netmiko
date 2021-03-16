@@ -1,9 +1,11 @@
 import time
 from typing import Any, Optional
+
+from netmiko.base_connection import NoConfigMixin, NoEnableMixin
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class DlinkDSBase(CiscoSSHConnection):
+class DlinkDSBase(NoEnableMixin, NoConfigMixin, CiscoSSHConnection):
     """Supports D-Link DGS/DES device series (there are some DGS/DES devices that are web-only)"""
 
     def session_preparation(self) -> None:
@@ -29,30 +31,6 @@ class DlinkDSBase(CiscoSSHConnection):
             cmd_verify=cmd_verify,
             pattern=pattern,
         )
-
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """No implemented enable mode on D-Link yet"""
-        return ""
-
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """No implemented enable mode on D-Link yet"""
-        return True
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No implemented enable mode on D-Link yet"""
-        return ""
-
-    def check_config_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """No config mode on D-Link"""
-        return True
-
-    def config_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No config mode on D-Link"""
-        return ""
-
-    def exit_config_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No config mode on D-Link"""
-        return ""
 
     def save_config(
         self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""

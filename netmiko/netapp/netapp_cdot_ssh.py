@@ -1,8 +1,8 @@
 from typing import Any
-from netmiko.base_connection import BaseConnection
+from netmiko.base_connection import BaseConnection, NoEnableMixin
 
 
-class NetAppcDotSSH(BaseConnection):
+class NetAppcDotSSH(NoEnableMixin, BaseConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.set_base_prompt()
@@ -37,15 +37,3 @@ class NetAppcDotSSH(BaseConnection):
         pattern: str = "",
     ) -> str:
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
-
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on NetApp."""
-        return ""
-
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """No enable mode on NetApp."""
-        return True
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on NetApp."""
-        return ""

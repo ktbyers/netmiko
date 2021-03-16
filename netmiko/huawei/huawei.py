@@ -2,6 +2,8 @@ from typing import Any
 from typing import TYPE_CHECKING
 import time
 import re
+
+from netmiko.base_connection import NoEnableMixin
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko import log
@@ -10,7 +12,7 @@ if TYPE_CHECKING:
     from telnetlib import Telnet
 
 
-class HuaweiBase(CiscoBaseConnection):
+class HuaweiBase(NoEnableMixin, CiscoBaseConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -51,18 +53,6 @@ class HuaweiBase(CiscoBaseConnection):
     def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
-
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """Huawei has no enable mode."""
-        return True
-
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """Huawei has no enable mode."""
-        return ""
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """Huawei has no enable mode."""
-        return ""
 
     def set_base_prompt(
         self,
