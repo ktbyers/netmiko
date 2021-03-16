@@ -257,6 +257,9 @@ class BaseFileTransfer(object):
             line = match.group(0)
             # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
             file_size = line.split()[2]
+        else:
+            raise IOError("Unable to parse 'dir' output in remote_file_size method")
+
         if "Error opening" in remote_out or "No such file or directory" in remote_out:
             raise IOError("Unable to find file on remote system")
         else:
