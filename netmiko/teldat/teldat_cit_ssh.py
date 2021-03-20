@@ -21,12 +21,7 @@ class TeldatSSH(BaseConnection):
         self, pri_prompt_terminator="*", alt_prompt_terminator="*", delay_factor=1
     ):
         """
-        Used as delimiter for stripping of trailing prompt in output.
-
-        Should be set to something that is general and applies in multiple
-        contexts. For Teldat this will be the router prompt with * stripped off.
-
-        This will be set on logging in, but not when entering other views
+        Teldat base prompt is "hostname *"
         """
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
@@ -51,14 +46,6 @@ class TeldatSSH(BaseConnection):
     def exit_enable_mode(self, *args, **kwargs):
         raise AttributeError("Teldat does not have enable mode")
 
-    # def monitor_mode(self, monitor_command="p 3"):
-    #     """Enter monitor mode"""
-    #     # if self.check_base_mode():
-    #     #    return super().config_mode(config_command=monitor_command)
-    #     # else:
-    #     #    raise ValueError("Not in base mode, will not enter monitor mode.")
-    #     return super().config_mode(config_command=monitor_command, pattern="+")
-
     def check_monitor_mode(self, check_string="+", pattern=None):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
@@ -71,18 +58,9 @@ class TeldatSSH(BaseConnection):
     def monitor_mode(self, monitor_command="p 3", pattern=r"\+", re_flags=0):
         """Enter into monitor_mode.
         On Teldat devices always go to base mode and enter desired mode
-        Cannot use super.config_mode() because config mode check is staticly called in BaseConnection
-
-        :param monitor_command: Configuration command to send to the device
-        :type monitor_command: str
-
-        :param pattern: Pattern to terminate reading of channel
-        :type pattern: str
-
-        :param re_flags: Regular expression flags
-        :type re_flags: RegexFlag
+        Cannot use super.config_mode() because config mode check is statically called in BaseConnection
         """
-        self.base_mode()
+        self.base_mode()  # Teldat devices do not allow inter mode switching, always go to base mode first
 
         output = ""
         self.write_channel(self.normalize_cmd(monitor_command))
@@ -94,12 +72,12 @@ class TeldatSSH(BaseConnection):
         if not re.search(pattern, output, flags=re_flags):
             output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
         if not self.check_monitor_mode():
-            raise ValueError(f"Failed to enter {monitor_command} mode.")
+            raise ValueError(f"Failed to enter monitor mode.")
         return output
 
     def config_mode(self, config_command="p 4", pattern="onfig>", re_flags=0):
-        # TODO: consider using monitor_mode instead
-        self.base_mode()  # Teldat devices do not allow mode switching, always go to base mode first
+        # TODO: consider reusing monitor_mode
+        self.base_mode()
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
@@ -125,13 +103,9 @@ class TeldatSSH(BaseConnection):
         self,
         config_commands=None,
         exit_config_mode=False,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=False,
-        strip_command=False,
         config_mode_command=None,
-        cmd_verify=True,
         enter_config_mode=False,
+        **kwargs,
     ):
         """
         For Teldat devices until further testing do not enter config mode or exit
@@ -139,19 +113,15 @@ class TeldatSSH(BaseConnection):
         return super().send_config_set(
             config_commands=config_commands,
             exit_config_mode=exit_config_mode,
-            delay_factor=delay_factor,
-            max_loops=max_loops,
-            strip_prompt=strip_prompt,
-            strip_command=strip_command,
             config_mode_command=config_mode_command,
-            cmd_verify=cmd_verify,
             enter_config_mode=enter_config_mode,
+            **kwargs,
         )
 
     def exit_config_mode(self):
         return self.base_mode()
 
-    def base_mode(self, exit_cmd="\x10", pattern="\*"):
+    def base_mode(self, exit_cmd="\x10", pattern=r"\*"):
         """
         Exit from other modes (monitor, config, running config).
         Send CTRL+P to the device
