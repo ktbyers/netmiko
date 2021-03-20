@@ -86,7 +86,7 @@ from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
-from netmiko.teldat import TeldatSSH
+from netmiko.teldat import TeldatSSH, TeldatTelnet
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
@@ -203,7 +203,7 @@ CLASS_MAPPER_BASE = {
     "ruijie_os": RuijieOSSSH,
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
-    "teldat_cit": TeldatSSH,
+    "teldat": TeldatSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
@@ -277,6 +277,7 @@ CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
+CLASS_MAPPER["teldat_telnet"] = TeldatTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
