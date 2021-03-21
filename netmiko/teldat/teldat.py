@@ -56,9 +56,10 @@ class TeldatBase(BaseConnection):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def monitor_mode(self, monitor_command="p 3", pattern=r"\+", re_flags=0):
-        """Enter into monitor_mode.
-        On Teldat devices always go to base mode and enter desired mode
-        Cannot use super.config_mode() because config mode check is statically called in BaseConnection
+        """
+        Enter into monitor_mode.
+        On Teldat devices always go to base mode before entering other modes
+        Cannot reuse super.config_mode() because config mode check is called only with defaults in BaseConnection
         """
         self.base_mode()  # Teldat devices do not allow inter mode switching, always go to base mode first
 
@@ -102,9 +103,9 @@ class TeldatBase(BaseConnection):
     def send_config_set(
         self,
         config_commands=None,
-        exit_config_mode=False,
-        config_mode_command=None,
         enter_config_mode=False,
+        config_mode_command=None,
+        exit_config_mode=False,
         **kwargs,
     ):
         """
