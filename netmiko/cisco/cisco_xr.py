@@ -171,10 +171,10 @@ class CiscoXr(CiscoBaseConnection):
             command_string = 'commit comment {0}'.format(comment)
         else:
             command_string = 'commit'
-        if best_effort:
-            command_string = command_string.replace("commit","commit best-effort")
         if force:
             command_string = command_string.replace("commit","commit force")
+        if best_effort:
+            command_string = command_string.replace("commit","commit best-effort")
         if replace:
             command_string = command_string.replace("commit","commit replace")
         print("command string is ",command_string)
