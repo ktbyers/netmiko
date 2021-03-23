@@ -119,6 +119,15 @@ class TeldatBase(BaseConnection):
             **kwargs,
         )
 
+    def save_config(self, cmd="save yes", confirm=False, confirm_response=""):
+        if not self.check_config_mode() or not self.check_running_config_mode():
+            raise ValueError("Cannot save if not in config or running config mode")
+        # Some devices are slow so match on trailing-prompt if you can
+        output = self.send_command(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+        return output
+
     def exit_config_mode(self):
         return self.base_mode()
 
@@ -140,4 +149,20 @@ class TeldatSSH(TeldatBase):
 
 
 class TeldatTelnet(TeldatBase):
-    pass
+    def telnet_login(
+        self,
+        pri_prompt_terminator=r"\*",
+        alt_prompt_terminator=r"\*",
+        username_pattern=r"Username:",
+        pwd_pattern=r"Password:",
+        delay_factor=1,
+        max_loops=60,
+    ):
+        super().telnet_login(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            username_pattern=username_pattern,
+            pwd_pattern=pwd_pattern,
+            delay_factor=delay_factor,
+            max_loops=max_loops,
+        )
