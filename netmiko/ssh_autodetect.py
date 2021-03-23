@@ -208,7 +208,7 @@ SSH_MAPPER_BASE = {
     },
     "fortinet": {
         "cmd": "get system status",
-        "search_patterns": [r"FortiOS"],
+        "search_patterns": [r"FortiOS", r"FortiGate"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
