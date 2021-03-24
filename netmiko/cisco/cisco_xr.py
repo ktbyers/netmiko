@@ -171,10 +171,10 @@ class CiscoXr(CiscoBaseConnection):
             command_string = 'commit comment {0}'.format(comment)
         else:
             command_string = 'commit'
-        if best_effort:
-            command_string = command_string.replace("commit","commit best-effort")
         if force:
             command_string = command_string.replace("commit","commit force")
+        if best_effort:
+            command_string = command_string.replace("commit","commit best-effort")
         if replace:
             command_string = command_string.replace("commit","commit replace")
         print("command string is ",command_string)
@@ -186,8 +186,10 @@ class CiscoXr(CiscoBaseConnection):
                                                delay_factor=delay_factor)
             commit_replace_marker = "This commit will replace or remove the entire running configuration"
             if commit_replace_marker in output:
-                output += self.send_command_timing("yes", strip_prompt=False, strip_command=False,
-                                                   delay_factor=delay_factor)
+                if 'expect_string' in kwargs:
+                    kwargs['expect_string'] = r'\)#'
+                output += self.send_command_expect("yes", strip_prompt=False, strip_command=False,
+                                                   delay_factor=delay_factor, **kwargs)
                 return output
                                    
         else: 
