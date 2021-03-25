@@ -19,11 +19,15 @@ class DlinkDSBase(CiscoSSHConnection):
     def disable_paging(self, command="disable clipaging", delay_factor=1):
         return super().disable_paging(command=command, delay_factor=delay_factor)
 
-    def enable(self, cmd="enable admin", pattern="ord:", enable_pattern='Success', **kwargs):
+    def enable(
+        self, cmd="enable admin", pattern="ord:", enable_pattern="Success", **kwargs
+    ):
         """Enter enable mode."""
         if not self.check_enable_mode():
-            return super().enable(cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, **kwargs)
-        return ''
+            return super().enable(
+                cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, **kwargs
+            )
+        return ""
 
     def check_enable_mode(self, *args, **kwargs):
         """Check whether device is in enable mode. Return a boolean."""
@@ -70,5 +74,7 @@ class DlinkDSTelnet(DlinkDSBase):
         super().__init__(*args, **kwargs)
 
     def telnet_login(self, *args, **kwargs):
-        self.remote_conn.set_option_negotiation_callback(lambda *_: None)  # fix telnet bag to DES-3526, DES-3026
+        self.remote_conn.set_option_negotiation_callback(
+            lambda *_: None
+        )  # fix telnet bag to DES-3526, DES-3026
         super().telnet_login(*args, **kwargs)
