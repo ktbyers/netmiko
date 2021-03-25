@@ -49,10 +49,10 @@ class TeldatBase(BaseConnection):
     def check_monitor_mode(self, check_string="+", pattern=None):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def check_config_mode(self, check_string="onfig>", pattern=None):
+    def check_config_mode(self, check_string=">", pattern=None):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def check_running_config_mode(self, check_string="onfig$", pattern=None):
+    def check_running_config_mode(self, check_string="$", pattern=None):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def monitor_mode(self, monitor_command="p 3", pattern=r"\+", re_flags=0):
@@ -153,8 +153,8 @@ class TeldatTelnet(TeldatBase):
         self,
         pri_prompt_terminator=r"\*",
         alt_prompt_terminator=r"\*",
-        username_pattern=r"Username:",
-        pwd_pattern=r"Password:",
+        username_pattern="Username:",
+        pwd_pattern="Password:",
         delay_factor=1,
         max_loops=60,
     ):
