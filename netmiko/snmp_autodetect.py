@@ -107,6 +107,11 @@ SNMP_MAPPER_BASE = {
         "expr": re.compile(r".*TiMOS.*"),
         "priority": 99,
     },
+    "dlink_ds": {
+        "oid": ".1.3.6.1.2.1.1.2.0",
+        "expr": re.compile(r".*3\.6\.1\.4\.1\.171\..*"),
+        "priority": 99,
+    },
 }
 
 # Ensure all SNMP device types are supported by Netmiko
