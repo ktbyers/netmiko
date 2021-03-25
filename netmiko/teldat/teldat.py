@@ -103,13 +103,13 @@ class TeldatBase(BaseConnection):
     def send_config_set(
         self,
         config_commands=None,
-        enter_config_mode=False,
+        enter_config_mode=True,
         config_mode_command=None,
         exit_config_mode=False,
         **kwargs,
     ):
         """
-        For Teldat devices until further testing do not enter config mode or exit
+        For Teldat devices allways enter config mode
         """
         return super().send_config_set(
             config_commands=config_commands,
