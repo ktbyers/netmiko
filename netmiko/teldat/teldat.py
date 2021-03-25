@@ -59,9 +59,10 @@ class TeldatBase(BaseConnection):
         """
         Enter into monitor_mode.
         On Teldat devices always go to base mode before entering other modes
-        Cannot reuse super.config_mode() because config mode check is called only with defaults in BaseConnection
+        Cannot reuse super.config_mode() because config mode check is called only with
+        defaults in BaseConnection
         """
-        self.base_mode()  # Teldat devices do not allow inter mode switching, always go to base mode first
+        self.base_mode()  # Teldat does not allow mode switching, go to base mode first
 
         output = ""
         self.write_channel(self.normalize_cmd(monitor_command))
@@ -73,7 +74,7 @@ class TeldatBase(BaseConnection):
         if not re.search(pattern, output, flags=re_flags):
             output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
         if not self.check_monitor_mode():
-            raise ValueError(f"Failed to enter monitor mode.")
+            raise ValueError("Failed to enter monitor mode.")
         return output
 
     def config_mode(self, config_command="p 4", pattern="onfig>", re_flags=0):
@@ -97,7 +98,7 @@ class TeldatBase(BaseConnection):
         if not re.search(pattern, output, flags=re_flags):
             output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
         if not self.check_running_config_mode():
-            raise ValueError(f"Failed to enter running config mode.")
+            raise ValueError("Failed to enter running config mode.")
         return output
 
     def send_config_set(
