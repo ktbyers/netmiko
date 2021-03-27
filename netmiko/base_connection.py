@@ -2042,6 +2042,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         read_timeout=30,
         timeout=120,
         inter_loop_sleep=0.1,
+        initial_sleep=0.1,
         strip_prompt=True,
         strip_command=True,
         normalize=True,
@@ -2066,8 +2067,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
             set to -1 will wait indefinitely
         :type timeout: int
 
-        :param inter_loop_sleep: Interval in seconds to sleep between loops, default 0.1s
+        :param inter_loop_sleep: Interval in seconds to sleep between reading loops, default 0.1s
         :type inter_loop_sleep: int
+
+        :param initial_sleep: time to sleep after sending command, defailt 0.1s
+        :type initial_sleep: int
 
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
         :type strip_prompt: bool
@@ -2106,6 +2110,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.clear_buffer()
         self.write_channel(command_string)
 
+        # initial sleep
+        time.sleep(initial_sleep)
+
         # Main loop to get output from device
         while True:
             if read_timeout != -1 and no_data_elapsed > read_timeout:
@@ -2140,6 +2147,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
             # junos returns \x07 instead of space, replace it with spaces
             if "\x07" in new_last_line:
                 new_last_line = new_last_line.replace("\x07", " ")
+            # on IOS XR, sometimes '^@' symbols appear in output, probably due to
+            # line overflow, leading to false positive detection of end of output
+            if new_last_line.strip() == "^@":
+                log.debug("netmiko:send_command_ps: detected line overflow character '^@', continue")
+                continue
 
             # Detect end of output by sending two space chars and checking if received it back in next cycle
             is_end = "{}  ".format(previous_last_line) == new_last_line
