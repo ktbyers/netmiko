@@ -39,4 +39,15 @@ jobs:
           py.test -v -s tests/unit/test_base_connection.py
           py.test -v -s tests/unit/test_utilities.py
           py.test -v -s tests/unit/test_ssh_autodetect.py
+  integration-test:
+    name: integration test
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download released earthly
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.5.7/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+      - name: netmiko integration test
+        run: earthly -P --ci +integration-test
 
