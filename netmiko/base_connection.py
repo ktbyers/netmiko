@@ -1947,7 +1947,8 @@ class TelnetConnection(BaseConnection):
 
 
 class NoConfigMixin:
-    """Mixin class for devices with no 'config' mode (because they allow config changes by default)"""
+    """Mixin class for devices with no 'config' mode
+    (because they allow config changes by default)"""
 
     def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
         return True
@@ -1962,7 +1963,8 @@ class NoConfigMixin:
 
 
 class NoEnableMixin:
-    """Mixin class for devices with no 'enable' mode (because they allow privileged access by default)"""
+    """Mixin class for devices with no 'enable' mode
+    (because they allow privileged access by default)"""
 
     def check_enable_mode(self, check_string: str = "") -> bool:
         return True
@@ -1978,8 +1980,8 @@ class NoEnableMixin:
 
 class NoChangesMixin:
     """Mixin class for devices that cannot apply any config changes via CLI.
-    Indicates `False` for enable and config mode checks, and raises NotImplementedError if you attempt to enter those
-    modes."""
+    Indicates `False` for enable and config mode checks, and raises NotImplementedError
+    if you attempt to enter those modes."""
 
     def check_enable_mode(self, check_string: str = "") -> bool:
         return False
