@@ -1,0 +1,24 @@
+<input name="ntp_and_aaa" load="yaml">
+commands:
+  - show run | inc ntp
+  - show run | inc aaa
+</input>
+    
+<input name="interfaces_cfg">
+commands = [
+    "show run | sec interface"
+]
+</input>
+
+<group name="misc" input="ntp_and_aaa">
+ntp server {{ ntp_servers | joinmatches(",") }}
+aaa authentication login {{ authen | PHRASE }}
+aaa authorization exec {{ author_exec | PHRASE }}
+</group>
+
+<group name="interfaces" input="interfaces_cfg">
+interface {{ interface }}
+ description {{ description | re(".+") }}
+ encapsulation dot1Q {{ dot1q }}
+ ip address {{ ip }} {{ mask }}
+</group>

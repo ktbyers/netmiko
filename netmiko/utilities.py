@@ -8,6 +8,7 @@ import functools
 from datetime import datetime
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
+from netmiko import log
 
 try:
     from ttp import ttp
@@ -371,6 +372,71 @@ def get_structured_data_ttp(raw_output, template=None):
             return ttp_parser.result(format="raw")
     except Exception:
         return raw_output
+
+
+def run_ttp_template(connection, template, res_kwargs, **kwargs):
+    """
+    Helper function to run TTP template parsing.
+
+    :param connection: Netmiko connection object
+    :type connection: obj
+
+    :param template: TTP template
+    :type template: str
+
+    :param res_kwargs: ``**res_kwargs`` arguments for TTP result method
+    :type res_kwargs: dict
+
+    :param kwargs: ``**kwargs`` for TTP object instantiation
+    :type kwargs: dict
+    """
+    if not TTP_INSTALLED:
+        msg = "\nTTP is not installed. Please PIP install ttp:\n" "pip install ttp\n"
+        raise ValueError(msg)
+
+    parser = ttp(template=template, **kwargs)
+
+    # get inputs load for TTP template
+    ttp_inputs_load = parser.get_input_load()
+    log.debug("run_ttp_template: inputs load - {}".format(ttp_inputs_load))
+
+    # go over template's inputs and collect output from devices
+    for template_name, inputs in ttp_inputs_load.items():
+        for input_name, input_params in inputs.items():
+            method = input_params.get("method", "send_command")
+            method_kwargs = input_params.get("kwargs", {})
+            commands = input_params.get("commands", None)
+
+            # run sanity checks
+            if not method in dir(connection):
+                log.warning(
+                    "run_ttp_template: '{}' input referencing unsupported Netmiko connection method '{}', skipping".format(
+                        input_name, method
+                    )
+                )
+            elif not commands:
+                log.warning(
+                    "run_ttp_template: '{}' input no commands to collect, skipping".format(
+                        input_name
+                    )
+                )
+
+            # collect commands output from device
+            output = [
+                getattr(connection, method)(command_string=command, **method_kwargs)
+                for command in commands
+            ]
+            output = "\n".join(output)
+
+            # add collected output to TTP parser object
+            parser.add_input(
+                data=output, input_name=input_name, template_name=template_name
+            )
+
+    # run parsing in single process
+    parser.parse(one=True)
+
+    return parser.result(**res_kwargs)
 
 
 def get_structured_data_genie(raw_output, platform, command):
