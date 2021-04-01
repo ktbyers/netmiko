@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(0, "..") # need it to run "python test_ttp_run_template.py"
+sys.path.insert(0, "..")  # need it to run "python test_ttp_run_template.py"
 import pprint
 import pytest
 
