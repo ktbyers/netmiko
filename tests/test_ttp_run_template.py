@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(0, "./netmiko/")
+sys.path.insert(0, "..") # need it to run "python test_ttp_run_template.py"
 import pprint
 import pytest
 
@@ -522,3 +522,40 @@ interface {{ interface }}
             ]
         }
     }
+
+
+@skip_if_no_ttp
+def test_run_ttp_template_with_errors():
+    """
+    Input ntp_and_aaa does not have command parameter.
+    Input interfaces_cfg has wrong method.
+    """
+    template = """
+<input name="ntp_and_aaa" load="yaml">
+commmmmands:
+  - show run | inc ntp
+  - show run | inc aaa
+</input>
+    
+<input name="interfaces_cfg">
+method = "does_not_exist"
+commands = [
+    "show run | sec interface"
+]
+</input>
+
+<group name="misc" input="ntp_and_aaa">
+ntp server {{ ntp_servers | joinmatches(",") }}
+aaa authentication login {{ authen | PHRASE }}
+aaa authorization exec {{ author_exec | PHRASE }}
+</group>
+
+<group name="interfaces" input="interfaces_cfg">
+interface {{ interface }}
+ description {{ description | re(".+") }}
+ encapsulation dot1Q {{ dot1q }}
+ ip address {{ ip }} {{ mask }}
+</group>
+    """
+    res = connection.run_ttp(template)
+    assert res == [[]]

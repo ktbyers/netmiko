@@ -414,12 +414,14 @@ def run_ttp_template(connection, template, res_kwargs, **kwargs):
                         input_name, method
                     )
                 )
+                continue
             elif not commands:
                 log.warning(
                     "run_ttp_template: '{}' input no commands to collect, skipping".format(
                         input_name
                     )
                 )
+                continue
 
             # collect commands output from device
             output = [
