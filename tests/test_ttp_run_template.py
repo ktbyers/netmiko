@@ -3,10 +3,10 @@ import pytest
 
 sys.path.insert(0, "..")  # need it to run "python test_ttp_run_template.py"
 
-from netmiko import ConnectHandler # noqa
+from netmiko import ConnectHandler  # noqa
 
 try:
-    from ttp import ttp # noqa
+    from ttp import ttp  # noqa
 
     TTP_INSTALLED = True
 
@@ -14,7 +14,7 @@ except ImportError:
     TTP_INSTALLED = False
 
 try:
-    from ttp_templates import get_template # noqa
+    from ttp_templates import get_template  # noqa
 
     TTP_TEMPLATES_INSTALLED = True
 
