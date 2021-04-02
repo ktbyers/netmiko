@@ -408,9 +408,9 @@ def run_ttp_template(connection, template, res_kwargs, **kwargs):
             commands = input_params.get("commands", None)
 
             # run sanity checks
-            if not method in dir(connection):
+            if method not in dir(connection):
                 log.warning(
-                    "run_ttp_template: '{}' input referencing unsupported Netmiko connection method '{}', skipping".format(
+                    "run_ttp_template: '{}' input, unsupported method '{}', skipping".format(
                         input_name, method
                     )
                 )

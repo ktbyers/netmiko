@@ -1,13 +1,12 @@
 import sys
-
-sys.path.insert(0, "..")  # need it to run "python test_ttp_run_template.py"
-import pprint
 import pytest
 
-from netmiko import ConnectHandler
+sys.path.insert(0, "..")  # need it to run "python test_ttp_run_template.py"
+
+from netmiko import ConnectHandler # noqa
 
 try:
-    from ttp import ttp
+    from ttp import ttp # noqa
 
     TTP_INSTALLED = True
 
@@ -15,7 +14,7 @@ except ImportError:
     TTP_INSTALLED = False
 
 try:
-    from ttp_templates import get_template
+    from ttp_templates import get_template # noqa
 
     TTP_TEMPLATES_INSTALLED = True
 
@@ -23,10 +22,10 @@ except ImportError:
     TTP_TEMPLATES_INSTALLED = False
 
 skip_if_no_ttp = pytest.mark.skipif(
-    TTP_INSTALLED == False, reason="Failed to import TTP module"
+    TTP_INSTALLED is False, reason="Failed to import TTP module"
 )
 skip_if_no_ttp_templates = pytest.mark.skipif(
-    TTP_TEMPLATES_INSTALLED == False, reason="Failed to import TTP templates module"
+    TTP_TEMPLATES_INSTALLED is False, reason="Failed to import TTP templates module"
 )
 
 lab = {
@@ -46,7 +45,7 @@ ntp server 8.8.8.8
 ntp server 7.7.7.8
 ntp server 1.1.1.2
 ntp server 3.3.3.3
-ntp server 7.7.7.7        
+ntp server 7.7.7.7
         """,
         "show run | inc aaa": """
 aaa new-model
@@ -111,7 +110,7 @@ commands:
   - show run | inc ntp
   - show run | inc aaa
 </input>
-    
+
 <input name="interfaces_cfg">
 commands = [
     "show run | sec interface"
@@ -201,7 +200,7 @@ commands:
   - show run | inc ntp
   - show run | inc aaa
 </input>
-    
+
 <input name="interfaces_cfg">
 commands = [
     "show run | sec interface"
@@ -536,7 +535,7 @@ commmmmands:
   - show run | inc ntp
   - show run | inc aaa
 </input>
-    
+
 <input name="interfaces_cfg">
 method = "does_not_exist"
 commands = [
