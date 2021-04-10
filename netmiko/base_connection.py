@@ -31,6 +31,7 @@ from netmiko.utilities import (
     get_structured_data,
     get_structured_data_genie,
     get_structured_data_ttp,
+    run_ttp_template,
     select_cmd_verify,
 )
 from netmiko.utilities import m_exec_time  # noqa
@@ -2039,6 +2040,41 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if self.session_log is not None and self._session_log_close:
             self.session_log.close()
             self.session_log = None
+
+    def run_ttp(self, template, res_kwargs={}, **kwargs):
+        """
+        Run TTP template parsing by using input parameters to collect
+        devices output.
+
+        :param template: template content, OS path to template or reference
+            to template within TTP templates collection in
+            ttp://path/to/template.txt format
+        :type template: str
+
+        :param res_kwargs: ``**res_kwargs`` arguments to pass to TTP result method
+        :type res_kwargs: dict
+
+        :param kwargs: any other ``**kwargs`` to use for TTP object instantiation
+        :type kwargs: dict
+
+        TTP template must have inputs defined together with below parameters.
+
+        :param method: name of Netmiko connection object method to call, default ``send_command``
+        :type method: str
+
+        :param kwargs: Netmiko connection object method arguments
+        :type kwargs: dict
+
+        :param commands: list of commands to collect
+        :type commands: list
+
+        Inputs' load could be of one of the supported formats and controlled by input's ``load``
+        attribute, supported values - python, yaml or json. For each input output collected
+        from device and parsed accordingly.
+        """
+        return run_ttp_template(
+            connection=self, template=template, res_kwargs=res_kwargs, **kwargs
+        )
 
 
 class TelnetConnection(BaseConnection):
