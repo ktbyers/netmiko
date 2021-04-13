@@ -1676,19 +1676,32 @@ Device settings: {self.device_type} {self.host}:{self.port}
             "Failed to enter enable mode. Please ensure you pass "
             "the 'secret' argument to ConnectHandler."
         )
+
+        # Check if in enable mode
         if not self.check_enable_mode():
+            # Send "enable" mode command
             self.write_channel(self.normalize_cmd(cmd))
             try:
-                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
-                if pattern not in output:
+                # Read the command echo
+                end_data = ""
+                if self.global_cmd_verify is not False:
+                    output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                    end_data = output.split(cmd.strip())[-1]
+
+                # Search for trailing prompt or password pattern
+                if pattern not in output and self.base_prompt not in end_data:
                     output += self.read_until_prompt_or_pattern(
                         pattern=pattern, re_flags=re_flags
                     )
-                self.write_channel(self.normalize_cmd(self.secret))
-                if enable_pattern:
+                # Send the "secret" in response to password pattern
+                if re.search(pattern, output):
+                    self.write_channel(self.normalize_cmd(self.secret))
+                    output += self.read_until_prompt()
+
+                # Search for terminating pattern if defined
+                if enable_pattern and not re.search(enable_pattern, output):
                     output += self.read_until_pattern(pattern=enable_pattern)
                 else:
-                    output += self.read_until_prompt()
                     if not self.check_enable_mode():
                         raise ValueError(msg)
             except NetmikoTimeoutException:
