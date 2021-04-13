@@ -1683,10 +1683,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
             self.write_channel(self.normalize_cmd(cmd))
             try:
                 # Read the command echo
+                end_data = ""
                 if self.global_cmd_verify is not False:
                     output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                    end_data = output.split(cmd.strip())[-1]
+
                 # Search for trailing prompt or password pattern
-                if pattern not in output:
+                if pattern not in output and self.base_prompt not in end_data:
                     output += self.read_until_prompt_or_pattern(
                         pattern=pattern, re_flags=re_flags
                     )
