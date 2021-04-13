@@ -3,14 +3,15 @@ from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.adtran import AdtranOSSSH, AdtranOSTelnet
 from netmiko.alcatel import AlcatelAosSSH
+from netmiko.allied_telesis import AlliedTelesisAwplusSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
-from netmiko.allied_telesis import AlliedTelesisAwplusSSH
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
+from netmiko.cdot import CdotCrosSSH
 from netmiko.centec import CentecOSSSH, CentecOSTelnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH, CienaSaosTelnet, CienaSaosFileTransfer
@@ -109,6 +110,7 @@ CLASS_MAPPER_BASE = {
     "adtran_os": AdtranOSSSH,
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
+    "allied_telesis_awplus": AlliedTelesisAwplusSSH,
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "aruba_os": ArubaSSH,
@@ -116,7 +118,6 @@ CLASS_MAPPER_BASE = {
     "aruba_procurve": HPProcurveSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
-    "allied_telesis_awplus": AlliedTelesisAwplusSSH,
     "broadcom_icos": BroadcomIcosSSH,
     "brocade_fos": BrocadeFOSSSH,
     "brocade_fastiron": RuckusFastironSSH,
@@ -126,6 +127,7 @@ CLASS_MAPPER_BASE = {
     "brocade_vyos": VyOSSSH,
     "checkpoint_gaia": CheckPointGaiaSSH,
     "calix_b6": CalixB6SSH,
+    "cdot_cros": CdotCrosSSH,
     "centec_os": CentecOSSSH,
     "ciena_saos": CienaSaosSSH,
     "cisco_asa": CiscoAsaSSH,
