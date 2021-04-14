@@ -172,7 +172,13 @@ SSH_MAPPER_BASE = {
     },
     "brocade_netiron": {
         "cmd": "show version",
-        "search_patterns": [r"NetIron"],
+        "search_patterns": [r"NetIron|MLX"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_netiron": {
+        "cmd": "show version",
+        "search_patterns": [r"NetIron|MLX"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
