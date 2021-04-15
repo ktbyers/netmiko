@@ -1,6 +1,16 @@
 import time
 import re
+from os import path
+from paramiko import SSHClient
 from netmiko.base_connection import BaseConnection
+
+
+class SSHClient_noauth(SSHClient):
+    """Set noauth when manually handling SSH authentication."""
+
+    def _auth(self, username, *args):
+        self._transport.auth_none(username)
+        return
 
 
 class PaloAltoPanosBase(BaseConnection):
@@ -26,6 +36,41 @@ class PaloAltoPanosBase(BaseConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
+
+    def special_login_handler(self, delay_factor=1):
+        """
+        PAN-OS may present something similar to the following on login.
+
+        login as: admin
+
+        Do you accept and acknowledge the statement above ? (yes/no) : yes
+
+        Password:
+        """
+        delay_factor = self.select_delay_factor(delay_factor)
+        i = 0
+        time.sleep(delay_factor * 0.25)
+        output = ""
+        while i <= 20:
+            new_output = self.read_channel()
+            if re.search(r"login as", new_output):
+                self.write_channel(self.username + self.RETURN)
+                output += new_output
+            elif re.search(
+                r"Do you accept and acknowledge the statement above", new_output
+            ):
+                self.write_channel("yes" + self.RETURN)
+                output += new_output
+            elif re.search(r"ssword", new_output):
+                self.write_channel(self.password + self.RETURN)
+                output += new_output
+                break
+            else:
+                self.write_channel(self.RETURN)
+                time.sleep(delay_factor * 1)
+
+            time.sleep(delay_factor * 0.5)
+            i += 1
 
     def check_enable_mode(self, *args, **kwargs):
         """No enable mode on PaloAlto."""
@@ -178,7 +223,24 @@ class PaloAltoPanosBase(BaseConnection):
 
 
 class PaloAltoPanosSSH(PaloAltoPanosBase):
-    pass
+    def _build_ssh_client(self):
+        """Prepare for Paramiko SSH connection."""
+        # Create instance of SSHClient object
+        # If not using SSH keys, we use noauth
+        if not self.use_keys:
+            remote_conn_pre = SSHClient_noauth()
+        else:
+            remote_conn_pre = SSHClient()
+
+        # Load host_keys for better SSH security
+        if self.system_host_keys:
+            remote_conn_pre.load_system_host_keys()
+        if self.alt_host_keys and path.isfile(self.alt_key_file):
+            remote_conn_pre.load_host_keys(self.alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+        return remote_conn_pre
 
 
 class PaloAltoPanosTelnet(PaloAltoPanosBase):
