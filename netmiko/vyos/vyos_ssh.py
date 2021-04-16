@@ -97,11 +97,7 @@ class VyOSSSH(CiscoSSHConnection):
 
     def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         """Remain in configuration mode."""
-<<<<<<< HEAD
         return super().send_config_set(
-=======
-        return super(VyOSSSH, self).send_config_set(
->>>>>>> add error string checker for config set, add test
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 

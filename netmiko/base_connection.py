@@ -1875,25 +1875,22 @@ Device settings: {self.device_type} {self.host}:{self.port}
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
             output += self.config_mode(*cfg_mode_args)
 
-        if self.fast_cli and self._legacy_mode:
+        # If error_pattern is perform output gathering line by line and not fast_cli mode.
+        if self.fast_cli and self._legacy_mode and not error_pattern:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
             output += self._read_channel_timing(
                 delay_factor=delay_factor, max_loops=max_loops
             )
-            if error_pattern:
-                if re.search(error_pattern, output, flags=re.M):
-                    msg = f"""
-Invalid input detected in output. Netmiko and fast_cli do not allow detection of
-the specific command that failed. Please disable fast_cli to find the specific command
-that failed."""
-                    raise ConfigInvalidException(msg)
+
         elif not cmd_verify:
             output = ""
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
                 time.sleep(delay_factor * 0.05)
+
+                # Gather the output incrementally due to error_pattern requirements
                 if error_pattern:
                     output += self._read_channel_timing(
                         delay_factor=delay_factor, max_loops=max_loops
@@ -1902,11 +1899,12 @@ that failed."""
                         msg = f"Invalid input detected at command: {cmd}"
                         raise ConfigInvalidException(msg)
 
-            # Gather output
+            # Standard output gathering (no error_pattern)
             if not error_pattern:
                 output += self._read_channel_timing(
                     delay_factor=delay_factor, max_loops=max_loops
                 )
+
         else:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))

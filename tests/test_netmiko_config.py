@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-<<<<<<< HEAD
-=======
-from __future__ import print_function
-from __future__ import unicode_literals
->>>>>>> add error string checker for config set, add test
 import pytest
 
 
