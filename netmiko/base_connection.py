@@ -1885,7 +1885,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
             )
 
         elif not cmd_verify:
-            output = ""
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
                 time.sleep(delay_factor * 0.05)

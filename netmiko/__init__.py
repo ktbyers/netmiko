@@ -16,6 +16,7 @@ from netmiko.ssh_exception import (
     NetmikoAuthenticationException,
     NetMikoAuthenticationException,
 )
+from netmiko.ssh_exception import ConfigInvalidException
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_functions import file_transfer, progress_bar
@@ -32,6 +33,7 @@ __all__ = (
     "FileTransfer",
     "NetmikoTimeoutException",
     "NetmikoAuthenticationException",
+    "ConfigInvalidException",
     "NetMikoTimeoutException",
     "NetMikoAuthenticationException",
     "InLineTransfer",
