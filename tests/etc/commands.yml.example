@@ -52,6 +52,7 @@ cisco_s300:
   config_verification: "show run"
   config_file: "cisco_ios_commands.txt"
   save_config_confirm: True
+  save_config_response: ''
 
 cisco_asa:
   version: "show version"

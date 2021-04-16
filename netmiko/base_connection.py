@@ -24,6 +24,7 @@ from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
 from netmiko.ssh_exception import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
+    ConfigInvalidException,
 )
 from netmiko.utilities import (
     write_bytes,
@@ -1818,6 +1819,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         config_mode_command=None,
         cmd_verify=True,
         enter_config_mode=True,
+        error_pattern="",
     ):
         """
         Send configuration commands down the SSH channel.
@@ -1854,6 +1856,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param enter_config_mode: Do you enter config mode before sending config commands
         :type exit_config_mode: bool
 
+        :param error_pattern: Regular expression pattern to detect config errors in the
+        output.
+        :type error_pattern: str
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1870,21 +1875,35 @@ Device settings: {self.device_type} {self.host}:{self.port}
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
             output += self.config_mode(*cfg_mode_args)
 
-        if self.fast_cli and self._legacy_mode:
+        # If error_pattern is perform output gathering line by line and not fast_cli mode.
+        if self.fast_cli and self._legacy_mode and not error_pattern:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
             output += self._read_channel_timing(
                 delay_factor=delay_factor, max_loops=max_loops
             )
+
         elif not cmd_verify:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
                 time.sleep(delay_factor * 0.05)
-            # Gather output
-            output += self._read_channel_timing(
-                delay_factor=delay_factor, max_loops=max_loops
-            )
+
+                # Gather the output incrementally due to error_pattern requirements
+                if error_pattern:
+                    output += self._read_channel_timing(
+                        delay_factor=delay_factor, max_loops=max_loops
+                    )
+                    if re.search(error_pattern, output, flags=re.M):
+                        msg = f"Invalid input detected at command: {cmd}"
+                        raise ConfigInvalidException(msg)
+
+            # Standard output gathering (no error_pattern)
+            if not error_pattern:
+                output += self._read_channel_timing(
+                    delay_factor=delay_factor, max_loops=max_loops
+                )
+
         else:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
@@ -1901,6 +1920,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                     # Even though the device hasn't caught up with processing command.
                     new_output = self.read_until_pattern(pattern=pattern)
                     output += new_output
+
+                if error_pattern:
+                    if re.search(error_pattern, output, flags=re.M):
+                        msg = f"Invalid input detected at command: {cmd}"
+                        raise ConfigInvalidException(msg)
 
         if exit_config_mode:
             output += self.exit_config_mode()

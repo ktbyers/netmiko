@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import pytest
+from netmiko import ConfigInvalidException
 
 
 def test_ssh_connect(net_connect, commands, expected_responses):
@@ -109,6 +110,37 @@ def test_config_from_file(net_connect, commands, expected_responses):
 
     if "nokia_sros" in net_connect.device_type:
         net_connect.save_config()
+
+
+def test_config_error_pattern(net_connect, commands, expected_responses):
+    """
+    Raise exception when config_error_str is present in output
+    """
+    config_base = commands.get("config")
+    config_err = commands.get("invalid_config")
+    config_list = config_base + [config_err]
+    error_pattern = commands.get("error_pattern")
+
+    # Should not raise an exception since error_pattern not specified
+    output = net_connect.send_config_set(config_commands=config_list)
+    print(output)
+
+    if config_list and error_pattern:
+        with pytest.raises(ConfigInvalidException):
+            output = net_connect.send_config_set(
+                config_commands=config_list, error_pattern=error_pattern
+            )
+
+        # Try it with cmd_verify=True also
+        with pytest.raises(ConfigInvalidException):
+            output = net_connect.send_config_set(
+                config_commands=config_list,
+                error_pattern=error_pattern,
+                cmd_verify=True,
+            )
+
+    else:
+        print("Skipping test: no error_pattern supplied.")
 
 
 def test_disconnect(net_connect, commands, expected_responses):
