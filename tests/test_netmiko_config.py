@@ -112,21 +112,6 @@ def test_config_from_file(net_connect, commands, expected_responses):
         net_connect.save_config()
 
 
-def test_config_error_str(net_connect, commands, expected_responses):
-    """
-    Raise exception when config_error_str is present in output
-    """
-    config_list = commands.get("invalid_config")
-    config_error_str = commands.get("invalid_config_str")
-    if config_list is not None and config_error_str is not None:
-        with pytest.raises(SyntaxError):
-            net_connect.send_config_set(
-                config_commands=config_list, config_error_str=config_error_str
-            )
-    else:
-        print("Skipping test (no config error string supplied)...")
-
-
 def test_disconnect(net_connect, commands, expected_responses):
     """
     Terminate the SSH session
