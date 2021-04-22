@@ -49,6 +49,7 @@
 - Pluribus
 - Ruckus ICX/FastIron
 - Ruijie Networks
+- Supermicro SMIS
 - TPLink JetStream
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
