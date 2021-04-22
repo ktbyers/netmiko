@@ -218,7 +218,7 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "supermicro_nos": {
+    "supermicro_smis": {
         "cmd": "show system info",
         "search_patterns": [r"Super Micro Computer"],
         "priority": 99,
