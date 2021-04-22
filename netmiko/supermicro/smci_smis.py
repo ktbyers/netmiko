@@ -28,7 +28,7 @@ class SmciSwitchSmisBase(CiscoBaseConnection):
         return ""
 
     def save_config(
-        self, cmd="write startup-config", confirm=False, confirm_response="[OK]"
+        self, cmd="write startup-config", confirm=False, confirm_response=""
     ):
         """Save config"""
         return super().save_config(
