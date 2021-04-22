@@ -1,3 +1,3 @@
-from netmiko.supermicro.smci_nos import SmciSwitchNosTelnet, SmciSwitchNosSSH
+from netmiko.supermicro.smci_smis import SmciSwitchSmisTelnet, SmciSwitchSmisSSH
 
-__all__ = ["SmciSwitchNosSSH", "SmciSwitchNosTelnet"]
+__all__ = ["SmciSwitchSmisSSH", "SmciSwitchSmisTelnet"]

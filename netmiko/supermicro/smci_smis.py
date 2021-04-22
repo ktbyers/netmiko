@@ -2,7 +2,7 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 import time
 
 
-class SmciSwitchNosBase(CiscoBaseConnection):
+class SmciSwitchSmisBase(CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
@@ -36,9 +36,9 @@ class SmciSwitchNosBase(CiscoBaseConnection):
         )
 
 
-class SmciSwitchNosSSH(SmciSwitchNosBase):
+class SmciSwitchSmisSSH(SmciSwitchSmisBase):
     pass
 
 
-class SmciSwitchNosTelnet(SmciSwitchNosBase):
+class SmciSwitchSmisTelnet(SmciSwitchSmisBase):
     pass

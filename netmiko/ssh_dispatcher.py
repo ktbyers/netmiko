@@ -99,8 +99,8 @@ from netmiko.yamaha import YamahaSSH
 from netmiko.yamaha import YamahaTelnet
 from netmiko.zte import ZteZxrosSSH
 from netmiko.zte import ZteZxrosTelnet
-from netmiko.supermicro.smci_nos import SmciSwitchNosSSH
-from netmiko.supermicro.smci_nos import SmciSwitchNosTelnet
+from netmiko.supermicro import SmciSwitchSmisSSH
+from netmiko.supermicro import SmciSwitchSmisTelnet
 
 GenericSSH = TerminalServerSSH
 GenericTelnet = TerminalServerTelnet
@@ -206,7 +206,7 @@ CLASS_MAPPER_BASE = {
     "ruijie_os": RuijieOSSSH,
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
-    "supermicro_nos": SmciSwitchNosSSH,
+    "supermicro_smis": SmciSwitchSmisSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
@@ -281,7 +281,7 @@ CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
-CLASS_MAPPER["supermicro_nos_telnet"] = SmciSwitchNosTelnet
+CLASS_MAPPER["supermicro_smis_telnet"] = SmciSwitchSmisTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
