@@ -160,6 +160,9 @@ class CiscoXrBase(CiscoBaseConnection):
                 output += self.read_until_pattern(
                     pattern=re.escape(exit_config.strip())
                 )
+            # Read until we detect either an Uncommitted change or the end prompt
+            if not re.search(r&#34;(Uncommitted|#$)&#34;, output):
+                output += self.read_until_pattern(pattern=r&#34;(Uncommitted|#$)&#34;)
             if &#34;Uncommitted changes found&#34; in output:
                 self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
                 output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
@@ -508,6 +511,9 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
                 output += self.read_until_pattern(
                     pattern=re.escape(exit_config.strip())
                 )
+            # Read until we detect either an Uncommitted change or the end prompt
+            if not re.search(r&#34;(Uncommitted|#$)&#34;, output):
+                output += self.read_until_pattern(pattern=r&#34;(Uncommitted|#$)&#34;)
             if &#34;Uncommitted changes found&#34; in output:
                 self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
                 output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
@@ -701,6 +707,9 @@ an exception to be generated.</p></section>
             output += self.read_until_pattern(
                 pattern=re.escape(exit_config.strip())
             )
+        # Read until we detect either an Uncommitted change or the end prompt
+        if not re.search(r&#34;(Uncommitted|#$)&#34;, output):
+            output += self.read_until_pattern(pattern=r&#34;(Uncommitted|#$)&#34;)
         if &#34;Uncommitted changes found&#34; in output:
             self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
             output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
@@ -779,6 +788,7 @@ an exception to be generated.</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -1104,6 +1114,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.save_config" href="#netmiko.cisco.cisco_xr.CiscoXrBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -1301,6 +1312,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.save_config" href="#netmiko.cisco.cisco_xr.CiscoXrBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>

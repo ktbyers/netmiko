@@ -223,6 +223,7 @@ __all__ = [&#34;F5TmshSSH&#34;, &#34;F5LinuxSSH&#34;]</code></pre>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.save_config" href="../linux/linux_ssh.html#netmiko.linux.linux_ssh.LinuxSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -390,6 +391,7 @@ __all__ = [&#34;F5TmshSSH&#34;, &#34;F5LinuxSSH&#34;]</code></pre>
         self.set_base_prompt()
         self.tmsh_mode()
         self.set_base_prompt()
+        self._config_mode = False
         cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
         self.set_terminal_width(command=cmd, pattern=&#34;run&#34;)
         self.disable_paging(
@@ -405,7 +407,35 @@ __all__ = [&#34;F5TmshSSH&#34;, &#34;F5LinuxSSH&#34;]</code></pre>
         self.write_channel(command)
         time.sleep(1 * delay_factor)
         self.clear_buffer()
-        return None</code></pre>
+        return None
+
+    def exit_tmsh(self):
+        output = self.send_command(&#34;quit&#34;, expect_string=r&#34;#&#34;)
+        self.set_base_prompt()
+        return output
+
+    def cleanup(self, command=&#34;exit&#34;):
+        &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+        try:
+            self.exit_tmsh()
+        except Exception:
+            pass
+
+        # Always try to send final &#39;exit&#39; (command)
+        self._session_log_fin = True
+        self.write_channel(command + self.RETURN)
+
+    def check_config_mode(self, check_string=&#34;&#34;, pattern=&#34;&#34;):
+        &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
+        return True
+
+    def config_mode(self, config_command=&#34;&#34;):
+        &#34;&#34;&#34;No config mode for F5 devices.&#34;&#34;&#34;
+        return &#34;&#34;
+
+    def exit_config_mode(self, exit_config=&#34;&#34;):
+        &#34;&#34;&#34;No config mode for F5 devices.&#34;&#34;&#34;
+        return &#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -413,6 +443,74 @@ __all__ = [&#34;F5TmshSSH&#34;, &#34;F5LinuxSSH&#34;]</code></pre>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="netmiko.f5.F5TmshSSH.check_config_mode"><code class="name flex">
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string='', pattern='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Checks if the device is in configuration mode or not.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def check_config_mode(self, check_string=&#34;&#34;, pattern=&#34;&#34;):
+    &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
+    return True</code></pre>
+</details>
+</dd>
+<dt id="netmiko.f5.F5TmshSSH.cleanup"><code class="name flex">
+<span>def <span class="ident">cleanup</span></span>(<span>self, command='exit')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Gracefully exit the SSH session.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def cleanup(self, command=&#34;exit&#34;):
+    &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+    try:
+        self.exit_tmsh()
+    except Exception:
+        pass
+
+    # Always try to send final &#39;exit&#39; (command)
+    self._session_log_fin = True
+    self.write_channel(command + self.RETURN)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.f5.F5TmshSSH.config_mode"><code class="name flex">
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>No config mode for F5 devices.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def config_mode(self, config_command=&#34;&#34;):
+    &#34;&#34;&#34;No config mode for F5 devices.&#34;&#34;&#34;
+    return &#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="netmiko.f5.F5TmshSSH.exit_config_mode"><code class="name flex">
+<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>No config mode for F5 devices.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def exit_config_mode(self, exit_config=&#34;&#34;):
+    &#34;&#34;&#34;No config mode for F5 devices.&#34;&#34;&#34;
+    return &#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="netmiko.f5.F5TmshSSH.exit_tmsh"><code class="name flex">
+<span>def <span class="ident">exit_tmsh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def exit_tmsh(self):
+    output = self.send_command(&#34;quit&#34;, expect_string=r&#34;#&#34;)
+    self.set_base_prompt()
+    return output</code></pre>
+</details>
+</dd>
 <dt id="netmiko.f5.F5TmshSSH.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self)</span>
 </code></dt>
@@ -426,6 +524,7 @@ __all__ = [&#34;F5TmshSSH&#34;, &#34;F5LinuxSSH&#34;]</code></pre>
     self.set_base_prompt()
     self.tmsh_mode()
     self.set_base_prompt()
+    self._config_mode = False
     cmd = &#39;run /util bash -c &#34;stty cols 255&#34;&#39;
     self.set_terminal_width(command=cmd, pattern=&#34;run&#34;)
     self.disable_paging(
@@ -457,18 +556,14 @@ __all__ = [&#34;F5TmshSSH&#34;, &#34;F5LinuxSSH&#34;]</code></pre>
 <ul class="hlist">
 <li><code><b><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.base_connection.BaseConnection.check_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.check_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.exit_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
@@ -480,6 +575,7 @@ __all__ = [&#34;F5TmshSSH&#34;, &#34;F5LinuxSSH&#34;]</code></pre>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.save_config" href="../base_connection.html#netmiko.base_connection.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -527,7 +623,12 @@ __all__ = [&#34;F5TmshSSH&#34;, &#34;F5LinuxSSH&#34;]</code></pre>
 </li>
 <li>
 <h4><code><a title="netmiko.f5.F5TmshSSH" href="#netmiko.f5.F5TmshSSH">F5TmshSSH</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="netmiko.f5.F5TmshSSH.check_config_mode" href="#netmiko.f5.F5TmshSSH.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.f5.F5TmshSSH.cleanup" href="#netmiko.f5.F5TmshSSH.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.f5.F5TmshSSH.config_mode" href="#netmiko.f5.F5TmshSSH.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.f5.F5TmshSSH.exit_config_mode" href="#netmiko.f5.F5TmshSSH.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.f5.F5TmshSSH.exit_tmsh" href="#netmiko.f5.F5TmshSSH.exit_tmsh">exit_tmsh</a></code></li>
 <li><code><a title="netmiko.f5.F5TmshSSH.session_preparation" href="#netmiko.f5.F5TmshSSH.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.f5.F5TmshSSH.tmsh_mode" href="#netmiko.f5.F5TmshSSH.tmsh_mode">tmsh_mode</a></code></li>
 </ul>
