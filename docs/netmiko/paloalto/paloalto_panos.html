@@ -42,9 +42,11 @@ class PaloAltoPanosBase(BaseConnection):
         Disable paging (the &#39;--more--&#39; prompts).
         Set the base prompt for interaction (&#39;&gt;&#39;).
         &#34;&#34;&#34;
+        self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt(delay_factor=20)
         self.disable_paging(command=&#34;set cli pager off&#34;)
+        self.disable_paging(command=&#34;set cli scripting-mode on&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -372,9 +374,11 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
         Disable paging (the &#39;--more--&#39; prompts).
         Set the base prompt for interaction (&#39;&gt;&#39;).
         &#34;&#34;&#34;
+        self.ansi_escape_codes = True
         self._test_channel_read()
         self.set_base_prompt(delay_factor=20)
         self.disable_paging(command=&#34;set cli pager off&#34;)
+        self.disable_paging(command=&#34;set cli scripting-mode on&#34;)
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
@@ -757,9 +761,11 @@ Set the base prompt for interaction ('&gt;').</p></section>
     Disable paging (the &#39;--more--&#39; prompts).
     Set the base prompt for interaction (&#39;&gt;&#39;).
     &#34;&#34;&#34;
+    self.ansi_escape_codes = True
     self._test_channel_read()
     self.set_base_prompt(delay_factor=20)
     self.disable_paging(command=&#34;set cli pager off&#34;)
+    self.disable_paging(command=&#34;set cli scripting-mode on&#34;)
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)
     self.clear_buffer()</code></pre>
@@ -847,6 +853,7 @@ Set the base prompt for interaction ('&gt;').</p></section>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.save_config" href="../base_connection.html#netmiko.base_connection.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
@@ -1039,6 +1046,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.save_config" href="../base_connection.html#netmiko.base_connection.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.send_command" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.send_command">send_command</a></code></li>
@@ -1237,6 +1245,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.save_config" href="../base_connection.html#netmiko.base_connection.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.send_command" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.send_command">send_command</a></code></li>

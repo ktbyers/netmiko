@@ -14,5 +14,11 @@ class NetmikoAuthenticationException(AuthenticationException):
     pass
 
 
+class ConfigInvalidException(Exception):
+    """Exception raised for invalid configuration error."""
+
+    pass
+
+
 NetMikoTimeoutException = NetmikoTimeoutException
 NetMikoAuthenticationException = NetmikoAuthenticationException

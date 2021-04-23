@@ -268,6 +268,17 @@ centec_os:
   version_banner: "Centec Networks"
   multiple_line_output: ""
 
+supermicro_nos:
+  base_prompt: SMIS
+  router_prompt: SMIS>
+  enable_prompt: SMIS#
+  interface_ip: 192.168.10.15
+  version_banner: "Firmware Version"
+  multiple_line_output: ""
+  save_config: '[OK]'
+  cmd_response_init: "logging buffered 110"
+  cmd_response_final: "logging buffered 110"
+
 sophos_sfos:
   base_prompt: "console"
   router_prompt: "console>"

@@ -27,6 +27,7 @@
 - Dell OS9 (Force10)
 - Dell OS10
 - Dell PowerConnect
+- Ericsson IPOS
 - Extreme ERS (Avaya)
 - Extreme VSP (Avaya)
 - Extreme VDX (Brocade)
@@ -48,6 +49,7 @@
 - Pluribus
 - Ruckus ICX/FastIron
 - Ruijie Networks
+- Supermicro SMIS
 - TPLink JetStream
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
@@ -58,7 +60,10 @@
 
 - A10
 - Accedian
+- Allied Telesis AlliedWare Plus
 - Aruba
+- Brocade Fabric OS
+- C-DOT CROS
 - Ciena SAOS
 - Citrix Netscaler
 - Cisco Telepresence

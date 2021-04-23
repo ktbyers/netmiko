@@ -29,7 +29,8 @@ class YamahaBase(BaseConnection):
             output = self.read_channel()
             if "(Y/N)" in output:
                 self.write_channel("N")
-            output += self.read_until_prompt()
+            if self.base_prompt not in output:
+                output += self.read_until_prompt()
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
@@ -67,4 +68,7 @@ class YamahaSSH(YamahaBase):
 class YamahaTelnet(YamahaBase):
     """Yamaha Telnet driver."""
 
-    pass
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get("default_enter")
+        kwargs["default_enter"] = "\n" if default_enter is None else default_enter
+        super().__init__(*args, **kwargs)

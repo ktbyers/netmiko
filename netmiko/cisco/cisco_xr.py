@@ -136,6 +136,9 @@ class CiscoXrBase(CiscoBaseConnection):
                 output += self.read_until_pattern(
                     pattern=re.escape(exit_config.strip())
                 )
+            # Read until we detect either an Uncommitted change or the end prompt
+            if not re.search(r"(Uncommitted|#$)", output):
+                output += self.read_until_pattern(pattern=r"(Uncommitted|#$)")
             if "Uncommitted changes found" in output:
                 self.write_channel(self.normalize_cmd("no\n"))
                 output += self.read_until_pattern(pattern=r"[>#]")

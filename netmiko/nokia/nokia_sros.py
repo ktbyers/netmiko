@@ -15,9 +15,10 @@ from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class NokiaSrosSSH(BaseConnection):
+class NokiaSros(BaseConnection):
     """
-    Implement methods for interacting with Nokia SR OS devices.
+    Implement methods for interacting with Nokia SR OS devices
+    for both SSH and telnet.
 
     Not applicable in Nokia SR OS (disabled):
         - exit_enable_mode()
@@ -217,6 +218,18 @@ class NokiaSrosSSH(BaseConnection):
         self.write_channel(command + self.RETURN)
 
 
+class NokiaSrosSSH(NokiaSros):
+    """Nokia SR OS SSH driver."""
+
+    pass
+
+
+class NokiaSrosTelnet(NokiaSros):
+    """Nokia SR OS Telnet driver."""
+
+    pass
+
+
 class NokiaSrosFileTransfer(BaseFileTransfer):
     def __init__(
         self, ssh_conn, source_file, dest_file, hash_supported=False, **kwargs
@@ -279,10 +292,11 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         if "File Not Found" in remote_out:
             raise IOError("Unable to find file on remote system")
 
+        dest_file_name = remote_file.replace("\\", "/").split("/")[-1]
         # Parse dir output for filename. Output format is:
-        # "10/16/2019  10:00p                6738 {filename}"
+        # "10/16/2019  10:00p                6738 {dest_file_name}"
 
-        pattern = r"\S+\s+\S+\s+(\d+)\s+{}".format(re.escape(remote_file))
+        pattern = r"\S+\s+\S+\s+(\d+)\s+{}".format(re.escape(dest_file_name))
         match = re.search(pattern, remote_out)
 
         if not match:

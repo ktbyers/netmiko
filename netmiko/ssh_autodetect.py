@@ -170,9 +170,9 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "brocade_netiron": {
+    "extreme_netiron": {
         "cmd": "show version",
-        "search_patterns": [r"NetIron"],
+        "search_patterns": [r"(NetIron|MLX)"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -209,6 +209,18 @@ SSH_MAPPER_BASE = {
     "fortinet": {
         "cmd": "get system status",
         "search_patterns": [r"FortiOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "paloalto_panos": {
+        "cmd": "show system info",
+        "search_patterns": [r"model:\s+PA"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "supermicro_smis": {
+        "cmd": "show system info",
+        "search_patterns": [r"Super Micro Computer"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },

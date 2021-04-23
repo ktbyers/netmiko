@@ -33,6 +33,7 @@ import functools
 from datetime import datetime
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
+from netmiko import log
 
 try:
     from ttp import ttp
@@ -66,6 +67,7 @@ except ImportError:
 
 # Dictionary mapping &#39;show run&#39; for vendors with different command
 SHOW_RUN_MAPPER = {
+    &#34;brocade_fos&#34;: &#34;configShow&#34;,
     &#34;juniper&#34;: &#34;show configuration&#34;,
     &#34;juniper_junos&#34;: &#34;show configuration&#34;,
     &#34;extreme&#34;: &#34;show configuration&#34;,
@@ -92,6 +94,7 @@ SHOW_RUN_MAPPER = {
     &#34;brocade_fastiron&#34;: &#34;show running-config&#34;,
     &#34;brocade_netiron&#34;: &#34;show running-config&#34;,
     &#34;alcatel_aos&#34;: &#34;show configuration snapshot&#34;,
+    &#34;cros_mtbr&#34;: &#34;show running-config&#34;,
 }
 
 # Expand SHOW_RUN_MAPPER to include &#39;_ssh&#39; key
@@ -395,6 +398,73 @@ def get_structured_data_ttp(raw_output, template=None):
             return ttp_parser.result(format=&#34;raw&#34;)
     except Exception:
         return raw_output
+
+
+def run_ttp_template(connection, template, res_kwargs, **kwargs):
+    &#34;&#34;&#34;
+    Helper function to run TTP template parsing.
+
+    :param connection: Netmiko connection object
+    :type connection: obj
+
+    :param template: TTP template
+    :type template: str
+
+    :param res_kwargs: ``**res_kwargs`` arguments for TTP result method
+    :type res_kwargs: dict
+
+    :param kwargs: ``**kwargs`` for TTP object instantiation
+    :type kwargs: dict
+    &#34;&#34;&#34;
+    if not TTP_INSTALLED:
+        msg = &#34;\nTTP is not installed. Please PIP install ttp:\n&#34; &#34;pip install ttp\n&#34;
+        raise ValueError(msg)
+
+    parser = ttp(template=template, **kwargs)
+
+    # get inputs load for TTP template
+    ttp_inputs_load = parser.get_input_load()
+    log.debug(&#34;run_ttp_template: inputs load - {}&#34;.format(ttp_inputs_load))
+
+    # go over template&#39;s inputs and collect output from devices
+    for template_name, inputs in ttp_inputs_load.items():
+        for input_name, input_params in inputs.items():
+            method = input_params.get(&#34;method&#34;, &#34;send_command&#34;)
+            method_kwargs = input_params.get(&#34;kwargs&#34;, {})
+            commands = input_params.get(&#34;commands&#34;, None)
+
+            # run sanity checks
+            if method not in dir(connection):
+                log.warning(
+                    &#34;run_ttp_template: &#39;{}&#39; input, unsupported method &#39;{}&#39;, skipping&#34;.format(
+                        input_name, method
+                    )
+                )
+                continue
+            elif not commands:
+                log.warning(
+                    &#34;run_ttp_template: &#39;{}&#39; input no commands to collect, skipping&#34;.format(
+                        input_name
+                    )
+                )
+                continue
+
+            # collect commands output from device
+            output = [
+                getattr(connection, method)(command_string=command, **method_kwargs)
+                for command in commands
+            ]
+            output = &#34;\n&#34;.join(output)
+
+            # add collected output to TTP parser object
+            parser.add_input(
+                data=output, input_name=input_name, template_name=template_name
+            )
+
+    # run parsing in single process
+    parser.parse(one=True)
+
+    return parser.result(**res_kwargs)
 
 
 def get_structured_data_genie(raw_output, platform, command):
@@ -941,6 +1011,88 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     return f&#34;{netmiko_full_dir}/{device_name}.txt&#34;</code></pre>
 </details>
 </dd>
+<dt id="netmiko.utilities.run_ttp_template"><code class="name flex">
+<span>def <span class="ident">run_ttp_template</span></span>(<span>connection, template, res_kwargs, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Helper function to run TTP template parsing.</p>
+<p>:param connection: Netmiko connection object
+:type connection: obj</p>
+<p>:param template: TTP template
+:type template: str</p>
+<p>:param res_kwargs: <code>**res_kwargs</code> arguments for TTP result method
+:type res_kwargs: dict</p>
+<p>:param kwargs: <code>**kwargs</code> for TTP object instantiation
+:type kwargs: dict</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def run_ttp_template(connection, template, res_kwargs, **kwargs):
+    &#34;&#34;&#34;
+    Helper function to run TTP template parsing.
+
+    :param connection: Netmiko connection object
+    :type connection: obj
+
+    :param template: TTP template
+    :type template: str
+
+    :param res_kwargs: ``**res_kwargs`` arguments for TTP result method
+    :type res_kwargs: dict
+
+    :param kwargs: ``**kwargs`` for TTP object instantiation
+    :type kwargs: dict
+    &#34;&#34;&#34;
+    if not TTP_INSTALLED:
+        msg = &#34;\nTTP is not installed. Please PIP install ttp:\n&#34; &#34;pip install ttp\n&#34;
+        raise ValueError(msg)
+
+    parser = ttp(template=template, **kwargs)
+
+    # get inputs load for TTP template
+    ttp_inputs_load = parser.get_input_load()
+    log.debug(&#34;run_ttp_template: inputs load - {}&#34;.format(ttp_inputs_load))
+
+    # go over template&#39;s inputs and collect output from devices
+    for template_name, inputs in ttp_inputs_load.items():
+        for input_name, input_params in inputs.items():
+            method = input_params.get(&#34;method&#34;, &#34;send_command&#34;)
+            method_kwargs = input_params.get(&#34;kwargs&#34;, {})
+            commands = input_params.get(&#34;commands&#34;, None)
+
+            # run sanity checks
+            if method not in dir(connection):
+                log.warning(
+                    &#34;run_ttp_template: &#39;{}&#39; input, unsupported method &#39;{}&#39;, skipping&#34;.format(
+                        input_name, method
+                    )
+                )
+                continue
+            elif not commands:
+                log.warning(
+                    &#34;run_ttp_template: &#39;{}&#39; input no commands to collect, skipping&#34;.format(
+                        input_name
+                    )
+                )
+                continue
+
+            # collect commands output from device
+            output = [
+                getattr(connection, method)(command_string=command, **method_kwargs)
+                for command in commands
+            ]
+            output = &#34;\n&#34;.join(output)
+
+            # add collected output to TTP parser object
+            parser.add_input(
+                data=output, input_name=input_name, template_name=template_name
+            )
+
+    # run parsing in single process
+    parser.parse(one=True)
+
+    return parser.result(**res_kwargs)</code></pre>
+</details>
+</dd>
 <dt id="netmiko.utilities.select_cmd_verify"><code class="name flex">
 <span>def <span class="ident">select_cmd_verify</span></span>(<span>func)</span>
 </code></dt>
@@ -1031,6 +1183,7 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
 <li><code><a title="netmiko.utilities.m_exec_time" href="#netmiko.utilities.m_exec_time">m_exec_time</a></code></li>
 <li><code><a title="netmiko.utilities.obtain_all_devices" href="#netmiko.utilities.obtain_all_devices">obtain_all_devices</a></code></li>
 <li><code><a title="netmiko.utilities.obtain_netmiko_filename" href="#netmiko.utilities.obtain_netmiko_filename">obtain_netmiko_filename</a></code></li>
+<li><code><a title="netmiko.utilities.run_ttp_template" href="#netmiko.utilities.run_ttp_template">run_ttp_template</a></code></li>
 <li><code><a title="netmiko.utilities.select_cmd_verify" href="#netmiko.utilities.select_cmd_verify">select_cmd_verify</a></code></li>
 <li><code><a title="netmiko.utilities.write_bytes" href="#netmiko.utilities.write_bytes">write_bytes</a></code></li>
 <li><code><a title="netmiko.utilities.write_tmp_file" href="#netmiko.utilities.write_tmp_file">write_tmp_file</a></code></li>

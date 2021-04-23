@@ -204,6 +204,12 @@ centec_os:
   password: centec
   secret: centec
 
+supermicro_nos:
+  device_type: supermicro_nos
+  ip: 192.168.10.15
+  username: ADMIN
+  password: ADMIN
+
 sophos_sfos:
   device_type: sophos_sfos
   ip: 172.16.16.16

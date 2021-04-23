@@ -9,11 +9,11 @@ $ pdoc3 --html --output-dir docs netmiko --force
 # README.md is entry point at https://ktbyers.github.io/netmiko/ which then links to...
 # https://ktbyers.github.io/netmiko/docs/netmiko/index.html for full docs
 
-# python setup.py sdist bdist_wheel
-
 # Make sure you have rolled the version in __init__.py
 
 # Merge into master / checkout master (use PR in GitHub for this)
+
+# python setup.py sdist bdist_wheel
 
 # Check FIX issues in _release.sh
 
@@ -21,5 +21,5 @@ $ pdoc3 --html --output-dir docs netmiko --force
 
 # Create a tag for the version
 git tag -a v3.3.3 -m "Version 3.3.3 Release"
-git push origin v3.3.3
+git push origin_ssh v3.3.3
 

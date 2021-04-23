@@ -52,6 +52,7 @@ cisco_s300:
   config_verification: "show run"
   config_file: "cisco_ios_commands.txt"
   save_config_confirm: True
+  save_config_response: ''
 
 cisco_asa:
   version: "show version"
@@ -424,6 +425,19 @@ centec_os:
   config_verification: "show running-config | include ip access-list centec"
   save_config_cmd: 'write'
   save_config_response: 'OK'
+
+supermicro_nos:
+  version: "show version"
+  basic: "show ip interface"
+  extended_output: "show version"
+  config:
+    - "logging buffered 110"
+    - "logging buffered 110"
+  config_verification: "show run"
+  save_config_cmd: "write startup-config"
+  save_config_confirm: False
+  save_config_response: '[OK]'
+  support_commit: False
 
 sophos_sfos:
   version: "system diagnostics show version-info"
