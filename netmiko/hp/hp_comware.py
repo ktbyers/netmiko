@@ -91,7 +91,70 @@ class HPComwareBase(CiscoSSHConnection):
 
 
 class HPComwareSSH(HPComwareBase):
-    pass
+    def send_config_set(
+            self,
+            config_commands=None,
+            exit_config_mode=True,
+            delay_factor=1,
+            max_loops=150,
+            strip_prompt=False,
+            strip_command=False,
+            config_mode_command=None,
+            cmd_verify=True,
+            enter_config_mode=True,
+    ):
+        delay_factor = self.select_delay_factor(delay_factor)
+        if config_commands is None:
+            return ""
+        elif isinstance(config_commands, str):
+            config_commands = (config_commands,)
+
+        if not hasattr(config_commands, "__iter__"):
+            raise ValueError("Invalid argument passed into send_config_set")
+
+        # Send config commands
+        output = ""
+        if enter_config_mode:
+            cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
+            output += self.config_mode(*cfg_mode_args)
+
+        if self.fast_cli and self._legacy_mode:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+            # Gather output
+            output += self._read_channel_timing(
+                delay_factor=delay_factor, max_loops=max_loops
+            )
+        elif not cmd_verify:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+                time.sleep(delay_factor * 0.05)
+            # Gather output
+            output += self._read_channel_timing(
+                delay_factor=delay_factor, max_loops=max_loops
+            )
+        else:
+            for cmd in config_commands:
+                self.write_channel(self.normalize_cmd(cmd))
+
+                # Make sure command is echoed
+                new_output = self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                output += new_output
+
+                # We might capture next prompt in the original read
+                pattern = f"(?:{re.escape(self.base_prompt)}|\])"
+                if not re.search(pattern, new_output):
+                    # Make sure trailing prompt comes back (after command)
+                    # NX-OS has fast-buffering problem where it immediately echoes command
+                    # Even though the device hasn't caught up with processing command.
+                    new_output = self.read_until_pattern(pattern=pattern)
+                    output += new_output
+
+        if exit_config_mode:
+            output += self.exit_config_mode()
+        output = self._sanitize_output(output)
+        log.debug(f"{output}")
+        return output
 
 
 class HPComwareTelnet(HPComwareBase):
