@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import time
 import pytest
 from netmiko import ConfigInvalidException
 
@@ -125,17 +124,17 @@ def test_config_error_pattern(net_connect, commands, expected_responses):
     error_pattern = commands.get("error_pattern")
 
     # Should not raise an exception since error_pattern not specified
-    output = net_connect.send_config_set(config_commands=config_list)
+    net_connect.send_config_set(config_commands=config_list)
 
     if config_list and error_pattern:
         with pytest.raises(ConfigInvalidException):
-            output = net_connect.send_config_set(
+            net_connect.send_config_set(
                 config_commands=config_list, error_pattern=error_pattern
             )
 
         # Try it with cmd_verify=True also
         with pytest.raises(ConfigInvalidException):
-            output = net_connect.send_config_set(
+            net_connect.send_config_set(
                 config_commands=config_list,
                 error_pattern=error_pattern,
                 cmd_verify=True,
