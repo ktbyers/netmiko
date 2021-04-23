@@ -9,11 +9,11 @@ $ pdoc3 --html --output-dir docs netmiko --force
 # README.md is entry point at https://ktbyers.github.io/netmiko/ which then links to...
 # https://ktbyers.github.io/netmiko/docs/netmiko/index.html for full docs
 
-# python setup.py sdist bdist_wheel
-
 # Make sure you have rolled the version in __init__.py
 
 # Merge into master / checkout master (use PR in GitHub for this)
+
+# python setup.py sdist bdist_wheel
 
 # Check FIX issues in _release.sh
 
