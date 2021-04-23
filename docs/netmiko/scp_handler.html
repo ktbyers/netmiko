@@ -285,6 +285,9 @@ class BaseFileTransfer(object):
             line = match.group(0)
             # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
             file_size = line.split()[2]
+        else:
+            raise IOError(&#34;Unable to parse &#39;dir&#39; output in remote_file_size method&#34;)
+
         if &#34;Error opening&#34; in remote_out or &#34;No such file or directory&#34; in remote_out:
             raise IOError(&#34;Unable to find file on remote system&#34;)
         else:
@@ -640,6 +643,9 @@ class BaseFileTransfer(object):
             line = match.group(0)
             # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
             file_size = line.split()[2]
+        else:
+            raise IOError(&#34;Unable to parse &#39;dir&#39; output in remote_file_size method&#34;)
+
         if &#34;Error opening&#34; in remote_out or &#34;No such file or directory&#34; in remote_out:
             raise IOError(&#34;Unable to find file on remote system&#34;)
         else:
@@ -791,7 +797,7 @@ class BaseFileTransfer(object):
 <li><a title="netmiko.ciena.ciena_saos.CienaSaosFileTransfer" href="ciena/ciena_saos.html#netmiko.ciena.ciena_saos.CienaSaosFileTransfer">CienaSaosFileTransfer</a></li>
 <li><a title="netmiko.dell.dell_os10_ssh.DellOS10FileTransfer" href="dell/dell_os10_ssh.html#netmiko.dell.dell_os10_ssh.DellOS10FileTransfer">DellOS10FileTransfer</a></li>
 <li><a title="netmiko.juniper.juniper.JuniperFileTransfer" href="juniper/juniper.html#netmiko.juniper.juniper.JuniperFileTransfer">JuniperFileTransfer</a></li>
-<li><a title="netmiko.nokia.nokia_sros_ssh.NokiaSrosFileTransfer" href="nokia/nokia_sros_ssh.html#netmiko.nokia.nokia_sros_ssh.NokiaSrosFileTransfer">NokiaSrosFileTransfer</a></li>
+<li><a title="netmiko.nokia.nokia_sros.NokiaSrosFileTransfer" href="nokia/nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSrosFileTransfer">NokiaSrosFileTransfer</a></li>
 </ul>
 <h3>Static methods</h3>
 <dl>
@@ -1059,6 +1065,9 @@ the string</p>
         line = match.group(0)
         # Format will be 26  -rw-   6738  Jul 30 2016 19:49:50 -07:00  filename
         file_size = line.split()[2]
+    else:
+        raise IOError(&#34;Unable to parse &#39;dir&#39; output in remote_file_size method&#34;)
+
     if &#34;Error opening&#34; in remote_out or &#34;No such file or directory&#34; in remote_out:
         raise IOError(&#34;Unable to find file on remote system&#34;)
     else:

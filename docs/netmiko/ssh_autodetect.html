@@ -231,9 +231,9 @@ SSH_MAPPER_BASE = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
-    &#34;brocade_netiron&#34;: {
+    &#34;extreme_netiron&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
-        &#34;search_patterns&#34;: [r&#34;NetIron&#34;],
+        &#34;search_patterns&#34;: [r&#34;(NetIron|MLX)&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
@@ -270,6 +270,18 @@ SSH_MAPPER_BASE = {
     &#34;fortinet&#34;: {
         &#34;cmd&#34;: &#34;get system status&#34;,
         &#34;search_patterns&#34;: [r&#34;FortiOS&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;paloalto_panos&#34;: {
+        &#34;cmd&#34;: &#34;show system info&#34;,
+        &#34;search_patterns&#34;: [r&#34;model:\s+PA&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;supermicro_smis&#34;: {
+        &#34;cmd&#34;: &#34;show system info&#34;,
+        &#34;search_patterns&#34;: [r&#34;Super Micro Computer&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },

@@ -53,7 +53,8 @@ class YamahaBase(BaseConnection):
             output = self.read_channel()
             if &#34;(Y/N)&#34; in output:
                 self.write_channel(&#34;N&#34;)
-            output += self.read_until_prompt()
+            if self.base_prompt not in output:
+                output += self.read_until_prompt()
             if self.check_enable_mode():
                 raise ValueError(&#34;Failed to exit enable mode.&#34;)
         return output
@@ -91,7 +92,10 @@ class YamahaSSH(YamahaBase):
 class YamahaTelnet(YamahaBase):
     &#34;&#34;&#34;Yamaha Telnet driver.&#34;&#34;&#34;
 
-    pass</code></pre>
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get(&#34;default_enter&#34;)
+        kwargs[&#34;default_enter&#34;] = &#34;\n&#34; if default_enter is None else default_enter
+        super().__init__(*args, **kwargs)</code></pre>
 </details>
 </section>
 <section>
@@ -269,7 +273,8 @@ class YamahaTelnet(YamahaBase):
             output = self.read_channel()
             if &#34;(Y/N)&#34; in output:
                 self.write_channel(&#34;N&#34;)
-            output += self.read_until_prompt()
+            if self.base_prompt not in output:
+                output += self.read_until_prompt()
             if self.check_enable_mode():
                 raise ValueError(&#34;Failed to exit enable mode.&#34;)
         return output
@@ -368,7 +373,8 @@ appears before exiting. Ignore this by entering 'N'.</p></section>
         output = self.read_channel()
         if &#34;(Y/N)&#34; in output:
             self.write_channel(&#34;N&#34;)
-        output += self.read_until_prompt()
+        if self.base_prompt not in output:
+            output += self.read_until_prompt()
         if self.check_enable_mode():
             raise ValueError(&#34;Failed to exit enable mode.&#34;)
     return output</code></pre>
@@ -430,6 +436,7 @@ appears before exiting. Ignore this by entering 'N'.</p></section>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -624,6 +631,7 @@ appears before exiting. Ignore this by entering 'N'.</p></section>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.yamaha.yamaha.YamahaBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.save_config" href="#netmiko.yamaha.yamaha.YamahaBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -647,7 +655,7 @@ appears before exiting. Ignore this by entering 'N'.</p></section>
 </dd>
 <dt id="netmiko.yamaha.yamaha.YamahaTelnet"><code class="flex name class">
 <span>class <span class="ident">YamahaTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Yamaha Telnet driver.</p>
@@ -786,7 +794,10 @@ appears before exiting. Ignore this by entering 'N'.</p></section>
 <pre><code class="python">class YamahaTelnet(YamahaBase):
     &#34;&#34;&#34;Yamaha Telnet driver.&#34;&#34;&#34;
 
-    pass</code></pre>
+    def __init__(self, *args, **kwargs):
+        default_enter = kwargs.get(&#34;default_enter&#34;)
+        kwargs[&#34;default_enter&#34;] = &#34;\n&#34; if default_enter is None else default_enter
+        super().__init__(*args, **kwargs)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -820,6 +831,7 @@ appears before exiting. Ignore this by entering 'N'.</p></section>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.yamaha.yamaha.YamahaBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.save_config" href="#netmiko.yamaha.yamaha.YamahaBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.yamaha.yamaha.YamahaBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
