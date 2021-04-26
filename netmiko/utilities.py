@@ -344,7 +344,6 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
             )
         template_dir = get_template_dir()
         index_file = os.path.join(template_dir, "index")
-        import ipdb; ipdb.set_trace()
         textfsm_obj = clitable.CliTable(index_file, template_dir)
         output = _textfsm_parse(textfsm_obj, raw_output, attrs)
         # Retry the output if "cisco_xe" and not structured data
