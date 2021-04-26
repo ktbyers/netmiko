@@ -316,11 +316,7 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
         if template_file is not None:
             textfsm_obj.ParseCmd(raw_output, templates=template_file)
         else:
-            platform = attrs.get("Platform")
-            if platform and "cisco_xe" in platform:
-                attrs["Platform"] = "cisco_ios"
             textfsm_obj.ParseCmd(raw_output, attrs)
-
         structured_data = clitable_to_dict(textfsm_obj)
         output = raw_output if structured_data == [] else structured_data
         return output
@@ -348,8 +344,14 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
             )
         template_dir = get_template_dir()
         index_file = os.path.join(template_dir, "index")
+        import ipdb; ipdb.set_trace()
         textfsm_obj = clitable.CliTable(index_file, template_dir)
-        return _textfsm_parse(textfsm_obj, raw_output, attrs)
+        output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        # Retry the output if "cisco_xe" and not structured data
+        if not isinstance(output, list) and "cisco_xe" in platform:
+            attrs["Platform"] = "cisco_ios"
+            output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        return output
     else:
         template_path = Path(os.path.expanduser(template))
         template_file = template_path.name
