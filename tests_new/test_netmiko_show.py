@@ -118,7 +118,7 @@ def test_send_command_textfsm(net_connect, commands, expected_responses):
         base_platform = "_".join(base_platform)
     if base_platform not in [
         "cisco_ios",
-        # "cisco_xe",   FIX: re-enable after a translation is made for ntc-templates
+        "cisco_xe",
         "cisco_xr",
         "cisco_nxos",
         "arista_eos",

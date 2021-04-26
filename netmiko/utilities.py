@@ -316,10 +316,15 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
         if template_file is not None:
             textfsm_obj.ParseCmd(raw_output, templates=template_file)
         else:
+            platform = attrs.get("Platform")
+            if platform and "cisco_xe" in platform:
+                attrs["Platform"] = "cisco_ios"
             textfsm_obj.ParseCmd(raw_output, attrs)
+
         structured_data = clitable_to_dict(textfsm_obj)
         output = raw_output if structured_data == [] else structured_data
         return output
+
     except (FileNotFoundError, CliTableError):
         return raw_output
 
