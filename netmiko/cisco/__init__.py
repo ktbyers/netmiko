@@ -13,6 +13,7 @@ from netmiko.cisco.cisco_xr import CiscoXrSSH, CiscoXrTelnet, CiscoXrFileTransfe
 from netmiko.cisco.cisco_wlc_ssh import CiscoWlcSSH
 from netmiko.cisco.cisco_s300 import CiscoS300SSH
 from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH
+from netmiko.cisco.cisco_viptela import CiscoViptelaSSH
 
 __all__ = [
     "CiscoIosSSH",
@@ -25,6 +26,7 @@ __all__ = [
     "CiscoWlcSSH",
     "CiscoS300SSH",
     "CiscoTpTcCeSSH",
+    "CiscoViptelaSSH",
     "CiscoIosBase",
     "CiscoIosFileTransfer",
     "InLineTransfer",
