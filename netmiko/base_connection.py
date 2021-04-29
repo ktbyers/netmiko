@@ -1861,7 +1861,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         output.
         :type error_pattern: str
 
-        :param terminator: Regular expression pattern to use as an alternate terminator.
+        :param terminator: Regular expression pattern to use as an alternate terminator in certain
+        situations.
         :type terminator: str
         """
         delay_factor = self.select_delay_factor(delay_factor)
