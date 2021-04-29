@@ -1820,6 +1820,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         cmd_verify=True,
         enter_config_mode=True,
         error_pattern="",
+        terminator=r"#",
     ):
         """
         Send configuration commands down the SSH channel.
@@ -1859,6 +1860,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param error_pattern: Regular expression pattern to detect config errors in the
         output.
         :type error_pattern: str
+
+        :param terminator: Regular expression pattern to use as an alternate terminator.
+        :type terminator: str
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1913,7 +1917,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 output += new_output
 
                 # We might capture next prompt in the original read
-                pattern = f"(?:{re.escape(self.base_prompt)}|#)"
+                pattern = f"(?:{re.escape(self.base_prompt)}|{terminator})"
                 if not re.search(pattern, new_output):
                     # Make sure trailing prompt comes back (after command)
                     # NX-OS has fast-buffering problem where it immediately echoes command

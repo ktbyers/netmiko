@@ -46,6 +46,11 @@ class HPComwareBase(CiscoSSHConnection):
         """Check whether device is in configuration mode. Return a boolean."""
         return super().check_config_mode(check_string=check_string)
 
+    def send_config_set(self, config_commands=None, terminator=r"\]", **kwargs):
+        return super().send_config_set(
+            config_commands=config_commands, terminator=terminator, **kwargs
+        )
+
     def set_base_prompt(
         self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1
     ):
