@@ -229,7 +229,7 @@ def test_ntc_templates_discovery():
     # Will not work for CI-CD without pain so just test locally
     if "kbyers" in home_dir:
         ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
-        assert ntc_path == f"{home_dir}/ntc-templates/templates"
+        assert ntc_path == f"{home_dir}/ntc-templates/ntc_templates/templates"
     else:
         with pytest.raises(ValueError):
             ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
