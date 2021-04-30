@@ -248,7 +248,7 @@ def get_template_dir(_skip_ntc_package=False):
     Order of preference is:
     1) Find directory in `NET_TEXTFSM` Environment Variable.
     2) Check for pip installed `ntc-templates` location in this environment.
-    3) ~/ntc-templates/templates.
+    3) ~/ntc-templates/ntc_templates/templates.
 
     If `index` file is not found in any of these locations, raise ValueError
 
@@ -288,9 +288,11 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
                     raise ModuleNotFoundError()
 
         except ModuleNotFoundError:
-            # Finally check in ~/ntc-templates/templates
+            # Finally check in ~/ntc-templates/ntc_templates/templates
             home_dir = os.path.expanduser("~")
-            template_dir = os.path.join(home_dir, "ntc-templates", "templates")
+            template_dir = os.path.join(
+                home_dir, "ntc-templates", "ntc_templates", "templates"
+            )
 
     index = os.path.join(template_dir, "index")
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
