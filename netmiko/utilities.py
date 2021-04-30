@@ -290,7 +290,9 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
         except ModuleNotFoundError:
             # Finally check in ~/ntc-templates/ntc_templates/templates
             home_dir = os.path.expanduser("~")
-            template_dir = os.path.join(home_dir, "ntc-templates", "ntc_templates", "templates")
+            template_dir = os.path.join(
+                home_dir, "ntc-templates", "ntc_templates", "templates"
+            )
 
     index = os.path.join(template_dir, "index")
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
