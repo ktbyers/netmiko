@@ -54,5 +54,11 @@ setup(
         "pyserial",
         "importlib_resources ; python_version<'3.7'",
     ],
-    extras_require={"test": ["pyyaml>=5.1.2", "pytest>=5.1.2"]},
+    entry_points={
+        "console_scripts": [
+            "netmiko-grep = netmiko.cli_tools.netmiko_grep:main_ep",
+            "netmiko-show= netmiko.cli_tools.netmiko_show:main_ep",
+            "netmiko-cfg= netmiko.cli_tools.netmiko_cfg:main_ep",
+        ]
+    },
 )
