@@ -1,5 +1,17 @@
 #!/usr/bin/env python
-"""Create grep like remote behavior on show run or command output."""
+"""
+Create grep like remote behavior on show run or command output.
+
+This fle and netmiko_tools are licensed using the Apache2 license:
+
+  https://github.com/ktbyers/netmiko_tools/blob/master/LICENSE
+
+Migrated from https://github.com/ktbyers/netmiko_tools on 2021-05-01.
+
+Github history for original contributions:
+
+  https://github.com/ktbyers/netmiko_tools
+"""
 from __future__ import print_function
 from __future__ import unicode_literals
 
