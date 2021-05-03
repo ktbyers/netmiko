@@ -32,20 +32,12 @@ Netmiko aims to accomplish both of these operations and to do it across a very b
 
 <br />
 
-## Quick Links
-
-- [Supported Platforms](https://ktbyers.github.io/netmiko/#supported-platforms)
-- [Installation](https://ktbyers.github.io/netmiko/#installation)
-- [Common Issues/FAQ](https://ktbyers.github.io/netmiko/#common-issuesfaq)
-- [API-Documentation](https://ktbyers.github.io/netmiko/#api-documentation)
-- [TextFSM Integration](https://ktbyers.github.io/netmiko/#textfsm-integration)
-- [Contributing](https://ktbyers.github.io/netmiko/#contributing)
-- [Questions/Discussion](https://ktbyers.github.io/netmiko/#questionsdiscussion)
-
 
 ## Supported Platforms
 
 [PLATFORMS](PLATFORMS.md)
+
+<br />
 
 
 ## Installation
@@ -56,6 +48,19 @@ To install netmiko, simply us pip:
 $ pip install netmiko
 ```
 
+<br />
+
+## API-Documentation
+
+[API-Documentation](https://ktbyers.github.io/netmiko/#api-documentation)
+
+<br />
+
+## Common Issues/FAQ
+
+Answers to some [common questions](COMMON_ISSUES.md)
+
+<br />
 
 ## Tutorials/Examples/Getting Started
 
@@ -133,16 +138,7 @@ pynet-rtr1(config)#end
 pynet-rtr1#
 ```
 
-
-## Common Issues/FAQ
-
-Answers to some [common questions](COMMON_ISSUES.md)
-
-Topics covered in above document:
-- Handling commands that prompt for additional input
-- Enabling logging of all reads/writes of the communication channel
-- Redispatch -- or connecting through a terminal server
-
+<br />
 
 ## API-Documentation
 
@@ -154,26 +150,19 @@ Below are some of the particularly handy Classes/functions for easy reference:
 - [SSH Dispatcher](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.ssh_dispatcher)
 - [Redispatch](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.redispatch)
 
-
-## TextFSM Integration
-
-Netmiko has been configured to automatically look in `~/ntc-template/templates/index` for the ntc-templates index file. Alternatively, you can explicitly tell Netmiko where to look for the TextFSM template directory by setting the `NET_TEXTFSM` environment variable (note, there must be an index file in this directory):
-
-```
-export NET_TEXTFSM=/path/to/ntc-templates/templates/
-```
-
-[More info on TextFSM and Netmiko](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html).
-
+<br />
 
 ## Contributing
 
-Contributors are always welcome! You can contribute to Netmiko in a variety of ways: spreading the word about Netmiko, answering questions on Slack (see below in Quests/Discussions), responding to issues, adding to the common issues, reporting/fixing bugs, or even adding your own device type.
+Contributors are welcome.
 
-Before contributing a new vendor/platform device type, remember that any code added needs to be supported in some fashion (much more so for the "regularly tested" devices and the core of Netmiko)! To add a vendor/platform you can follow the outline [here](VENDOR.md). Once you've worked on your first pass of your driver and have it functional, you'll need to include test data in order for it to be merged into develop, you can see the general flow of how to do that [here](TESTING.md).
+You can contribute to Netmiko in a variety of ways: answering questions on Slack (see below in Questions/Discussions), responding to issues, adding to the common issues, reporting/fixing bugs, or even adding your own device type.
+
+Before contributing a new vendor/platform device type, remember that any code added needs to be supported in some fashion. To add a vendor/platform you can follow the outline [here](VENDOR.md). Once you've worked on your first pass of your driver and have it functional, you'll need to include test data in order for it to be merged into develop, you can see the general flow of how to do that [here](TESTING.md).
 
 For all code contributions, please ensure that you have ran `black` against the code or your code will fail the Travis CI build.
 
+<br />
 
 ## Questions/Discussion
 
