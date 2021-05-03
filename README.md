@@ -45,18 +45,7 @@ Netmiko aims to accomplish both of these operations and to do it across a very b
 
 ## Supported Platforms
 
-Netmiko supports a wide range of devices. These devices fall into three categories:
-- Regularly Tested
-- Limited Testing
-- Experimental
-
-Regularly tested means we try to run our full test suite against that set of devices prior to each Netmiko release.
-
-Limited testing means the config and show operation system tests passed against a test on that platform at one point in time so we are reasonably comfortable the driver should generally work.
-
-Experimental means that we reviewed the PR and the driver seems reasonable, but we don't have good data on whether the driver fully passes the unit tests or how reliably it works.
-
-Click [PLATFORMS](PLATFORMS.md) for a list of all supported platforms.
+[PLATFORMS](PLATFORMS.md)
 
 
 ## Installation
@@ -66,12 +55,6 @@ To install netmiko, simply us pip:
 ```
 $ pip install netmiko
 ```
-
-Netmiko has the following requirements (which pip will install for you)
-- Paramiko >= 2.4.3
-- scp >= 0.13.2
-- pyserial
-- textfsm
 
 
 ## Tutorials/Examples/Getting Started
