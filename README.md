@@ -9,7 +9,7 @@
 Netmiko
 =======
 
-Multi-vendor library to simplify Paramiko SSH connections to network devices
+Multi-vendor library to simplify legacy CLI connections to network devices
 
 <br />
 
