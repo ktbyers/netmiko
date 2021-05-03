@@ -11,6 +11,11 @@ Netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
+## Examples
+You really should start here.
+
+- [Netmiko Examples](https://github.com/ktbyers/netmiko/blob/develop/EXAMPLES.md)
+
 ## Quick Links
 
 - [Supported Platforms](https://ktbyers.github.io/netmiko/#supported-platforms)
