@@ -62,21 +62,15 @@ Answers to some [common questions](COMMON_ISSUES.md)
 
 <br />
 
-## Tutorials/Examples/Getting Started
+### Tutorials
 
-### Tutorials:
-
-- [Getting Started](https://pynet.twb-tech.com/blog/automation/netmiko.html)
+- [Netmiko Overview](https://pynet.twb-tech.com/blog/automation/netmiko.html)
 - [Secure Copy](https://pynet.twb-tech.com/blog/automation/netmiko-scp.html)
 - [Netmiko through SSH Proxy](https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html)
 - [Netmiko and TextFSM](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html)
 - [Netmiko and what constitutes done](https://pynet.twb-tech.com/blog/automation/netmiko-what-is-done.html)
 
-
-### Examples:
-
-A whole bunch of [examples](https://github.com/ktbyers/netmiko/blob/develop/EXAMPLES.md)
-
+<br />
 
 ### Getting Started:
 
