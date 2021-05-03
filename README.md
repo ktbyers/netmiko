@@ -9,14 +9,14 @@
 Netmiko
 =======
 
-Multi-vendor library to simplify legacy CLI connections to network devices
+Multi-vendor library to simplify CLI connections to network devices
 
 <br />
 
 ## Why Netmiko?
-Network automation to legacy screen-scraping devices is primarily concerned with gathering output from show commands and with configuration changes.
+Network automation to screen-scraping devices is primarily concerned with gathering output from show commands and with making configuration changes.
 
-Netmiko aims to enable both of these two operations and to do it across a very broad set of platforms. It seeks to do this while abstracting away a large amount of the low-level state co    ntrol (i.e. while eliminating a lot of low-level regex pattern matching).
+Netmiko aims to accomplish both of these operations and to do it across a very broad set of platforms. It seeks to do this while abstracting away low-level state control (i.e. eliminate low-level regex pattern matching to the extent practical).
 
 <br />
 
