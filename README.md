@@ -16,10 +16,14 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 ## Getting Started
 - [Getting Started](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
 
+<br />
+
 ## Examples
 *You really should look here.*
 
 - [Netmiko Examples](https://github.com/ktbyers/netmiko/blob/develop/EXAMPLES.md)
+
+<br />
 
 ## Quick Links
 
