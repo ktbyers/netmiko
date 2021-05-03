@@ -13,6 +13,13 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 
 <br />
 
+## Why Netmiko?
+Network automation to legacy screen-scraping devices is primarily concerned with gathering output from show commands and with configuration changes.
+
+Netmiko aims to enable both of these two operations and to do it across a very broad set of platforms. It seeks to do this while abstracting away a large amount of the low-level state co    ntrol (i.e. while eliminating a lot of low-level regex pattern matching).
+
+<br />
+
 ## Getting Started
 - [Getting Started](#getting-started-1)
 
