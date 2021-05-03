@@ -14,7 +14,7 @@ Multi-vendor library to simplify Paramiko SSH connections to network devices
 <br />
 
 ## Getting Started
-- [Getting Started](https://ktbyers.github.io/netmiko/#getting-started-1)
+- [Getting Started](#getting-started-1)
 
 <br />
 
