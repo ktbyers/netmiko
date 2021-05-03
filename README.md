@@ -11,8 +11,11 @@ Netmiko
 
 Multi-vendor library to simplify Paramiko SSH connections to network devices
 
+## Getting Started
+- [Getting Started](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
+
 ## Examples
-You really should start here.
+*You really should look here.*
 
 - [Netmiko Examples](https://github.com/ktbyers/netmiko/blob/develop/EXAMPLES.md)
 
@@ -20,7 +23,6 @@ You really should start here.
 
 - [Supported Platforms](https://ktbyers.github.io/netmiko/#supported-platforms)
 - [Installation](https://ktbyers.github.io/netmiko/#installation)
-- [Tutorials/Examples/Getting Started](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
 - [Common Issues/FAQ](https://ktbyers.github.io/netmiko/#common-issuesfaq)
 - [API-Documentation](https://ktbyers.github.io/netmiko/#api-documentation)
 - [TextFSM Integration](https://ktbyers.github.io/netmiko/#textfsm-integration)
