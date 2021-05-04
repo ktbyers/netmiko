@@ -55,8 +55,6 @@ class CiscoNxosSSH(CiscoSSHConnection):
                 )
         else:
             # NX-OS is very slow on save_config ensure it waits long enough.
-            # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
-            # send_command so increase max_loops.
             output = self.send_command(
                 command_string=cmd,
                 strip_prompt=False,

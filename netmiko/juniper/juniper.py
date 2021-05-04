@@ -136,7 +136,6 @@ class JuniperBase(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor)
 
         # Commit is very slow so this is needed.
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor < 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
