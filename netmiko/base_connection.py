@@ -623,7 +623,6 @@ class BaseConnection(object):
         if delay_factor == 1 and max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
 
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor < 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -718,7 +717,6 @@ class BaseConnection(object):
         """
         delay_factor = self.select_delay_factor(delay_factor)
 
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor < 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1

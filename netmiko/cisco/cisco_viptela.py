@@ -22,7 +22,6 @@ class CiscoViptelaSSH(CiscoSSHConnection):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def commit(self, confirm=False, confirm_response=""):
-        # FIX: should re-implement to not call save_config() and to support more arguments
         cmd = "commit"
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
