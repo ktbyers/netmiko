@@ -72,6 +72,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "aruba_os" : {
+        "cmd": "show tech buffers",
+        "search_patterns": [r"HP"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_asa": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
