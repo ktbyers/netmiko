@@ -140,7 +140,7 @@ SSH_MAPPER_BASE = {
     },
     "hp_comware": {
         "cmd": "display version",
-        "search_patterns": ["HPE Comware"],
+        "search_patterns": ["HPE Comware", "HP Comware"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
