@@ -312,6 +312,7 @@ class BaseConnection(object):
             self.global_delay_factor = 0.1
 
         # set in set_base_prompt method
+        self.current_prompt = ""
         self.base_prompt = ""
         self._session_locker = Lock()
 
@@ -1204,6 +1205,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
         log.debug(f"[find_prompt()]: prompt is {prompt}")
+        self.current_prompt = prompt
         return prompt
 
     def clear_buffer(self, backoff=True):
