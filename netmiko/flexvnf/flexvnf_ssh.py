@@ -31,7 +31,7 @@ class FlexvnfSSH(BaseConnection):
             time.sleep(0.1 * delay_factor)
             cur_prompt = self.read_channel()
             if re.search(r"admin@", cur_prompt) or re.search(
-                r"^\$$", cur_prompt.strip()
+                r"\$$", cur_prompt.strip()
             ):
                 self.write_channel("cli" + self.RETURN)
                 time.sleep(0.3 * delay_factor)
