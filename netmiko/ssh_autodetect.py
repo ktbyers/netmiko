@@ -140,7 +140,7 @@ SSH_MAPPER_BASE = {
     },
     "hp_comware": {
         "cmd": "display version",
-        "search_patterns": ["HPE Comware"],
+        "search_patterns": ["HPE Comware", "HP Comware"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -421,6 +421,7 @@ class SSHDetect(object):
             r"%Error",
             r"command not found",
             r"Syntax Error: unexpected argument",
+            r"% Unrecognized command found at",
         ]
         if not cmd or not search_patterns:
             return 0
