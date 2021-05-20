@@ -101,6 +101,12 @@ dellos10:
   username: admin
   password: admin
 
+dell_enterprise_sonic:
+  device_type: dell_enterprise_sonic
+  ip: 192.168.23.129
+  username: admin
+  password: admin
+
 pluribus:
   device_type: pluribus_ssh
   ip: 172.17.19.1

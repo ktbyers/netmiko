@@ -110,6 +110,15 @@ dellos10:
   cmd_response_final: "host-description node"
   scp_remote_space: 1000
 
+dell_enterprise_sonic:
+  base_prompt: sonic
+  router_prompt : sonic#
+  interface_ip: 10.10.10.1
+  version_banner: "Software Version:"
+  multiple_line_output: "Name                Description         Admin          Oper           Speed          MTU"
+  cmd_response_init: ""
+  cmd_response_final: "100        Inactive"
+
 dell_powerconnect:
   base_prompt: myswitch
   router_prompt : myswitch#

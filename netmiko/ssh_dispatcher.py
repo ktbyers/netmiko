@@ -36,6 +36,7 @@ from netmiko.dell import DellDNOS6SSH
 from netmiko.dell import DellDNOS6Telnet
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellOS10SSH, DellOS10FileTransfer
+from netmiko.dell import DellEnterpriseSonicSSH
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
@@ -150,6 +151,7 @@ CLASS_MAPPER_BASE = {
     "dell_os6": DellDNOS6SSH,
     "dell_os9": DellForce10SSH,
     "dell_os10": DellOS10SSH,
+    "dell_enterprise_sonic": DellEnterpriseSonicSSH,
     "dell_powerconnect": DellPowerConnectSSH,
     "dell_isilon": DellIsilonSSH,
     "dlink_ds": DlinkDSSSH,
