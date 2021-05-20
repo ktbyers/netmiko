@@ -255,10 +255,10 @@ dellos10:
 dell_enterprise_sonic:
   version: "show version"
   basic: "show ip interfaces"
-  extended_output: "show interface status"
+  extended_output: "show running-configuration"
   config:
-    - "interface Vlan 100"
-  config_verification: "show Vlan | grep 100"
+    - "interface Vlan100"
+  config_verification: "show running-configuration"
 
 dell_powerconnect:
   version: "show version"

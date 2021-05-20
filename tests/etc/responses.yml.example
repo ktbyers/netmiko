@@ -113,11 +113,12 @@ dellos10:
 dell_enterprise_sonic:
   base_prompt: sonic
   router_prompt : sonic#
+  enable_prompt: sonic#
   interface_ip: 10.10.10.1
-  version_banner: "Software Version:"
-  multiple_line_output: "Name                Description         Admin          Oper           Speed          MTU"
+  version_banner: "Software Version"
+  multiple_line_output: "interface Management 0"
   cmd_response_init: ""
-  cmd_response_final: "100        Inactive"
+  cmd_response_final: "interface Vlan100"
 
 dell_powerconnect:
   base_prompt: myswitch
