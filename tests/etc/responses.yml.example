@@ -110,6 +110,16 @@ dellos10:
   cmd_response_final: "host-description node"
   scp_remote_space: 1000
 
+dell_sonic:
+  base_prompt: sonic
+  router_prompt : sonic#
+  enable_prompt: sonic#
+  interface_ip: 10.10.10.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface Management 0"
+  cmd_response_init: ""
+  cmd_response_final: "interface Vlan100"
+
 dell_powerconnect:
   base_prompt: myswitch
   router_prompt : myswitch#

@@ -252,6 +252,14 @@ dellos10:
     - "host-description node"
   config_verification: "show running-config"
 
+dell_sonic:
+  version: "show version"
+  basic: "show ip interfaces"
+  extended_output: "show running-configuration"
+  config:
+    - "interface Vlan100"
+  config_verification: "show running-configuration"
+
 dell_powerconnect:
   version: "show version"
   basic: "show ip interface vlan 1"
