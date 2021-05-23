@@ -110,7 +110,7 @@ dellos10:
   cmd_response_final: "host-description node"
   scp_remote_space: 1000
 
-dell_enterprise_sonic:
+dell_sonic:
   base_prompt: sonic
   router_prompt : sonic#
   enable_prompt: sonic#

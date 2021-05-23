@@ -252,7 +252,7 @@ dellos10:
     - "host-description node"
   config_verification: "show running-config"
 
-dell_enterprise_sonic:
+dell_sonic:
   version: "show version"
   basic: "show ip interfaces"
   extended_output: "show running-configuration"
