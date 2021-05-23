@@ -4,7 +4,6 @@ Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution by Dell Tec
 """
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.scp_handler import BaseFileTransfer
 from netmiko import log
 import time
 
@@ -30,7 +29,7 @@ class DellSonicSSH(CiscoSSHConnection):
 
     def _enter_shell(self):
         """Enter the sonic-cli Shell."""
-        log.debug(f"Enter sonic-cli Shell.")
+        log.debug("Enter sonic-cli Shell.")
         output = self.send_command("sonic-cli", expect_string=r"\#")
         return output
 
