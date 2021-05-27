@@ -104,7 +104,14 @@ class LinuxSSH(CiscoSSHConnection):
 
     def cleanup(self, command="exit"):
         """Try to Gracefully exit the SSH session."""
-        return super().cleanup(command=command)
+        self._session_log_fin = True
+        # no need to check config mode if logged in as root
+        if self.username == "root":
+            return self.write_channel(command)
+        else:
+            if self.check_config_mode():
+                self.exit_config_mode()
+            return self.write_channel(command)
 
     def save_config(self, *args, **kwargs):
         """Not Implemented"""
