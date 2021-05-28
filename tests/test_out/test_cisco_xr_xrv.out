@@ -1,0 +1,296 @@
+Starting tests...good luck:
+Cisco IOS-XR (xrv)
+============================= test session starts ==============================
+platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
+cachedir: .pytest_cache
+rootdir: /home/kbyers/netmiko, inifile: setup.cfg
+plugins: pylama-7.7.1
+collecting ... collected 20 items
+
+test_netmiko_show.py::test_disable_paging PASSED
+test_netmiko_show.py::test_terminal_width PASSED
+test_netmiko_show.py::test_ssh_connect PASSED
+test_netmiko_show.py::test_ssh_connect_cm PASSED
+test_netmiko_show.py::test_send_command_timing PASSED
+test_netmiko_show.py::test_send_command_timing_no_cmd_verify SKIPPED
+test_netmiko_show.py::test_send_command PASSED
+test_netmiko_show.py::test_send_command_no_cmd_verify SKIPPED
+test_netmiko_show.py::test_complete_on_space_disabled SKIPPED
+test_netmiko_show.py::test_send_command_textfsm PASSED
+test_netmiko_show.py::test_send_command_ttp SKIPPED
+test_netmiko_show.py::test_send_command_genie PASSED
+test_netmiko_show.py::test_base_prompt PASSED
+test_netmiko_show.py::test_strip_prompt PASSED
+test_netmiko_show.py::test_strip_command PASSED
+test_netmiko_show.py::test_normalize_linefeeds PASSED
+test_netmiko_show.py::test_clear_buffer PASSED
+test_netmiko_show.py::test_enable_mode PASSED
+test_netmiko_show.py::test_disconnect PASSED
+test_netmiko_show.py::test_disconnect_no_enable PASSED
+
+=========================== short test summary info ============================
+SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:68: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:86: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:108: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:151: TTP template not existing for this platform
+======================== 16 passed, 4 skipped in 57.55s ========================
+============================= test session starts ==============================
+platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
+cachedir: .pytest_cache
+rootdir: /home/kbyers/netmiko, inifile: setup.cfg
+plugins: pylama-7.7.1
+collecting ... collected 10 items
+
+test_netmiko_config.py::test_ssh_connect PASSED
+test_netmiko_config.py::test_enable_mode PASSED
+test_netmiko_config.py::test_config_mode PASSED
+test_netmiko_config.py::test_exit_config_mode PASSED
+test_netmiko_config.py::test_config_set PASSED
+test_netmiko_config.py::test_config_set_longcommand PASSED
+test_netmiko_config.py::test_config_hostname PASSED
+test_netmiko_config.py::test_config_from_file SKIPPED
+test_netmiko_config.py::test_config_error_pattern PASSED
+test_netmiko_config.py::test_disconnect PASSED
+
+=========================== short test summary info ============================
+SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_config.py:112: <Skipped instance>
+======================== 9 passed, 1 skipped in 18.99s =========================
+============================= test session starts ==============================
+platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
+cachedir: .pytest_cache
+rootdir: /home/kbyers/netmiko, inifile: setup.cfg
+plugins: pylama-7.7.1
+collecting ... collected 1 item
+
+test_netmiko_config_acl.py::test_large_acl PASSED
+
+============================== 1 passed in 31.10s ==============================
+============================= test session starts ==============================
+platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
+cachedir: .pytest_cache
+rootdir: /home/kbyers/netmiko, inifile: setup.cfg
+plugins: pylama-7.7.1
+collecting ... collected 15 items
+
+test_netmiko_commit.py::test_ssh_connect PASSED
+test_netmiko_commit.py::test_config_mode PASSED
+test_netmiko_commit.py::test_commit_base PASSED
+test_netmiko_commit.py::test_commit_confirm PASSED
+test_netmiko_commit.py::test_confirm_delay PASSED
+test_netmiko_commit.py::test_no_confirm PASSED
+test_netmiko_commit.py::test_clear_msg PASSED
+test_netmiko_commit.py::test_commit_check SKIPPED
+test_netmiko_commit.py::test_commit_comment PASSED
+test_netmiko_commit.py::test_commit_andquit SKIPPED
+test_netmiko_commit.py::test_commit_label PASSED
+test_netmiko_commit.py::test_commit_label_comment PASSED
+test_netmiko_commit.py::test_commit_label_confirm FAILED
+
+=================================== FAILURES ===================================
+__________________________ test_commit_label_confirm ___________________________
+
+net_connect = <netmiko.cisco.cisco_xr.CiscoXrSSH object at 0x7f1126459250>
+commands = {'basic': 'show ip interface brief', 'basic_textfsm': 'show interface brief', 'commit_verification': 'show configuration commit list 1 detail', 'config': ['logging buffered 4000000', 'no logging console', 'logging buffered 4000010'], ...}
+expected_responses = {'base_prompt': 'RP/0/0/CPU0:pynet-iosxr1', 'commit_comment': 'Unit test on commit with comment', 'enable_prompt': 'RP/0/0/CPU0:pynet-iosxr1#', 'interface_ip': '10.220.88.37', ...}
+
+    def test_commit_label_confirm(net_connect, commands, expected_responses):
+        """
+        Test commit label for IOS-XR with confirm
+        """
+        # IOS-XR only test
+        if net_connect.device_type != "cisco_xr":
+            assert pytest.skip()
+        else:
+            # Setup the initial config state
+            config_commands, support_commit, config_verify = setup_initial_state(
+                net_connect, commands, expected_responses
+            )
+    
+            # Execute change and commit
+            net_connect.send_config_set(config_commands)
+            label = "test_lbl_" + gen_random()
+            net_connect.commit(label=label, confirm=True, confirm_delay=120)
+    
+            cmd_response = expected_responses.get("cmd_response_final", config_commands[-1])
+            final_state = config_change_verify(net_connect, config_verify, cmd_response)
+            assert final_state is True
+    
+            # Verify commit label
+            commit_verification = commands.get("commit_verification")
+            tmp_output = net_connect.send_command(commit_verification)
+            match = re.search(r"Label: (.*)", tmp_output)
+            response_label = match.group(1)
+            response_label = response_label.strip()
+            assert label == response_label
+    
+>           net_connect.commit()
+
+test_netmiko_commit.py:397: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../netmiko/cisco/cisco_xr.py:99: in commit
+    output += self.send_command_expect(
+../netmiko/base_connection.py:1580: in send_command_expect
+    return self.send_command(*args, **kwargs)
+../netmiko/utilities.py:508: in wrapper_decorator
+    return func(self, *args, **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <netmiko.cisco.cisco_xr.CiscoXrSSH object at 0x7f1126459250>
+command_string = 'commit\n', expect_string = None, delay_factor = 0.1
+max_loops = 500, auto_find_prompt = True, strip_prompt = False
+strip_command = False, normalize = True, use_textfsm = False
+textfsm_template = None, use_ttp = False, ttp_template = None, use_genie = False
+cmd_verify = True
+
+    @select_cmd_verify
+    def send_command(
+        self,
+        command_string,
+        expect_string=None,
+        delay_factor=1,
+        max_loops=500,
+        auto_find_prompt=True,
+        strip_prompt=True,
+        strip_command=True,
+        normalize=True,
+        use_textfsm=False,
+        textfsm_template=None,
+        use_ttp=False,
+        ttp_template=None,
+        use_genie=False,
+        cmd_verify=True,
+    ):
+        """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
+        used for show commands. By default this method will keep waiting to receive data until the
+        network device prompt is detected. The current network device prompt will be determined
+        automatically.
+    
+        :param command_string: The command to be executed on the remote device.
+        :type command_string: str
+    
+        :param expect_string: Regular expression pattern to use for determining end of output.
+            If left blank will default to being based on router prompt.
+        :type expect_string: str
+    
+        :param delay_factor: Multiplying factor used to adjust delays (default: 1).
+        :type delay_factor: int
+    
+        :param max_loops: Controls wait time in conjunction with delay_factor. Will default to be
+            based upon self.timeout.
+        :type max_loops: int
+    
+        :param strip_prompt: Remove the trailing router prompt from the output (default: True).
+        :type strip_prompt: bool
+    
+        :param strip_command: Remove the echo of the command from the output (default: True).
+        :type strip_command: bool
+    
+        :param normalize: Ensure the proper enter is sent at end of command (default: True).
+        :type normalize: bool
+    
+        :param use_textfsm: Process command output through TextFSM template (default: False).
+        :type normalize: bool
+    
+        :param textfsm_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+    
+        :param use_ttp: Process command output through TTP template (default: False).
+        :type use_ttp: bool
+    
+        :param ttp_template: Name of template to parse output with; can be fully qualified
+            path, relative path, or name of file in current directory. (default: None).
+        :type ttp_template: str
+    
+        :param use_genie: Process command output through PyATS/Genie parser (default: False).
+        :type normalize: bool
+    
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+        :type cmd_verify: bool
+        """
+    
+        # Time to delay in each read loop
+        loop_delay = 0.2
+    
+        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
+        # and delay_factor arguments for backwards compatibility).
+        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor == 1 and max_loops == 500:
+            # Default arguments are being used; use self.timeout instead
+            max_loops = int(self.timeout / loop_delay)
+    
+        # Find the current router prompt
+        if expect_string is None:
+            if auto_find_prompt:
+                try:
+                    prompt = self.find_prompt(delay_factor=delay_factor)
+                except ValueError:
+                    prompt = self.base_prompt
+            else:
+                prompt = self.base_prompt
+            search_pattern = re.escape(prompt.strip())
+        else:
+            search_pattern = expect_string
+    
+        if normalize:
+            command_string = self.normalize_cmd(command_string)
+    
+        time.sleep(delay_factor * loop_delay)
+        self.clear_buffer()
+        self.write_channel(command_string)
+        new_data = ""
+    
+        cmd = command_string.strip()
+        # if cmd is just an "enter" skip this section
+        if cmd and cmd_verify:
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            new_data = self.read_until_pattern(pattern=re.escape(cmd))
+            new_data = self.normalize_linefeeds(new_data)
+            # Strip off everything before the command echo (to avoid false positives on the prompt)
+            if new_data.count(cmd) == 1:
+                new_data = new_data.split(cmd)[1:]
+                new_data = self.RESPONSE_RETURN.join(new_data)
+                new_data = new_data.lstrip()
+                new_data = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
+    
+        i = 1
+        output = ""
+        past_three_reads = deque(maxlen=3)
+        first_line_processed = False
+    
+        # Keep reading data until search_pattern is found or until max_loops is reached.
+        while i <= max_loops:
+            if new_data:
+                output += new_data
+                past_three_reads.append(new_data)
+    
+                # Case where we haven't processed the first_line yet (there is a potential issue
+                # in the first line (in cases where the line is repainted).
+                if not first_line_processed:
+                    output, first_line_processed = self._first_line_handler(
+                        output, search_pattern
+                    )
+                    # Check if we have already found our pattern
+                    if re.search(search_pattern, output):
+                        break
+    
+                else:
+                    # Check if pattern is in the past three reads
+                    if re.search(search_pattern, "".join(past_three_reads)):
+                        break
+    
+            time.sleep(delay_factor * loop_delay)
+            i += 1
+            new_data = self.read_channel()
+        else:  # nobreak
+>           raise IOError(
+                "Search pattern never detected in send_command: {}".format(
+                    search_pattern
+                )
+            )
+E           OSError: Search pattern never detected in send_command: RP/0/0/CPU0:pynet\-iosxr1\(config\)\#
+
+../netmiko/base_connection.py:1533: OSError
+=========================== short test summary info ============================
+SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_commit.py:232: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_commit.py:291: <Skipped instance>
+============= 1 failed, 10 passed, 2 skipped in 199.52s (0:03:19) ==============

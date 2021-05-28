@@ -6,7 +6,7 @@ import os
 import pytest
 
 from netmiko import ConnectHandler, FileTransfer, InLineTransfer, SSHDetect
-from tests.test_utils import parse_yaml
+from test_utils import parse_yaml
 
 
 PWD = path.dirname(path.realpath(__file__))
@@ -307,7 +307,7 @@ def scp_fixture(request):
 
     source_file = "test9.txt"
     dest_file = "test9.txt"
-    local_file = "testx.txt"
+    local_file = f"test_{platform}/testx.txt"
     direction = "put"
 
     scp_transfer = FileTransfer(
@@ -349,7 +349,7 @@ def scp_fixture_get(request):
     platform = device["device_type"]
     dest_file_system = platform_args[platform]["file_system"]
     source_file = "test9.txt"
-    local_file = "testx.txt"
+    local_file = f"test_{platform}/testx.txt"
     dest_file = local_file
     direction = "get"
 
@@ -388,12 +388,13 @@ def tcl_fixture(request):
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device["verbose"] = False
+    platform = device["device_type"]
     ssh_conn = ConnectHandler(**device)
 
     dest_file_system = "flash:"
     source_file = "test9.txt"
     dest_file = "test9.txt"
-    local_file = "testx.txt"
+    local_file = f"test_{platform}/testx.txt"
     direction = "put"
 
     tcl_transfer = InLineTransfer(
@@ -458,7 +459,7 @@ def scp_file_transfer(request):
     file_system = platform_args[platform]["file_system"]
     source_file = "test9.txt"
     dest_file = "test9.txt"
-    local_file = "testx.txt"
+    local_file = f"test_{platform}/testx.txt"
     alt_file = "test2.txt"
     direction = "put"
 

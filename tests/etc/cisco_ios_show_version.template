@@ -1,4 +1,0 @@
-Value Model (\S+)
-
-Start
-  ^Cisco IOS Software, Catalyst ${Model}
