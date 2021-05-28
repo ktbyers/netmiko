@@ -90,9 +90,11 @@ def test_config_hostname(net_connect, commands, expected_responses):
         net_connect.send_config_set(command)
         new_hostname = net_connect.find_prompt()
         assert hostname in new_hostname
+
         # Reset prompt back to original value
         net_connect.set_base_prompt()
         net_connect.send_config_set(f"hostname {current_hostname}")
+        net_connect.set_base_prompt()
 
 
 def test_config_from_file(net_connect, commands, expected_responses):
@@ -106,7 +108,7 @@ def test_config_from_file(net_connect, commands, expected_responses):
         config_commands_output = net_connect.send_command_expect(config_verify)
         assert expected_responses["file_check_cmd"] in config_commands_output
     else:
-        print("Skipping test (no file specified)...")
+        assert pytest.skip()
 
     if "nokia_sros" in net_connect.device_type:
         net_connect.save_config()

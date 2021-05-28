@@ -51,6 +51,7 @@ def net_connect_cmd_verify(request):
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device["verbose"] = False
+    device["fast_cli"] = False
     device["global_cmd_verify"] = False
     conn = ConnectHandler(**device)
     return conn
@@ -487,6 +488,16 @@ def get_platform_args():
         "cisco_ios": {
             "file_system": "flash:",
             "enable_scp": True,
+            "delete_file": delete_file_ios,
+        },
+        "cisco_xe": {
+            "file_system": "flash:",
+            "enable_scp": True,
+            "delete_file": delete_file_ios,
+        },
+        "cisco_asa": {
+            "file_system": "flash:",
+            "enable_scp": False,
             "delete_file": delete_file_ios,
         },
         "juniper_junos": {
