@@ -210,6 +210,7 @@ def test_ntc_templates_discovery():
     If `index` file is not found in any of these locations, raise ValueError
     """
 
+    import ipdb; ipdb.set_trace()
     # Check environment variable first
     os.environ["NET_TEXTFSM"] = RELATIVE_RESOURCE_FOLDER
     ntc_path = utilities.get_template_dir()
