@@ -16,15 +16,7 @@ test_disconnect: cleanly disconnect the SSH session
 """
 import pytest
 import time
-import os
 from datetime import datetime
-from netmiko.utilities import select_cmd_verify
-
-
-@select_cmd_verify
-def bogus_func(obj, *args, **kwargs):
-    """Function that just returns the arguments modified by the decorator."""
-    return (obj, args, kwargs)
 
 
 def test_disable_paging(net_connect, commands, expected_responses):
@@ -96,53 +88,6 @@ def test_send_command_no_cmd_verify(net_connect, commands, expected_responses):
     assert expected_responses["interface_ip"] in show_ip_alt
 
 
-def test_cmd_verify_decorator(net_connect_cmd_verify):
-    obj = net_connect_cmd_verify
-    # Global False should have precedence
-    assert obj.global_cmd_verify is False
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=True)
-    assert kwargs["cmd_verify"] is False
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
-    assert kwargs["cmd_verify"] is False
-
-    # Global True should have precedence
-    obj.global_cmd_verify = True
-    assert obj.global_cmd_verify is True
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=True)
-    assert kwargs["cmd_verify"] is True
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
-    assert kwargs["cmd_verify"] is True
-
-    # None should track the local argument
-    obj.global_cmd_verify = None
-    assert obj.global_cmd_verify is None
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=True)
-    assert kwargs["cmd_verify"] is True
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
-    assert kwargs["cmd_verify"] is False
-
-    # Set it back to proper False value (so later tests aren't messed up).
-    obj.global_cmd_verify = False
-
-
-def test_send_command_global_cmd_verify(
-    net_connect_cmd_verify, commands, expected_responses
-):
-    """
-    Verify a command can be sent down the channel successfully using send_command method.
-
-    Disable cmd_verify globally.
-    """
-    net_connect = net_connect_cmd_verify
-    if net_connect.fast_cli is True:
-        assert pytest.skip()
-    net_connect.clear_buffer()
-    # cmd_verify should be disabled globally at this point
-    assert net_connect.global_cmd_verify is False
-    show_ip_alt = net_connect.send_command(commands["basic"])
-    assert expected_responses["interface_ip"] in show_ip_alt
-
-
 def test_complete_on_space_disabled(net_connect, commands, expected_responses):
     """Verify complete on space is disabled."""
     # If complete on space is enabled will get re-written to "show configuration groups"
@@ -209,18 +154,15 @@ def test_send_command_ttp(net_connect):
 
         # write a simple template to file
         ttp_raw_template = """
-        interface {{ interface }}
-         description {{ description }}
+        description {{ description }}
         """
-        ttp_temp_filename = "show_run_interfaces.ttp"
-        with open(ttp_temp_filename, "w") as writer:
+        with open("show_run_interfaces.ttp", "w") as writer:
             writer.write(ttp_raw_template)
 
-        command = "show run"
+        command = "show run | s interfaces"
         show_ip_alt = net_connect.send_command(
-            command, use_ttp=True, ttp_template=ttp_temp_filename
+            command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
         )
-        os.remove(ttp_temp_filename)
         assert isinstance(show_ip_alt, list)
 
 
@@ -244,7 +186,9 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         time.sleep(1)
         net_connect.clear_buffer()
         fallback_cmd = commands.get("basic")
-        command = commands.get("basic_textfsm", fallback_cmd)
+        command = commands.get("basic_genie")
+        if not command:
+            command = commands.get("basic_textfsm", fallback_cmd)
         show_ip_alt = net_connect.send_command(command, use_genie=True)
         assert isinstance(show_ip_alt, dict)
 
