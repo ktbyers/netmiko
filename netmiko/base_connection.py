@@ -6,7 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-from typing import Optional
+from typing import Optional, Callable, Any
 import io
 import re
 import socket
@@ -15,6 +15,7 @@ import time
 from collections import deque
 from os import path
 from threading import Lock
+import functools
 
 import paramiko
 import serial
@@ -37,6 +38,20 @@ from netmiko.utilities import (
     select_cmd_verify,
 )
 from netmiko.utilities import m_exec_time  # noqa
+
+
+def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
+    @functools.wraps(func)
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
+        self._lock_netmiko_session()
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always unlock the channel, even on exception.
+            self._unlock_netmiko_session()
+        return return_val
+
+    return wrapper_decorator
 
 
 class BaseConnection(object):
@@ -408,11 +423,12 @@ class BaseConnection(object):
         if self._session_locker.locked():
             self._session_locker.release()
 
-    def _write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel.
+    @lock_channel
+    def write_channel(self, out_data: str) -> None:
+        """Generic method that will write data out the channel.
 
         :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
+        :type out_data: str
         """
         if self.protocol == "ssh":
             self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
@@ -449,19 +465,6 @@ class BaseConnection(object):
                 self.session_log.write(self.normalize_linefeeds(data))
             self.session_log.flush()
 
-    def write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel.
-
-        :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
-        """
-        self._lock_netmiko_session()
-        try:
-            self._write_channel(out_data)
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
-
     def is_alive(self):
         """Returns a boolean flag with the state of the connection."""
         null = chr(0)
@@ -493,8 +496,9 @@ class BaseConnection(object):
                 return False
         return False
 
-    def _read_channel(self):
-        """Generic handler that will read all the data from an SSH or telnet channel."""
+    @lock_channel
+    def read_channel(self) -> str:
+        """Generic handler that will read all the data from given channel."""
         if self.protocol == "ssh":
             output = ""
             while True:
@@ -517,17 +521,6 @@ class BaseConnection(object):
             output = self.strip_ansi_escape_codes(output)
         log.debug(f"read_channel: {output}")
         self._write_session_log(output)
-        return output
-
-    def read_channel(self):
-        """Generic handler that will read all the data from an SSH or telnet channel."""
-        output = ""
-        self._lock_netmiko_session()
-        try:
-            output = self._read_channel()
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
         return output
 
     def _read_channel_expect(self, pattern="", re_flags=0, max_loops=150):
