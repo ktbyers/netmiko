@@ -6,6 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
+from typing import Optional
 import io
 import re
 import socket
@@ -1223,20 +1224,19 @@ Device settings: {self.device_type} {self.host}:{self.port}
     @select_cmd_verify
     def send_command_timing(
         self,
-        command_string,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=False,
-        cmd_echo=None,
-    ):
+        command_string: str,
+        delay_factor: float = 1.0,
+        max_loops: int = 150,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = False,
+    ) -> str:
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
@@ -1278,14 +1278,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
         :type cmd_verify: bool
-
-        :param cmd_echo: Deprecated (use cmd_verify instead)
-        :type cmd_echo: bool
         """
-
-        # For compatibility; remove cmd_echo in Netmiko 4.x.x
-        if cmd_echo is not None:
-            cmd_verify = cmd_echo
 
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -1393,21 +1386,21 @@ Device settings: {self.device_type} {self.host}:{self.port}
     @select_cmd_verify
     def send_command(
         self,
-        command_string,
-        expect_string=None,
-        delay_factor=1,
-        max_loops=500,
-        auto_find_prompt=True,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=True,
-    ):
+        command_string: str,
+        expect_string: Optional[str] = None,
+        delay_factor: float = 1.0,
+        max_loops: int = 500,
+        auto_find_prompt: bool = True,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = True,
+    ) -> str:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
