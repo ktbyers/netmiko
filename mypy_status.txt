@@ -1,0 +1,4 @@
+# mypy ./netmiko/base_connection.py
+# 2021-06-01
+...
+Found 1896 errors in 93 files (checked 1 source file)
