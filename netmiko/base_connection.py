@@ -6,6 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
+from typing import Optional, Callable, Any
 import io
 import re
 import socket
@@ -14,6 +15,7 @@ import time
 from collections import deque
 from os import path
 from threading import Lock
+import functools
 
 import paramiko
 import serial
@@ -36,6 +38,20 @@ from netmiko.utilities import (
     select_cmd_verify,
 )
 from netmiko.utilities import m_exec_time  # noqa
+
+
+def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
+    @functools.wraps(func)
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
+        self._lock_netmiko_session()
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always unlock the channel, even on exception.
+            self._unlock_netmiko_session()
+        return return_val
+
+    return wrapper_decorator
 
 
 class BaseConnection(object):
@@ -407,11 +423,12 @@ class BaseConnection(object):
         if self._session_locker.locked():
             self._session_locker.release()
 
-    def _write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel.
+    @lock_channel
+    def write_channel(self, out_data: str) -> None:
+        """Generic method that will write data out the channel.
 
         :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
+        :type out_data: str
         """
         if self.protocol == "ssh":
             self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
@@ -448,19 +465,6 @@ class BaseConnection(object):
                 self.session_log.write(self.normalize_linefeeds(data))
             self.session_log.flush()
 
-    def write_channel(self, out_data):
-        """Generic handler that will write to both SSH and telnet channel.
-
-        :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
-        """
-        self._lock_netmiko_session()
-        try:
-            self._write_channel(out_data)
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
-
     def is_alive(self):
         """Returns a boolean flag with the state of the connection."""
         null = chr(0)
@@ -492,8 +496,9 @@ class BaseConnection(object):
                 return False
         return False
 
-    def _read_channel(self):
-        """Generic handler that will read all the data from an SSH or telnet channel."""
+    @lock_channel
+    def read_channel(self) -> str:
+        """Generic handler that will read all the data from given channel."""
         if self.protocol == "ssh":
             output = ""
             while True:
@@ -516,17 +521,6 @@ class BaseConnection(object):
             output = self.strip_ansi_escape_codes(output)
         log.debug(f"read_channel: {output}")
         self._write_session_log(output)
-        return output
-
-    def read_channel(self):
-        """Generic handler that will read all the data from an SSH or telnet channel."""
-        output = ""
-        self._lock_netmiko_session()
-        try:
-            output = self._read_channel()
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
         return output
 
     def _read_channel_expect(self, pattern="", re_flags=0, max_loops=150):
@@ -1223,20 +1217,19 @@ Device settings: {self.device_type} {self.host}:{self.port}
     @select_cmd_verify
     def send_command_timing(
         self,
-        command_string,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=False,
-        cmd_echo=None,
-    ):
+        command_string: str,
+        delay_factor: float = 1.0,
+        max_loops: int = 150,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = False,
+    ) -> str:
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
@@ -1278,14 +1271,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
         :type cmd_verify: bool
-
-        :param cmd_echo: Deprecated (use cmd_verify instead)
-        :type cmd_echo: bool
         """
-
-        # For compatibility; remove cmd_echo in Netmiko 4.x.x
-        if cmd_echo is not None:
-            cmd_verify = cmd_echo
 
         output = ""
         delay_factor = self.select_delay_factor(delay_factor)
@@ -1393,21 +1379,21 @@ Device settings: {self.device_type} {self.host}:{self.port}
     @select_cmd_verify
     def send_command(
         self,
-        command_string,
-        expect_string=None,
-        delay_factor=1,
-        max_loops=500,
-        auto_find_prompt=True,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=True,
-    ):
+        command_string: str,
+        expect_string: Optional[str] = None,
+        delay_factor: float = 1.0,
+        max_loops: int = 500,
+        auto_find_prompt: bool = True,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = True,
+    ) -> str:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
