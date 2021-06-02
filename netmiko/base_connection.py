@@ -28,7 +28,7 @@ from netmiko.ssh_exception import (
     NetmikoAuthenticationException,
     ConfigInvalidException,
 )
-from netmiko.channel import SSHChannel
+from netmiko.channel import SSHChannel, TelnetChannel
 from netmiko.utilities import (
     write_bytes,
     check_serial_port,
@@ -431,10 +431,8 @@ class BaseConnection(object):
         :param out_data: data to be written to the channel
         :type out_data: str
         """
-        if self.protocol == "ssh":
+        if self.protocol in ["ssh", "telnet"]:
             self.channel.write_channel(out_data)
-        elif self.protocol == "telnet":
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
         elif self.protocol == "serial":
             self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
             self.remote_conn.flush()
@@ -501,10 +499,8 @@ class BaseConnection(object):
     @lock_channel
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
-        if self.protocol == "ssh":
+        if self.protocol in ["ssh", "telnet"]:
             output = self.channel.read_channel()
-        elif self.protocol == "telnet":
-            output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
         elif self.protocol == "serial":
             output = ""
             while self.remote_conn.in_waiting > 0:
@@ -906,6 +902,10 @@ class BaseConnection(object):
                 self.host, port=self.port, timeout=self.timeout
             )
             self.telnet_login()
+
+            # Migrating communication to channel class
+            self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
+
         elif self.protocol == "serial":
             self.remote_conn = serial.Serial(**self.serial_settings)
             self.serial_login()

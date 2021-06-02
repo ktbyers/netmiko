@@ -67,7 +67,7 @@ class SSHChannel(Channel):
             self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
     def read_buffer(self) -> str:
-        """Single read of available data. No sleeps."""
+        """Single read of available data."""
         output = ""
         if self.remote_conn is None:
             return output
@@ -79,7 +79,7 @@ class SSHChannel(Channel):
         return output
 
     def read_channel(self) -> str:
-        """Read all of the available data from the SSH channel. No sleeps."""
+        """Read all of the available data from the channel."""
         output = ""
         while True:
             new_output = self.read_buffer()
@@ -87,3 +87,26 @@ class SSHChannel(Channel):
             if new_output == "":
                 break
         return output
+
+
+class TelnetChannel(Channel):
+    def __init__(self, conn, encoding) -> None:
+        """
+        Placeholder __init__ method so that reading and writing can be moved to the
+        channel class.
+        """
+        self.remote_conn = conn
+        # FIX: move encoding to GlobalState object?
+        self.encoding = encoding
+
+    def write_channel(self, out_data: str) -> None:
+        if self.remote_conn is not None:
+            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
+
+    def read_buffer(self) -> str:
+        """Single read of available data."""
+        raise NotImplementedError
+
+    def read_channel(self) -> str:
+        """Read all of the available data from the channel."""
+        return self.remote_conn.read_very_eager().decode("utf-8", "ignore")
