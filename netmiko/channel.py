@@ -53,7 +53,7 @@ class Channel(ABC):
 
 
 class SSHChannel(Channel):
-    def __init__(self, conn, encoding) -> None:
+    def __init__(self, conn, encoding: str) -> None:
         """
         Placeholder __init__ method so that reading and writing can be moved to the
         channel class.
@@ -90,7 +90,7 @@ class SSHChannel(Channel):
 
 
 class TelnetChannel(Channel):
-    def __init__(self, conn, encoding) -> None:
+    def __init__(self, conn, encoding: str) -> None:
         """
         Placeholder __init__ method so that reading and writing can be moved to the
         channel class.
@@ -110,3 +110,33 @@ class TelnetChannel(Channel):
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
         return self.remote_conn.read_very_eager().decode("utf-8", "ignore")
+
+
+class SerialChannel(Channel):
+    def __init__(self, conn, encoding: str) -> None:
+        """
+        Placeholder __init__ method so that reading and writing can be moved to the
+        channel class.
+        """
+        self.remote_conn = conn
+        # FIX: move encoding to GlobalState object?
+        self.encoding = encoding
+
+    def write_channel(self, out_data: str) -> None:
+        if self.remote_conn is not None:
+            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
+            self.remote_conn.flush()
+
+    def read_buffer(self) -> str:
+        """Single read of available data."""
+        if self.remote_conn.in_waiting > 0:
+            return self.remote_conn.read(self.remote_conn.in_waiting).decode(
+                "utf-8", "ignore"
+            )
+
+    def read_channel(self) -> str:
+        """Read all of the available data from the channel."""
+        output = ""
+        while self.remote_conn.in_waiting > 0:
+            output += self.read_buffer()
+        return output

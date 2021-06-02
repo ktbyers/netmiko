@@ -28,7 +28,7 @@ from netmiko.ssh_exception import (
     NetmikoAuthenticationException,
     ConfigInvalidException,
 )
-from netmiko.channel import SSHChannel, TelnetChannel
+from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.utilities import (
     write_bytes,
     check_serial_port,
@@ -431,14 +431,7 @@ class BaseConnection(object):
         :param out_data: data to be written to the channel
         :type out_data: str
         """
-        if self.protocol in ["ssh", "telnet"]:
-            self.channel.write_channel(out_data)
-        elif self.protocol == "serial":
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-            self.remote_conn.flush()
-        else:
-            raise ValueError("Invalid protocol specified")
-
+        self.channel.write_channel(out_data)
         try:
             log.debug(
                 "write_channel: {}".format(
@@ -499,14 +492,7 @@ class BaseConnection(object):
     @lock_channel
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
-        if self.protocol in ["ssh", "telnet"]:
-            output = self.channel.read_channel()
-        elif self.protocol == "serial":
-            output = ""
-            while self.remote_conn.in_waiting > 0:
-                output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                    "utf-8", "ignore"
-                )
+        output = self.channel.read_channel()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         log.debug(f"read_channel: {output}")
@@ -906,6 +892,7 @@ class BaseConnection(object):
             self.telnet_login()
         elif self.protocol == "serial":
             self.remote_conn = serial.Serial(**self.serial_settings)
+            self.channel = SerialChannel(conn=self.remote_conn, encoding=self.encoding)
             self.serial_login()
         elif self.protocol == "ssh":
             ssh_connect_params = self._connect_params_dict()
