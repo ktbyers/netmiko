@@ -33,12 +33,12 @@ class Channel(ABC):
 
     @abstractmethod
     def read_buffer(self) -> str:
-        """Single read of available data. No sleeps."""
+        """Single read of available data."""
         pass
 
     @abstractmethod
     def read_channel(self) -> str:
-        """Read all of the available data from the SSH channel. No sleeps."""
+        """Read all of the available data from the channel."""
         pass
 
     @abstractmethod
