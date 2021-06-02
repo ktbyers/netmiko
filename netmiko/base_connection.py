@@ -901,11 +901,9 @@ class BaseConnection(object):
             self.remote_conn = telnetlib.Telnet(
                 self.host, port=self.port, timeout=self.timeout
             )
-            self.telnet_login()
-
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
-
+            self.telnet_login()
         elif self.protocol == "serial":
             self.remote_conn = serial.Serial(**self.serial_settings)
             self.serial_login()
