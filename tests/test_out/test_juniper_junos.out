@@ -29,11 +29,11 @@ test_netmiko_show.py::test_disconnect PASSED
 test_netmiko_show.py::test_disconnect_no_enable PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:68: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:86: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:151: TTP template not existing for this platform
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:185: Genie not supported on this platform
-======================== 16 passed, 4 skipped in 43.11s ========================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:68: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:86: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:151: TTP template not existing for this platform
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:185: Genie not supported on this platform
+======================== 16 passed, 4 skipped in 43.36s ========================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -53,8 +53,8 @@ test_netmiko_config.py::test_config_error_pattern PASSED
 test_netmiko_config.py::test_disconnect PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_config.py:112: <Skipped instance>
-=================== 9 passed, 1 skipped in 154.90s (0:02:34) ===================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_config.py:113: <Skipped instance>
+=================== 9 passed, 1 skipped in 154.94s (0:02:34) ===================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -62,65 +62,58 @@ rootdir: /home/kbyers/netmiko, inifile: setup.cfg
 plugins: pylama-7.7.1
 collecting ... collected 1 item
 
-test_netmiko_config_acl.py::test_large_acl PASSED
+test_netmiko_config_acl.py::test_large_acl FAILED
 
-======================== 1 passed in 114.70s (0:01:54) =========================
-============================= test session starts ==============================
-platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
-cachedir: .pytest_cache
-rootdir: /home/kbyers/netmiko, inifile: setup.cfg
-plugins: pylama-7.7.1
-collecting ... collected 15 items
+=================================== FAILURES ===================================
+________________________________ test_large_acl ________________________________
 
-test_netmiko_commit.py::test_ssh_connect PASSED
-test_netmiko_commit.py::test_config_mode PASSED
-test_netmiko_commit.py::test_commit_base PASSED
-test_netmiko_commit.py::test_commit_confirm PASSED
-test_netmiko_commit.py::test_confirm_delay PASSED
-test_netmiko_commit.py::test_no_confirm PASSED
-test_netmiko_commit.py::test_clear_msg PASSED
-test_netmiko_commit.py::test_commit_check PASSED
-test_netmiko_commit.py::test_commit_comment PASSED
-test_netmiko_commit.py::test_commit_andquit PASSED
-test_netmiko_commit.py::test_commit_label PASSED
-test_netmiko_commit.py::test_commit_label_comment SKIPPED
-test_netmiko_commit.py::test_commit_label_confirm SKIPPED
-test_netmiko_commit.py::test_exit_config_mode PASSED
-test_netmiko_commit.py::test_disconnect PASSED
+net_connect = <netmiko.juniper.juniper.JuniperSSH object at 0x7f0f78bb45e0>
+commands = {'abbreviated_cmd': 'show configuration gr ', 'abbreviated_cmd_full': 'show configuration groups', 'basic': 'show interfaces terse', 'basic_textfsm': 'show interfaces', ...}
+expected_responses = {'base_prompt': 'pyclass@vmx1', 'cmd_response_final': 'archive size 120k files 3', 'cmd_response_init': 'archive size 110k files 3', 'commit_comment': 'Unit test on commit with comment', ...}
+acl_entries = 100
 
-=========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_commit.py:341: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_commit.py:374: <Skipped instance>
-================== 13 passed, 2 skipped in 508.31s (0:08:28) ===================
-============================= test session starts ==============================
-platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
-cachedir: .pytest_cache
-rootdir: /home/kbyers/netmiko, inifile: setup.cfg
-plugins: pylama-7.7.1
-collecting ... collected 12 items
+    def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
+        """Test configuring a large ACL."""
+        if commands.get("config_long_acl"):
+            acl_config = commands.get("config_long_acl")
+            base_cmd = acl_config["base_cmd"]
+            verify_cmd = acl_config["verify_cmd"]
+            delete_cmd = acl_config.get("delete_cmd")
+            offset = acl_config["offset"]
+        else:
+            pytest.skip("Platform not supported for ACL test")
+    
+        platform = net_connect.device_type
+        support_commit = commands.get("support_commit")
+    
+        if "juniper_junos" in platform or "cisco_asa" in platform:
+            cmd = delete_cmd
+        else:
+            cmd = f"no {base_cmd}"
+        remove_acl(net_connect, cmd=cmd, commit=support_commit)
+    
+        # Generate the ACL
+        platform = net_connect.device_type
+        if "cisco_ios" in net_connect.device_type or "cisco_xe" in net_connect.device_type:
+            cfg_lines = generate_ios_acl()
+        else:
+            func_name = f"generate_{platform}_acl"
+            acl_func = globals()[func_name]
+            cfg_lines = acl_func()
+    
+        # Send ACL to remote devices
+        result = net_connect.send_config_set(cfg_lines)
+        if support_commit:
+            net_connect.commit()
+            net_connect.exit_config_mode()
+    
+        # send_config_set should return same num lines + offset lines for entering/exiting cfg-mode
+        # NX-OS is will have more than one newline (per line)
+        result_list = re.split(r"\n+", result)
+>       assert len(result_list) == len(cfg_lines) + offset
+E       assert 207 == 206
+E         -207
+E         +206
 
-test_netmiko_scp.py::test_scp_put PASSED
-test_netmiko_scp.py::test_remote_space_available PASSED
-test_netmiko_scp.py::test_local_space_available PASSED
-test_netmiko_scp.py::test_verify_space_available_put PASSED
-test_netmiko_scp.py::test_remote_file_size PASSED
-test_netmiko_scp.py::test_md5_methods PASSED
-test_netmiko_scp.py::test_disconnect PASSED
-test_netmiko_scp.py::test_verify_space_available_get PASSED
-test_netmiko_scp.py::test_scp_get PASSED
-test_netmiko_scp.py::test_md5_methods_get PASSED
-test_netmiko_scp.py::test_disconnect_get PASSED
-test_netmiko_scp.py::test_file_transfer PASSED
-
-============================= 12 passed in 33.01s ==============================
-============================= test session starts ==============================
-platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
-cachedir: .pytest_cache
-rootdir: /home/kbyers/netmiko, inifile: setup.cfg
-plugins: pylama-7.7.1
-collecting ... collected 1 item
-
-test_netmiko_autodetect.py::test_ssh_connect juniper_junos
-PASSED
-
-============================== 1 passed in 10.68s ==============================
+test_netmiko_config_acl.py:58: AssertionError
+========================= 1 failed in 86.87s (0:01:26) =========================

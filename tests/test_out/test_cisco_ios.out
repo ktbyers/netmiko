@@ -29,10 +29,10 @@ test_netmiko_show.py::test_disconnect PASSED
 test_netmiko_show.py::test_disconnect_no_enable PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:68: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:86: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:108: <Skipped instance>
-======================== 17 passed, 3 skipped in 32.77s ========================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:68: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:86: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:108: <Skipped instance>
+======================== 17 passed, 3 skipped in 31.71s ========================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -43,7 +43,7 @@ collecting ... collected 2 items
 test_netmiko_save.py::test_save_base PASSED
 test_netmiko_save.py::test_disconnect PASSED
 
-============================== 2 passed in 6.72s ===============================
+============================== 2 passed in 5.75s ===============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -54,7 +54,7 @@ collecting ... collected 2 items
 test_netmiko_cmd_verify.py::test_cmd_verify_decorator PASSED
 test_netmiko_cmd_verify.py::test_send_command_global_cmd_verify PASSED
 
-============================== 2 passed in 2.62s ===============================
+============================== 2 passed in 2.77s ===============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -73,7 +73,7 @@ test_netmiko_config.py::test_config_from_file PASSED
 test_netmiko_config.py::test_config_error_pattern PASSED
 test_netmiko_config.py::test_disconnect PASSED
 
-============================== 10 passed in 7.37s ==============================
+============================== 10 passed in 7.06s ==============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -83,7 +83,7 @@ collecting ... collected 1 item
 
 test_netmiko_config_acl.py::test_large_acl PASSED
 
-============================== 1 passed in 6.25s ===============================
+============================== 1 passed in 7.01s ===============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -98,7 +98,7 @@ test_netmiko_tcl.py::test_remote_file_size PASSED
 test_netmiko_tcl.py::test_md5_methods PASSED
 test_netmiko_tcl.py::test_disconnect PASSED
 
-============================== 6 passed in 12.09s ==============================
+============================== 6 passed in 12.07s ==============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -119,7 +119,7 @@ test_netmiko_scp.py::test_md5_methods_get PASSED
 test_netmiko_scp.py::test_disconnect_get PASSED
 test_netmiko_scp.py::test_file_transfer PASSED
 
-============================= 12 passed in 22.72s ==============================
+============================= 12 passed in 22.16s ==============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -130,4 +130,4 @@ collecting ... collected 1 item
 test_netmiko_autodetect.py::test_ssh_connect cisco_ios
 PASSED
 
-============================== 1 passed in 7.15s ===============================
+============================== 1 passed in 7.14s ===============================

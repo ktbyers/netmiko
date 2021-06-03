@@ -29,12 +29,12 @@ test_netmiko_show.py::test_disconnect PASSED
 test_netmiko_show.py::test_disconnect_no_enable PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:68: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:86: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:108: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:151: TTP template not existing for this platform
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:185: Genie not supported on this platform
-======================== 15 passed, 5 skipped in 32.57s ========================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:68: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:86: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:108: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:151: TTP template not existing for this platform
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:185: Genie not supported on this platform
+======================== 15 passed, 5 skipped in 32.55s ========================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -45,7 +45,7 @@ collecting ... collected 2 items
 test_netmiko_save.py::test_save_base PASSED
 test_netmiko_save.py::test_disconnect PASSED
 
-============================== 2 passed in 3.26s ===============================
+============================== 2 passed in 3.07s ===============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -65,8 +65,8 @@ test_netmiko_config.py::test_config_error_pattern PASSED
 test_netmiko_config.py::test_disconnect PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_config.py:112: <Skipped instance>
-======================== 9 passed, 1 skipped in 15.69s =========================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_config.py:113: <Skipped instance>
+======================== 9 passed, 1 skipped in 13.39s =========================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -76,7 +76,7 @@ collecting ... collected 1 item
 
 test_netmiko_config_acl.py::test_large_acl PASSED
 
-============================== 1 passed in 31.55s ==============================
+============================== 1 passed in 27.23s ==============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -97,7 +97,7 @@ test_netmiko_scp.py::test_md5_methods_get PASSED
 test_netmiko_scp.py::test_disconnect_get PASSED
 test_netmiko_scp.py::test_file_transfer PASSED
 
-============================= 12 passed in 49.72s ==============================
+============================= 12 passed in 50.97s ==============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -108,4 +108,4 @@ collecting ... collected 1 item
 test_netmiko_autodetect.py::test_ssh_connect arista_eos
 PASSED
 
-============================== 1 passed in 7.42s ===============================
+============================== 1 passed in 7.41s ===============================

@@ -29,11 +29,11 @@ test_netmiko_show.py::test_disconnect PASSED
 test_netmiko_show.py::test_disconnect_no_enable PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:68: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:86: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:108: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:151: TTP template not existing for this platform
-======================== 16 passed, 4 skipped in 57.55s ========================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:68: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:86: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:108: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:151: TTP template not existing for this platform
+=================== 16 passed, 4 skipped in 60.51s (0:01:00) ===================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -53,8 +53,8 @@ test_netmiko_config.py::test_config_error_pattern PASSED
 test_netmiko_config.py::test_disconnect PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_config.py:112: <Skipped instance>
-======================== 9 passed, 1 skipped in 18.99s =========================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_config.py:113: <Skipped instance>
+======================== 9 passed, 1 skipped in 19.29s =========================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -64,7 +64,7 @@ collecting ... collected 1 item
 
 test_netmiko_config_acl.py::test_large_acl PASSED
 
-============================== 1 passed in 31.10s ==============================
+============================== 1 passed in 30.80s ==============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -89,53 +89,23 @@ test_netmiko_commit.py::test_commit_label_confirm FAILED
 =================================== FAILURES ===================================
 __________________________ test_commit_label_confirm ___________________________
 
-net_connect = <netmiko.cisco.cisco_xr.CiscoXrSSH object at 0x7f1126459250>
+net_connect = <netmiko.cisco.cisco_xr.CiscoXrSSH object at 0x7f4818dcbaf0>
 commands = {'basic': 'show ip interface brief', 'basic_textfsm': 'show interface brief', 'commit_verification': 'show configuration commit list 1 detail', 'config': ['logging buffered 4000000', 'no logging console', 'logging buffered 4000010'], ...}
 expected_responses = {'base_prompt': 'RP/0/0/CPU0:pynet-iosxr1', 'commit_comment': 'Unit test on commit with comment', 'enable_prompt': 'RP/0/0/CPU0:pynet-iosxr1#', 'interface_ip': '10.220.88.37', ...}
 
-    def test_commit_label_confirm(net_connect, commands, expected_responses):
-        """
-        Test commit label for IOS-XR with confirm
-        """
-        # IOS-XR only test
-        if net_connect.device_type != "cisco_xr":
-            assert pytest.skip()
-        else:
-            # Setup the initial config state
-            config_commands, support_commit, config_verify = setup_initial_state(
-                net_connect, commands, expected_responses
-            )
-    
-            # Execute change and commit
-            net_connect.send_config_set(config_commands)
-            label = "test_lbl_" + gen_random()
-            net_connect.commit(label=label, confirm=True, confirm_delay=120)
-    
-            cmd_response = expected_responses.get("cmd_response_final", config_commands[-1])
-            final_state = config_change_verify(net_connect, config_verify, cmd_response)
-            assert final_state is True
-    
-            # Verify commit label
-            commit_verification = commands.get("commit_verification")
-            tmp_output = net_connect.send_command(commit_verification)
-            match = re.search(r"Label: (.*)", tmp_output)
-            response_label = match.group(1)
-            response_label = response_label.strip()
-            assert label == response_label
-    
->           net_connect.commit()
+>   ???
 
-test_netmiko_commit.py:397: 
+/home/kbyers/netmiko/tests_new/test_netmiko_commit.py:397: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 ../netmiko/cisco/cisco_xr.py:99: in commit
     output += self.send_command_expect(
-../netmiko/base_connection.py:1580: in send_command_expect
+../netmiko/base_connection.py:1545: in send_command_expect
     return self.send_command(*args, **kwargs)
 ../netmiko/utilities.py:508: in wrapper_decorator
     return func(self, *args, **kwargs)
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <netmiko.cisco.cisco_xr.CiscoXrSSH object at 0x7f1126459250>
+self = <netmiko.cisco.cisco_xr.CiscoXrSSH object at 0x7f4818dcbaf0>
 command_string = 'commit\n', expect_string = None, delay_factor = 0.1
 max_loops = 500, auto_find_prompt = True, strip_prompt = False
 strip_command = False, normalize = True, use_textfsm = False
@@ -145,21 +115,21 @@ cmd_verify = True
     @select_cmd_verify
     def send_command(
         self,
-        command_string,
-        expect_string=None,
-        delay_factor=1,
-        max_loops=500,
-        auto_find_prompt=True,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=True,
-    ):
+        command_string: str,
+        expect_string: Optional[str] = None,
+        delay_factor: float = 1.0,
+        max_loops: int = 500,
+        auto_find_prompt: bool = True,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = True,
+    ) -> str:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
@@ -289,8 +259,8 @@ cmd_verify = True
             )
 E           OSError: Search pattern never detected in send_command: RP/0/0/CPU0:pynet\-iosxr1\(config\)\#
 
-../netmiko/base_connection.py:1533: OSError
+../netmiko/base_connection.py:1498: OSError
 =========================== short test summary info ============================
 SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_commit.py:232: <Skipped instance>
 SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_commit.py:291: <Skipped instance>
-============= 1 failed, 10 passed, 2 skipped in 199.52s (0:03:19) ==============
+============= 1 failed, 10 passed, 2 skipped in 200.69s (0:03:20) ==============

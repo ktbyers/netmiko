@@ -29,11 +29,11 @@ test_netmiko_show.py::test_disconnect PASSED
 test_netmiko_show.py::test_disconnect_no_enable PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:68: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:86: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:108: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:151: TTP template not existing for this platform
-======================== 16 passed, 4 skipped in 30.39s ========================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:68: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:86: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:108: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:151: TTP template not existing for this platform
+======================== 16 passed, 4 skipped in 28.20s ========================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -44,7 +44,7 @@ collecting ... collected 2 items
 test_netmiko_save.py::test_save_base PASSED
 test_netmiko_save.py::test_disconnect PASSED
 
-============================== 2 passed in 8.13s ===============================
+============================== 2 passed in 8.45s ===============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -63,7 +63,7 @@ test_netmiko_config.py::test_config_from_file PASSED
 test_netmiko_config.py::test_config_error_pattern PASSED
 test_netmiko_config.py::test_disconnect PASSED
 
-============================== 10 passed in 6.60s ==============================
+============================== 10 passed in 6.51s ==============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -73,7 +73,7 @@ collecting ... collected 1 item
 
 test_netmiko_config_acl.py::test_large_acl PASSED
 
-============================== 1 passed in 11.46s ==============================
+============================== 1 passed in 12.00s ==============================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -81,227 +81,17 @@ rootdir: /home/kbyers/netmiko, inifile: setup.cfg
 plugins: pylama-7.7.1
 collecting ... collected 12 items
 
-test_netmiko_scp.py::test_scp_put ERROR
+test_netmiko_scp.py::test_scp_put PASSED
+test_netmiko_scp.py::test_remote_space_available PASSED
+test_netmiko_scp.py::test_local_space_available PASSED
+test_netmiko_scp.py::test_verify_space_available_put PASSED
+test_netmiko_scp.py::test_remote_file_size PASSED
+test_netmiko_scp.py::test_md5_methods PASSED
+test_netmiko_scp.py::test_disconnect PASSED
+test_netmiko_scp.py::test_verify_space_available_get PASSED
+test_netmiko_scp.py::test_scp_get PASSED
+test_netmiko_scp.py::test_md5_methods_get PASSED
+test_netmiko_scp.py::test_disconnect_get PASSED
+test_netmiko_scp.py::test_file_transfer PASSED
 
-==================================== ERRORS ====================================
-________________________ ERROR at setup of test_scp_put ________________________
-
-request = <SubRequest 'scp_fixture' for <Function test_scp_put>>
-
-    @pytest.fixture(scope="module")
-    def scp_fixture(request):
-        """
-        Create an FileTransfer object.
-    
-        Return a tuple (ssh_conn, scp_handle)
-        """
-        platform_args = get_platform_args()
-    
-        # Create the files
-        with open("test9.txt", "w") as f:
-            # Not important what it is in the file
-            f.write("no logging console\n")
-    
-        with open("test2_src.txt", "w") as f:
-            # Not important what it is in the file
-            f.write("no logging console\n")
-            f.write("logging buffered 10000\n")
-    
-        device_under_test = request.config.getoption("test_device")
-        test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
-        device = test_devices[device_under_test]
-        device["verbose"] = False
-        ssh_conn = ConnectHandler(**device)
-    
-        platform = device["device_type"]
-        dest_file_system = platform_args[platform]["file_system"]
-        if "ciena_saos" in platform and ssh_conn.username:
-            dest_file_system = f"/tmp/users/{ssh_conn.username}"
-    
-        source_file = "test9.txt"
-        dest_file = "test9.txt"
-        local_file = f"test_{platform}/testx.txt"
-        direction = "put"
-    
-        scp_transfer = FileTransfer(
-            ssh_conn,
-            source_file=source_file,
-            dest_file=dest_file,
-            file_system=dest_file_system,
-            direction=direction,
-        )
-        scp_transfer.establish_scp_conn()
-    
-        # Make sure SCP is enabled
-        if platform_args[platform]["enable_scp"]:
-            scp_transfer.enable_scp()
-    
-        # Delete the test transfer files
-        if scp_transfer.check_file_exists():
-            func = platform_args[platform]["delete_file"]
->           func(ssh_conn, dest_file_system, dest_file)
-
-conftest.py:329: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-conftest.py:223: in delete_file_ios
-    output = ssh_conn.send_command(cmd, expect_string=r"Delete filename")
-../netmiko/utilities.py:508: in wrapper_decorator
-    return func(self, *args, **kwargs)
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-self = <netmiko.cisco.cisco_ios.CiscoIosSSH object at 0x7fc8d67d62e0>
-command_string = 'delete flash:/test9.txt\n', expect_string = 'Delete filename'
-delay_factor = 0.1, max_loops = 500, auto_find_prompt = True
-strip_prompt = True, strip_command = True, normalize = True, use_textfsm = False
-textfsm_template = None, use_ttp = False, ttp_template = None, use_genie = False
-cmd_verify = True
-
-    @select_cmd_verify
-    def send_command(
-        self,
-        command_string,
-        expect_string=None,
-        delay_factor=1,
-        max_loops=500,
-        auto_find_prompt=True,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=True,
-    ):
-        """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
-        used for show commands. By default this method will keep waiting to receive data until the
-        network device prompt is detected. The current network device prompt will be determined
-        automatically.
-    
-        :param command_string: The command to be executed on the remote device.
-        :type command_string: str
-    
-        :param expect_string: Regular expression pattern to use for determining end of output.
-            If left blank will default to being based on router prompt.
-        :type expect_string: str
-    
-        :param delay_factor: Multiplying factor used to adjust delays (default: 1).
-        :type delay_factor: int
-    
-        :param max_loops: Controls wait time in conjunction with delay_factor. Will default to be
-            based upon self.timeout.
-        :type max_loops: int
-    
-        :param strip_prompt: Remove the trailing router prompt from the output (default: True).
-        :type strip_prompt: bool
-    
-        :param strip_command: Remove the echo of the command from the output (default: True).
-        :type strip_command: bool
-    
-        :param normalize: Ensure the proper enter is sent at end of command (default: True).
-        :type normalize: bool
-    
-        :param use_textfsm: Process command output through TextFSM template (default: False).
-        :type normalize: bool
-    
-        :param textfsm_template: Name of template to parse output with; can be fully qualified
-            path, relative path, or name of file in current directory. (default: None).
-    
-        :param use_ttp: Process command output through TTP template (default: False).
-        :type use_ttp: bool
-    
-        :param ttp_template: Name of template to parse output with; can be fully qualified
-            path, relative path, or name of file in current directory. (default: None).
-        :type ttp_template: str
-    
-        :param use_genie: Process command output through PyATS/Genie parser (default: False).
-        :type normalize: bool
-    
-        :param cmd_verify: Verify command echo before proceeding (default: True).
-        :type cmd_verify: bool
-        """
-    
-        # Time to delay in each read loop
-        loop_delay = 0.2
-    
-        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
-        # and delay_factor arguments for backwards compatibility).
-        delay_factor = self.select_delay_factor(delay_factor)
-        if delay_factor == 1 and max_loops == 500:
-            # Default arguments are being used; use self.timeout instead
-            max_loops = int(self.timeout / loop_delay)
-    
-        # Find the current router prompt
-        if expect_string is None:
-            if auto_find_prompt:
-                try:
-                    prompt = self.find_prompt(delay_factor=delay_factor)
-                except ValueError:
-                    prompt = self.base_prompt
-            else:
-                prompt = self.base_prompt
-            search_pattern = re.escape(prompt.strip())
-        else:
-            search_pattern = expect_string
-    
-        if normalize:
-            command_string = self.normalize_cmd(command_string)
-    
-        time.sleep(delay_factor * loop_delay)
-        self.clear_buffer()
-        self.write_channel(command_string)
-        new_data = ""
-    
-        cmd = command_string.strip()
-        # if cmd is just an "enter" skip this section
-        if cmd and cmd_verify:
-            # Make sure you read until you detect the command echo (avoid getting out of sync)
-            new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            new_data = self.normalize_linefeeds(new_data)
-            # Strip off everything before the command echo (to avoid false positives on the prompt)
-            if new_data.count(cmd) == 1:
-                new_data = new_data.split(cmd)[1:]
-                new_data = self.RESPONSE_RETURN.join(new_data)
-                new_data = new_data.lstrip()
-                new_data = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
-    
-        i = 1
-        output = ""
-        past_three_reads = deque(maxlen=3)
-        first_line_processed = False
-    
-        # Keep reading data until search_pattern is found or until max_loops is reached.
-        while i <= max_loops:
-            if new_data:
-                output += new_data
-                past_three_reads.append(new_data)
-    
-                # Case where we haven't processed the first_line yet (there is a potential issue
-                # in the first line (in cases where the line is repainted).
-                if not first_line_processed:
-                    output, first_line_processed = self._first_line_handler(
-                        output, search_pattern
-                    )
-                    # Check if we have already found our pattern
-                    if re.search(search_pattern, output):
-                        break
-    
-                else:
-                    # Check if pattern is in the past three reads
-                    if re.search(search_pattern, "".join(past_three_reads)):
-                        break
-    
-            time.sleep(delay_factor * loop_delay)
-            i += 1
-            new_data = self.read_channel()
-        else:  # nobreak
->           raise IOError(
-                "Search pattern never detected in send_command: {}".format(
-                    search_pattern
-                )
-            )
-E           OSError: Search pattern never detected in send_command: Delete filename
-
-../netmiko/base_connection.py:1533: OSError
-============================== 1 error in 12.48s ===============================
+============================= 12 passed in 24.20s ==============================

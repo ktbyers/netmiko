@@ -29,11 +29,11 @@ test_netmiko_show.py::test_disconnect PASSED
 test_netmiko_show.py::test_disconnect_no_enable PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:68: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:86: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:108: <Skipped instance>
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_show.py:151: TTP template not existing for this platform
-======================== 16 passed, 4 skipped in 46.30s ========================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:68: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:86: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:108: <Skipped instance>
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_show.py:151: TTP template not existing for this platform
+======================== 16 passed, 4 skipped in 46.20s ========================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -53,8 +53,8 @@ test_netmiko_config.py::test_config_error_pattern PASSED
 test_netmiko_config.py::test_disconnect PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_config.py:112: <Skipped instance>
-======================== 9 passed, 1 skipped in 17.11s =========================
+SKIPPED [1] /home/kbyers/netmiko/tests/test_netmiko_config.py:113: <Skipped instance>
+======================== 9 passed, 1 skipped in 17.21s =========================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -81,7 +81,7 @@ test_netmiko_commit.py::test_disconnect PASSED
 =========================== short test summary info ============================
 SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_commit.py:232: <Skipped instance>
 SKIPPED [1] /home/kbyers/netmiko/tests_new/test_netmiko_commit.py:291: <Skipped instance>
-================== 13 passed, 2 skipped in 193.21s (0:03:13) ===================
+================== 13 passed, 2 skipped in 193.45s (0:03:13) ===================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.5, pytest-5.1.2, py-1.10.0, pluggy-0.13.1 -- /home/kbyers/netmiko/.venv/bin/python3.8
 cachedir: .pytest_cache
@@ -92,4 +92,4 @@ collecting ... collected 1 item
 test_netmiko_autodetect.py::test_ssh_connect cisco_xr
 PASSED
 
-============================== 1 passed in 7.60s ===============================
+============================== 1 passed in 7.64s ===============================
