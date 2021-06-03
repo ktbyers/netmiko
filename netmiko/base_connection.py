@@ -22,12 +22,13 @@ import serial
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from netmiko import log
-from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
+from netmiko.netmiko_globals import BACKSPACE_CHAR
 from netmiko.ssh_exception import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
     ConfigInvalidException,
 )
+from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.utilities import (
     write_bytes,
     check_serial_port,
@@ -430,15 +431,7 @@ class BaseConnection(object):
         :param out_data: data to be written to the channel
         :type out_data: str
         """
-        if self.protocol == "ssh":
-            self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
-        elif self.protocol == "telnet":
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-        elif self.protocol == "serial":
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-            self.remote_conn.flush()
-        else:
-            raise ValueError("Invalid protocol specified")
+        self.channel.write_channel(out_data)
         try:
             log.debug(
                 "write_channel: {}".format(
@@ -499,24 +492,7 @@ class BaseConnection(object):
     @lock_channel
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
-        if self.protocol == "ssh":
-            output = ""
-            while True:
-                if self.remote_conn.recv_ready():
-                    outbuf = self.remote_conn.recv(MAX_BUFFER)
-                    if len(outbuf) == 0:
-                        raise EOFError("Channel stream closed by remote device.")
-                    output += outbuf.decode("utf-8", "ignore")
-                else:
-                    break
-        elif self.protocol == "telnet":
-            output = self.remote_conn.read_very_eager().decode("utf-8", "ignore")
-        elif self.protocol == "serial":
-            output = ""
-            while self.remote_conn.in_waiting > 0:
-                output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                    "utf-8", "ignore"
-                )
+        output = self.channel.read_channel()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         log.debug(f"read_channel: {output}")
@@ -564,10 +540,7 @@ class BaseConnection(object):
                 try:
                     # If no data available will wait timeout seconds trying to read
                     self._lock_netmiko_session()
-                    new_data = self.remote_conn.recv(MAX_BUFFER)
-                    if len(new_data) == 0:
-                        raise EOFError("Channel stream closed by remote device.")
-                    new_data = new_data.decode("utf-8", "ignore")
+                    new_data = self.channel.read_buffer()
                     if self.ansi_escape_codes:
                         new_data = self.strip_ansi_escape_codes(new_data)
                     log.debug(f"_read_channel_expect read_data: {new_data}")
@@ -914,9 +887,12 @@ class BaseConnection(object):
             self.remote_conn = telnetlib.Telnet(
                 self.host, port=self.port, timeout=self.timeout
             )
+            # Migrating communication to channel class
+            self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
         elif self.protocol == "serial":
             self.remote_conn = serial.Serial(**self.serial_settings)
+            self.channel = SerialChannel(conn=self.remote_conn, encoding=self.encoding)
             self.serial_login()
         elif self.protocol == "ssh":
             ssh_connect_params = self._connect_params_dict()
@@ -987,6 +963,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
             self.special_login_handler()
             if self.verbose:
                 print("Interactive SSH session established")
+
+            # Migrating communication to channel class
+            self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
         return ""
 
     # @m_exec_time
