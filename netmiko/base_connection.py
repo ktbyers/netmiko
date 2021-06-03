@@ -6,7 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-from typing import Optional, Callable, Any
+from typing import Optional, Callable, Any, Dict
 import io
 import re
 import socket
@@ -64,50 +64,52 @@ class BaseConnection(object):
 
     def __init__(
         self,
-        ip="",
-        host="",
-        username="",
-        password=None,
-        secret="",
-        port=None,
-        device_type="",
-        verbose=False,
-        global_delay_factor=1,
-        global_cmd_verify=None,
-        use_keys=False,
-        key_file=None,
-        pkey=None,
-        passphrase=None,
-        allow_agent=False,
-        ssh_strict=False,
-        system_host_keys=False,
-        alt_host_keys=False,
-        alt_key_file="",
-        ssh_config_file=None,
+        ip: str = "",
+        host: str = "",
+        username: str = "",
+        password: Optional[str] = None,
+        secret: str = "",
+        port: Optional[int] = None,
+        device_type: str = "",
+        verbose: bool = False,
+        global_delay_factor: float = 1.0,
+        global_cmd_verify: Optional[bool] = None,
+        use_keys: bool = False,
+        key_file: Optional[str] = None,
+        pkey: Optional[paramiko.PKey] = None,
+        passphrase: Optional[str] = None,
+        allow_agent: bool = False,
+        ssh_strict: bool = False,
+        system_host_keys: bool = False,
+        alt_host_keys: bool = False,
+        alt_key_file: str = "",
+        ssh_config_file: Optional[str] = None,
         #
         # Connect timeouts
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
-        conn_timeout=5,
-        auth_timeout=None,  # Timeout to wait for authentication response
-        banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        conn_timeout: int = 5,
+        auth_timeout: Optional[
+            int
+        ] = None,  # Timeout to wait for authentication response
+        banner_timeout: int = 15,  # Timeout to wait for the banner to be presented
         # Other timeouts
-        blocking_timeout=20,  # Read blocking timeout
-        timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
-        session_timeout=60,  # Used for locking/sharing the connection
-        keepalive=0,
-        default_enter=None,
-        response_return=None,
-        serial_settings=None,
-        fast_cli=False,
-        _legacy_mode=True,
+        blocking_timeout: int = 20,  # Read blocking timeout
+        timeout: int = 100,  # TCP connect timeout | overloaded to read-loop timeout
+        session_timeout: int = 60,  # Used for locking/sharing the connection
+        keepalive: int = 0,
+        default_enter: Optional[str] = None,
+        response_return: Optional[str] = None,
+        serial_settings: Optional[Dict[str, Any]] = None,
+        fast_cli: bool = False,
+        _legacy_mode: bool = True,
         session_log=None,
-        session_log_record_writes=False,
-        session_log_file_mode="write",
-        allow_auto_change=False,
-        encoding="ascii",
+        session_log_record_writes: bool = False,
+        session_log_file_mode: str = "write",
+        allow_auto_change: bool = False,
+        encoding: str = "ascii",
         sock=None,
-        auto_connect=True,
+        auto_connect: bool = True,
     ):
         """
         Initialize attributes for establishing connection to target device.
