@@ -29,6 +29,7 @@ from netmiko.ssh_exception import (
     ConfigInvalidException,
 )
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
+from netmiko.session_log import SessionLog
 from netmiko.utilities import (
     write_bytes,
     check_serial_port,
@@ -103,7 +104,7 @@ class BaseConnection(object):
         serial_settings: Optional[Dict[str, Any]] = None,
         fast_cli: bool = False,
         _legacy_mode: bool = True,
-        session_log=None,
+        session_log: Optional[SessionLog] = None,
         session_log_record_writes: bool = False,
         session_log_file_mode: str = "write",
         allow_auto_change: bool = False,
@@ -287,17 +288,31 @@ class BaseConnection(object):
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
-        self.session_log_record_writes = session_log_record_writes
         self._session_log_close = False
-        # Ensures last write operations prior to disconnect are recorded.
-        self._session_log_fin = False
         if session_log is not None:
+            no_log = {}
+            if self.password:
+                no_log["password"] = self.password
+            if self.secret:
+                no_log["secret"] = self.secret
+
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
-                self.open_session_log(filename=session_log, mode=session_log_file_mode)
+                self.session_log = SessionLog(
+                    file_name=session_log,
+                    file_mode=session_log_file_mode,
+                    file_encoding=encoding,
+                    no_log=no_log,
+                    record_writes=session_log_record_writes,
+                )
+                self.session_log.open()
             elif isinstance(session_log, io.BufferedIOBase):
                 # In-memory buffer or an already open file handle
-                self.session_log = session_log
+                self.session_log = SessionLog(
+                    buffered_io=session_log,
+                    no_log=no_log,
+                    record_writes=session_log_record_writes,
+                )
             else:
                 raise ValueError(
                     "session_log must be a path to a file, a file handle, "
@@ -890,11 +905,19 @@ class BaseConnection(object):
                 self.host, port=self.port, timeout=self.timeout
             )
             # Migrating communication to channel class
-            self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
+            self.channel = TelnetChannel(
+                conn=self.remote_conn,
+                encoding=self.encoding,
+                session_log=self.session_log,
+            )
             self.telnet_login()
         elif self.protocol == "serial":
             self.remote_conn = serial.Serial(**self.serial_settings)
-            self.channel = SerialChannel(conn=self.remote_conn, encoding=self.encoding)
+            self.channel = SerialChannel(
+                conn=self.remote_conn,
+                encoding=self.encoding,
+                session_log=self.session_log,
+            )
             self.serial_login()
         elif self.protocol == "ssh":
             ssh_connect_params = self._connect_params_dict()
@@ -967,7 +990,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 print("Interactive SSH session established")
 
             # Migrating communication to channel class
-            self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
+            self.channel = SSHChannel(
+                conn=self.remote_conn,
+                encoding=self.encoding,
+                session_log=self.session_log,
+            )
         return ""
 
     # @m_exec_time
@@ -2024,7 +2051,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
-            self.close_session_log()
+            if self.session_log:
+                self.session_log.close()
 
     def commit(self):
         """Commit method for platforms that support this."""
@@ -2033,20 +2061,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
     def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError
-
-    def open_session_log(self, filename, mode="write"):
-        """Open the session_log file."""
-        if mode == "append":
-            self.session_log = open(filename, mode="a", encoding=self.encoding)
-        else:
-            self.session_log = open(filename, mode="w", encoding=self.encoding)
-        self._session_log_close = True
-
-    def close_session_log(self):
-        """Close the session_log file (if it is a file that we opened)."""
-        if self.session_log is not None and self._session_log_close:
-            self.session_log.close()
-            self.session_log = None
 
     def run_ttp(self, template, res_kwargs={}, **kwargs):
         """
