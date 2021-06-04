@@ -1,5 +1,6 @@
 """Miscellaneous utility functions."""
-from typing import AnyStr
+from typing import Any, AnyStr, TypeVar, Callable, cast
+from typing import TYPE_CHECKING
 from glob import glob
 import sys
 import io
@@ -10,6 +11,12 @@ from datetime import datetime
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 from netmiko import log
+
+# For decorators
+F = TypeVar("F", bound=Callable[..., Any])
+
+if TYPE_CHECKING:
+    from netmiko.base_connection import BaseConnection
 
 try:
     from ttp import ttp
@@ -451,7 +458,7 @@ def run_ttp_template(connection, template, res_kwargs, **kwargs):
     return parser.result(**res_kwargs)
 
 
-def get_structured_data_genie(raw_output, platform, command):
+def get_structured_data_genie(raw_output: str, platform: str, command: str):
     if not sys.version_info >= (3, 4):
         raise ValueError("Genie requires Python >= 3.4")
 
@@ -499,21 +506,21 @@ def get_structured_data_genie(raw_output, platform, command):
         return raw_output
 
 
-def select_cmd_verify(func):
+def select_cmd_verify(func: F) -> F:
     """Override function cmd_verify argument with global setting."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self, *args, **kwargs):
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
         if self.global_cmd_verify is not None:
             kwargs["cmd_verify"] = self.global_cmd_verify
         return func(self, *args, **kwargs)
 
-    return wrapper_decorator
+    return cast(F, wrapper_decorator)
 
 
-def m_exec_time(func):
+def m_exec_time(func: F) -> F:
     @functools.wraps(func)
-    def wrapper_decorator(self, *args, **kwargs):
+    def wrapper_decorator(self: Any, *args: Any, **kwargs: Any) -> Any:
         start_time = datetime.now()
         result = func(self, *args, **kwargs)
         end_time = datetime.now()
@@ -521,16 +528,16 @@ def m_exec_time(func):
         print(f"{method_name}: Elapsed time: {end_time - start_time}")
         return result
 
-    return wrapper_decorator
+    return cast(F, wrapper_decorator)
 
 
-def f_exec_time(func):
+def f_exec_time(func: F) -> F:
     @functools.wraps(func)
-    def wrapper_decorator(*args, **kwargs):
+    def wrapper_decorator(*args: Any, **kwargs: Any) -> Any:
         start_time = datetime.now()
         result = func(*args, **kwargs)
         end_time = datetime.now()
         print(f"Elapsed time: {end_time - start_time}")
         return result
 
-    return wrapper_decorator
+    return cast(F, wrapper_decorator)

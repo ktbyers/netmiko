@@ -43,7 +43,7 @@ from netmiko.utilities import m_exec_time  # noqa
 
 
 # For decorators
-F = TypeVar('F', bound=Callable[..., Any])
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 def lock_channel(func: F) -> F:
@@ -430,7 +430,7 @@ class BaseConnection:
         self.establish_connection()
         self._try_session_preparation()
 
-    def __enter__(self) -> BaseConnection:
+    def __enter__(self) -> "BaseConnection":
         """Establish a session using a Context Manager."""
         return self
 
