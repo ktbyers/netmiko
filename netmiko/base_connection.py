@@ -525,6 +525,7 @@ class BaseConnection(object):
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
         output = self.channel.read_channel()
+        output = self.normalize_linefeeds(output)
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         return output
@@ -876,7 +877,6 @@ class BaseConnection(object):
         :param strip_command:
         :type strip_command:
         """
-        output = self.normalize_linefeeds(output)
         if strip_command and command_string:
             command_string = self.normalize_linefeeds(command_string)
             output = self.strip_command(command_string, output)
@@ -1182,7 +1182,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
             count += 1
 
         # If multiple lines in the output take the last line
-        prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
         if not prompt:
@@ -1277,7 +1276,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            new_data = self.normalize_linefeeds(new_data)
 
             # Strip off everything before the command echo
             if new_data.count(cmd) == 1:
@@ -1470,7 +1468,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            new_data = self.normalize_linefeeds(new_data)
             # Strip off everything before the command echo (to avoid false positives on the prompt)
             if new_data.count(cmd) == 1:
                 new_data = new_data.split(cmd)[1:]

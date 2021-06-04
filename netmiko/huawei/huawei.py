@@ -74,7 +74,6 @@ class HuaweiBase(CiscoBaseConnection):
         time.sleep(0.5 * delay_factor)
 
         prompt = self.read_channel()
-        prompt = self.normalize_linefeeds(prompt)
 
         # If multiple lines in the output take the last line
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
