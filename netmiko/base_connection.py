@@ -31,6 +31,7 @@ from netmiko.ssh_exception import (
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.utilities import (
+    write_bytes,
     check_serial_port,
     get_structured_data,
     get_structured_data_genie,
@@ -51,6 +52,44 @@ def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
             # Always unlock the channel, even on exception.
             self._unlock_netmiko_session()
         return return_val
+
+    return wrapper_decorator
+
+
+def log_reads(func: Callable[..., str]) -> Callable[..., str]:
+    """Handle both session_log and log of reads."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args: Any, **kwargs: Any) -> str:
+        output: str
+        output = func(self, *args, **kwargs)
+        log.debug(f"read_channel: {output}")
+        if self.session_log:
+            self.session_log.write(output)
+        return output
+
+    return wrapper_decorator
+
+
+def log_writes(func: Callable[..., None]) -> Callable[..., None]:
+    """Handle both session_log and log of writes."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, out_data: str) -> None:
+        func(self, out_data)
+        try:
+            log.debug(
+                "write_channel: {}".format(
+                    str(write_bytes(out_data, encoding=self.encoding))
+                )
+            )
+            if self.session_log:
+                if self.session_log.fin or self.session_log.record_writes:
+                    self.session_log.write(out_data)
+        except UnicodeDecodeError:
+            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
+            pass
+        return None
 
     return wrapper_decorator
 
@@ -441,6 +480,7 @@ class BaseConnection(object):
             self._session_locker.release()
 
     @lock_channel
+    @log_writes
     def write_channel(self, out_data: str) -> None:
         """Generic method that will write data out the channel.
 
@@ -481,6 +521,7 @@ class BaseConnection(object):
         return False
 
     @lock_channel
+    @log_reads
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
         output = self.channel.read_channel()
@@ -525,22 +566,7 @@ class BaseConnection(object):
         if max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
         while i < max_loops:
-            if self.protocol == "ssh":
-                try:
-                    # If no data available will wait timeout seconds trying to read
-                    self._lock_netmiko_session()
-                    new_data = self.channel.read_buffer()
-                    if self.ansi_escape_codes:
-                        new_data = self.strip_ansi_escape_codes(new_data)
-                    output += new_data
-                except socket.timeout:
-                    raise NetmikoTimeoutException(
-                        "Timed-out reading channel, data not available."
-                    )
-                finally:
-                    self._unlock_netmiko_session()
-            elif self.protocol == "telnet" or "serial":
-                output += self.read_channel()
+            output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
                 log.debug(f"Pattern found: {pattern} {output}")
                 return output
@@ -875,19 +901,11 @@ class BaseConnection(object):
                 self.host, port=self.port, timeout=self.timeout
             )
             # Migrating communication to channel class
-            self.channel = TelnetChannel(
-                conn=self.remote_conn,
-                encoding=self.encoding,
-                session_log=self.session_log,
-            )
+            self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
         elif self.protocol == "serial":
             self.remote_conn = serial.Serial(**self.serial_settings)
-            self.channel = SerialChannel(
-                conn=self.remote_conn,
-                encoding=self.encoding,
-                session_log=self.session_log,
-            )
+            self.channel = SerialChannel(conn=self.remote_conn, encoding=self.encoding)
             self.serial_login()
         elif self.protocol == "ssh":
             ssh_connect_params = self._connect_params_dict()
@@ -960,11 +978,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 print("Interactive SSH session established")
 
             # Migrating communication to channel class
-            self.channel = SSHChannel(
-                conn=self.remote_conn,
-                encoding=self.encoding,
-                session_log=self.session_log,
-            )
+            self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
         return ""
 
     # @m_exec_time

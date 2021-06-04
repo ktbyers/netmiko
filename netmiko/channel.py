@@ -1,52 +1,8 @@
-from typing import Any, Callable, Optional
-from typing import TYPE_CHECKING
+from typing import Any
 from abc import ABC, abstractmethod
-import functools
 
-from netmiko import log
 from netmiko.utilities import write_bytes
 from netmiko.netmiko_globals import MAX_BUFFER
-
-if TYPE_CHECKING:
-    from netmiko.session_log import SessionLog
-
-
-def log_reads(func: Callable[..., str]) -> Callable[..., str]:
-    """Handle both session_log and log of reads."""
-
-    @functools.wraps(func)
-    def wrapper_decorator(self: "Channel", *args: Any, **kwargs: Any) -> str:
-        output: str
-        output = func(self, *args, **kwargs)
-        log.debug(f"read_channel: {output}")
-        if self.session_log:
-            self.session_log.write(output)
-        return output
-
-    return wrapper_decorator
-
-
-def log_writes(func: Callable[..., None]) -> Callable[..., None]:
-    """Handle both session_log and log of writes."""
-
-    @functools.wraps(func)
-    def wrapper_decorator(self: "Channel", out_data: str) -> None:
-        func(self, out_data)
-        try:
-            log.debug(
-                "write_channel: {}".format(
-                    str(write_bytes(out_data, encoding=self.encoding))
-                )
-            )
-            if self.session_log:
-                if self.session_log.fin or self.session_log.record_writes:
-                    self.session_log.write(out_data)
-        except UnicodeDecodeError:
-            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
-            pass
-        return None
-
-    return wrapper_decorator
 
 
 class Channel(ABC):
@@ -97,9 +53,7 @@ class Channel(ABC):
 
 
 class SSHChannel(Channel):
-    def __init__(
-        self, conn, encoding: str, session_log: Optional["SessionLog"] = None
-    ) -> None:
+    def __init__(self, conn, encoding: str) -> None:
         """
         Placeholder __init__ method so that reading and writing can be moved to the
         channel class.
@@ -107,15 +61,11 @@ class SSHChannel(Channel):
         self.remote_conn = conn
         # FIX: move encoding to GlobalState object?
         self.encoding = encoding
-        self.session_log = session_log
 
-    @log_writes
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is not None:
             self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
-    # log_reads needs to be on read_buffer as BaseConnection directly calls read_buffer
-    @log_reads
     def read_buffer(self) -> str:
         """Single read of available data."""
         output = ""
@@ -140,9 +90,7 @@ class SSHChannel(Channel):
 
 
 class TelnetChannel(Channel):
-    def __init__(
-        self, conn, encoding: str, session_log: Optional["SessionLog"] = None
-    ) -> None:
+    def __init__(self, conn, encoding: str) -> None:
         """
         Placeholder __init__ method so that reading and writing can be moved to the
         channel class.
@@ -150,9 +98,7 @@ class TelnetChannel(Channel):
         self.remote_conn = conn
         # FIX: move encoding to GlobalState object?
         self.encoding = encoding
-        self.session_log = session_log
 
-    @log_writes
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is not None:
             self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
@@ -161,16 +107,13 @@ class TelnetChannel(Channel):
         """Single read of available data."""
         raise NotImplementedError
 
-    @log_reads
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
         return self.remote_conn.read_very_eager().decode("utf-8", "ignore")
 
 
 class SerialChannel(Channel):
-    def __init__(
-        self, conn, encoding: str, session_log: Optional["SessionLog"] = None
-    ) -> None:
+    def __init__(self, conn, encoding: str) -> None:
         """
         Placeholder __init__ method so that reading and writing can be moved to the
         channel class.
@@ -178,9 +121,7 @@ class SerialChannel(Channel):
         self.remote_conn = conn
         # FIX: move encoding to GlobalState object?
         self.encoding = encoding
-        self.session_log = session_log
 
-    @log_writes
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is not None:
             self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
@@ -193,7 +134,6 @@ class SerialChannel(Channel):
                 "utf-8", "ignore"
             )
 
-    @log_reads
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
         output = ""
