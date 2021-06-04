@@ -29,6 +29,7 @@ from netmiko.ssh_exception import (
     ConfigInvalidException,
 )
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
+from netmiko.session_log import SessionLog
 from netmiko.utilities import (
     write_bytes,
     check_serial_port,
@@ -51,6 +52,44 @@ def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
             # Always unlock the channel, even on exception.
             self._unlock_netmiko_session()
         return return_val
+
+    return wrapper_decorator
+
+
+def log_reads(func: Callable[..., str]) -> Callable[..., str]:
+    """Handle both session_log and log of reads."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args: Any, **kwargs: Any) -> str:
+        output: str
+        output = func(self, *args, **kwargs)
+        log.debug(f"read_channel: {output}")
+        if self.session_log:
+            self.session_log.write(output)
+        return output
+
+    return wrapper_decorator
+
+
+def log_writes(func: Callable[..., None]) -> Callable[..., None]:
+    """Handle both session_log and log of writes."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, out_data: str) -> None:
+        func(self, out_data)
+        try:
+            log.debug(
+                "write_channel: {}".format(
+                    str(write_bytes(out_data, encoding=self.encoding))
+                )
+            )
+            if self.session_log:
+                if self.session_log.fin or self.session_log.record_writes:
+                    self.session_log.write(out_data)
+        except UnicodeDecodeError:
+            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
+            pass
+        return None
 
     return wrapper_decorator
 
@@ -103,7 +142,7 @@ class BaseConnection(object):
         serial_settings: Optional[Dict[str, Any]] = None,
         fast_cli: bool = False,
         _legacy_mode: bool = True,
-        session_log=None,
+        session_log: Optional[SessionLog] = None,
         session_log_record_writes: bool = False,
         session_log_file_mode: str = "write",
         allow_auto_change: bool = False,
@@ -287,17 +326,31 @@ class BaseConnection(object):
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
-        self.session_log_record_writes = session_log_record_writes
         self._session_log_close = False
-        # Ensures last write operations prior to disconnect are recorded.
-        self._session_log_fin = False
         if session_log is not None:
+            no_log = {}
+            if self.password:
+                no_log["password"] = self.password
+            if self.secret:
+                no_log["secret"] = self.secret
+
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
-                self.open_session_log(filename=session_log, mode=session_log_file_mode)
+                self.session_log = SessionLog(
+                    file_name=session_log,
+                    file_mode=session_log_file_mode,
+                    file_encoding=encoding,
+                    no_log=no_log,
+                    record_writes=session_log_record_writes,
+                )
+                self.session_log.open()
             elif isinstance(session_log, io.BufferedIOBase):
                 # In-memory buffer or an already open file handle
-                self.session_log = session_log
+                self.session_log = SessionLog(
+                    buffered_io=session_log,
+                    no_log=no_log,
+                    record_writes=session_log_record_writes,
+                )
             else:
                 raise ValueError(
                     "session_log must be a path to a file, a file handle, "
@@ -427,6 +480,7 @@ class BaseConnection(object):
             self._session_locker.release()
 
     @lock_channel
+    @log_writes
     def write_channel(self, out_data: str) -> None:
         """Generic method that will write data out the channel.
 
@@ -434,31 +488,6 @@ class BaseConnection(object):
         :type out_data: str
         """
         self.channel.write_channel(out_data)
-        try:
-            log.debug(
-                "write_channel: {}".format(
-                    write_bytes(out_data, encoding=self.encoding)
-                )
-            )
-            if self._session_log_fin or self.session_log_record_writes:
-                self._write_session_log(out_data)
-        except UnicodeDecodeError:
-            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
-            pass
-
-    def _write_session_log(self, data):
-        if self.session_log is not None and len(data) > 0:
-            # Hide the password and secret in the session_log
-            if self.password:
-                data = data.replace(self.password, "********")
-            if self.secret:
-                data = data.replace(self.secret, "********")
-            if isinstance(self.session_log, io.BufferedIOBase):
-                data = self.normalize_linefeeds(data)
-                self.session_log.write(write_bytes(data, encoding=self.encoding))
-            else:
-                self.session_log.write(self.normalize_linefeeds(data))
-            self.session_log.flush()
 
     def is_alive(self):
         """Returns a boolean flag with the state of the connection."""
@@ -492,13 +521,13 @@ class BaseConnection(object):
         return False
 
     @lock_channel
+    @log_reads
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
         output = self.channel.read_channel()
+        output = self.normalize_linefeeds(output)
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        log.debug(f"read_channel: {output}")
-        self._write_session_log(output)
         return output
 
     def _read_channel_expect(self, pattern="", re_flags=0, max_loops=150):
@@ -538,24 +567,7 @@ class BaseConnection(object):
         if max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
         while i < max_loops:
-            if self.protocol == "ssh":
-                try:
-                    # If no data available will wait timeout seconds trying to read
-                    self._lock_netmiko_session()
-                    new_data = self.channel.read_buffer()
-                    if self.ansi_escape_codes:
-                        new_data = self.strip_ansi_escape_codes(new_data)
-                    log.debug(f"_read_channel_expect read_data: {new_data}")
-                    output += new_data
-                    self._write_session_log(new_data)
-                except socket.timeout:
-                    raise NetmikoTimeoutException(
-                        "Timed-out reading channel, data not available."
-                    )
-                finally:
-                    self._unlock_netmiko_session()
-            elif self.protocol == "telnet" or "serial":
-                output += self.read_channel()
+            output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
                 log.debug(f"Pattern found: {pattern} {output}")
                 return output
@@ -865,7 +877,6 @@ class BaseConnection(object):
         :param strip_command:
         :type strip_command:
         """
-        output = self.normalize_linefeeds(output)
         if strip_command and command_string:
             command_string = self.normalize_linefeeds(command_string)
             output = self.strip_command(command_string, output)
@@ -1171,7 +1182,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
             count += 1
 
         # If multiple lines in the output take the last line
-        prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
         if not prompt:
@@ -1266,7 +1276,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            new_data = self.normalize_linefeeds(new_data)
 
             # Strip off everything before the command echo
             if new_data.count(cmd) == 1:
@@ -1459,7 +1468,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            new_data = self.normalize_linefeeds(new_data)
             # Strip off everything before the command echo (to avoid false positives on the prompt)
             if new_data.count(cmd) == 1:
                 new_data = new_data.split(cmd)[1:]
@@ -2024,7 +2032,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
-            self.close_session_log()
+            if self.session_log:
+                self.session_log.close()
 
     def commit(self):
         """Commit method for platforms that support this."""
@@ -2033,20 +2042,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
     def save_config(self, *args, **kwargs):
         """Not Implemented"""
         raise NotImplementedError
-
-    def open_session_log(self, filename, mode="write"):
-        """Open the session_log file."""
-        if mode == "append":
-            self.session_log = open(filename, mode="a", encoding=self.encoding)
-        else:
-            self.session_log = open(filename, mode="w", encoding=self.encoding)
-        self._session_log_close = True
-
-    def close_session_log(self):
-        """Close the session_log file (if it is a file that we opened)."""
-        if self.session_log is not None and self._session_log_close:
-            self.session_log.close()
-            self.session_log = None
 
     def run_ttp(self, template, res_kwargs={}, **kwargs):
         """
