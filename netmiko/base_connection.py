@@ -99,6 +99,44 @@ def log_writes(func: F) -> F:
     return cast(F, wrapper_decorator)
 
 
+def log_reads(func: Callable[..., str]) -> Callable[..., str]:
+    """Handle both session_log and log of reads."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args: Any, **kwargs: Any) -> str:
+        output: str
+        output = func(self, *args, **kwargs)
+        log.debug(f"read_channel: {output}")
+        if self.session_log:
+            self.session_log.write(output)
+        return output
+
+    return wrapper_decorator
+
+
+def log_writes(func: Callable[..., None]) -> Callable[..., None]:
+    """Handle both session_log and log of writes."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, out_data: str) -> None:
+        func(self, out_data)
+        try:
+            log.debug(
+                "write_channel: {}".format(
+                    str(write_bytes(out_data, encoding=self.encoding))
+                )
+            )
+            if self.session_log:
+                if self.session_log.fin or self.session_log.record_writes:
+                    self.session_log.write(out_data)
+        except UnicodeDecodeError:
+            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
+            pass
+        return None
+
+    return wrapper_decorator
+
+
 class BaseConnection:
     """
     Defines vendor independent methods.
