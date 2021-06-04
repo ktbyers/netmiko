@@ -248,6 +248,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
 
     Catch exception for devices that don't support enable
     """
+    import ipdb; ipdb.set_trace()
     try:
         net_connect.enable()
         enable_prompt = net_connect.find_prompt()

@@ -28,6 +28,7 @@ from netmiko.ssh_exception import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
     ConfigInvalidException,
+    ReadException,
 )
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
@@ -286,6 +287,7 @@ class BaseConnection:
         self.remote_conn = None
         # Does the platform support a configuration mode
         self._config_mode = True
+        self._read_buffer = ""
 
         self.TELNET_RETURN = "\r\n"
         if default_enter is None:
@@ -533,57 +535,74 @@ class BaseConnection:
     @log_reads
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
+        if self._read_buffer:
+            output = self._read_buffer
+            self._read_buffer = ""
         output = self.channel.read_channel()
         output = self.normalize_linefeeds(output)
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
         return output
 
-    def _read_channel_expect(
-        self, pattern: str = "", re_flags: int = 0, max_loops: int = 150
+    def read_until_pattern(
+        self,
+        pattern: str = "",
+        re_flags: int = 0,
+        max_loops: int = 150,
+        read_timeout: float = 10.0,
     ) -> str:
-        """Function that reads channel until pattern is detected.
+        """Read channel until pattern is detected.
 
-        pattern takes a regular expression.
+        Will return string up to and including pattern.
 
-        By default pattern will be self.base_prompt
-
-        Note: this currently reads beyond pattern. In the case of SSH it reads MAX_BUFFER.
-        In the case of telnet it reads all non-blocking data.
-
-        There are dependencies here like determining whether in config_mode that are actually
-        depending on reading beyond pattern.
+        Will return ReadTimeout if pattern not detected in read_timeout seconds.
 
         :param pattern: Regular expression pattern used to identify the command is done \
         (defaults to self.base_prompt)
-        :type pattern: str (regular expression)
 
         :param re_flags: regex flags used in conjunction with pattern to search for prompt \
         (defaults to no flags)
-        :type re_flags: int
 
         :param max_loops: max number of iterations to read the channel before raising exception.
-            Will default to be based upon self.timeout.
-        :type max_loops: int
-        """
-        output = ""
-        if not pattern:
-            pattern = re.escape(self.base_prompt)
-        log.debug(f"Pattern is: {pattern}")
 
-        i = 1
-        loop_delay = 0.1
-        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
-        # argument for backwards compatibility).
-        if max_loops == 150:
-            max_loops = int(self.timeout / loop_delay)
-        while i < max_loops:
+        :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
+        """
+        # FIX: print a warning if max_loops is used?
+
+        output = ""
+        loop_delay = 0.01
+        start_time = time.time()
+        import ipdb; ipdb.set_trace()
+        while time.time() - start_time < read_timeout:
             output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
+                results = re.split(pattern, output, maxsplit=1, flags=re_flags)
+
+                # The string matched by pattern must be retained in the output string.
+                # re.split will do this if capturing parentesis are used.
+                if len(results) == 2:
+                    # no capturing parenthesis, convert and try again.
+                    pattern = f"({pattern})"
+                    results = re.split(pattern, output, maxsplit=1, flags=re_flags)
+
+                if len(results) != 3:
+                    # well, we tried
+                    msg = f"""Unable to successfully split output based on pattern:
+pattern={pattern}
+output={repr(output)}
+results={results}
+"""
+                    raise ReadException(msg)
+
+                # Process such that everything before and including pattern is return.
+                # Everything else is retained in the _read_buffer
+                output, match_str, buffer = results
+                output = output + match_str
+                if buffer:
+                    self._read_buffer += buffer
                 log.debug(f"Pattern found: {pattern} {output}")
                 return output
             time.sleep(loop_delay * self.global_delay_factor)
-            i += 1
         raise NetmikoTimeoutException(
             f"Timed-out reading channel, pattern not found in output: {pattern}"
         )
@@ -639,31 +658,37 @@ class BaseConnection:
             i += 1
         return channel_data
 
-    def read_until_prompt(self, *args: Any, **kwargs: Any) -> str:
-        """Read channel until self.base_prompt detected. Return ALL data available."""
-        return self._read_channel_expect(*args, **kwargs)
+    def read_until_prompt(
+        self, re_flags: int = 0, max_loops: int = 150, read_timeout: float = 10.0, read_entire_line=False
+    ) -> str:
+        """Read channel up to and including self.base_prompt."""
+        pattern = re.escape(self.base_prompt)
+        if read_enter_line:
+            pattern = f"{pattern}.*"
+        return self.read_until_pattern(
+            pattern=pattern,
+            re_flags=re_flags,
+            max_loops=max_loops,
+            read_timeout=read_timeout,
+        )
 
-    def read_until_pattern(self, *args: Any, **kwargs: Any) -> str:
-        """Read channel until pattern detected. Return ALL data available."""
-        return self._read_channel_expect(*args, **kwargs)
-
-    def read_until_prompt_or_pattern(self, pattern: str = "", re_flags: int = 0) -> str:
-        """Read until either self.base_prompt or pattern is detected.
-
-        :param pattern: the pattern used to identify that the output is complete (i.e. stop \
-        reading when pattern is detected). pattern will be combined with self.base_prompt to \
-        terminate output reading when the first of self.base_prompt or pattern is detected.
-        :type pattern: regular expression string
-
-        :param re_flags: regex flags used in conjunction with pattern to search for prompt \
-        (defaults to no flags)
-        :type re_flags: int
-
-        """
+    def read_until_prompt_or_pattern(
+        self,
+        pattern: str = "",
+        re_flags: int = 0,
+        max_loops: int = 150,
+        read_timeout: float = 10.0,
+    ) -> str:
+        """Read until either self.base_prompt or pattern is detected."""
         combined_pattern = re.escape(self.base_prompt)
         if pattern:
-            combined_pattern = r"({}|{})".format(combined_pattern, pattern)
-        return self._read_channel_expect(combined_pattern, re_flags=re_flags)
+            combined_pattern = r"(?:{}|{})".format(combined_pattern, pattern)
+        return self.read_until_pattern(
+            pattern=combined_pattern,
+            re_flags=re_flags,
+            max_loops=max_loops,
+            read_timeout=read_timeout,
+        )
 
     def serial_login(
         self,
@@ -1638,7 +1663,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :type check_string: str
         """
         self.write_channel(self.RETURN)
-        output = self.read_until_prompt()
+        output = self.read_until_prompt(read_entire_line=True)
         return check_string in output
 
     def enable(
