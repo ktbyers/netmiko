@@ -49,7 +49,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 def lock_channel(func: F) -> F:
     @functools.wraps(func)
-    def wrapper_decorator(self: BaseConnection, *args: Any, **kwargs: Any) -> Any:
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
         self._lock_netmiko_session()
         try:
             return_val = func(self, *args, **kwargs)
@@ -65,7 +65,7 @@ def log_reads(func: F) -> F:
     """Handle both session_log and log of reads."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self: BaseConnection, *args: Any, **kwargs: Any) -> str:
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> str:
         output: str
         output = func(self, *args, **kwargs)
         log.debug(f"read_channel: {output}")
@@ -80,7 +80,7 @@ def log_writes(func: F) -> F:
     """Handle both session_log and log of writes."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self: BaseConnection, out_data: str) -> None:
+    def wrapper_decorator(self: "BaseConnection", out_data: str) -> None:
         func(self, out_data)
         try:
             log.debug(
