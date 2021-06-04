@@ -6,7 +6,8 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-from typing import Optional, Callable, Any, Dict, TypeVar, cast
+from typing import Optional, Callable, Any, Dict, TypeVar, cast, Type
+from types import TracebackType
 import io
 import re
 import socket
@@ -434,7 +435,12 @@ class BaseConnection:
         """Establish a session using a Context Manager."""
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         """Gracefully close connection on Context Manager exit."""
         self.disconnect()
 
@@ -442,7 +448,7 @@ class BaseConnection:
         """Modify connection parameters prior to SSH connection."""
         pass
 
-    def _timeout_exceeded(self, start, msg: str = "Timeout exceeded!") -> bool:
+    def _timeout_exceeded(self, start: float, msg: str = "Timeout exceeded!") -> bool:
         """Raise NetmikoTimeoutException if waiting too much in the serving queue.
 
         :param start: Initial start time to see if session lock timeout has been exceeded
@@ -459,7 +465,7 @@ class BaseConnection:
             raise NetmikoTimeoutException(msg)
         return False
 
-    def _lock_netmiko_session(self, start=None) -> bool:
+    def _lock_netmiko_session(self, start: Optional[float] = None) -> bool:
         """Try to acquire the Netmiko session lock. If not available, wait in the queue until
         the channel is available again.
 
@@ -533,7 +539,9 @@ class BaseConnection:
             output = self.strip_ansi_escape_codes(output)
         return output
 
-    def _read_channel_expect(self, pattern: str = "", re_flags=0, max_loops: int = 150):
+    def _read_channel_expect(
+        self, pattern: str = "", re_flags: int = 0, max_loops: int = 150
+    ) -> str:
         """Function that reads channel until pattern is detected.
 
         pattern takes a regular expression.
@@ -580,7 +588,9 @@ class BaseConnection:
             f"Timed-out reading channel, pattern not found in output: {pattern}"
         )
 
-    def _read_channel_timing(self, delay_factor=1, max_loops=150):
+    def _read_channel_timing(
+        self, delay_factor: float = 1.0, max_loops: int = 150
+    ) -> str:
         """Read data on the channel based on timing delays.
 
         Attempt to read channel max_loops number of times. If no data this will cause a 15 second
@@ -629,15 +639,15 @@ class BaseConnection:
             i += 1
         return channel_data
 
-    def read_until_prompt(self, *args, **kwargs):
+    def read_until_prompt(self, *args: Any, **kwargs: Any) -> str:
         """Read channel until self.base_prompt detected. Return ALL data available."""
         return self._read_channel_expect(*args, **kwargs)
 
-    def read_until_pattern(self, *args, **kwargs):
+    def read_until_pattern(self, *args: Any, **kwargs: Any) -> str:
         """Read channel until pattern detected. Return ALL data available."""
         return self._read_channel_expect(*args, **kwargs)
 
-    def read_until_prompt_or_pattern(self, pattern="", re_flags=0):
+    def read_until_prompt_or_pattern(self, pattern: str = "", re_flags: int = 0) -> str:
         """Read until either self.base_prompt or pattern is detected.
 
         :param pattern: the pattern used to identify that the output is complete (i.e. stop \
@@ -657,13 +667,13 @@ class BaseConnection:
 
     def serial_login(
         self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:[Uu]ser:|sername|ogin)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"#\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(?:[Uu]ser:|sername|ogin)",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
         self.telnet_login(
             pri_prompt_terminator,
             alt_prompt_terminator,
@@ -675,13 +685,13 @@ class BaseConnection:
 
     def telnet_login(
         self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"#\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(?:user:|username|login|user name)",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
         """Telnet login. Can be username/password or just password.
 
         :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
@@ -887,7 +897,7 @@ class BaseConnection:
             output = self.strip_prompt(output)
         return output
 
-    def establish_connection(self, width=511, height=1000):
+    def establish_connection(self, width: int = 511, height: int = 1000) -> None:
         """Establish SSH connection to the network device
 
         Timeout will generate a NetmikoTimeoutException

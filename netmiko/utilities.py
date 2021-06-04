@@ -227,7 +227,7 @@ def write_bytes(out_data: AnyStr, encoding: str = "ascii") -> bytes:
     raise ValueError(msg)
 
 
-def check_serial_port(name):
+def check_serial_port(name: str) -> str:
     """returns valid COM Port."""
 
     if not PYSERIAL_INSTALLED:
