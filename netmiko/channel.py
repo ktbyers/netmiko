@@ -11,6 +11,21 @@ if TYPE_CHECKING:
     from netmiko.session_log import SessionLog
 
 
+def log_reads(func: Callable[..., str]) -> Callable[..., str]:
+    """Handle both session_log and log of reads."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self: "Channel", *args: Any, **kwargs: Any) -> str:
+        output: str
+        output = func(self, *args, **kwargs)
+        log.debug(f"read_channel: {output}")
+        if self.session_log:
+            self.session_log.write(output)
+        return output
+
+    return wrapper_decorator
+
+
 def log_writes(func: Callable[..., None]) -> Callable[..., None]:
     """Handle both session_log and log of writes."""
 
@@ -99,6 +114,8 @@ class SSHChannel(Channel):
         if self.remote_conn is not None:
             self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
+    # log_reads needs to be on read_buffer as BaseConnection directly calls read_buffer
+    @log_reads
     def read_buffer(self) -> str:
         """Single read of available data."""
         output = ""
@@ -144,6 +161,7 @@ class TelnetChannel(Channel):
         """Single read of available data."""
         raise NotImplementedError
 
+    @log_reads
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
         return self.remote_conn.read_very_eager().decode("utf-8", "ignore")
@@ -175,6 +193,7 @@ class SerialChannel(Channel):
                 "utf-8", "ignore"
             )
 
+    @log_reads
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
         output = ""

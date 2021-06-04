@@ -31,7 +31,6 @@ from netmiko.ssh_exception import (
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.utilities import (
-    write_bytes,
     check_serial_port,
     get_structured_data,
     get_structured_data_genie,
@@ -449,31 +448,6 @@ class BaseConnection(object):
         :type out_data: str
         """
         self.channel.write_channel(out_data)
-        try:
-            log.debug(
-                "write_channel: {}".format(
-                    write_bytes(out_data, encoding=self.encoding)
-                )
-            )
-            if self._session_log_fin or self.session_log_record_writes:
-                self._write_session_log(out_data)
-        except UnicodeDecodeError:
-            # Don't log non-ASCII characters; this is null characters and telnet IAC (PY2)
-            pass
-
-    def _write_session_log(self, data):
-        if self.session_log is not None and len(data) > 0:
-            # Hide the password and secret in the session_log
-            if self.password:
-                data = data.replace(self.password, "********")
-            if self.secret:
-                data = data.replace(self.secret, "********")
-            if isinstance(self.session_log, io.BufferedIOBase):
-                data = self.normalize_linefeeds(data)
-                self.session_log.write(write_bytes(data, encoding=self.encoding))
-            else:
-                self.session_log.write(self.normalize_linefeeds(data))
-            self.session_log.flush()
 
     def is_alive(self):
         """Returns a boolean flag with the state of the connection."""
@@ -512,8 +486,6 @@ class BaseConnection(object):
         output = self.channel.read_channel()
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        log.debug(f"read_channel: {output}")
-        self._write_session_log(output)
         return output
 
     def _read_channel_expect(self, pattern="", re_flags=0, max_loops=150):
@@ -560,9 +532,7 @@ class BaseConnection(object):
                     new_data = self.channel.read_buffer()
                     if self.ansi_escape_codes:
                         new_data = self.strip_ansi_escape_codes(new_data)
-                    log.debug(f"_read_channel_expect read_data: {new_data}")
                     output += new_data
-                    self._write_session_log(new_data)
                 except socket.timeout:
                     raise NetmikoTimeoutException(
                         "Timed-out reading channel, data not available."
