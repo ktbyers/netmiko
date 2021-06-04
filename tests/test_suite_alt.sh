@@ -24,10 +24,10 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config_acl.py --test_device cisco881_key \
 \
 && echo "Cisco IOS SSH (including SCP)" \
-&& py.test -v test_netmiko_tcl.py --test_device cisco881 \
-&& py.test -v test_netmiko_show.py --test_device cisco881 \
-&& py.test -v test_netmiko_config.py --test_device cisco881 \
-&& py.test -v test_netmiko_config_acl.py --test_device cisco881 \
+&& py.test -v test_netmiko_tcl.py --test_device cisco1 \
+&& py.test -v test_netmiko_show.py --test_device cisco1 \
+&& py.test -v test_netmiko_config.py --test_device cisco1 \
+&& py.test -v test_netmiko_config_acl.py --test_device cisco1 \
 \
 && echo "Cisco IOS SSH fast_cli (including SCP)" \
 && py.test -v test_netmiko_tcl.py --test_device cisco881_fast \

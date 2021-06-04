@@ -6,7 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-from typing import Optional, Callable, Any, Dict
+from typing import Optional, Callable, Any, Dict, TypeVar, cast
 import io
 import re
 import socket
@@ -42,9 +42,13 @@ from netmiko.utilities import (
 from netmiko.utilities import m_exec_time  # noqa
 
 
-def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
+# For decorators
+F = TypeVar('F', bound=Callable[..., Any])
+
+
+def lock_channel(func: F) -> F:
     @functools.wraps(func)
-    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
+    def wrapper_decorator(self: BaseConnection, *args: Any, **kwargs: Any) -> Any:
         self._lock_netmiko_session()
         try:
             return_val = func(self, *args, **kwargs)
@@ -53,14 +57,14 @@ def lock_channel(func: Callable[..., Any]) -> Callable[..., Any]:
             self._unlock_netmiko_session()
         return return_val
 
-    return wrapper_decorator
+    return cast(F, wrapper_decorator)
 
 
-def log_reads(func: Callable[..., str]) -> Callable[..., str]:
+def log_reads(func: F) -> F:
     """Handle both session_log and log of reads."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self, *args: Any, **kwargs: Any) -> str:
+    def wrapper_decorator(self: BaseConnection, *args: Any, **kwargs: Any) -> str:
         output: str
         output = func(self, *args, **kwargs)
         log.debug(f"read_channel: {output}")
@@ -68,14 +72,14 @@ def log_reads(func: Callable[..., str]) -> Callable[..., str]:
             self.session_log.write(output)
         return output
 
-    return wrapper_decorator
+    return cast(F, wrapper_decorator)
 
 
-def log_writes(func: Callable[..., None]) -> Callable[..., None]:
+def log_writes(func: F) -> F:
     """Handle both session_log and log of writes."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self, out_data: str) -> None:
+    def wrapper_decorator(self: BaseConnection, out_data: str) -> None:
         func(self, out_data)
         try:
             log.debug(
@@ -91,10 +95,10 @@ def log_writes(func: Callable[..., None]) -> Callable[..., None]:
             pass
         return None
 
-    return wrapper_decorator
+    return cast(F, wrapper_decorator)
 
 
-class BaseConnection(object):
+class BaseConnection:
     """
     Defines vendor independent methods.
 
@@ -128,9 +132,8 @@ class BaseConnection(object):
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
         conn_timeout: int = 5,
-        auth_timeout: Optional[
-            int
-        ] = None,  # Timeout to wait for authentication response
+        # Timeout to wait for authentication response
+        auth_timeout: Optional[int] = None,
         banner_timeout: int = 15,  # Timeout to wait for the banner to be presented
         # Other timeouts
         blocking_timeout: int = 20,  # Read blocking timeout
@@ -147,9 +150,9 @@ class BaseConnection(object):
         session_log_file_mode: str = "write",
         allow_auto_change: bool = False,
         encoding: str = "ascii",
-        sock=None,
+        sock: Optional[socket.socket] = None,
         auto_connect: bool = True,
-    ):
+    ) -> None:
         """
         Initialize attributes for establishing connection to target device.
 
@@ -421,25 +424,25 @@ class BaseConnection(object):
         if auto_connect:
             self._open()
 
-    def _open(self):
+    def _open(self) -> None:
         """Decouple connection creation from __init__ for mocking."""
         self._modify_connection_params()
         self.establish_connection()
         self._try_session_preparation()
 
-    def __enter__(self):
+    def __enter__(self) -> BaseConnection:
         """Establish a session using a Context Manager."""
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Gracefully close connection on Context Manager exit."""
         self.disconnect()
 
-    def _modify_connection_params(self):
+    def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
         pass
 
-    def _timeout_exceeded(self, start, msg="Timeout exceeded!"):
+    def _timeout_exceeded(self, start, msg: str = "Timeout exceeded!") -> bool:
         """Raise NetmikoTimeoutException if waiting too much in the serving queue.
 
         :param start: Initial start time to see if session lock timeout has been exceeded
@@ -456,7 +459,7 @@ class BaseConnection(object):
             raise NetmikoTimeoutException(msg)
         return False
 
-    def _lock_netmiko_session(self, start=None):
+    def _lock_netmiko_session(self, start=None) -> bool:
         """Try to acquire the Netmiko session lock. If not available, wait in the queue until
         the channel is available again.
 
@@ -472,7 +475,7 @@ class BaseConnection(object):
             time.sleep(0.1)
         return True
 
-    def _unlock_netmiko_session(self):
+    def _unlock_netmiko_session(self) -> None:
         """
         Release the channel at the end of the task.
         """
@@ -489,7 +492,7 @@ class BaseConnection(object):
         """
         self.channel.write_channel(out_data)
 
-    def is_alive(self):
+    def is_alive(self) -> bool:
         """Returns a boolean flag with the state of the connection."""
         null = chr(0)
         if self.remote_conn is None:
@@ -530,7 +533,7 @@ class BaseConnection(object):
             output = self.strip_ansi_escape_codes(output)
         return output
 
-    def _read_channel_expect(self, pattern="", re_flags=0, max_loops=150):
+    def _read_channel_expect(self, pattern: str = "", re_flags=0, max_loops: int = 150):
         """Function that reads channel until pattern is detected.
 
         pattern takes a regular expression.

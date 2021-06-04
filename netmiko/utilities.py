@@ -1,4 +1,5 @@
 """Miscellaneous utility functions."""
+from typing import AnyStr
 from glob import glob
 import sys
 import io
@@ -203,7 +204,7 @@ def find_netmiko_dir():
     return (netmiko_base_dir, netmiko_full_dir)
 
 
-def write_bytes(out_data, encoding="ascii"):
+def write_bytes(out_data: AnyStr, encoding: str = "ascii") -> bytes:
     """Legacy for Python2 and Python3 compatible byte stream."""
     if sys.version_info[0] >= 3:
         if isinstance(out_data, type("")):
