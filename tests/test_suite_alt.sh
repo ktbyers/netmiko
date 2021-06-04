@@ -44,6 +44,9 @@ echo "Starting tests...good luck:" \
 && py.test -v test_netmiko_config.py --test_device cisco881_ssh_proxyjump \
 && py.test -v test_netmiko_config_acl.py --test_device cisco881_ssh_proxyjump \
 \
+&& echo "Cisco IOS session log testing" \
+&& py.test -v test_netmiko_session_log.py --test_device cisco881_slog \
+\
 && echo "Cisco IOS telnet" \
 && py.test -v test_netmiko_show.py --test_device cisco881_telnet \
 && py.test -v test_netmiko_config.py --test_device cisco881_telnet \
@@ -116,7 +119,6 @@ exit $RETURN_CODE
 # && py.test -v test_netmiko_config.py --test_device cisco_xr_azure \
 # && py.test -v test_netmiko_commit.py --test_device cisco_xr_azure \
 #
-# && py.test -v test_netmiko_session_log.py --test_device cisco881_slog \
 #&& echo "Nokia SR-OS CLI" \
 #&& py.test -x -s -v test_netmiko_show.py --test_device sros2 \
 #&& py.test -x -s -v test_netmiko_config.py --test_device sros2 \
