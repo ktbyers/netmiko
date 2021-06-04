@@ -233,7 +233,7 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;, &#34;NokiaSr
 </dd>
 <dt id="netmiko.nokia.NokiaSrosSSH"><code class="flex name class">
 <span>class <span class="ident">NokiaSrosSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Nokia SR OS SSH driver.</p>
@@ -387,7 +387,6 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;, &#34;NokiaSr
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.check_enable_mode" href="nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSros.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.cleanup" href="nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSros.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.commit" href="nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSros.commit">commit</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.config_mode" href="nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSros.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -400,7 +399,6 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;, &#34;NokiaSr
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -430,7 +428,7 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;, &#34;NokiaSr
 </dd>
 <dt id="netmiko.nokia.NokiaSrosTelnet"><code class="flex name class">
 <span>class <span class="ident">NokiaSrosTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Nokia SR OS Telnet driver.</p>
@@ -584,7 +582,6 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;, &#34;NokiaSr
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.check_enable_mode" href="nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSros.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.cleanup" href="nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSros.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.commit" href="nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSros.commit">commit</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.config_mode" href="nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSros.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -597,7 +594,6 @@ __all__ = [&#34;NokiaSrosSSH&#34;, &#34;NokiaSrosFileTransfer&#34;, &#34;NokiaSr
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.nokia.nokia_sros.NokiaSros.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>

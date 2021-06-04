@@ -51,7 +51,7 @@ __all__ = [&#34;HuaweiSmartAXSSH&#34;, &#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&
 <dl>
 <dt id="netmiko.huawei.HuaweiSSH"><code class="flex name class">
 <span>class <span class="ident">HuaweiSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Huawei SSH driver.</p>
@@ -241,7 +241,6 @@ __all__ = [&#34;HuaweiSmartAXSSH&#34;, &#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.check_enable_mode" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.huawei.huawei.HuaweiBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.config_mode" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -254,7 +253,6 @@ __all__ = [&#34;HuaweiSmartAXSSH&#34;, &#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.huawei.huawei.HuaweiBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -283,7 +281,7 @@ __all__ = [&#34;HuaweiSmartAXSSH&#34;, &#34;HuaweiSSH&#34;, &#34;HuaweiVrpv8SSH&
 </dd>
 <dt id="netmiko.huawei.HuaweiSmartAXSSH"><code class="flex name class">
 <span>class <span class="ident">HuaweiSmartAXSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Supports Huawei SmartAX and OLT.</p>
@@ -583,7 +581,6 @@ The extra space is problematic.</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
@@ -595,7 +592,6 @@ The extra space is problematic.</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -622,7 +618,7 @@ The extra space is problematic.</p></section>
 </dd>
 <dt id="netmiko.huawei.HuaweiTelnet"><code class="flex name class">
 <span>class <span class="ident">HuaweiTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Huawei Telnet driver.</p>
@@ -932,7 +928,6 @@ The extra space is problematic.</p></section>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.check_enable_mode" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.huawei.huawei.HuaweiBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.config_mode" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -945,7 +940,6 @@ The extra space is problematic.</p></section>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.huawei.huawei.HuaweiBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -974,7 +968,7 @@ The extra space is problematic.</p></section>
 </dd>
 <dt id="netmiko.huawei.HuaweiVrpv8SSH"><code class="flex name class">
 <span>class <span class="ident">HuaweiVrpv8SSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Huawei SSH driver.</p>
@@ -1227,7 +1221,6 @@ command_string = commit comment <comment></p></section>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.check_enable_mode" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.huawei.huawei.HuaweiSSH.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.config_mode" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
@@ -1239,7 +1232,6 @@ command_string = commit comment <comment></p></section>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.huawei.huawei.HuaweiSSH.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>

@@ -115,7 +115,6 @@ class CiscoBaseConnection(BaseConnection):
         &#34;&#34;&#34;Telnet login. Can be username/password or just password.&#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
 
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor &lt; 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -218,7 +217,8 @@ class CiscoBaseConnection(BaseConnection):
         except Exception:
             pass
         # Always try to send final &#39;exit&#39; (command)
-        self._session_log_fin = True
+        if self.session_log:
+            self.session_log.fin = True
         self.write_channel(command + self.RETURN)
 
     def _autodetect_fs(self, cmd=&#34;dir&#34;, pattern=r&#34;Directory of (.*)/&#34;):
@@ -293,7 +293,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <dl>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoBaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -513,7 +513,6 @@ class CiscoFileTransfer(BaseFileTransfer):
         &#34;&#34;&#34;Telnet login. Can be username/password or just password.&#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
 
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor &lt; 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -616,7 +615,8 @@ class CiscoFileTransfer(BaseFileTransfer):
         except Exception:
             pass
         # Always try to send final &#39;exit&#39; (command)
-        self._session_log_fin = True
+        if self.session_log:
+            self.session_log.fin = True
         self.write_channel(command + self.RETURN)
 
     def _autodetect_fs(self, cmd=&#34;dir&#34;, pattern=r&#34;Directory of (.*)/&#34;):
@@ -742,7 +742,8 @@ class CiscoFileTransfer(BaseFileTransfer):
     except Exception:
         pass
     # Always try to send final &#39;exit&#39; (command)
-    self._session_log_fin = True
+    if self.session_log:
+        self.session_log.fin = True
     self.write_channel(command + self.RETURN)</code></pre>
 </details>
 </dd>
@@ -899,7 +900,6 @@ class CiscoFileTransfer(BaseFileTransfer):
     &#34;&#34;&#34;Telnet login. Can be username/password or just password.&#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
 
-    # FIX: Cleanup in future versions of Netmiko
     if delay_factor &lt; 1:
         if not self._legacy_mode and self.fast_cli:
             delay_factor = 1
@@ -1000,7 +1000,6 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><code><b><a title="netmiko.base_connection.BaseConnection" href="base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></b></code>:
 <ul class="hlist">
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.commit" href="base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
@@ -1009,7 +1008,6 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_cmd" href="base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_linefeeds" href="base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.open_session_log" href="base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.paramiko_cleanup" href="base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_channel" href="base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -1086,7 +1084,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoSSHConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoSSHConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -1246,10 +1244,12 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH" href="cisco/cisco_nxos_ssh.html#netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH">CiscoNxosSSH</a></li>
 <li><a title="netmiko.cisco.cisco_s300.CiscoS300SSH" href="cisco/cisco_s300.html#netmiko.cisco.cisco_s300.CiscoS300SSH">CiscoS300SSH</a></li>
 <li><a title="netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH" href="cisco/cisco_tp_tcce.html#netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH">CiscoTpTcCeSSH</a></li>
+<li><a title="netmiko.cisco.cisco_viptela.CiscoViptelaSSH" href="cisco/cisco_viptela.html#netmiko.cisco.cisco_viptela.CiscoViptelaSSH">CiscoViptelaSSH</a></li>
 <li><a title="netmiko.cloudgenix.cloudgenix_ion.CloudGenixIonSSH" href="cloudgenix/cloudgenix_ion.html#netmiko.cloudgenix.cloudgenix_ion.CloudGenixIonSSH">CloudGenixIonSSH</a></li>
 <li><a title="netmiko.coriant.coriant_ssh.CoriantSSH" href="coriant/coriant_ssh.html#netmiko.coriant.coriant_ssh.CoriantSSH">CoriantSSH</a></li>
 <li><a title="netmiko.dell.dell_force10_ssh.DellForce10SSH" href="dell/dell_force10_ssh.html#netmiko.dell.dell_force10_ssh.DellForce10SSH">DellForce10SSH</a></li>
 <li><a title="netmiko.dell.dell_os10_ssh.DellOS10SSH" href="dell/dell_os10_ssh.html#netmiko.dell.dell_os10_ssh.DellOS10SSH">DellOS10SSH</a></li>
+<li><a title="netmiko.dell.dell_sonic_ssh.DellSonicSSH" href="dell/dell_sonic_ssh.html#netmiko.dell.dell_sonic_ssh.DellSonicSSH">DellSonicSSH</a></li>
 <li><a title="netmiko.dlink.dlink_ds.DlinkDSBase" href="dlink/dlink_ds.html#netmiko.dlink.dlink_ds.DlinkDSBase">DlinkDSBase</a></li>
 <li><a title="netmiko.eltex.eltex_ssh.EltexSSH" href="eltex/eltex_ssh.html#netmiko.eltex.eltex_ssh.EltexSSH">EltexSSH</a></li>
 <li><a title="netmiko.eltex.eltex_esr_ssh.EltexEsrSSH" href="eltex/eltex_esr_ssh.html#netmiko.eltex.eltex_esr_ssh.EltexEsrSSH">EltexEsrSSH</a></li>
@@ -1286,7 +1286,6 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode" href="#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.cleanup" href="#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.clear_buffer" href="base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.close_session_log" href="base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.commit" href="base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode" href="#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disable_paging" href="base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -1299,7 +1298,6 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.is_alive" href="base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.normalize_cmd" href="base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.normalize_linefeeds" href="base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.open_session_log" href="base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.paramiko_cleanup" href="base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_channel" href="base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_pattern" href="base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>

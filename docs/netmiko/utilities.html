@@ -273,7 +273,7 @@ def get_template_dir(_skip_ntc_package=False):
     Order of preference is:
     1) Find directory in `NET_TEXTFSM` Environment Variable.
     2) Check for pip installed `ntc-templates` location in this environment.
-    3) ~/ntc-templates/templates.
+    3) ~/ntc-templates/ntc_templates/templates.
 
     If `index` file is not found in any of these locations, raise ValueError
 
@@ -313,9 +313,11 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
                     raise ModuleNotFoundError()
 
         except ModuleNotFoundError:
-            # Finally check in ~/ntc-templates/templates
+            # Finally check in ~/ntc-templates/ntc_templates/templates
             home_dir = os.path.expanduser(&#34;~&#34;)
-            template_dir = os.path.join(home_dir, &#34;ntc-templates&#34;, &#34;templates&#34;)
+            template_dir = os.path.join(
+                home_dir, &#34;ntc-templates&#34;, &#34;ntc_templates&#34;, &#34;templates&#34;
+            )
 
     index = os.path.join(template_dir, &#34;index&#34;)
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
@@ -345,6 +347,7 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
         structured_data = clitable_to_dict(textfsm_obj)
         output = raw_output if structured_data == [] else structured_data
         return output
+
     except (FileNotFoundError, CliTableError):
         return raw_output
 
@@ -369,7 +372,12 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
         template_dir = get_template_dir()
         index_file = os.path.join(template_dir, &#34;index&#34;)
         textfsm_obj = clitable.CliTable(index_file, template_dir)
-        return _textfsm_parse(textfsm_obj, raw_output, attrs)
+        output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        # Retry the output if &#34;cisco_xe&#34; and not structured data
+        if not isinstance(output, list) and &#34;cisco_xe&#34; in platform:
+            attrs[&#34;Platform&#34;] = &#34;cisco_ios&#34;
+            output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        return output
     else:
         template_path = Path(os.path.expanduser(template))
         template_file = template_path.name
@@ -764,7 +772,12 @@ then you must use an CliTable index file.</p></section>
         template_dir = get_template_dir()
         index_file = os.path.join(template_dir, &#34;index&#34;)
         textfsm_obj = clitable.CliTable(index_file, template_dir)
-        return _textfsm_parse(textfsm_obj, raw_output, attrs)
+        output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        # Retry the output if &#34;cisco_xe&#34; and not structured data
+        if not isinstance(output, list) and &#34;cisco_xe&#34; in platform:
+            attrs[&#34;Platform&#34;] = &#34;cisco_ios&#34;
+            output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        return output
     else:
         template_path = Path(os.path.expanduser(template))
         template_file = template_path.name
@@ -866,7 +879,7 @@ then you must use an CliTable index file.</p></section>
 <p>Order of preference is:
 1) Find directory in <code>NET_TEXTFSM</code> Environment Variable.
 2) Check for pip installed <code>ntc-templates</code> location in this environment.
-3) ~/ntc-templates/templates.</p>
+3) ~/ntc-templates/ntc_templates/templates.</p>
 <p>If <code>index</code> file is not found in any of these locations, raise ValueError</p>
 <p>:return: directory containing the TextFSM index file</p></section>
 <details class="source">
@@ -878,7 +891,7 @@ then you must use an CliTable index file.</p></section>
     Order of preference is:
     1) Find directory in `NET_TEXTFSM` Environment Variable.
     2) Check for pip installed `ntc-templates` location in this environment.
-    3) ~/ntc-templates/templates.
+    3) ~/ntc-templates/ntc_templates/templates.
 
     If `index` file is not found in any of these locations, raise ValueError
 
@@ -918,9 +931,11 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
                     raise ModuleNotFoundError()
 
         except ModuleNotFoundError:
-            # Finally check in ~/ntc-templates/templates
+            # Finally check in ~/ntc-templates/ntc_templates/templates
             home_dir = os.path.expanduser(&#34;~&#34;)
-            template_dir = os.path.join(home_dir, &#34;ntc-templates&#34;, &#34;templates&#34;)
+            template_dir = os.path.join(
+                home_dir, &#34;ntc-templates&#34;, &#34;ntc_templates&#34;, &#34;templates&#34;
+            )
 
     index = os.path.join(template_dir, &#34;index&#34;)
     if not os.path.isdir(template_dir) or not os.path.isfile(index):

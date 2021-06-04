@@ -122,6 +122,23 @@ class CiscoWlcSSH(BaseConnection):
             output = self.strip_prompt(output)
         return output
 
+    def send_command_w_yes(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        For &#39;show interface summary&#39; Cisco WLC adds a
+        &#39;Would you like to display the next 15 entries?&#39; message
+        Even though pagination is disabled
+        Arguments are the same as send_command_timing() method
+        &#34;&#34;&#34;
+        output = self.send_command_timing(*args, **kwargs)
+        if &#34;(y/n)&#34; in output:
+            output += self.send_command_timing(&#34;y&#34;)
+        strip_prompt = kwargs.get(&#34;strip_prompt&#34;, True)
+        if strip_prompt:
+            # Had to strip trailing prompt twice.
+            output = self.strip_prompt(output)
+            output = self.strip_prompt(output)
+        return output
+
     def session_preparation(self):
         &#34;&#34;&#34;
         Prepare the session after the connection has been established
@@ -462,6 +479,23 @@ class CiscoWlcSSH(BaseConnection):
             output = self.strip_prompt(output)
         return output
 
+    def send_command_w_yes(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        For &#39;show interface summary&#39; Cisco WLC adds a
+        &#39;Would you like to display the next 15 entries?&#39; message
+        Even though pagination is disabled
+        Arguments are the same as send_command_timing() method
+        &#34;&#34;&#34;
+        output = self.send_command_timing(*args, **kwargs)
+        if &#34;(y/n)&#34; in output:
+            output += self.send_command_timing(&#34;y&#34;)
+        strip_prompt = kwargs.get(&#34;strip_prompt&#34;, True)
+        if strip_prompt:
+            # Had to strip trailing prompt twice.
+            output = self.strip_prompt(output)
+            output = self.strip_prompt(output)
+        return output
+
     def session_preparation(self):
         &#34;&#34;&#34;
         Prepare the session after the connection has been established
@@ -743,6 +777,34 @@ Arguments are the same as send_command_timing() method</p></section>
     return output</code></pre>
 </details>
 </dd>
+<dt id="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.send_command_w_yes"><code class="name flex">
+<span>def <span class="ident">send_command_w_yes</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>For 'show interface summary' Cisco WLC adds a
+'Would you like to display the next 15 entries?' message
+Even though pagination is disabled
+Arguments are the same as send_command_timing() method</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def send_command_w_yes(self, *args, **kwargs):
+    &#34;&#34;&#34;
+    For &#39;show interface summary&#39; Cisco WLC adds a
+    &#39;Would you like to display the next 15 entries?&#39; message
+    Even though pagination is disabled
+    Arguments are the same as send_command_timing() method
+    &#34;&#34;&#34;
+    output = self.send_command_timing(*args, **kwargs)
+    if &#34;(y/n)&#34; in output:
+        output += self.send_command_timing(&#34;y&#34;)
+    strip_prompt = kwargs.get(&#34;strip_prompt&#34;, True)
+    if strip_prompt:
+        # Had to strip trailing prompt twice.
+        output = self.strip_prompt(output)
+        output = self.strip_prompt(output)
+    return output</code></pre>
+</details>
+</dd>
 <dt id="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self)</span>
 </code></dt>
@@ -819,7 +881,6 @@ Arguments are the same as send_command_timing() method</p></section>
 <ul class="hlist">
 <li><code><a title="netmiko.base_connection.BaseConnection.check_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
@@ -830,7 +891,6 @@ Arguments are the same as send_command_timing() method</p></section>
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -880,6 +940,7 @@ Arguments are the same as send_command_timing() method</p></section>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.exit_config_mode" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.save_config" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.send_command_w_enter" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.send_command_w_enter">send_command_w_enter</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.send_command_w_yes" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.send_command_w_yes">send_command_w_yes</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.session_preparation" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.special_login_handler" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.special_login_handler">special_login_handler</a></code></li>
 </ul>

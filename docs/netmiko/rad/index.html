@@ -203,7 +203,6 @@ __all__ = [&#34;RadETXSSH&#34;, &#34;RadETXTelnet&#34;]</code></pre>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.check_enable_mode" href="rad_etx.html#netmiko.rad.rad_etx.RadETXBase.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.rad.rad_etx.RadETXBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.config_mode" href="rad_etx.html#netmiko.rad.rad_etx.RadETXBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -216,7 +215,6 @@ __all__ = [&#34;RadETXSSH&#34;, &#34;RadETXTelnet&#34;]</code></pre>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.rad.rad_etx.RadETXBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -246,7 +244,7 @@ __all__ = [&#34;RadETXSSH&#34;, &#34;RadETXTelnet&#34;]</code></pre>
 </dd>
 <dt id="netmiko.rad.RadETXTelnet"><code class="flex name class">
 <span>class <span class="ident">RadETXTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>RAD ETX Telnet Support.</p>
@@ -445,7 +443,6 @@ __all__ = [&#34;RadETXSSH&#34;, &#34;RadETXTelnet&#34;]</code></pre>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.check_enable_mode" href="rad_etx.html#netmiko.rad.rad_etx.RadETXBase.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.rad.rad_etx.RadETXBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.config_mode" href="rad_etx.html#netmiko.rad.rad_etx.RadETXBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -458,7 +455,6 @@ __all__ = [&#34;RadETXSSH&#34;, &#34;RadETXTelnet&#34;]</code></pre>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.rad.rad_etx.RadETXBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.rad.rad_etx.RadETXBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>

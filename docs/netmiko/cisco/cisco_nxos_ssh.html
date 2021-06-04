@@ -79,8 +79,6 @@ class CiscoNxosSSH(CiscoSSHConnection):
                 )
         else:
             # NX-OS is very slow on save_config ensure it waits long enough.
-            # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
-            # send_command so increase max_loops.
             output = self.send_command(
                 command_string=cmd,
                 strip_prompt=False,
@@ -538,8 +536,6 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
                 )
         else:
             # NX-OS is very slow on save_config ensure it waits long enough.
-            # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
-            # send_command so increase max_loops.
             output = self.send_command(
                 command_string=cmd,
                 strip_prompt=False,
@@ -613,7 +609,6 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -625,7 +620,6 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>

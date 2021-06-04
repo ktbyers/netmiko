@@ -160,7 +160,6 @@ class JuniperBase(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor)
 
         # Commit is very slow so this is needed.
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor &lt; 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -606,7 +605,6 @@ Overrides several methods for Juniper-specific compatibility.</p>
         delay_factor = self.select_delay_factor(delay_factor)
 
         # Commit is very slow so this is needed.
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor &lt; 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -825,7 +823,6 @@ command_string = commit check</p></section>
     delay_factor = self.select_delay_factor(delay_factor)
 
     # Commit is very slow so this is needed.
-    # FIX: Cleanup in future versions of Netmiko
     if delay_factor &lt; 1:
         if not self._legacy_mode and self.fast_cli:
             delay_factor = 1
@@ -1064,7 +1061,6 @@ command_string = commit check</p></section>
 <li><code><b><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></b></code>:
 <ul class="hlist">
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
@@ -1072,7 +1068,6 @@ command_string = commit check</p></section>
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -1336,7 +1331,6 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.config_mode" href="#netmiko.juniper.juniper.JuniperBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -1350,7 +1344,6 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -1539,7 +1532,6 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.config_mode" href="#netmiko.juniper.juniper.JuniperBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -1553,7 +1545,6 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>

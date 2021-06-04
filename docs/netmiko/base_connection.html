@@ -34,6 +34,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 &#34;&#34;&#34;
+from typing import Optional, Callable, Any, Dict
 import io
 import re
 import socket
@@ -42,18 +43,21 @@ import time
 from collections import deque
 from os import path
 from threading import Lock
+import functools
 
 import paramiko
 import serial
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from netmiko import log
-from netmiko.netmiko_globals import MAX_BUFFER, BACKSPACE_CHAR
+from netmiko.netmiko_globals import BACKSPACE_CHAR
 from netmiko.ssh_exception import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
     ConfigInvalidException,
 )
+from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
+from netmiko.session_log import SessionLog
 from netmiko.utilities import (
     write_bytes,
     check_serial_port,
@@ -66,6 +70,58 @@ from netmiko.utilities import (
 from netmiko.utilities import m_exec_time  # noqa
 
 
+def lock_channel(func: Callable[..., Any]) -&gt; Callable[..., Any]:
+    @functools.wraps(func)
+    def wrapper_decorator(self: &#34;BaseConnection&#34;, *args: Any, **kwargs: Any) -&gt; Any:
+        self._lock_netmiko_session()
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always unlock the channel, even on exception.
+            self._unlock_netmiko_session()
+        return return_val
+
+    return wrapper_decorator
+
+
+def log_reads(func: Callable[..., str]) -&gt; Callable[..., str]:
+    &#34;&#34;&#34;Handle both session_log and log of reads.&#34;&#34;&#34;
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args: Any, **kwargs: Any) -&gt; str:
+        output: str
+        output = func(self, *args, **kwargs)
+        log.debug(f&#34;read_channel: {output}&#34;)
+        if self.session_log:
+            self.session_log.write(output)
+        return output
+
+    return wrapper_decorator
+
+
+def log_writes(func: Callable[..., None]) -&gt; Callable[..., None]:
+    &#34;&#34;&#34;Handle both session_log and log of writes.&#34;&#34;&#34;
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, out_data: str) -&gt; None:
+        func(self, out_data)
+        try:
+            log.debug(
+                &#34;write_channel: {}&#34;.format(
+                    str(write_bytes(out_data, encoding=self.encoding))
+                )
+            )
+            if self.session_log:
+                if self.session_log.fin or self.session_log.record_writes:
+                    self.session_log.write(out_data)
+        except UnicodeDecodeError:
+            # Don&#39;t log non-ASCII characters; this is null characters and telnet IAC (PY2)
+            pass
+        return None
+
+    return wrapper_decorator
+
+
 class BaseConnection(object):
     &#34;&#34;&#34;
     Defines vendor independent methods.
@@ -75,50 +131,52 @@ class BaseConnection(object):
 
     def __init__(
         self,
-        ip=&#34;&#34;,
-        host=&#34;&#34;,
-        username=&#34;&#34;,
-        password=None,
-        secret=&#34;&#34;,
-        port=None,
-        device_type=&#34;&#34;,
-        verbose=False,
-        global_delay_factor=1,
-        global_cmd_verify=None,
-        use_keys=False,
-        key_file=None,
-        pkey=None,
-        passphrase=None,
-        allow_agent=False,
-        ssh_strict=False,
-        system_host_keys=False,
-        alt_host_keys=False,
-        alt_key_file=&#34;&#34;,
-        ssh_config_file=None,
+        ip: str = &#34;&#34;,
+        host: str = &#34;&#34;,
+        username: str = &#34;&#34;,
+        password: Optional[str] = None,
+        secret: str = &#34;&#34;,
+        port: Optional[int] = None,
+        device_type: str = &#34;&#34;,
+        verbose: bool = False,
+        global_delay_factor: float = 1.0,
+        global_cmd_verify: Optional[bool] = None,
+        use_keys: bool = False,
+        key_file: Optional[str] = None,
+        pkey: Optional[paramiko.PKey] = None,
+        passphrase: Optional[str] = None,
+        allow_agent: bool = False,
+        ssh_strict: bool = False,
+        system_host_keys: bool = False,
+        alt_host_keys: bool = False,
+        alt_key_file: str = &#34;&#34;,
+        ssh_config_file: Optional[str] = None,
         #
         # Connect timeouts
         # ssh-connect --&gt; TCP conn (conn_timeout) --&gt; SSH-banner (banner_timeout)
         #       --&gt; Auth response (auth_timeout)
-        conn_timeout=5,
-        auth_timeout=None,  # Timeout to wait for authentication response
-        banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        conn_timeout: int = 5,
+        auth_timeout: Optional[
+            int
+        ] = None,  # Timeout to wait for authentication response
+        banner_timeout: int = 15,  # Timeout to wait for the banner to be presented
         # Other timeouts
-        blocking_timeout=20,  # Read blocking timeout
-        timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
-        session_timeout=60,  # Used for locking/sharing the connection
-        keepalive=0,
-        default_enter=None,
-        response_return=None,
-        serial_settings=None,
-        fast_cli=False,
-        _legacy_mode=True,
-        session_log=None,
-        session_log_record_writes=False,
-        session_log_file_mode=&#34;write&#34;,
-        allow_auto_change=False,
-        encoding=&#34;ascii&#34;,
+        blocking_timeout: int = 20,  # Read blocking timeout
+        timeout: int = 100,  # TCP connect timeout | overloaded to read-loop timeout
+        session_timeout: int = 60,  # Used for locking/sharing the connection
+        keepalive: int = 0,
+        default_enter: Optional[str] = None,
+        response_return: Optional[str] = None,
+        serial_settings: Optional[Dict[str, Any]] = None,
+        fast_cli: bool = False,
+        _legacy_mode: bool = True,
+        session_log: Optional[SessionLog] = None,
+        session_log_record_writes: bool = False,
+        session_log_file_mode: str = &#34;write&#34;,
+        allow_auto_change: bool = False,
+        encoding: str = &#34;ascii&#34;,
         sock=None,
-        auto_connect=True,
+        auto_connect: bool = True,
     ):
         &#34;&#34;&#34;
         Initialize attributes for establishing connection to target device.
@@ -296,17 +354,31 @@ class BaseConnection(object):
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
-        self.session_log_record_writes = session_log_record_writes
         self._session_log_close = False
-        # Ensures last write operations prior to disconnect are recorded.
-        self._session_log_fin = False
         if session_log is not None:
+            no_log = {}
+            if self.password:
+                no_log[&#34;password&#34;] = self.password
+            if self.secret:
+                no_log[&#34;secret&#34;] = self.secret
+
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
-                self.open_session_log(filename=session_log, mode=session_log_file_mode)
+                self.session_log = SessionLog(
+                    file_name=session_log,
+                    file_mode=session_log_file_mode,
+                    file_encoding=encoding,
+                    no_log=no_log,
+                    record_writes=session_log_record_writes,
+                )
+                self.session_log.open()
             elif isinstance(session_log, io.BufferedIOBase):
                 # In-memory buffer or an already open file handle
-                self.session_log = session_log
+                self.session_log = SessionLog(
+                    buffered_io=session_log,
+                    no_log=no_log,
+                    record_writes=session_log_record_writes,
+                )
             else:
                 raise ValueError(
                     &#34;session_log must be a path to a file, a file handle, &#34;
@@ -435,59 +507,15 @@ class BaseConnection(object):
         if self._session_locker.locked():
             self._session_locker.release()
 
-    def _write_channel(self, out_data):
-        &#34;&#34;&#34;Generic handler that will write to both SSH and telnet channel.
+    @lock_channel
+    @log_writes
+    def write_channel(self, out_data: str) -&gt; None:
+        &#34;&#34;&#34;Generic method that will write data out the channel.
 
         :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
+        :type out_data: str
         &#34;&#34;&#34;
-        if self.protocol == &#34;ssh&#34;:
-            self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
-        elif self.protocol == &#34;telnet&#34;:
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-        elif self.protocol == &#34;serial&#34;:
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-            self.remote_conn.flush()
-        else:
-            raise ValueError(&#34;Invalid protocol specified&#34;)
-        try:
-            log.debug(
-                &#34;write_channel: {}&#34;.format(
-                    write_bytes(out_data, encoding=self.encoding)
-                )
-            )
-            if self._session_log_fin or self.session_log_record_writes:
-                self._write_session_log(out_data)
-        except UnicodeDecodeError:
-            # Don&#39;t log non-ASCII characters; this is null characters and telnet IAC (PY2)
-            pass
-
-    def _write_session_log(self, data):
-        if self.session_log is not None and len(data) &gt; 0:
-            # Hide the password and secret in the session_log
-            if self.password:
-                data = data.replace(self.password, &#34;********&#34;)
-            if self.secret:
-                data = data.replace(self.secret, &#34;********&#34;)
-            if isinstance(self.session_log, io.BufferedIOBase):
-                data = self.normalize_linefeeds(data)
-                self.session_log.write(write_bytes(data, encoding=self.encoding))
-            else:
-                self.session_log.write(self.normalize_linefeeds(data))
-            self.session_log.flush()
-
-    def write_channel(self, out_data):
-        &#34;&#34;&#34;Generic handler that will write to both SSH and telnet channel.
-
-        :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
-        &#34;&#34;&#34;
-        self._lock_netmiko_session()
-        try:
-            self._write_channel(out_data)
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
+        self.channel.write_channel(out_data)
 
     def is_alive(self):
         &#34;&#34;&#34;Returns a boolean flag with the state of the connection.&#34;&#34;&#34;
@@ -520,41 +548,14 @@ class BaseConnection(object):
                 return False
         return False
 
-    def _read_channel(self):
-        &#34;&#34;&#34;Generic handler that will read all the data from an SSH or telnet channel.&#34;&#34;&#34;
-        if self.protocol == &#34;ssh&#34;:
-            output = &#34;&#34;
-            while True:
-                if self.remote_conn.recv_ready():
-                    outbuf = self.remote_conn.recv(MAX_BUFFER)
-                    if len(outbuf) == 0:
-                        raise EOFError(&#34;Channel stream closed by remote device.&#34;)
-                    output += outbuf.decode(&#34;utf-8&#34;, &#34;ignore&#34;)
-                else:
-                    break
-        elif self.protocol == &#34;telnet&#34;:
-            output = self.remote_conn.read_very_eager().decode(&#34;utf-8&#34;, &#34;ignore&#34;)
-        elif self.protocol == &#34;serial&#34;:
-            output = &#34;&#34;
-            while self.remote_conn.in_waiting &gt; 0:
-                output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                    &#34;utf-8&#34;, &#34;ignore&#34;
-                )
+    @lock_channel
+    @log_reads
+    def read_channel(self) -&gt; str:
+        &#34;&#34;&#34;Generic handler that will read all the data from given channel.&#34;&#34;&#34;
+        output = self.channel.read_channel()
+        output = self.normalize_linefeeds(output)
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        log.debug(f&#34;read_channel: {output}&#34;)
-        self._write_session_log(output)
-        return output
-
-    def read_channel(self):
-        &#34;&#34;&#34;Generic handler that will read all the data from an SSH or telnet channel.&#34;&#34;&#34;
-        output = &#34;&#34;
-        self._lock_netmiko_session()
-        try:
-            output = self._read_channel()
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
         return output
 
     def _read_channel_expect(self, pattern=&#34;&#34;, re_flags=0, max_loops=150):
@@ -594,27 +595,7 @@ class BaseConnection(object):
         if max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
         while i &lt; max_loops:
-            if self.protocol == &#34;ssh&#34;:
-                try:
-                    # If no data available will wait timeout seconds trying to read
-                    self._lock_netmiko_session()
-                    new_data = self.remote_conn.recv(MAX_BUFFER)
-                    if len(new_data) == 0:
-                        raise EOFError(&#34;Channel stream closed by remote device.&#34;)
-                    new_data = new_data.decode(&#34;utf-8&#34;, &#34;ignore&#34;)
-                    if self.ansi_escape_codes:
-                        new_data = self.strip_ansi_escape_codes(new_data)
-                    log.debug(f&#34;_read_channel_expect read_data: {new_data}&#34;)
-                    output += new_data
-                    self._write_session_log(new_data)
-                except socket.timeout:
-                    raise NetmikoTimeoutException(
-                        &#34;Timed-out reading channel, data not available.&#34;
-                    )
-                finally:
-                    self._unlock_netmiko_session()
-            elif self.protocol == &#34;telnet&#34; or &#34;serial&#34;:
-                output += self.read_channel()
+            output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
                 log.debug(f&#34;Pattern found: {pattern} {output}&#34;)
                 return output
@@ -651,7 +632,6 @@ class BaseConnection(object):
         if delay_factor == 1 and max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
 
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor &lt; 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -746,7 +726,6 @@ class BaseConnection(object):
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
 
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor &lt; 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -926,7 +905,6 @@ class BaseConnection(object):
         :param strip_command:
         :type strip_command:
         &#34;&#34;&#34;
-        output = self.normalize_linefeeds(output)
         if strip_command and command_string:
             command_string = self.normalize_linefeeds(command_string)
             output = self.strip_command(command_string, output)
@@ -950,9 +928,12 @@ class BaseConnection(object):
             self.remote_conn = telnetlib.Telnet(
                 self.host, port=self.port, timeout=self.timeout
             )
+            # Migrating communication to channel class
+            self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
         elif self.protocol == &#34;serial&#34;:
             self.remote_conn = serial.Serial(**self.serial_settings)
+            self.channel = SerialChannel(conn=self.remote_conn, encoding=self.encoding)
             self.serial_login()
         elif self.protocol == &#34;ssh&#34;:
             ssh_connect_params = self._connect_params_dict()
@@ -1023,6 +1004,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
             self.special_login_handler()
             if self.verbose:
                 print(&#34;Interactive SSH session established&#34;)
+
+            # Migrating communication to channel class
+            self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
         return &#34;&#34;
 
     # @m_exec_time
@@ -1226,7 +1210,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
             count += 1
 
         # If multiple lines in the output take the last line
-        prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
         if not prompt:
@@ -1253,20 +1236,19 @@ Device settings: {self.device_type} {self.host}:{self.port}
     @select_cmd_verify
     def send_command_timing(
         self,
-        command_string,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=False,
-        cmd_echo=None,
-    ):
+        command_string: str,
+        delay_factor: float = 1.0,
+        max_loops: int = 150,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = False,
+    ) -&gt; str:
         &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
@@ -1308,14 +1290,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
         :type cmd_verify: bool
-
-        :param cmd_echo: Deprecated (use cmd_verify instead)
-        :type cmd_echo: bool
         &#34;&#34;&#34;
-
-        # For compatibility; remove cmd_echo in Netmiko 4.x.x
-        if cmd_echo is not None:
-            cmd_verify = cmd_echo
 
         output = &#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
@@ -1329,7 +1304,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            new_data = self.normalize_linefeeds(new_data)
 
             # Strip off everything before the command echo
             if new_data.count(cmd) == 1:
@@ -1423,21 +1397,21 @@ Device settings: {self.device_type} {self.host}:{self.port}
     @select_cmd_verify
     def send_command(
         self,
-        command_string,
-        expect_string=None,
-        delay_factor=1,
-        max_loops=500,
-        auto_find_prompt=True,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=True,
-    ):
+        command_string: str,
+        expect_string: Optional[str] = None,
+        delay_factor: float = 1.0,
+        max_loops: int = 500,
+        auto_find_prompt: bool = True,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = True,
+    ) -&gt; str:
         &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
@@ -1522,7 +1496,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            new_data = self.normalize_linefeeds(new_data)
             # Strip off everything before the command echo (to avoid false positives on the prompt)
             if new_data.count(cmd) == 1:
                 new_data = new_data.split(cmd)[1:]
@@ -1848,6 +1821,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         cmd_verify=True,
         enter_config_mode=True,
         error_pattern=&#34;&#34;,
+        terminator=r&#34;#&#34;,
     ):
         &#34;&#34;&#34;
         Send configuration commands down the SSH channel.
@@ -1887,6 +1861,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param error_pattern: Regular expression pattern to detect config errors in the
         output.
         :type error_pattern: str
+
+        :param terminator: Regular expression pattern to use as an alternate terminator in certain
+        situations.
+        :type terminator: str
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1941,7 +1919,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 output += new_output
 
                 # We might capture next prompt in the original read
-                pattern = f&#34;(?:{re.escape(self.base_prompt)}|#)&#34;
+                pattern = f&#34;(?:{re.escape(self.base_prompt)}|{terminator})&#34;
                 if not re.search(pattern, new_output):
                     # Make sure trailing prompt comes back (after command)
                     # NX-OS has fast-buffering problem where it immediately echoes command
@@ -2082,7 +2060,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
-            self.close_session_log()
+            if self.session_log:
+                self.session_log.close()
 
     def commit(self):
         &#34;&#34;&#34;Commit method for platforms that support this.&#34;&#34;&#34;
@@ -2091,20 +2070,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
     def save_config(self, *args, **kwargs):
         &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
         raise NotImplementedError
-
-    def open_session_log(self, filename, mode=&#34;write&#34;):
-        &#34;&#34;&#34;Open the session_log file.&#34;&#34;&#34;
-        if mode == &#34;append&#34;:
-            self.session_log = open(filename, mode=&#34;a&#34;, encoding=self.encoding)
-        else:
-            self.session_log = open(filename, mode=&#34;w&#34;, encoding=self.encoding)
-        self._session_log_close = True
-
-    def close_session_log(self):
-        &#34;&#34;&#34;Close the session_log file (if it is a file that we opened).&#34;&#34;&#34;
-        if self.session_log is not None and self._session_log_close:
-            self.session_log.close()
-            self.session_log = None
 
     def run_ttp(self, template, res_kwargs={}, **kwargs):
         &#34;&#34;&#34;
@@ -2151,13 +2116,89 @@ class TelnetConnection(BaseConnection):
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="netmiko.base_connection.lock_channel"><code class="name flex">
+<span>def <span class="ident">lock_channel</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def lock_channel(func: Callable[..., Any]) -&gt; Callable[..., Any]:
+    @functools.wraps(func)
+    def wrapper_decorator(self: &#34;BaseConnection&#34;, *args: Any, **kwargs: Any) -&gt; Any:
+        self._lock_netmiko_session()
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always unlock the channel, even on exception.
+            self._unlock_netmiko_session()
+        return return_val
+
+    return wrapper_decorator</code></pre>
+</details>
+</dd>
+<dt id="netmiko.base_connection.log_reads"><code class="name flex">
+<span>def <span class="ident">log_reads</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Handle both session_log and log of reads.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def log_reads(func: Callable[..., str]) -&gt; Callable[..., str]:
+    &#34;&#34;&#34;Handle both session_log and log of reads.&#34;&#34;&#34;
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, *args: Any, **kwargs: Any) -&gt; str:
+        output: str
+        output = func(self, *args, **kwargs)
+        log.debug(f&#34;read_channel: {output}&#34;)
+        if self.session_log:
+            self.session_log.write(output)
+        return output
+
+    return wrapper_decorator</code></pre>
+</details>
+</dd>
+<dt id="netmiko.base_connection.log_writes"><code class="name flex">
+<span>def <span class="ident">log_writes</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Handle both session_log and log of writes.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def log_writes(func: Callable[..., None]) -&gt; Callable[..., None]:
+    &#34;&#34;&#34;Handle both session_log and log of writes.&#34;&#34;&#34;
+
+    @functools.wraps(func)
+    def wrapper_decorator(self, out_data: str) -&gt; None:
+        func(self, out_data)
+        try:
+            log.debug(
+                &#34;write_channel: {}&#34;.format(
+                    str(write_bytes(out_data, encoding=self.encoding))
+                )
+            )
+            if self.session_log:
+                if self.session_log.fin or self.session_log.record_writes:
+                    self.session_log.write(out_data)
+        except UnicodeDecodeError:
+            # Don&#39;t log non-ASCII characters; this is null characters and telnet IAC (PY2)
+            pass
+        return None
+
+    return wrapper_decorator</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
 <dt id="netmiko.base_connection.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -2303,50 +2344,52 @@ class TelnetConnection(BaseConnection):
 
     def __init__(
         self,
-        ip=&#34;&#34;,
-        host=&#34;&#34;,
-        username=&#34;&#34;,
-        password=None,
-        secret=&#34;&#34;,
-        port=None,
-        device_type=&#34;&#34;,
-        verbose=False,
-        global_delay_factor=1,
-        global_cmd_verify=None,
-        use_keys=False,
-        key_file=None,
-        pkey=None,
-        passphrase=None,
-        allow_agent=False,
-        ssh_strict=False,
-        system_host_keys=False,
-        alt_host_keys=False,
-        alt_key_file=&#34;&#34;,
-        ssh_config_file=None,
+        ip: str = &#34;&#34;,
+        host: str = &#34;&#34;,
+        username: str = &#34;&#34;,
+        password: Optional[str] = None,
+        secret: str = &#34;&#34;,
+        port: Optional[int] = None,
+        device_type: str = &#34;&#34;,
+        verbose: bool = False,
+        global_delay_factor: float = 1.0,
+        global_cmd_verify: Optional[bool] = None,
+        use_keys: bool = False,
+        key_file: Optional[str] = None,
+        pkey: Optional[paramiko.PKey] = None,
+        passphrase: Optional[str] = None,
+        allow_agent: bool = False,
+        ssh_strict: bool = False,
+        system_host_keys: bool = False,
+        alt_host_keys: bool = False,
+        alt_key_file: str = &#34;&#34;,
+        ssh_config_file: Optional[str] = None,
         #
         # Connect timeouts
         # ssh-connect --&gt; TCP conn (conn_timeout) --&gt; SSH-banner (banner_timeout)
         #       --&gt; Auth response (auth_timeout)
-        conn_timeout=5,
-        auth_timeout=None,  # Timeout to wait for authentication response
-        banner_timeout=15,  # Timeout to wait for the banner to be presented (post TCP-connect)
+        conn_timeout: int = 5,
+        auth_timeout: Optional[
+            int
+        ] = None,  # Timeout to wait for authentication response
+        banner_timeout: int = 15,  # Timeout to wait for the banner to be presented
         # Other timeouts
-        blocking_timeout=20,  # Read blocking timeout
-        timeout=100,  # TCP connect timeout | overloaded to read-loop timeout
-        session_timeout=60,  # Used for locking/sharing the connection
-        keepalive=0,
-        default_enter=None,
-        response_return=None,
-        serial_settings=None,
-        fast_cli=False,
-        _legacy_mode=True,
-        session_log=None,
-        session_log_record_writes=False,
-        session_log_file_mode=&#34;write&#34;,
-        allow_auto_change=False,
-        encoding=&#34;ascii&#34;,
+        blocking_timeout: int = 20,  # Read blocking timeout
+        timeout: int = 100,  # TCP connect timeout | overloaded to read-loop timeout
+        session_timeout: int = 60,  # Used for locking/sharing the connection
+        keepalive: int = 0,
+        default_enter: Optional[str] = None,
+        response_return: Optional[str] = None,
+        serial_settings: Optional[Dict[str, Any]] = None,
+        fast_cli: bool = False,
+        _legacy_mode: bool = True,
+        session_log: Optional[SessionLog] = None,
+        session_log_record_writes: bool = False,
+        session_log_file_mode: str = &#34;write&#34;,
+        allow_auto_change: bool = False,
+        encoding: str = &#34;ascii&#34;,
         sock=None,
-        auto_connect=True,
+        auto_connect: bool = True,
     ):
         &#34;&#34;&#34;
         Initialize attributes for establishing connection to target device.
@@ -2524,17 +2567,31 @@ class TelnetConnection(BaseConnection):
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
-        self.session_log_record_writes = session_log_record_writes
         self._session_log_close = False
-        # Ensures last write operations prior to disconnect are recorded.
-        self._session_log_fin = False
         if session_log is not None:
+            no_log = {}
+            if self.password:
+                no_log[&#34;password&#34;] = self.password
+            if self.secret:
+                no_log[&#34;secret&#34;] = self.secret
+
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
-                self.open_session_log(filename=session_log, mode=session_log_file_mode)
+                self.session_log = SessionLog(
+                    file_name=session_log,
+                    file_mode=session_log_file_mode,
+                    file_encoding=encoding,
+                    no_log=no_log,
+                    record_writes=session_log_record_writes,
+                )
+                self.session_log.open()
             elif isinstance(session_log, io.BufferedIOBase):
                 # In-memory buffer or an already open file handle
-                self.session_log = session_log
+                self.session_log = SessionLog(
+                    buffered_io=session_log,
+                    no_log=no_log,
+                    record_writes=session_log_record_writes,
+                )
             else:
                 raise ValueError(
                     &#34;session_log must be a path to a file, a file handle, &#34;
@@ -2663,59 +2720,15 @@ class TelnetConnection(BaseConnection):
         if self._session_locker.locked():
             self._session_locker.release()
 
-    def _write_channel(self, out_data):
-        &#34;&#34;&#34;Generic handler that will write to both SSH and telnet channel.
+    @lock_channel
+    @log_writes
+    def write_channel(self, out_data: str) -&gt; None:
+        &#34;&#34;&#34;Generic method that will write data out the channel.
 
         :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
+        :type out_data: str
         &#34;&#34;&#34;
-        if self.protocol == &#34;ssh&#34;:
-            self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
-        elif self.protocol == &#34;telnet&#34;:
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-        elif self.protocol == &#34;serial&#34;:
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-            self.remote_conn.flush()
-        else:
-            raise ValueError(&#34;Invalid protocol specified&#34;)
-        try:
-            log.debug(
-                &#34;write_channel: {}&#34;.format(
-                    write_bytes(out_data, encoding=self.encoding)
-                )
-            )
-            if self._session_log_fin or self.session_log_record_writes:
-                self._write_session_log(out_data)
-        except UnicodeDecodeError:
-            # Don&#39;t log non-ASCII characters; this is null characters and telnet IAC (PY2)
-            pass
-
-    def _write_session_log(self, data):
-        if self.session_log is not None and len(data) &gt; 0:
-            # Hide the password and secret in the session_log
-            if self.password:
-                data = data.replace(self.password, &#34;********&#34;)
-            if self.secret:
-                data = data.replace(self.secret, &#34;********&#34;)
-            if isinstance(self.session_log, io.BufferedIOBase):
-                data = self.normalize_linefeeds(data)
-                self.session_log.write(write_bytes(data, encoding=self.encoding))
-            else:
-                self.session_log.write(self.normalize_linefeeds(data))
-            self.session_log.flush()
-
-    def write_channel(self, out_data):
-        &#34;&#34;&#34;Generic handler that will write to both SSH and telnet channel.
-
-        :param out_data: data to be written to the channel
-        :type out_data: str (can be either unicode/byte string)
-        &#34;&#34;&#34;
-        self._lock_netmiko_session()
-        try:
-            self._write_channel(out_data)
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
+        self.channel.write_channel(out_data)
 
     def is_alive(self):
         &#34;&#34;&#34;Returns a boolean flag with the state of the connection.&#34;&#34;&#34;
@@ -2748,41 +2761,14 @@ class TelnetConnection(BaseConnection):
                 return False
         return False
 
-    def _read_channel(self):
-        &#34;&#34;&#34;Generic handler that will read all the data from an SSH or telnet channel.&#34;&#34;&#34;
-        if self.protocol == &#34;ssh&#34;:
-            output = &#34;&#34;
-            while True:
-                if self.remote_conn.recv_ready():
-                    outbuf = self.remote_conn.recv(MAX_BUFFER)
-                    if len(outbuf) == 0:
-                        raise EOFError(&#34;Channel stream closed by remote device.&#34;)
-                    output += outbuf.decode(&#34;utf-8&#34;, &#34;ignore&#34;)
-                else:
-                    break
-        elif self.protocol == &#34;telnet&#34;:
-            output = self.remote_conn.read_very_eager().decode(&#34;utf-8&#34;, &#34;ignore&#34;)
-        elif self.protocol == &#34;serial&#34;:
-            output = &#34;&#34;
-            while self.remote_conn.in_waiting &gt; 0:
-                output += self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                    &#34;utf-8&#34;, &#34;ignore&#34;
-                )
+    @lock_channel
+    @log_reads
+    def read_channel(self) -&gt; str:
+        &#34;&#34;&#34;Generic handler that will read all the data from given channel.&#34;&#34;&#34;
+        output = self.channel.read_channel()
+        output = self.normalize_linefeeds(output)
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
-        log.debug(f&#34;read_channel: {output}&#34;)
-        self._write_session_log(output)
-        return output
-
-    def read_channel(self):
-        &#34;&#34;&#34;Generic handler that will read all the data from an SSH or telnet channel.&#34;&#34;&#34;
-        output = &#34;&#34;
-        self._lock_netmiko_session()
-        try:
-            output = self._read_channel()
-        finally:
-            # Always unlock the SSH channel, even on exception.
-            self._unlock_netmiko_session()
         return output
 
     def _read_channel_expect(self, pattern=&#34;&#34;, re_flags=0, max_loops=150):
@@ -2822,27 +2808,7 @@ class TelnetConnection(BaseConnection):
         if max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
         while i &lt; max_loops:
-            if self.protocol == &#34;ssh&#34;:
-                try:
-                    # If no data available will wait timeout seconds trying to read
-                    self._lock_netmiko_session()
-                    new_data = self.remote_conn.recv(MAX_BUFFER)
-                    if len(new_data) == 0:
-                        raise EOFError(&#34;Channel stream closed by remote device.&#34;)
-                    new_data = new_data.decode(&#34;utf-8&#34;, &#34;ignore&#34;)
-                    if self.ansi_escape_codes:
-                        new_data = self.strip_ansi_escape_codes(new_data)
-                    log.debug(f&#34;_read_channel_expect read_data: {new_data}&#34;)
-                    output += new_data
-                    self._write_session_log(new_data)
-                except socket.timeout:
-                    raise NetmikoTimeoutException(
-                        &#34;Timed-out reading channel, data not available.&#34;
-                    )
-                finally:
-                    self._unlock_netmiko_session()
-            elif self.protocol == &#34;telnet&#34; or &#34;serial&#34;:
-                output += self.read_channel()
+            output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
                 log.debug(f&#34;Pattern found: {pattern} {output}&#34;)
                 return output
@@ -2879,7 +2845,6 @@ class TelnetConnection(BaseConnection):
         if delay_factor == 1 and max_loops == 150:
             max_loops = int(self.timeout / loop_delay)
 
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor &lt; 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -2974,7 +2939,6 @@ class TelnetConnection(BaseConnection):
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
 
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor &lt; 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -3154,7 +3118,6 @@ class TelnetConnection(BaseConnection):
         :param strip_command:
         :type strip_command:
         &#34;&#34;&#34;
-        output = self.normalize_linefeeds(output)
         if strip_command and command_string:
             command_string = self.normalize_linefeeds(command_string)
             output = self.strip_command(command_string, output)
@@ -3178,9 +3141,12 @@ class TelnetConnection(BaseConnection):
             self.remote_conn = telnetlib.Telnet(
                 self.host, port=self.port, timeout=self.timeout
             )
+            # Migrating communication to channel class
+            self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
         elif self.protocol == &#34;serial&#34;:
             self.remote_conn = serial.Serial(**self.serial_settings)
+            self.channel = SerialChannel(conn=self.remote_conn, encoding=self.encoding)
             self.serial_login()
         elif self.protocol == &#34;ssh&#34;:
             ssh_connect_params = self._connect_params_dict()
@@ -3251,6 +3217,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
             self.special_login_handler()
             if self.verbose:
                 print(&#34;Interactive SSH session established&#34;)
+
+            # Migrating communication to channel class
+            self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
         return &#34;&#34;
 
     # @m_exec_time
@@ -3454,7 +3423,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
             count += 1
 
         # If multiple lines in the output take the last line
-        prompt = self.normalize_linefeeds(prompt)
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
         if not prompt:
@@ -3481,20 +3449,19 @@ Device settings: {self.device_type} {self.host}:{self.port}
     @select_cmd_verify
     def send_command_timing(
         self,
-        command_string,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=False,
-        cmd_echo=None,
-    ):
+        command_string: str,
+        delay_factor: float = 1.0,
+        max_loops: int = 150,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = False,
+    ) -&gt; str:
         &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
@@ -3536,14 +3503,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
         :type cmd_verify: bool
-
-        :param cmd_echo: Deprecated (use cmd_verify instead)
-        :type cmd_echo: bool
         &#34;&#34;&#34;
-
-        # For compatibility; remove cmd_echo in Netmiko 4.x.x
-        if cmd_echo is not None:
-            cmd_verify = cmd_echo
 
         output = &#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
@@ -3557,7 +3517,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            new_data = self.normalize_linefeeds(new_data)
 
             # Strip off everything before the command echo
             if new_data.count(cmd) == 1:
@@ -3651,21 +3610,21 @@ Device settings: {self.device_type} {self.host}:{self.port}
     @select_cmd_verify
     def send_command(
         self,
-        command_string,
-        expect_string=None,
-        delay_factor=1,
-        max_loops=500,
-        auto_find_prompt=True,
-        strip_prompt=True,
-        strip_command=True,
-        normalize=True,
-        use_textfsm=False,
-        textfsm_template=None,
-        use_ttp=False,
-        ttp_template=None,
-        use_genie=False,
-        cmd_verify=True,
-    ):
+        command_string: str,
+        expect_string: Optional[str] = None,
+        delay_factor: float = 1.0,
+        max_loops: int = 500,
+        auto_find_prompt: bool = True,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
+        cmd_verify: bool = True,
+    ) -&gt; str:
         &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
@@ -3750,7 +3709,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            new_data = self.normalize_linefeeds(new_data)
             # Strip off everything before the command echo (to avoid false positives on the prompt)
             if new_data.count(cmd) == 1:
                 new_data = new_data.split(cmd)[1:]
@@ -4076,6 +4034,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         cmd_verify=True,
         enter_config_mode=True,
         error_pattern=&#34;&#34;,
+        terminator=r&#34;#&#34;,
     ):
         &#34;&#34;&#34;
         Send configuration commands down the SSH channel.
@@ -4115,6 +4074,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param error_pattern: Regular expression pattern to detect config errors in the
         output.
         :type error_pattern: str
+
+        :param terminator: Regular expression pattern to use as an alternate terminator in certain
+        situations.
+        :type terminator: str
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -4169,7 +4132,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 output += new_output
 
                 # We might capture next prompt in the original read
-                pattern = f&#34;(?:{re.escape(self.base_prompt)}|#)&#34;
+                pattern = f&#34;(?:{re.escape(self.base_prompt)}|{terminator})&#34;
                 if not re.search(pattern, new_output):
                     # Make sure trailing prompt comes back (after command)
                     # NX-OS has fast-buffering problem where it immediately echoes command
@@ -4310,7 +4273,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         finally:
             self.remote_conn_pre = None
             self.remote_conn = None
-            self.close_session_log()
+            if self.session_log:
+                self.session_log.close()
 
     def commit(self):
         &#34;&#34;&#34;Commit method for platforms that support this.&#34;&#34;&#34;
@@ -4319,20 +4283,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
     def save_config(self, *args, **kwargs):
         &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
         raise NotImplementedError
-
-    def open_session_log(self, filename, mode=&#34;write&#34;):
-        &#34;&#34;&#34;Open the session_log file.&#34;&#34;&#34;
-        if mode == &#34;append&#34;:
-            self.session_log = open(filename, mode=&#34;a&#34;, encoding=self.encoding)
-        else:
-            self.session_log = open(filename, mode=&#34;w&#34;, encoding=self.encoding)
-        self._session_log_close = True
-
-    def close_session_log(self):
-        &#34;&#34;&#34;Close the session_log file (if it is a file that we opened).&#34;&#34;&#34;
-        if self.session_log is not None and self._session_log_close:
-            self.session_log.close()
-            self.session_log = None
 
     def run_ttp(self, template, res_kwargs={}, **kwargs):
         &#34;&#34;&#34;
@@ -4500,20 +4450,6 @@ def strip_backspaces(output):
             sleep_time = 3 if sleep_time &gt;= 3 else sleep_time</code></pre>
 </details>
 </dd>
-<dt id="netmiko.base_connection.BaseConnection.close_session_log"><code class="name flex">
-<span>def <span class="ident">close_session_log</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Close the session_log file (if it is a file that we opened).</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def close_session_log(self):
-    &#34;&#34;&#34;Close the session_log file (if it is a file that we opened).&#34;&#34;&#34;
-    if self.session_log is not None and self._session_log_close:
-        self.session_log.close()
-        self.session_log = None</code></pre>
-</details>
-</dd>
 <dt id="netmiko.base_connection.BaseConnection.commit"><code class="name flex">
 <span>def <span class="ident">commit</span></span>(<span>self)</span>
 </code></dt>
@@ -4628,7 +4564,8 @@ def strip_backspaces(output):
     finally:
         self.remote_conn_pre = None
         self.remote_conn = None
-        self.close_session_log()</code></pre>
+        if self.session_log:
+            self.session_log.close()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.enable"><code class="name flex">
@@ -4730,9 +4667,12 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
             self.remote_conn = telnetlib.Telnet(
                 self.host, port=self.port, timeout=self.timeout
             )
+            # Migrating communication to channel class
+            self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
         elif self.protocol == &#34;serial&#34;:
             self.remote_conn = serial.Serial(**self.serial_settings)
+            self.channel = SerialChannel(conn=self.remote_conn, encoding=self.encoding)
             self.serial_login()
         elif self.protocol == &#34;ssh&#34;:
             ssh_connect_params = self._connect_params_dict()
@@ -4803,6 +4743,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
             self.special_login_handler()
             if self.verbose:
                 print(&#34;Interactive SSH session established&#34;)
+
+            # Migrating communication to channel class
+            self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
         return &#34;&#34;</code></pre>
 </details>
 </dd>
@@ -4905,7 +4848,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         count += 1
 
     # If multiple lines in the output take the last line
-    prompt = self.normalize_linefeeds(prompt)
     prompt = prompt.split(self.RESPONSE_RETURN)[-1]
     prompt = prompt.strip()
     if not prompt:
@@ -5006,22 +4948,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         return a_string</code></pre>
 </details>
 </dd>
-<dt id="netmiko.base_connection.BaseConnection.open_session_log"><code class="name flex">
-<span>def <span class="ident">open_session_log</span></span>(<span>self, filename, mode='write')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Open the session_log file.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def open_session_log(self, filename, mode=&#34;write&#34;):
-    &#34;&#34;&#34;Open the session_log file.&#34;&#34;&#34;
-    if mode == &#34;append&#34;:
-        self.session_log = open(filename, mode=&#34;a&#34;, encoding=self.encoding)
-    else:
-        self.session_log = open(filename, mode=&#34;w&#34;, encoding=self.encoding)
-    self._session_log_close = True</code></pre>
-</details>
-</dd>
 <dt id="netmiko.base_connection.BaseConnection.paramiko_cleanup"><code class="name flex">
 <span>def <span class="ident">paramiko_cleanup</span></span>(<span>self)</span>
 </code></dt>
@@ -5039,18 +4965,17 @@ Device settings: {self.device_type} {self.host}:{self.port}
 <span>def <span class="ident">read_channel</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handler that will read all the data from an SSH or telnet channel.</p></section>
+<section class="desc"><p>Generic handler that will read all the data from given channel.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def read_channel(self):
-    &#34;&#34;&#34;Generic handler that will read all the data from an SSH or telnet channel.&#34;&#34;&#34;
-    output = &#34;&#34;
-    self._lock_netmiko_session()
-    try:
-        output = self._read_channel()
-    finally:
-        # Always unlock the SSH channel, even on exception.
-        self._unlock_netmiko_session()
+<pre><code class="python">@lock_channel
+@log_reads
+def read_channel(self) -&gt; str:
+    &#34;&#34;&#34;Generic handler that will read all the data from given channel.&#34;&#34;&#34;
+    output = self.channel.read_channel()
+    output = self.normalize_linefeeds(output)
+    if self.ansi_escape_codes:
+        output = self.strip_ansi_escape_codes(output)
     return output</code></pre>
 </details>
 </dd>
@@ -5216,7 +5141,7 @@ In fast_cli choose the lesser of delay_factor of self.global_delay_factor.</p>
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.send_command"><code class="name flex">
-<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_ttp=False, ttp_template=None, use_genie=False, cmd_verify=True)</span>
+<span>def <span class="ident">send_command</span></span>(<span>self, command_string, expect_string=None, delay_factor=1.0, max_loops=500, auto_find_prompt=True, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_ttp=False, ttp_template=None, use_genie=False, cmd_verify=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a pattern-based mechanism. Generally
@@ -5257,21 +5182,21 @@ path, relative path, or name of file in current directory. (default: None).
 <pre><code class="python">@select_cmd_verify
 def send_command(
     self,
-    command_string,
-    expect_string=None,
-    delay_factor=1,
-    max_loops=500,
-    auto_find_prompt=True,
-    strip_prompt=True,
-    strip_command=True,
-    normalize=True,
-    use_textfsm=False,
-    textfsm_template=None,
-    use_ttp=False,
-    ttp_template=None,
-    use_genie=False,
-    cmd_verify=True,
-):
+    command_string: str,
+    expect_string: Optional[str] = None,
+    delay_factor: float = 1.0,
+    max_loops: int = 500,
+    auto_find_prompt: bool = True,
+    strip_prompt: bool = True,
+    strip_command: bool = True,
+    normalize: bool = True,
+    use_textfsm: bool = False,
+    textfsm_template: Optional[str] = None,
+    use_ttp: bool = False,
+    ttp_template: Optional[str] = None,
+    use_genie: bool = False,
+    cmd_verify: bool = True,
+) -&gt; str:
     &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
     used for show commands. By default this method will keep waiting to receive data until the
     network device prompt is detected. The current network device prompt will be determined
@@ -5356,7 +5281,6 @@ def send_command(
     if cmd and cmd_verify:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(pattern=re.escape(cmd))
-        new_data = self.normalize_linefeeds(new_data)
         # Strip off everything before the command echo (to avoid false positives on the prompt)
         if new_data.count(cmd) == 1:
             new_data = new_data.split(cmd)[1:]
@@ -5457,7 +5381,7 @@ def send_command(
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.send_command_timing"><code class="name flex">
-<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_ttp=False, ttp_template=None, use_genie=False, cmd_verify=False, cmd_echo=None)</span>
+<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, delay_factor=1.0, max_loops=150, strip_prompt=True, strip_command=True, normalize=True, use_textfsm=False, textfsm_template=None, use_ttp=False, ttp_template=None, use_genie=False, cmd_verify=False)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Execute command_string on the SSH channel using a delay-based mechanism. Generally
@@ -5488,28 +5412,25 @@ path, relative path, or name of file in current directory. (default: None).
 <p>:param use_genie: Process command output through PyATS/Genie parser (default: False).
 :type use_genie: bool</p>
 <p>:param cmd_verify: Verify command echo before proceeding (default: False).
-:type cmd_verify: bool</p>
-<p>:param cmd_echo: Deprecated (use cmd_verify instead)
-:type cmd_echo: bool</p></section>
+:type cmd_verify: bool</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@select_cmd_verify
 def send_command_timing(
     self,
-    command_string,
-    delay_factor=1,
-    max_loops=150,
-    strip_prompt=True,
-    strip_command=True,
-    normalize=True,
-    use_textfsm=False,
-    textfsm_template=None,
-    use_ttp=False,
-    ttp_template=None,
-    use_genie=False,
-    cmd_verify=False,
-    cmd_echo=None,
-):
+    command_string: str,
+    delay_factor: float = 1.0,
+    max_loops: int = 150,
+    strip_prompt: bool = True,
+    strip_command: bool = True,
+    normalize: bool = True,
+    use_textfsm: bool = False,
+    textfsm_template: Optional[str] = None,
+    use_ttp: bool = False,
+    ttp_template: Optional[str] = None,
+    use_genie: bool = False,
+    cmd_verify: bool = False,
+) -&gt; str:
     &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
     used for show commands.
 
@@ -5551,14 +5472,7 @@ def send_command_timing(
 
     :param cmd_verify: Verify command echo before proceeding (default: False).
     :type cmd_verify: bool
-
-    :param cmd_echo: Deprecated (use cmd_verify instead)
-    :type cmd_echo: bool
     &#34;&#34;&#34;
-
-    # For compatibility; remove cmd_echo in Netmiko 4.x.x
-    if cmd_echo is not None:
-        cmd_verify = cmd_echo
 
     output = &#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
@@ -5572,7 +5486,6 @@ def send_command_timing(
     if cmd and cmd_verify:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(pattern=re.escape(cmd))
-        new_data = self.normalize_linefeeds(new_data)
 
         # Strip off everything before the command echo
         if new_data.count(cmd) == 1:
@@ -5658,7 +5571,7 @@ SSH channel.</p>
 </details>
 </dd>
 <dt id="netmiko.base_connection.BaseConnection.send_config_set"><code class="name flex">
-<span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands=None, exit_config_mode=True, delay_factor=1, max_loops=150, strip_prompt=False, strip_command=False, config_mode_command=None, cmd_verify=True, enter_config_mode=True, error_pattern='')</span>
+<span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands=None, exit_config_mode=True, delay_factor=1, max_loops=150, strip_prompt=False, strip_command=False, config_mode_command=None, cmd_verify=True, enter_config_mode=True, error_pattern='', terminator='#')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Send configuration commands down the SSH channel.</p>
@@ -5685,7 +5598,10 @@ The commands will be executed one after the other.</p>
 :type exit_config_mode: bool</p>
 <p>:param error_pattern: Regular expression pattern to detect config errors in the
 output.
-:type error_pattern: str</p></section>
+:type error_pattern: str</p>
+<p>:param terminator: Regular expression pattern to use as an alternate terminator in certain
+situations.
+:type terminator: str</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def send_config_set(
@@ -5700,6 +5616,7 @@ output.
     cmd_verify=True,
     enter_config_mode=True,
     error_pattern=&#34;&#34;,
+    terminator=r&#34;#&#34;,
 ):
     &#34;&#34;&#34;
     Send configuration commands down the SSH channel.
@@ -5739,6 +5656,10 @@ output.
     :param error_pattern: Regular expression pattern to detect config errors in the
     output.
     :type error_pattern: str
+
+    :param terminator: Regular expression pattern to use as an alternate terminator in certain
+    situations.
+    :type terminator: str
     &#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
     if config_commands is None:
@@ -5793,7 +5714,7 @@ output.
             output += new_output
 
             # We might capture next prompt in the original read
-            pattern = f&#34;(?:{re.escape(self.base_prompt)}|#)&#34;
+            pattern = f&#34;(?:{re.escape(self.base_prompt)}|{terminator})&#34;
             if not re.search(pattern, new_output):
                 # Make sure trailing prompt comes back (after command)
                 # NX-OS has fast-buffering problem where it immediately echoes command
@@ -6234,7 +6155,6 @@ Move cursor position leftward by x characters (1 in this case)</p>
     &#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
 
-    # FIX: Cleanup in future versions of Netmiko
     if delay_factor &lt; 1:
         if not self._legacy_mode and self.fast_cli:
             delay_factor = 1
@@ -6302,30 +6222,27 @@ Move cursor position leftward by x characters (1 in this case)</p>
 <span>def <span class="ident">write_channel</span></span>(<span>self, out_data)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handler that will write to both SSH and telnet channel.</p>
+<section class="desc"><p>Generic method that will write data out the channel.</p>
 <p>:param out_data: data to be written to the channel
-:type out_data: str (can be either unicode/byte string)</p></section>
+:type out_data: str</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def write_channel(self, out_data):
-    &#34;&#34;&#34;Generic handler that will write to both SSH and telnet channel.
+<pre><code class="python">@lock_channel
+@log_writes
+def write_channel(self, out_data: str) -&gt; None:
+    &#34;&#34;&#34;Generic method that will write data out the channel.
 
     :param out_data: data to be written to the channel
-    :type out_data: str (can be either unicode/byte string)
+    :type out_data: str
     &#34;&#34;&#34;
-    self._lock_netmiko_session()
-    try:
-        self._write_channel(out_data)
-    finally:
-        # Always unlock the SSH channel, even on exception.
-        self._unlock_netmiko_session()</code></pre>
+    self.channel.write_channel(out_data)</code></pre>
 </details>
 </dd>
 </dl>
 </dd>
 <dt id="netmiko.base_connection.TelnetConnection"><code class="flex name class">
 <span>class <span class="ident">TelnetConnection</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -6477,7 +6394,6 @@ Move cursor position leftward by x characters (1 in this case)</p>
 <li><code><a title="netmiko.base_connection.BaseConnection.check_enable_mode" href="#netmiko.base_connection.BaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.cleanup" href="#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.commit" href="#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.config_mode" href="#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -6490,7 +6406,6 @@ Move cursor position leftward by x characters (1 in this case)</p>
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_cmd" href="#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_linefeeds" href="#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.open_session_log" href="#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.paramiko_cleanup" href="#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_channel" href="#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -6532,6 +6447,13 @@ Move cursor position leftward by x characters (1 in this case)</p>
 <li><code><a title="netmiko" href="index.html">netmiko</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="netmiko.base_connection.lock_channel" href="#netmiko.base_connection.lock_channel">lock_channel</a></code></li>
+<li><code><a title="netmiko.base_connection.log_reads" href="#netmiko.base_connection.log_reads">log_reads</a></code></li>
+<li><code><a title="netmiko.base_connection.log_writes" href="#netmiko.base_connection.log_writes">log_writes</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
@@ -6541,7 +6463,6 @@ Move cursor position leftward by x characters (1 in this case)</p>
 <li><code><a title="netmiko.base_connection.BaseConnection.check_enable_mode" href="#netmiko.base_connection.BaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.cleanup" href="#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.commit" href="#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.config_mode" href="#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -6554,7 +6475,6 @@ Move cursor position leftward by x characters (1 in this case)</p>
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_cmd" href="#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_linefeeds" href="#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.open_session_log" href="#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.paramiko_cleanup" href="#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_channel" href="#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>

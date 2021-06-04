@@ -31,7 +31,6 @@ For use with Aruba OS Controllers.
 
 &#34;&#34;&#34;
 import time
-import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -67,8 +66,6 @@ class ArubaSSH(CiscoSSHConnection):
 
         Aruba uses &#34;(&lt;controller name&gt;) (config) #&#34; as config prompt
         &#34;&#34;&#34;
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(self, config_command=&#34;configure term&#34;, pattern=&#34;&#34;):
@@ -257,8 +254,6 @@ class ArubaSSH(CiscoSSHConnection):
 
         Aruba uses &#34;(&lt;controller name&gt;) (config) #&#34; as config prompt
         &#34;&#34;&#34;
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(self, config_command=&#34;configure term&#34;, pattern=&#34;&#34;):
@@ -289,8 +284,6 @@ class ArubaSSH(CiscoSSHConnection):
 
     Aruba uses &#34;(&lt;controller name&gt;) (config) #&#34; as config prompt
     &#34;&#34;&#34;
-    if not pattern:
-        pattern = re.escape(self.base_prompt[:16])
     return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
 </details>
 </dd>
@@ -339,7 +332,6 @@ class ArubaSSH(CiscoSSHConnection):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
@@ -351,7 +343,6 @@ class ArubaSSH(CiscoSSHConnection):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
