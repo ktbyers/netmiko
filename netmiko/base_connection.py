@@ -1761,7 +1761,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
-    def config_mode(self, config_command: str = "", pattern: str = "", re_flags: int = 0) -> str:
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """Enter into config_mode.
 
         :param config_command: Configuration command to send to the device

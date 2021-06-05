@@ -39,9 +39,9 @@ class CiscoBaseConnection(BaseConnection):
 
     def config_mode(
         self,
-        config_command: str ="configure terminal",
+        config_command: str = "configure terminal",
         pattern: str = "",
-        re_flags: int = 0
+        re_flags: int = 0,
     ) -> str:
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags

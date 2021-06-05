@@ -80,7 +80,7 @@ class JuniperBase(BaseConnection):
         self,
         config_command: str = "configure",
         pattern: str = r"Entering configuration mode",
-        re_flags: int = 0
+        re_flags: int = 0,
     ) -> str:
         """Enter configuration mode."""
         return super().config_mode(
