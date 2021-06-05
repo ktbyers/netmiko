@@ -61,8 +61,6 @@ class EricssonIposSSH(BaseConnection):
         """
         Enter into configuration mode on remote device.
         """
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
         return super().config_mode(config_command=config_command, pattern=pattern)
 
     def exit_config_mode(self, exit_config="end", pattern="#"):

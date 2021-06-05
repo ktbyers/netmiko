@@ -177,14 +177,10 @@ class CiscoWlcSSH(BaseConnection):
 
     def config_mode(self, config_command="config", pattern=""):
         """Enter into config_mode."""
-        if not pattern:
-            pattern = re.escape(self.base_prompt)
         return super().config_mode(config_command, pattern)
 
     def exit_config_mode(self, exit_config="exit", pattern=""):
         """Exit config_mode."""
-        if not pattern:
-            pattern = re.escape(self.base_prompt)
         return super().exit_config_mode(exit_config, pattern)
 
     def send_config_set(

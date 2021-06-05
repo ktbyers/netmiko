@@ -1761,7 +1761,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
-    def config_mode(self, config_command="", pattern="", re_flags=0):
+    def config_mode(self, config_command: str = "", pattern: str = "", re_flags: int = 0) -> str:
         """Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
@@ -1781,8 +1781,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 output += self.read_until_pattern(
                     pattern=re.escape(config_command.strip())
                 )
-            if not re.search(pattern, output, flags=re_flags):
+            if pattern:
                 output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
+            else:
+                output += self.read_until_prompt(read_entire_line=True)
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode.")
         return output
@@ -1804,8 +1806,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 output += self.read_until_pattern(
                     pattern=re.escape(exit_config.strip())
                 )
-            if not re.search(pattern, output, flags=re.M):
+            if pattern:
                 output += self.read_until_pattern(pattern=pattern)
+            else:
+                output += self.read_until_prompt(read_entire_line=True)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         log.debug(f"exit_config_mode: {output}")
@@ -1937,9 +1941,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 # Make sure command is echoed
                 output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
 
-                # Read until next prompt or terminator (#)
-                pattern = f"(?:{re.escape(self.base_prompt)}|{terminator})"
-                output += self.read_until_pattern(pattern=pattern)
+                # Read until next prompt or terminator (#); the .*$ forces read of entire line
+                pattern = f"(?:{re.escape(self.base_prompt)}.*$|{terminator}.*$)"
+                output += self.read_until_pattern(pattern=pattern, re_flags=re.M)
 
                 if error_pattern:
                     if re.search(error_pattern, output, flags=re.M):

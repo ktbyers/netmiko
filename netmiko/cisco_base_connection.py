@@ -37,19 +37,17 @@ class CiscoBaseConnection(BaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="configure terminal", pattern="", re_flags=0):
-        """
-        Enter into configuration mode on remote device.
-
-        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-        """
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
+    def config_mode(
+        self,
+        config_command: str ="configure terminal",
+        pattern: str = "",
+        re_flags: int = 0
+    ) -> str:
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="end", pattern=r"\#"):
+    def exit_config_mode(self, exit_config="end", pattern=r"#.*"):
         """Exit from configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 

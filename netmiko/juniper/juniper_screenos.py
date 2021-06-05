@@ -37,7 +37,7 @@ class JuniperScreenOsSSH(BaseConnection):
         """No configuration mode on Juniper ScreenOS."""
         return False
 
-    def config_mode(self, *args, **kwargs):
+    def config_mode(self, config_command: str = "", pattern: str = "", re_flags: int = 0) -> str:
         """No configuration mode on Juniper ScreenOS."""
         return ""
 
