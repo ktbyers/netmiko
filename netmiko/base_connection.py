@@ -61,22 +61,6 @@ def lock_channel(func: F) -> F:
 
     return cast(F, wrapper_decorator)
 
-
-def log_reads(func: F) -> F:
-    """Handle both session_log and log of reads."""
-
-    @functools.wraps(func)
-    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> str:
-        output: str
-        output = func(self, *args, **kwargs)
-        log.debug(f"read_channel: {output}")
-        if self.session_log:
-            self.session_log.write(output)
-        return output
-
-    return cast(F, wrapper_decorator)
-
-
 def log_writes(func: F) -> F:
     """Handle both session_log and log of writes."""
 
@@ -532,18 +516,23 @@ class BaseConnection:
         return False
 
     @lock_channel
-    @log_reads
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
+        new_data = self.channel.read_channel()
+        new_data = self.normalize_linefeeds(new_data)
+        if self.ansi_escape_codes:
+            new_data = self.strip_ansi_escape_codes(new_data)
+        log.debug(f"read_channel: {new_data}")
+        if self.session_log:
+            self.session_log.write(new_data)
+
+        # If data had been previously saved to the buffer, the prepend it to output
+        # do post read_channel so session_log/log doesn't record buffered data twice
         if self._read_buffer:
-            output = self._read_buffer
+            output = self._read_buffer + new_data
             self._read_buffer = ""
         else:
-            output = ""
-        output += self.channel.read_channel()
-        output = self.normalize_linefeeds(output)
-        if self.ansi_escape_codes:
-            output = self.strip_ansi_escape_codes(output)
+            output = new_data
         return output
 
     def read_until_pattern(
@@ -1516,12 +1505,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
-            # Strip off everything before the command echo (to avoid false positives on the prompt)
-            if new_data.count(cmd) == 1:
-                new_data = new_data.split(cmd)[1:]
-                new_data = self.RESPONSE_RETURN.join(new_data)
-                new_data = new_data.lstrip()
-                new_data = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
 
         i = 1
         output = ""

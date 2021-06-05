@@ -105,13 +105,21 @@ class NokiaSros(BaseConnection):
         """Nokia SR OS does not have a notion of exiting administrative mode"""
         return ""
 
-    def config_mode(self, config_command="edit-config exclusive", pattern=r"\(ex\)\["):
+    def config_mode(
+        self,
+        config_command: str="edit-config exclusive",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
         """Enable config edit-mode for Nokia SR OS"""
         output = ""
+        if not pattern:
+            pattern = rf"\(ex\)\[.*{self.base_prompt}.*$",
+            re_flags = re.DOTALL
         # Only model-driven CLI supports config-mode
         if "@" in self.base_prompt:
             output += super().config_mode(
-                config_command=config_command, pattern=pattern
+                config_command=config_command, pattern=pattern, re_flags=re_flags
             )
         return output
 

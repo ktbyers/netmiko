@@ -223,8 +223,9 @@ class InLineTransfer(CiscoIosFileTransfer):
         time.sleep(sleep_time)
 
         # File paste and TCL_FILECMD_exit should be indicated by "router(tcl)#"
-        output = self.ssh_ctl_chan._read_channel_expect(
-            pattern=r"\(tcl\)", max_loops=max_loops
+        # FIX: should eliminate max_loops and convert to read_timeout
+        output = self.ssh_ctl_chan.read_until_pattern(
+            pattern=r"\(tcl\).*$", re_flags=re.M, max_loops=max_loops
         )
 
         # The file doesn't write until tclquit
@@ -233,7 +234,11 @@ class InLineTransfer(CiscoIosFileTransfer):
 
         time.sleep(1)
         # Read all data remaining from the TCLSH session
-        output += self.ssh_ctl_chan._read_channel_expect(max_loops=max_loops)
+        pattern = rf"tclquit.*{self.ssh_ctl_chan.base_prompt}.*$"
+        re_flags = re.DOTALL | re.M
+        output += self.ssh_ctl_chan.read_until_pattern(
+            pattern=pattern, re_flags=re_flags, max_loops=max_loops
+        )
         return output
 
     def get_file(self):

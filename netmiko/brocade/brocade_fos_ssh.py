@@ -34,7 +34,7 @@ class BrocadeFOSSSH(CiscoSSHConnection):
     def check_config_mode(self, check_string="", pattern=""):
         return True
 
-    def config_mode(self, config_command="", pattern="", re_flags=0):
+    def config_mode(self, config_command: str="", pattern: str="", re_flags: int=0) -> str:
         """No config mode."""
         return ""
 
