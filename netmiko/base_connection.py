@@ -538,7 +538,9 @@ class BaseConnection:
         if self._read_buffer:
             output = self._read_buffer
             self._read_buffer = ""
-        output = self.channel.read_channel()
+        else:
+            output = ""
+        output += self.channel.read_channel()
         output = self.normalize_linefeeds(output)
         if self.ansi_escape_codes:
             output = self.strip_ansi_escape_codes(output)
@@ -572,7 +574,6 @@ class BaseConnection:
         output = ""
         loop_delay = 0.01
         start_time = time.time()
-        import ipdb; ipdb.set_trace()
         while time.time() - start_time < read_timeout:
             output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
@@ -659,11 +660,15 @@ results={results}
         return channel_data
 
     def read_until_prompt(
-        self, re_flags: int = 0, max_loops: int = 150, read_timeout: float = 10.0, read_entire_line=False
+        self,
+        re_flags: int = 0,
+        max_loops: int = 150,
+        read_timeout: float = 10.0,
+        read_entire_line: bool = False,
     ) -> str:
         """Read channel up to and including self.base_prompt."""
         pattern = re.escape(self.base_prompt)
-        if read_enter_line:
+        if read_entire_line:
             pattern = f"{pattern}.*"
         return self.read_until_pattern(
             pattern=pattern,
@@ -678,11 +683,16 @@ results={results}
         re_flags: int = 0,
         max_loops: int = 150,
         read_timeout: float = 10.0,
+        read_entire_line: bool = False,
     ) -> str:
         """Read until either self.base_prompt or pattern is detected."""
-        combined_pattern = re.escape(self.base_prompt)
+        prompt_pattern = re.escape(self.base_prompt)
+        if read_entire_line:
+            prompt_pattern = f"{prompt_pattern}.*"
         if pattern:
-            combined_pattern = r"(?:{}|{})".format(combined_pattern, pattern)
+            combined_pattern = r"(?:{}|{})".format(prompt_pattern, pattern)
+        else:
+            combined_pattern = prompt_pattern
         return self.read_until_pattern(
             pattern=combined_pattern,
             re_flags=re_flags,
@@ -1925,17 +1935,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 self.write_channel(self.normalize_cmd(cmd))
 
                 # Make sure command is echoed
-                new_output = self.read_until_pattern(pattern=re.escape(cmd.strip()))
-                output += new_output
+                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
 
-                # We might capture next prompt in the original read
+                # Read until next prompt or terminator (#)
                 pattern = f"(?:{re.escape(self.base_prompt)}|{terminator})"
-                if not re.search(pattern, new_output):
-                    # Make sure trailing prompt comes back (after command)
-                    # NX-OS has fast-buffering problem where it immediately echoes command
-                    # Even though the device hasn't caught up with processing command.
-                    new_output = self.read_until_pattern(pattern=pattern)
-                    output += new_output
+                output += self.read_until_pattern(pattern=pattern)
 
                 if error_pattern:
                     if re.search(error_pattern, output, flags=re.M):

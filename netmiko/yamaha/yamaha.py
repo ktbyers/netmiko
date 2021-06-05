@@ -30,7 +30,7 @@ class YamahaBase(BaseConnection):
             if "(Y/N)" in output:
                 self.write_channel("N")
             if self.base_prompt not in output:
-                output += self.read_until_prompt()
+                output += self.read_until_prompt(read_entire_line=True)
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
