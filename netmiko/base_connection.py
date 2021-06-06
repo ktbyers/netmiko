@@ -1506,6 +1506,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             new_data = self.read_until_pattern(pattern=re.escape(cmd))
 
+            # There can be echoed prompts that haven't been cleared before the cmd echo
+            # this can later mess up the trailing prompt pattern detection. Clear this out.
+            lines = new_data.split(cmd)
+            if len(lines) == 2:
+                # lines[-1] should realistically just be the null string
+                new_data = f"{cmd}{lines[-1]}"
+            else:
+                # cmd exists in the output multiple times? Just retain the original output
+                pass
+
         i = 1
         output = ""
         past_three_reads = deque(maxlen=3)

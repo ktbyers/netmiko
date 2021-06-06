@@ -27,11 +27,15 @@ class CiscoViptelaSSH(CiscoSSHConnection):
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
-    def config_mode(self, config_command="conf terminal", pattern=""):
-        """
-        Enter into configuration mode on remote device.
-        """
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self,
+        config_command: str = "conf terminal",
+        pattern: str = "", 
+        re_flags: int = 0,
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )   
 
     def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         return super().send_config_set(

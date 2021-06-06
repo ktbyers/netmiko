@@ -49,38 +49,44 @@ class DellIsilonSSH(BaseConnection):
         """Isilon doesn't have paging by default."""
         pass
 
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on Isilon."""
-        pass
+    def check_enable_mode(self, check_string: str = r"\#") -> bool:
+        return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, *args, **kwargs):
-        """No enable mode on Isilon."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Isilon."""
-        pass
-
-    def check_config_mode(self, check_string="#"):
-        return super().check_config_mode(check_string=check_string)
-
-    def config_mode(self, config_command="sudo su"):
-        """Attempt to become root."""
+    def enable(
+        self, cmd: str = "sudo su", pattern: str ="ssword", enable_pattern=None, re_flags: int =re.IGNORECASE
+    ) -> str:
+        # FIX: might be able to just use the parent class
         delay_factor = self.select_delay_factor(delay_factor=1)
         output = ""
-        if not self.check_config_mode():
+        if not self.check_enable_mode():
             output += self.send_command_timing(
                 config_command, strip_prompt=False, strip_command=False
             )
-            if "Password:" in output:
+            if "ssword:" in output:
                 output = self.write_channel(self.normalize_cmd(self.secret))
-            self.set_prompt(prompt_terminator="#")
+            output += self.read_until_pattern(pattern=r"#.*$")
             time.sleep(1 * delay_factor)
-            self.set_base_prompt()
-            if not self.check_config_mode():
-                raise ValueError("Failed to configuration mode")
+            self.set_prompt(prompt_terminator="#")
+            if not self.check_enable_mode():
+                raise ValueError("Failed to enter enable mode")
         return output
 
+    def exit_enable_mode(self, exit_command: str = "exit") -> str:
+        return super().exit_enable_mode(exit_config=exit_config)
+
+    def check_config_mode(self, check_string: str=r"\#", pattern: str="") -> str:
+        """Use equivalent enable method."""
+        return self.check_enable_mode(check_string=check_string)
+
+    def config_mode(
+        self,
+        config_command: str = "sudo su",
+        pattern: str = "ssword",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
+        """Use equivalent enable method."""
+        return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
+
     def exit_config_mode(self, exit_config="exit"):
-        """Exit enable mode."""
-        return super().exit_config_mode(exit_config=exit_config)
+        """Use equivalent enable method."""
+        return self.exit_enable_mode(exit_command=exit_config)

@@ -46,7 +46,12 @@ class SophosSfosSSH(CiscoSSHConnection):
         """No config mode on SFOS"""
         return False
 
-    def config_mode(self, *args, **kwargs):
+    def config_mode(
+        self,
+        config_command: str = "",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
         """No config mode on SFOS"""
         return ""
 
