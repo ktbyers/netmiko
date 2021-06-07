@@ -45,17 +45,21 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         self.write_channel(command)
         if self.global_cmd_verify is not False:
             output = self.read_until_pattern(pattern=re.escape(command.strip()))
+            output = self.read_until_prompt(read_entire_line=True)
         else:
-            output = self.read_until_prompt()
+            output = self.read_until_prompt(read_entire_line=True)
         log.debug(f"{output}")
         log.debug("Exiting disable_smart_interaction")
 
     def disable_paging(self, command="scroll", **kwargs):
         return super().disable_paging(command=command, **kwargs)
 
-    def config_mode(self, config_command="config", pattern=""):
-        """Enter configuration mode."""
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def check_config_mode(self, check_string=")#"):
         return super().check_config_mode(check_string=check_string)

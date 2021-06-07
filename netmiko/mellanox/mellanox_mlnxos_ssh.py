@@ -13,14 +13,21 @@ class MellanoxMlnxosSSH(CiscoSSHConnection):
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
             output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
+                pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
             if not self.check_enable_mode():
                 raise ValueError("Failed to enter enable mode.")
         return output
 
-    def config_mode(self, config_command="config term", pattern="#"):
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self,
+        config_command: str = "config term",
+        pattern: str = r"\#",
+        re_flags: int = 0,
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def check_config_mode(self, check_string="(config", pattern=r"#"):
         return super().check_config_mode(check_string=check_string, pattern=pattern)

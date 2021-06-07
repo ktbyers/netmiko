@@ -39,9 +39,16 @@ class RadETXBase(BaseConnection):
         """The Rad ETX software does not have an enable."""
         pass
 
-    def config_mode(self, config_command="config", pattern=">config"):
+    def config_mode(
+        self,
+        config_command: str = "config",
+        pattern: str = ">config",
+        re_flags: int = 0,
+    ) -> str:
         """Enter into configuration mode on remote device."""
-        return super().config_mode(config_command=config_command, pattern=pattern)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def check_config_mode(self, check_string=">config", pattern=""):
         """

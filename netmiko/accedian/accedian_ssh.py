@@ -23,7 +23,9 @@ class AccedianSSH(CiscoSSHConnection):
         """Accedian devices do not have a config mode."""
         return False
 
-    def config_mode(self):
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """Accedian devices do not have a config mode."""
         return ""
 

@@ -43,9 +43,13 @@ class PaloAltoPanosBase(BaseConnection):
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configure"):
+    def config_mode(
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="exit", pattern=r">"):
         """Exit configuration mode."""

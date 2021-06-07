@@ -43,7 +43,12 @@ class AristaBase(CiscoSSHConnection):
         output = output.replace("(s2)", "")
         return check_string in output
 
-    def config_mode(self, config_command="configure terminal", pattern="", re_flags=0):
+    def config_mode(
+        self,
+        config_command: str = "configure terminal",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
         """Force arista to read pattern all the way to prompt on the next line."""
 
         if not re_flags:

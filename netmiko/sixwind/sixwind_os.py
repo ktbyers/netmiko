@@ -30,10 +30,12 @@ class SixwindOSBase(CiscoBaseConnection):
         self.base_prompt = prompt
         return self.base_prompt
 
-    def config_mode(self, config_command="edit running", pattern=""):
-        """Enter configuration mode."""
-
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self, config_command: str = "edit running", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def commit(self, comment="", delay_factor=1):
         """

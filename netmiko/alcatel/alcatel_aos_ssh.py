@@ -30,7 +30,9 @@ class AlcatelAosSSH(CiscoSSHConnection):
         """No config mode on AOS"""
         pass
 
-    def config_mode(self, *args, **kwargs):
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """No config mode on AOS"""
         return ""
 

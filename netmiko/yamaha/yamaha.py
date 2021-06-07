@@ -1,5 +1,6 @@
-from netmiko.base_connection import BaseConnection
 import time
+import re
+from netmiko.base_connection import BaseConnection
 
 
 class YamahaBase(BaseConnection):
@@ -30,7 +31,7 @@ class YamahaBase(BaseConnection):
             if "(Y/N)" in output:
                 self.write_channel("N")
             if self.base_prompt not in output:
-                output += self.read_until_prompt()
+                output += self.read_until_prompt(read_entire_line=True)
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
@@ -39,9 +40,13 @@ class YamahaBase(BaseConnection):
         """Checks if the device is in administrator mode or not."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="administrator", pattern="ssword"):
-        """Enter into administrator mode and configure device."""
-        return self.enable()
+    def config_mode(
+        self,
+        config_command: str = "administrator",
+        pattern: str = "Password",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
+        return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
 
     def exit_config_mode(self, exit_config="exit", pattern=">"):
         """

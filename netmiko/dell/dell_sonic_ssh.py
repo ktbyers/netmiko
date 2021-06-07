@@ -24,8 +24,15 @@ class DellSonicSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_base_prompt(alt_prompt_terminator="$")
 
-    def config_mode(self, config_command="configure terminal", pattern="#"):
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self,
+        config_command: str = "configure terminal",
+        pattern: str = r"\#",
+        re_flags: int = 0,
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def _enter_shell(self):
         """Enter the sonic-cli Shell."""

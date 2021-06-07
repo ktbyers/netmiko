@@ -55,9 +55,14 @@ class LinuxSSH(CiscoSSHConnection):
         """Verify root"""
         return self.check_enable_mode(check_string=check_string)
 
-    def config_mode(self, config_command="sudo -s"):
+    def config_mode(
+        self,
+        config_command: str = "sudo -s",
+        pattern: str = "ssword",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Attempt to become root."""
-        return self.enable(cmd=config_command)
+        return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
 
     def exit_config_mode(self, exit_config="exit"):
         return self.exit_enable_mode(exit_command=exit_config)

@@ -42,8 +42,13 @@ class ArubaSSH(CiscoSSHConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="configure term", pattern=""):
-        """
-        Aruba auto completes on space so 'configure' needs fully spelled-out.
-        """
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self,
+        config_command: str = "configure term",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
+        """Aruba auto completes on space so 'configure' needs fully spelled-out."""
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )

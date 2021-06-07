@@ -16,9 +16,16 @@ class EltexEsrSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command="configure", pattern=r")#"):
+    def config_mode(
+        self,
+        config_command: str = "configure",
+        pattern: str = r"\)\#",
+        re_flags: int = 0,
+    ) -> str:
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command, pattern=pattern)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def check_config_mode(self, check_string="(config", pattern=""):
         """Checks whether in configuration mode. Returns a boolean."""

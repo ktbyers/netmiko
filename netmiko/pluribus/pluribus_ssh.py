@@ -29,7 +29,9 @@ class PluribusSSH(BaseConnection):
         """
         return self._config_mode
 
-    def config_mode(self, *args, **kwargs):
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """No special actions to enter in config mode."""
         self._config_mode = True
         return ""

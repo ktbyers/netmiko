@@ -58,19 +58,22 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
                 self.write_channel(self.normalize_cmd(cmd))
                 try:
                     output += self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
+                        pattern=pattern, re_flags=re_flags, read_entire_line=True
                     )
                     self.write_channel(self.normalize_cmd(self.secret))
-                    output += self.read_until_prompt()
+                    output += self.read_until_prompt(read_entire_line=True)
                 except NetmikoTimeoutException:
                     raise ValueError(msg)
                 if not self.check_enable_mode():
                     raise ValueError(msg)
         return output
 
-    def config_mode(self, config_command="configure"):
-        """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+    def config_mode(
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="exit", pattern=r"#"):
         """

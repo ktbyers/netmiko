@@ -78,13 +78,13 @@ class JuniperBase(BaseConnection):
 
     def config_mode(
         self,
-        config_command="configure",
-        pattern=r"Entering configuration mode",
-        **kwargs,
-    ):
+        config_command: str = "configure",
+        pattern: str = r"Entering configuration mode",
+        re_flags: int = 0,
+    ) -> str:
         """Enter configuration mode."""
         return super().config_mode(
-            config_command=config_command, pattern=pattern, **kwargs
+            config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
     def exit_config_mode(self, exit_config="exit configuration-mode"):
