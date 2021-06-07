@@ -21,7 +21,9 @@ class CheckPointGaiaSSH(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command=""):
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """No config mode for Check Point devices."""
         return ""
 

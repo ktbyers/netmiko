@@ -47,7 +47,9 @@ class F5TmshSSH(BaseConnection):
         """Checks if the device is in configuration mode or not."""
         return True
 
-    def config_mode(self, config_command=""):
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """No config mode for F5 devices."""
         return ""
 

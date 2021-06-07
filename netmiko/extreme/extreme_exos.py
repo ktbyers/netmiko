@@ -53,7 +53,9 @@ class ExtremeExosBase(CiscoSSHConnection):
         self.set_base_prompt()
         return super().send_command(*args, **kwargs)
 
-    def config_mode(self, config_command=""):
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """No configuration mode on Extreme Exos."""
         return ""
 

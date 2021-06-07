@@ -31,8 +31,13 @@ class AdtranOSBase(CiscoBaseConnection):
     def check_config_mode(self, check_string=")#"):
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="config term", pattern=""):
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self, config_command: str = "config term", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        """Enter configuration mode."""
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="end", pattern="#"):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)

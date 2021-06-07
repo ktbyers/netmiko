@@ -23,7 +23,9 @@ class KeymileSSH(CiscoIosBase):
         """Keymile does not use config mode."""
         return False
 
-    def config_mode(self, *args, **kwargs):
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """Keymile does not use config mode."""
         return ""
 

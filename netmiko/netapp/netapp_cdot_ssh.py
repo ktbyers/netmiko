@@ -20,9 +20,14 @@ class NetAppcDotSSH(BaseConnection):
         return super().check_config_mode(check_string=check_string)
 
     def config_mode(
-        self, config_command="set -privilege diagnostic -confirmations off"
-    ):
-        return super().config_mode(config_command=config_command)
+        self,
+        config_command: str = "set -privilege diagnostic -confirmations off",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="set -privilege admin -confirmations off"):
         return super().exit_config_mode(exit_config=exit_config)

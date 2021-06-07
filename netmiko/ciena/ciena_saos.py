@@ -52,7 +52,9 @@ class CienaSaosBase(BaseConnection):
         """No config mode on Ciena SAOS."""
         return False
 
-    def config_mode(self, config_command=""):
+    def config_mode(
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """No config mode on Ciena SAOS."""
         return ""
 
