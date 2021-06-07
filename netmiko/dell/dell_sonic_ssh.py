@@ -30,7 +30,9 @@ class DellSonicSSH(CiscoSSHConnection):
         pattern: str = r"\#",
         re_flags: int = 0,
     ) -> str:
-        return super().config_mode(config_command=config_command, pattern=pattern, re_flags=re_flags)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def _enter_shell(self):
         """Enter the sonic-cli Shell."""

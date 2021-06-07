@@ -55,13 +55,11 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         return super().disable_paging(command=command, **kwargs)
 
     def config_mode(
-        self,
-        config_command: str = "config",
-        pattern: str = "",
-        re_flags: int = 0,
+        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
     ) -> str:
-        return super().config_mode(config_command=config_command, pattern=pattern, re_flags=re_flags)
-
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def check_config_mode(self, check_string=")#"):
         return super().check_config_mode(check_string=check_string)

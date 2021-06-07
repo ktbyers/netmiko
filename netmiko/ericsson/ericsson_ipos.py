@@ -58,10 +58,7 @@ class EricssonIposSSH(BaseConnection):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
-        self,
-        config_command: str = "configure",
-        pattern: str = "",
-        re_flags: int = 0,
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
     ) -> str:
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags

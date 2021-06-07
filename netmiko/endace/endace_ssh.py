@@ -12,7 +12,9 @@ class EndaceSSH(CiscoSSHConnection):
     def check_config_mode(self, check_string="(config) #"):
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command: str = "conf t", pattern: str ="", re_flags: int = 0) -> str:
+    def config_mode(
+        self, config_command: str = "conf t", pattern: str = "", re_flags: int = 0
+    ) -> str:
         output = ""
         if not self.check_config_mode():
             output = self.send_command_timing(

@@ -176,10 +176,7 @@ class CiscoWlcSSH(BaseConnection):
         return super().check_config_mode(check_string, pattern)
 
     def config_mode(
-        self,
-        config_command: str = "config",
-        pattern: str = "",
-        re_flags: int = 0,
+        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
     ) -> str:
         """Enter into config_mode."""
         return super().config_mode(

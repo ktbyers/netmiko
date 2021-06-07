@@ -107,14 +107,14 @@ class NokiaSros(BaseConnection):
 
     def config_mode(
         self,
-        config_command: str="edit-config exclusive",
+        config_command: str = "edit-config exclusive",
         pattern: str = "",
         re_flags: int = 0,
     ) -> str:
         """Enable config edit-mode for Nokia SR OS"""
         output = ""
         if not pattern:
-            pattern = rf"\(ex\)\[.*{self.base_prompt}.*$",
+            pattern = (rf"\(ex\)\[.*{self.base_prompt}.*$",)
             re_flags = re.DOTALL
         # Only model-driven CLI supports config-mode
         if "@" in self.base_prompt:

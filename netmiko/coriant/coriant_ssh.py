@@ -20,10 +20,7 @@ class CoriantSSH(CiscoSSHConnection):
         return False
 
     def config_mode(
-        self,
-        config_command: str = "",
-        pattern: str = "",
-        re_flags: int = 0,
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
     ) -> str:
         """Coriant devices do not have a config mode."""
         return ""

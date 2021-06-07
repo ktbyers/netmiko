@@ -61,6 +61,7 @@ def lock_channel(func: F) -> F:
 
     return cast(F, wrapper_decorator)
 
+
 def log_writes(func: F) -> F:
     """Handle both session_log and log of writes."""
 

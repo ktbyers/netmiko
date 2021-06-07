@@ -99,10 +99,7 @@ class FortinetSSH(CiscoSSHConnection):
         return super().cleanup(command=command)
 
     def config_mode(
-        self,
-        config_command: str = "",
-        pattern: str = "",
-        re_flags: int = 0,
+        self, config_command: str = "", pattern: str = "", re_flags: int = 0
     ) -> str:
         """No config mode for Fortinet devices."""
         return ""

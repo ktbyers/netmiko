@@ -69,12 +69,11 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         return output
 
     def config_mode(
-        self,
-        config_command: str = "configure",
-        pattern: str = "",
-        re_flags: int = 0,
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
     ) -> str:
-        return super().config_mode(config_command=config_command, pattern=pattern, re_flags=re_flags)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="exit", pattern=r"#"):
         """

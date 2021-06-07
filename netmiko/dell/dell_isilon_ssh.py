@@ -53,17 +53,20 @@ class DellIsilonSSH(BaseConnection):
         return super().check_enable_mode(check_string=check_string)
 
     def enable(
-        self, cmd: str = "sudo su", pattern: str ="ssword", enable_pattern=None, re_flags: int =re.IGNORECASE
+        self,
+        cmd: str = "sudo su",
+        pattern: str = "ssword",
+        enable_pattern=None,
+        re_flags: int = re.IGNORECASE,
     ) -> str:
-        # FIX: might be able to just use the parent class
         delay_factor = self.select_delay_factor(delay_factor=1)
         output = ""
         if not self.check_enable_mode():
             output += self.send_command_timing(
-                config_command, strip_prompt=False, strip_command=False
+                cmd, strip_prompt=False, strip_command=False
             )
-            if "ssword:" in output:
-                output = self.write_channel(self.normalize_cmd(self.secret))
+            if re.search(pattern, output, flags=re_flags):
+                self.write_channel(self.normalize_cmd(self.secret))
             output += self.read_until_pattern(pattern=r"#.*$")
             time.sleep(1 * delay_factor)
             self.set_prompt(prompt_terminator="#")
@@ -72,9 +75,9 @@ class DellIsilonSSH(BaseConnection):
         return output
 
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
-        return super().exit_enable_mode(exit_config=exit_config)
+        return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string: str=r"\#", pattern: str="") -> str:
+    def check_config_mode(self, check_string: str = r"\#", pattern: str = "") -> str:
         """Use equivalent enable method."""
         return self.check_enable_mode(check_string=check_string)
 
