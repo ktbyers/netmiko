@@ -90,7 +90,7 @@ echo "Starting tests...good luck:" \
 && py.test -s -v test_netmiko_show.py --test_device linux_srv1 \
 \
 && echo "Autodetect tests" \
-&& py.test -s -v test_netmiko_autodetect.py --test_device cisco881 \
+&& py.test -s -v test_netmiko_autodetect.py --test_device cisco1 \
 && py.test -s -v test_netmiko_autodetect.py --test_device arista_sw \
 && py.test -s -v test_netmiko_autodetect.py --test_device juniper_srx \
 && py.test -s -v test_netmiko_autodetect.py --test_device cisco_asa \

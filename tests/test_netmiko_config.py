@@ -119,10 +119,12 @@ def test_config_error_pattern(net_connect, commands, expected_responses):
     """
     Raise exception when config_error_str is present in output
     """
+    error_pattern = commands.get("error_pattern")
+    if error_pattern is None:
+        pytest.skip("No error_pattern defined.")
     config_base = commands.get("config")
     config_err = commands.get("invalid_config")
     config_list = config_base + [config_err]
-    error_pattern = commands.get("error_pattern")
 
     # Should not raise an exception since error_pattern not specified
     net_connect.send_config_set(config_commands=config_list)
