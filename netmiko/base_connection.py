@@ -48,6 +48,16 @@ from netmiko.utilities import m_exec_time  # noqa
 F = TypeVar("F", bound=Callable[..., Any])
 
 
+def structured_data(func: F) -> F:
+    @functools.wraps(func)
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
+        raw_data = func(self, *args, **kwargs)
+        output = get_structured_data(self, *args, **kwargs)
+        return return_val
+
+    return cast(F, wrapper_decorator)
+
+
 def lock_channel(func: F) -> F:
     @functools.wraps(func)
     def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
@@ -1559,31 +1569,55 @@ Device settings: {self.device_type} {self.host}:{self.port}
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
+        output = self.structured_data(
+            command=command_string,
+            raw_data=output,
+            use_textfsm=use_textfsm,
+            use_ttp=use_ttp,
+            use_genie=use_genie,
+            textfsm_template=textfsm_template,
+            ttp_template=ttp_template,
+        )
+        return output
 
-        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
+    def structured_data(
+        self,
+        command,
+        raw_data,
+        use_textfsm=False,
+        use_ttp=False,
+        use_genie=False,
+        textfsm_template=None,
+        ttp_template=None,
+    ):
+        """
+        Try structured data converters in the following order: TextFSM, TTP, Genie.
+
+        Return the first structured data found, else return the raw_data as-is.
+        """
+        command = command.strip()
         if use_textfsm:
             structured_output = get_structured_data(
-                output,
+                raw_data,
                 platform=self.device_type,
-                command=command_string.strip(),
+                command=command,
                 template=textfsm_template,
             )
-            # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output
+
         if use_ttp:
-            structured_output = get_structured_data_ttp(output, template=ttp_template)
-            # If we have structured data; return it.
+            structured_output = get_structured_data_ttp(raw_data, template=ttp_template)
             if not isinstance(structured_output, str):
                 return structured_output
+
         if use_genie:
             structured_output = get_structured_data_genie(
-                output, platform=self.device_type, command=command_string.strip()
+                raw_data, platform=self.device_type, command=command
             )
-            # If we have structured data; return it.
             if not isinstance(structured_output, str):
                 return structured_output
-        return output
+        return raw_data
 
     def send_command_expect(self, *args, **kwargs):
         """Support previous name of send_command method.
