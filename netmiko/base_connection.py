@@ -6,7 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-from typing import Optional, Callable, Any, Dict, TypeVar, cast, Type
+from typing import List, Optional, Callable, Any, Dict, TypeVar, cast, Type, Union
 from types import TracebackType
 import io
 import re
@@ -35,7 +35,7 @@ from netmiko.session_log import SessionLog
 from netmiko.utilities import (
     write_bytes,
     check_serial_port,
-    get_structured_data,
+    get_structured_data_textfsm,
     get_structured_data_genie,
     get_structured_data_ttp,
     run_ttp_template,
@@ -46,16 +46,6 @@ from netmiko.utilities import m_exec_time  # noqa
 
 # For decorators
 F = TypeVar("F", bound=Callable[..., Any])
-
-
-def structured_data(func: F) -> F:
-    @functools.wraps(func)
-    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
-        raw_data = func(self, *args, **kwargs)
-        output = get_structured_data(self, *args, **kwargs)
-        return return_val
-
-    return cast(F, wrapper_decorator)
 
 
 def lock_channel(func: F) -> F:
@@ -1346,32 +1336,15 @@ Device settings: {self.device_type} {self.host}:{self.port}
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-
-        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
-        if use_textfsm:
-            structured_output = get_structured_data(
-                output,
-                platform=self.device_type,
-                command=command_string.strip(),
-                template=textfsm_template,
-            )
-            # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
-        if use_ttp:
-            structured_output = get_structured_data_ttp(output, template=ttp_template)
-            # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
-        if use_genie:
-            structured_output = get_structured_data_genie(
-                output, platform=self.device_type, command=command_string.strip()
-            )
-            # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
-
-        log.debug(f"send_command_timing final output: {output}")
+        output = self.structured_data_converter(
+            command=command_string,
+            raw_data=output,
+            use_textfsm=use_textfsm,
+            use_ttp=use_ttp,
+            use_genie=use_genie,
+            textfsm_template=textfsm_template,
+            ttp_template=ttp_template,
+        )
         return output
 
     def strip_prompt(self, a_string):
@@ -1569,7 +1542,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        output = self.structured_data(
+        output = self.structured_data_converter(
             command=command_string,
             raw_data=output,
             use_textfsm=use_textfsm,
@@ -1580,16 +1553,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
         )
         return output
 
-    def structured_data(
+    def structured_data_converter(
         self,
-        command,
-        raw_data,
-        use_textfsm=False,
-        use_ttp=False,
-        use_genie=False,
-        textfsm_template=None,
-        ttp_template=None,
-    ):
+        command: str,
+        raw_data: str,
+        use_textfsm: bool = False,
+        use_ttp: bool = False,
+        use_genie: bool = False,
+        textfsm_template: Optional[str] = None,
+        ttp_template: Optional[str] = None,
+    ) -> Union[List[Any], Dict[str, Any], str]:
         """
         Try structured data converters in the following order: TextFSM, TTP, Genie.
 
@@ -1597,7 +1570,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """
         command = command.strip()
         if use_textfsm:
-            structured_output = get_structured_data(
+            structured_output = get_structured_data_textfsm(
                 raw_data,
                 platform=self.device_type,
                 command=command,

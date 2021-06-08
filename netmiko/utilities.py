@@ -335,7 +335,7 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
         return raw_output
 
 
-def get_structured_data(raw_output, platform=None, command=None, template=None):
+def get_structured_data_textfsm(raw_output, platform=None, command=None, template=None):
     """
     Convert raw CLI output to structured data using TextFSM template.
 
@@ -370,6 +370,10 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
         return _textfsm_parse(
             textfsm_obj, raw_output, attrs, template_file=template_file
         )
+
+
+# For compatibility
+get_structured_data = get_structured_data_textfsm
 
 
 def get_structured_data_ttp(raw_output, template=None):
