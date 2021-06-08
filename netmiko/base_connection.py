@@ -6,7 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-from typing import List, Optional, Callable, Any, Dict, TypeVar, cast, Type, Union
+from typing import Optional, Callable, Any, Dict, TypeVar, cast, Type
 from types import TracebackType
 import io
 import re
@@ -35,9 +35,7 @@ from netmiko.session_log import SessionLog
 from netmiko.utilities import (
     write_bytes,
     check_serial_port,
-    get_structured_data_textfsm,
-    get_structured_data_genie,
-    get_structured_data_ttp,
+    structured_data_converter,
     run_ttp_template,
     select_cmd_verify,
 )
@@ -1325,8 +1323,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 # cmd is in the actual output (not just echoed)
                 output = new_data
 
-        log.debug(f"send_command_timing current output: {output}")
-
         output += self._read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
         )
@@ -1336,9 +1332,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        output = self.structured_data_converter(
+        output = structured_data_converter(
             command=command_string,
             raw_data=output,
+            platform=self.device_type,
             use_textfsm=use_textfsm,
             use_ttp=use_ttp,
             use_genie=use_genie,
@@ -1542,9 +1539,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        output = self.structured_data_converter(
+        output = structured_data_converter(
             command=command_string,
             raw_data=output,
+            platform=self.device_type,
             use_textfsm=use_textfsm,
             use_ttp=use_ttp,
             use_genie=use_genie,
@@ -1553,54 +1551,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         )
         return output
 
-    def structured_data_converter(
-        self,
-        command: str,
-        raw_data: str,
-        use_textfsm: bool = False,
-        use_ttp: bool = False,
-        use_genie: bool = False,
-        textfsm_template: Optional[str] = None,
-        ttp_template: Optional[str] = None,
-    ) -> Union[List[Any], Dict[str, Any], str]:
-        """
-        Try structured data converters in the following order: TextFSM, TTP, Genie.
-
-        Return the first structured data found, else return the raw_data as-is.
-        """
-        command = command.strip()
-        if use_textfsm:
-            structured_output = get_structured_data_textfsm(
-                raw_data,
-                platform=self.device_type,
-                command=command,
-                template=textfsm_template,
-            )
-            if not isinstance(structured_output, str):
-                return structured_output
-
-        if use_ttp:
-            structured_output = get_structured_data_ttp(raw_data, template=ttp_template)
-            if not isinstance(structured_output, str):
-                return structured_output
-
-        if use_genie:
-            structured_output = get_structured_data_genie(
-                raw_data, platform=self.device_type, command=command
-            )
-            if not isinstance(structured_output, str):
-                return structured_output
-        return raw_data
-
-    def send_command_expect(self, *args, **kwargs):
-        """Support previous name of send_command method.
-
-        :param args: Positional arguments to send to send_command()
-        :type args: list
-
-        :param kwargs: Keyword arguments to send to send_command()
-        :type kwargs: dict
-        """
+    def send_command_expect(self, *args: Any, **kwargs: Any) -> str:
+        """Support previous name of send_command method."""
         return self.send_command(*args, **kwargs)
 
     @staticmethod
