@@ -35,9 +35,7 @@ from netmiko.session_log import SessionLog
 from netmiko.utilities import (
     write_bytes,
     check_serial_port,
-    get_structured_data,
-    get_structured_data_genie,
-    get_structured_data_ttp,
+    structured_data_converter,
     run_ttp_template,
     select_cmd_verify,
 )
@@ -1325,8 +1323,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 # cmd is in the actual output (not just echoed)
                 output = new_data
 
-        log.debug(f"send_command_timing current output: {output}")
-
         output += self._read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
         )
@@ -1336,32 +1332,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-
-        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
-        if use_textfsm:
-            structured_output = get_structured_data(
-                output,
-                platform=self.device_type,
-                command=command_string.strip(),
-                template=textfsm_template,
-            )
-            # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
-        if use_ttp:
-            structured_output = get_structured_data_ttp(output, template=ttp_template)
-            # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
-        if use_genie:
-            structured_output = get_structured_data_genie(
-                output, platform=self.device_type, command=command_string.strip()
-            )
-            # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
-
-        log.debug(f"send_command_timing final output: {output}")
+        output = structured_data_converter(
+            command=command_string,
+            raw_data=output,
+            platform=self.device_type,
+            use_textfsm=use_textfsm,
+            use_ttp=use_ttp,
+            use_genie=use_genie,
+            textfsm_template=textfsm_template,
+            ttp_template=ttp_template,
+        )
         return output
 
     def strip_prompt(self, a_string):
@@ -1559,41 +1539,20 @@ Device settings: {self.device_type} {self.host}:{self.port}
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-
-        # If both TextFSM, TTP and Genie are set, try TextFSM then TTP then Genie
-        if use_textfsm:
-            structured_output = get_structured_data(
-                output,
-                platform=self.device_type,
-                command=command_string.strip(),
-                template=textfsm_template,
-            )
-            # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
-        if use_ttp:
-            structured_output = get_structured_data_ttp(output, template=ttp_template)
-            # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
-        if use_genie:
-            structured_output = get_structured_data_genie(
-                output, platform=self.device_type, command=command_string.strip()
-            )
-            # If we have structured data; return it.
-            if not isinstance(structured_output, str):
-                return structured_output
+        output = structured_data_converter(
+            command=command_string,
+            raw_data=output,
+            platform=self.device_type,
+            use_textfsm=use_textfsm,
+            use_ttp=use_ttp,
+            use_genie=use_genie,
+            textfsm_template=textfsm_template,
+            ttp_template=ttp_template,
+        )
         return output
 
-    def send_command_expect(self, *args, **kwargs):
-        """Support previous name of send_command method.
-
-        :param args: Positional arguments to send to send_command()
-        :type args: list
-
-        :param kwargs: Keyword arguments to send to send_command()
-        :type kwargs: dict
-        """
+    def send_command_expect(self, *args: Any, **kwargs: Any) -> str:
+        """Support previous name of send_command method."""
         return self.send_command(*args, **kwargs)
 
     @staticmethod

@@ -1,5 +1,5 @@
 """Miscellaneous utility functions."""
-from typing import Any, AnyStr, TypeVar, Callable, cast
+from typing import Any, AnyStr, TypeVar, Callable, cast, Optional, Union, List, Dict
 from typing import TYPE_CHECKING
 from glob import glob
 import sys
@@ -335,7 +335,7 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
         return raw_output
 
 
-def get_structured_data(raw_output, platform=None, command=None, template=None):
+def get_structured_data_textfsm(raw_output, platform=None, command=None, template=None):
     """
     Convert raw CLI output to structured data using TextFSM template.
 
@@ -370,6 +370,10 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
         return _textfsm_parse(
             textfsm_obj, raw_output, attrs, template_file=template_file
         )
+
+
+# For compatibility
+get_structured_data = get_structured_data_textfsm
 
 
 def get_structured_data_ttp(raw_output, template=None):
@@ -504,6 +508,43 @@ def get_structured_data_genie(raw_output: str, platform: str, command: str):
         return parsed_output
     except Exception:
         return raw_output
+
+
+def structured_data_converter(
+    raw_data: str,
+    command: str,
+    platform: str,
+    use_textfsm: bool = False,
+    use_ttp: bool = False,
+    use_genie: bool = False,
+    textfsm_template: Optional[str] = None,
+    ttp_template: Optional[str] = None,
+) -> Union[List[Any], Dict[str, Any], str]:
+    """
+    Try structured data converters in the following order: TextFSM, TTP, Genie.
+
+    Return the first structured data found, else return the raw_data as-is.
+    """
+    command = command.strip()
+    if use_textfsm:
+        structured_output = get_structured_data_textfsm(
+            raw_data, platform=platform, command=command, template=textfsm_template
+        )
+        if not isinstance(structured_output, str):
+            return structured_output
+
+    if use_ttp:
+        structured_output = get_structured_data_ttp(raw_data, template=ttp_template)
+        if not isinstance(structured_output, str):
+            return structured_output
+
+    if use_genie:
+        structured_output = get_structured_data_genie(
+            raw_data, platform=platform, command=command
+        )
+        if not isinstance(structured_output, str):
+            return structured_output
+    return raw_data
 
 
 def select_cmd_verify(func: F) -> F:
