@@ -125,6 +125,7 @@ class BaseConnection:
         blocking_timeout: int = 20,  # Read blocking timeout
         timeout: int = 100,  # TCP connect timeout | overloaded to read-loop timeout
         session_timeout: int = 60,  # Used for locking/sharing the connection
+        read_timeout_override: Optional[float] = None,
         keepalive: int = 0,
         default_enter: Optional[str] = None,
         response_return: Optional[str] = None,
@@ -309,6 +310,7 @@ class BaseConnection:
         self.conn_timeout = conn_timeout
         self.session_timeout = session_timeout
         self.timeout = timeout
+        self.read_timeout_override = read_timeout_override
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
@@ -1454,6 +1456,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         # Time to delay in each read loop
         loop_delay = 0.01
+        if self.read_timeout_override:
+            read_timeout = self.read_timeout_override
 
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # and delay_factor arguments for backwards compatibility).
@@ -1530,8 +1534,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
             new_data = self.read_channel()
 
         else:  # nobreak
-            # FIX: better error message
-            msg = """Pattern not detected: {repr(search_pattern)}"""
+            msg = f"""
+Pattern not detected: {repr(search_pattern)} in output.
+
+Things you might try to fix this:
+1. Explicitly set your pattern using the expect_string argument.
+2. Increase the read_timeout to a larger value.
+
+You can also look at the Netmiko session_log or debug log for more information.
+
+"""
             raise ReadTimeout(msg)
 
         output = self._sanitize_output(
