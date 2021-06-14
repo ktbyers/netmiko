@@ -21,6 +21,7 @@ import functools
 import paramiko
 import serial
 from tenacity import retry, stop_after_attempt, wait_exponential
+import warnings
 
 from netmiko import log
 from netmiko.netmiko_globals import BACKSPACE_CHAR
@@ -1393,8 +1394,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
         command_string: str,
         expect_string: Optional[str] = None,
         read_timeout: float = 10.0,
-        delay_factor: float = 1.0,
-        max_loops: int = 500,
+        delay_factor: Optional[float] = None,
+        max_loops: Optional[int] = None,
         auto_find_prompt: bool = True,
         strip_prompt: bool = True,
         strip_command: bool = True,
@@ -1412,46 +1413,33 @@ Device settings: {self.device_type} {self.host}:{self.port}
         automatically.
 
         :param command_string: The command to be executed on the remote device.
-        :type command_string: str
 
         :param expect_string: Regular expression pattern to use for determining end of output.
             If left blank will default to being based on router prompt.
-        :type expect_string: str
 
-        :param delay_factor: Multiplying factor used to adjust delays (default: 1).
-        :type delay_factor: int
+        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
-        :param max_loops: Controls wait time in conjunction with delay_factor. Will default to be
-            based upon self.timeout.
-        :type max_loops: int
+        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
-        :type strip_prompt: bool
 
         :param strip_command: Remove the echo of the command from the output (default: True).
-        :type strip_command: bool
 
         :param normalize: Ensure the proper enter is sent at end of command (default: True).
-        :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
-        :type normalize: bool
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
 
         :param use_ttp: Process command output through TTP template (default: False).
-        :type use_ttp: bool
 
         :param ttp_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
-        :type ttp_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
-        :type normalize: bool
 
         :param cmd_verify: Verify command echo before proceeding (default: True).
-        :type cmd_verify: bool
         """
 
         # Time to delay in each read loop
@@ -1459,12 +1447,12 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if self.read_timeout_override:
             read_timeout = self.read_timeout_override
 
-        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
-        # and delay_factor arguments for backwards compatibility).
-        # delay_factor = self.select_delay_factor(delay_factor)
-        # if delay_factor == 1 and max_loops == 500:
-        #    # Default arguments are being used; use self.timeout instead
-        #    max_loops = int(self.timeout / loop_delay)
+        if delay_factor is not None or max_loops is not None:
+            msg = """\n
+Netmiko 4.x has deprecated the use of delay_factor/max_loops with send_command.
+You should convert all uses of delay_factor and max_loops over to read_timeout=x
+where x is the total number of seconds to wait before timing out.\n"""
+            warnings.warn(msg, DeprecationWarning)
 
         # Find the current router prompt
         if expect_string is None:
