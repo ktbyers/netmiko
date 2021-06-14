@@ -29,6 +29,7 @@ from netmiko.ssh_exception import (
     NetmikoAuthenticationException,
     ConfigInvalidException,
     ReadException,
+    ReadTimeout,
 )
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
@@ -1389,6 +1390,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self,
         command_string: str,
         expect_string: Optional[str] = None,
+        read_timeout: float = 10.0,
         delay_factor: float = 1.0,
         max_loops: int = 500,
         auto_find_prompt: bool = True,
@@ -1451,20 +1453,20 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """
 
         # Time to delay in each read loop
-        loop_delay = 0.2
+        loop_delay = 0.01
 
         # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
         # and delay_factor arguments for backwards compatibility).
-        delay_factor = self.select_delay_factor(delay_factor)
-        if delay_factor == 1 and max_loops == 500:
-            # Default arguments are being used; use self.timeout instead
-            max_loops = int(self.timeout / loop_delay)
+        # delay_factor = self.select_delay_factor(delay_factor)
+        # if delay_factor == 1 and max_loops == 500:
+        #    # Default arguments are being used; use self.timeout instead
+        #    max_loops = int(self.timeout / loop_delay)
 
         # Find the current router prompt
         if expect_string is None:
             if auto_find_prompt:
                 try:
-                    prompt = self.find_prompt(delay_factor=delay_factor)
+                    prompt = self.find_prompt()
                 except ValueError:
                     prompt = self.base_prompt
             else:
@@ -1476,8 +1478,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if normalize:
             command_string = self.normalize_cmd(command_string)
 
-        time.sleep(delay_factor * loop_delay)
         self.clear_buffer()
+
+        # Start the clock
+        start_time = time.time()
         self.write_channel(command_string)
         new_data = ""
 
@@ -1497,13 +1501,12 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 # cmd exists in the output multiple times? Just retain the original output
                 pass
 
-        i = 1
         output = ""
         past_three_reads = deque(maxlen=3)
         first_line_processed = False
 
-        # Keep reading data until search_pattern is found or until max_loops is reached.
-        while i <= max_loops:
+        # Keep reading data until search_pattern is found or until read_timeout
+        while time.time() - start_time < read_timeout:
             if new_data:
                 output += new_data
                 past_three_reads.append(new_data)
@@ -1523,15 +1526,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
                     if re.search(search_pattern, "".join(past_three_reads)):
                         break
 
-            time.sleep(delay_factor * loop_delay)
-            i += 1
+            time.sleep(loop_delay)
             new_data = self.read_channel()
+
         else:  # nobreak
-            raise IOError(
-                "Search pattern never detected in send_command: {}".format(
-                    search_pattern
-                )
-            )
+            # FIX: better error message
+            msg = """Pattern not detected: {repr(search_pattern)}"""
+            raise ReadTimeout(msg)
 
         output = self._sanitize_output(
             output,

@@ -31,6 +31,10 @@ class ReadException(NetmikoBaseException):
 
     pass
 
+class ReadTimeout(ReadException):
+    """General exception indicating an error occurred during a Netmiko read operation."""
+    pass
+
 
 NetMikoTimeoutException = NetmikoTimeoutException
 NetMikoAuthenticationException = NetmikoAuthenticationException
