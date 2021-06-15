@@ -52,7 +52,7 @@ def test_read_longrunning_cmd(net_connect_newconn):
         net_connect_newconn, read_timeout=read_timeout
     )
     assert "show interface" in output
-    assert exec_time.total_seconds > 10
+    assert exec_time.total_seconds() > 10
 
 
 @pytest.mark.parametrize(
@@ -90,7 +90,6 @@ def test_read_timeout_override(net_connect_newconn, test_timeout, allowed_percen
     net_connect_newconn.read_timeout_override = 12
     ssh_conn = net_connect_newconn
 
-    ssh_conn = ConnectHandler(**device)
     my_except, exec_time = show_long_running(ssh_conn, read_timeout=test_timeout)
 
     # Returned exception should be read_timeout
