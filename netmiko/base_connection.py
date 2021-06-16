@@ -607,18 +607,16 @@ results={results}
                 log.debug(f"Pattern found: {pattern} {output}")
                 return output
             time.sleep(loop_delay)
+            # print(time.time() - start_time)
 
-        msg = f"""
-Pattern not detected: {repr(pattern)} in output.
+        msg = f"""\n\nPattern not detected: {repr(pattern)} in output.
 
 Things you might try to fix this:
 1. Adjust the regex pattern to better identify the terminating string. Note, in
 many situations the pattern is automatically based on the network device's prompt.
 2. Increase the read_timeout to a larger value.
 
-You can also look at the Netmiko session_log or debug log for more information.
-
-"""
+You can also look at the Netmiko session_log or debug log for more information.\n\n"""
         raise ReadTimeout(msg)
 
     def _read_channel_timing(

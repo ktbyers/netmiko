@@ -9,7 +9,6 @@ def execute_cmd(
     conn, pattern, read_timeout, cmd="show tech-support\n", max_loops=None
 ):
     conn.write_channel("show tech-support\n")
-    time.sleep(0.5)
     return conn.read_until_pattern(
         pattern=pattern, read_timeout=read_timeout, max_loops=max_loops
     )
