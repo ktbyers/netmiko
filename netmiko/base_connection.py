@@ -21,6 +21,7 @@ import functools
 import paramiko
 import serial
 from tenacity import retry, stop_after_attempt, wait_exponential
+import warnings
 
 from netmiko import log
 from netmiko.netmiko_globals import BACKSPACE_CHAR
@@ -29,6 +30,7 @@ from netmiko.ssh_exception import (
     NetmikoAuthenticationException,
     ConfigInvalidException,
     ReadException,
+    ReadTimeout,
 )
 from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
@@ -124,6 +126,7 @@ class BaseConnection:
         blocking_timeout: int = 20,  # Read blocking timeout
         timeout: int = 100,  # TCP connect timeout | overloaded to read-loop timeout
         session_timeout: int = 60,  # Used for locking/sharing the connection
+        read_timeout_override: Optional[float] = None,
         keepalive: int = 0,
         default_enter: Optional[str] = None,
         response_return: Optional[str] = None,
@@ -308,6 +311,7 @@ class BaseConnection:
         self.conn_timeout = conn_timeout
         self.session_timeout = session_timeout
         self.timeout = timeout
+        self.read_timeout_override = read_timeout_override
         self.keepalive = keepalive
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
@@ -1389,8 +1393,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self,
         command_string: str,
         expect_string: Optional[str] = None,
-        delay_factor: float = 1.0,
-        max_loops: int = 500,
+        read_timeout: float = 10.0,
+        delay_factor: Optional[float] = None,
+        max_loops: Optional[int] = None,
         auto_find_prompt: bool = True,
         strip_prompt: bool = True,
         strip_command: bool = True,
@@ -1408,63 +1413,52 @@ Device settings: {self.device_type} {self.host}:{self.port}
         automatically.
 
         :param command_string: The command to be executed on the remote device.
-        :type command_string: str
 
         :param expect_string: Regular expression pattern to use for determining end of output.
             If left blank will default to being based on router prompt.
-        :type expect_string: str
 
-        :param delay_factor: Multiplying factor used to adjust delays (default: 1).
-        :type delay_factor: int
+        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
-        :param max_loops: Controls wait time in conjunction with delay_factor. Will default to be
-            based upon self.timeout.
-        :type max_loops: int
+        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
-        :type strip_prompt: bool
 
         :param strip_command: Remove the echo of the command from the output (default: True).
-        :type strip_command: bool
 
         :param normalize: Ensure the proper enter is sent at end of command (default: True).
-        :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
-        :type normalize: bool
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
 
         :param use_ttp: Process command output through TTP template (default: False).
-        :type use_ttp: bool
 
         :param ttp_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
-        :type ttp_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
-        :type normalize: bool
 
         :param cmd_verify: Verify command echo before proceeding (default: True).
-        :type cmd_verify: bool
         """
 
         # Time to delay in each read loop
-        loop_delay = 0.2
+        loop_delay = 0.01
+        if self.read_timeout_override:
+            read_timeout = self.read_timeout_override
 
-        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
-        # and delay_factor arguments for backwards compatibility).
-        delay_factor = self.select_delay_factor(delay_factor)
-        if delay_factor == 1 and max_loops == 500:
-            # Default arguments are being used; use self.timeout instead
-            max_loops = int(self.timeout / loop_delay)
+        if delay_factor is not None or max_loops is not None:
+            msg = """\n
+Netmiko 4.x has deprecated the use of delay_factor/max_loops with send_command.
+You should convert all uses of delay_factor and max_loops over to read_timeout=x
+where x is the total number of seconds to wait before timing out.\n"""
+            warnings.warn(msg, DeprecationWarning)
 
         # Find the current router prompt
         if expect_string is None:
             if auto_find_prompt:
                 try:
-                    prompt = self.find_prompt(delay_factor=delay_factor)
+                    prompt = self.find_prompt()
                 except ValueError:
                     prompt = self.base_prompt
             else:
@@ -1476,8 +1470,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         if normalize:
             command_string = self.normalize_cmd(command_string)
 
-        time.sleep(delay_factor * loop_delay)
         self.clear_buffer()
+
+        # Start the clock
+        start_time = time.time()
         self.write_channel(command_string)
         new_data = ""
 
@@ -1497,13 +1493,12 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 # cmd exists in the output multiple times? Just retain the original output
                 pass
 
-        i = 1
         output = ""
         past_three_reads = deque(maxlen=3)
         first_line_processed = False
 
-        # Keep reading data until search_pattern is found or until max_loops is reached.
-        while i <= max_loops:
+        # Keep reading data until search_pattern is found or until read_timeout
+        while time.time() - start_time < read_timeout:
             if new_data:
                 output += new_data
                 past_three_reads.append(new_data)
@@ -1523,15 +1518,21 @@ Device settings: {self.device_type} {self.host}:{self.port}
                     if re.search(search_pattern, "".join(past_three_reads)):
                         break
 
-            time.sleep(delay_factor * loop_delay)
-            i += 1
+            time.sleep(loop_delay)
             new_data = self.read_channel()
+
         else:  # nobreak
-            raise IOError(
-                "Search pattern never detected in send_command: {}".format(
-                    search_pattern
-                )
-            )
+            msg = f"""
+Pattern not detected: {repr(search_pattern)} in output.
+
+Things you might try to fix this:
+1. Explicitly set your pattern using the expect_string argument.
+2. Increase the read_timeout to a larger value.
+
+You can also look at the Netmiko session_log or debug log for more information.
+
+"""
+            raise ReadTimeout(msg)
 
         output = self._sanitize_output(
             output,
