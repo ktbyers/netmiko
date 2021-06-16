@@ -10,7 +10,6 @@ from netmiko import ReadTimeout
 def my_cleanup(conn, sleep=180):
     try:
         # Must be long enough for "show tech-support" to finish
-        print("Sleeping...")
         time.sleep(sleep)
         conn.disconnect()
     except Exception:
@@ -18,7 +17,6 @@ def my_cleanup(conn, sleep=180):
         pass
 
 
-@f_exec_time
 def show_long_running(conn, read_timeout, expect_string):
     start_time = datetime.now()
     my_exception = None
@@ -31,9 +29,8 @@ def show_long_running(conn, read_timeout, expect_string):
     finally:
         end_time = datetime.now()
         exec_time = end_time - start_time
-        print(f"\n\nExec time: {exec_time}\n\n")
         # clean-up
-        # my_cleanup(conn, sleep)
+        my_cleanup(conn)
         return (my_exception, exec_time)
 
 
@@ -57,8 +54,7 @@ def test_read_longrunning_cmd(net_connect_newconn):
 
 @pytest.mark.parametrize(
     "test_timeout,allowed_percentage",
-    [(10, 0.5), (60, 0.2)],
-    # [(0.4, 5.0), (1, 2.0), (5, 1.0), (10, 0.5), (60, 0.2)],
+    [(0.4, 5.0), (1, 2.0), (5, 1.0), (10, 0.5), (60, 0.2)],
 )
 def test_read_timeout(net_connect_newconn, test_timeout, allowed_percentage):
 
@@ -78,7 +74,6 @@ def test_read_timeout(net_connect_newconn, test_timeout, allowed_percentage):
     # Convert difference to a percentage of expected timeout
     time_margin_percent = time_diff / test_timeout * 100
     # Margin off should be less than the allowed_percentage
-    print(f"time_margin_percent: {time_margin_percent}")
     assert time_margin_percent < allowed_percentage
 
 
@@ -90,7 +85,11 @@ def test_read_timeout_override(net_connect_newconn, test_timeout, allowed_percen
     net_connect_newconn.read_timeout_override = 12
     ssh_conn = net_connect_newconn
 
-    my_except, exec_time = show_long_running(ssh_conn, read_timeout=test_timeout)
+    # Explicitly send expect_string so timing is more accurate
+    my_prompt = net_connect_newconn.find_prompt()
+    pattern = re.escape(my_prompt)
+
+    my_except, exec_time = show_long_running(ssh_conn, read_timeout=test_timeout, expect_string=pattern)
 
     # Returned exception should be read_timeout
     assert isinstance(my_except, ReadTimeout)
@@ -105,7 +104,6 @@ def test_read_timeout_override(net_connect_newconn, test_timeout, allowed_percen
     # Convert difference to a percentage of expected timeout
     time_margin_percent = time_diff / test_timeout * 100
     # Margin off should be less than the allowed_percentage
-    print(f"time_margin_percent: {time_margin_percent}")
     assert time_margin_percent < allowed_percentage
 
 
