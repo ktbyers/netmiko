@@ -48,6 +48,11 @@ from netmiko.utilities import m_exec_time  # noqa
 F = TypeVar("F", bound=Callable[..., Any])
 
 
+DELAY_FACTOR_DEPR_SIMPLE_MSG = """\n
+Netmiko 4.x and later has deprecated the use of delay_factor in this context.
+You should remove any use of delay_factor=x from this method call.\n"""
+
+
 def lock_channel(func: F) -> F:
     @functools.wraps(func)
     def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
@@ -541,27 +546,33 @@ class BaseConnection:
     def read_until_pattern(
         self,
         pattern: str = "",
-        re_flags: int = 0,
-        max_loops: int = 150,
         read_timeout: float = 10.0,
+        re_flags: int = 0,
+        max_loops: Optional[int] = None,
     ) -> str:
         """Read channel until pattern is detected.
 
         Will return string up to and including pattern.
 
-        Will return ReadTimeout if pattern not detected in read_timeout seconds.
+        Returns ReadTimeout if pattern not detected in read_timeout seconds.
 
-        :param pattern: Regular expression pattern used to identify the command is done \
-        (defaults to self.base_prompt)
-
-        :param re_flags: regex flags used in conjunction with pattern to search for prompt \
-        (defaults to no flags)
-
-        :param max_loops: max number of iterations to read the channel before raising exception.
+        :param pattern: Regular expression pattern used to identify that reading is done.
 
         :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
+
+        :param re_flags: regex flags used in conjunction with pattern (defaults to no flags).
+
+        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
         """
-        # FIX: print a warning if max_loops is used?
+        if max_loops is not None:
+            msg = """\n
+Netmiko 4.x has deprecated the use of max_loops with read_until_pattern.
+You should convert all uses of max_loops over to read_timeout=x
+where x is the total number of seconds to wait before timing out.\n"""
+            warnings.warn(msg, DeprecationWarning)
+
+        if self.read_timeout_override:
+            read_timeout = self.read_timeout_override
 
         output = ""
         loop_delay = 0.01
@@ -595,10 +606,20 @@ results={results}
                     self._read_buffer += buffer
                 log.debug(f"Pattern found: {pattern} {output}")
                 return output
-            time.sleep(loop_delay * self.global_delay_factor)
-        raise NetmikoTimeoutException(
-            f"Timed-out reading channel, pattern not found in output: {pattern}"
-        )
+            time.sleep(loop_delay)
+
+        msg = f"""
+Pattern not detected: {repr(pattern)} in output.
+
+Things you might try to fix this:
+1. Adjust the regex pattern to better identify the terminating string. Note, in
+many situations the pattern is automatically based on the network device's prompt.
+2. Increase the read_timeout to a larger value.
+
+You can also look at the Netmiko session_log or debug log for more information.
+
+"""
+        raise ReadTimeout(msg)
 
     def _read_channel_timing(
         self, delay_factor: float = 1.0, max_loops: int = 150
@@ -653,10 +674,10 @@ results={results}
 
     def read_until_prompt(
         self,
-        re_flags: int = 0,
-        max_loops: int = 150,
         read_timeout: float = 10.0,
         read_entire_line: bool = False,
+        re_flags: int = 0,
+        max_loops: Optional[int] = None,
     ) -> str:
         """Read channel up to and including self.base_prompt."""
         pattern = re.escape(self.base_prompt)
@@ -672,10 +693,10 @@ results={results}
     def read_until_prompt_or_pattern(
         self,
         pattern: str = "",
-        re_flags: int = 0,
-        max_loops: int = 150,
         read_timeout: float = 10.0,
         read_entire_line: bool = False,
+        re_flags: int = 0,
+        max_loops: Optional[int] = None,
     ) -> str:
         """Read until either self.base_prompt or pattern is detected."""
         prompt_pattern = re.escape(self.base_prompt)
@@ -1103,17 +1124,21 @@ Device settings: {self.device_type} {self.host}:{self.port}
         pass
 
     def disable_paging(
-        self, command="terminal length 0", delay_factor=1, cmd_verify=True, pattern=None
+        self,
+        command: str = "terminal length 0",
+        delay_factor: Optional[float] = None,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
     ):
         """Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
-        :type command: str
 
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
+        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         command = self.normalize_cmd(command)
         log.debug("In disable_paging")
         log.debug(f"Command: {command}")
@@ -1130,7 +1155,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
         return output
 
     def set_terminal_width(
-        self, command="", delay_factor=1, cmd_verify=False, pattern=None
+        self,
+        command: str = "",
+        delay_factor: Optional[float] = None,
+        cmd_verify: bool = False,
+        pattern: Optional[str] = None,
     ):
         """CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
@@ -1138,16 +1167,17 @@ Device settings: {self.device_type} {self.host}:{self.port}
         Set terminal width to 511 which works on a broad set of devices.
 
         :param command: Command string to send to the device
-        :type command: str
 
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
+        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
         """
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         if not command:
             return ""
-        delay_factor = self.select_delay_factor(delay_factor)
         command = self.normalize_cmd(command)
         self.write_channel(command)
+
         # Avoid cmd_verify here as terminal width must be set before doing cmd_verify
         if cmd_verify and self.global_cmd_verify is not False:
             output = self.read_until_pattern(pattern=re.escape(command.strip()))
@@ -1481,7 +1511,9 @@ where x is the total number of seconds to wait before timing out.\n"""
         # if cmd is just an "enter" skip this section
         if cmd and cmd_verify:
             # Make sure you read until you detect the command echo (avoid getting out of sync)
-            new_data = self.read_until_pattern(pattern=re.escape(cmd))
+            new_data = self.read_until_pattern(
+                pattern=re.escape(cmd), read_timeout=read_timeout
+            )
 
             # There can be echoed prompts that haven't been cleared before the cmd echo
             # this can later mess up the trailing prompt pattern detection. Clear this out.
@@ -1631,21 +1663,21 @@ You can also look at the Netmiko session_log or debug log for more information.
         return check_string in output
 
     def enable(
-        self, cmd="", pattern="ssword", enable_pattern=None, re_flags=re.IGNORECASE
-    ):
+        self,
+        cmd: str = "",
+        pattern: str = "ssword",
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Enter enable mode.
 
         :param cmd: Device command to enter enable mode
-        :type cmd: str
 
         :param pattern: pattern to search for indicating device is waiting for password
-        :type pattern: str
 
         :param enable_pattern: pattern indicating you have entered enable mode
-        :type pattern: str
 
         :param re_flags: Regular expression flags used in conjunction with pattern
-        :type re_flags: int
         """
         output = ""
         msg = (
