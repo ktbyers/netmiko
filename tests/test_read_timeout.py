@@ -2,8 +2,6 @@ from datetime import datetime
 import pytest
 import time
 import re
-from netmiko import ConnectHandler
-from netmiko.utilities import f_exec_time
 from netmiko import ReadTimeout
 
 
@@ -89,7 +87,9 @@ def test_read_timeout_override(net_connect_newconn, test_timeout, allowed_percen
     my_prompt = net_connect_newconn.find_prompt()
     pattern = re.escape(my_prompt)
 
-    my_except, exec_time = show_long_running(ssh_conn, read_timeout=test_timeout, expect_string=pattern)
+    my_except, exec_time = show_long_running(
+        ssh_conn, read_timeout=test_timeout, expect_string=pattern
+    )
 
     # Returned exception should be read_timeout
     assert isinstance(my_except, ReadTimeout)
