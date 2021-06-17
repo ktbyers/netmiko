@@ -1,4 +1,7 @@
+from typing import Optional
 import re
+import warnings
+from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 
@@ -30,7 +33,13 @@ class CiscoXrBase(CiscoBaseConnection):
         )
 
     def commit(
-        self, confirm=False, confirm_delay=None, comment="", label="", delay_factor=1
+        self,
+        confirm: bool = False,
+        confirm_delay=None,
+        comment: str = "",
+        label: str = "",
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
     ):
         """
         Commit the candidate configuration.
@@ -43,6 +52,8 @@ class CiscoXrBase(CiscoBaseConnection):
             command_string = commit label <label>
         comment:
             command_string = commit comment <comment>
+
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         supported combinations
         label and confirm:
@@ -65,7 +76,8 @@ class CiscoXrBase(CiscoBaseConnection):
         Exit of configuration mode with pending changes will cause the changes to be discarded and
         an exception to be generated.
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
         if confirm and not confirm_delay:
             raise ValueError("Invalid arguments supplied to XR commit")
         if confirm_delay and not confirm:
@@ -96,18 +108,18 @@ class CiscoXrBase(CiscoBaseConnection):
 
         # Enter config mode (if necessary)
         output = self.config_mode()
-        output += self.send_command_expect(
+        output += self.send_command(
             command_string,
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
         if error_marker in output:
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
             output += self.send_command_timing(
-                "no", strip_prompt=False, strip_command=False, delay_factor=delay_factor
+                "no", strip_prompt=False, strip_command=False
             )
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 

@@ -1,5 +1,8 @@
+from typing import Optional
 import time
 import re
+import warnings
+from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko import log
@@ -197,7 +200,12 @@ class HuaweiTelnet(HuaweiBase):
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
-    def commit(self, comment="", delay_factor=1):
+    def commit(
+        self,
+        comment: str = "",
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -209,8 +217,12 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         comment:
            command_string = commit comment <comment>
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         error_marker = "Failed to generate committed config"
         command_string = "commit"
 
@@ -218,11 +230,11 @@ class HuaweiVrpv8SSH(HuaweiSSH):
             command_string += f' comment "{comment}"'
 
         output = self.config_mode()
-        output += self.send_command_expect(
+        output += self.send_command(
             command_string,
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
             expect_string=r"]",
         )
         output += self.exit_config_mode()

@@ -1,7 +1,9 @@
 import re
 import time
+import warnings
+from typing import Optional
 
-from netmiko.base_connection import BaseConnection
+from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.scp_handler import BaseFileTransfer
 
 
@@ -109,7 +111,8 @@ class JuniperBase(BaseConnection):
         check=False,
         comment="",
         and_quit=False,
-        delay_factor=1,
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
     ):
         """
         Commit the candidate configuration.
@@ -132,17 +135,14 @@ class JuniperBase(BaseConnection):
         check:
             command_string = commit check
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
-        delay_factor = self.select_delay_factor(delay_factor)
 
-        # Commit is very slow so this is needed.
-        if delay_factor < 1:
-            if not self._legacy_mode and self.fast_cli:
-                delay_factor = 1
-
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
         if check and (confirm or confirm_delay or comment):
             raise ValueError("Invalid arguments supplied with commit check")
-
         if confirm_delay and not confirm:
             raise ValueError(
                 "Invalid arguments supplied to commit method both confirm and check"
@@ -180,18 +180,13 @@ class JuniperBase(BaseConnection):
         else:
             expect_string = None
 
-        try:
-            fast_cli_state = self.fast_cli
-            self.fast_cli = False
-            output += self.send_command(
-                command_string,
-                expect_string=expect_string,
-                strip_prompt=False,
-                strip_command=False,
-                delay_factor=delay_factor,
-            )
-        finally:
-            self.fast_cli = fast_cli_state
+        output += self.send_command(
+            command_string,
+            expect_string=expect_string,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
 
         if commit_marker not in output:
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")

@@ -12,7 +12,7 @@ class ApresiaAeosBase(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, command="", delay_factor=1):
+    def disable_paging(self, command=""):
         self.enable()
         check_command = "show running-config | include terminal length 0"
         output = self.send_command(check_command)

@@ -24,7 +24,7 @@ class DellIsilonSSH(BaseConnection):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self.zsh_mode()
-        self.find_prompt(delay_factor=1)
+        self.find_prompt()
         self.set_base_prompt()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
