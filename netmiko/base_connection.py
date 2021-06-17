@@ -619,7 +619,7 @@ many situations the pattern is automatically based on the network device's promp
 You can also look at the Netmiko session_log or debug log for more information.\n\n"""
         raise ReadTimeout(msg)
 
-    def _read_channel_timing(
+    def read_channel_timing(
         self, delay_factor: float = 1.0, max_loops: int = 150
     ) -> str:
         """Read data on the channel based on timing delays.
@@ -1064,7 +1064,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         time.sleep(main_delay * 10)
         new_data = ""
         while i <= count:
-            new_data += self._read_channel_timing()
+            new_data += self.read_channel_timing()
             if new_data and pattern:
                 if re.search(pattern, new_data):
                     break
@@ -1355,7 +1355,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 # cmd is in the actual output (not just echoed)
                 output = new_data
 
-        output += self._read_channel_timing(
+        output += self.read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
         )
         output = self._sanitize_output(
@@ -1740,7 +1740,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
         if not pattern:
-            output = self._read_channel_timing()
+            output = self.read_channel_timing()
         else:
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
@@ -1896,7 +1896,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
-            output += self._read_channel_timing(
+            output += self.read_channel_timing(
                 delay_factor=delay_factor, max_loops=max_loops
             )
 
@@ -1907,7 +1907,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
                 # Gather the output incrementally due to error_pattern requirements
                 if error_pattern:
-                    output += self._read_channel_timing(
+                    output += self.read_channel_timing(
                         delay_factor=delay_factor, max_loops=max_loops
                     )
                     if re.search(error_pattern, output, flags=re.M):
@@ -1916,7 +1916,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
             # Standard output gathering (no error_pattern)
             if not error_pattern:
-                output += self._read_channel_timing(
+                output += self.read_channel_timing(
                     delay_factor=delay_factor, max_loops=max_loops
                 )
 
