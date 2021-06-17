@@ -1,4 +1,7 @@
+from typing import Optional
 import time
+import warnings
+from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -35,7 +38,9 @@ class EltexEsrSSH(CiscoSSHConnection):
         """Not Implemented (use commit() method)"""
         raise NotImplementedError
 
-    def commit(self, delay_factor=1):
+    def commit(
+        self, read_timeout: float = 120.0, delay_factor: Optional[float] = None
+    ) -> str:
         """
         Commit the candidate configuration.
         Commit the entered configuration.
@@ -43,9 +48,14 @@ class EltexEsrSSH(CiscoSSHConnection):
         if the commit fails.
         default:
            command_string = commit
+
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
 
-        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         error_marker = "Can't commit configuration"
         command_string = "commit"
 
@@ -53,7 +63,7 @@ class EltexEsrSSH(CiscoSSHConnection):
             self.exit_config_mode()
 
         output = self.send_command(
-            command_string=command_string, delay_factor=delay_factor
+            command_string=command_string, read_timeout=read_timeout
         )
 
         if error_marker in output:
@@ -62,13 +72,20 @@ class EltexEsrSSH(CiscoSSHConnection):
             )
         return output
 
-    def _confirm(self, delay_factor=1):
+    def _confirm(
+        self, read_timeout: float = 120.0, delay_factor: Optional[float] = None
+    ) -> str:
         """
         Confirm the candidate configuration.
         Raise an error and return the failure if the confirm fails.
+
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
 
-        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         error_marker = "Nothing to confirm in configuration"
         command_string = "confirm"
 
@@ -76,7 +93,7 @@ class EltexEsrSSH(CiscoSSHConnection):
             self.exit_config_mode()
 
         output = self.send_command(
-            command_string=command_string, delay_factor=delay_factor
+            command_string=command_string, read_timeout=read_timeout
         )
 
         if error_marker in output:
@@ -85,14 +102,21 @@ class EltexEsrSSH(CiscoSSHConnection):
             )
         return output
 
-    def _restore(self, delay_factor=1):
+    def _restore(
+        self, read_timeout: float = 120.0, delay_factor: Optional[float] = None
+    ) -> str:
         """
         Restore the candidate configuration.
 
         Raise an error and return the failure if the restore fails.
+
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
 
-        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         error_marker = "Can't find backup of previous configuration!"
         command_string = "restore"
 
@@ -100,7 +124,7 @@ class EltexEsrSSH(CiscoSSHConnection):
             self.exit_config_mode()
 
         output = self.send_command(
-            command_string=command_string, delay_factor=delay_factor
+            command_string=command_string, read_timeout=read_timeout
         )
 
         if error_marker in output:

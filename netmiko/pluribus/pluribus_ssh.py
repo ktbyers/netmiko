@@ -9,9 +9,9 @@ class PluribusSSH(BaseConnection):
         super().__init__(*args, **kwargs)
         self._config_mode = False
 
-    def disable_paging(self, command="pager off", delay_factor=1):
+    def disable_paging(self, command="pager off"):
         """Make sure paging is disabled."""
-        return super().disable_paging(command=command, delay_factor=delay_factor)
+        return super().disable_paging(command=command)
 
     def session_preparation(self):
         """Prepare the netmiko session."""

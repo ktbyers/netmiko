@@ -32,8 +32,8 @@ class MellanoxMlnxosSSH(CiscoSSHConnection):
     def check_config_mode(self, check_string="(config", pattern=r"#"):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def disable_paging(self, command="no cli session paging enable", delay_factor=1):
-        return super().disable_paging(command=command, delay_factor=delay_factor)
+    def disable_paging(self, command="no cli session paging enable"):
+        return super().disable_paging(command=command)
 
     def exit_config_mode(self, exit_config="exit", pattern="#"):
         """Mellanox does not support a single command to completely exit configuration mode.
