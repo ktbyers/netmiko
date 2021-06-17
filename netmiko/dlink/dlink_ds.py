@@ -15,8 +15,8 @@ class DlinkDSBase(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, command="disable clipaging", delay_factor=1):
-        return super().disable_paging(command=command, delay_factor=delay_factor)
+    def disable_paging(self, command="disable clipaging"):
+        return super().disable_paging(command=command)
 
     def enable(self, *args, **kwargs):
         """No implemented enable mode on D-Link yet"""

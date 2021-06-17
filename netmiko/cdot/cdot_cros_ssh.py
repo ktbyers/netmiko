@@ -3,11 +3,15 @@
 # CROS = CDOT Router OS
 # Script: cros_ssh.py
 # Author: Maloy Ghosh <mghosh@cdot.in>
+# Updated by Kirk Byers
 #
 # Purpose: Provide basic SSH connection to CROS based router products
 
-from netmiko.cisco_base_connection import CiscoBaseConnection
+from typing import Optional
 import time
+import warnings
+from netmiko.cisco_base_connection import CiscoBaseConnection
+from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 
 
 class CdotCrosSSH(CiscoBaseConnection):
@@ -42,7 +46,13 @@ class CdotCrosSSH(CiscoBaseConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def commit(self, comment="", delay_factor=1, and_quit=True):
+    def commit(
+        self,
+        comment: str = "",
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+        and_quit: bool = True,
+    ):
         """
         Commit the candidate configuration.
 
@@ -54,9 +64,12 @@ class CdotCrosSSH(CiscoBaseConnection):
         comment:
            command_string = commit comment <comment>
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
 
-        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
 
         command_string = "commit"
         commit_marker = ["Commit complete", "No modifications to commit"]
@@ -71,7 +84,7 @@ class CdotCrosSSH(CiscoBaseConnection):
             command_string,
             strip_prompt=False,
             strip_command=True,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
 
         if not (any(x in output for x in commit_marker)):
