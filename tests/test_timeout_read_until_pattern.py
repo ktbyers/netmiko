@@ -5,9 +5,7 @@ import re
 from netmiko import ReadTimeout
 
 
-def execute_cmd(
-    conn, pattern, read_timeout, cmd="show tech-support\n", max_loops=None
-):
+def execute_cmd(conn, pattern, read_timeout, cmd="show tech-support\n", max_loops=None):
     conn.write_channel("show tech-support\n")
     return conn.read_until_pattern(
         pattern=pattern, read_timeout=read_timeout, max_loops=max_loops
