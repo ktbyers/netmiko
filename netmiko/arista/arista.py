@@ -125,7 +125,7 @@ class AristaFileTransfer(CiscoFileTransfer):
                 remote_file = self.source_file
         remote_md5_cmd = f"{base_cmd} file:{self.file_system}/{remote_file}"
         dest_md5 = self.ssh_ctl_chan.send_command(
-            remote_md5_cmd, max_loops=750, delay_factor=4
+            remote_md5_cmd, read_timout=600
         )
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
