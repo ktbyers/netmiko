@@ -49,8 +49,8 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 DELAY_FACTOR_DEPR_SIMPLE_MSG = """\n
-Netmiko 4.x and later has deprecated the use of delay_factor in this context.
-You should remove any use of delay_factor=x from this method call.\n"""
+Netmiko 4.x and later has deprecated the use of delay_factor and/or max_loops in
+this context. You should remove any use of delay_factor=x from this method call.\n"""
 
 
 def lock_channel(func: F) -> F:
@@ -620,54 +620,59 @@ You can also look at the Netmiko session_log or debug log for more information.\
         raise ReadTimeout(msg)
 
     def read_channel_timing(
-        self, delay_factor: float = 1.0, max_loops: int = 150
+        self,
+        last_read: float = 2.0,
+        read_timeout: float = 120.0,
+        delay_factor: float = 1.0,
+        max_loops: int = 150,
     ) -> str:
         """Read data on the channel based on timing delays.
 
-        Attempt to read channel max_loops number of times. If no data this will cause a 15 second
-        delay.
+        General pattern is keep reading until no new data is read.
+        Once no new data is read wait `last_read` amount of time (one last read).
+        As long as no new data, then return data.
 
-        Once data is encountered read channel for another two seconds (2 * delay_factor) to make
-        sure reading of channel is complete.
+        `read_timeout` is an absolute timer for how long to keep reading (which presupposes
+        we are still getting new data).
 
-        :param delay_factor: multiplicative factor to adjust delay when reading channel (delays
-            get multiplied by this factor)
-        :type delay_factor: int or float
+        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
-        :param max_loops: maximum number of loops to iterate through before returning channel data.
-            Will default to be based upon self.timeout.
-        :type max_loops: int
+        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
         """
+
+        if delay_factor is not None or max_loops is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         # Time to delay in each read loop
         loop_delay = 0.1
-        final_delay = 2
-
-        # Default to making loop time be roughly equivalent to self.timeout (support old max_loops
-        # and delay_factor arguments for backwards compatibility).
-        delay_factor = self.select_delay_factor(delay_factor)
-        if delay_factor == 1 and max_loops == 150:
-            max_loops = int(self.timeout / loop_delay)
-
-        if delay_factor < 1:
-            if not self._legacy_mode and self.fast_cli:
-                delay_factor = 1
-
         channel_data = ""
-        i = 0
-        while i <= max_loops:
-            time.sleep(loop_delay * delay_factor)
+        start_time = time.time()
+
+        # Set read_timeout to 0 to never timeout
+        while (time.time() - start_time < read_timeout) or (int(read_timeout) == 0):
+            time.sleep(loop_delay)
             new_data = self.read_channel()
             if new_data:
                 channel_data += new_data
             else:
-                # Safeguard to make sure really done
-                time.sleep(final_delay * delay_factor)
+                # Make sure really done (i.e. no new data)
+                time.sleep(last_read)
                 new_data = self.read_channel()
                 if not new_data:
                     break
                 else:
                     channel_data += new_data
-            i += 1
+        else:
+            msg = f"""\n
+read_channel_timing's absolute timer expired.
+
+The network device was continually outputting data for longer than {read_timeout}
+seconds.
+
+You can look at the Netmiko session_log or debug log for more information.
+
+"""
+            raise ReadTimeout(msg)
         return channel_data
 
     def read_until_prompt(
@@ -1273,12 +1278,32 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 sleep_time *= 2
                 sleep_time = 3 if sleep_time >= 3 else sleep_time
 
+    def command_echo_read(self, cmd, read_timeout):
+
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        new_data = self.read_until_pattern(
+            pattern=re.escape(cmd), read_timeout=read_timeout
+        )
+
+        # There can be echoed prompts that haven't been cleared before the cmd echo
+        # this can later mess up the trailing prompt pattern detection. Clear this out.
+        lines = new_data.split(cmd)
+        if len(lines) == 2:
+            # lines[-1] should realistically just be the null string
+            new_data = f"{cmd}{lines[-1]}"
+        else:
+            # cmd exists in the output multiple times? Just retain the original output
+            pass
+        return new_data
+
     @select_cmd_verify
     def send_command_timing(
         self,
         command_string: str,
-        delay_factor: float = 1.0,
-        max_loops: int = 150,
+        last_read: float = 2.0,
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+        max_loops: Optional[int] = None,
         strip_prompt: bool = True,
         strip_command: bool = True,
         normalize: bool = True,
@@ -1293,71 +1318,48 @@ Device settings: {self.device_type} {self.host}:{self.port}
         used for show commands.
 
         :param command_string: The command to be executed on the remote device.
-        :type command_string: str
 
-        :param delay_factor: Multiplying factor used to adjust delays (default: 1).
-        :type delay_factor: int or float
+        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
-        :param max_loops: Controls wait time in conjunction with delay_factor. Will default to be
-            based upon self.timeout.
-        :type max_loops: int
+        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
-        :type strip_prompt: bool
 
         :param strip_command: Remove the echo of the command from the output (default: True).
-        :type strip_command: bool
 
         :param normalize: Ensure the proper enter is sent at end of command (default: True).
-        :type normalize: bool
 
         :param use_textfsm: Process command output through TextFSM template (default: False).
-        :type use_textfsm: bool
 
         :param textfsm_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
-        :type textfsm_template: str
 
         :param use_ttp: Process command output through TTP template (default: False).
-        :type use_ttp: bool
 
         :param ttp_template: Name of template to parse output with; can be fully qualified
             path, relative path, or name of file in current directory. (default: None).
-        :type ttp_template: str
 
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
-        :type use_genie: bool
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
-        :type cmd_verify: bool
         """
+        if delay_factor is not None or max_loops is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
 
         output = ""
-        delay_factor = self.select_delay_factor(delay_factor)
-
+        new_data = ""
         if normalize:
             command_string = self.normalize_cmd(command_string)
         self.write_channel(command_string)
 
         cmd = command_string.strip()
-        # if cmd is just an "enter" skip this section
         if cmd and cmd_verify:
-            # Make sure you read until you detect the command echo (avoid getting out of sync)
-            new_data = self.read_until_pattern(pattern=re.escape(cmd))
-
-            # Strip off everything before the command echo
-            if new_data.count(cmd) == 1:
-                new_data = new_data.split(cmd)[1:]
-                new_data = self.RESPONSE_RETURN.join(new_data)
-                new_data = new_data.lstrip()
-                output = f"{cmd}{self.RESPONSE_RETURN}{new_data}"
-            else:
-                # cmd is in the actual output (not just echoed)
-                output = new_data
-
+            new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
+        output += new_data
         output += self.read_channel_timing(
-            delay_factor=delay_factor, max_loops=max_loops
+            last_read=last_read, read_timeout=read_timeout
         )
+
         output = self._sanitize_output(
             output,
             strip_command=strip_command,
@@ -1506,22 +1508,8 @@ where x is the total number of seconds to wait before timing out.\n"""
         new_data = ""
 
         cmd = command_string.strip()
-        # if cmd is just an "enter" skip this section
         if cmd and cmd_verify:
-            # Make sure you read until you detect the command echo (avoid getting out of sync)
-            new_data = self.read_until_pattern(
-                pattern=re.escape(cmd), read_timeout=read_timeout
-            )
-
-            # There can be echoed prompts that haven't been cleared before the cmd echo
-            # this can later mess up the trailing prompt pattern detection. Clear this out.
-            lines = new_data.split(cmd)
-            if len(lines) == 2:
-                # lines[-1] should realistically just be the null string
-                new_data = f"{cmd}{lines[-1]}"
-            else:
-                # cmd exists in the output multiple times? Just retain the original output
-                pass
+            new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
 
         output = ""
         past_three_reads = deque(maxlen=3)
