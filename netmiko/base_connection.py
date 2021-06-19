@@ -1581,11 +1581,37 @@ You can also look at the Netmiko session_log or debug log for more information.
         """Support previous name of send_command method."""
         return self.send_command(*args, **kwargs)
 
-    def send_command_list(
-        self, commands: Iterator, use_timing=False, multiline=True, **kwargs
+    def _send_command_multi_dict(self, commands: Dict[str, str], **kwargs: Any) -> str:
+        output = ""
+
+        default_expect_string = kwargs.pop("expect_string", None)
+        if not default_expect_string:
+            auto_find_prompt = kwargs.get("auto_find_prompt", True)
+            default_expect_string = self._prompt_handler(auto_find_prompt)
+
+        for cmd, expect_string in commands.items():
+            # If null-string, then use prompt as terminating pattern
+            if not expect_string:
+                expect_string = default_expect_string
+            import ipdb; ipdb.set_trace()
+            output += self.send_command(cmd, expect_string=expect_string, **kwargs)
+        return output
+
+    def send_command_multi(self, commands: Iterator, **kwargs: Any) -> str:
+        if isinstance(commands, Dict):
+            return self._send_command_multi_dict(commands, **kwargs)
+        return ""
+
+    def send_command_timing_multi(self, commands: Iterator, **kwargs: Any) -> str:
+        output = ""
+        for cmd in commands:
+            output += self.send_command_timing(cmd, **kwargs)
+        return output
+
+    def send_multiple_commands(
+        self, commands: Iterator, use_timing=True, multiline=True, **kwargs
     ) -> str:
 
-        output = ""
         if multiline is True:
             strip_prompt = kwargs.get("strip_prompt", False)
             kwargs["strip_prompt"] = strip_prompt
@@ -1593,24 +1619,9 @@ You can also look at the Netmiko session_log or debug log for more information.
             kwargs["strip_command"] = strip_command
 
         if use_timing:
-            for cmd in commands:
-                output += self.send_command_timing(cmd, **kwargs)
-            return output
-
+            return self.send_command_timing_multi(commands, **kwargs)
         else:
-            default_expect_string = kwargs.pop("expect_string", None)
-            if not default_expect_string:
-                auto_find_prompt = kwargs.get("auto_find_prompt", True)
-                default_expect_string = self._prompt_handler(auto_find_prompt)
-            if isinstance(commands, Dict):
-                for cmd, expect_string in commands.items():
-                    # If null-string, then use prompt as terminating pattern
-                    if not expect_string:
-                        expect_string = default_expect_string
-                    output += self.send_command(
-                        cmd, expect_string=expect_string, **kwargs
-                    )
-            return output
+            return self.send_command_multi(commands, **kwargs)
 
     @staticmethod
     def strip_backspaces(output: str) -> str:
