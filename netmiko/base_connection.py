@@ -1396,7 +1396,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         else:
             return a_string
 
-    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple(str, str):
+    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple[str, str]:
         """
         In certain situations the first line will get repainted which causes a false
         match on the terminating pattern.
