@@ -181,7 +181,7 @@ class CiscoBaseConnection(BaseConnection):
         msg = f"Login failed: {self.host}"
         raise NetmikoAuthenticationException(msg)
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
@@ -220,10 +220,10 @@ class CiscoBaseConnection(BaseConnection):
 
     def save_config(
         self,
-        cmd="copy running-config startup-config",
-        confirm=False,
-        confirm_response="",
-    ):
+        cmd: str = "copy running-config startup-config",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves Config."""
         self.enable()
         if confirm:

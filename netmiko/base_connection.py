@@ -6,7 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-from typing import Optional, Callable, Any, Dict, TypeVar, cast, Type
+from typing import Optional, Callable, Any, Dict, TypeVar, cast, Type, Iterator, Union
 from types import TracebackType
 import io
 import re
@@ -725,7 +725,7 @@ You can look at the Netmiko session_log or debug log for more information.
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
-        self.telnet_login(
+        return self.telnet_login(
             pri_prompt_terminator,
             alt_prompt_terminator,
             username_pattern,
@@ -746,19 +746,14 @@ You can look at the Netmiko session_log or debug log for more information.
         """Telnet login. Can be username/password or just password.
 
         :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
-        :type pri_prompt_terminator: str
 
         :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
-        :type alt_prompt_terminator: str
 
         :param username_pattern: Pattern used to identify the username prompt
-        :type username_pattern: str
 
         :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
 
         :param max_loops: Controls the wait time in conjunction with the delay_factor
-        (default: 20)
         """
         delay_factor = self.select_delay_factor(delay_factor)
 
@@ -787,6 +782,7 @@ You can look at the Netmiko session_log or debug log for more information.
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
                     # Sometimes username/password must be terminated with "\r" and not "\r\n"
+                    assert isinstance(self.password, str)
                     self.write_channel(self.password + "\r")
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
@@ -806,6 +802,7 @@ You can look at the Netmiko session_log or debug log for more information.
                 time.sleep(0.5 * delay_factor)
                 i += 1
             except EOFError:
+                assert self.remote_conn is not None
                 self.remote_conn.close()
                 msg = f"Login failed: {self.host}"
                 raise NetmikoAuthenticationException(msg)
@@ -821,10 +818,11 @@ You can look at the Netmiko session_log or debug log for more information.
             return return_msg
 
         msg = f"Login failed: {self.host}"
+        assert self.remote_conn is not None
         self.remote_conn.close()
         raise NetmikoAuthenticationException(msg)
 
-    def _try_session_preparation(self):
+    def _try_session_preparation(self) -> None:
         """
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
@@ -837,7 +835,7 @@ You can look at the Netmiko session_log or debug log for more information.
             self.disconnect()
             raise
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established
 
@@ -860,11 +858,10 @@ You can look at the Netmiko session_log or debug log for more information.
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def _use_ssh_config(self, dict_arg):
+    def _use_ssh_config(self, dict_arg: Dict[str, Any]) -> Dict[str, Any]:
         """Update SSH connection parameters based on contents of SSH config file.
 
         :param dict_arg: Dictionary of SSH connection parameters
-        :type dict_arg: dict
         """
         connect_dict = dict_arg.copy()
 
@@ -907,7 +904,7 @@ You can look at the Netmiko session_log or debug log for more information.
 
         return connect_dict
 
-    def _connect_params_dict(self):
+    def _connect_params_dict(self) -> Dict[str, Any]:
         """Generate dictionary of Paramiko connection parameters."""
         conn_dict = {
             "hostname": self.host,
@@ -931,16 +928,13 @@ You can look at the Netmiko session_log or debug log for more information.
         return conn_dict
 
     def _sanitize_output(
-        self, output, strip_command=False, command_string=None, strip_prompt=False
-    ):
-        """Strip out command echo, trailing router prompt and ANSI escape codes.
-
-        :param output: Output from a remote network device
-        :type output: unicode string
-
-        :param strip_command:
-        :type strip_command:
-        """
+        self,
+        output: str,
+        strip_command: bool = False,
+        command_string: Optional[str] = None,
+        strip_prompt: bool = False,
+    ) -> str:
+        """Strip out command echo and trailing router prompt."""
         if strip_command and command_string:
             command_string = self.normalize_linefeeds(command_string)
             output = self.strip_command(command_string, output)
@@ -1045,18 +1039,17 @@ Device settings: {self.device_type} {self.host}:{self.port}
             self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
         return ""
 
-    # @m_exec_time
-    def _test_channel_read(self, count=40, pattern=""):
+    def _test_channel_read(self, count: int = 40, pattern: str = "") -> str:
         """Try to read the channel (generally post login) verify you receive data back.
 
         :param count: the number of times to check the channel for data
-        :type count: int
 
         :param pattern: Regular expression pattern used to determine end of channel read
-        :type pattern: str
         """
 
-        def _increment_delay(main_delay, increment=1.1, maximum=8):
+        def _increment_delay(
+            main_delay: float, increment: float = 1.1, maximum: int = 8
+        ) -> float:
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
             if main_delay >= maximum:
@@ -1103,7 +1096,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         remote_conn_pre.set_missing_host_key_policy(self.key_policy)
         return remote_conn_pre
 
-    def select_delay_factor(self, delay_factor):
+    def select_delay_factor(self, delay_factor: float) -> float:
         """
         Choose the greater of delay_factor or self.global_delay_factor (default).
         In fast_cli choose the lesser of delay_factor of self.global_delay_factor.
@@ -1197,8 +1190,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
         reraise=True,
     )
     def set_base_prompt(
-        self, pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+    ) -> str:
         """Sets self.base_prompt
 
         Used as delimiter for stripping of trailing prompt in output.
@@ -1210,13 +1206,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         entering/exiting config mode.
 
         :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
-        :type pri_prompt_terminator: str
 
         :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
-        :type alt_prompt_terminator: str
 
         :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
@@ -1264,7 +1257,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         log.debug(f"[find_prompt()]: prompt is {prompt}")
         return prompt
 
-    def clear_buffer(self, backoff=True):
+    def clear_buffer(self, backoff: bool = True) -> None:
         """Read any data available in the channel."""
         sleep_time = 0.1 * self.global_delay_factor
         for _ in range(10):
@@ -1575,7 +1568,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         return self.send_command(*args, **kwargs)
 
     @staticmethod
-    def strip_backspaces(output):
+    def strip_backspaces(output: str) -> str:
         """Strip any backspace characters out of the output.
 
         :param output: Output obtained from a remote network device.
@@ -1584,7 +1577,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         backspace_char = "\x08"
         return output.replace(backspace_char, "")
 
-    def strip_command(self, command_string, output):
+    def strip_command(self, command_string: str, output: str) -> str:
         """
         Strip command_string from output string
 
@@ -1613,7 +1606,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             # command_string isn't there; do nothing
             return output
 
-    def normalize_linefeeds(self, a_string):
+    def normalize_linefeeds(self, a_string: str) -> str:
         """Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
 
         :param a_string: A string that may have non-normalized line feeds
@@ -1628,7 +1621,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         else:
             return a_string
 
-    def normalize_cmd(self, command):
+    def normalize_cmd(self, command: str) -> str:
         """Normalize CLI commands to have a single trailing newline.
 
         :param command: Command that may require line feed to be normalized
@@ -1638,7 +1631,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         command += self.RETURN
         return command
 
-    def check_enable_mode(self, check_string=""):
+    def check_enable_mode(self, check_string: str = "") -> bool:
         """Check if in enable mode. Return boolean.
 
         :param check_string: Identification of privilege mode from device
@@ -1702,7 +1695,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 raise ValueError(msg)
         return output
 
-    def exit_enable_mode(self, exit_command=""):
+    def exit_enable_mode(self, exit_command: str = "") -> str:
         """Exit enable mode.
 
         :param exit_command: Command that exits the session from privileged mode
@@ -1716,7 +1709,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def check_config_mode(self, check_string="", pattern=""):
+    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not.
 
         :param check_string: Identification of configuration mode from the device
@@ -1763,7 +1756,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 raise ValueError("Failed to enter configuration mode.")
         return output
 
-    def exit_config_mode(self, exit_config="", pattern=""):
+    def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
         """Exit from configuration mode.
 
         :param exit_config: Command to exit configuration mode
@@ -1789,7 +1782,9 @@ You can also look at the Netmiko session_log or debug log for more information.
         log.debug(f"exit_config_mode: {output}")
         return output
 
-    def send_config_from_file(self, config_file=None, **kwargs):
+    def send_config_from_file(
+        self, config_file: Optional[str] = None, **kwargs: Any
+    ) -> str:
         """
         Send configuration commands down the SSH channel from a file.
 
@@ -1799,28 +1794,26 @@ You can also look at the Netmiko session_log or debug log for more information.
         **kwargs are passed to send_config_set method.
 
         :param config_file: Path to configuration file to be sent to the device
-        :type config_file: str
 
         :param kwargs: params to be sent to send_config_set method
-        :type kwargs: dict
         """
         with io.open(config_file, "rt", encoding="utf-8") as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
     def send_config_set(
         self,
-        config_commands=None,
-        exit_config_mode=True,
-        delay_factor=1,
-        max_loops=150,
-        strip_prompt=False,
-        strip_command=False,
-        config_mode_command=None,
-        cmd_verify=True,
-        enter_config_mode=True,
-        error_pattern="",
-        terminator=r"#",
-    ):
+        config_commands: Union[str, Iterator, None] = None,
+        exit_config_mode: bool = True,
+        delay_factor: float = 1.0,
+        max_loops: int = 150,
+        strip_prompt: bool = False,
+        strip_command: bool = False,
+        config_mode_command: Optional[str] = None,
+        cmd_verify: bool = True,
+        enter_config_mode: bool = True,
+        error_pattern: str = "",
+        terminator: str = r"#",
+    ) -> str:
         """
         Send configuration commands down the SSH channel.
 
@@ -1830,39 +1823,28 @@ You can also look at the Netmiko session_log or debug log for more information.
         Automatically exits/enters configuration mode.
 
         :param config_commands: Multiple configuration commands to be sent to the device
-        :type config_commands: list or string
 
         :param exit_config_mode: Determines whether or not to exit config mode after complete
-        :type exit_config_mode: bool
 
         :param delay_factor: Factor to adjust delays
-        :type delay_factor: int
 
         :param max_loops: Controls wait time in conjunction with delay_factor (default: 150)
-        :type max_loops: int
 
         :param strip_prompt: Determines whether or not to strip the prompt
-        :type strip_prompt: bool
 
         :param strip_command: Determines whether or not to strip the command
-        :type strip_command: bool
 
         :param config_mode_command: The command to enter into config mode
-        :type config_mode_command: str
 
         :param cmd_verify: Whether or not to verify command echo for each command in config_set
-        :type cmd_verify: bool
 
         :param enter_config_mode: Do you enter config mode before sending config commands
-        :type exit_config_mode: bool
 
         :param error_pattern: Regular expression pattern to detect config errors in the
         output.
-        :type error_pattern: str
 
         :param terminator: Regular expression pattern to use as an alternate terminator in certain
         situations.
-        :type terminator: str
         """
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -1930,7 +1912,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         log.debug(f"{output}")
         return output
 
-    def strip_ansi_escape_codes(self, string_buffer):
+    def strip_ansi_escape_codes(self, string_buffer: str) -> str:
         """
         Remove any ANSI (VT100) ESC codes from the output
 
@@ -2027,16 +2009,16 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         return output
 
-    def cleanup(self, command=""):
+    def cleanup(self, command: str = "") -> None:
         """Logout of the session on the network device plus any additional cleanup."""
         pass
 
-    def paramiko_cleanup(self):
+    def paramiko_cleanup(self) -> None:
         """Cleanup Paramiko to try to gracefully handle SSH session ending."""
         self.remote_conn_pre.close()
         del self.remote_conn_pre
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """Try to gracefully close the session."""
         try:
             self.cleanup()
@@ -2055,15 +2037,17 @@ You can also look at the Netmiko session_log or debug log for more information.
             if self.session_log:
                 self.session_log.close()
 
-    def commit(self):
+    def commit(self) -> str:
         """Commit method for platforms that support this."""
         raise AttributeError("Network device does not support 'commit()' method")
 
-    def save_config(self, *args, **kwargs):
+    def save_config(
+        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Not Implemented"""
         raise NotImplementedError
 
-    def run_ttp(self, template, res_kwargs={}, **kwargs):
+    def run_ttp(self, template, res_kwargs: Optional[Dict[str, Any]] = None, **kwargs: Any):
         """
         Run TTP template parsing by using input parameters to collect
         devices output.
@@ -2071,29 +2055,25 @@ You can also look at the Netmiko session_log or debug log for more information.
         :param template: template content, OS path to template or reference
             to template within TTP templates collection in
             ttp://path/to/template.txt format
-        :type template: str
 
         :param res_kwargs: ``**res_kwargs`` arguments to pass to TTP result method
-        :type res_kwargs: dict
 
         :param kwargs: any other ``**kwargs`` to use for TTP object instantiation
-        :type kwargs: dict
 
         TTP template must have inputs defined together with below parameters.
 
         :param method: name of Netmiko connection object method to call, default ``send_command``
-        :type method: str
 
         :param kwargs: Netmiko connection object method arguments
-        :type kwargs: dict
 
         :param commands: list of commands to collect
-        :type commands: list
 
         Inputs' load could be of one of the supported formats and controlled by input's ``load``
         attribute, supported values - python, yaml or json. For each input output collected
         from device and parsed accordingly.
         """
+        if res_kwargs is None:
+            res_kwargs = {}
         return run_ttp_template(
             connection=self, template=template, res_kwargs=res_kwargs, **kwargs
         )
