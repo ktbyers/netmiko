@@ -52,5 +52,5 @@ class KeymileSSH(CiscoIosBase):
         return super().strip_prompt(a_string=a_string)
 
     def set_base_prompt(self, pri_prompt_terminator=">", **kwargs):
-        """ set prompt termination  to >"""
+        """set prompt termination  to >"""
         return super().set_base_prompt(pri_prompt_terminator=pri_prompt_terminator)

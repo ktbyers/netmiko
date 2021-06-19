@@ -56,20 +56,20 @@ class CliTableError(Error):
 
 class IndexTable(object):
     """Class that reads and stores comma-separated values as a TextTable.
-  Stores a compiled regexp of the value for efficient matching.
-  Includes functions to preprocess Columns (both compiled and uncompiled).
-  Attributes:
-    index: TextTable, the index file parsed into a texttable.
-    compiled: TextTable, the table but with compiled regexp for each field.
-  """
+    Stores a compiled regexp of the value for efficient matching.
+    Includes functions to preprocess Columns (both compiled and uncompiled).
+    Attributes:
+      index: TextTable, the index file parsed into a texttable.
+      compiled: TextTable, the table but with compiled regexp for each field.
+    """
 
     def __init__(self, preread=None, precompile=None, file_path=None):
         """Create new IndexTable object.
-    Args:
-      preread: func, Pre-processing, applied to each field as it is read.
-      precompile: func, Pre-compilation, applied to each field before compiling.
-      file_path: String, Location of file to use as input.
-    """
+        Args:
+          preread: func, Pre-processing, applied to each field as it is read.
+          precompile: func, Pre-compilation, applied to each field before compiling.
+          file_path: String, Location of file to use as input.
+        """
         self.index = None
         self.compiled = None
         if file_path:
@@ -112,13 +112,13 @@ class IndexTable(object):
 
     def _ParseIndex(self, preread, precompile):
         """Reads index file and stores entries in TextTable.
-    For optimisation reasons, a second table is created with compiled entries.
-    Args:
-      preread: func, Pre-processing, applied to each field as it is read.
-      precompile: func, Pre-compilation, applied to each field before compiling.
-    Raises:
-      IndexTableError: If the column headers has illegal column labels.
-    """
+        For optimisation reasons, a second table is created with compiled entries.
+        Args:
+          preread: func, Pre-processing, applied to each field as it is read.
+          precompile: func, Pre-compilation, applied to each field before compiling.
+        Raises:
+          IndexTableError: If the column headers has illegal column labels.
+        """
         self.index = texttable.TextTable()
         self.index.CsvToTable(self._index_handle)
 
@@ -158,16 +158,16 @@ class IndexTable(object):
 
 class CliTable(texttable.TextTable):
     """Class that reads CLI output and parses into tabular format.
-  Reads an index file and uses it to map command strings to templates. It then
-  uses TextFSM to parse the command output (raw) into a tabular format.
-  The superkey is the set of columns that contain data that uniquely defines the
-  row, the key is the row number otherwise. This is typically gathered from the
-  templates 'Key' value but is extensible.
-  Attributes:
-    raw: String, Unparsed command string from device/command.
-    index_file: String, file where template/command mappings reside.
-    template_dir: String, directory where index file and templates reside.
-  """
+    Reads an index file and uses it to map command strings to templates. It then
+    uses TextFSM to parse the command output (raw) into a tabular format.
+    The superkey is the set of columns that contain data that uniquely defines the
+    row, the key is the row number otherwise. This is typically gathered from the
+    templates 'Key' value but is extensible.
+    Attributes:
+      raw: String, Unparsed command string from device/command.
+      index_file: String, file where template/command mappings reside.
+      template_dir: String, directory where index file and templates reside.
+    """
 
     # Parse each template index only once across all instances.
     # Without this, the regexes are parsed at every call to CliTable().
@@ -192,10 +192,10 @@ class CliTable(texttable.TextTable):
     @synchronised
     def __init__(self, index_file=None, template_dir=None):
         """Create new CLiTable object.
-    Args:
-      index_file: String, file where template/command mappings reside.
-      template_dir: String, directory where index file and templates reside.
-    """
+        Args:
+          index_file: String, file where template/command mappings reside.
+          template_dir: String, directory where index file and templates reside.
+        """
         # pylint: disable=E1002
         super(CliTable, self).__init__()
         self._keys = set()
@@ -207,11 +207,11 @@ class CliTable(texttable.TextTable):
 
     def ReadIndex(self, index_file=None):
         """Reads the IndexTable index file of commands and templates.
-    Args:
-      index_file: String, file where template/command mappings reside.
-    Raises:
-      CliTableError: A template column was not found in the table.
-    """
+        Args:
+          index_file: String, file where template/command mappings reside.
+        Raises:
+          CliTableError: A template column was not found in the table.
+        """
 
         self.index_file = index_file or self.index_file
         fullpath = os.path.join(self.template_dir, self.index_file)
@@ -241,15 +241,15 @@ class CliTable(texttable.TextTable):
 
     def ParseCmd(self, cmd_input, attributes=None, templates=None):
         """Creates a TextTable table of values from cmd_input string.
-    Parses command output with template/s. If more than one template is found
-    subsequent tables are merged if keys match (dropped otherwise).
-    Args:
-      cmd_input: String, Device/command response.
-      attributes: Dict, attribute that further refine matching template.
-      templates: String list of templates to parse with. If None, uses index
-    Raises:
-      CliTableError: A template was not found for the given command.
-    """
+        Parses command output with template/s. If more than one template is found
+        subsequent tables are merged if keys match (dropped otherwise).
+        Args:
+          cmd_input: String, Device/command response.
+          attributes: Dict, attribute that further refine matching template.
+          templates: String list of templates to parse with. If None, uses index
+        Raises:
+          CliTableError: A template was not found for the given command.
+        """
         # Store raw command data within the object.
         self.raw = cmd_input
 
@@ -282,14 +282,14 @@ class CliTable(texttable.TextTable):
 
     def _ParseCmdItem(self, cmd_input, template_file=None):
         """Creates Texttable with output of command.
-    Args:
-      cmd_input: String, Device response.
-      template_file: File object, template to parse with.
-    Returns:
-      TextTable containing command output.
-    Raises:
-      CliTableError: A template was not found for the given command.
-    """
+        Args:
+          cmd_input: String, Device response.
+          template_file: File object, template to parse with.
+        Returns:
+          TextTable containing command output.
+        Raises:
+          CliTableError: A template was not found for the given command.
+        """
         # Build FSM machine from the template.
         fsm = textfsm.TextFSM(template_file)
         if not self._keys:
@@ -321,13 +321,13 @@ class CliTable(texttable.TextTable):
     def _Completion(self, match):
         # pylint: disable=C6114
         r"""Replaces double square brackets with variable length completion.
-    Completion cannot be mixed with regexp matching or '\' characters
-    i.e. '[[(\n)]] would become (\(n)?)?.'
-    Args:
-      match: A regex Match() object.
-    Returns:
-      String of the format '(a(b(c(d)?)?)?)?'.
-    """
+        Completion cannot be mixed with regexp matching or '\' characters
+        i.e. '[[(\n)]] would become (\(n)?)?.'
+        Args:
+          match: A regex Match() object.
+        Returns:
+          String of the format '(a(b(c(d)?)?)?)?'.
+        """
         # Strip the outer '[[' & ']]' and replace with ()? regexp pattern.
         word = str(match.group())[2:-2]
         return "(" + ("(").join(word) + ")?" * len(word)
@@ -349,15 +349,15 @@ class CliTable(texttable.TextTable):
 
     def AddKeys(self, key_list):
         """Mark additional columns as being part of the superkey.
-    Supplements the Keys already extracted from the FSM template.
-    Useful when adding new columns to existing tables.
-    Note: This will impact attempts to further 'extend' the table as the
-    superkey must be common between tables for successful extension.
-    Args:
-      key_list: list of header entries to be included in the superkey.
-    Raises:
-      KeyError: If any entry in list is not a valid header entry.
-    """
+        Supplements the Keys already extracted from the FSM template.
+        Useful when adding new columns to existing tables.
+        Note: This will impact attempts to further 'extend' the table as the
+        superkey must be common between tables for successful extension.
+        Args:
+          key_list: list of header entries to be included in the superkey.
+        Raises:
+          KeyError: If any entry in list is not a valid header entry.
+        """
 
         for keyname in key_list:
             if keyname not in self.header:

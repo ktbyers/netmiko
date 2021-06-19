@@ -4,7 +4,7 @@ from netmiko.base_connection import BaseConnection
 
 
 class NetscalerSSH(BaseConnection):
-    """ Netscaler SSH class. """
+    """Netscaler SSH class."""
 
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
@@ -53,7 +53,7 @@ class NetscalerSSH(BaseConnection):
         return ""
 
     def strip_prompt(self, a_string):
-        """ Strip 'Done' from command output """
+        """Strip 'Done' from command output"""
         output = super().strip_prompt(a_string)
         lines = output.split(self.RESPONSE_RETURN)
         if "Done" in lines[-1]:

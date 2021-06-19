@@ -80,7 +80,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         )
 
     def save_config(self, cmd="save", confirm=False, confirm_response=""):
-        """ Save Config for HuaweiSSH"""
+        """Save Config for HuaweiSSH"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
