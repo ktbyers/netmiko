@@ -202,15 +202,15 @@ def delete_file_xr(ssh_conn, dest_file_system, dest_file):
 
 def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     """
-    Delete a remote file for a Cisco IOS device:
+        Delete a remote file for a Cisco IOS device:
 
-    cisco1#del flash:/useless_file.cfg
-    Delete filename [useless_file.cfg]?
-    Delete flash:/useless_file.cfg? [confirm]y
+        cisco1#del flash:/useless_file.cfg
+        Delete filename [useless_file.cfg]?
+        Delete flash:/useless_file.cfg? [confirm]y
 
-delete disk0:/test9.txt
-Mon Aug 31 17:56:15.008 UTC
-Delete disk0:/test9.txt[confirm]
+    delete disk0:/test9.txt
+    Mon Aug 31 17:56:15.008 UTC
+    Delete disk0:/test9.txt[confirm]
     """
     if not dest_file_system:
         raise ValueError("Invalid file system specified")

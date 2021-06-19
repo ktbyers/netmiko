@@ -1,4 +1,4 @@
-black==18.9b0
+black==21.6b0
 mypy==0.790
 PyYAML==5.4
 pytest==5.1.2

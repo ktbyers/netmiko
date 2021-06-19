@@ -101,7 +101,7 @@ class HuaweiBase(CiscoBaseConnection):
         return self.base_prompt
 
     def save_config(self, cmd="save", confirm=True, confirm_response="y"):
-        """ Save Config for HuaweiSSH"""
+        """Save Config for HuaweiSSH"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )

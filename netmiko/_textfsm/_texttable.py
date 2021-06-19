@@ -58,13 +58,13 @@ class TableError(Error):
 class Row(dict):
     """Represents a table row. We implement this as an ordered dictionary.
 
-  The order is the chronological order of data insertion. Methods are supplied
-  to make it behave like a regular dict() and list().
+    The order is the chronological order of data insertion. Methods are supplied
+    to make it behave like a regular dict() and list().
 
-  Attributes:
-    row: int, the row number in the container table. 0 is the header row.
-    table: A TextTable(), the associated container table.
-  """
+    Attributes:
+      row: int, the row number in the container table. 0 is the header row.
+      table: A TextTable(), the associated container table.
+    """
 
     def __init__(self, *args, **kwargs):
         super(Row, self).__init__(*args, **kwargs)
@@ -84,16 +84,16 @@ class Row(dict):
     def __getitem__(self, column):
         """Support for [] notation.
 
-    Args:
-      column: Tuple of column names, or a (str) column name, or positional
-        column number, 0-indexed.
+        Args:
+          column: Tuple of column names, or a (str) column name, or positional
+            column number, 0-indexed.
 
-    Returns:
-      A list or string with column value(s).
+        Returns:
+          A list or string with column value(s).
 
-    Raises:
-      IndexError: The given column(s) were not found.
-    """
+        Raises:
+          IndexError: The given column(s) were not found.
+        """
         if isinstance(column, (list, tuple)):
             ret = []
             for col in column:
@@ -145,14 +145,14 @@ class Row(dict):
     def get(self, column, default_value=None):
         """Get an item from the Row by column name.
 
-    Args:
-      column: Tuple of column names, or a (str) column name, or positional
-        column number, 0-indexed.
-      default_value: The value to use if the key is not found.
+        Args:
+          column: Tuple of column names, or a (str) column name, or positional
+            column number, 0-indexed.
+          default_value: The value to use if the key is not found.
 
-    Returns:
-      A list or string with column value(s) or default_value if not found.
-    """
+        Returns:
+          A list or string with column value(s) or default_value if not found.
+        """
         if isinstance(column, (list, tuple)):
             ret = []
             for col in column:
@@ -171,15 +171,15 @@ class Row(dict):
     def index(self, column):  # pylint: disable=C6409
         """Fetches the column number (0 indexed).
 
-    Args:
-      column: A string, column to fetch the index of.
+        Args:
+          column: A string, column to fetch the index of.
 
-    Returns:
-      An int, the row index number.
+        Returns:
+          An int, the row index number.
 
-    Raises:
-      ValueError: The specified column was not found.
-    """
+        Raises:
+          ValueError: The specified column was not found.
+        """
         for i, key in enumerate(self._keys):
             if key == column:
                 return i
@@ -235,13 +235,13 @@ class Row(dict):
     def _SetValues(self, values):
         """Set values from supplied dictionary or list.
 
-    Args:
-      values: A Row, dict indexed by column name, or list.
+        Args:
+          values: A Row, dict indexed by column name, or list.
 
-    Raises:
-      TypeError: Argument is not a list or dict, or list is not equal row
-      length or dictionary keys don't match.
-    """
+        Raises:
+          TypeError: Argument is not a list or dict, or list is not equal row
+          length or dictionary keys don't match.
+        """
 
         def _ToStr(value):
             """Convert individul list entries to string."""
@@ -280,14 +280,14 @@ class Row(dict):
     def Insert(self, key, value, row_index):
         """Inserts new values at a specified offset.
 
-    Args:
-      key: string for header value.
-      value: string for a data value.
-      row_index: Offset into row for data.
+        Args:
+          key: string for header value.
+          value: string for a data value.
+          row_index: Offset into row for data.
 
-    Raises:
-      IndexError: If the offset is out of bands.
-    """
+        Raises:
+          IndexError: If the offset is out of bands.
+        """
         if row_index < 0:
             row_index += len(self)
 
@@ -312,21 +312,21 @@ class Row(dict):
 class TextTable(object):
     """Class that provides data methods on a tabular format.
 
-  Data is stored as a list of Row() objects. The first row is always present as
-  the header row.
+    Data is stored as a list of Row() objects. The first row is always present as
+    the header row.
 
-  Attributes:
-    row_class: class, A class to use for the Row object.
-    separator: str, field separator when printing table.
-  """
+    Attributes:
+      row_class: class, A class to use for the Row object.
+      separator: str, field separator when printing table.
+    """
 
     def __init__(self, row_class=Row):
         """Initialises a new table.
 
-    Args:
-      row_class: A class to use as the row object. This should be a
-        subclass of this module's Row() class.
-    """
+        Args:
+          row_class: A class to use as the row object. This should be a
+            subclass of this module's Row() class.
+        """
         self.row_class = row_class
         self.separator = ", "
         self.Reset()
@@ -393,16 +393,16 @@ class TextTable(object):
         """Construct Textable from the rows of which the function returns true.
 
 
-    Args:
-      function: A function applied to each row which returns a bool. If
-                function is None, all rows with empty column values are
-                removed.
-    Returns:
-      A new TextTable()
+        Args:
+          function: A function applied to each row which returns a bool. If
+                    function is None, all rows with empty column values are
+                    removed.
+        Returns:
+          A new TextTable()
 
-    Raises:
-      TableError: When an invalid row entry is Append()'d
-    """
+        Raises:
+          TableError: When an invalid row entry is Append()'d
+        """
         flat = (
             lambda x: x if isinstance(x, str) else "".join([flat(y) for y in x])
         )  # noqa
@@ -420,16 +420,16 @@ class TextTable(object):
     def Map(self, function):
         """Applies the function to every row in the table.
 
-    Args:
-      function: A function applied to each row.
+        Args:
+          function: A function applied to each row.
 
-    Returns:
-      A new TextTable()
+        Returns:
+          A new TextTable()
 
-    Raises:
-      TableError: When transform is not invalid row entry. The transform
-                  must be compatible with Append().
-    """
+        Raises:
+          TableError: When transform is not invalid row entry. The transform
+                      must be compatible with Append().
+        """
         new_table = self.__class__()
         # pylint: disable=protected-access
         new_table._table = [self.header]
@@ -444,11 +444,11 @@ class TextTable(object):
     def sort(self, cmp=None, key=None, reverse=False):
         """Sorts rows in the texttable.
 
-    Args:
-      cmp: func, non default sort algorithm to use.
-      key: func, applied to each element before sorting.
-      reverse: bool, reverse order of sort.
-    """
+        Args:
+          cmp: func, non default sort algorithm to use.
+          key: func, applied to each element before sorting.
+          reverse: bool, reverse order of sort.
+        """
 
         def _DefaultKey(value):
             """Default key func is to create a list of all fields."""
@@ -482,16 +482,16 @@ class TextTable(object):
     def extend(self, table, keys=None):
         """Extends all rows in the texttable.
 
-    The rows are extended with the new columns from the table.
+        The rows are extended with the new columns from the table.
 
-    Args:
-      table: A texttable, the table to extend this table by.
-      keys: A set, the set of columns to use as the key. If None, the
-        row index is used.
+        Args:
+          table: A texttable, the table to extend this table by.
+          keys: A set, the set of columns to use as the key. If None, the
+            row index is used.
 
-    Raises:
-      IndexError: If key is not a valid column name.
-    """
+        Raises:
+          IndexError: If key is not a valid column name.
+        """
         if keys:
             for k in keys:
                 if k not in self._Header():
@@ -528,13 +528,13 @@ class TextTable(object):
     def Remove(self, row):
         """Removes a row from the table.
 
-    Args:
-      row: int, the row number to delete. Must be >= 1, as the header
-        cannot be removed.
+        Args:
+          row: int, the row number to delete. Must be >= 1, as the header
+            cannot be removed.
 
-    Raises:
-      TableError: Attempt to remove nonexistent or header row.
-    """
+        Raises:
+          TableError: Attempt to remove nonexistent or header row.
+        """
         if row == 0 or row > self.size:
             raise TableError("Attempt to remove header row")
         new_table = []
@@ -566,13 +566,13 @@ class TextTable(object):
     def _SetRow(self, new_values, row=0):
         """Sets the current row to new list.
 
-    Args:
-      new_values: List|dict of new values to insert into row.
-      row: int, Row to insert values into.
+        Args:
+          new_values: List|dict of new values to insert into row.
+          row: int, Row to insert values into.
 
-    Raises:
-      TableError: If number of new values is not equal to row size.
-    """
+        Raises:
+          TableError: If number of new values is not equal to row size.
+        """
 
         if not row:
             row = self._row_index
@@ -585,9 +585,9 @@ class TextTable(object):
     def _SetHeader(self, new_values):
         """Sets header of table to the given tuple.
 
-    Args:
-      new_values: Tuple of new header values.
-    """
+        Args:
+          new_values: Tuple of new header values.
+        """
         row = self.row_class()
         row.row = 0
         for v in new_values:
@@ -612,10 +612,10 @@ class TextTable(object):
     def _GetTable(self):
         """Returns table, with column headers and separators.
 
-    Returns:
-      The whole table including headers as a string. Each row is
-      joined by a newline and each entry by self.separator.
-    """
+        Returns:
+          The whole table including headers as a string. Each row is
+          joined by a newline and each entry by self.separator.
+        """
         result = []
         # Avoid the global lookup cost on each iteration.
         lstr = str
@@ -637,15 +637,15 @@ class TextTable(object):
     def _SmallestColSize(self, text):
         """Finds the largest indivisible word of a string.
 
-    ...and thus the smallest possible column width that can contain that
-    word unsplit over rows.
+        ...and thus the smallest possible column width that can contain that
+        word unsplit over rows.
 
-    Args:
-      text: A string of text potentially consisting of words.
+        Args:
+          text: A string of text potentially consisting of words.
 
-    Returns:
-      Integer size of the largest single word in the text.
-    """
+        Returns:
+          Integer size of the largest single word in the text.
+        """
         if not text:
             return 0
         stripped = terminal.StripAnsiText(text)
@@ -654,23 +654,23 @@ class TextTable(object):
     def _TextJustify(self, text, col_size):
         """Formats text within column with white space padding.
 
-    A single space is prefixed, and a number of spaces are added as a
-    suffix such that the length of the resultant string equals the col_size.
+        A single space is prefixed, and a number of spaces are added as a
+        suffix such that the length of the resultant string equals the col_size.
 
-    If the length of the text exceeds the column width available then it
-    is split into words and returned as a list of string, each string
-    contains one or more words padded to the column size.
+        If the length of the text exceeds the column width available then it
+        is split into words and returned as a list of string, each string
+        contains one or more words padded to the column size.
 
-    Args:
-      text: String of text to format.
-      col_size: integer size of column to pad out the text to.
+        Args:
+          text: String of text to format.
+          col_size: integer size of column to pad out the text to.
 
-    Returns:
-      List of strings col_size in length.
+        Returns:
+          List of strings col_size in length.
 
-    Raises:
-      TableError: If col_size is too small to fit the words in the text.
-    """
+        Raises:
+          TableError: If col_size is too small to fit the words in the text.
+        """
         result = []
         if "\n" in text:
             for paragraph in text.split("\n"):
@@ -710,22 +710,22 @@ class TextTable(object):
     ):
         """Returns whole table, with whitespace padding and row delimiters.
 
-    Args:
-      width: An int, the max width we want the table to fit in.
-      force_display: A bool, if set to True will display table when the table
-          can't be made to fit to the width.
-      ml_delimiter: A bool, if set to False will not display the multi-line
-          delimiter.
-      color: A bool. If true, display any colours in row.colour.
-      display_header: A bool. If true, display header.
-      columns: A list of str, show only columns with these names.
+        Args:
+          width: An int, the max width we want the table to fit in.
+          force_display: A bool, if set to True will display table when the table
+              can't be made to fit to the width.
+          ml_delimiter: A bool, if set to False will not display the multi-line
+              delimiter.
+          color: A bool. If true, display any colours in row.colour.
+          display_header: A bool. If true, display header.
+          columns: A list of str, show only columns with these names.
 
-    Returns:
-      A string.  The tabled output.
+        Returns:
+          A string.  The tabled output.
 
-    Raises:
-      TableError: Width too narrow to display table.
-    """
+        Raises:
+          TableError: Width too narrow to display table.
+        """
 
         def _FilteredCols():
             """Returns list of column names to display."""
@@ -910,21 +910,21 @@ class TextTable(object):
     def LabelValueTable(self, label_list=None):
         """Returns whole table as rows of name/value pairs.
 
-    One (or more) column entries are used for the row prefix label.
-    The remaining columns are each displayed as a row entry with the
-    prefix labels appended.
+        One (or more) column entries are used for the row prefix label.
+        The remaining columns are each displayed as a row entry with the
+        prefix labels appended.
 
-    Use the first column as the label if label_list is None.
+        Use the first column as the label if label_list is None.
 
-    Args:
-      label_list: A list of prefix labels to use.
+        Args:
+          label_list: A list of prefix labels to use.
 
-    Returns:
-      Label/Value formatted table.
+        Returns:
+          Label/Value formatted table.
 
-    Raises:
-      TableError: If specified label is not a column header of the table.
-    """
+        Raises:
+          TableError: If specified label is not a column header of the table.
+        """
         label_list = label_list or self._Header()[0]
         # Ensure all labels are valid.
         for label in label_list:
@@ -965,16 +965,16 @@ class TextTable(object):
     def RowWith(self, column, value):
         """Retrieves the first non header row with the column of the given value.
 
-    Args:
-      column: str, the name of the column to check.
-      value: str, The value of the column to check.
+        Args:
+          column: str, the name of the column to check.
+          value: str, The value of the column to check.
 
-    Returns:
-      A Row() of the first row found, None otherwise.
+        Returns:
+          A Row() of the first row found, None otherwise.
 
-    Raises:
-      IndexError: The specified column does not exist.
-    """
+        Raises:
+          IndexError: The specified column does not exist.
+        """
         for row in self._table[1:]:
             if row[column] == value:
                 return row
@@ -983,15 +983,15 @@ class TextTable(object):
     def AddColumn(self, column, default="", col_index=-1):
         """Appends a new column to the table.
 
-    Args:
-      column: A string, name of the column to add.
-      default: Default value for entries. Defaults to ''.
-      col_index: Integer index for where to insert new column.
+        Args:
+          column: A string, name of the column to add.
+          default: Default value for entries. Defaults to ''.
+          col_index: Integer index for where to insert new column.
 
-    Raises:
-      TableError: Column name already exists.
+        Raises:
+          TableError: Column name already exists.
 
-    """
+        """
         if column in self.table:
             raise TableError("Column %r already in table." % column)
         if col_index == -1:
@@ -1006,12 +1006,12 @@ class TextTable(object):
     def Append(self, new_values):
         """Adds a new row (list) to the table.
 
-    Args:
-      new_values: Tuple, dict, or Row() of new values to append as a row.
+        Args:
+          new_values: Tuple, dict, or Row() of new values to append as a row.
 
-    Raises:
-      TableError: Supplied tuple not equal to table width.
-    """
+        Raises:
+          TableError: Supplied tuple not equal to table width.
+        """
         newrow = self.NewRow()
         newrow.values = new_values
         self._table.append(newrow)
@@ -1019,12 +1019,12 @@ class TextTable(object):
     def NewRow(self, value=""):
         """Fetches a new, empty row, with headers populated.
 
-    Args:
-      value: Initial value to set each row entry to.
+        Args:
+          value: Initial value to set each row entry to.
 
-    Returns:
-      A Row() object.
-    """
+        Returns:
+          A Row() object.
+        """
         newrow = self.row_class()
         newrow.row = self.size + 1
         newrow.table = self
@@ -1036,20 +1036,20 @@ class TextTable(object):
     def CsvToTable(self, buf, header=True, separator=","):
         """Parses buffer into tabular format.
 
-    Strips off comments (preceded by '#').
-    Optionally parses and indexes by first line (header).
+        Strips off comments (preceded by '#').
+        Optionally parses and indexes by first line (header).
 
-    Args:
-      buf: String file buffer containing CSV data.
-      header: Is the first line of buffer a header.
-      separator: String that CSV is separated by.
+        Args:
+          buf: String file buffer containing CSV data.
+          header: Is the first line of buffer a header.
+          separator: String that CSV is separated by.
 
-    Returns:
-      int, the size of the table created.
+        Returns:
+          int, the size of the table created.
 
-    Raises:
-      TableError: A parsing error occurred.
-    """
+        Raises:
+          TableError: A parsing error occurred.
+        """
         self.Reset()
 
         header_row = self.row_class()
@@ -1105,15 +1105,15 @@ class TextTable(object):
     def index(self, name=None):  # pylint: disable=C6409
         """Returns index number of supplied column name.
 
-    Args:
-      name: string of column name.
+        Args:
+          name: string of column name.
 
-    Raises:
-      TableError: If name not found.
+        Raises:
+          TableError: If name not found.
 
-    Returns:
-      Index of the specified header entry.
-    """
+        Returns:
+          Index of the specified header entry.
+        """
         try:
             return self.header.index(name)
         except ValueError:

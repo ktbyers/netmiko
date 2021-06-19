@@ -78,7 +78,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
         )
 
     def remote_md5(self, base_cmd="verify /md5", remote_file=None):
-        """Calculate remote MD5 and returns the hash. """
+        """Calculate remote MD5 and returns the hash."""
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
