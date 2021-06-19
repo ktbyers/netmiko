@@ -1423,6 +1423,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
         except IndexError:
             return (data, False)
 
+    def _prompt_handler(self, auto_find_prompt: bool) -> str:
+        if auto_find_prompt:
+            try:
+                prompt = self.find_prompt()
+            except ValueError:
+                prompt = self.base_prompt
+        else:
+            prompt = self.base_prompt
+        return re.escape(prompt.strip())
+
     @select_cmd_verify
     def send_command(
         self,
@@ -1489,18 +1499,10 @@ You should convert all uses of delay_factor and max_loops over to read_timeout=x
 where x is the total number of seconds to wait before timing out.\n"""
             warnings.warn(msg, DeprecationWarning)
 
-        # Find the current router prompt
-        if expect_string is None:
-            if auto_find_prompt:
-                try:
-                    prompt = self.find_prompt()
-                except ValueError:
-                    prompt = self.base_prompt
-            else:
-                prompt = self.base_prompt
-            search_pattern = re.escape(prompt.strip())
-        else:
+        if expect_string is not None:
             search_pattern = expect_string
+        else:
+            search_pattern = self._prompt_handler(auto_find_prompt)
 
         if normalize:
             command_string = self.normalize_cmd(command_string)
@@ -1578,6 +1580,37 @@ You can also look at the Netmiko session_log or debug log for more information.
     def send_command_expect(self, *args: Any, **kwargs: Any) -> str:
         """Support previous name of send_command method."""
         return self.send_command(*args, **kwargs)
+
+    def send_command_list(
+        self, commands: Iterator, use_timing=False, multiline=True, **kwargs
+    ) -> str:
+
+        output = ""
+        if multiline is True:
+            strip_prompt = kwargs.get("strip_prompt", False)
+            kwargs["strip_prompt"] = strip_prompt
+            strip_command = kwargs.get("strip_command", False)
+            kwargs["strip_command"] = strip_command
+
+        if use_timing:
+            for cmd in commands:
+                output += self.send_command_timing(cmd, **kwargs)
+            return output
+
+        else:
+            default_expect_string = kwargs.pop("expect_string", None)
+            if not default_expect_string:
+                auto_find_prompt = kwargs.get("auto_find_prompt", True)
+                default_expect_string = self._prompt_handler(auto_find_prompt)
+            if isinstance(commands, Dict):
+                for cmd, expect_string in commands.items():
+                    # If null-string, then use prompt as terminating pattern
+                    if not expect_string:
+                        expect_string = default_expect_string
+                    output += self.send_command(
+                        cmd, expect_string=expect_string, **kwargs
+                    )
+            return output
 
     @staticmethod
     def strip_backspaces(output: str) -> str:
