@@ -287,10 +287,10 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
         # Try 'pip installed' ntc-templates
         try:
             with importresources_path(
-                package="ntc_templates", resource="templates"
+                package="ntc_templates", resource="parse.py"
             ) as posix_path:
                 # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
-                template_dir = str(posix_path)
+                template_dir = str(posix_path.parent.joinpath("templates"))
                 # This is for Netmiko automated testing
                 if _skip_ntc_package:
                     raise ModuleNotFoundError()
