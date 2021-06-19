@@ -2047,7 +2047,9 @@ You can also look at the Netmiko session_log or debug log for more information.
         """Not Implemented"""
         raise NotImplementedError
 
-    def run_ttp(self, template, res_kwargs: Optional[Dict[str, Any]] = None, **kwargs: Any):
+    def run_ttp(
+        self, template, res_kwargs: Optional[Dict[str, Any]] = None, **kwargs: Any
+    ):
         """
         Run TTP template parsing by using input parameters to collect
         devices output.
