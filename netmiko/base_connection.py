@@ -6,7 +6,18 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-from typing import Optional, Callable, Any, Dict, TypeVar, cast, Type, Iterator, Union
+from typing import (
+    Optional,
+    Callable,
+    Any,
+    Dict,
+    TypeVar,
+    cast,
+    Type,
+    Iterator,
+    Union,
+    Tuple,
+)
 from types import TracebackType
 import io
 import re
@@ -866,6 +877,7 @@ You can look at the Netmiko session_log or debug log for more information.
         connect_dict = dict_arg.copy()
 
         # Use SSHConfig to generate source content.
+        assert self.ssh_config_file is not None
         full_path = path.abspath(path.expanduser(self.ssh_config_file))
         if path.exists(full_path):
             ssh_config_instance = paramiko.SSHConfig()
@@ -1218,7 +1230,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(self, delay_factor=1):
+    def find_prompt(self, delay_factor: float = 1.0) -> str:
         """Finds the current network device prompt, last line only.
 
         :param delay_factor: See __init__: global_delay_factor
@@ -1371,7 +1383,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         )
         return output
 
-    def strip_prompt(self, a_string):
+    def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output.
 
         :param a_string: Returned string from device
@@ -1384,7 +1396,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         else:
             return a_string
 
-    def _first_line_handler(self, data, search_pattern):
+    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple(str, str):
         """
         In certain situations the first line will get repainted which causes a false
         match on the terminating pattern.
