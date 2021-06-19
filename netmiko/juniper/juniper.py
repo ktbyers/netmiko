@@ -106,14 +106,14 @@ class JuniperBase(BaseConnection):
 
     def commit(
         self,
-        confirm=False,
-        confirm_delay=None,
-        check=False,
-        comment="",
-        and_quit=False,
+        confirm: bool = False,
+        confirm_delay: Optional[int] = None,
+        check: bool = False,
+        comment: str = "",
+        and_quit: bool = False,
         read_timeout: float = 120.0,
         delay_factor: Optional[float] = None,
-    ):
+    ) -> str:
         """
         Commit the candidate configuration.
 
