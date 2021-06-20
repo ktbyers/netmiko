@@ -956,6 +956,7 @@ You can look at the Netmiko session_log or debug log for more information.
             self.serial_login()
         elif self.protocol == "ssh":
             ssh_connect_params = self._connect_params_dict()
+            self.remote_conn_pre: Optional[paramiko.SSHClient]
             self.remote_conn_pre = self._build_ssh_client()
 
             # initiate SSH connection
@@ -1914,7 +1915,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         if config_commands is None:
             return ""
         elif isinstance(config_commands, str):
-            config_commands = (config_commands,)    # type: ignore
+            config_commands = (config_commands,)  # type: ignore
 
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
@@ -2081,7 +2082,8 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def paramiko_cleanup(self) -> None:
         """Cleanup Paramiko to try to gracefully handle SSH session ending."""
-        self.remote_conn_pre.close()
+        if self.remote_conn_pre is not None:
+            self.remote_conn_pre.close()
         del self.remote_conn_pre
 
     def disconnect(self) -> None:
@@ -2091,9 +2093,9 @@ You can also look at the Netmiko session_log or debug log for more information.
             if self.protocol == "ssh":
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":
-                self.remote_conn.close()    # type: ignore
+                self.remote_conn.close()  # type: ignore
             elif self.protocol == "serial":
-                self.remote_conn.close()    # type: ignore
+                self.remote_conn.close()  # type: ignore
         except Exception:
             # There have been race conditions observed on disconnect.
             pass
@@ -2114,8 +2116,11 @@ You can also look at the Netmiko session_log or debug log for more information.
         raise NotImplementedError
 
     def run_ttp(
-        self, template, res_kwargs: Optional[Dict[str, Any]] = None, **kwargs: Any
-    ):
+        self,
+        template: Union[str, bytes, PathLike[Any]],
+        res_kwargs: Optional[Dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
         """
         Run TTP template parsing by using input parameters to collect
         devices output.

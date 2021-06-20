@@ -395,21 +395,22 @@ def get_structured_data_ttp(raw_output, template=None):
         return raw_output
 
 
-def run_ttp_template(connection, template, res_kwargs, **kwargs):
+def run_ttp_template(
+    connection: "BaseConnection",
+    template: Union[str, bytes, os.PathLike[Any]],
+    res_kwargs: Dict[str, Any],
+    **kwargs: Any,
+) -> Any:
     """
     Helper function to run TTP template parsing.
 
     :param connection: Netmiko connection object
-    :type connection: obj
 
     :param template: TTP template
-    :type template: str
 
     :param res_kwargs: ``**res_kwargs`` arguments for TTP result method
-    :type res_kwargs: dict
 
     :param kwargs: ``**kwargs`` for TTP object instantiation
-    :type kwargs: dict
     """
     if not TTP_INSTALLED:
         msg = "\nTTP is not installed. Please PIP install ttp:\n" "pip install ttp\n"
