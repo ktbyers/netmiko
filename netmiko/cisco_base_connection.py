@@ -10,7 +10,7 @@ from netmiko.ssh_exception import NetmikoAuthenticationException
 class CiscoBaseConnection(BaseConnection):
     """Base Class for cisco-like behavior."""
 
-    def check_enable_mode(self, check_string: str = r"#") -> bool:
+    def check_enable_mode(self, check_string: str = "#") -> bool:
         """Check if in enable mode. Return boolean."""
         return super().check_enable_mode(check_string=check_string)
 
@@ -30,7 +30,7 @@ class CiscoBaseConnection(BaseConnection):
         """Exits enable (privileged exec) mode."""
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string: str = r"\)#", pattern: str = "") -> bool:
+    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
         """
         Checks if the device is in configuration mode or not.
 

@@ -33,6 +33,10 @@ jobs:
         run: |
           pylama .
 
+      - name: Run mypy
+        run: |
+          mypy ./netmiko/base_connection.py
+
       - name: Run Tests
         run: |
           py.test -v -s tests/test_import_netmiko.py

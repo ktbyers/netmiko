@@ -10,6 +10,7 @@ from typing import (
     Optional,
     Callable,
     Any,
+    List,
     Dict,
     TypeVar,
     cast,
@@ -17,7 +18,9 @@ from typing import (
     Iterator,
     Union,
     Tuple,
+    Deque,
 )
+from typing import TYPE_CHECKING
 from types import TracebackType
 import io
 import re
@@ -43,7 +46,7 @@ from netmiko.ssh_exception import (
     ReadException,
     ReadTimeout,
 )
-from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
+from netmiko.channel import Channel, SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.utilities import (
     write_bytes,
@@ -54,6 +57,8 @@ from netmiko.utilities import (
 )
 from netmiko.utilities import m_exec_time  # noqa
 
+if TYPE_CHECKING:
+    from os import PathLike
 
 # For decorators
 F = TypeVar("F", bound=Callable[..., Any])
@@ -162,131 +167,99 @@ class BaseConnection:
 
         :param ip: IP address of target device. Not required if `host` is
             provided.
-        :type ip: str
 
         :param host: Hostname of target device. Not required if `ip` is
                 provided.
-        :type host: str
 
         :param username: Username to authenticate against target device if
                 required.
-        :type username: str
 
         :param password: Password to authenticate against target device if
                 required.
-        :type password: str
 
         :param secret: The enable password if target device requires one.
-        :type secret: str
 
         :param port: The destination port used to connect to the target
                 device.
-        :type port: int or None
 
         :param device_type: Class selection based on device type.
-        :type device_type: str
 
         :param verbose: Enable additional messages to standard output.
-        :type verbose: bool
 
         :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-        :type global_delay_factor: int
 
         :param use_keys: Connect to target device using SSH keys.
-        :type use_keys: bool
 
         :param key_file: Filename path of the SSH key file to use.
-        :type key_file: str
 
         :param pkey: SSH key object to use.
-        :type pkey: paramiko.PKey
 
         :param passphrase: Passphrase to use for encrypted key; password will be used for key
                 decryption if not specified.
-        :type passphrase: str
 
         :param allow_agent: Enable use of SSH key-agent.
-        :type allow_agent: bool
 
         :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
                 means unknown SSH host keys will be accepted).
-        :type ssh_strict: bool
 
         :param system_host_keys: Load host keys from the users known_hosts file.
-        :type system_host_keys: bool
+
         :param alt_host_keys: If `True` host keys will be loaded from the file specified in
                 alt_key_file.
-        :type alt_host_keys: bool
 
         :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-        :type alt_key_file: str
 
         :param ssh_config_file: File name of OpenSSH configuration file.
-        :type ssh_config_file: str
 
         :param timeout: Connection timeout.
-        :type timeout: float
 
         :param session_timeout: Set a timeout for parallel requests.
-        :type session_timeout: float
 
         :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-        :type auth_timeout: float
 
         :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-        :type banner_timeout: float
 
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
                 to keep the connection alive).
-        :type keepalive: int
 
         :param default_enter: Character(s) to send to correspond to enter key (default: \n).
-        :type default_enter: str
 
         :param response_return: Character(s) to use in normalized return data to represent
                 enter key (default: \n)
-        :type response_return: str
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: False)
-        :type fast_cli: boolean
 
         :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-        :type session_log: str
 
         :param session_log_record_writes: The session log generally only records channel reads due
                 to eliminate command duplication due to command echo. You can enable this if you
                 want to record both channel reads and channel writes in the log (default: False).
-        :type session_log_record_writes: boolean
 
         :param session_log_file_mode: "write" or "append" for session_log file mode
                 (default: "write")
-        :type session_log_file_mode: str
 
         :param allow_auto_change: Allow automatic configuration changes for terminal settings.
                 (default: False)
-        :type allow_auto_change: bool
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
                 (default: ascii)
-        :type encoding: str
 
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
-        :type sock: socket
 
         :param global_cmd_verify: Control whether command echo verification is enabled or disabled
                 (default: None). Global attribute takes precedence over function `cmd_verify`
                 argument. Value of `None` indicates to use function `cmd_verify` argument.
-        :type global_cmd_verify: bool|None
 
         :param auto_connect: Control whether Netmiko automatically establishes the connection as
                 part of the object creation (default: True).
-        :type auto_connect: bool
         """
-        self.remote_conn = None
+        self.remote_conn: Union[
+            None, telnetlib.Telnet, paramiko.Channel, serial.Serial
+        ] = None
         # Does the platform support a configuration mode
         self._config_mode = True
         self._read_buffer = ""
@@ -406,6 +379,7 @@ class BaseConnection:
         else:
             self.protocol = "ssh"
 
+            self.key_policy: paramiko.client.MissingHostKeyPolicy
             if not ssh_strict:
                 self.key_policy = paramiko.AutoAddPolicy()
             else:
@@ -515,9 +489,10 @@ class BaseConnection:
                 # IAC = Interpret as Command; it comes before the NOP.
                 log.debug("Sending IAC + NOP")
                 # Need to send multiple times to test connection
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                assert isinstance(self.remote_conn, telnetlib.Telnet)
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)  # type: ignore
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)  # type: ignore
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)  # type: ignore
                 return True
             except AttributeError:
                 return False
@@ -527,7 +502,9 @@ class BaseConnection:
                 # Try sending ASCII null byte to maintain the connection alive
                 log.debug("Sending the NULL byte")
                 self.write_channel(null)
-                return self.remote_conn.transport.is_active()
+                result = self.remote_conn.transport.is_active()  # type: ignore
+                assert isinstance(result, bool)
+                return result
             except (socket.error, EOFError):
                 log.error("Unable to send", exc_info=True)
                 # If unable to send, we can tell for sure that the connection is unusable
@@ -879,6 +856,7 @@ You can look at the Netmiko session_log or debug log for more information.
         # Use SSHConfig to generate source content.
         assert self.ssh_config_file is not None
         full_path = path.abspath(path.expanduser(self.ssh_config_file))
+        source: Union[paramiko.config.SSHConfigDict, Dict[str, Any]]
         if path.exists(full_path):
             ssh_config_instance = paramiko.SSHConfig()
             with io.open(full_path, "rt", encoding="utf-8") as f:
@@ -888,6 +866,7 @@ You can look at the Netmiko session_log or debug log for more information.
             source = {}
 
         # Keys get normalized to lower-case
+        proxy: Optional[paramiko.proxy.ProxyCommand]
         if "proxycommand" in source:
             proxy = paramiko.ProxyCommand(source["proxycommand"])
         elif "proxyjump" in source:
@@ -966,6 +945,7 @@ You can look at the Netmiko session_log or debug log for more information.
         :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         """
+        self.channel: Channel
         if self.protocol == "telnet":
             self.remote_conn = telnetlib.Telnet(
                 self.host, port=self.port, timeout=self.timeout
@@ -979,6 +959,7 @@ You can look at the Netmiko session_log or debug log for more information.
             self.serial_login()
         elif self.protocol == "ssh":
             ssh_connect_params = self._connect_params_dict()
+            self.remote_conn_pre: Optional[paramiko.SSHClient]
             self.remote_conn_pre = self._build_ssh_client()
 
             # initiate SSH connection
@@ -1042,6 +1023,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
             self.remote_conn.settimeout(self.blocking_timeout)
             if self.keepalive:
+                assert isinstance(self.remote_conn.transport, paramiko.Transport)
                 self.remote_conn.transport.set_keepalive(self.keepalive)
             self.special_login_handler()
             if self.verbose:
@@ -1049,7 +1031,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
             # Migrating communication to channel class
             self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
-        return ""
+        return None
 
     def _test_channel_read(self, count: int = 40, pattern: str = "") -> str:
         """Try to read the channel (generally post login) verify you receive data back.
@@ -1093,7 +1075,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         else:
             raise NetmikoTimeoutException("Timed out waiting for data")
 
-    def _build_ssh_client(self):
+    def _build_ssh_client(self) -> paramiko.SSHClient:
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
         remote_conn_pre = paramiko.SSHClient()
@@ -1127,7 +1109,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             else:
                 return self.global_delay_factor
 
-    def special_login_handler(self, delay_factor=1):
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
         pass
 
@@ -1137,7 +1119,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor: Optional[float] = None,
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
-    ):
+    ) -> str:
         """Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
@@ -1168,7 +1150,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor: Optional[float] = None,
         cmd_verify: bool = False,
         pattern: Optional[str] = None,
-    ):
+    ) -> str:
         """CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
@@ -1197,8 +1179,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
     # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
     @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5),
-        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=0.33, min=0, max=5),  # type: ignore
+        stop=stop_after_attempt(5),  # type: ignore
         reraise=True,
     )
     def set_base_prompt(
@@ -1283,7 +1265,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 sleep_time *= 2
                 sleep_time = 3 if sleep_time >= 3 else sleep_time
 
-    def command_echo_read(self, cmd, read_timeout):
+    def command_echo_read(self, cmd: str, read_timeout: float) -> str:
 
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
@@ -1318,7 +1300,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = False,
-    ) -> str:
+    ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
@@ -1371,7 +1353,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        output = structured_data_converter(
+        return_data = structured_data_converter(
             command=command_string,
             raw_data=output,
             platform=self.device_type,
@@ -1381,7 +1363,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             textfsm_template=textfsm_template,
             ttp_template=ttp_template,
         )
-        return output
+        return return_data
 
     def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output.
@@ -1396,7 +1378,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         else:
             return a_string
 
-    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple[str, str]:
+    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple[str, bool]:
         """
         In certain situations the first line will get repainted which causes a false
         match on the terminating pattern.
@@ -1451,7 +1433,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = True,
-    ) -> str:
+    ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
@@ -1519,7 +1501,7 @@ where x is the total number of seconds to wait before timing out.\n"""
             new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
 
         output = ""
-        past_three_reads = deque(maxlen=3)
+        past_three_reads: Deque[str] = deque(maxlen=3)
         first_line_processed = False
 
         # Keep reading data until search_pattern is found or until read_timeout
@@ -1565,7 +1547,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        output = structured_data_converter(
+        return_val = structured_data_converter(
             command=command_string,
             raw_data=output,
             platform=self.device_type,
@@ -1575,9 +1557,11 @@ You can also look at the Netmiko session_log or debug log for more information.
             textfsm_template=textfsm_template,
             ttp_template=ttp_template,
         )
-        return output
+        return return_val
 
-    def send_command_expect(self, *args: Any, **kwargs: Any) -> str:
+    def send_command_expect(
+        self, *args: Any, **kwargs: Any
+    ) -> Union[str, List[Any], Dict[str, Any]]:
         """Support previous name of send_command method."""
         return self.send_command(*args, **kwargs)
 
@@ -1588,11 +1572,22 @@ You can also look at the Netmiko session_log or debug log for more information.
         kwargs["strip_command"] = strip_command
         return kwargs
 
-    def send_multiline(self, commands: Iterator, multiline=True, **kwargs: Any) -> str:
+    def send_multiline(
+        self,
+        commands: List[Union[List[str], str]],
+        multiline: bool = True,
+        **kwargs: Any,
+    ) -> str:
         """
-        Iterator must be some form of List of Lists:
+        commands should either be:
 
-        (cmd, expect_string)
+        commands = [[cmd1, expect1], [cmd2, expect2], ...]]
+
+        Or
+
+        commands = [cmd1, cmd2, cmd3, ...]
+
+        Typing is more generic than a list, but had a lot of difficulties convincing mypy of it.
 
         Any expect_string that is a null-string will use pattern based on
         device's prompt (unless expect_string argument is passed in via
@@ -1611,26 +1606,33 @@ You can also look at the Netmiko session_log or debug log for more information.
         if commands and isinstance(commands[0], str):
             # If list of commands just send directly using default_expect_string (probably prompt)
             for cmd in commands:
-                output += self.send_command(
+                assert isinstance(cmd, str)
+                new_data = self.send_command(
                     cmd, expect_string=default_expect_string, **kwargs
                 )
+                assert isinstance(new_data, str)
+                output += new_data
         else:
             # If list of lists, then first element is cmd and second element is expect_string
-            for cmd, expect_string in commands:
+            for cmd, expect_string in commands:  # type: ignore
                 # If expect_string is null-string use default_expect_string
                 if not expect_string:
                     expect_string = default_expect_string
-                output += self.send_command(cmd, expect_string=expect_string, **kwargs)
+                new_data = self.send_command(cmd, expect_string=expect_string, **kwargs)
+                assert isinstance(new_data, str)
+                output += new_data
         return output
 
     def send_multiline_timing(
-        self, commands: Iterator, multiline=True, **kwargs: Any
+        self, commands: Iterator[str], multiline: bool = True, **kwargs: Any
     ) -> str:
         if multiline:
             kwargs = self._multiline_kwargs(**kwargs)
         output = ""
         for cmd in commands:
-            output += self.send_command_timing(cmd, **kwargs)
+            new_data = self.send_command_timing(cmd, **kwargs)
+            assert isinstance(new_data, str)
+            output += new_data
         return output
 
     @staticmethod
@@ -1849,7 +1851,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         return output
 
     def send_config_from_file(
-        self, config_file: Optional[str] = None, **kwargs: Any
+        self, config_file: Union[str, bytes, "PathLike[Any]"], **kwargs: Any
     ) -> str:
         """
         Send configuration commands down the SSH channel from a file.
@@ -1868,7 +1870,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_config_set(
         self,
-        config_commands: Union[str, Iterator, None] = None,
+        config_commands: Union[str, Iterator[str], None] = None,
         exit_config_mode: bool = True,
         delay_factor: float = 1.0,
         max_loops: int = 150,
@@ -1916,7 +1918,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         if config_commands is None:
             return ""
         elif isinstance(config_commands, str):
-            config_commands = (config_commands,)
+            config_commands = (config_commands,)  # type: ignore
 
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
@@ -1924,8 +1926,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         # Send config commands
         output = ""
         if enter_config_mode:
-            cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
-            output += self.config_mode(*cfg_mode_args)
+            if config_mode_command:
+                output += self.config_mode(config_mode_command)
+            else:
+                output += self.config_mode()
 
         # If error_pattern is perform output gathering line by line and not fast_cli mode.
         if self.fast_cli and self._legacy_mode and not error_pattern:
@@ -2081,7 +2085,8 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def paramiko_cleanup(self) -> None:
         """Cleanup Paramiko to try to gracefully handle SSH session ending."""
-        self.remote_conn_pre.close()
+        if self.remote_conn_pre is not None:
+            self.remote_conn_pre.close()
         del self.remote_conn_pre
 
     def disconnect(self) -> None:
@@ -2091,9 +2096,9 @@ You can also look at the Netmiko session_log or debug log for more information.
             if self.protocol == "ssh":
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":
-                self.remote_conn.close()
+                self.remote_conn.close()  # type: ignore
             elif self.protocol == "serial":
-                self.remote_conn.close()
+                self.remote_conn.close()  # type: ignore
         except Exception:
             # There have been race conditions observed on disconnect.
             pass
@@ -2114,8 +2119,11 @@ You can also look at the Netmiko session_log or debug log for more information.
         raise NotImplementedError
 
     def run_ttp(
-        self, template, res_kwargs: Optional[Dict[str, Any]] = None, **kwargs: Any
-    ):
+        self,
+        template: Union[str, bytes, "PathLike[Any]"],
+        res_kwargs: Optional[Dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
         """
         Run TTP template parsing by using input parameters to collect
         devices output.

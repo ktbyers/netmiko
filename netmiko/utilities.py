@@ -17,6 +17,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
+    from os import PathLike
 
 try:
     from ttp import ttp
@@ -395,21 +396,22 @@ def get_structured_data_ttp(raw_output, template=None):
         return raw_output
 
 
-def run_ttp_template(connection, template, res_kwargs, **kwargs):
+def run_ttp_template(
+    connection: "BaseConnection",
+    template: Union[str, bytes, "PathLike[Any]"],
+    res_kwargs: Dict[str, Any],
+    **kwargs: Any,
+) -> Any:
     """
     Helper function to run TTP template parsing.
 
     :param connection: Netmiko connection object
-    :type connection: obj
 
     :param template: TTP template
-    :type template: str
 
     :param res_kwargs: ``**res_kwargs`` arguments for TTP result method
-    :type res_kwargs: dict
 
     :param kwargs: ``**kwargs`` for TTP object instantiation
-    :type kwargs: dict
     """
     if not TTP_INSTALLED:
         msg = "\nTTP is not installed. Please PIP install ttp:\n" "pip install ttp\n"
@@ -519,7 +521,7 @@ def structured_data_converter(
     use_genie: bool = False,
     textfsm_template: Optional[str] = None,
     ttp_template: Optional[str] = None,
-) -> Union[List[Any], Dict[str, Any], str]:
+) -> Union[str, List[Any], Dict[str, Any]]:
     """
     Try structured data converters in the following order: TextFSM, TTP, Genie.
 
