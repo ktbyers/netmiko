@@ -1,10 +1,11 @@
 """Extreme support."""
 import time
 import re
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ExtremeExosBase(CiscoSSHConnection):
+class ExtremeExosBase(NoConfig, CiscoSSHConnection):
     """Extreme Exos support.
 
     Designed for EXOS >= 15.0
@@ -53,19 +54,9 @@ class ExtremeExosBase(CiscoSSHConnection):
         self.set_base_prompt()
         return super().send_command(*args, **kwargs)
 
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """No configuration mode on Extreme Exos."""
-        return ""
-
     def check_config_mode(self, check_string="#"):
         """Checks whether in configuration mode. Returns a boolean."""
         return super().check_config_mode(check_string=check_string)
-
-    def exit_config_mode(self, exit_config=""):
-        """No configuration mode on Extreme Exos."""
-        return ""
 
     def save_config(
         self, cmd="save configuration primary", confirm=False, confirm_response=""

@@ -10,11 +10,12 @@
 from typing import Optional
 import time
 import warnings
+from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 
 
-class CdotCrosSSH(CiscoBaseConnection):
+class CdotCrosSSH(NoEnable, CiscoBaseConnection):
     """Implement methods for interacting with CROS network devices."""
 
     def session_preparation(self):
@@ -92,18 +93,6 @@ class CdotCrosSSH(CiscoBaseConnection):
         if and_quit:
             self.exit_config_mode()
         return output
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on CROS."""
-        return True
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on CROS."""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on CROS."""
-        return ""
 
     def _disable_complete_on_space(self):
         """

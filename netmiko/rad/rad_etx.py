@@ -1,8 +1,9 @@
 import time
+from netmiko.no_enable import NoEnable
 from netmiko.base_connection import BaseConnection
 
 
-class RadETXBase(BaseConnection):
+class RadETXBase(NoEnable, BaseConnection):
     """RAD ETX Support, Tested on RAD 203AX, 205A and 220A."""
 
     def session_preparation(self):
@@ -26,18 +27,6 @@ class RadETXBase(BaseConnection):
             # Some devices are slow so match on trailing-prompt if you can
             output = self.send_command(command_string=cmd)
         return output
-
-    def check_enable_mode(self, *args, **kwargs):
-        """The Rad ETX software does not have an enable."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """The Rad ETX software does not have an enable."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """The Rad ETX software does not have an enable."""
-        pass
 
     def config_mode(
         self,

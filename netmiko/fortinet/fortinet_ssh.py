@@ -1,10 +1,11 @@
 import paramiko
 import time
 import re
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class FortinetSSH(CiscoSSHConnection):
+class FortinetSSH(NoConfig, CiscoSSHConnection):
     def _modify_connection_params(self):
         """Modify connection parameters prior to SSH connection."""
         paramiko.Transport._preferred_kex = (
@@ -97,16 +98,6 @@ class FortinetSSH(CiscoSSHConnection):
             for command in enable_paging_commands:
                 self.send_command_timing(command)
         return super().cleanup(command=command)
-
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """No config mode for Fortinet devices."""
-        return ""
-
-    def exit_config_mode(self, exit_config=""):
-        """No config mode for Fortinet devices."""
-        return ""
 
     def save_config(self, *args, **kwargs):
         """Not Implemented"""

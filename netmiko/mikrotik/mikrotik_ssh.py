@@ -1,7 +1,8 @@
+from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class MikrotikBase(CiscoSSHConnection):
+class MikrotikBase(NoEnable, CiscoSSHConnection):
     """Common Methods for Mikrotik RouterOS and SwitchOS"""
 
     def __init__(self, **kwargs):
@@ -32,18 +33,6 @@ class MikrotikBase(CiscoSSHConnection):
 
     def disable_paging(self, *args, **kwargs):
         """Microtik does not have paging by default."""
-        return ""
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on RouterOS"""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on RouterOS."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on RouterOS."""
         return ""
 
     def save_config(self, *args, **kwargs):

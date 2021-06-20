@@ -1,11 +1,12 @@
 from typing import Optional
 import time
 import warnings
+from netmiko.no_enable import NoEnable
 from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
-class SixwindOSBase(CiscoBaseConnection):
+class SixwindOSBase(NoEnable, CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -94,21 +95,6 @@ class SixwindOSBase(CiscoBaseConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
-
-    def check_enable_mode(self, *args, **kwargs):
-        """6WIND has no enable mode."""
-
-        pass
-
-    def enable(self, *args, **kwargs):
-        """6WIND has no enable mode."""
-
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """6WIND has no enable mode."""
-
-        pass
 
 
 class SixwindOSSSH(SixwindOSBase):

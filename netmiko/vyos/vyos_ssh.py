@@ -1,11 +1,12 @@
 from typing import Optional
 import time
 import warnings
+from netmiko.no_enable import NoEnable
 from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class VyOSSSH(CiscoSSHConnection):
+class VyOSSSH(NoEnable, CiscoSSHConnection):
     """Implement methods for interacting with VyOS network devices."""
 
     def session_preparation(self):
@@ -17,18 +18,6 @@ class VyOSSSH(CiscoSSHConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on VyOS."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on VyOS."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on VyOS."""
-        pass
 
     def check_config_mode(self, check_string="#"):
         """Checks if the device is in configuration mode"""

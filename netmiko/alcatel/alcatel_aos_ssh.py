@@ -1,9 +1,11 @@
 """Alcatel-Lucent Enterprise AOS support (AOS6 and AOS8)."""
 import time
+from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class AlcatelAosSSH(CiscoSSHConnection):
+class AlcatelAosSSH(NoEnable, NoConfig, CiscoSSHConnection):
     """Alcatel-Lucent Enterprise AOS support (AOS6 and AOS8)."""
 
     def session_preparation(self):
@@ -13,32 +15,6 @@ class AlcatelAosSSH(CiscoSSHConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on AOS"""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on AOS"""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on AOS"""
-        pass
-
-    def check_config_mode(self, *args, **kwargs):
-        """No config mode on AOS"""
-        pass
-
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """No config mode on AOS"""
-        return ""
-
-    def exit_config_mode(self, *args, **kwargs):
-        """No config mode on AOS"""
-        return ""
 
     def save_config(
         self, cmd="write memory flash-synchro", confirm=False, confirm_response=""

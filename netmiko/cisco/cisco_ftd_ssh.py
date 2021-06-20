@@ -1,8 +1,10 @@
 """Subclass specific to Cisco FTD."""
+from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class CiscoFtdSSH(CiscoSSHConnection):
+class CiscoFtdSSH(NoEnable, NoConfig, CiscoSSHConnection):
     """Subclass specific to Cisco FTD."""
 
     def session_preparation(self):
@@ -14,16 +16,6 @@ class CiscoFtdSSH(CiscoSSHConnection):
         """Canot change config on FTD via ssh"""
         raise NotImplementedError
 
-    def enable(self, *args, **kwargs):
-        """No enable mode on firepower ssh"""
-        return ""
-
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """No config mode on firepower ssh"""
-        return ""
-
-    def check_config_mode(self, *args, **kwargs):
-        """No config mode on firepower ssh"""
+    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
+        """Canot change config on FTD via ssh"""
         return False
