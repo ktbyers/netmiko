@@ -1,9 +1,9 @@
 import time
-
+from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
 
 
-class NetscalerSSH(BaseConnection):
+class NetscalerSSH(NoConfig, BaseConnection):
     """Netscaler SSH class."""
 
     def session_preparation(self):
@@ -37,20 +37,6 @@ class NetscalerSSH(BaseConnection):
             # Strip off trailing terminator
             self.base_prompt = prompt[:-1]
         return self.base_prompt
-
-    def check_config_mode(self):
-        """Netscaler devices do not have a config mode."""
-        return False
-
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """Netscaler devices do not have a config mode."""
-        return ""
-
-    def exit_config_mode(self):
-        """Netscaler devices do not have a config mode."""
-        return ""
 
     def strip_prompt(self, a_string):
         """Strip 'Done' from command output"""
