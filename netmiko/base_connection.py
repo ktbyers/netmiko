@@ -20,6 +20,7 @@ from typing import (
     Tuple,
     Deque,
 )
+from typing import TYPE_CHECKING
 from types import TracebackType
 import io
 import re
@@ -27,7 +28,7 @@ import socket
 import telnetlib
 import time
 from collections import deque
-from os import path, PathLike
+from os import path
 from threading import Lock
 import functools
 
@@ -56,6 +57,8 @@ from netmiko.utilities import (
 )
 from netmiko.utilities import m_exec_time  # noqa
 
+if TYPE_CHECKING:
+    from os import PathLike
 
 # For decorators
 F = TypeVar("F", bound=Callable[..., Any])
@@ -1848,7 +1851,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         return output
 
     def send_config_from_file(
-        self, config_file: Union[str, bytes, PathLike[Any]], **kwargs: Any
+        self, config_file: Union[str, bytes, "PathLike[Any]"], **kwargs: Any
     ) -> str:
         """
         Send configuration commands down the SSH channel from a file.
@@ -2117,7 +2120,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def run_ttp(
         self,
-        template: Union[str, bytes, PathLike[Any]],
+        template: Union[str, bytes, "PathLike[Any]"],
         res_kwargs: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Any:

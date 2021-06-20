@@ -17,6 +17,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
+    from os import PathLike
 
 try:
     from ttp import ttp
@@ -397,7 +398,7 @@ def get_structured_data_ttp(raw_output, template=None):
 
 def run_ttp_template(
     connection: "BaseConnection",
-    template: Union[str, bytes, os.PathLike[Any]],
+    template: Union[str, bytes, "PathLike[Any]"],
     res_kwargs: Dict[str, Any],
     **kwargs: Any,
 ) -> Any:
