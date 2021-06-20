@@ -1,8 +1,9 @@
 import time
+from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
 
 
-class F5TmshSSH(BaseConnection):
+class F5TmshSSH(NoConfig, BaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
@@ -42,17 +43,3 @@ class F5TmshSSH(BaseConnection):
         # Always try to send final 'exit' (command)
         self._session_log_fin = True
         self.write_channel(command + self.RETURN)
-
-    def check_config_mode(self, check_string="", pattern=""):
-        """Checks if the device is in configuration mode or not."""
-        return True
-
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """No config mode for F5 devices."""
-        return ""
-
-    def exit_config_mode(self, exit_config=""):
-        """No config mode for F5 devices."""
-        return ""

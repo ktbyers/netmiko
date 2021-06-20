@@ -2,13 +2,13 @@
 Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution by Dell Technologies Driver
 - supports dellenterprisesonic.
 """
-
+from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
 import time
 
 
-class DellSonicSSH(CiscoSSHConnection):
+class DellSonicSSH(NoEnable, CiscoSSHConnection):
     """
     Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution
     by Dell Technologies Driver - supports dellenterprisesonic.
@@ -39,18 +39,6 @@ class DellSonicSSH(CiscoSSHConnection):
         log.debug("Enter sonic-cli Shell.")
         output = self.send_command("sonic-cli", expect_string=r"\#")
         return output
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on Enterprise SONiC."""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Enterprise SONiC."""
-        return ""
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on Enterprise SONiC."""
-        return True
 
     def _return_cli(self):
         """Return to the CLI."""

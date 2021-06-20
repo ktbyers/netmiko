@@ -1,18 +1,11 @@
 """Support for Extreme NOS/VDX."""
 import time
+from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ExtremeNosSSH(CiscoSSHConnection):
+class ExtremeNosSSH(NoEnable, CiscoSSHConnection):
     """Support for Extreme NOS/VDX."""
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on Extreme VDX."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Extreme VDX."""
-        pass
 
     def special_login_handler(self, delay_factor=1):
         """Adding a delay after login."""

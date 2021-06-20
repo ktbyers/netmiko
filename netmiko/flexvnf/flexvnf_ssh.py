@@ -3,10 +3,11 @@ import re
 import time
 import warnings
 
+from netmiko.no_enable import NoEnable
 from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 
 
-class FlexvnfSSH(BaseConnection):
+class FlexvnfSSH(NoEnable, BaseConnection):
     def session_preparation(self):
         """
         Prepare the session after the connection has been established.
@@ -42,18 +43,6 @@ class FlexvnfSSH(BaseConnection):
             elif ">" in cur_prompt or "%" in cur_prompt:
                 break
             count += 1
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on flexvnf."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on flexvnf."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on flexvnf."""
-        pass
 
     def check_config_mode(self, check_string="]"):
         """Checks if the device is in configuration mode or not."""
