@@ -3,15 +3,15 @@ import time
 import warnings
 from typing import Optional
 
+from netmiko.no_enable import NoEnable
 from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class JuniperBase(BaseConnection):
+class JuniperBase(NoEnable, BaseConnection):
     """
     Implement methods for interacting with Juniper Networks devices.
 
-    Disables `enable()` and `check_enable_mode()`
     methods.  Overrides several methods for Juniper-specific compatibility.
     """
 
@@ -61,18 +61,6 @@ class JuniperBase(BaseConnection):
             elif ">" in cur_prompt or "#" in cur_prompt:
                 break
             count += 1
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on Juniper."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on Juniper."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Juniper."""
-        pass
 
     def check_config_mode(self, check_string="]"):
         """Checks if the device is in configuration mode or not."""

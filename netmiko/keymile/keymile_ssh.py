@@ -1,9 +1,11 @@
 import time
 
+from netmiko.no_config import NoConfig
+from netmiko.no_enable import NoEnable
 from netmiko.cisco.cisco_ios import CiscoIosBase
 
 
-class KeymileSSH(CiscoIosBase):
+class KeymileSSH(NoEnable, NoConfig, CiscoIosBase):
     def __init__(self, **kwargs):
         kwargs.setdefault("default_enter", "\r\n")
         return super().__init__(**kwargs)
@@ -17,32 +19,6 @@ class KeymileSSH(CiscoIosBase):
 
     def disable_paging(self, *args, **kwargs):
         """Keymile does not use paging."""
-        return ""
-
-    def check_config_mode(self, *args, **kwargs):
-        """Keymile does not use config mode."""
-        return False
-
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """Keymile does not use config mode."""
-        return ""
-
-    def exit_config_mode(self, *args, **kwargs):
-        """Keymile does not use config mode."""
-        return ""
-
-    def check_enable_mode(self, *args, **kwargs):
-        """Keymile does not use enable mode."""
-        return False
-
-    def enable(self, *args, **kwargs):
-        """Keymile does not use enable mode."""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """Keymile does not use enable mode."""
         return ""
 
     def strip_prompt(self, a_string):

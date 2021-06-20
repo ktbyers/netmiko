@@ -1,9 +1,11 @@
 """SophosXG (SFOS) Firewall support"""
 import time
+from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class SophosSfosSSH(CiscoSSHConnection):
+class SophosSfosSSH(NoEnable, NoConfig, CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
@@ -29,32 +31,6 @@ class SophosSfosSSH(CiscoSSHConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on SFOS"""
-        return True
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on SFOS"""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on SFOS"""
-        return ""
-
-    def check_config_mode(self, *args, **kwargs):
-        """No config mode on SFOS"""
-        return False
-
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """No config mode on SFOS"""
-        return ""
-
-    def exit_config_mode(self, *args, **kwargs):
-        """No config mode on SFOS"""
-        return ""
 
     def save_config(self, *args, **kwargs):
         """Not Implemented"""
