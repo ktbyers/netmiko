@@ -162,131 +162,97 @@ class BaseConnection:
 
         :param ip: IP address of target device. Not required if `host` is
             provided.
-        :type ip: str
 
         :param host: Hostname of target device. Not required if `ip` is
                 provided.
-        :type host: str
 
         :param username: Username to authenticate against target device if
                 required.
-        :type username: str
 
         :param password: Password to authenticate against target device if
                 required.
-        :type password: str
 
         :param secret: The enable password if target device requires one.
-        :type secret: str
 
         :param port: The destination port used to connect to the target
                 device.
-        :type port: int or None
 
         :param device_type: Class selection based on device type.
-        :type device_type: str
 
         :param verbose: Enable additional messages to standard output.
-        :type verbose: bool
 
         :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-        :type global_delay_factor: int
 
         :param use_keys: Connect to target device using SSH keys.
-        :type use_keys: bool
 
         :param key_file: Filename path of the SSH key file to use.
-        :type key_file: str
 
         :param pkey: SSH key object to use.
-        :type pkey: paramiko.PKey
 
         :param passphrase: Passphrase to use for encrypted key; password will be used for key
                 decryption if not specified.
-        :type passphrase: str
 
         :param allow_agent: Enable use of SSH key-agent.
-        :type allow_agent: bool
 
         :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
                 means unknown SSH host keys will be accepted).
-        :type ssh_strict: bool
 
         :param system_host_keys: Load host keys from the users known_hosts file.
-        :type system_host_keys: bool
+
         :param alt_host_keys: If `True` host keys will be loaded from the file specified in
                 alt_key_file.
-        :type alt_host_keys: bool
 
         :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-        :type alt_key_file: str
 
         :param ssh_config_file: File name of OpenSSH configuration file.
-        :type ssh_config_file: str
 
         :param timeout: Connection timeout.
-        :type timeout: float
 
         :param session_timeout: Set a timeout for parallel requests.
-        :type session_timeout: float
 
         :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-        :type auth_timeout: float
 
         :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-        :type banner_timeout: float
 
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
                 to keep the connection alive).
-        :type keepalive: int
 
         :param default_enter: Character(s) to send to correspond to enter key (default: \n).
-        :type default_enter: str
 
         :param response_return: Character(s) to use in normalized return data to represent
                 enter key (default: \n)
-        :type response_return: str
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: False)
-        :type fast_cli: boolean
 
         :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-        :type session_log: str
 
         :param session_log_record_writes: The session log generally only records channel reads due
                 to eliminate command duplication due to command echo. You can enable this if you
                 want to record both channel reads and channel writes in the log (default: False).
-        :type session_log_record_writes: boolean
 
         :param session_log_file_mode: "write" or "append" for session_log file mode
                 (default: "write")
-        :type session_log_file_mode: str
 
         :param allow_auto_change: Allow automatic configuration changes for terminal settings.
                 (default: False)
-        :type allow_auto_change: bool
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
                 (default: ascii)
-        :type encoding: str
 
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
-        :type sock: socket
 
         :param global_cmd_verify: Control whether command echo verification is enabled or disabled
                 (default: None). Global attribute takes precedence over function `cmd_verify`
                 argument. Value of `None` indicates to use function `cmd_verify` argument.
-        :type global_cmd_verify: bool|None
 
         :param auto_connect: Control whether Netmiko automatically establishes the connection as
                 part of the object creation (default: True).
-        :type auto_connect: bool
         """
-        self.remote_conn = None
+        self.remote_conn = None     # type: Union[telnetlib.Telnet, serial.Serial, None]
         # Does the platform support a configuration mode
         self._config_mode = True
         self._read_buffer = ""

@@ -49,7 +49,7 @@ class DellIsilonSSH(BaseConnection):
         """Isilon doesn't have paging by default."""
         pass
 
-    def check_enable_mode(self, check_string: str = r"\#") -> bool:
+    def check_enable_mode(self, check_string: str = "#") -> bool:
         return super().check_enable_mode(check_string=check_string)
 
     def enable(
@@ -77,7 +77,7 @@ class DellIsilonSSH(BaseConnection):
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string: str = r"\#", pattern: str = "") -> str:
+    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> str:
         """Use equivalent enable method."""
         return self.check_enable_mode(check_string=check_string)
 
