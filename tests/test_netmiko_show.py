@@ -193,6 +193,63 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         assert isinstance(show_ip_alt, dict)
 
 
+def test_send_multiline_timing(net_connect):
+
+    if (
+        "cisco_ios" not in net_connect.device_type
+        and "cisco_xe" not in net_connect.device_type
+    ):
+        assert pytest.skip()
+    count = 100
+    cmd_list = ["ping", "", "8.8.8.8", str(count), "", "", "", ""]
+    output = net_connect.send_multiline_timing(cmd_list)
+    assert output.count("!") >= 95
+
+
+def test_send_multiline(net_connect):
+
+    debug = False
+    if (
+        "cisco_ios" not in net_connect.device_type
+        and "cisco_xe" not in net_connect.device_type
+    ):
+        assert pytest.skip()
+    commands = (
+        ("ping", r"ip"),
+        ("", r"Target IP address"),
+        ("8.8.8.8", "Repeat count"),
+        ("100", "Datagram size"),
+        ("", "Timeout in seconds"),
+        ("", "Extended"),
+        ("", "Sweep"),
+        ("", ""),
+    )
+    output = net_connect.send_multiline(commands)
+    if debug:
+        print(output)
+    assert output.count("!") >= 95
+
+
+def test_send_multiline_prompt(net_connect):
+
+    debug = False
+    if (
+        "cisco_ios" not in net_connect.device_type
+        and "cisco_xe" not in net_connect.device_type
+    ):
+        assert pytest.skip()
+    commands = (
+        ("show ip int brief", ""),
+        ("show interfaces", ""),
+        ("show version", ""),
+    )
+    output = net_connect.send_multiline(commands)
+    if debug:
+        print(output)
+    assert "is down" in output
+    assert "Configuration register" in output
+
+
 def test_base_prompt(net_connect, commands, expected_responses):
     """Verify the router prompt is detected correctly."""
     assert net_connect.base_prompt == expected_responses["base_prompt"]

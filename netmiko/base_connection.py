@@ -1601,7 +1601,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         """
         output = ""
         if multiline:
-            kwargs = self._multiline_kwargs(kwargs)
+            kwargs = self._multiline_kwargs(**kwargs)
 
         default_expect_string = kwargs.pop("expect_string", None)
         if not default_expect_string:
@@ -1611,9 +1611,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         for cmd, expect_string in commands:
             if not expect_string:
                 expect_string = default_expect_string
-            import ipdb
 
-            ipdb.set_trace()
             output += self.send_command(cmd, expect_string=expect_string, **kwargs)
         return output
 
@@ -1621,7 +1619,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         self, commands: Iterator, multiline=True, **kwargs: Any
     ) -> str:
         if multiline:
-            kwargs = self._multiline_kwargs(kwargs)
+            kwargs = self._multiline_kwargs(**kwargs)
         output = ""
         for cmd in commands:
             output += self.send_command_timing(cmd, **kwargs)
