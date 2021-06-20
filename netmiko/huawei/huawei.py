@@ -2,13 +2,15 @@ from typing import Optional
 import time
 import re
 import warnings
+
+from netmiko.no_enable import NoEnable
 from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko import log
 
 
-class HuaweiBase(CiscoBaseConnection):
+class HuaweiBase(NoEnable, CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -47,18 +49,6 @@ class HuaweiBase(CiscoBaseConnection):
     def check_config_mode(self, check_string="]"):
         """Checks whether in configuration mode. Returns a boolean."""
         return super().check_config_mode(check_string=check_string)
-
-    def check_enable_mode(self, *args, **kwargs):
-        """Huawei has no enable mode."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """Huawei has no enable mode."""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """Huawei has no enable mode."""
-        return ""
 
     def set_base_prompt(
         self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1
