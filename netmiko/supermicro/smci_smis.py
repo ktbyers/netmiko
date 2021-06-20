@@ -1,8 +1,9 @@
 from netmiko.cisco_base_connection import CiscoBaseConnection
+from netmiko.no_enable import NoEnable
 import time
 
 
-class SmciSwitchSmisBase(CiscoBaseConnection):
+class SmciSwitchSmisBase(NoEnable, CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
@@ -18,14 +19,6 @@ class SmciSwitchSmisBase(CiscoBaseConnection):
     def check_enable_mode(self, check_string="#"):
         """Check if in enable mode. Return boolean."""
         return super().check_enable_mode(check_string=check_string)
-
-    def enable(self, *args, **kwargs):
-        """Supermicro switch does not support enable-mode command"""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """Supermicro switch does not support enable-mode command"""
-        return ""
 
     def save_config(
         self, cmd="write startup-config", confirm=False, confirm_response=""
