@@ -519,7 +519,7 @@ def structured_data_converter(
     use_genie: bool = False,
     textfsm_template: Optional[str] = None,
     ttp_template: Optional[str] = None,
-) -> Union[List[Any], Dict[str, Any], str]:
+) -> Union[str, List[Any], Dict[str, Any]]:
     """
     Try structured data converters in the following order: TextFSM, TTP, Genie.
 

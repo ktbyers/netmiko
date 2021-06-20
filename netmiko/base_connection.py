@@ -10,6 +10,7 @@ from typing import (
     Optional,
     Callable,
     Any,
+    List,
     Dict,
     TypeVar,
     cast,
@@ -17,6 +18,7 @@ from typing import (
     Iterator,
     Union,
     Tuple,
+    Deque,
 )
 from types import TracebackType
 import io
@@ -43,7 +45,7 @@ from netmiko.ssh_exception import (
     ReadException,
     ReadTimeout,
 )
-from netmiko.channel import SSHChannel, TelnetChannel, SerialChannel
+from netmiko.channel import Channel, SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.utilities import (
     write_bytes,
@@ -252,7 +254,9 @@ class BaseConnection:
         :param auto_connect: Control whether Netmiko automatically establishes the connection as
                 part of the object creation (default: True).
         """
-        self.remote_conn = None     # type: Union[telnetlib.Telnet, serial.Serial, None]
+        self.remote_conn: Union[
+            None, telnetlib.Telnet, paramiko.Channel, serial.Serial
+        ] = None
         # Does the platform support a configuration mode
         self._config_mode = True
         self._read_buffer = ""
@@ -481,9 +485,10 @@ class BaseConnection:
                 # IAC = Interpret as Command; it comes before the NOP.
                 log.debug("Sending IAC + NOP")
                 # Need to send multiple times to test connection
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)
+                assert isinstance(self.remote_conn, telnetlib.Telnet)
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)  # type: ignore
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)  # type: ignore
+                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)  # type: ignore
                 return True
             except AttributeError:
                 return False
@@ -493,7 +498,10 @@ class BaseConnection:
                 # Try sending ASCII null byte to maintain the connection alive
                 log.debug("Sending the NULL byte")
                 self.write_channel(null)
-                return self.remote_conn.transport.is_active()
+                assert isinstance(self.remote_conn, paramiko.Channel)
+                result = self.remote_conn.transport.is_active()
+                assert isinstance(result, bool)
+                return result
             except (socket.error, EOFError):
                 log.error("Unable to send", exc_info=True)
                 # If unable to send, we can tell for sure that the connection is unusable
@@ -932,6 +940,7 @@ You can look at the Netmiko session_log or debug log for more information.
         :param height: Specified height of the VT100 terminal window (default: 1000)
         :type height: int
         """
+        self.channel: Channel
         if self.protocol == "telnet":
             self.remote_conn = telnetlib.Telnet(
                 self.host, port=self.port, timeout=self.timeout
@@ -1015,7 +1024,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
             # Migrating communication to channel class
             self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
-        return ""
+        return None
 
     def _test_channel_read(self, count: int = 40, pattern: str = "") -> str:
         """Try to read the channel (generally post login) verify you receive data back.
@@ -1059,7 +1068,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         else:
             raise NetmikoTimeoutException("Timed out waiting for data")
 
-    def _build_ssh_client(self):
+    def _build_ssh_client(self) -> paramiko.SSHClient:
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
         remote_conn_pre = paramiko.SSHClient()
@@ -1093,7 +1102,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             else:
                 return self.global_delay_factor
 
-    def special_login_handler(self, delay_factor=1):
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
         pass
 
@@ -1103,7 +1112,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor: Optional[float] = None,
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
-    ):
+    ) -> str:
         """Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
@@ -1134,7 +1143,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor: Optional[float] = None,
         cmd_verify: bool = False,
         pattern: Optional[str] = None,
-    ):
+    ) -> str:
         """CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
@@ -1163,8 +1172,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
     # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
     @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5),
-        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=0.33, min=0, max=5),  # type: ignore
+        stop=stop_after_attempt(5),  # type: ignore
         reraise=True,
     )
     def set_base_prompt(
@@ -1249,7 +1258,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 sleep_time *= 2
                 sleep_time = 3 if sleep_time >= 3 else sleep_time
 
-    def command_echo_read(self, cmd, read_timeout):
+    def command_echo_read(self, cmd: str, read_timeout: float) -> str:
 
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
@@ -1284,7 +1293,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = False,
-    ) -> str:
+    ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
 
@@ -1337,7 +1346,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             command_string=command_string,
             strip_prompt=strip_prompt,
         )
-        output = structured_data_converter(
+        return_data = structured_data_converter(
             command=command_string,
             raw_data=output,
             platform=self.device_type,
@@ -1347,7 +1356,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             textfsm_template=textfsm_template,
             ttp_template=ttp_template,
         )
-        return output
+        return return_data
 
     def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output.
@@ -1362,7 +1371,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         else:
             return a_string
 
-    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple[str, str]:
+    def _first_line_handler(self, data: str, search_pattern: str) -> Tuple[str, bool]:
         """
         In certain situations the first line will get repainted which causes a false
         match on the terminating pattern.
@@ -1417,7 +1426,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = True,
-    ) -> str:
+    ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
         network device prompt is detected. The current network device prompt will be determined
@@ -1485,7 +1494,7 @@ where x is the total number of seconds to wait before timing out.\n"""
             new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
 
         output = ""
-        past_three_reads = deque(maxlen=3)
+        past_three_reads: Deque[str] = deque(maxlen=3)
         first_line_processed = False
 
         # Keep reading data until search_pattern is found or until read_timeout
