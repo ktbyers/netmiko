@@ -231,6 +231,7 @@ def test_send_multiline(net_connect):
 
 
 def test_send_multiline_prompt(net_connect):
+    """Use send_multiline, but use device's prompt as expect_string"""
 
     debug = False
     if (
@@ -243,6 +244,30 @@ def test_send_multiline_prompt(net_connect):
         ("show interfaces", ""),
         ("show version", ""),
     )
+    output = net_connect.send_multiline(commands)
+    if debug:
+        print(output)
+    assert "is down" in output
+    assert "Configuration register" in output
+
+
+def test_send_multiline_simple(net_connect):
+    """
+    Use send_multiline with commands in a list. Device's prompt will be the
+    expect_string between each command.
+    """
+
+    debug = False
+    if (
+        "cisco_ios" not in net_connect.device_type
+        and "cisco_xe" not in net_connect.device_type
+    ):
+        assert pytest.skip()
+    commands = [
+        "show ip int brief",
+        "show interfaces",
+        "show version",
+    ]
     output = net_connect.send_multiline(commands)
     if debug:
         print(output)

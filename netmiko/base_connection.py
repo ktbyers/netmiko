@@ -1608,11 +1608,19 @@ You can also look at the Netmiko session_log or debug log for more information.
             auto_find_prompt = kwargs.get("auto_find_prompt", True)
             default_expect_string = self._prompt_handler(auto_find_prompt)
 
-        for cmd, expect_string in commands:
-            if not expect_string:
-                expect_string = default_expect_string
-
-            output += self.send_command(cmd, expect_string=expect_string, **kwargs)
+        if commands and isinstance(commands[0], str):
+            # If list of commands just send directly using default_expect_string (probably prompt)
+            for cmd in commands:
+                output += self.send_command(
+                    cmd, expect_string=default_expect_string, **kwargs
+                )
+        else:
+            # If list of lists, then first element is cmd and second element is expect_string
+            for cmd, expect_string in commands:
+                # If expect_string is null-string use default_expect_string
+                if not expect_string:
+                    expect_string = default_expect_string
+                output += self.send_command(cmd, expect_string=expect_string, **kwargs)
         return output
 
     def send_multiline_timing(
