@@ -5,7 +5,6 @@ For use with Aruba OS Controllers.
 
 """
 import time
-import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -41,12 +40,15 @@ class ArubaSSH(CiscoSSHConnection):
 
         Aruba uses "(<controller name>) (config) #" as config prompt
         """
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="configure term", pattern=""):
-        """
-        Aruba auto completes on space so 'configure' needs fully spelled-out.
-        """
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self,
+        config_command: str = "configure term",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
+        """Aruba auto completes on space so 'configure' needs fully spelled-out."""
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )

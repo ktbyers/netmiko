@@ -1,8 +1,12 @@
+from typing import Optional
 import time
+import warnings
+from netmiko.no_enable import NoEnable
+from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class VyOSSSH(CiscoSSHConnection):
+class VyOSSSH(NoEnable, CiscoSSHConnection):
     """Implement methods for interacting with VyOS network devices."""
 
     def session_preparation(self):
@@ -15,25 +19,19 @@ class VyOSSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on VyOS."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on VyOS."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on VyOS."""
-        pass
-
     def check_config_mode(self, check_string="#"):
         """Checks if the device is in configuration mode"""
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configure", pattern=r"[edit]"):
-        """Enter configuration mode."""
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self,
+        config_command: str = "configure",
+        pattern: str = r"\[edit\]",
+        re_flags: int = 0,
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="exit", pattern=r"exit"):
         """Exit configuration mode"""
@@ -50,7 +48,12 @@ class VyOSSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit configuration mode")
         return output
 
-    def commit(self, comment="", delay_factor=0.1):
+    def commit(
+        self,
+        comment: str = "",
+        read_timeout: float = 120,
+        delay_factor: Optional[float] = None,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -62,8 +65,13 @@ class VyOSSSH(CiscoSSHConnection):
         comment:
            command_string = commit comment <comment>
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         error_marker = ["Failed to generate committed config", "Commit failed"]
         command_string = "commit"
 
@@ -75,7 +83,7 @@ class VyOSSSH(CiscoSSHConnection):
             command_string,
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
 
         if any(x in output for x in error_marker):

@@ -1,9 +1,12 @@
-black==18.9b0
+black==21.6b0
+mypy==0.902
+mypy-extensions==0.4.3
 PyYAML==5.4
 pytest==5.1.2
 pylama==7.7.1
 twine==1.13.0
 pysnmp==4.4.12
 pdoc3==0.6.3
+types-paramiko
 -r requirements.txt
 -r requirements-ttp.txt

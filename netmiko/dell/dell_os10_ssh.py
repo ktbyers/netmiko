@@ -78,14 +78,14 @@ class DellOS10FileTransfer(BaseFileTransfer):
         )
 
     def remote_md5(self, base_cmd="verify /md5", remote_file=None):
-        """Calculate remote MD5 and returns the hash. """
+        """Calculate remote MD5 and returns the hash."""
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = f'system "md5sum {self.file_system}/{remote_file}"'
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, read_timeout=300)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5.strip()
 

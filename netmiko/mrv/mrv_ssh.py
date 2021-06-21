@@ -25,7 +25,7 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
             output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
+                pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
             if not self.check_enable_mode():
                 msg = (

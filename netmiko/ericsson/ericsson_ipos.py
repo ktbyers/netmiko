@@ -1,6 +1,8 @@
+from typing import Optional
 import re
+import warnings
 
-from netmiko.base_connection import BaseConnection
+from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 
 
 class EricssonIposSSH(BaseConnection):
@@ -14,18 +16,15 @@ class EricssonIposSSH(BaseConnection):
         """Enter enable mode."""
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
-    def disable_paging(self, command="terminal length 0", delay_factor=1):
+    def disable_paging(self, command="terminal length 0"):
         """Disable paging default to a Cisco CLI method.
 
         :param command: Device command to disable pagination of output
         :type command: str
-
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
         """
-        return super().disable_paging(command=command, delay_factor=delay_factor)
+        return super().disable_paging(command=command)
 
-    def set_terminal_width(self, command="terminal width 512", delay_factor=1):
+    def set_terminal_width(self, command="terminal width 512"):
         """CLI terminals try to automatically adjust the line based on the width of the terminal.
         This causes the output to get distorted when accessed programmatically.
 
@@ -33,11 +32,8 @@ class EricssonIposSSH(BaseConnection):
 
         :param command: Command string to send to the device
         :type command: str
-
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
         """
-        return super().set_terminal_width(command=command, delay_factor=delay_factor)
+        return super().set_terminal_width(command=command)
 
     def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         """Ericsson IPOS requires you not exit from configuration mode."""
@@ -57,13 +53,12 @@ class EricssonIposSSH(BaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="configure", pattern=""):
-        """
-        Enter into configuration mode on remote device.
-        """
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="end", pattern="#"):
         """
@@ -94,7 +89,14 @@ class EricssonIposSSH(BaseConnection):
             )
         return output
 
-    def commit(self, confirm=False, confirm_delay=None, comment="", delay_factor=1):
+    def commit(
+        self,
+        confirm: bool = False,
+        confirm_delay=None,
+        comment: str = "",
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ):
         """
         Commit the candidate configuration.
 
@@ -103,10 +105,11 @@ class EricssonIposSSH(BaseConnection):
 
         Automatically enters configuration mode
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
-
-        delay_factor = self.select_delay_factor(delay_factor)
-
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
         if confirm_delay and not confirm:
             raise ValueError(
                 "Invalid arguments supplied to commit method both confirm and check"
@@ -129,11 +132,11 @@ class EricssonIposSSH(BaseConnection):
 
         output = self.config_mode()
 
-        output += self.send_command_expect(
+        output += self.send_command(
             command_string,
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
 
         if commit_marker not in output:

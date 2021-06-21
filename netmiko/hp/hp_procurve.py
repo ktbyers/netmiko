@@ -58,7 +58,7 @@ class HPProcurveBase(CiscoSSHConnection):
             if re.search(pattern, new_output, flags=re_flags):
                 output += new_output
                 self.write_channel(self.normalize_cmd(self.secret))
-                new_output = self._read_channel_timing()
+                new_output = self.read_channel_timing()
                 if self.check_enable_mode():
                     output += new_output
                     return output

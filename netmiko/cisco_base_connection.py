@@ -1,35 +1,36 @@
 """CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
+from typing import Optional
+import re
+import time
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 from netmiko.ssh_exception import NetmikoAuthenticationException
-import re
-import time
 
 
 class CiscoBaseConnection(BaseConnection):
     """Base Class for cisco-like behavior."""
 
-    def check_enable_mode(self, check_string="#"):
+    def check_enable_mode(self, check_string: str = "#") -> bool:
         """Check if in enable mode. Return boolean."""
         return super().check_enable_mode(check_string=check_string)
 
     def enable(
         self,
-        cmd="enable",
-        pattern="ssword",
-        enable_pattern=None,
-        re_flags=re.IGNORECASE,
-    ):
+        cmd: str = "enable",
+        pattern: str = "ssword",
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Enter enable mode."""
         return super().enable(
             cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
         )
 
-    def exit_enable_mode(self, exit_command="disable"):
+    def exit_enable_mode(self, exit_command: str = "disable") -> str:
         """Exits enable (privileged exec) mode."""
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string=")#", pattern=""):
+    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
         """
         Checks if the device is in configuration mode or not.
 
@@ -37,31 +38,29 @@ class CiscoBaseConnection(BaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="configure terminal", pattern="", re_flags=0):
-        """
-        Enter into configuration mode on remote device.
-
-        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-        """
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
+    def config_mode(
+        self,
+        config_command: str = "configure terminal",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="end", pattern=r"\#"):
+    def exit_config_mode(self, exit_config: str = "end", pattern: str = r"#.*") -> str:
         """Exit from configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def serial_login(
         self,
-        pri_prompt_terminator=r"\#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"\#\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(?:user:|username|login)",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
         self.write_channel(self.TELNET_RETURN)
         output = self.read_channel()
         if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
@@ -80,17 +79,16 @@ class CiscoBaseConnection(BaseConnection):
 
     def telnet_login(
         self,
-        pri_prompt_terminator=r"\#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"\#\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(?:user:|username|login|user name)",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
         """Telnet login. Can be username/password or just password."""
         delay_factor = self.select_delay_factor(delay_factor)
 
-        # FIX: Cleanup in future versions of Netmiko
         if delay_factor < 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -119,6 +117,7 @@ class CiscoBaseConnection(BaseConnection):
                     # Search for password pattern / send password
                     if re.search(pwd_pattern, output, flags=re.I):
                         # Sometimes username/password must be terminated with "\r" and not "\r\n"
+                        assert isinstance(self.password, str)
                         self.write_channel(self.password + "\r")
                         time.sleep(0.5 * delay_factor)
                         output = self.read_channel()
@@ -146,9 +145,12 @@ class CiscoBaseConnection(BaseConnection):
 
                     # Check for device with no password configured
                     if re.search(r"assword required, but none set", output):
+                        assert self.remote_conn is not None
                         self.remote_conn.close()
-                        msg = "Login failed - Password required, but none set: {}".format(
-                            self.host
+                        msg = (
+                            "Login failed - Password required, but none set: {}".format(
+                                self.host
+                            )
                         )
                         raise NetmikoAuthenticationException(msg)
 
@@ -161,6 +163,7 @@ class CiscoBaseConnection(BaseConnection):
                     i += 1
 
                 except EOFError:
+                    assert self.remote_conn is not None
                     self.remote_conn.close()
                     msg = f"Login failed: {self.host}"
                     raise NetmikoAuthenticationException(msg)
@@ -180,11 +183,12 @@ class CiscoBaseConnection(BaseConnection):
         ):
             return return_msg
 
+        assert self.remote_conn is not None
         self.remote_conn.close()
         msg = f"Login failed: {self.host}"
         raise NetmikoAuthenticationException(msg)
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
@@ -193,10 +197,13 @@ class CiscoBaseConnection(BaseConnection):
         except Exception:
             pass
         # Always try to send final 'exit' (command)
-        self._session_log_fin = True
+        if self.session_log:
+            self.session_log.fin = True
         self.write_channel(command + self.RETURN)
 
-    def _autodetect_fs(self, cmd="dir", pattern=r"Directory of (.*)/"):
+    def _autodetect_fs(
+        self, cmd: str = "dir", pattern: str = r"Directory of (.*)/"
+    ) -> str:
         """Autodetect the file system on the remote device. Used by SCP operations."""
         if not self.check_enable_mode():
             raise ValueError("Must be in enable mode to auto-detect the file-system.")
@@ -222,10 +229,10 @@ class CiscoBaseConnection(BaseConnection):
 
     def save_config(
         self,
-        cmd="copy running-config startup-config",
-        confirm=False,
-        confirm_response="",
-    ):
+        cmd: str = "copy running-config startup-config",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves Config."""
         self.enable()
         if confirm:

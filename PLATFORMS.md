@@ -49,6 +49,7 @@
 - Pluribus
 - Ruckus ICX/FastIron
 - Ruijie Networks
+- Supermicro SMIS
 - TPLink JetStream
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
@@ -66,6 +67,7 @@
 - Ciena SAOS
 - Citrix Netscaler
 - Cisco Telepresence
+- Cisco Viptela
 - Check Point GAiA
 - Coriant
 - Dell OS6

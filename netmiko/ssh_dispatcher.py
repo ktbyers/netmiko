@@ -26,6 +26,7 @@ from netmiko.cisco import (
 from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH
 from netmiko.cisco import CiscoTpTcCeSSH
+from netmiko.cisco import CiscoViptelaSSH
 from netmiko.cisco import CiscoWlcSSH
 from netmiko.cisco import CiscoXrSSH, CiscoXrTelnet, CiscoXrFileTransfer
 from netmiko.citrix import NetscalerSSH
@@ -35,6 +36,7 @@ from netmiko.dell import DellDNOS6SSH
 from netmiko.dell import DellDNOS6Telnet
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellOS10SSH, DellOS10FileTransfer
+from netmiko.dell import DellSonicSSH
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
@@ -99,6 +101,8 @@ from netmiko.yamaha import YamahaSSH
 from netmiko.yamaha import YamahaTelnet
 from netmiko.zte import ZteZxrosSSH
 from netmiko.zte import ZteZxrosTelnet
+from netmiko.supermicro import SmciSwitchSmisSSH
+from netmiko.supermicro import SmciSwitchSmisTelnet
 
 GenericSSH = TerminalServerSSH
 GenericTelnet = TerminalServerTelnet
@@ -136,6 +140,7 @@ CLASS_MAPPER_BASE = {
     "cisco_nxos": CiscoNxosSSH,
     "cisco_s300": CiscoS300SSH,
     "cisco_tp": CiscoTpTcCeSSH,
+    "cisco_viptela": CiscoViptelaSSH,
     "cisco_wlc": CiscoWlcSSH,
     "cisco_xe": CiscoIosSSH,
     "cisco_xr": CiscoXrSSH,
@@ -146,6 +151,7 @@ CLASS_MAPPER_BASE = {
     "dell_os6": DellDNOS6SSH,
     "dell_os9": DellForce10SSH,
     "dell_os10": DellOS10SSH,
+    "dell_sonic": DellSonicSSH,
     "dell_powerconnect": DellPowerConnectSSH,
     "dell_isilon": DellIsilonSSH,
     "dlink_ds": DlinkDSSSH,
@@ -204,6 +210,7 @@ CLASS_MAPPER_BASE = {
     "ruijie_os": RuijieOSSSH,
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
+    "supermicro_smis": SmciSwitchSmisSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
@@ -271,16 +278,17 @@ CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
-CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
+CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
+CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
+CLASS_MAPPER["supermicro_smis_telnet"] = SmciSwitchSmisTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
-CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial

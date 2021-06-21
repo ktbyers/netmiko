@@ -1,4 +1,6 @@
 """Miscellaneous utility functions."""
+from typing import Any, AnyStr, TypeVar, Callable, cast, Optional, Union, List, Dict
+from typing import TYPE_CHECKING
 from glob import glob
 import sys
 import io
@@ -9,6 +11,13 @@ from datetime import datetime
 from netmiko._textfsm import _clitable as clitable
 from netmiko._textfsm._clitable import CliTableError
 from netmiko import log
+
+# For decorators
+F = TypeVar("F", bound=Callable[..., Any])
+
+if TYPE_CHECKING:
+    from netmiko.base_connection import BaseConnection
+    from os import PathLike
 
 try:
     from ttp import ttp
@@ -203,7 +212,7 @@ def find_netmiko_dir():
     return (netmiko_base_dir, netmiko_full_dir)
 
 
-def write_bytes(out_data, encoding="ascii"):
+def write_bytes(out_data: AnyStr, encoding: str = "ascii") -> bytes:
     """Legacy for Python2 and Python3 compatible byte stream."""
     if sys.version_info[0] >= 3:
         if isinstance(out_data, type("")):
@@ -219,7 +228,7 @@ def write_bytes(out_data, encoding="ascii"):
     raise ValueError(msg)
 
 
-def check_serial_port(name):
+def check_serial_port(name: str) -> str:
     """returns valid COM Port."""
 
     if not PYSERIAL_INSTALLED:
@@ -248,7 +257,7 @@ def get_template_dir(_skip_ntc_package=False):
     Order of preference is:
     1) Find directory in `NET_TEXTFSM` Environment Variable.
     2) Check for pip installed `ntc-templates` location in this environment.
-    3) ~/ntc-templates/templates.
+    3) ~/ntc-templates/ntc_templates/templates.
 
     If `index` file is not found in any of these locations, raise ValueError
 
@@ -279,18 +288,20 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
         # Try 'pip installed' ntc-templates
         try:
             with importresources_path(
-                package="ntc_templates", resource="templates"
+                package="ntc_templates", resource="parse.py"
             ) as posix_path:
                 # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
-                template_dir = str(posix_path)
+                template_dir = str(posix_path.parent.joinpath("templates"))
                 # This is for Netmiko automated testing
                 if _skip_ntc_package:
                     raise ModuleNotFoundError()
 
         except ModuleNotFoundError:
-            # Finally check in ~/ntc-templates/templates
+            # Finally check in ~/ntc-templates/ntc_templates/templates
             home_dir = os.path.expanduser("~")
-            template_dir = os.path.join(home_dir, "ntc-templates", "templates")
+            template_dir = os.path.join(
+                home_dir, "ntc-templates", "ntc_templates", "templates"
+            )
 
     index = os.path.join(template_dir, "index")
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
@@ -320,11 +331,12 @@ def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
         structured_data = clitable_to_dict(textfsm_obj)
         output = raw_output if structured_data == [] else structured_data
         return output
+
     except (FileNotFoundError, CliTableError):
         return raw_output
 
 
-def get_structured_data(raw_output, platform=None, command=None, template=None):
+def get_structured_data_textfsm(raw_output, platform=None, command=None, template=None):
     """
     Convert raw CLI output to structured data using TextFSM template.
 
@@ -344,7 +356,12 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
         template_dir = get_template_dir()
         index_file = os.path.join(template_dir, "index")
         textfsm_obj = clitable.CliTable(index_file, template_dir)
-        return _textfsm_parse(textfsm_obj, raw_output, attrs)
+        output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        # Retry the output if "cisco_xe" and not structured data
+        if not isinstance(output, list) and "cisco_xe" in platform:
+            attrs["Platform"] = "cisco_ios"
+            output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        return output
     else:
         template_path = Path(os.path.expanduser(template))
         template_file = template_path.name
@@ -354,6 +371,10 @@ def get_structured_data(raw_output, platform=None, command=None, template=None):
         return _textfsm_parse(
             textfsm_obj, raw_output, attrs, template_file=template_file
         )
+
+
+# For compatibility
+get_structured_data = get_structured_data_textfsm
 
 
 def get_structured_data_ttp(raw_output, template=None):
@@ -375,21 +396,22 @@ def get_structured_data_ttp(raw_output, template=None):
         return raw_output
 
 
-def run_ttp_template(connection, template, res_kwargs, **kwargs):
+def run_ttp_template(
+    connection: "BaseConnection",
+    template: Union[str, bytes, "PathLike[Any]"],
+    res_kwargs: Dict[str, Any],
+    **kwargs: Any,
+) -> Any:
     """
     Helper function to run TTP template parsing.
 
     :param connection: Netmiko connection object
-    :type connection: obj
 
     :param template: TTP template
-    :type template: str
 
     :param res_kwargs: ``**res_kwargs`` arguments for TTP result method
-    :type res_kwargs: dict
 
     :param kwargs: ``**kwargs`` for TTP object instantiation
-    :type kwargs: dict
     """
     if not TTP_INSTALLED:
         msg = "\nTTP is not installed. Please PIP install ttp:\n" "pip install ttp\n"
@@ -442,7 +464,7 @@ def run_ttp_template(connection, template, res_kwargs, **kwargs):
     return parser.result(**res_kwargs)
 
 
-def get_structured_data_genie(raw_output, platform, command):
+def get_structured_data_genie(raw_output: str, platform: str, command: str):
     if not sys.version_info >= (3, 4):
         raise ValueError("Genie requires Python >= 3.4")
 
@@ -490,21 +512,58 @@ def get_structured_data_genie(raw_output, platform, command):
         return raw_output
 
 
-def select_cmd_verify(func):
+def structured_data_converter(
+    raw_data: str,
+    command: str,
+    platform: str,
+    use_textfsm: bool = False,
+    use_ttp: bool = False,
+    use_genie: bool = False,
+    textfsm_template: Optional[str] = None,
+    ttp_template: Optional[str] = None,
+) -> Union[str, List[Any], Dict[str, Any]]:
+    """
+    Try structured data converters in the following order: TextFSM, TTP, Genie.
+
+    Return the first structured data found, else return the raw_data as-is.
+    """
+    command = command.strip()
+    if use_textfsm:
+        structured_output = get_structured_data_textfsm(
+            raw_data, platform=platform, command=command, template=textfsm_template
+        )
+        if not isinstance(structured_output, str):
+            return structured_output
+
+    if use_ttp:
+        structured_output = get_structured_data_ttp(raw_data, template=ttp_template)
+        if not isinstance(structured_output, str):
+            return structured_output
+
+    if use_genie:
+        structured_output = get_structured_data_genie(
+            raw_data, platform=platform, command=command
+        )
+        if not isinstance(structured_output, str):
+            return structured_output
+    return raw_data
+
+
+def select_cmd_verify(func: F) -> F:
     """Override function cmd_verify argument with global setting."""
 
     @functools.wraps(func)
-    def wrapper_decorator(self, *args, **kwargs):
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
         if self.global_cmd_verify is not None:
             kwargs["cmd_verify"] = self.global_cmd_verify
         return func(self, *args, **kwargs)
 
-    return wrapper_decorator
+    return cast(F, wrapper_decorator)
 
 
-def m_exec_time(func):
+def m_exec_time(func: F) -> F:
     @functools.wraps(func)
-    def wrapper_decorator(self, *args, **kwargs):
+    def wrapper_decorator(self: Any, *args: Any, **kwargs: Any) -> Any:
         start_time = datetime.now()
         result = func(self, *args, **kwargs)
         end_time = datetime.now()
@@ -512,16 +571,16 @@ def m_exec_time(func):
         print(f"{method_name}: Elapsed time: {end_time - start_time}")
         return result
 
-    return wrapper_decorator
+    return cast(F, wrapper_decorator)
 
 
-def f_exec_time(func):
+def f_exec_time(func: F) -> F:
     @functools.wraps(func)
-    def wrapper_decorator(*args, **kwargs):
+    def wrapper_decorator(*args: Any, **kwargs: Any) -> Any:
         start_time = datetime.now()
         result = func(*args, **kwargs)
         end_time = datetime.now()
         print(f"Elapsed time: {end_time - start_time}")
         return result
 
-    return wrapper_decorator
+    return cast(F, wrapper_decorator)

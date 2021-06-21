@@ -97,6 +97,23 @@ class CiscoWlcSSH(BaseConnection):
             output = self.strip_prompt(output)
         return output
 
+    def send_command_w_yes(self, *args, **kwargs):
+        """
+        For 'show interface summary' Cisco WLC adds a
+        'Would you like to display the next 15 entries?' message
+        Even though pagination is disabled
+        Arguments are the same as send_command_timing() method
+        """
+        output = self.send_command_timing(*args, **kwargs)
+        if "(y/n)" in output:
+            output += self.send_command_timing("y")
+        strip_prompt = kwargs.get("strip_prompt", True)
+        if strip_prompt:
+            # Had to strip trailing prompt twice.
+            output = self.strip_prompt(output)
+            output = self.strip_prompt(output)
+        return output
+
     def session_preparation(self):
         """
         Prepare the session after the connection has been established
@@ -158,16 +175,16 @@ class CiscoWlcSSH(BaseConnection):
             pattern = re.escape(self.base_prompt)
         return super().check_config_mode(check_string, pattern)
 
-    def config_mode(self, config_command="config", pattern=""):
+    def config_mode(
+        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """Enter into config_mode."""
-        if not pattern:
-            pattern = re.escape(self.base_prompt)
-        return super().config_mode(config_command, pattern)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="exit", pattern=""):
         """Exit config_mode."""
-        if not pattern:
-            pattern = re.escape(self.base_prompt)
         return super().exit_config_mode(exit_config, pattern)
 
     def send_config_set(

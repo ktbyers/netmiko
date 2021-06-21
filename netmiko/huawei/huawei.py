@@ -1,11 +1,16 @@
+from typing import Optional
 import time
 import re
+import warnings
+
+from netmiko.no_enable import NoEnable
+from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from netmiko import log
 
 
-class HuaweiBase(CiscoBaseConnection):
+class HuaweiBase(NoEnable, CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -30,9 +35,12 @@ class HuaweiBase(CiscoBaseConnection):
 
         return super().strip_ansi_escape_codes(output)
 
-    def config_mode(self, config_command="system-view"):
-        """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+    def config_mode(
+        self, config_command: str = "system-view", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="return", pattern=r">"):
         """Exit configuration mode."""
@@ -41,18 +49,6 @@ class HuaweiBase(CiscoBaseConnection):
     def check_config_mode(self, check_string="]"):
         """Checks whether in configuration mode. Returns a boolean."""
         return super().check_config_mode(check_string=check_string)
-
-    def check_enable_mode(self, *args, **kwargs):
-        """Huawei has no enable mode."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """Huawei has no enable mode."""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """Huawei has no enable mode."""
-        return ""
 
     def set_base_prompt(
         self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1
@@ -74,7 +70,6 @@ class HuaweiBase(CiscoBaseConnection):
         time.sleep(0.5 * delay_factor)
 
         prompt = self.read_channel()
-        prompt = self.normalize_linefeeds(prompt)
 
         # If multiple lines in the output take the last line
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
@@ -96,7 +91,7 @@ class HuaweiBase(CiscoBaseConnection):
         return self.base_prompt
 
     def save_config(self, cmd="save", confirm=True, confirm_response="y"):
-        """ Save Config for HuaweiSSH"""
+        """Save Config for HuaweiSSH"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
@@ -195,7 +190,12 @@ class HuaweiTelnet(HuaweiBase):
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
-    def commit(self, comment="", delay_factor=1):
+    def commit(
+        self,
+        comment: str = "",
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -207,8 +207,12 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         comment:
            command_string = commit comment <comment>
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         error_marker = "Failed to generate committed config"
         command_string = "commit"
 
@@ -216,11 +220,11 @@ class HuaweiVrpv8SSH(HuaweiSSH):
             command_string += f' comment "{comment}"'
 
         output = self.config_mode()
-        output += self.send_command_expect(
+        output += self.send_command(
             command_string,
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
             expect_string=r"]",
         )
         output += self.exit_config_mode()

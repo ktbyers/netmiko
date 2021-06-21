@@ -1,18 +1,11 @@
 """Support for Extreme SLX."""
 import time
+from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ExtremeSlxSSH(CiscoSSHConnection):
+class ExtremeSlxSSH(NoEnable, CiscoSSHConnection):
     """Support for Extreme SLX."""
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on Extreme SLX."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Extreme Slx."""
-        pass
 
     def special_login_handler(self, delay_factor=1):
         """Adding a delay after login."""

@@ -40,6 +40,7 @@ from netmiko.ssh_exception import (
     NetmikoAuthenticationException,
     NetMikoAuthenticationException,
 )
+from netmiko.ssh_exception import ConfigInvalidException
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_functions import file_transfer, progress_bar
@@ -56,6 +57,7 @@ __all__ = (
     &#34;FileTransfer&#34;,
     &#34;NetmikoTimeoutException&#34;,
     &#34;NetmikoAuthenticationException&#34;,
+    &#34;ConfigInvalidException&#34;,
     &#34;NetMikoTimeoutException&#34;,
     &#34;NetMikoAuthenticationException&#34;,
     &#34;InLineTransfer&#34;,
@@ -90,6 +92,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dd>
 <section class="desc"></section>
 </dd>
+<dt><code class="name"><a title="netmiko.allied_telesis" href="allied_telesis/index.html">netmiko.allied_telesis</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
 <dt><code class="name"><a title="netmiko.apresia" href="apresia/index.html">netmiko.apresia</a></code></dt>
 <dd>
 <section class="desc"></section>
@@ -110,7 +116,15 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dd>
 <section class="desc"></section>
 </dd>
+<dt><code class="name"><a title="netmiko.brocade" href="brocade/index.html">netmiko.brocade</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
 <dt><code class="name"><a title="netmiko.calix" href="calix/index.html">netmiko.calix</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="netmiko.cdot" href="cdot/index.html">netmiko.cdot</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -301,6 +315,10 @@ Netmiko connection …</p></section>
 a new SSH connection with a remote host. This …</p></section>
 </dd>
 <dt><code class="name"><a title="netmiko.ssh_exception" href="ssh_exception.html">netmiko.ssh_exception</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="netmiko.supermicro" href="supermicro/index.html">netmiko.supermicro</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -919,6 +937,8 @@ with terminal server.</p></section>
         :type auto_connect: bool
         &#34;&#34;&#34;
         self.remote_conn = None
+        # Does the platform support a configuration mode
+        self._config_mode = True
 
         self.TELNET_RETURN = &#34;\r\n&#34;
         if default_enter is None:
@@ -1830,7 +1850,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
     # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
     @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)
+        wait=wait_exponential(multiplier=0.33, min=0, max=5),
+        stop=stop_after_attempt(5),
+        reraise=True,
     )
     def set_base_prompt(
         self, pri_prompt_terminator=&#34;#&#34;, alt_prompt_terminator=&#34;&gt;&#34;, delay_factor=1
@@ -2370,19 +2392,32 @@ Device settings: {self.device_type} {self.host}:{self.port}
             &#34;Failed to enter enable mode. Please ensure you pass &#34;
             &#34;the &#39;secret&#39; argument to ConnectHandler.&#34;
         )
+
+        # Check if in enable mode
         if not self.check_enable_mode():
+            # Send &#34;enable&#34; mode command
             self.write_channel(self.normalize_cmd(cmd))
             try:
-                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
-                if pattern not in output:
+                # Read the command echo
+                end_data = &#34;&#34;
+                if self.global_cmd_verify is not False:
+                    output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                    end_data = output.split(cmd.strip())[-1]
+
+                # Search for trailing prompt or password pattern
+                if pattern not in output and self.base_prompt not in end_data:
                     output += self.read_until_prompt_or_pattern(
                         pattern=pattern, re_flags=re_flags
                     )
-                self.write_channel(self.normalize_cmd(self.secret))
-                if enable_pattern:
+                # Send the &#34;secret&#34; in response to password pattern
+                if re.search(pattern, output):
+                    self.write_channel(self.normalize_cmd(self.secret))
+                    output += self.read_until_prompt()
+
+                # Search for terminating pattern if defined
+                if enable_pattern and not re.search(enable_pattern, output):
                     output += self.read_until_pattern(pattern=enable_pattern)
                 else:
-                    output += self.read_until_prompt()
                     if not self.check_enable_mode():
                         raise ValueError(msg)
             except NetmikoTimeoutException:
@@ -2499,6 +2534,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         config_mode_command=None,
         cmd_verify=True,
         enter_config_mode=True,
+        error_pattern=&#34;&#34;,
     ):
         &#34;&#34;&#34;
         Send configuration commands down the SSH channel.
@@ -2535,6 +2571,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param enter_config_mode: Do you enter config mode before sending config commands
         :type exit_config_mode: bool
 
+        :param error_pattern: Regular expression pattern to detect config errors in the
+        output.
+        :type error_pattern: str
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
         if config_commands is None:
@@ -2551,21 +2590,35 @@ Device settings: {self.device_type} {self.host}:{self.port}
             cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
             output += self.config_mode(*cfg_mode_args)
 
-        if self.fast_cli and self._legacy_mode:
+        # If error_pattern is perform output gathering line by line and not fast_cli mode.
+        if self.fast_cli and self._legacy_mode and not error_pattern:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
             output += self._read_channel_timing(
                 delay_factor=delay_factor, max_loops=max_loops
             )
+
         elif not cmd_verify:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
                 time.sleep(delay_factor * 0.05)
-            # Gather output
-            output += self._read_channel_timing(
-                delay_factor=delay_factor, max_loops=max_loops
-            )
+
+                # Gather the output incrementally due to error_pattern requirements
+                if error_pattern:
+                    output += self._read_channel_timing(
+                        delay_factor=delay_factor, max_loops=max_loops
+                    )
+                    if re.search(error_pattern, output, flags=re.M):
+                        msg = f&#34;Invalid input detected at command: {cmd}&#34;
+                        raise ConfigInvalidException(msg)
+
+            # Standard output gathering (no error_pattern)
+            if not error_pattern:
+                output += self._read_channel_timing(
+                    delay_factor=delay_factor, max_loops=max_loops
+                )
+
         else:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
@@ -2582,6 +2635,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
                     # Even though the device hasn&#39;t caught up with processing command.
                     new_output = self.read_until_pattern(pattern=pattern)
                     output += new_output
+
+                if error_pattern:
+                    if re.search(error_pattern, output, flags=re.M):
+                        msg = f&#34;Invalid input detected at command: {cmd}&#34;
+                        raise ConfigInvalidException(msg)
 
         if exit_config_mode:
             output += self.exit_config_mode()
@@ -2733,7 +2791,42 @@ Device settings: {self.device_type} {self.host}:{self.port}
         &#34;&#34;&#34;Close the session_log file (if it is a file that we opened).&#34;&#34;&#34;
         if self.session_log is not None and self._session_log_close:
             self.session_log.close()
-            self.session_log = None</code></pre>
+            self.session_log = None
+
+    def run_ttp(self, template, res_kwargs={}, **kwargs):
+        &#34;&#34;&#34;
+        Run TTP template parsing by using input parameters to collect
+        devices output.
+
+        :param template: template content, OS path to template or reference
+            to template within TTP templates collection in
+            ttp://path/to/template.txt format
+        :type template: str
+
+        :param res_kwargs: ``**res_kwargs`` arguments to pass to TTP result method
+        :type res_kwargs: dict
+
+        :param kwargs: any other ``**kwargs`` to use for TTP object instantiation
+        :type kwargs: dict
+
+        TTP template must have inputs defined together with below parameters.
+
+        :param method: name of Netmiko connection object method to call, default ``send_command``
+        :type method: str
+
+        :param kwargs: Netmiko connection object method arguments
+        :type kwargs: dict
+
+        :param commands: list of commands to collect
+        :type commands: list
+
+        Inputs&#39; load could be of one of the supported formats and controlled by input&#39;s ``load``
+        attribute, supported values - python, yaml or json. For each input output collected
+        from device and parsed accordingly.
+        &#34;&#34;&#34;
+        return run_ttp_template(
+            connection=self, template=template, res_kwargs=res_kwargs, **kwargs
+        )</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -2750,7 +2843,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
 <li><a title="netmiko.juniper.juniper.JuniperBase" href="juniper/juniper.html#netmiko.juniper.juniper.JuniperBase">JuniperBase</a></li>
 <li><a title="netmiko.juniper.juniper_screenos.JuniperScreenOsSSH" href="juniper/juniper_screenos.html#netmiko.juniper.juniper_screenos.JuniperScreenOsSSH">JuniperScreenOsSSH</a></li>
 <li><a title="netmiko.netapp.netapp_cdot_ssh.NetAppcDotSSH" href="netapp/netapp_cdot_ssh.html#netmiko.netapp.netapp_cdot_ssh.NetAppcDotSSH">NetAppcDotSSH</a></li>
-<li><a title="netmiko.nokia.nokia_sros_ssh.NokiaSrosSSH" href="nokia/nokia_sros_ssh.html#netmiko.nokia.nokia_sros_ssh.NokiaSrosSSH">NokiaSrosSSH</a></li>
+<li><a title="netmiko.nokia.nokia_sros.NokiaSros" href="nokia/nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSros">NokiaSros</a></li>
 <li><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase" href="paloalto/paloalto_panos.html#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase">PaloAltoPanosBase</a></li>
 <li><a title="netmiko.pluribus.pluribus_ssh.PluribusSSH" href="pluribus/pluribus_ssh.html#netmiko.pluribus.pluribus_ssh.PluribusSSH">PluribusSSH</a></li>
 <li><a title="netmiko.rad.rad_etx.RadETXBase" href="rad/rad_etx.html#netmiko.rad.rad_etx.RadETXBase">RadETXBase</a></li>
@@ -3034,19 +3127,32 @@ def strip_backspaces(output):
         &#34;Failed to enter enable mode. Please ensure you pass &#34;
         &#34;the &#39;secret&#39; argument to ConnectHandler.&#34;
     )
+
+    # Check if in enable mode
     if not self.check_enable_mode():
+        # Send &#34;enable&#34; mode command
         self.write_channel(self.normalize_cmd(cmd))
         try:
-            output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
-            if pattern not in output:
+            # Read the command echo
+            end_data = &#34;&#34;
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                end_data = output.split(cmd.strip())[-1]
+
+            # Search for trailing prompt or password pattern
+            if pattern not in output and self.base_prompt not in end_data:
                 output += self.read_until_prompt_or_pattern(
                     pattern=pattern, re_flags=re_flags
                 )
-            self.write_channel(self.normalize_cmd(self.secret))
-            if enable_pattern:
+            # Send the &#34;secret&#34; in response to password pattern
+            if re.search(pattern, output):
+                self.write_channel(self.normalize_cmd(self.secret))
+                output += self.read_until_prompt()
+
+            # Search for terminating pattern if defined
+            if enable_pattern and not re.search(enable_pattern, output):
                 output += self.read_until_pattern(pattern=enable_pattern)
             else:
-                output += self.read_until_prompt()
                 if not self.check_enable_mode():
                     raise ValueError(msg)
         except NetmikoTimeoutException:
@@ -3462,6 +3568,68 @@ terminate output reading when the first of self.base_prompt or pattern is detect
     if pattern:
         combined_pattern = r&#34;({}|{})&#34;.format(combined_pattern, pattern)
     return self._read_channel_expect(combined_pattern, re_flags=re_flags)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.BaseConnection.run_ttp"><code class="name flex">
+<span>def <span class="ident">run_ttp</span></span>(<span>self, template, res_kwargs={}, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Run TTP template parsing by using input parameters to collect
+devices output.</p>
+<p>:param template: template content, OS path to template or reference
+to template within TTP templates collection in
+ttp://path/to/template.txt format
+:type template: str</p>
+<p>:param res_kwargs: <code>**res_kwargs</code> arguments to pass to TTP result method
+:type res_kwargs: dict</p>
+<p>:param kwargs: any other <code>**kwargs</code> to use for TTP object instantiation
+:type kwargs: dict</p>
+<p>TTP template must have inputs defined together with below parameters.</p>
+<p>:param method: name of Netmiko connection object method to call, default <code>send_command</code>
+:type method: str</p>
+<p>:param kwargs: Netmiko connection object method arguments
+:type kwargs: dict</p>
+<p>:param commands: list of commands to collect
+:type commands: list</p>
+<p>Inputs' load could be of one of the supported formats and controlled by input's <code>load</code>
+attribute, supported values - python, yaml or json. For each input output collected
+from device and parsed accordingly.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def run_ttp(self, template, res_kwargs={}, **kwargs):
+    &#34;&#34;&#34;
+    Run TTP template parsing by using input parameters to collect
+    devices output.
+
+    :param template: template content, OS path to template or reference
+        to template within TTP templates collection in
+        ttp://path/to/template.txt format
+    :type template: str
+
+    :param res_kwargs: ``**res_kwargs`` arguments to pass to TTP result method
+    :type res_kwargs: dict
+
+    :param kwargs: any other ``**kwargs`` to use for TTP object instantiation
+    :type kwargs: dict
+
+    TTP template must have inputs defined together with below parameters.
+
+    :param method: name of Netmiko connection object method to call, default ``send_command``
+    :type method: str
+
+    :param kwargs: Netmiko connection object method arguments
+    :type kwargs: dict
+
+    :param commands: list of commands to collect
+    :type commands: list
+
+    Inputs&#39; load could be of one of the supported formats and controlled by input&#39;s ``load``
+    attribute, supported values - python, yaml or json. For each input output collected
+    from device and parsed accordingly.
+    &#34;&#34;&#34;
+    return run_ttp_template(
+        connection=self, template=template, res_kwargs=res_kwargs, **kwargs
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.save_config"><code class="name flex">
@@ -3949,7 +4117,7 @@ SSH channel.</p>
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.send_config_set"><code class="name flex">
-<span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands=None, exit_config_mode=True, delay_factor=1, max_loops=150, strip_prompt=False, strip_command=False, config_mode_command=None, cmd_verify=True, enter_config_mode=True)</span>
+<span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands=None, exit_config_mode=True, delay_factor=1, max_loops=150, strip_prompt=False, strip_command=False, config_mode_command=None, cmd_verify=True, enter_config_mode=True, error_pattern='')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Send configuration commands down the SSH channel.</p>
@@ -3973,7 +4141,10 @@ The commands will be executed one after the other.</p>
 <p>:param cmd_verify: Whether or not to verify command echo for each command in config_set
 :type cmd_verify: bool</p>
 <p>:param enter_config_mode: Do you enter config mode before sending config commands
-:type exit_config_mode: bool</p></section>
+:type exit_config_mode: bool</p>
+<p>:param error_pattern: Regular expression pattern to detect config errors in the
+output.
+:type error_pattern: str</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def send_config_set(
@@ -3987,6 +4158,7 @@ The commands will be executed one after the other.</p>
     config_mode_command=None,
     cmd_verify=True,
     enter_config_mode=True,
+    error_pattern=&#34;&#34;,
 ):
     &#34;&#34;&#34;
     Send configuration commands down the SSH channel.
@@ -4023,6 +4195,9 @@ The commands will be executed one after the other.</p>
     :param enter_config_mode: Do you enter config mode before sending config commands
     :type exit_config_mode: bool
 
+    :param error_pattern: Regular expression pattern to detect config errors in the
+    output.
+    :type error_pattern: str
     &#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
     if config_commands is None:
@@ -4039,21 +4214,35 @@ The commands will be executed one after the other.</p>
         cfg_mode_args = (config_mode_command,) if config_mode_command else tuple()
         output += self.config_mode(*cfg_mode_args)
 
-    if self.fast_cli and self._legacy_mode:
+    # If error_pattern is perform output gathering line by line and not fast_cli mode.
+    if self.fast_cli and self._legacy_mode and not error_pattern:
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
         # Gather output
         output += self._read_channel_timing(
             delay_factor=delay_factor, max_loops=max_loops
         )
+
     elif not cmd_verify:
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
             time.sleep(delay_factor * 0.05)
-        # Gather output
-        output += self._read_channel_timing(
-            delay_factor=delay_factor, max_loops=max_loops
-        )
+
+            # Gather the output incrementally due to error_pattern requirements
+            if error_pattern:
+                output += self._read_channel_timing(
+                    delay_factor=delay_factor, max_loops=max_loops
+                )
+                if re.search(error_pattern, output, flags=re.M):
+                    msg = f&#34;Invalid input detected at command: {cmd}&#34;
+                    raise ConfigInvalidException(msg)
+
+        # Standard output gathering (no error_pattern)
+        if not error_pattern:
+            output += self._read_channel_timing(
+                delay_factor=delay_factor, max_loops=max_loops
+            )
+
     else:
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
@@ -4070,6 +4259,11 @@ The commands will be executed one after the other.</p>
                 # Even though the device hasn&#39;t caught up with processing command.
                 new_output = self.read_until_pattern(pattern=pattern)
                 output += new_output
+
+            if error_pattern:
+                if re.search(error_pattern, output, flags=re.M):
+                    msg = f&#34;Invalid input detected at command: {cmd}&#34;
+                    raise ConfigInvalidException(msg)
 
     if exit_config_mode:
         output += self.exit_config_mode()
@@ -4162,7 +4356,9 @@ entering/exiting config mode.</p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@retry(
-    wait=wait_exponential(multiplier=0.33, min=0, max=5), stop=stop_after_attempt(5)
+    wait=wait_exponential(multiplier=0.33, min=0, max=5),
+    stop=stop_after_attempt(5),
+    reraise=True,
 )
 def set_base_prompt(
     self, pri_prompt_terminator=&#34;#&#34;, alt_prompt_terminator=&#34;&gt;&#34;, delay_factor=1
@@ -4585,6 +4781,25 @@ Move cursor position leftward by x characters (1 in this case)</p>
 </details>
 </dd>
 </dl>
+</dd>
+<dt id="netmiko.ConfigInvalidException"><code class="flex name class">
+<span>class <span class="ident">ConfigInvalidException</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Exception raised for invalid configuration error.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class ConfigInvalidException(Exception):
+    &#34;&#34;&#34;Exception raised for invalid configuration error.&#34;&#34;&#34;
+
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
 </dd>
 <dt id="netmiko.InLineTransfer"><code class="flex name class">
 <span>class <span class="ident">InLineTransfer</span></span>
@@ -5352,12 +5567,15 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.accedian" href="accedian/index.html">netmiko.accedian</a></code></li>
 <li><code><a title="netmiko.adtran" href="adtran/index.html">netmiko.adtran</a></code></li>
 <li><code><a title="netmiko.alcatel" href="alcatel/index.html">netmiko.alcatel</a></code></li>
+<li><code><a title="netmiko.allied_telesis" href="allied_telesis/index.html">netmiko.allied_telesis</a></code></li>
 <li><code><a title="netmiko.apresia" href="apresia/index.html">netmiko.apresia</a></code></li>
 <li><code><a title="netmiko.arista" href="arista/index.html">netmiko.arista</a></code></li>
 <li><code><a title="netmiko.aruba" href="aruba/index.html">netmiko.aruba</a></code></li>
 <li><code><a title="netmiko.base_connection" href="base_connection.html">netmiko.base_connection</a></code></li>
 <li><code><a title="netmiko.broadcom" href="broadcom/index.html">netmiko.broadcom</a></code></li>
+<li><code><a title="netmiko.brocade" href="brocade/index.html">netmiko.brocade</a></code></li>
 <li><code><a title="netmiko.calix" href="calix/index.html">netmiko.calix</a></code></li>
+<li><code><a title="netmiko.cdot" href="cdot/index.html">netmiko.cdot</a></code></li>
 <li><code><a title="netmiko.centec" href="centec/index.html">netmiko.centec</a></code></li>
 <li><code><a title="netmiko.checkpoint" href="checkpoint/index.html">netmiko.checkpoint</a></code></li>
 <li><code><a title="netmiko.ciena" href="ciena/index.html">netmiko.ciena</a></code></li>
@@ -5405,6 +5623,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.sophos" href="sophos/index.html">netmiko.sophos</a></code></li>
 <li><code><a title="netmiko.ssh_autodetect" href="ssh_autodetect.html">netmiko.ssh_autodetect</a></code></li>
 <li><code><a title="netmiko.ssh_exception" href="ssh_exception.html">netmiko.ssh_exception</a></code></li>
+<li><code><a title="netmiko.supermicro" href="supermicro/index.html">netmiko.supermicro</a></code></li>
 <li><code><a title="netmiko.terminal_server" href="terminal_server/index.html">netmiko.terminal_server</a></code></li>
 <li><code><a title="netmiko.tplink" href="tplink/index.html">netmiko.tplink</a></code></li>
 <li><code><a title="netmiko.ubiquiti" href="ubiquiti/index.html">netmiko.ubiquiti</a></code></li>
@@ -5454,6 +5673,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.BaseConnection.read_until_pattern" href="#netmiko.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.BaseConnection.read_until_prompt" href="#netmiko.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.BaseConnection.read_until_prompt_or_pattern" href="#netmiko.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.BaseConnection.run_ttp" href="#netmiko.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.BaseConnection.save_config" href="#netmiko.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.BaseConnection.select_delay_factor" href="#netmiko.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.BaseConnection.send_command" href="#netmiko.BaseConnection.send_command">send_command</a></code></li>
@@ -5473,6 +5693,9 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.BaseConnection.telnet_login" href="#netmiko.BaseConnection.telnet_login">telnet_login</a></code></li>
 <li><code><a title="netmiko.BaseConnection.write_channel" href="#netmiko.BaseConnection.write_channel">write_channel</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="netmiko.ConfigInvalidException" href="#netmiko.ConfigInvalidException">ConfigInvalidException</a></code></h4>
 </li>
 <li>
 <h4><code><a title="netmiko.InLineTransfer" href="#netmiko.InLineTransfer">InLineTransfer</a></code></h4>

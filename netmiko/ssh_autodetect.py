@@ -140,7 +140,7 @@ SSH_MAPPER_BASE = {
     },
     "hp_comware": {
         "cmd": "display version",
-        "search_patterns": ["HPE Comware"],
+        "search_patterns": ["HPE Comware", "HP Comware"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -215,6 +215,12 @@ SSH_MAPPER_BASE = {
     "paloalto_panos": {
         "cmd": "show system info",
         "search_patterns": [r"model:\s+PA"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "supermicro_smis": {
+        "cmd": "show system info",
+        "search_patterns": [r"Super Micro Computer"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -325,7 +331,7 @@ class SSHDetect(object):
         """
         self.connection.write_channel(cmd + "\n")
         time.sleep(1)
-        output = self.connection._read_channel_timing()
+        output = self.connection.read_channel_timing()
         output = self.connection.strip_backspaces(output)
         return output
 
@@ -415,6 +421,7 @@ class SSHDetect(object):
             r"%Error",
             r"command not found",
             r"Syntax Error: unexpected argument",
+            r"% Unrecognized command found at",
         ]
         if not cmd or not search_patterns:
             return 0

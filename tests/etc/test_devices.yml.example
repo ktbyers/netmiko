@@ -101,6 +101,12 @@ dellos10:
   username: admin
   password: admin
 
+dell_sonic:
+  device_type: dell_sonic
+  ip: 192.168.23.130
+  username: admin
+  password: admin
+
 pluribus:
   device_type: pluribus_ssh
   ip: 172.17.19.1
@@ -203,6 +209,12 @@ centec_os:
   username: centec
   password: centec
   secret: centec
+
+supermicro_nos:
+  device_type: supermicro_nos
+  ip: 192.168.10.15
+  username: ADMIN
+  password: ADMIN
 
 sophos_sfos:
   device_type: sophos_sfos

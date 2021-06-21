@@ -42,9 +42,12 @@ class DellPowerConnectBase(CiscoBaseConnection):
         """Checks if the device is in configuration mode"""
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="config"):
-        """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+    def config_mode(
+        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
 
 class DellPowerConnectSSH(DellPowerConnectBase):

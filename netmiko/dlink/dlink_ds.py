@@ -1,8 +1,10 @@
+from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 import time
 
 
-class DlinkDSBase(CiscoSSHConnection):
+class DlinkDSBase(NoEnable, NoConfig, CiscoSSHConnection):
     """Supports D-Link DGS/DES device series (there are some DGS/DES devices that are web-only)"""
 
     def session_preparation(self):
@@ -15,32 +17,8 @@ class DlinkDSBase(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, command="disable clipaging", delay_factor=1):
-        return super().disable_paging(command=command, delay_factor=delay_factor)
-
-    def enable(self, *args, **kwargs):
-        """No implemented enable mode on D-Link yet"""
-        return ""
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No implemented enable mode on D-Link yet"""
-        return True
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No implemented enable mode on D-Link yet"""
-        return ""
-
-    def check_config_mode(self, *args, **kwargs):
-        """No config mode on D-Link"""
-        return False
-
-    def config_mode(self, *args, **kwargs):
-        """No config mode on D-Link"""
-        return ""
-
-    def exit_config_mode(self, *args, **kwargs):
-        """No config mode on D-Link"""
-        return ""
+    def disable_paging(self, command="disable clipaging"):
+        return super().disable_paging(command=command)
 
     def save_config(self, cmd="save", confirm=False, confirm_response=""):
         """Saves configuration."""

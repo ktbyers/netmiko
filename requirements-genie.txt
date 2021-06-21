@@ -1,2 +1,2 @@
-pyats==20.9
-genie==20.9
+pyats==21.4
+genie==21.4

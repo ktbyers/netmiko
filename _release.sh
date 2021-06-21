@@ -157,3 +157,8 @@ else
     TEST_VERSION=`python -c "import netmiko; print(netmiko.__version__)"`
     echo
 fi
+
+# FIX add a test for the entry points i.e. when loaded into netmiko_packaging do
+# netmiko-grep --help
+# netmiko-show --help
+# netmiko-cfg --help

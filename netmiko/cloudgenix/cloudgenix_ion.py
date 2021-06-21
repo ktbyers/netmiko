@@ -1,7 +1,8 @@
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class CloudGenixIonSSH(CiscoSSHConnection):
+class CloudGenixIonSSH(NoConfig, CiscoSSHConnection):
     def establish_connection(self):
         super().establish_connection(width=100, height=1000)
 
@@ -26,18 +27,6 @@ class CloudGenixIonSSH(CiscoSSHConnection):
         # command_string gets repainted potentially multiple times (grab everything after last one)
         output = output.split(command_string)[-1]
         return output
-
-    def check_config_mode(self):
-        """Devices do not have a config mode."""
-        return False
-
-    def config_mode(self):
-        """Devices do not have a config mode."""
-        return ""
-
-    def exit_config_mode(self):
-        """Devices do not have a config mode."""
-        return ""
 
     def save_config(self, *args, **kwargs):
         """No save method on ION SSH"""

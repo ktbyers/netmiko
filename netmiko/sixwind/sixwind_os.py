@@ -1,8 +1,12 @@
+from typing import Optional
 import time
+import warnings
+from netmiko.no_enable import NoEnable
+from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
-class SixwindOSBase(CiscoBaseConnection):
+class SixwindOSBase(NoEnable, CiscoBaseConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -30,19 +34,31 @@ class SixwindOSBase(CiscoBaseConnection):
         self.base_prompt = prompt
         return self.base_prompt
 
-    def config_mode(self, config_command="edit running", pattern=""):
-        """Enter configuration mode."""
+    def config_mode(
+        self, config_command: str = "edit running", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-        return super().config_mode(config_command=config_command, pattern=pattern)
-
-    def commit(self, comment="", delay_factor=1):
+    def commit(
+        self,
+        comment: str = "",
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -> str:
         """
         Commit the candidate configuration.
 
         Raise an error and return the failure if the commit fails.
+
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
 
-        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         error_marker = "Failed to generate committed config"
         command_string = "commit"
 
@@ -51,7 +67,7 @@ class SixwindOSBase(CiscoBaseConnection):
             command_string,
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
             expect_string=r"#",
         )
         output += self.exit_config_mode()
@@ -79,21 +95,6 @@ class SixwindOSBase(CiscoBaseConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
-
-    def check_enable_mode(self, *args, **kwargs):
-        """6WIND has no enable mode."""
-
-        pass
-
-    def enable(self, *args, **kwargs):
-        """6WIND has no enable mode."""
-
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """6WIND has no enable mode."""
-
-        pass
 
 
 class SixwindOSSSH(SixwindOSBase):

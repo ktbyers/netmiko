@@ -87,29 +87,39 @@ class NokiaSros(BaseConnection):
             cmd = "enable-admin"
         return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
 
-    def check_enable_mode(self, check_string="in admin mode"):
+    def check_enable_mode(self, check_string: str = "in admin mode") -> bool:
         """Check if in enable mode."""
         cmd = "enable"
         if "@" not in self.base_prompt:
             cmd = "enable-admin"
         self.write_channel(self.normalize_cmd(cmd))
-        output = self.read_until_prompt_or_pattern(pattern="ssword")
+        output = self.read_until_prompt_or_pattern(
+            pattern="ssword", read_entire_line=True
+        )
         if "ssword" in output:
             self.write_channel(self.RETURN)  # send ENTER to pass the password prompt
-            self.read_until_prompt()
+            self.read_until_prompt(read_entire_line=True)
         return check_string in output
 
     def exit_enable_mode(self, *args, **kwargs):
         """Nokia SR OS does not have a notion of exiting administrative mode"""
         return ""
 
-    def config_mode(self, config_command="edit-config exclusive", pattern=r"\(ex\)\["):
+    def config_mode(
+        self,
+        config_command: str = "edit-config exclusive",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
         """Enable config edit-mode for Nokia SR OS"""
         output = ""
+        if not pattern:
+            pattern = (rf"\(ex\)\[.*{self.base_prompt}.*$",)
+            re_flags = re.DOTALL
         # Only model-driven CLI supports config-mode
         if "@" in self.base_prompt:
             output += super().config_mode(
-                config_command=config_command, pattern=pattern
+                config_command=config_command, pattern=pattern, re_flags=re_flags
             )
         return output
 
@@ -126,8 +136,9 @@ class NokiaSros(BaseConnection):
             self.write_channel(self.normalize_cmd(cmd))
             if self.global_cmd_verify is not False:
                 output += self.read_until_pattern(pattern=re.escape(cmd))
+                output += self.read_until_prompt(read_entire_line=True)
             else:
-                output += self.read_until_prompt()
+                output += self.read_until_prompt(read_entire_line=True)
         if self.check_config_mode():
             raise ValueError("Failed to exit configuration mode")
         return output
@@ -177,8 +188,9 @@ class NokiaSros(BaseConnection):
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         if self.global_cmd_verify is not False:
             output += self.read_until_pattern(pattern=re.escape(exit_cmd))
+            output += self.read_until_prompt(read_entire_line=True)
         else:
-            output += self.read_until_prompt()
+            output += self.read_until_prompt(read_entire_line=True)
         return output
 
     def _discard(self):
@@ -191,7 +203,7 @@ class NokiaSros(BaseConnection):
             if self.global_cmd_verify is not False:
                 new_output += self.read_until_pattern(pattern=re.escape(cmd))
             if "@" not in new_output:
-                new_output += self.read_until_prompt()
+                new_output += self.read_until_prompt(read_entire_line=True)
             output += new_output
         return output
 

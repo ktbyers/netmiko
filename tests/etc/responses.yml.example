@@ -110,6 +110,16 @@ dellos10:
   cmd_response_final: "host-description node"
   scp_remote_space: 1000
 
+dell_sonic:
+  base_prompt: sonic
+  router_prompt : sonic#
+  enable_prompt: sonic#
+  interface_ip: 10.10.10.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface Management 0"
+  cmd_response_init: ""
+  cmd_response_final: "interface Vlan100"
+
 dell_powerconnect:
   base_prompt: myswitch
   router_prompt : myswitch#
@@ -267,6 +277,17 @@ centec_os:
   interface_ip: 172.30.31.101
   version_banner: "Centec Networks"
   multiple_line_output: ""
+
+supermicro_nos:
+  base_prompt: SMIS
+  router_prompt: SMIS>
+  enable_prompt: SMIS#
+  interface_ip: 192.168.10.15
+  version_banner: "Firmware Version"
+  multiple_line_output: ""
+  save_config: '[OK]'
+  cmd_response_init: "logging buffered 110"
+  cmd_response_final: "logging buffered 110"
 
 sophos_sfos:
   base_prompt: "console"

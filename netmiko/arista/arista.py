@@ -43,7 +43,12 @@ class AristaBase(CiscoSSHConnection):
         output = output.replace("(s2)", "")
         return check_string in output
 
-    def config_mode(self, config_command="configure terminal", pattern="", re_flags=0):
+    def config_mode(
+        self,
+        config_command: str = "configure terminal",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
         """Force arista to read pattern all the way to prompt on the next line."""
 
         if not re_flags:
@@ -119,9 +124,7 @@ class AristaFileTransfer(CiscoFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = f"{base_cmd} file:{self.file_system}/{remote_file}"
-        dest_md5 = self.ssh_ctl_chan.send_command(
-            remote_md5_cmd, max_loops=750, delay_factor=4
-        )
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, read_timeout=600)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 

@@ -5,9 +5,9 @@ jobs:
   std_tests:
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 3
+      max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
       - name: Checkout repository
@@ -32,6 +32,12 @@ jobs:
       - name: Run linter
         run: |
           pylama .
+
+      - name: Run mypy
+        run: |
+          mypy ./netmiko/base_connection.py
+          mypy ./netmiko/no_enable.py
+          mypy ./netmiko/no_config.py
 
       - name: Run Tests
         run: |
