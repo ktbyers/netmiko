@@ -15,6 +15,8 @@ from typing import (
     TypeVar,
     cast,
     Type,
+    Sequence,
+    TextIO,
     Iterator,
     Union,
     Tuple,
@@ -468,6 +470,12 @@ class BaseConnection:
             self._session_locker.release()
 
     def _autodetect_fs(self, cmd: str = "", pattern: str = "") -> str:
+        raise NotImplementedError
+
+    def _enter_shell(self) -> None:
+        raise NotImplementedError
+
+    def _return_cli(self) -> None:
         raise NotImplementedError
 
     @lock_channel
@@ -1873,7 +1881,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_config_set(
         self,
-        config_commands: Union[str, Iterator[str], None] = None,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = True,
         delay_factor: float = 1.0,
         max_loops: int = 150,
@@ -1921,7 +1929,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         if config_commands is None:
             return ""
         elif isinstance(config_commands, str):
-            config_commands = (config_commands,)  # type: ignore
+            config_commands = (config_commands,)
 
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
