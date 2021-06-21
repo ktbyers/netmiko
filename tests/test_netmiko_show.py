@@ -195,6 +195,8 @@ def test_send_command_genie(net_connect, commands, expected_responses):
 
 def test_send_multiline_timing(net_connect):
 
+    debug = False
+
     if (
         "cisco_ios" not in net_connect.device_type
         and "cisco_xe" not in net_connect.device_type
@@ -203,6 +205,8 @@ def test_send_multiline_timing(net_connect):
     count = 100
     cmd_list = ["ping", "", "8.8.8.8", str(count), "", "", "", ""]
     output = net_connect.send_multiline_timing(cmd_list)
+    if debug:
+        print(output)
     assert output.count("!") >= 95
 
 
