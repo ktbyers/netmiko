@@ -1,5 +1,16 @@
 """Miscellaneous utility functions."""
-from typing import Any, AnyStr, TypeVar, Callable, cast, Optional, Union, List, Dict
+from typing import (
+    Any,
+    AnyStr,
+    TypeVar,
+    Callable,
+    cast,
+    Optional,
+    Union,
+    List,
+    Dict,
+    Tuple,
+)
 from typing import TYPE_CHECKING
 from glob import glob
 import sys
@@ -14,6 +25,7 @@ from netmiko import log
 
 # For decorators
 F = TypeVar("F", bound=Callable[..., Any])
+
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -38,7 +50,7 @@ except ImportError:
 
 # If we are on python < 3.7, we need to force the import of importlib.resources backport
 try:
-    from importlib.resources import path as importresources_path
+    from importlib.resources import path as importresources_path  # type: ignore
 except ModuleNotFoundError:
     from importlib_resources import path as importresources_path
 
@@ -93,7 +105,7 @@ SHOW_RUN_MAPPER = new_dict
 NETMIKO_BASE_DIR = "~/.netmiko"
 
 
-def load_yaml_file(yaml_file):
+def load_yaml_file(yaml_file: Union[str, bytes, "PathLike[Any]"]) -> Any:
     """Read YAML file."""
     try:
         import yaml
@@ -103,16 +115,18 @@ def load_yaml_file(yaml_file):
         with io.open(yaml_file, "rt", encoding="utf-8") as fname:
             return yaml.safe_load(fname)
     except IOError:
-        sys.exit(f"Unable to open YAML file: {yaml_file}")
+        sys.exit("Unable to open YAML file")
 
 
-def load_devices(file_name=None):
+def load_devices(file_name: Union[str, bytes, "PathLike[Any]", None] = None) -> Any:
     """Find and load .netmiko.yml file."""
     yaml_devices_file = find_cfg_file(file_name)
     return load_yaml_file(yaml_devices_file)
 
 
-def find_cfg_file(file_name=None):
+def find_cfg_file(
+    file_name: Union[str, bytes, "PathLike[Any]", None] = None
+) -> Union[str, bytes, "PathLike[Any]"]:
     """
     Search for netmiko_tools inventory file in the following order:
     NETMIKO_TOOLS_CFG environment variable
@@ -121,9 +135,8 @@ def find_cfg_file(file_name=None):
     Look for file named: .netmiko.yml or netmiko.yml
     Also allow NETMIKO_TOOLS_CFG to point directly at a file
     """
-    if file_name:
-        if os.path.isfile(file_name):
-            return file_name
+    if file_name and os.path.isfile(file_name):
+        return file_name
     optional_path = os.environ.get("NETMIKO_TOOLS_CFG", "")
     if os.path.isfile(optional_path):
         return optional_path
@@ -140,7 +153,7 @@ def find_cfg_file(file_name=None):
     )
 
 
-def display_inventory(my_devices):
+def display_inventory(my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) -> None:
     """Print out inventory devices and groups."""
     inventory_groups = ["all"]
     inventory_devices = []
@@ -164,7 +177,9 @@ def display_inventory(my_devices):
     print()
 
 
-def obtain_all_devices(my_devices):
+def obtain_all_devices(
+    my_devices: Dict[str, Union[List[str], Dict[str, Any]]]
+) -> Dict[str, Dict[str, Any]]:
     """Dynamically create 'all' group."""
     new_devices = {}
     for device_name, device_or_group in my_devices.items():
@@ -174,20 +189,20 @@ def obtain_all_devices(my_devices):
     return new_devices
 
 
-def obtain_netmiko_filename(device_name):
+def obtain_netmiko_filename(device_name: str) -> str:
     """Create file name based on device_name."""
     _, netmiko_full_dir = find_netmiko_dir()
     return f"{netmiko_full_dir}/{device_name}.txt"
 
 
-def write_tmp_file(device_name, output):
+def write_tmp_file(device_name: str, output: str) -> str:
     file_name = obtain_netmiko_filename(device_name)
     with open(file_name, "w") as f:
         f.write(output)
     return file_name
 
 
-def ensure_dir_exists(verify_dir):
+def ensure_dir_exists(verify_dir: str) -> None:
     """Ensure directory exists. Create if necessary."""
     if not os.path.exists(verify_dir):
         # Doesn't exist create dir
@@ -199,7 +214,7 @@ def ensure_dir_exists(verify_dir):
             raise ValueError(f"{verify_dir} is not a directory")
 
 
-def find_netmiko_dir():
+def find_netmiko_dir() -> Tuple[str, str]:
     """Check environment first, then default dir"""
     try:
         netmiko_base_dir = os.environ["NETMIKO_DIR"]
@@ -215,16 +230,14 @@ def find_netmiko_dir():
 def write_bytes(out_data: AnyStr, encoding: str = "ascii") -> bytes:
     """Legacy for Python2 and Python3 compatible byte stream."""
     if sys.version_info[0] >= 3:
-        if isinstance(out_data, type("")):
+        if isinstance(out_data, str):
             if encoding == "utf-8":
                 return out_data.encode("utf-8")
             else:
                 return out_data.encode("ascii", "ignore")
-        elif isinstance(out_data, type(b"")):
+        elif isinstance(out_data, bytes):
             return out_data
-    msg = "Invalid value for out_data neither unicode nor byte string: {}".format(
-        out_data
-    )
+    msg = f"Invalid value for out_data neither unicode nor byte string: {str(out_data)}"
     raise ValueError(msg)
 
 
@@ -240,7 +253,9 @@ def check_serial_port(name: str) -> str:
 
     try:
         cdc = next(serial.tools.list_ports.grep(name))
-        return cdc[0]
+        serial_port = cdc[0]
+        assert isinstance(serial_port, str)
+        return serial_port
     except StopIteration:
         msg = f"device {name} not found. "
         msg += "available devices are: "
@@ -250,7 +265,7 @@ def check_serial_port(name: str) -> str:
         raise ValueError(msg)
 
 
-def get_template_dir(_skip_ntc_package=False):
+def get_template_dir(_skip_ntc_package: bool = False) -> str:
     """
     Find and return the directory containing the TextFSM index file.
 
@@ -309,34 +324,46 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     return os.path.abspath(template_dir)
 
 
-def clitable_to_dict(cli_table):
+def clitable_to_dict(cli_table: clitable.CliTable) -> List[Dict[str, str]]:
     """Converts TextFSM cli_table object to list of dictionaries."""
-    objs = []
+    return_list = []
     for row in cli_table:
         temp_dict = {}
         for index, element in enumerate(row):
             temp_dict[cli_table.header[index].lower()] = element
-        objs.append(temp_dict)
-    return objs
+        return_list.append(temp_dict)
+    return return_list
 
 
-def _textfsm_parse(textfsm_obj, raw_output, attrs, template_file=None):
+def _textfsm_parse(
+    textfsm_obj: clitable.CliTable,
+    raw_output: str,
+    attrs: Dict[str, str],
+    template_file: Optional[str] = None,
+) -> Union[str, List[Dict[str, str]]]:
     """Perform the actual TextFSM parsing using the CliTable object."""
     try:
         # Parse output through template
         if template_file is not None:
-            textfsm_obj.ParseCmd(raw_output, templates=template_file)
+            textfsm_obj.ParseCmd(raw_output, templates=template_file)  # type: ignore
         else:
-            textfsm_obj.ParseCmd(raw_output, attrs)
-        structured_data = clitable_to_dict(textfsm_obj)
-        output = raw_output if structured_data == [] else structured_data
-        return output
+            textfsm_obj.ParseCmd(raw_output, attrs)  # type: ignore
 
+        structured_data = clitable_to_dict(textfsm_obj)
+        if structured_data == []:
+            return raw_output
+        else:
+            return structured_data
     except (FileNotFoundError, CliTableError):
         return raw_output
 
 
-def get_structured_data_textfsm(raw_output, platform=None, command=None, template=None):
+def get_structured_data_textfsm(
+    raw_output: str,
+    platform: Optional[str] = None,
+    command: Optional[str] = None,
+    template: Optional[str] = None,
+) -> Union[str, List[Dict[str, str]]]:
     """
     Convert raw CLI output to structured data using TextFSM template.
 
@@ -357,17 +384,19 @@ def get_structured_data_textfsm(raw_output, platform=None, command=None, templat
         index_file = os.path.join(template_dir, "index")
         textfsm_obj = clitable.CliTable(index_file, template_dir)
         output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+
         # Retry the output if "cisco_xe" and not structured data
-        if not isinstance(output, list) and "cisco_xe" in platform:
-            attrs["Platform"] = "cisco_ios"
-            output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        if platform and "cisco_xe" in platform:
+            if not isinstance(output, list):
+                attrs["Platform"] = "cisco_ios"
+                output = _textfsm_parse(textfsm_obj, raw_output, attrs)
         return output
     else:
         template_path = Path(os.path.expanduser(template))
         template_file = template_path.name
-        template_dir = template_path.parents[0]
+        template_dir_alt = template_path.parents[0]
         # CliTable with no index will fall-back to a TextFSM parsing behavior
-        textfsm_obj = clitable.CliTable(template_dir=template_dir)
+        textfsm_obj = clitable.CliTable(template_dir=template_dir_alt)
         return _textfsm_parse(
             textfsm_obj, raw_output, attrs, template_file=template_file
         )
@@ -377,21 +406,20 @@ def get_structured_data_textfsm(raw_output, platform=None, command=None, templat
 get_structured_data = get_structured_data_textfsm
 
 
-def get_structured_data_ttp(raw_output, template=None):
+def get_structured_data_ttp(raw_output: str, template: str) -> Union[str, List[Any]]:
     """
     Convert raw CLI output to structured data using TTP template.
 
     You can use a straight TextFSM file i.e. specify "template"
     """
     if not TTP_INSTALLED:
-        msg = "\nTTP is not installed. Please PIP install ttp:\n" "pip install ttp\n"
+        msg = "\nTTP is not installed. Please PIP install ttp:\n\npip install ttp\n"
         raise ValueError(msg)
 
     try:
-        if template:
-            ttp_parser = ttp(data=raw_output, template=template)
-            ttp_parser.parse(one=True)
-            return ttp_parser.result(format="raw")
+        ttp_parser = ttp(data=raw_output, template=template)
+        ttp_parser.parse(one=True)
+        return ttp_parser.result(format="raw")  # type: ignore
     except Exception:
         return raw_output
 
@@ -447,11 +475,11 @@ def run_ttp_template(
                 continue
 
             # collect commands output from device
-            output = [
+            out_list = [
                 getattr(connection, method)(command_string=command, **method_kwargs)
                 for command in commands
             ]
-            output = "\n".join(output)
+            output = "\n".join(out_list)
 
             # add collected output to TTP parser object
             parser.add_input(
@@ -464,7 +492,9 @@ def run_ttp_template(
     return parser.result(**res_kwargs)
 
 
-def get_structured_data_genie(raw_output: str, platform: str, command: str):
+def get_structured_data_genie(
+    raw_output: str, platform: str, command: str
+) -> Union[str, Dict[str, Any]]:
     if not sys.version_info >= (3, 4):
         raise ValueError("Genie requires Python >= 3.4")
 
@@ -489,8 +519,8 @@ def get_structured_data_genie(raw_output: str, platform: str, command: str):
     os = None
     # platform might be _ssh, _telnet, _serial strip that off
     if platform.count("_") > 1:
-        base_platform = platform.split("_")[:-1]
-        base_platform = "_".join(base_platform)
+        base_list = platform.split("_")[:-1]
+        base_platform = "_".join(base_list)
     else:
         base_platform = platform
 
@@ -507,7 +537,7 @@ def get_structured_data_genie(raw_output: str, platform: str, command: str):
         # Test whether there is a parser for given command (return Exception if fails)
         get_parser(command, device)
         parsed_output = device.parse(command, output=raw_output)
-        return parsed_output
+        return parsed_output  # type: ignore
     except Exception:
         return raw_output
 
@@ -529,23 +559,32 @@ def structured_data_converter(
     """
     command = command.strip()
     if use_textfsm:
-        structured_output = get_structured_data_textfsm(
+        structured_output_tfsm = get_structured_data_textfsm(
             raw_data, platform=platform, command=command, template=textfsm_template
         )
-        if not isinstance(structured_output, str):
-            return structured_output
+        if not isinstance(structured_output_tfsm, str):
+            return structured_output_tfsm
 
     if use_ttp:
-        structured_output = get_structured_data_ttp(raw_data, template=ttp_template)
-        if not isinstance(structured_output, str):
-            return structured_output
+        if ttp_template is None:
+            msg = """
+The argument 'ttp_template=/path/to/template.ttp' must be set when use_ttp=True
+"""
+            raise ValueError(msg)
+        else:
+            structured_output_ttp = get_structured_data_ttp(
+                raw_data, template=ttp_template
+            )
+
+        if not isinstance(structured_output_ttp, str):
+            return structured_output_ttp
 
     if use_genie:
-        structured_output = get_structured_data_genie(
+        structured_output_genie = get_structured_data_genie(
             raw_data, platform=platform, command=command
         )
-        if not isinstance(structured_output, str):
-            return structured_output
+        if not isinstance(structured_output_genie, str):
+            return structured_output_genie
     return raw_data
 
 

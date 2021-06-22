@@ -153,7 +153,9 @@ def test_send_command_ttp(net_connect):
         net_connect.clear_buffer()
 
         # write a simple template to file
-        ttp_raw_template = "interface {{ intf_name }}\n description {{ description | ORPHRASE}}"
+        ttp_raw_template = (
+            "interface {{ intf_name }}\n description {{ description | ORPHRASE}}"
+        )
 
         with open("show_run_interfaces.ttp", "w") as writer:
             writer.write(ttp_raw_template)
@@ -163,6 +165,11 @@ def test_send_command_ttp(net_connect):
             command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
         )
         assert isinstance(show_ip_alt, list)
+        # Unwrap outer lists
+        show_ip_alt = show_ip_alt[0][0]
+        assert isinstance(show_ip_alt, list)
+        assert isinstance(show_ip_alt[0], dict)
+        assert isinstance(show_ip_alt[0]["intf_name"], str)
 
 
 def test_send_command_genie(net_connect, commands, expected_responses):

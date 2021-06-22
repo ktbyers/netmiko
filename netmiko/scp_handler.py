@@ -5,7 +5,7 @@ Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
 """
-from typing import Callable, Optional, Any, Type, Sequence, Union, Iterator
+from typing import Callable, Optional, Any, Type, Sequence, Union
 from typing import TYPE_CHECKING
 from types import TracebackType
 import re
@@ -161,7 +161,9 @@ class BaseFileTransfer(object):
                 return int(match.group(1)) * 1000
             return int(match.group(1))
         else:
-            msg = f"pattern: {search_pattern} not detected in output:\n\n{remote_output}"
+            msg = (
+                f"pattern: {search_pattern} not detected in output:\n\n{remote_output}"
+            )
             raise ValueError(msg)
 
     def _remote_space_available_unix(self, search_pattern: str = "") -> int:
@@ -206,7 +208,7 @@ class BaseFileTransfer(object):
             import ctypes
 
             free_bytes = ctypes.c_ulonglong(0)
-            ctypes.windll.kernel32.GetDiskFreeSpaceExW(     # type: ignore
+            ctypes.windll.kernel32.GetDiskFreeSpaceExW(  # type: ignore
                 ctypes.c_wchar_p("."), None, None, ctypes.pointer(free_bytes)
             )
             return free_bytes.value
@@ -258,7 +260,9 @@ class BaseFileTransfer(object):
             return self.dest_file in remote_out
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
-        raise ValueError("Unexpected value for self.direction in _check_file_exists_unix")
+        raise ValueError(
+            "Unexpected value for self.direction in _check_file_exists_unix"
+        )
 
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None

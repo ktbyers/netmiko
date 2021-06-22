@@ -36,6 +36,7 @@ jobs:
       - name: Run mypy
         run: |
           mypy ./netmiko/base_connection.py
+          mypy ./netmiko/utilities.py
           mypy ./netmiko/scp_handler.py
           mypy ./netmiko/no_enable.py
           mypy ./netmiko/no_config.py
