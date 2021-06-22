@@ -238,7 +238,7 @@ cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1]
 
 # SSH_MAPPER_BASE is a list
 SSH_MAPPER_BASE = sorted(
-    SSH_MAPPER_DICT.items(), key=lambda item: int(cmd_count[item[1]["cmd"]])    # type: ignore
+    SSH_MAPPER_DICT.items(), key=lambda item: int(cmd_count[item[1]["cmd"]])  # type: ignore
 )
 SSH_MAPPER_BASE.reverse()
 

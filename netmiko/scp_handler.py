@@ -246,7 +246,8 @@ class BaseFileTransfer(object):
                 raise ValueError("Unexpected output from check_file_exists")
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
-        raise ValueError("Unexpected value for self.direction in check_file_exists")
+        else:
+            raise ValueError("Unexpected value for self.direction")
 
     def _check_file_exists_unix(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
@@ -260,9 +261,8 @@ class BaseFileTransfer(object):
             return self.dest_file in remote_out
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
-        raise ValueError(
-            "Unexpected value for self.direction in _check_file_exists_unix"
-        )
+        else:
+            raise ValueError("Unexpected value for self.direction")
 
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None
@@ -376,7 +376,8 @@ class BaseFileTransfer(object):
         elif self.direction == "get":
             local_md5 = self.file_md5(self.dest_file)
             return self.source_md5 == local_md5
-        raise ValueError("Unexpected value for self.direction")
+        else:
+            raise ValueError("Unexpected value for self.direction")
 
     def remote_md5(
         self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None
@@ -402,7 +403,8 @@ class BaseFileTransfer(object):
             self.put_file()
         elif self.direction == "get":
             self.get_file()
-        raise ValueError("Unexpected value for self.direction in transfer_file")
+        else:
+            raise ValueError("Unexpected value for self.direction in transfer_file")
 
     def get_file(self) -> None:
         """SCP copy the file from the remote device to local system."""
