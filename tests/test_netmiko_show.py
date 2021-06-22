@@ -153,17 +153,23 @@ def test_send_command_ttp(net_connect):
         net_connect.clear_buffer()
 
         # write a simple template to file
-        ttp_raw_template = """
-        description {{ description }}
-        """
+        ttp_raw_template = (
+            "interface {{ intf_name }}\n description {{ description | ORPHRASE}}"
+        )
+
         with open("show_run_interfaces.ttp", "w") as writer:
             writer.write(ttp_raw_template)
 
-        command = "show run | s interfaces"
+        command = "show run | s interface"
         show_ip_alt = net_connect.send_command(
             command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
         )
         assert isinstance(show_ip_alt, list)
+        # Unwrap outer lists
+        show_ip_alt = show_ip_alt[0][0]
+        assert isinstance(show_ip_alt, list)
+        assert isinstance(show_ip_alt[0], dict)
+        assert isinstance(show_ip_alt[0]["intf_name"], str)
 
 
 def test_send_command_genie(net_connect, commands, expected_responses):
@@ -195,6 +201,8 @@ def test_send_command_genie(net_connect, commands, expected_responses):
 
 def test_send_multiline_timing(net_connect):
 
+    debug = False
+
     if (
         "cisco_ios" not in net_connect.device_type
         and "cisco_xe" not in net_connect.device_type
@@ -203,6 +211,8 @@ def test_send_multiline_timing(net_connect):
     count = 100
     cmd_list = ["ping", "", "8.8.8.8", str(count), "", "", "", ""]
     output = net_connect.send_multiline_timing(cmd_list)
+    if debug:
+        print(output)
     assert output.count("!") >= 95
 
 
