@@ -153,13 +153,12 @@ def test_send_command_ttp(net_connect):
         net_connect.clear_buffer()
 
         # write a simple template to file
-        ttp_raw_template = """
-        description {{ description }}
-        """
+        ttp_raw_template = "interface {{ intf_name }}\n description {{ description | ORPHRASE}}"
+
         with open("show_run_interfaces.ttp", "w") as writer:
             writer.write(ttp_raw_template)
 
-        command = "show run | s interfaces"
+        command = "show run | s interface"
         show_ip_alt = net_connect.send_command(
             command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
         )
