@@ -282,8 +282,8 @@ class SSHDetect(object):
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
         self.initial_buffer = output
-        self.potential_matches = {}
-        self._results_cache = {}
+        self.potential_matches: Dict[str, int] = {}
+        self._results_cache: Dict[str, str] = {}
 
     def autodetect(self) -> Union[str, None]:
         """
@@ -297,6 +297,7 @@ class SSHDetect(object):
         for device_type, autodetect_dict in SSH_MAPPER_BASE:
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop("dispatch")
+            assert isinstance(call_method, str)
             autodetect_method = getattr(self, call_method)
             accuracy = autodetect_method(**tmp_dict)
             if accuracy:
@@ -388,7 +389,7 @@ class SSHDetect(object):
             return 0
 
         try:
-            remote_version = self.connection.remote_conn.transport.remote_version
+            remote_version = self.connection.remote_conn.transport.remote_version  # type: ignore
             for pattern in invalid_responses:
                 match = re.search(pattern, remote_version, flags=re.I)
                 if match:

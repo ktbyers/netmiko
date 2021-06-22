@@ -5,13 +5,18 @@ Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
 """
+from typing import AnyStr, Optional
 from netmiko import FileTransfer, InLineTransfer
 
 
-def progress_bar(filename, size, sent, peername=None):
+def progress_bar(
+    filename: AnyStr, size: int, sent: int, peername: Optional[str] = None
+) -> None:
     max_width = 50
     if isinstance(filename, bytes):
-        filename = filename.decode()
+        filename_str = filename.decode()
+    else:
+        filename_str = filename
     clear_screen = chr(27) + "[2J"
     terminating_char = "|"
 
@@ -22,9 +27,9 @@ def progress_bar(filename, size, sent, peername=None):
     progress = hash_count * ">"
 
     if peername is None:
-        header_msg = f"Transferring file: {filename}\n"
+        header_msg = f"Transferring file: {filename_str}\n"
     else:
-        header_msg = f"Transferring file to {peername}: {filename}\n"
+        header_msg = f"Transferring file to {peername}: {filename_str}\n"
 
     msg = f"{progress:<50}{terminating_char:1} ({percent_str})"
     print(clear_screen)
