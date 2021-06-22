@@ -38,6 +38,7 @@ Examples
 >>> remote_device['device_type'] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
+from typing import Any, List, Optional, Union, Dict
 import re
 import time
 from netmiko.ssh_dispatcher import ConnectHandler
@@ -47,7 +48,7 @@ from netmiko.base_connection import BaseConnection
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
 # remaining keys indicate kwargs that will be passed to dispatch method.
 # Note, the 'cmd' needs to avoid output paging.
-SSH_MAPPER_BASE = {
+SSH_MAPPER_DICT = {
     "alcatel_aos": {
         "cmd": "show system",
         "search_patterns": [r"Alcatel-Lucent"],
@@ -226,16 +227,18 @@ SSH_MAPPER_BASE = {
     },
 }
 
-# Sort SSH_MAPPER_BASE such that the most common commands are first
-cmd_count = {}
-for k, v in SSH_MAPPER_BASE.items():
-    count = cmd_count.setdefault(v["cmd"], 0)
-    cmd_count[v["cmd"]] = count + 1
+# Sort SSH_MAPPER_DICT such that the most common commands are first
+cmd_count: Dict[str, int] = {}
+for k, v in SSH_MAPPER_DICT.items():
+    my_cmd = v["cmd"]
+    assert isinstance(my_cmd, str)
+    count = cmd_count.setdefault(my_cmd, 0)
+    cmd_count[my_cmd] = count + 1
 cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])}
 
-# SSH_MAPPER_BASE will be a list after this
+# SSH_MAPPER_BASE is a list
 SSH_MAPPER_BASE = sorted(
-    SSH_MAPPER_BASE.items(), key=lambda item: int(cmd_count[item[1]["cmd"]])
+    SSH_MAPPER_DICT.items(), key=lambda item: int(cmd_count[item[1]["cmd"]])    # type: ignore
 )
 SSH_MAPPER_BASE.reverse()
 
@@ -267,7 +270,7 @@ class SSHDetect(object):
         Try to determine the device type.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Constructor of the SSHDetect class
         """
@@ -282,7 +285,7 @@ class SSHDetect(object):
         self.potential_matches = {}
         self._results_cache = {}
 
-    def autodetect(self):
+    def autodetect(self) -> Union[str, None]:
         """
         Try to guess the best 'device_type' based on patterns defined in SSH_MAPPER_BASE
 
@@ -315,7 +318,7 @@ class SSHDetect(object):
         self.connection.disconnect()
         return best_match[0][0]
 
-    def _send_command(self, cmd=""):
+    def _send_command(self, cmd: str = "") -> str:
         """
         Handle reading/writing channel directly. It is also sanitizing the output received.
 
@@ -335,7 +338,7 @@ class SSHDetect(object):
         output = self.connection.strip_backspaces(output)
         return output
 
-    def _send_command_wrapper(self, cmd):
+    def _send_command_wrapper(self, cmd: str) -> str:
         """
         Send command to the remote device with a caching feature to avoid sending the same command
         twice based on the SSH_MAPPER_BASE dict cmd key.
@@ -359,8 +362,12 @@ class SSHDetect(object):
             return cached_results
 
     def _autodetect_remote_version(
-        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99, **kwargs
-    ):
+        self,
+        search_patterns: Optional[List[str]] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+        **kwargs: Any
+    ) -> int:
         """
         Method to try auto-detect the device type, by matching a regular expression on the reported
         remote version of the SSH server.
@@ -395,8 +402,12 @@ class SSHDetect(object):
         return 0
 
     def _autodetect_std(
-        self, cmd="", search_patterns=None, re_flags=re.IGNORECASE, priority=99
-    ):
+        self,
+        cmd: str = "",
+        search_patterns: Optional[List[str]] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+    ) -> int:
         """
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
