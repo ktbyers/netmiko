@@ -5,8 +5,14 @@ Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
 """
-from typing import AnyStr, Optional
-from netmiko import FileTransfer, InLineTransfer
+from typing import AnyStr, Optional, Callable, Any, Dict
+from typing import TYPE_CHECKING
+from netmiko.scp_handler import BaseFileTransfer
+from netmiko.ssh_dispatcher import FileTransfer
+from netmiko.cisco.cisco_ios import InLineTransfer
+
+if TYPE_CHECKING:
+    from netmiko.base_connection import BaseConnection
 
 
 def progress_bar(
@@ -37,7 +43,7 @@ def progress_bar(
     print(msg)
 
 
-def verifyspace_and_transferfile(scp_transfer):
+def verifyspace_and_transferfile(scp_transfer: BaseFileTransfer) -> None:
     """Verify space and transfer file."""
     if not scp_transfer.verify_space_available():
         raise ValueError("Insufficient space available on remote device")
@@ -45,19 +51,19 @@ def verifyspace_and_transferfile(scp_transfer):
 
 
 def file_transfer(
-    ssh_conn,
-    source_file,
-    dest_file,
-    file_system=None,
-    direction="put",
-    disable_md5=False,
-    inline_transfer=False,
-    overwrite_file=False,
-    socket_timeout=10.0,
-    progress=None,
-    progress4=None,
-    verify_file=None,
-):
+    ssh_conn: "BaseConnection",
+    source_file: str,
+    dest_file: str,
+    file_system: Optional[str] = None,
+    direction: str = "put",
+    disable_md5: bool = False,
+    inline_transfer: bool = False,
+    overwrite_file: bool = False,
+    socket_timeout: float = 10.0,
+    progress: Optional[Callable[..., Any]] = None,
+    progress4: Optional[Callable[..., Any]] = None,
+    verify_file: Optional[bool] = None,
+) -> Dict[str, bool]:
     """Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
 
     inline_transfer ONLY SUPPORTS TEXT FILES and will not support binary file transfers.
@@ -107,7 +113,11 @@ def file_transfer(
     if file_system is not None:
         scp_args["file_system"] = file_system
 
-    TransferClass = InLineTransfer if inline_transfer else FileTransfer
+    TransferClass: Callable[..., BaseFileTransfer]
+    if inline_transfer:
+        TransferClass = InLineTransfer
+    else:
+        TransferClass = FileTransfer
 
     with TransferClass(**scp_args) as scp_transfer:
         if scp_transfer.check_file_exists():

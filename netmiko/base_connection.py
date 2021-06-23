@@ -17,7 +17,6 @@ from typing import (
     Type,
     Sequence,
     TextIO,
-    Iterator,
     Union,
     Tuple,
     Deque,
@@ -1585,7 +1584,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_multiline(
         self,
-        commands: List[Union[List[str], str]],
+        commands: Sequence[Union[List[str], str]],
         multiline: bool = True,
         **kwargs: Any,
     ) -> str:
@@ -1597,8 +1596,6 @@ You can also look at the Netmiko session_log or debug log for more information.
         Or
 
         commands = [cmd1, cmd2, cmd3, ...]
-
-        Typing is more generic than a list, but had a lot of difficulties convincing mypy of it.
 
         Any expect_string that is a null-string will use pattern based on
         device's prompt (unless expect_string argument is passed in via
@@ -1617,7 +1614,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         if commands and isinstance(commands[0], str):
             # If list of commands just send directly using default_expect_string (probably prompt)
             for cmd in commands:
-                assert isinstance(cmd, str)
+                cmd = str(cmd)
                 new_data = self.send_command(
                     cmd, expect_string=default_expect_string, **kwargs
                 )
@@ -1626,6 +1623,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         else:
             # If list of lists, then first element is cmd and second element is expect_string
             for cmd, expect_string in commands:  # type: ignore
+                cmd = str(cmd)
+                expect_string = str(expect_string)
                 # If expect_string is null-string use default_expect_string
                 if not expect_string:
                     expect_string = default_expect_string
@@ -1635,12 +1634,13 @@ You can also look at the Netmiko session_log or debug log for more information.
         return output
 
     def send_multiline_timing(
-        self, commands: Iterator[str], multiline: bool = True, **kwargs: Any
+        self, commands: Sequence[str], multiline: bool = True, **kwargs: Any
     ) -> str:
         if multiline:
             kwargs = self._multiline_kwargs(**kwargs)
         output = ""
         for cmd in commands:
+            cmd = str(cmd)
             new_data = self.send_command_timing(cmd, **kwargs)
             assert isinstance(new_data, str)
             output += new_data
