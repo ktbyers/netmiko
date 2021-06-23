@@ -26,6 +26,12 @@ class ConfigInvalidException(NetmikoBaseException):
     pass
 
 
+class WriteException(NetmikoBaseException):
+    """General exception indicating an error occurred during a Netmiko write operation."""
+
+    pass
+
+
 class ReadException(NetmikoBaseException):
     """General exception indicating an error occurred during a Netmiko read operation."""
 

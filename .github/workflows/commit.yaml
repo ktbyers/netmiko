@@ -40,7 +40,9 @@ jobs:
           mypy ./netmiko/scp_handler.py
           mypy ./netmiko/ssh_dispatcher.py
           mypy ./netmiko/ssh_autodetect.py
-          mypy netmiko/scp_functions.py
+          mypy ./netmiko/scp_functions.py
+          mypy ./netmiko/cisco_base_connection.py
+          mypy ./netmiko/channel.py
           mypy ./netmiko/no_enable.py
           mypy ./netmiko/no_config.py
 
