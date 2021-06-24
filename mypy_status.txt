@@ -4,3 +4,7 @@
 2021-06-04 Found 1755 errors in 94 files (checked 1 source file)
 2021-06-06 Found 1657 errors in 94 files (checked 1 source file)
 2021-06-19 Found 1052 errors in 94 files (checked 1 source file)
+# Upgraded to mypy 0.902
+# mypy ./netmiko
+2021-06-22 Found 852 errors in 90 files (checked 171 source files)
+2021-06-23 Found 841 errors in 89 files (checked 171 source files)

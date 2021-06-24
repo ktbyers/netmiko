@@ -35,7 +35,9 @@ class ArubaSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string: str="(config) #", pattern: str="") -> bool:
+    def check_config_mode(
+        self, check_string: str = "(config) #", pattern: str = ""
+    ) -> bool:
         """
         Checks if the device is in configuration mode or not.
 

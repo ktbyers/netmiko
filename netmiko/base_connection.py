@@ -471,10 +471,10 @@ class BaseConnection:
     def _autodetect_fs(self, cmd: str = "", pattern: str = "") -> str:
         raise NotImplementedError
 
-    def _enter_shell(self) -> None:
+    def _enter_shell(self) -> str:
         raise NotImplementedError
 
-    def _return_cli(self) -> None:
+    def _return_cli(self) -> str:
         raise NotImplementedError
 
     @lock_channel
