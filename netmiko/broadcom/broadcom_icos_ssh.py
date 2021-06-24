@@ -8,7 +8,7 @@ class BroadcomIcosSSH(CiscoSSHConnection):
     Syntax its almost identical to Cisco IOS in most cases
     """
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         self._test_channel_read()
         self.set_base_prompt()
         self.enable()
@@ -20,9 +20,9 @@ class BroadcomIcosSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string=")#"):
+    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
         self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
@@ -32,15 +32,20 @@ class BroadcomIcosSSH(CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="exit"):
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "") -> str:
         """Exit configuration mode."""
         return super().exit_config_mode(exit_config=exit_config)
 
-    def exit_enable_mode(self, exit_command="exit"):
+    def exit_enable_mode(self, exit_command: str = "exit") -> str:
         """Exit enable mode."""
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
+    def save_config(
+        self,
+        cmd: str = "write memory",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves configuration."""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
