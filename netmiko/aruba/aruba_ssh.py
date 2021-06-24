@@ -4,6 +4,7 @@ Aruba OS support.
 For use with Aruba OS Controllers.
 
 """
+from typing import Any
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -11,7 +12,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class ArubaSSH(CiscoSSHConnection):
     """Aruba OS support"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r"
         # Aruba has an auto-complete on space behavior that is problematic
@@ -19,7 +20,7 @@ class ArubaSSH(CiscoSSHConnection):
             kwargs["global_cmd_verify"] = False
         return super().__init__(**kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Aruba OS requires enable mode to disable paging."""
         # Aruba switches output ansi codes
         self.ansi_escape_codes = True
@@ -34,7 +35,9 @@ class ArubaSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string="(config) #", pattern=""):
+    def check_config_mode(
+        self, check_string: str = "(config) #", pattern: str = ""
+    ) -> bool:
         """
         Checks if the device is in configuration mode or not.
 

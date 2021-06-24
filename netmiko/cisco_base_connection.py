@@ -208,6 +208,7 @@ class CiscoBaseConnection(BaseConnection):
         if not self.check_enable_mode():
             raise ValueError("Must be in enable mode to auto-detect the file-system.")
         output = self.send_command_expect(cmd)
+        assert isinstance(output, str)
         match = re.search(pattern, output)
         if match:
             file_system = match.group(1)
@@ -239,20 +240,26 @@ class CiscoBaseConnection(BaseConnection):
             output = self.send_command_timing(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
+            assert isinstance(output, str)
             if confirm_response:
-                output += self.send_command_timing(
+                new_output = self.send_command_timing(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
+                assert isinstance(new_output, str)
+                output += new_output
             else:
                 # Send enter by default
-                output += self.send_command_timing(
+                new_output = self.send_command_timing(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
+                assert isinstance(new_output, str)
+                output += new_output
         else:
             # Some devices are slow so match on trailing-prompt if you can
             output = self.send_command(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
+        assert isinstance(output, str)
         return output
 
 

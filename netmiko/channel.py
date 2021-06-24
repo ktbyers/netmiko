@@ -1,8 +1,12 @@
-from typing import Any
+from typing import Any, Optional
 from abc import ABC, abstractmethod
+import paramiko
+import telnetlib
+import serial
 
 from netmiko.utilities import write_bytes
 from netmiko.netmiko_globals import MAX_BUFFER
+from netmiko.ssh_exception import ReadException, WriteException
 
 
 class Channel(ABC):
@@ -53,7 +57,7 @@ class Channel(ABC):
 
 
 class SSHChannel(Channel):
-    def __init__(self, conn, encoding: str) -> None:
+    def __init__(self, conn: Optional[paramiko.Channel], encoding: str) -> None:
         """
         Placeholder __init__ method so that reading and writing can be moved to the
         channel class.
@@ -63,23 +67,28 @@ class SSHChannel(Channel):
         self.encoding = encoding
 
     def write_channel(self, out_data: str) -> None:
-        if self.remote_conn is not None:
-            self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
+        if self.remote_conn is None:
+            raise WriteException(
+                "Attempt to write data, but there is no active channel."
+            )
+        self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
     def read_buffer(self) -> str:
         """Single read of available data."""
-        output = ""
         if self.remote_conn is None:
-            return output
+            raise ReadException("Attempt to read, but there is no active channel.")
+        output = ""
         if self.remote_conn.recv_ready():
             outbuf = self.remote_conn.recv(MAX_BUFFER)
             if len(outbuf) == 0:
-                raise EOFError("Channel stream closed by remote device.")
+                raise ReadException("Channel stream closed by remote device.")
             output += outbuf.decode("utf-8", "ignore")
         return output
 
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
+        if self.remote_conn is None:
+            raise ReadException("Attempt to read, but there is no active channel.")
         output = ""
         while True:
             new_output = self.read_buffer()
@@ -90,7 +99,7 @@ class SSHChannel(Channel):
 
 
 class TelnetChannel(Channel):
-    def __init__(self, conn, encoding: str) -> None:
+    def __init__(self, conn: Optional[telnetlib.Telnet], encoding: str) -> None:
         """
         Placeholder __init__ method so that reading and writing can be moved to the
         channel class.
@@ -100,8 +109,11 @@ class TelnetChannel(Channel):
         self.encoding = encoding
 
     def write_channel(self, out_data: str) -> None:
-        if self.remote_conn is not None:
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
+        if self.remote_conn is None:
+            raise WriteException(
+                "Attempt to write data, but there is no active channel."
+            )
+        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
 
     def read_buffer(self) -> str:
         """Single read of available data."""
@@ -109,11 +121,13 @@ class TelnetChannel(Channel):
 
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
+        if self.remote_conn is None:
+            raise ReadException("Attempt to read, but there is no active channel.")
         return self.remote_conn.read_very_eager().decode("utf-8", "ignore")
 
 
 class SerialChannel(Channel):
-    def __init__(self, conn, encoding: str) -> None:
+    def __init__(self, conn: Optional[serial.Serial], encoding: str) -> None:
         """
         Placeholder __init__ method so that reading and writing can be moved to the
         channel class.
@@ -123,19 +137,30 @@ class SerialChannel(Channel):
         self.encoding = encoding
 
     def write_channel(self, out_data: str) -> None:
-        if self.remote_conn is not None:
-            self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
-            self.remote_conn.flush()
+        if self.remote_conn is None:
+            raise WriteException(
+                "Attempt to write data, but there is no active channel."
+            )
+        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
+        self.remote_conn.flush()
 
     def read_buffer(self) -> str:
         """Single read of available data."""
+        if self.remote_conn is None:
+            raise ReadException("Attempt to read, but there is no active channel.")
         if self.remote_conn.in_waiting > 0:
-            return self.remote_conn.read(self.remote_conn.in_waiting).decode(
+            output = self.remote_conn.read(self.remote_conn.in_waiting).decode(
                 "utf-8", "ignore"
             )
+            assert isinstance(output, str)
+            return output
+        else:
+            return ""
 
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
+        if self.remote_conn is None:
+            raise ReadException("Attempt to read, but there is no active channel.")
         output = ""
         while self.remote_conn.in_waiting > 0:
             output += self.read_buffer()
