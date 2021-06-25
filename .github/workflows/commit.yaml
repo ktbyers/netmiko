@@ -36,12 +36,7 @@ jobs:
       - name: Run mypy
         run: |
           mypy ./netmiko/*.py
-          mypy ./netmiko/a10/*.py
-          mypy ./netmiko/accedian/*.py
-          mypy ./netmiko/adtran/*.py
-          mypy ./netmiko/alcatel/*.py
-          mypy ./netmiko/allied_telesis/*.py
-          mypy ./netmiko/aruba/*.py
+          mypy ./netmiko/[a-b]*
 
       - name: Run Tests
         run: |
