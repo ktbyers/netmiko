@@ -37,6 +37,11 @@ jobs:
         run: |
           mypy ./netmiko/*.py
           mypy ./netmiko/[a-b]*
+          mypy ./netmiko/calix/
+          mypy ./netmiko/cdot/
+          mypy ./netmiko/centec/
+          mypy ./netmiko/checkpoint/
+          mypy ./netmiko/ciena/
 
       - name: Run Tests
         run: |
