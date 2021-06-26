@@ -44,6 +44,7 @@ jobs:
           mypy ./netmiko/ciena/
           mypy ./netmiko/cisco/cisco_asa_ssh.py
           mypy ./netmiko/cisco/cisco_ftd_ssh.py
+          mypy ./netmiko/cisco/cisco_ios.py
 
       - name: Run Tests
         run: |

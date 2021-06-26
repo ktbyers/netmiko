@@ -196,17 +196,19 @@ class InLineTransfer(CiscoIosFileTransfer):
     def file_md5(self, file_name: str, add_newline: bool = False) -> str:
         """Compute MD5 hash of file."""
         if add_newline is True:
-            raise ValueError("add_newline argument is not supported for inline transfers.")
+            raise ValueError(
+                "add_newline argument is not supported for inline transfers."
+            )
         file_contents = self._read_file(file_name)
         file_contents = file_contents + "\n"  # Cisco IOS automatically adds this
-        file_contents = file_contents.encode("UTF-8")
-        return hashlib.md5(file_contents).hexdigest()
+        file_contents_bytes = file_contents.encode("UTF-8")
+        return hashlib.md5(file_contents_bytes).hexdigest()
 
     def config_md5(self, source_config: str) -> str:
         """Compute MD5 hash of text."""
         file_contents = source_config + "\n"  # Cisco IOS automatically adds this
-        file_contents = file_contents.encode("UTF-8")
-        return hashlib.md5(file_contents).hexdigest()
+        file_contents_bytes = file_contents.encode("UTF-8")
+        return hashlib.md5(file_contents_bytes).hexdigest()
 
     def put_file(self) -> None:
         curlybrace = r"{"
@@ -263,8 +265,8 @@ class InLineTransfer(CiscoIosFileTransfer):
     def get_file(self) -> None:
         raise NotImplementedError
 
-    def enable_scp(self, cmd="") -> None:
+    def enable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd="") -> None:
+    def disable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError
