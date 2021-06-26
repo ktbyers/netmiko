@@ -42,6 +42,7 @@ jobs:
           mypy ./netmiko/centec/
           mypy ./netmiko/checkpoint/
           mypy ./netmiko/ciena/
+          mypy ./netmiko/cisco/cisco_asa_ssh.py
 
       - name: Run Tests
         run: |
