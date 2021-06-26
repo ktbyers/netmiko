@@ -7,7 +7,7 @@
 #
 # Purpose: Provide basic SSH connection to CROS based router products
 
-from typing import Optional
+from typing import Optional, Union, Sequence, TextIO, Any
 import time
 import warnings
 from netmiko.no_enable import NoEnable
@@ -18,7 +18,7 @@ from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 class CdotCrosSSH(NoEnable, CiscoBaseConnection):
     """Implement methods for interacting with CROS network devices."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
@@ -29,13 +29,20 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
         self.clear_buffer()
         return
 
-    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
+    def send_config_set(  # type: ignore
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -> str:
         """CROS requires you not exit from configuration mode."""
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def check_config_mode(self, check_string=")#", pattern=r"[#\$]"):
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = r"[#\$]"
+    ) -> bool:
         """Checks if device is in configuration mode"""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
@@ -53,7 +60,7 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
         read_timeout: float = 120.0,
         delay_factor: Optional[float] = None,
         and_quit: bool = True,
-    ):
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -81,12 +88,14 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
             command_string += f' comment "{comment}"'
 
         output = self.config_mode()
-        output += self.send_command(
+        new_data = self.send_command(
             command_string,
             strip_prompt=False,
             strip_command=True,
             read_timeout=read_timeout,
         )
+        assert isinstance(new_data, str)
+        output += new_data
 
         if not (any(x in output for x in commit_marker)):
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
@@ -94,7 +103,7 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
             self.exit_config_mode()
         return output
 
-    def _disable_complete_on_space(self):
+    def _disable_complete_on_space(self) -> str:
         """
         CROS tries to auto complete commands when you type a "space" character.
 

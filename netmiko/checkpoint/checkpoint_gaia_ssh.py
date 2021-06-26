@@ -9,7 +9,7 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
     firewalls.
     """
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
 
@@ -22,6 +22,7 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, *args, **kwargs):
-        """Not Implemented"""
+    def save_config(
+        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         raise NotImplementedError
