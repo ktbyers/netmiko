@@ -43,6 +43,7 @@ jobs:
           mypy ./netmiko/checkpoint/
           mypy ./netmiko/ciena/
           mypy ./netmiko/cisco/cisco_asa_ssh.py
+          mypy ./netmiko/cisco/cisco_ftd_ssh.py
 
       - name: Run Tests
         run: |

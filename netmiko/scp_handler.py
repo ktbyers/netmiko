@@ -5,7 +5,7 @@ Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
 """
-from typing import Callable, Optional, Any, Type, Sequence, Union
+from typing import Callable, Optional, Any, Type
 from typing import TYPE_CHECKING
 from types import TracebackType
 import re
@@ -423,26 +423,18 @@ class BaseFileTransfer(object):
         """Verify the file has been transferred correctly."""
         return self.compare_md5()
 
-    def enable_scp(self, cmd: Union[str, Sequence[str], None] = None) -> None:
+    def enable_scp(self, cmd: str = "ip scp server enable") -> None:
         """
         Enable SCP on remote device.
 
         Defaults to Cisco IOS command
         """
-        if cmd is None:
-            cmd = ["ip scp server enable"]
-        elif isinstance(cmd, str):
-            cmd = [cmd]
         self.ssh_ctl_chan.send_config_set(cmd)
 
-    def disable_scp(self, cmd: Union[str, Sequence[str], None] = None) -> None:
+    def disable_scp(self, cmd: str = "no ip scp server enable") -> None:
         """
         Disable SCP on remote device.
 
         Defaults to Cisco IOS command
         """
-        if cmd is None:
-            cmd = ["no ip scp server enable"]
-        elif isinstance(cmd, str):
-            cmd = [cmd]
         self.ssh_ctl_chan.send_config_set(cmd)

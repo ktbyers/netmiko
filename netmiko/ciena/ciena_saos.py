@@ -1,5 +1,5 @@
 """Ciena SAOS support."""
-from typing import Optional, Any, Union, Sequence
+from typing import Optional, Any
 import time
 import re
 import os
@@ -203,12 +203,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         dest_md5 = self.process_md5(dest_md5, pattern=r"([0-9a-f]+)\s+")
         return dest_md5
 
-    def enable_scp(
-        self, cmd: Union[str, Sequence[str], None] = "system server scp enable"
-    ) -> None:
+    def enable_scp(self, cmd: str = "system server scp enable") -> None:
         return super().enable_scp(cmd=cmd)
 
-    def disable_scp(
-        self, cmd: Union[str, Sequence[str], None] = "system server scp disable"
-    ) -> None:
+    def disable_scp(self, cmd: str = "system server scp disable") -> None:
         return super().disable_scp(cmd=cmd)
