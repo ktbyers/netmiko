@@ -46,6 +46,7 @@ jobs:
           mypy ./netmiko/cisco/cisco_ftd_ssh.py
           mypy ./netmiko/cisco/cisco_ios.py
           mypy ./netmiko/cisco/cisco_nxos_ssh.py
+          mypy ./netmiko/cisco/cisco_s300.py 
 
       - name: Run Tests
         run: |
