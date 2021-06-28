@@ -57,14 +57,7 @@ class SCPConn(object):
 
     def scp_get_file(self, source_file: str, dest_file: str) -> None:
         """Get file using SCP."""
-        platform = self.ssh_ctl_chan.device_type
-        if "cisco_ios" in platform or "cisco_xe" in platform:
-            try:
-                self.scp_client.get(source_file, dest_file)
-            except EOFError:
-                pass
-        else:
-            self.scp_client.get(source_file, dest_file)
+        self.scp_client.get(source_file, dest_file)
 
     def scp_put_file(self, source_file: str, dest_file: str) -> None:
         """Put file using SCP."""

@@ -1062,6 +1062,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         i = 0
         delay_factor = self.select_delay_factor(delay_factor=0)
+
+        if pattern:
+            new_data = self.read_until_pattern(pattern=pattern, read_timeout=20)
+            return new_data
+
         main_delay = delay_factor * 0.1
         time.sleep(main_delay * 10)
         new_data = ""
