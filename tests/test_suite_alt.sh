@@ -12,6 +12,11 @@ echo "Starting tests...good luck:" \
 && $PYTEST test_netmiko_show.py --test_device juniper_vmx \
 && $PYTEST test_netmiko_config.py --test_device juniper_vmx \
 \
+&& echo "Cisco IOS-XR (Azure)" \
+&& $PYTEST test_netmiko_show.py --test_device cisco_xr_azure \
+&& $PYTEST test_netmiko_config.py --test_device cisco_xr_azure \
+&& $PYTEST test_netmiko_commit.py --test_device cisco_xr_azure \
+\
 && echo "Cisco IOS-XE SSH (including SCP)" \
 && $PYTEST test_netmiko_scp.py --test_device cisco3 \
 && $PYTEST test_netmiko_show.py --test_device cisco3 \
@@ -119,10 +124,6 @@ exit $RETURN_CODE
 # && py.test -v test_netmiko_scp.py --test_device cisco881 \
 # && py.test -v test_netmiko_scp.py --test_device cisco881_fast \
 #
-# && echo "Cisco IOS-XR (Azure)" \
-# && py.test -v test_netmiko_show.py --test_device cisco_xr_azure \
-# && py.test -v test_netmiko_config.py --test_device cisco_xr_azure \
-# && py.test -v test_netmiko_commit.py --test_device cisco_xr_azure \
 #
 #&& echo "Nokia SR-OS CLI" \
 #&& py.test -x -s -v test_netmiko_show.py --test_device sros2 \

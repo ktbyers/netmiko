@@ -23,3 +23,4 @@ $ pdoc3 --html --output-dir docs netmiko --force
 git tag -a v3.3.3 -m "Version 3.3.3 Release"
 git push origin_ssh v3.3.3
 
+# Make sure to run the performance tests for the new release and to update the graphs!

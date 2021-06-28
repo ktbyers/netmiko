@@ -145,7 +145,7 @@ def main():
     print("\n\n")
     for dev_name, dev_dict in devices.items():
         if dev_name != "cisco_xr_azure":
-        # if dev_name != "cisco3":
+            # if dev_name != "cisco3":
             continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
