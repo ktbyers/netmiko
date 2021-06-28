@@ -36,18 +36,7 @@ jobs:
       - name: Run mypy
         run: |
           mypy ./netmiko/*.py
-          mypy ./netmiko/[a-b]*
-          mypy ./netmiko/calix/
-          mypy ./netmiko/cdot/
-          mypy ./netmiko/centec/
-          mypy ./netmiko/checkpoint/
-          mypy ./netmiko/ciena/
-          mypy ./netmiko/cisco/cisco_asa_ssh.py
-          mypy ./netmiko/cisco/cisco_ftd_ssh.py
-          mypy ./netmiko/cisco/cisco_ios.py
-          mypy ./netmiko/cisco/cisco_nxos_ssh.py
-          mypy ./netmiko/cisco/cisco_s300.py 
-          mypy ./netmiko/cisco/cisco_tp_tcce.py 
+          mypy ./netmiko/[a-c]*
 
       - name: Run Tests
         run: |
