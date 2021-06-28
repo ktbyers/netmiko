@@ -1,6 +1,10 @@
 """Controls selection of proper class based on the device type."""
-from typing import Any, Type
+from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
+from netmiko.ssh_exception import (
+    NetmikoAuthenticationException,
+    NetmikoTimeoutException,
+)
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.adtran import AdtranOSSSH, AdtranOSTelnet
@@ -334,6 +338,49 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
         )
     ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)
+
+
+def ConnLogOnly(
+    log_file: str = "netmiko.log", log_level: Optional[int] = None, **kwargs: Any
+) -> Optional["BaseConnection"]:
+
+    import logging
+
+    if log_level is None:
+        log_level = logging.ERROR
+
+    logging.basicConfig(
+        filename=log_file,
+        level=log_level,
+        format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    )
+    logger = logging.getLogger(__name__)
+    kwargs["auto_connect"] = False
+
+    net_connect = ConnectHandler(**kwargs)
+    hostname = net_connect.host
+    port = net_connect.port
+    device_type = net_connect.device_type
+    try:
+        net_connect._open()
+        msg = f"Netmiko connection succesful to {hostname}:{port}"
+        logger.info(msg)
+        return net_connect
+    except NetmikoAuthenticationException:
+        msg = f"Authentication failure to: {hostname}:{port} ({device_type}"
+        logger.error(msg)
+        return None
+    except NetmikoTimeoutException as e:
+        if "DNS failure" in str(e):
+            msg = f"Device failed due to a DNS failure, hostname {hostname}"
+        elif "TCP connection to device failed" in str(e):
+            msg = f"Netmiko was unable to reach the provided host and port: {hostname}:{port}"
+        logger.error(msg)
+        return None
+    except Exception as e:
+        msg = f"An unknown exception handled during authentication:\n\n{str(e)}"
+        logger.error(msg)
+        return None
 
 
 def ssh_dispatcher(device_type: str) -> Type["BaseConnection"]:
