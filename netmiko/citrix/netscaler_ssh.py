@@ -6,7 +6,7 @@ from netmiko.base_connection import BaseConnection
 class NetscalerSSH(NoConfig, BaseConnection):
     """Netscaler SSH class."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         # 0 will defer to the global delay factor
         delay_factor = self.select_delay_factor(delay_factor=0)
@@ -20,8 +20,11 @@ class NetscalerSSH(NoConfig, BaseConnection):
         self.clear_buffer()
 
     def set_base_prompt(
-        self, pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+    ) -> str:
         """Sets self.base_prompt.
 
         Netscaler has '>' for the prompt.
@@ -38,7 +41,7 @@ class NetscalerSSH(NoConfig, BaseConnection):
             self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def strip_prompt(self, a_string):
+    def strip_prompt(self, a_string: str) -> str:
         """Strip 'Done' from command output"""
         output = super().strip_prompt(a_string)
         lines = output.split(self.RESPONSE_RETURN)
