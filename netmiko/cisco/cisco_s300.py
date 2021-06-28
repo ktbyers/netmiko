@@ -12,7 +12,7 @@ class CiscoS300SSH(CiscoSSHConnection):
     ip ssh password-auth
     """
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read()
@@ -22,7 +22,12 @@ class CiscoS300SSH(CiscoSSHConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
 
-    def save_config(self, cmd="write memory", confirm=True, confirm_response="Y"):
+    def save_config(
+        self,
+        cmd: str = "write memory",
+        confirm: bool = True,
+        confirm_response: str = "Y",
+    ) -> str:
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
