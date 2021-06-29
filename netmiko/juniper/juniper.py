@@ -15,12 +15,6 @@ class JuniperBase(NoEnable, BaseConnection):
     methods.  Overrides several methods for Juniper-specific compatibility.
     """
 
-    def __init__(self, *args, **kwargs):
-        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
-        kwargs.setdefault("fast_cli", True)
-        kwargs.setdefault("_legacy_mode", False)
-        return super().__init__(*args, **kwargs)
-
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.enter_cli_mode()

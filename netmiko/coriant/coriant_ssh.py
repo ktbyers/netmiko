@@ -6,7 +6,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class CoriantSSH(NoEnable, NoConfig, CiscoSSHConnection):
     def session_preparation(self) -> None:
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>:]")
         self.set_base_prompt()
 
     def set_base_prompt(

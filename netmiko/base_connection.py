@@ -153,8 +153,8 @@ class BaseConnection:
         default_enter: Optional[str] = None,
         response_return: Optional[str] = None,
         serial_settings: Optional[Dict[str, Any]] = None,
-        fast_cli: bool = False,
-        _legacy_mode: bool = True,
+        fast_cli: bool = True,
+        _legacy_mode: bool = False,
         session_log: Optional[SessionLog] = None,
         session_log_record_writes: bool = False,
         session_log_file_mode: str = "write",
@@ -231,7 +231,7 @@ class BaseConnection:
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
                 to select smallest of global and specific. Sets default global_delay_factor to .1
-                (default: False)
+                (default: True)
 
         :param session_log: File path or BufferedIOBase subclass object to write the session log to.
 
@@ -755,6 +755,7 @@ You can look at the Netmiko session_log or debug log for more information.
         """
         delay_factor = self.select_delay_factor(delay_factor)
 
+        # Revert telnet_login back to old speeds/delays
         if delay_factor < 1:
             if not self._legacy_mode and self.fast_cli:
                 delay_factor = 1
@@ -1947,7 +1948,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             else:
                 output += self.config_mode()
 
-        # If error_pattern is perform output gathering line by line and not fast_cli mode.
+        # Perform output gathering line-by-line (legacy way)
         if self.fast_cli and self._legacy_mode and not error_pattern:
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))

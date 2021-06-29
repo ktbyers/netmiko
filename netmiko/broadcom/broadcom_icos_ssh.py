@@ -1,4 +1,3 @@
-import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -9,16 +8,12 @@ class BroadcomIcosSSH(CiscoSSHConnection):
     """
 
     def session_preparation(self) -> None:
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.enable()
         self.set_base_prompt()
         self.set_terminal_width()
         self.disable_paging()
-
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""

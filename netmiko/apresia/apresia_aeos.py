@@ -1,5 +1,4 @@
 from typing import Any, Optional
-import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -9,9 +8,6 @@ class ApresiaAeosBase(CiscoSSHConnection):
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def disable_paging(
         self,

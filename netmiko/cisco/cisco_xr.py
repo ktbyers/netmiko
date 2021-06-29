@@ -6,12 +6,6 @@ from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 
 class CiscoXrBase(CiscoBaseConnection):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
-        kwargs.setdefault("fast_cli", True)
-        kwargs.setdefault("_legacy_mode", False)
-        return super().__init__(*args, **kwargs)
-
     def establish_connection(self, width: int = 511, height: int = 511) -> None:
         """Establish SSH connection to the network device"""
         super().establish_connection(width=width, height=height)

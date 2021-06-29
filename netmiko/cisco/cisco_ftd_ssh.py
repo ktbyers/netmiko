@@ -10,7 +10,7 @@ class CiscoFtdSSH(NoEnable, NoConfig, CiscoSSHConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
 
     def send_config_set(self, *args: Any, **kwargs: Any) -> str:

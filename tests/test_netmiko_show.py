@@ -21,6 +21,7 @@ from datetime import datetime
 
 def test_disable_paging(net_connect, commands, expected_responses):
     """Verify paging is disabled by looking for string after when paging would normally occur."""
+
     if net_connect.device_type == "arista_eos":
         # Arista logging buffer gets enormous
         net_connect.send_command("clear logging")

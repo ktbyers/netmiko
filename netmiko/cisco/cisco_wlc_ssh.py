@@ -132,7 +132,7 @@ class CiscoWlcSSH(BaseConnection):
 
         Cisco WLC uses "config paging disable" to disable paging
         """
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
 
         try:
             self.set_base_prompt()
@@ -141,9 +141,6 @@ class CiscoWlcSSH(BaseConnection):
             raise NetmikoAuthenticationException(msg)
 
         self.disable_paging(command="config paging disable")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def cleanup(self, command: str = "logout") -> None:
         """Reset WLC back to normal paging and gracefully close session."""

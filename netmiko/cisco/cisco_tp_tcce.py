@@ -34,6 +34,8 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_terminal_width()
         """
+        # Could not work out what the CLI looked like. It would be good to switch to
+        # a pattern on the _test_channel_read() call.
         self._test_channel_read()
         self.set_base_prompt()
         self.set_terminal_width()
