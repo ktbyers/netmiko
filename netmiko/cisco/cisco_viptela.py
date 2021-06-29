@@ -1,7 +1,6 @@
 """Subclass specific to Cisco Viptela."""
 from typing import Union, Sequence, TextIO, Any
 import re
-import time
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -11,12 +10,9 @@ class CiscoViptelaSSH(CiscoSSHConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.disable_paging(command="paginate false")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def check_config_mode(self, check_string: str = ")#", pattern: str = "#") -> bool:
         """Checks if the device is in configuration mode or not."""
