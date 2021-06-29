@@ -10,8 +10,6 @@ class CiscoAsaSSH(CiscoSSHConnection):
     """Subclass specific to Cisco ASA."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        kwargs.setdefault("fast_cli", True)
-        kwargs.setdefault("_legacy_mode", False)
         kwargs.setdefault("allow_auto_change", True)
         return super().__init__(*args, **kwargs)
 

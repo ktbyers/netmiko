@@ -9,11 +9,6 @@ if TYPE_CHECKING:
 
 
 class AristaBase(CiscoSSHConnection):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        kwargs.setdefault("fast_cli", True)
-        kwargs.setdefault("_legacy_mode", False)
-        return super().__init__(*args, **kwargs)
-
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         cmd = "terminal width 511"

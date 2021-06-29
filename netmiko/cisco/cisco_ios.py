@@ -13,12 +13,6 @@ from netmiko.base_connection import BaseConnection
 class CiscoIosBase(CiscoBaseConnection):
     """Common Methods for IOS (both SSH and telnet)."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
-        kwargs.setdefault("fast_cli", True)
-        kwargs.setdefault("_legacy_mode", False)
-        return super().__init__(*args, **kwargs)
-
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         cmd = "terminal width 511"
