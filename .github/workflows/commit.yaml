@@ -37,6 +37,7 @@ jobs:
         run: |
           mypy ./netmiko/*.py
           mypy ./netmiko/[a-c]*
+          mypy ./netmiko/dlink/
 
       - name: Run Tests
         run: |
