@@ -12,9 +12,6 @@ class AlcatelAosSSH(NoEnable, NoConfig, CiscoSSHConnection):
         # Prompt can be anything, but best practice is to end with > or #
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def save_config(
         self,

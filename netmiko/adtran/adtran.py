@@ -16,9 +16,6 @@ class AdtranOSBase(CiscoBaseConnection):
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="terminal length 0")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def check_enable_mode(self, check_string: str = "#") -> bool:
         return super().check_enable_mode(check_string=check_string)
