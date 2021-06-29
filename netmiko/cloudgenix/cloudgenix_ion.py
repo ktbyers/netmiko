@@ -10,7 +10,7 @@ class CloudGenixIonSSH(NoConfig, CiscoSSHConnection):
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.write_channel(self.RETURN)
         self.set_base_prompt(delay_factor=5)
 
