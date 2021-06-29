@@ -5,7 +5,6 @@ For use with Aruba OS Controllers.
 
 """
 from typing import Any
-import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 

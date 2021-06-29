@@ -1,5 +1,4 @@
 """Alcatel-Lucent Enterprise AOS support (AOS6 and AOS8)."""
-import time
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection

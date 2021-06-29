@@ -1,5 +1,4 @@
 from typing import Any, Optional
-import time
 import re
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
