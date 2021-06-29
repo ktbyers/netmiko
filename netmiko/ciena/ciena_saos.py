@@ -1,6 +1,5 @@
 """Ciena SAOS support."""
 from typing import Optional, Any
-import time
 import re
 import os
 from netmiko.no_enable import NoEnable
@@ -17,12 +16,9 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
     """
 
     def session_preparation(self) -> None:
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.disable_paging(command="system shell session set more off")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def _enter_shell(self) -> str:
         """Enter the Bourne Shell."""

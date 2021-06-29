@@ -6,6 +6,7 @@ from os import path
 from paramiko import SSHClient
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.ssh_exception import NetmikoTimeoutException
 
 
 class SSHClient_noauth(SSHClient):
@@ -27,13 +28,10 @@ class CalixB6Base(CiscoSSHConnection):
     def session_preparation(self) -> Any:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.set_terminal_width(command="terminal width 511", pattern="terminal")
         self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """
@@ -42,12 +40,13 @@ class CalixB6Base(CiscoSSHConnection):
         login as:
         Password: ****
         """
-        delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
-        time.sleep(delay_factor * 0.25)
-        output = ""
-        while i <= 12:
-            output = self.read_channel()
+        new_data = ""
+        time.sleep(0.1)
+        start = time.time()
+        login_timeout = 20
+        while time.time() - start < login_timeout:
+            output = self.read_channel() if not new_data else new_data
+            new_data = ""
             if output:
                 if "login as:" in output:
                     assert isinstance(self.username, str)
@@ -56,11 +55,19 @@ class CalixB6Base(CiscoSSHConnection):
                     assert isinstance(self.password, str)
                     self.write_channel(self.password + self.RETURN)
                     break
-                time.sleep(delay_factor * 0.5)
+                time.sleep(0.1)
             else:
-                self.write_channel(self.RETURN)
-                time.sleep(delay_factor * 1)
-            i += 1
+                # No new data...sleep longer
+                time.sleep(0.5)
+                new_data = self.read_channel()
+                # If still no data, send an <enter>
+                if not new_data:
+                    self.write_channel(self.RETURN)
+        else:  # no-break
+            msg = """
+Login process failed to Calix B6 device. Unable to login in {login_timeout} seconds.
+"""
+            raise NetmikoTimeoutException(msg)
 
     def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode"""

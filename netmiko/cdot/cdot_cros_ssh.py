@@ -20,13 +20,11 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[#\$]")
         self.set_base_prompt()
         self._disable_complete_on_space()
+        self.set_terminal_width(command="screen-width 511", pattern=r"screen.width 511")
         self.disable_paging(command="screen-length 0")
-        self.set_terminal_width(command="screen-width 511")
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
         return
 
     def send_config_set(  # type: ignore
