@@ -37,6 +37,12 @@ jobs:
         run: |
           mypy ./netmiko/*.py
           mypy ./netmiko/[a-c]*
+          mypy ./netmiko/dlink/
+          mypy ./netmiko/dell/dell_dnos6.py
+          mypy ./netmiko/dell/dell_force10_ssh.py
+          mypy ./netmiko/dell/dell_isilon_ssh.py
+          mypy ./netmiko/dell/dell_os10_ssh.py
+          mypy ./netmiko/dell/dell_powerconnect.py
 
       - name: Run Tests
         run: |

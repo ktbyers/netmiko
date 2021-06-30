@@ -7,10 +7,10 @@ class DellForce10SSH(CiscoSSHConnection):
 
     def save_config(
         self,
-        cmd="copy running-configuration startup-configuration",
-        confirm=False,
-        confirm_response="",
-    ):
+        cmd: str = "copy running-configuration startup-configuration",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves Config"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
