@@ -38,7 +38,8 @@ jobs:
           mypy ./netmiko/*.py
           mypy ./netmiko/[a-c]*
           mypy ./netmiko/dlink/
-          mypy ./netmiko/dell/dell_powerconnect.py 
+          mypy ./netmiko/dell/dell_powerconnect.py
+          mypy ./netmiko/dell/dell_dnos6.py
 
       - name: Run Tests
         run: |
