@@ -6,34 +6,25 @@ from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 
 
 class EricssonIposSSH(BaseConnection):
-    def check_enable_mode(self, check_string="#"):
-        """
-        Check if in enable mode. Return boolean.
-        """
+    def session_preparation(self) -> None:
+        self._test_channel_read()
+        self.set_base_prompt()
+        self.set_terminal_width(command="terminal width 512", pattern=r"terminal")
+        self.disable_paging()
+
+    def check_enable_mode(self, check_string: str = "#") -> bool:
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd="enable 15", pattern="ssword", re_flags=re.IGNORECASE):
-        """Enter enable mode."""
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
-
-    def disable_paging(self, command="terminal length 0"):
-        """Disable paging default to a Cisco CLI method.
-
-        :param command: Device command to disable pagination of output
-        :type command: str
-        """
-        return super().disable_paging(command=command)
-
-    def set_terminal_width(self, command="terminal width 512"):
-        """CLI terminals try to automatically adjust the line based on the width of the terminal.
-        This causes the output to get distorted when accessed programmatically.
-
-        Set terminal width to 511 which works on a broad set of devices.
-
-        :param command: Command string to send to the device
-        :type command: str
-        """
-        return super().set_terminal_width(command=command)
+    def enable(
+        self,
+        cmd: str = "enable 15",
+        pattern="ssword",
+        enable_pattern: Optional[str] = None,
+        re_flags=re.IGNORECASE,
+    ) -> str:
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        )
 
     def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         """Ericsson IPOS requires you not exit from configuration mode."""
