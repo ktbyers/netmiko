@@ -41,6 +41,7 @@ jobs:
           mypy ./netmiko/endace/
           mypy ./netmiko/enterasys/
           mypy ./netmiko/ericsson/
+          mypy ./netmiko/extreme/extreme_wing_ssh.py 
 
       - name: Run Tests
         run: |
