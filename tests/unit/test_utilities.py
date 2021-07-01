@@ -369,3 +369,27 @@ Configuration register is 0xF
         raw_output, platform="cisco_xe", command="show version"
     )
     assert result["version"]["chassis"] == "WS-C3560CX-8PC-S"
+
+
+@pytest.mark.parametrize(
+    "max_loops,delay_factor,timeout,result",
+    [
+        (500, 1.0, 100, 100.0),  # Defaults, should be 100 seconds
+        (500, 1.0, 90, 90.0),  # Defaults except NAPALM overrode timeout
+        (500, 0.1, 100, 10.0),  # Defaults, fast_cli should be 10 seconds
+        (500, 5, 100, 500.0),  # delay_factor=5 (5x the total sleep)
+        (1500, 5, 100, 1500.0),  # delay_factor=5, max_loops=1500 (15x the total sleep)
+        (500, 2, 100, 200.0),  # delay_factor=2
+        (500, 10, 100, 1000.0),  # delay_factor=10
+    ],
+)
+def test_delay_factor_compat(max_loops, delay_factor, timeout, result):
+
+    read_timeout = utilities.calc_old_timeout(
+        max_loops=max_loops,
+        delay_factor=delay_factor,
+        loop_delay=0.2,
+        old_timeout=timeout,
+    )
+    print(read_timeout)
+    assert read_timeout == result

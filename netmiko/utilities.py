@@ -623,3 +623,34 @@ def f_exec_time(func: F) -> F:
         return result
 
     return cast(F, wrapper_decorator)
+
+
+def calc_old_timeout(
+    max_loops: Optional[int] = None,
+    delay_factor: Optional[float] = None,
+    loop_delay: float = 0.2,
+    old_timeout: int = 100,
+) -> float:
+    """
+    loop_delay is .2 in Netmiko 3.x
+    delay_factor would multiple the loop delay
+    Number of loops was typically 500
+
+    Thus each loop would sleep (loop_delay * delay_factor) seconds
+    That sleep would happen max_loops time
+
+    Formula is (loop_delay * delay_factor) * max_loops
+
+    There was a way Netmiko's self.timeout could override the default settings and essentially be
+    used to adjust max_loops (this was probably rarely used).
+    """
+    # import ipdb; ipdb.set_trace()
+    if max_loops is None:
+        max_loops = 500
+    if delay_factor is None:
+        delay_factor = 1.0
+    # This is the logic for having self.timeout override max_loops
+    if delay_factor == 1 and max_loops == 500:
+        max_loops = int(old_timeout / loop_delay)
+
+    return max_loops * loop_delay * delay_factor
