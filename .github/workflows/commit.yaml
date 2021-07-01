@@ -40,7 +40,7 @@ jobs:
           mypy ./netmiko/eltex/
           mypy ./netmiko/endace/
           mypy ./netmiko/enterasys/
-
+          mypy ./netmiko/ericsson/
 
       - name: Run Tests
         run: |
