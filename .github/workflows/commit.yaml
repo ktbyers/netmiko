@@ -36,13 +36,12 @@ jobs:
       - name: Run mypy
         run: |
           mypy ./netmiko/*.py
-          mypy ./netmiko/[a-c]*
-          mypy ./netmiko/dlink/
-          mypy ./netmiko/dell/dell_dnos6.py
-          mypy ./netmiko/dell/dell_force10_ssh.py
-          mypy ./netmiko/dell/dell_isilon_ssh.py
-          mypy ./netmiko/dell/dell_os10_ssh.py
-          mypy ./netmiko/dell/dell_powerconnect.py
+          mypy ./netmiko/[a-d]*
+          mypy ./netmiko/eltex/
+          mypy ./netmiko/endace/
+          mypy ./netmiko/enterasys/
+          mypy ./netmiko/ericsson/
+          mypy ./netmiko/extreme/extreme_wing_ssh.py 
 
       - name: Run Tests
         run: |

@@ -1,5 +1,4 @@
-from typing import Optional
-import time
+from typing import Optional, Any
 import warnings
 from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -8,16 +7,12 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class EltexEsrSSH(CiscoSSHConnection):
     """Netmiko support for routers Eltex ESR."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.disable_paging(command="terminal datadump")
-
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def config_mode(
         self,
@@ -30,11 +25,13 @@ class EltexEsrSSH(CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def check_config_mode(self, check_string="(config", pattern=""):
+    def check_config_mode(
+        self, check_string: str = "(config", pattern: str = ""
+    ) -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented (use commit() method)"""
         raise NotImplementedError
 
@@ -65,6 +62,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         output = self.send_command(
             command_string=command_string, read_timeout=read_timeout
         )
+        assert isinstance(output, str)
 
         if error_marker in output:
             raise ValueError(
@@ -95,6 +93,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         output = self.send_command(
             command_string=command_string, read_timeout=read_timeout
         )
+        assert isinstance(output, str)
 
         if error_marker in output:
             raise ValueError(
@@ -126,6 +125,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         output = self.send_command(
             command_string=command_string, read_timeout=read_timeout
         )
+        assert isinstance(output, str)
 
         if error_marker in output:
             raise ValueError(
