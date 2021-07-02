@@ -678,6 +678,11 @@ read_channel_timing's absolute timer expired.
 The network device was continually outputting data for longer than {read_timeout}
 seconds.
 
+If this is expected i.e. the command you are executing is continually emitting
+data for a long period of time, then you can set 'read_timeout=x' seconds. If
+you want Netmiko to keep reading indefinitely (i.e. to only stop when there is
+no new data), then you can set 'read_timeout=0'.
+
 You can look at the Netmiko session_log or debug log for more information.
 
 """
