@@ -76,6 +76,7 @@ def test_read_ping_no_response(net_connect_newconn):
     assert exec_time.total_seconds() > 10
     net_connect_newconn.disconnect()
 
+
 def test_read_traceroute_no_response(net_connect_newconn):
 
     # Will finish in about 90 seconds
@@ -84,13 +85,12 @@ def test_read_traceroute_no_response(net_connect_newconn):
         net_connect_newconn,
         cmd=cmd,
         last_read=4.0,
-    #    read_timeout=300,
+        #    read_timeout=300,
     )
     assert "cisco3#" in output
     assert output.count("*") == 30
     assert exec_time.total_seconds() > 10
     net_connect_newconn.disconnect()
-
 
 
 def test_read_traceroute_no_response_full(net_connect_newconn):
@@ -101,7 +101,7 @@ def test_read_traceroute_no_response_full(net_connect_newconn):
         net_connect_newconn,
         cmd=cmd,
         last_read=4.0,
-        read_timeout=6 * 60,    # allow 6-minutes
+        read_timeout=6 * 60,  # allow 6-minutes
     )
     assert "cisco3#" in output
     assert output.count("*") == 90
