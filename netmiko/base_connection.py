@@ -2054,8 +2054,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_attrs_off = chr(27) + r"\[0m"
         code_reverse = chr(27) + r"\[7m"
         code_cursor_left = chr(27) + r"\[\d+D"
-        code_cursor_forward = chr(27) + r"\[\d+C"
+        code_cursor_forward = chr(27) + r"\[\d*C"
+        code_cursor_up = chr(27) + r"\[\d*A"
         code_wrap_around = chr(27) + r"\[\?7h"
+        code_bracketed_paste_mode = chr(27) + r"\[\?2004h"
 
         code_set = [
             code_position_cursor,
@@ -2080,8 +2082,10 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_attrs_off,
             code_reverse,
             code_cursor_left,
+            code_cursor_up,
             code_cursor_forward,
-            code_wrap_around
+            code_wrap_around,
+            code_bracketed_paste_mode
         ]
 
         output = string_buffer
