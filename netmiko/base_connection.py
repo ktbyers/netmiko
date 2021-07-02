@@ -55,6 +55,7 @@ from netmiko.utilities import (
     structured_data_converter,
     run_ttp_template,
     select_cmd_verify,
+    calc_old_timeout,
 )
 from netmiko.utilities import m_exec_time  # noqa
 
@@ -162,6 +163,7 @@ class BaseConnection:
         encoding: str = "ascii",
         sock: Optional[socket.socket] = None,
         auto_connect: bool = True,
+        delay_factor_compat: bool = False,
     ) -> None:
         """
         Initialize attributes for establishing connection to target device.
@@ -257,6 +259,10 @@ class BaseConnection:
 
         :param auto_connect: Control whether Netmiko automatically establishes the connection as
                 part of the object creation (default: True).
+
+        :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+                3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+                eliminated in Netmiko 5.x (default: False).
         """
         self.remote_conn: Union[
             None, telnetlib.Telnet, paramiko.Channel, serial.Serial
@@ -264,6 +270,7 @@ class BaseConnection:
         # Does the platform support a configuration mode
         self._config_mode = True
         self._read_buffer = ""
+        self.delay_factor_compat = delay_factor_compat
 
         self.TELNET_RETURN = "\r\n"
         if default_enter is None:
@@ -633,6 +640,10 @@ You can also look at the Netmiko session_log or debug log for more information.\
         `read_timeout` is an absolute timer for how long to keep reading (which presupposes
         we are still getting new data).
 
+        Setting `read_timeout` to zero will cause read_channel_timing to never expire based
+        on an absolute timeout. It will only complete based on timeout based on their being
+        no new data.
+
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
@@ -666,6 +677,11 @@ read_channel_timing's absolute timer expired.
 
 The network device was continually outputting data for longer than {read_timeout}
 seconds.
+
+If this is expected i.e. the command you are executing is continually emitting
+data for a long period of time, then you can set 'read_timeout=x' seconds. If
+you want Netmiko to keep reading indefinitely (i.e. to only stop when there is
+no new data), then you can set 'read_timeout=0'.
 
 You can look at the Netmiko session_log or debug log for more information.
 
@@ -1487,15 +1503,51 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
         # Time to delay in each read loop
         loop_delay = 0.01
+
         if self.read_timeout_override:
             read_timeout = self.read_timeout_override
 
-        if delay_factor is not None or max_loops is not None:
+        if self.delay_factor_compat:
+            # For compatibility calculate the old equivalent read_timeout
+            # i.e. what it would have been in Netmiko 3.x
+            if delay_factor is None:
+                tmp_delay_factor = self.global_delay_factor
+            else:
+                tmp_delay_factor = self.select_delay_factor(delay_factor)
+            compat_timeout = calc_old_timeout(
+                max_loops=max_loops,
+                delay_factor=tmp_delay_factor,
+                loop_delay=0.2,
+                old_timeout=self.timeout,
+            )
             msg = """\n
+You have chosen to use Netmiko's delay_factor compatibility mode for send_command.
+This will revert Netmiko to behave similarly to how it did in Netmiko 3.x (i.e.
+to use delay_factor/global_delay_factor and max_loops. Using these parameters
+Netmiko has calculated an effective read_timeout of {compat_timeout} and will set
+the read_timeout to this value.
+
+Please convert your code to that new format i.e.:
+
+    net_connect.send_command(cmd, read_timeout={compat_timeout})
+
+And then disable delay_factor_compat.
+
+delay_factor_compat will be removed in Netmiko 5.x.\n"""
+            warnings.warn(msg, DeprecationWarning)
+
+            # Override the read_timeout with Netmiko 3.x way :-(
+            read_timeout = compat_timeout
+
+        else:
+            # No need for two deprecation messages so only display this if not using
+            # delay_factor_compat
+            if delay_factor is not None or max_loops is not None:
+                msg = """\n
 Netmiko 4.x has deprecated the use of delay_factor/max_loops with send_command.
 You should convert all uses of delay_factor and max_loops over to read_timeout=x
 where x is the total number of seconds to wait before timing out.\n"""
-            warnings.warn(msg, DeprecationWarning)
+                warnings.warn(msg, DeprecationWarning)
 
         if expect_string is not None:
             search_pattern = expect_string
