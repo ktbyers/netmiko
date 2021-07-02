@@ -640,6 +640,10 @@ You can also look at the Netmiko session_log or debug log for more information.\
         `read_timeout` is an absolute timer for how long to keep reading (which presupposes
         we are still getting new data).
 
+        Setting `read_timeout` to zero will cause read_channel_timing to never expire based
+        on an absolute timeout. It will only complete based on timeout based on their being
+        no new data.
+
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
