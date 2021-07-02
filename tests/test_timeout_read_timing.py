@@ -1,18 +1,17 @@
 from datetime import datetime
 
 """
-Working traceroute
-Failing traceroute
-Image transfer of very large file.
-show tech-support output        DONE    82 seconds needs a 4 second last_read
-show ip bgp output              <don't have>
-pinging unreachable destination     DONE
-pinging 10,000 times to reachable destination   DONE
-copying big files on a device
-doing a ftp/tftp/http copy initiated on the device
-generating ssh keys on a device
-generating md5/sha hash for a software image    DONE
-failing traceroute that you break out of.
+DONE    Working traceroute
+DONE    Failing traceroute
+DONE    show tech-support output
+DONE    pinging unreachable destination
+DONE    pinging 10,000 times to reachable destination
+DONE    generating md5/sha hash for a software image
+        failing traceroute that you break out of.
+        Image transfer of very large file.
+        show ip bgp output
+        copying big files on a device
+        doing a ftp/tftp/http copy initiated on the device
 """
 
 
@@ -40,6 +39,7 @@ def test_read_show_tech(net_connect_newconn):
     assert "show interface" in output
     assert "cisco3#" in output
     assert exec_time.total_seconds() > 10
+    net_connect_newconn.disconnect()
 
 
 def test_read_md5(net_connect_newconn):
@@ -50,6 +50,7 @@ def test_read_md5(net_connect_newconn):
     assert "Done!" in output
     assert "cisco3#" in output
     assert exec_time.total_seconds() > 10
+    net_connect_newconn.disconnect()
 
 
 def test_read_ping(net_connect_newconn):
@@ -59,6 +60,7 @@ def test_read_ping(net_connect_newconn):
     assert "Success rate is" in output
     assert "cisco3#" in output
     assert exec_time.total_seconds() > 10
+    net_connect_newconn.disconnect()
 
 
 def test_read_ping_no_response(net_connect_newconn):
@@ -72,6 +74,7 @@ def test_read_ping_no_response(net_connect_newconn):
     assert "Success rate is" in output
     assert "cisco3#" in output
     assert exec_time.total_seconds() > 10
+    net_connect_newconn.disconnect()
 
 def test_read_traceroute_no_response(net_connect_newconn):
 
@@ -86,6 +89,7 @@ def test_read_traceroute_no_response(net_connect_newconn):
     assert "cisco3#" in output
     assert output.count("*") == 30
     assert exec_time.total_seconds() > 10
+    net_connect_newconn.disconnect()
 
 
 
@@ -102,67 +106,17 @@ def test_read_traceroute_no_response_full(net_connect_newconn):
     assert "cisco3#" in output
     assert output.count("*") == 90
     assert exec_time.total_seconds() > 100
+    net_connect_newconn.disconnect()
 
-# @pytest.mark.parametrize(
-#    "test_timeout,allowed_percentage",
-#    [(0.4, 5.0), (1, 2.0), (5, 1.0), (10, 0.5), (60, 0.2)],
-# )
-# def test_read_timeout(net_connect_newconn, test_timeout, allowed_percentage):
-#
-#    # Explicitly send expect_string so timing is more accurate
-#    my_prompt = net_connect_newconn.find_prompt()
-#    pattern = re.escape(my_prompt)
-#
-#    my_except, exec_time = show_long_running(
-#        net_connect_newconn, read_timeout=test_timeout, expect_string=pattern
-#    )
-#
-#    # Returned exception should be read_timeout
-#    assert isinstance(my_except, ReadTimeout)
-#
-#    # Calculate difference in execution time from timeout
-#    time_diff = abs(exec_time.total_seconds() - test_timeout)
-#    # Convert difference to a percentage of expected timeout
-#    time_margin_percent = time_diff / test_timeout * 100
-#    # Margin off should be less than the allowed_percentage
-#    assert time_margin_percent < allowed_percentage
-#
-#
-# @pytest.mark.parametrize(
-#    "test_timeout,allowed_percentage", [(1, 2.0), (5, 1.0), (10, 0.5), (60, 0.2)]
-# )
-# def test_read_timeout_override(net_connect_newconn, test_timeout, allowed_percentage):
-#
-#    net_connect_newconn.read_timeout_override = 12
-#    ssh_conn = net_connect_newconn
-#
-#    # Explicitly send expect_string so timing is more accurate
-#    my_prompt = net_connect_newconn.find_prompt()
-#    pattern = re.escape(my_prompt)
-#
-#    my_except, exec_time = show_long_running(
-#        ssh_conn, read_timeout=test_timeout, expect_string=pattern
-#    )
-#
-#    # Returned exception should be read_timeout
-#    assert isinstance(my_except, ReadTimeout)
-#
-#    # For comparsions compare to the override time with a fixed allowed percentage
-#    test_timeout = ssh_conn.read_timeout_override
-#    allowed_percentage = 0.5
-#
-#    # Calculate difference in execution time from read_timeout_override
-#    time_diff = abs(exec_time.total_seconds() - test_timeout)
-#
-#    # Convert difference to a percentage of expected timeout
-#    time_margin_percent = time_diff / test_timeout * 100
-#    # Margin off should be less than the allowed_percentage
-#    assert time_margin_percent < allowed_percentage
-#
-#
-# def test_deprecation_max_loops(net_connect_newconn):
-#
-#    nc = net_connect_newconn
-#    cmd = "show ip int brief"
-#    with pytest.deprecated_call():
-#        execute_cmd(nc, pattern=r"#", read_timeout=10, cmd=cmd, max_loops=1000)
+
+def test_read_traceroute(net_connect_newconn):
+
+    cmd = "traceroute 10.220.88.37"
+    output, exec_time = execute_cmd(
+        net_connect_newconn,
+        cmd=cmd,
+        last_read=4.0,
+    )
+    assert "cisco3#" in output
+    assert exec_time.total_seconds() > 5
+    net_connect_newconn.disconnect()
