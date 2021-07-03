@@ -36,7 +36,7 @@ def test_read_show_tech(net_connect_newconn):
     output, exec_time = execute_cmd(
         net_connect_newconn, read_timeout=read_timeout, last_read=4.0
     )
-    import ipdb; ipdb.set_trace()
+
     assert "show interface" in output
     assert "cisco3#" in output
     assert exec_time.total_seconds() > 10
