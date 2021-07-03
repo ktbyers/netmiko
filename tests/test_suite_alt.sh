@@ -5,6 +5,17 @@ PYTEST='py.test -s -v -x'
 
 # Exit on the first test failure and set RETURN_CODE = 1
 echo "Starting tests...good luck:" \
+\
+&& echo "Cisco IOS-XE SSH (including SCP)" \
+&& $PYTEST test_timeout_read_until_pattern.py --test_device cisco3 \
+&& $PYTEST test_timeout_send_command.py --test_device cisco3 \
+&& $PYTEST test_timeout_read_timing.py --test_device cisco3 \
+&& $PYTEST test_timeout_send_command_timing.py --test_device cisco3 \
+&& $PYTEST test_netmiko_scp.py --test_device cisco3 \
+&& $PYTEST test_netmiko_show.py --test_device cisco3 \
+&& $PYTEST test_netmiko_config.py --test_device cisco3 \
+&& $PYTEST test_netmiko_config_acl.py --test_device cisco3 \
+\
 && echo "Exception and Timeout Tests" \
 && $PYTEST test_netmiko_exceptions.py \
 \
@@ -16,12 +27,6 @@ echo "Starting tests...good luck:" \
 && $PYTEST test_netmiko_show.py --test_device cisco_xr_azure \
 && $PYTEST test_netmiko_config.py --test_device cisco_xr_azure \
 && $PYTEST test_netmiko_commit.py --test_device cisco_xr_azure \
-\
-&& echo "Cisco IOS-XE SSH (including SCP)" \
-&& $PYTEST test_netmiko_scp.py --test_device cisco3 \
-&& $PYTEST test_netmiko_show.py --test_device cisco3 \
-&& $PYTEST test_netmiko_config.py --test_device cisco3 \
-&& $PYTEST test_netmiko_config_acl.py --test_device cisco3 \
 \
 && echo "Cisco IOS SSH (including SCP) using key auth" \
 && $PYTEST test_netmiko_tcl.py --test_device cisco881_key \

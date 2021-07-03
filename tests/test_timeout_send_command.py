@@ -5,7 +5,7 @@ import re
 from netmiko import ReadTimeout
 
 # Setting to True will slow things down (as will wait until "show tech-support" completes.
-CLEANUP = False
+CLEANUP = True
 
 
 def my_cleanup(conn, sleep=180):
