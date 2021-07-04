@@ -1,29 +1,13 @@
 from datetime import datetime
 
-"""
-DONE    Working traceroute
-DONE    Failing traceroute
-DONE    show tech-support output
-DONE    pinging unreachable destination
-DONE    pinging 10,000 times to reachable destination
-DONE    generating md5/sha hash for a software image
-        failing traceroute that you break out of.
-        Image transfer of very large file.
-        show ip bgp output
-        copying big files on a device
-        doing a ftp/tftp/http copy initiated on the device
-"""
-
 
 def execute_cmd(conn, cmd="show tech-support", read_timeout=None, last_read=2.0):
     start_time = datetime.now()
-    cmd = cmd.strip()
-    conn.write_channel(cmd + "\n")
     if read_timeout is None:
-        output = conn.read_channel_timing(last_read=last_read)
+        output = conn.send_command_timing(cmd, last_read=last_read, strip_prompt=False)
     else:
-        output = conn.read_channel_timing(
-            read_timeout=read_timeout, last_read=last_read
+        output = conn.send_command_timing(
+            cmd, read_timeout=read_timeout, last_read=last_read, strip_prompt=False
         )
     end_time = datetime.now()
     exec_time = end_time - start_time
@@ -36,7 +20,6 @@ def test_read_show_tech(net_connect_newconn):
     output, exec_time = execute_cmd(
         net_connect_newconn, read_timeout=read_timeout, last_read=4.0
     )
-
     assert "show interface" in output
     assert "cisco3#" in output
     assert exec_time.total_seconds() > 10

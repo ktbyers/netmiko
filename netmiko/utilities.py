@@ -644,7 +644,6 @@ def calc_old_timeout(
     There was a way Netmiko's self.timeout could override the default settings and essentially be
     used to adjust max_loops (this was probably rarely used).
     """
-    # import ipdb; ipdb.set_trace()
     if max_loops is None:
         max_loops = 500
     if delay_factor is None:
