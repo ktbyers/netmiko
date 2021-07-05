@@ -2137,7 +2137,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_cursor_up,
             code_cursor_forward,
             code_wrap_around,
-            code_bracketed_paste_mode
+            code_bracketed_paste_mode,
         ]
 
         output = string_buffer
