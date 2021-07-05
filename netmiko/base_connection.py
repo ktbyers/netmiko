@@ -564,6 +564,8 @@ class BaseConnection:
         :param pattern: Regular expression pattern used to identify that reading is done.
 
         :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
+            A read_timeout value of 0 will cause the loop to never timeout (i.e. it will keep
+            reading indefinitely until pattern is detected.
 
         :param re_flags: regex flags used in conjunction with pattern (defaults to no flags).
 
@@ -582,7 +584,7 @@ where x is the total number of seconds to wait before timing out.\n"""
         output = ""
         loop_delay = 0.01
         start_time = time.time()
-        while time.time() - start_time < read_timeout:
+        while (time.time() - start_time < read_timeout) or (int(read_timeout) == 0):
             output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
                 results = re.split(pattern, output, maxsplit=1, flags=re_flags)
@@ -651,6 +653,9 @@ You can also look at the Netmiko session_log or debug log for more information.\
 
         if delay_factor is not None or max_loops is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
+        if self.read_timeout_override:
+            read_timeout = self.read_timeout_override
 
         # Time to delay in each read loop
         loop_delay = 0.1
