@@ -5,9 +5,9 @@ jobs:
   std_tests:
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 3
+      max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
       - name: Checkout repository
@@ -32,6 +32,16 @@ jobs:
       - name: Run linter
         run: |
           pylama .
+
+      - name: Run mypy
+        run: |
+          mypy ./netmiko/*.py
+          mypy ./netmiko/[a-d]*
+          mypy ./netmiko/eltex/
+          mypy ./netmiko/endace/
+          mypy ./netmiko/enterasys/
+          mypy ./netmiko/ericsson/
+          mypy ./netmiko/extreme/extreme_wing_ssh.py 
 
       - name: Run Tests
         run: |

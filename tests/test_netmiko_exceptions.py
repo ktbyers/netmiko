@@ -4,7 +4,7 @@ from datetime import datetime
 import pytest
 from netmiko import ConnectHandler
 from netmiko import NetmikoTimeoutException
-from tests.test_utils import parse_yaml
+from test_utils import parse_yaml
 
 PWD = path.dirname(path.realpath(__file__))
 DEVICE_DICT = parse_yaml(PWD + "/etc/test_devices_exc.yml")

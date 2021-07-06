@@ -17,6 +17,7 @@ from netmiko.ssh_exception import (
     NetMikoAuthenticationException,
 )
 from netmiko.ssh_exception import ConfigInvalidException
+from netmiko.ssh_exception import ReadException, ReadTimeout
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_functions import file_transfer, progress_bar
@@ -24,7 +25,7 @@ from netmiko.scp_functions import file_transfer, progress_bar
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = "3.4.0"
+__version__ = "4.0.0a2"
 __all__ = (
     "ConnectHandler",
     "ssh_dispatcher",
@@ -34,6 +35,8 @@ __all__ = (
     "NetmikoTimeoutException",
     "NetmikoAuthenticationException",
     "ConfigInvalidException",
+    "ReadException",
+    "ReadTimeout",
     "NetMikoTimeoutException",
     "NetMikoAuthenticationException",
     "InLineTransfer",

@@ -1,17 +1,18 @@
 import time
+from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
 
 
-class PluribusSSH(BaseConnection):
+class PluribusSSH(NoConfig, BaseConnection):
     """Common methods for Pluribus."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._config_mode = False
 
-    def disable_paging(self, command="pager off", delay_factor=1):
+    def disable_paging(self, command="pager off"):
         """Make sure paging is disabled."""
-        return super().disable_paging(command=command, delay_factor=delay_factor)
+        return super().disable_paging(command=command)
 
     def session_preparation(self):
         """Prepare the netmiko session."""
@@ -21,20 +22,3 @@ class PluribusSSH(BaseConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-
-    def check_config_mode(self, *args, **kwargs):
-        """
-        Pluribus devices don't have a config mode.
-        Therefore it can be considered as always in config mode.
-        """
-        return self._config_mode
-
-    def config_mode(self, *args, **kwargs):
-        """No special actions to enter in config mode."""
-        self._config_mode = True
-        return ""
-
-    def exit_config_mode(self, *args, **kwargs):
-        """No special actions to exit config mode."""
-        self._config_mode = False
-        return ""

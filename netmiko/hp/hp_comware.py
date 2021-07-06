@@ -34,9 +34,12 @@ class HPComwareBase(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(self, config_command="system-view"):
-        """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+    def config_mode(
+        self, config_command: str = "system-view", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="return", pattern=r">"):
         """Exit config mode."""
@@ -45,6 +48,11 @@ class HPComwareBase(CiscoSSHConnection):
     def check_config_mode(self, check_string="]"):
         """Check whether device is in configuration mode. Return a boolean."""
         return super().check_config_mode(check_string=check_string)
+
+    def send_config_set(self, config_commands=None, terminator=r"\]", **kwargs):
+        return super().send_config_set(
+            config_commands=config_commands, terminator=terminator, **kwargs
+        )
 
     def set_base_prompt(
         self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1

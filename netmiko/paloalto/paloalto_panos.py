@@ -1,9 +1,12 @@
+from typing import Optional
 import time
 import re
-from netmiko.base_connection import BaseConnection
+import warnings
+from netmiko.no_enable import NoEnable
+from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 
 
-class PaloAltoPanosBase(BaseConnection):
+class PaloAltoPanosBase(NoEnable, BaseConnection):
     """
     Implement methods for interacting with PaloAlto devices.
 
@@ -27,25 +30,17 @@ class PaloAltoPanosBase(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on PaloAlto."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on PaloAlto."""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on PaloAlto."""
-        pass
-
     def check_config_mode(self, check_string="]"):
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command="configure"):
+    def config_mode(
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
+    ) -> str:
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def exit_config_mode(self, exit_config="exit", pattern=r">"):
         """Exit configuration mode."""
@@ -54,14 +49,15 @@ class PaloAltoPanosBase(BaseConnection):
     def commit(
         self,
         comment=None,
-        force=False,
-        partial=False,
-        device_and_network=False,
-        policy_and_objects=False,
-        vsys="",
-        no_vsys=False,
-        delay_factor=0.1,
-    ):
+        force: bool = False,
+        partial: bool = False,
+        device_and_network: bool = False,
+        policy_and_objects: bool = False,
+        vsys: str = "",
+        no_vsys: bool = False,
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -75,8 +71,13 @@ class PaloAltoPanosBase(BaseConnection):
         (device_and_network or policy_and_objects or vsys or
                 no_vsys) and not partial:
             Exception
+
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
 
         if (
             device_and_network or policy_and_objects or vsys or no_vsys
@@ -108,12 +109,12 @@ class PaloAltoPanosBase(BaseConnection):
 
         # Enter config mode (if necessary)
         output = self.config_mode()
-        output += self.send_command_expect(
+        output += self.send_command(
             command_string,
             strip_prompt=False,
             strip_command=False,
             expect_string="100%",
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
 
         if commit_marker not in output.lower():
@@ -161,7 +162,7 @@ class PaloAltoPanosBase(BaseConnection):
 
     def send_command(self, *args, **kwargs):
         """Palo Alto requires an extra delay"""
-        kwargs["delay_factor"] = kwargs.get("delay_factor", 2.5)
+        kwargs["read_timeout"] = kwargs.get("read_timeout", 25)
         return super().send_command(*args, **kwargs)
 
     def cleanup(self, command="exit"):

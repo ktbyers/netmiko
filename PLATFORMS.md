@@ -67,6 +67,7 @@
 - Ciena SAOS
 - Citrix Netscaler
 - Cisco Telepresence
+- Cisco Viptela
 - Check Point GAiA
 - Coriant
 - Dell OS6

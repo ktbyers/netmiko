@@ -5,7 +5,7 @@ import time
 class AlliedTelesisAwplusBase(CiscoBaseConnection):
     """Implement methods for interacting with Allied Telesis devices."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
 
@@ -18,25 +18,33 @@ class AlliedTelesisAwplusBase(CiscoBaseConnection):
         self.set_base_prompt()
         time.sleep(0.3 * self.global_delay_factor)
 
-    def _enter_shell(self):
+    def _enter_shell(self) -> str:
         """Enter the Bourne Shell."""
-        return self.send_command("start shell sh", expect_string=r"[\$#]")
+        output = self.send_command("start shell sh", expect_string=r"[\$#]")
+        assert isinstance(output, str)
+        return output
 
-    def _return_cli(self):
+    def _return_cli(self) -> str:
         """Return to the Awplus CLI."""
-        return self.send_command("exit", expect_string=r"[#>]")
+        output = self.send_command("exit", expect_string=r"[#>]")
+        assert isinstance(output, str)
+        return output
 
-    def exit_config_mode(self, exit_config="exit", pattern=""):
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "") -> str:
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
-            output = self.send_command_timing(
+            new_output = self.send_command_timing(
                 exit_config, strip_prompt=False, strip_command=False
             )
+            assert isinstance(new_output, str)
+            output += new_output
             if "Exit with uncommitted changes?" in output:
-                output += self.send_command_timing(
+                new_output = self.send_command_timing(
                     "yes", strip_prompt=False, strip_command=False
                 )
+                assert isinstance(new_output, str)
+                output += new_output
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output

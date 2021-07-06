@@ -34,18 +34,18 @@ class RuckusFastironBase(CiscoSSHConnection):
             while i < count:
                 self.write_channel(self.normalize_cmd(cmd))
                 new_data = self.read_until_prompt_or_pattern(
-                    pattern=pattern, re_flags=re_flags
+                    pattern=pattern, re_flags=re_flags, read_entire_line=True
                 )
                 output += new_data
                 if "User Name" in new_data:
                     self.write_channel(self.normalize_cmd(self.username))
                     new_data = self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
+                        pattern=pattern, re_flags=re_flags, read_entire_line=True
                     )
                     output += new_data
                 if "ssword" in new_data:
                     self.write_channel(self.normalize_cmd(self.secret))
-                    new_data = self.read_until_prompt()
+                    new_data = self.read_until_prompt(read_entire_line=True)
                     output += new_data
                     if not re.search(
                         r"error.*incorrect.*password", new_data, flags=re.I

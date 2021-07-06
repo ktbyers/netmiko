@@ -1,10 +1,11 @@
 import paramiko
 import time
 import re
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class FortinetSSH(CiscoSSHConnection):
+class FortinetSSH(NoConfig, CiscoSSHConnection):
     def _modify_connection_params(self):
         """Modify connection parameters prior to SSH connection."""
         paramiko.Transport._preferred_kex = (
@@ -38,7 +39,7 @@ class FortinetSSH(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, delay_factor=1, **kwargs):
+    def disable_paging(self, **kwargs):
         """Disable paging is only available with specific roles so it may fail."""
         check_command = "get system status | grep Virtual"
         output = self.send_command_timing(check_command)
@@ -97,14 +98,6 @@ class FortinetSSH(CiscoSSHConnection):
             for command in enable_paging_commands:
                 self.send_command_timing(command)
         return super().cleanup(command=command)
-
-    def config_mode(self, config_command=""):
-        """No config mode for Fortinet devices."""
-        return ""
-
-    def exit_config_mode(self, exit_config=""):
-        """No config mode for Fortinet devices."""
-        return ""
 
     def save_config(self, *args, **kwargs):
         """Not Implemented"""

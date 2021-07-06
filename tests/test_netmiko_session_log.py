@@ -137,12 +137,13 @@ def test_session_log_bytesio(device_slog, commands, expected_responses):
 def test_session_log_secrets(device_slog):
     """Verify session_log does not contain password or secret."""
     conn = ConnectHandler(**device_slog)
-    conn._write_session_log("\nTesting password and secret replacement\n")
-    conn._write_session_log("This is my password {}\n".format(conn.password))
-    conn._write_session_log("This is my secret {}\n".format(conn.secret))
+    conn.session_log.write("\nTesting password and secret replacement\n")
+    conn.session_log.write("This is my password {}\n".format(conn.password))
+    conn.session_log.write("This is my secret {}\n".format(conn.secret))
 
-    if not isinstance(conn.session_log, io.BufferedIOBase):
-        with open(conn.session_log.name, "r") as f:
+    session_log_obj = conn.session_log
+    if not isinstance(session_log_obj.session_log, io.BufferedIOBase):
+        with open(session_log_obj.session_log.name, "r") as f:
             session_log = f.read()
         if conn.password:
             assert conn.password not in session_log

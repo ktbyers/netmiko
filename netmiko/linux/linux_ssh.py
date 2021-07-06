@@ -55,9 +55,14 @@ class LinuxSSH(CiscoSSHConnection):
         """Verify root"""
         return self.check_enable_mode(check_string=check_string)
 
-    def config_mode(self, config_command="sudo -s"):
+    def config_mode(
+        self,
+        config_command: str = "sudo -s",
+        pattern: str = "ssword",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Attempt to become root."""
-        return self.enable(cmd=config_command)
+        return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
 
     def exit_config_mode(self, exit_config="exit"):
         return self.exit_enable_mode(exit_command=exit_config)
@@ -157,9 +162,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
-        dest_md5 = self.ssh_ctl_chan.send_command(
-            remote_md5_cmd, max_loops=750, delay_factor=2
-        )
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, read_timeout=300)
         dest_md5 = self.process_md5(dest_md5).strip()
         return dest_md5
 

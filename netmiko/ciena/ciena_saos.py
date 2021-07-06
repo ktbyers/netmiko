@@ -1,68 +1,50 @@
 """Ciena SAOS support."""
-import time
+from typing import Optional, Any
 import re
 import os
+from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class CienaSaosBase(BaseConnection):
+class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
     """
     Ciena SAOS support.
 
     Implements methods for interacting Ciena Saos devices.
-
-    Disables enable(), check_enable_mode(), config_mode() and
-    check_config_mode()
     """
 
-    def session_preparation(self):
-        self._test_channel_read()
+    def session_preparation(self) -> None:
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.disable_paging(command="system shell session set more off")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
-    def _enter_shell(self):
+    def _enter_shell(self) -> str:
         """Enter the Bourne Shell."""
         output = self.send_command("diag shell", expect_string=r"[$#>]")
+        assert isinstance(output, str)
         if "SHELL PARSER FAILURE" in output:
             msg = "SCP support on Ciena SAOS requires 'diag shell' permissions"
             raise ValueError(msg)
         return output
 
-    def _return_cli(self):
+    def _return_cli(self) -> str:
         """Return to the Ciena SAOS CLI."""
-        return self.send_command("exit", expect_string=r"[>]")
+        output = self.send_command("exit", expect_string=r"[>]")
+        assert isinstance(output, str)
+        return output
 
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on Ciena SAOS."""
-        return True
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on Ciena SAOS."""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on Ciena SAOS."""
-        return ""
-
-    def check_config_mode(self, check_string=">", pattern=""):
-        """No config mode on Ciena SAOS."""
-        return False
-
-    def config_mode(self, config_command=""):
-        """No config mode on Ciena SAOS."""
-        return ""
-
-    def exit_config_mode(self, exit_config=""):
-        """No config mode on Ciena SAOS."""
-        return ""
-
-    def save_config(self, cmd="configuration save", confirm=False, confirm_response=""):
+    def save_config(
+        self,
+        cmd: str = "configuration save",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves Config."""
-        return self.send_command(command_string=cmd)
+        return super().save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
 
 
 class CienaSaosSSH(CienaSaosBase):
@@ -70,7 +52,7 @@ class CienaSaosSSH(CienaSaosBase):
 
 
 class CienaSaosTelnet(CienaSaosBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
@@ -81,14 +63,14 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
     def __init__(
         self,
-        ssh_conn,
-        source_file,
-        dest_file,
-        file_system="",
-        direction="put",
-        **kwargs,
-    ):
-        if file_system == "":
+        ssh_conn: BaseConnection,
+        source_file: str,
+        dest_file: str,
+        file_system: Optional[str] = None,
+        direction: str = "put",
+        **kwargs: Any,
+    ) -> None:
+        if file_system is None:
             file_system = f"/tmp/users/{ssh_conn.username}"
         return super().__init__(
             ssh_conn=ssh_conn,
@@ -99,7 +81,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             **kwargs,
         )
 
-    def remote_space_available(self, search_pattern=""):
+    def remote_space_available(self, search_pattern: str = "") -> int:
         """
         Return space available on Ciena SAOS
 
@@ -109,7 +91,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         tmpfs                  1048576       648   1047928   0% /tmp
         """
         remote_cmd = f"file vols -P {self.file_system}"
-        remote_output = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+        remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
+        assert isinstance(remote_output, str)
         remote_output = remote_output.strip()
         err_msg = (
             f"Parsing error, unexpected output from {remote_cmd}:\n{remote_output}"
@@ -139,12 +122,13 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
         return int(space_avail) * 1024
 
-    def check_file_exists(self, remote_cmd=""):
+    def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             if not remote_cmd:
                 remote_cmd = f"file ls {self.file_system}/{self.dest_file}"
             remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            assert isinstance(remote_out, str)
             search_string = re.escape(f"{self.file_system}/{self.dest_file}")
             if "ERROR" in remote_out:
                 return False
@@ -154,8 +138,12 @@ class CienaSaosFileTransfer(BaseFileTransfer):
                 raise ValueError("Unexpected output from check_file_exists")
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
+        else:
+            raise ValueError("Unexpected value for self.direction")
 
-    def remote_file_size(self, remote_cmd="", remote_file=None):
+    def remote_file_size(
+        self, remote_cmd: str = "", remote_file: Optional[str] = None
+    ) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":
@@ -168,7 +156,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         if not remote_cmd:
             remote_cmd = f"file ls -l {remote_file}"
 
-        remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        assert isinstance(remote_out, str)
 
         if "No such file or directory" in remote_out:
             raise IOError("Unable to find file on remote system")
@@ -186,7 +175,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             "Search pattern not found for remote file size during SCP transfer."
         )
 
-    def remote_md5(self, base_cmd="", remote_file=None):
+    def remote_md5(self, base_cmd: str = "", remote_file: Optional[str] = None) -> str:
         """Calculate remote MD5 and returns the hash.
 
         This command can be CPU intensive on the remote device.
@@ -205,12 +194,13 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         dest_md5 = self.ssh_ctl_chan.send_command(
             remote_md5_cmd, expect_string=r"[$#>]"
         )
+        assert isinstance(dest_md5, str)
         self.ssh_ctl_chan._return_cli()
         dest_md5 = self.process_md5(dest_md5, pattern=r"([0-9a-f]+)\s+")
         return dest_md5
 
-    def enable_scp(self, cmd="system server scp enable"):
+    def enable_scp(self, cmd: str = "system server scp enable") -> None:
         return super().enable_scp(cmd=cmd)
 
-    def disable_scp(self, cmd="system server scp disable"):
+    def disable_scp(self, cmd: str = "system server scp disable") -> None:
         return super().disable_scp(cmd=cmd)
