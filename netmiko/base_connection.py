@@ -1408,8 +1408,12 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param a_string: Returned string from device
         :type a_string: str
         """
-        response_list = a_string.split(self.RESPONSE_RETURN)
-        last_line = response_list[-1]
+        try:
+            response_list = a_string.split(self.RESPONSE_RETURN)
+            last_line = response_list[-1]
+        except IndexError:
+            return a_string
+
         if self.base_prompt in last_line:
             return self.RESPONSE_RETURN.join(response_list[:-1])
         else:
