@@ -1,6 +1,8 @@
 from typing import Any
+import re
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.ssh_exception import ReadTimeout
 
 
 class MikrotikBase(NoEnable, CiscoSSHConnection):
@@ -53,6 +55,40 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         """No configuration mode on Microtik"""
         self._in_config_mode = False
         return ""
+
+    def command_echo_read(self, cmd: str, read_timeout: float) -> str:
+        """
+                Mikrotik has some odd behavior where it repaints both the command and the line
+
+                This could result in the command being at the top of the output multiple times
+                (once for the actual echo and once for the repainting).
+
+                Correct this behavior.
+
+                Example output:
+
+        DEBUG:netmiko:write_channel: b'ping count=5 1.0.0.1\r\n'
+        DEBUG:netmiko:read_channel: ping count=5 1.0.0.1
+        [admin@hostname] > ping count=5 1.0.0.1
+
+          SEQ HOST                                     SIZE TTL TIME  STATUS
+            0 1.0.0.1                                    56  60 23ms
+
+        """
+
+        # First read--initial command echo
+        _ = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
+        try:
+            # Now try to read the re-painted line if it exists
+            # Use a short timeout in case it is not there.
+            _ = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=1.5)
+        except ReadTimeout:
+            # No second re-paint of cmd?
+            pass
+
+        # Just return cmd and nothing after it.
+        # This is different than normal Netmiko behavior
+        return cmd
 
 
 class MikrotikRouterOsSSH(MikrotikBase):
