@@ -160,7 +160,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
         dest_md5 = self.ssh_ctl_chan.send_command(
             remote_md5_cmd, max_loops=750, delay_factor=2
         )
-        dest_md5 = self.process_md5(dest_md5)
+        dest_md5 = self.process_md5(dest_md5).strip()
         return dest_md5
 
     @staticmethod
