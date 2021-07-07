@@ -331,6 +331,7 @@ def test_clear_buffer(net_connect, commands, expected_responses):
     net_connect.write_channel(commands["basic"] + "\n")
     time.sleep(4)
     net_connect.clear_buffer()
+    time.sleep(1)
 
     # Should not be anything there on the second pass
     clear_buffer_check = net_connect.clear_buffer()

@@ -863,20 +863,15 @@ You can look at the Netmiko session_log or debug log for more information.
         early on in the session.
 
         In general, it should include:
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"some_pattern")
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
-        self.clear_buffer()
+        self.disable_paging()
         """
         self._test_channel_read()
         self.set_base_prompt()
         self.set_terminal_width()
         self.disable_paging()
-
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def _use_ssh_config(self, dict_arg: Dict[str, Any]) -> Dict[str, Any]:
         """Update SSH connection parameters based on contents of SSH config file.
@@ -1288,9 +1283,17 @@ Device settings: {self.device_type} {self.host}:{self.port}
         log.debug(f"[find_prompt()]: prompt is {prompt}")
         return prompt
 
-    def clear_buffer(self, backoff: bool = True) -> None:
+    def clear_buffer(
+        self, backoff: bool = True, delay_factor: Optional[float] = None
+    ) -> None:
         """Read any data available in the channel."""
-        sleep_time = 0.1 * self.global_delay_factor
+        import ipdb
+
+        ipdb.set_trace()
+        if delay_factor is None:
+            delay_factor = self.global_delay_factor
+
+        sleep_time = 0.1 * delay_factor
         for _ in range(10):
             time.sleep(sleep_time)
             data = self.read_channel()
@@ -1562,8 +1565,6 @@ where x is the total number of seconds to wait before timing out.\n"""
 
         if normalize:
             command_string = self.normalize_cmd(command_string)
-
-        self.clear_buffer()
 
         # Start the clock
         start_time = time.time()

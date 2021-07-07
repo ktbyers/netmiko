@@ -1,4 +1,4 @@
-from typing import Any, Union, List, Dict
+from typing import Any, Union, List, Dict, Optional
 import re
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -31,6 +31,12 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         h4098: set term height
         """
         self.username += "+cetw511h4098"
+
+    def clear_buffer(
+        self, backoff: bool = True, delay_factor: Optional[float] = 10
+    ) -> None:
+        """Mikrotik needs more delays to clear buffer properly."""
+        super().clear_buffer(backoff=backoff, delay_factor=delay_factor)
 
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Microtik does not have paging by default."""
@@ -95,7 +101,7 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         self.base_prompt = prompt
         return self.base_prompt
 
-    def send_command_timing(
+    def send_command_timing(    # type: ignore
         self,
         command_string: str,
         cmd_verify: bool = True,
