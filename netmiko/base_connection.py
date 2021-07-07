@@ -1287,9 +1287,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self, backoff: bool = True, delay_factor: Optional[float] = None
     ) -> None:
         """Read any data available in the channel."""
-        import ipdb
 
-        ipdb.set_trace()
         if delay_factor is None:
             delay_factor = self.global_delay_factor
 
