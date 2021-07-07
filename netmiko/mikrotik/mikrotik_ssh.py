@@ -34,9 +34,9 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
 
     def clear_buffer(
         self, backoff: bool = True, delay_factor: Optional[float] = 10
-    ) -> None:
+    ) -> str:
         """Mikrotik needs more delays to clear buffer properly."""
-        super().clear_buffer(backoff=backoff, delay_factor=delay_factor)
+        return super().clear_buffer(backoff=backoff, delay_factor=delay_factor)
 
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Microtik does not have paging by default."""

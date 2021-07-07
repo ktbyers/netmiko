@@ -1285,16 +1285,17 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
     def clear_buffer(
         self, backoff: bool = True, delay_factor: Optional[float] = None
-    ) -> None:
+    ) -> str:
         """Read any data available in the channel."""
 
         if delay_factor is None:
             delay_factor = self.global_delay_factor
-
         sleep_time = 0.1 * delay_factor
+
+        data = ""
         for _ in range(10):
             time.sleep(sleep_time)
-            data = self.read_channel()
+            data += self.read_channel()
             if not data:
                 break
             # Double sleep time each time we detect data
@@ -1302,6 +1303,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             if backoff:
                 sleep_time *= 2
                 sleep_time = 3 if sleep_time >= 3 else sleep_time
+        return data
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
 
