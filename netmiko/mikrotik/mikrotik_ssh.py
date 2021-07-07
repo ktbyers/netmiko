@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union, List, Dict
 import re
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -55,6 +55,56 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         """No configuration mode on Microtik"""
         self._in_config_mode = False
         return ""
+
+    def strip_prompt(self, a_string: str) -> str:
+        """Strip the trailing router prompt from the output.
+
+        Mikrotik just does a lot of formatting/has ansi escape codes in output so
+        we need a special handler here.
+
+        There can be two trailing instances of the prompt probably due to
+        repainting.
+        """
+        response_list = a_string.split(self.RESPONSE_RETURN)
+        last_line = response_list[-1]
+
+        # Drop the first trailing prompt
+        if self.base_prompt in last_line:
+            a_string = self.RESPONSE_RETURN.join(response_list[:-1])
+            a_string = a_string.rstrip()
+            # Now it should be just normal: call the parent method
+            a_string = super().strip_prompt(a_string)
+            return a_string.strip()
+        else:
+            # Unexpected just return the original string
+            return a_string
+
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = ">",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+    ) -> str:
+        """Strip the trailing space off."""
+        prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+        )
+        prompt = prompt.strip()
+        self.base_prompt = prompt
+        return self.base_prompt
+
+    def send_command_timing(
+        self,
+        command_string: str,
+        cmd_verify: bool = True,
+        **kwargs: Any,
+    ) -> Union[str, List[Any], Dict[str, Any]]:
+        """Force cmd_verify to be True due to all of the line repainting"""
+        return super().send_command_timing(
+            command_string=command_string, cmd_verify=cmd_verify, **kwargs
+        )
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
         """
