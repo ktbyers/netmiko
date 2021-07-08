@@ -327,16 +327,18 @@ def test_normalize_linefeeds(net_connect, commands, expected_responses):
 
 def test_clear_buffer(net_connect, commands, expected_responses):
     """Test that clearing the buffer works."""
+
+    # x!@#!# Mikrotik
+    enter = net_connect.RETURN
     # Manually send a command down the channel so that data needs read.
-    net_connect.write_channel(commands["basic"] + "\n")
+    net_connect.write_channel(f"{commands['basic']}{enter}")
     time.sleep(1)
     net_connect.clear_buffer()
     time.sleep(2)
 
     # Should not be anything there on the second pass
     clear_buffer_check = net_connect.clear_buffer()
-    print(clear_buffer_check)
-    assert clear_buffer_check is None
+    assert clear_buffer_check == ""
 
 
 def test_enable_mode(net_connect, commands, expected_responses):
