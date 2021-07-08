@@ -1,8 +1,6 @@
 from typing import Any, Union, List, Dict, Optional
-import re
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.ssh_exception import ReadTimeout
 
 
 class MikrotikBase(NoEnable, CiscoSSHConnection):
@@ -36,6 +34,7 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         self,
         backoff: bool = True,
         backoff_max: float = 10.0,
+        strip_whitespace: bool = True,
         delay_factor: Optional[float] = 10,
     ) -> str:
         """
@@ -45,7 +44,10 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         space be returned. So strip that off.
         """
         output = super().clear_buffer(
-            backoff=backoff, backoff_max=backoff_max, delay_factor=delay_factor, strip_whitespace=True
+            backoff=backoff,
+            backoff_max=backoff_max,
+            delay_factor=delay_factor,
+            strip_whitespace=strip_whitespace,
         )
         return output.strip()
 
@@ -122,43 +124,6 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         return super().send_command_timing(
             command_string=command_string, cmd_verify=cmd_verify, **kwargs
         )
-
-#    def command_echo_read(self, cmd: str, read_timeout: float) -> str:
-#        """
-#                Mikrotik has some odd behavior where it repaints both the command and the line
-#
-#                This could result in the command being at the top of the output multiple times
-#                (once for the actual echo and once for the repainting).
-#
-#                Correct this behavior.
-#
-#                Example output:
-#
-#        DEBUG:netmiko:write_channel: b'ping count=5 1.0.0.1\r\n'
-#        DEBUG:netmiko:read_channel: ping count=5 1.0.0.1
-#        [admin@hostname] > ping count=5 1.0.0.1
-#
-#          SEQ HOST                                     SIZE TTL TIME  STATUS
-#            0 1.0.0.1                                    56  60 23ms
-#
-#        """
-#
-#        # First read--initial command echo
-#        _ = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
-#        try:
-#            # Now try to read the re-painted line if it exists
-#            # Use a short timeout in case it is not there.
-#            import ipdb; ipdb.set_trace()
-#            last_buffer = self._read_buffer
-#            _ = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=1.5)
-#        except ReadTimeout:
-#            # You can run into a problem where the _read_buffer is lost if the second
-#            # repaint doesn't happen. So restore what was there before in this case.
-#            self._read_buffer = last_buffer
-#
-#        # Just return cmd and nothing after it.
-#        # This is different than normal Netmiko behavior
-#        return cmd
 
 
 class MikrotikRouterOsSSH(MikrotikBase):
