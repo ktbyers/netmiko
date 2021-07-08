@@ -1,4 +1,4 @@
-from typing import Any, Union, List, Dict, Optional
+from typing import Any, Union, List, Dict
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -29,27 +29,6 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         h4098: set term height
         """
         self.username += "+ctw511h4098"
-
-    def clear_buffer(
-        self,
-        backoff: bool = True,
-        backoff_max: float = 10.0,
-        strip_whitespace: bool = True,
-        delay_factor: Optional[float] = 10,
-    ) -> str:
-        """
-        Mikrotik needs more delays to clear buffer properly.
-
-        Also has some sort of a weird behavior where I am constantly seeing a single
-        space be returned. So strip that off.
-        """
-        output = super().clear_buffer(
-            backoff=backoff,
-            backoff_max=backoff_max,
-            delay_factor=delay_factor,
-            strip_whitespace=strip_whitespace,
-        )
-        return output.strip()
 
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Microtik does not have paging by default."""

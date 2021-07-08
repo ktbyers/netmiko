@@ -1286,7 +1286,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self,
         backoff: bool = True,
         backoff_max: float = 3.0,
-        strip_whitespace: bool = False,
         delay_factor: Optional[float] = None,
     ) -> str:
         """Read any data available in the channel."""
@@ -1300,8 +1299,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
             time.sleep(sleep_time)
             data = self.read_channel()
             data = self.strip_ansi_escape_codes(data)
-            if strip_whitespace:
-                data = data.strip()
             output += data
             if not data:
                 break
