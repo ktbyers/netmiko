@@ -107,12 +107,27 @@ class CiscoXrBase(CiscoBaseConnection):
 
         # Enter config mode (if necessary)
         output = self.config_mode()
+
+        # IOS-XR might do this:
+        # This could be a few minutes if your config is large. Confirm? [y/n][confirm]
         new_data = self.send_command(
             command_string,
+            expect_string=r"(#|onfirm)",
             strip_prompt=False,
             strip_command=False,
             read_timeout=read_timeout,
         )
+        assert isinstance(new_data, str)
+        if "onfirm" in new_data:
+            output += new_data
+            new_data = self.send_command(
+                "y",
+                expect_string=r"#",
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=read_timeout,
+            )
+
         assert isinstance(new_data, str)
         output += new_data
         if error_marker in output:
