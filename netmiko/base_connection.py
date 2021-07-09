@@ -614,7 +614,6 @@ results={results}
                 log.debug(f"Pattern found: {pattern} {output}")
                 return output
             time.sleep(loop_delay)
-            # print(time.time() - start_time)
 
         msg = f"""\n\nPattern not detected: {repr(pattern)} in output.
 
@@ -863,20 +862,15 @@ You can look at the Netmiko session_log or debug log for more information.
         early on in the session.
 
         In general, it should include:
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"some_pattern")
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
-        self.clear_buffer()
+        self.disable_paging()
         """
         self._test_channel_read()
         self.set_base_prompt()
         self.set_terminal_width()
         self.disable_paging()
-
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def _use_ssh_config(self, dict_arg: Dict[str, Any]) -> Dict[str, Any]:
         """Update SSH connection parameters based on contents of SSH config file.
@@ -1288,19 +1282,32 @@ Device settings: {self.device_type} {self.host}:{self.port}
         log.debug(f"[find_prompt()]: prompt is {prompt}")
         return prompt
 
-    def clear_buffer(self, backoff: bool = True) -> None:
+    def clear_buffer(
+        self,
+        backoff: bool = True,
+        backoff_max: float = 3.0,
+        delay_factor: Optional[float] = None,
+    ) -> str:
         """Read any data available in the channel."""
-        sleep_time = 0.1 * self.global_delay_factor
+
+        if delay_factor is None:
+            delay_factor = self.global_delay_factor
+        sleep_time = 0.1 * delay_factor
+
+        output = ""
         for _ in range(10):
             time.sleep(sleep_time)
             data = self.read_channel()
+            data = self.strip_ansi_escape_codes(data)
+            output += data
             if not data:
                 break
             # Double sleep time each time we detect data
             log.debug("Clear buffer detects data in the channel")
             if backoff:
                 sleep_time *= 2
-                sleep_time = 3 if sleep_time >= 3 else sleep_time
+                sleep_time = backoff_max if sleep_time >= backoff_max else sleep_time
+        return output
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
 
@@ -1410,6 +1417,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """
         response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
+
         if self.base_prompt in last_line:
             return self.RESPONSE_RETURN.join(response_list[:-1])
         else:
@@ -1561,8 +1569,6 @@ where x is the total number of seconds to wait before timing out.\n"""
 
         if normalize:
             command_string = self.normalize_cmd(command_string)
-
-        self.clear_buffer()
 
         # Start the clock
         start_time = time.time()
@@ -2081,6 +2087,8 @@ You can also look at the Netmiko session_log or debug log for more information.
                      ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
         ESC[6n       Get cursor position
         ESC[1D       Move cursor position leftward by x characters (1 in this case)
+        ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
+                     very bottom of the screen).
 
         HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -2113,6 +2121,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_cursor_left = chr(27) + r"\[\d+D"
         code_cursor_forward = chr(27) + r"\[\d*C"
         code_cursor_up = chr(27) + r"\[\d*A"
+        code_cursor_down = chr(27) + r"\[\d*B"
         code_wrap_around = chr(27) + r"\[\?7h"
         code_bracketed_paste_mode = chr(27) + r"\[\?2004h"
 
@@ -2140,6 +2149,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_reverse,
             code_cursor_left,
             code_cursor_up,
+            code_cursor_down,
             code_cursor_forward,
             code_wrap_around,
             code_bracketed_paste_mode,
