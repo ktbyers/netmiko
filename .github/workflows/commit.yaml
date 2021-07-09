@@ -35,6 +35,8 @@ jobs:
 
       - name: Run mypy
         run: |
+          pip list | grep mypy
+          mypy --version
           mypy ./netmiko/*.py
           mypy ./netmiko/[a-d]*
           mypy ./netmiko/eltex/
