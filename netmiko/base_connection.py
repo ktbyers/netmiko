@@ -1952,10 +1952,11 @@ You can also look at the Netmiko session_log or debug log for more information.
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = True,
-        delay_factor: float = 1.0,
-        max_loops: int = 150,
+        delay_factor: Optional[float] = None,
+        max_loops: Optional[int] = None,
         strip_prompt: bool = False,
         strip_command: bool = False,
+        read_timeout: Optional[float] = None,
         config_mode_command: Optional[str] = None,
         cmd_verify: bool = True,
         enter_config_mode: bool = True,
@@ -1974,13 +1975,15 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param exit_config_mode: Determines whether or not to exit config mode after complete
 
-        :param delay_factor: Factor to adjust delays
+        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
-        :param max_loops: Controls wait time in conjunction with delay_factor (default: 150)
+        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         :param strip_prompt: Determines whether or not to strip the prompt
 
         :param strip_command: Determines whether or not to strip the command
+
+        :param read_timeout: Absolute timer to send to read_channel_timing. Should be rarely needed.
 
         :param config_mode_command: The command to enter into config mode
 
@@ -1994,7 +1997,28 @@ You can also look at the Netmiko session_log or debug log for more information.
         :param terminator: Regular expression pattern to use as an alternate terminator in certain
         situations.
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+
+        if delay_factor is not None or max_loops is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
+            # Calculate an equivalent read_timeout (if using old settings)
+            # Eliminate in Netmiko 5.x
+            if read_timeout is None:
+                max_loops = 150 if max_loops is None else max_loops
+                delay_factor = 1.0 if delay_factor is None else delay_factor
+
+                # If delay_factor has been set, then look at global_delay_factor
+                delay_factor = self.select_delay_factor(delay_factor)
+
+                read_timeout = calc_old_timeout(
+                    max_loops=max_loops, delay_factor=delay_factor, loop_delay=0.1
+                )
+
+        if delay_factor is None:
+            delay_factor = self.select_delay_factor(0)
+        else:
+            delay_factor = self.select_delay_factor(delay_factor)
+
         if config_commands is None:
             return ""
         elif isinstance(config_commands, str):
@@ -2016,9 +2040,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
-            output += self.read_channel_timing(
-                delay_factor=delay_factor, max_loops=max_loops
-            )
+            output += self.read_channel_timing(read_timeout=15)
 
         elif not cmd_verify:
             for cmd in config_commands:
@@ -2027,18 +2049,14 @@ You can also look at the Netmiko session_log or debug log for more information.
 
                 # Gather the output incrementally due to error_pattern requirements
                 if error_pattern:
-                    output += self.read_channel_timing(
-                        delay_factor=delay_factor, max_loops=max_loops
-                    )
+                    output += self.read_channel_timing(read_timeout=15)
                     if re.search(error_pattern, output, flags=re.M):
                         msg = f"Invalid input detected at command: {cmd}"
                         raise ConfigInvalidException(msg)
 
             # Standard output gathering (no error_pattern)
             if not error_pattern:
-                output += self.read_channel_timing(
-                    delay_factor=delay_factor, max_loops=max_loops
-                )
+                output += self.read_channel_timing(read_timeout=15)
 
         else:
             for cmd in config_commands:
