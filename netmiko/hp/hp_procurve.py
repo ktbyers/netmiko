@@ -2,6 +2,8 @@ import re
 import time
 import socket
 from os import path
+from typing import Any, Optional
+
 from paramiko import SSHClient
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
@@ -10,13 +12,13 @@ from netmiko import log
 class SSHClient_noauth(SSHClient):
     """Set noauth when manually handling SSH authentication."""
 
-    def _auth(self, username, *args):
-        self._transport.auth_none(username)
+    def _auth(self, username: str, *args: Any) -> None:
+        self._transport.auth_none(username)  # type: ignore
         return
 
 
 class HPProcurveBase(CiscoSSHConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
         """
@@ -34,11 +36,12 @@ class HPProcurveBase(CiscoSSHConnection):
 
     def enable(
         self,
-        cmd="enable",
-        pattern="password",
-        re_flags=re.IGNORECASE,
-        default_username="manager",
-    ):
+        cmd: str = "enable",
+        pattern: str = "password",
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+        default_username: str = "manager",
+    ) -> str:
         """Enter enable mode"""
         delay_factor = self.select_delay_factor(delay_factor=0)
         if self.check_enable_mode():
@@ -54,7 +57,7 @@ class HPProcurveBase(CiscoSSHConnection):
             username_pattern = r"(username|login|user name)"
             if re.search(username_pattern, new_output, flags=re_flags):
                 output += new_output
-                new_output = self.send_command_timing(default_username)
+                new_output = self._send_command_timing_str(default_username)
             if re.search(pattern, new_output, flags=re_flags):
                 output += new_output
                 self.write_channel(self.normalize_cmd(self.secret))
@@ -75,7 +78,7 @@ class HPProcurveBase(CiscoSSHConnection):
             raise ValueError(msg)
         return output
 
-    def cleanup(self, command="logout"):
+    def cleanup(self, command: str = "logout") -> None:
         """Gracefully exit the SSH session."""
 
         # Exit configuration mode.
@@ -118,7 +121,12 @@ class HPProcurveBase(CiscoSSHConnection):
         # Set outside of loop
         self._session_log_fin = True
 
-    def save_config(self, cmd="write memory", confirm=False, confirm_response=""):
+    def save_config(
+        self,
+        cmd: str = "write memory",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Save Config."""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -126,7 +134,7 @@ class HPProcurveBase(CiscoSSHConnection):
 
 
 class HPProcurveSSH(HPProcurveBase):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
         """
@@ -148,14 +156,15 @@ class HPProcurveSSH(HPProcurveBase):
 
         super().session_preparation()
 
-    def _build_ssh_client(self):
+    def _build_ssh_client(self) -> SSHClient:
         """Allow passwordless authentication for HP devices being provisioned."""
 
         # Create instance of SSHClient object. If no SSH keys and no password, then use noauth
-        if not self.use_keys and not self.password:
-            remote_conn_pre = SSHClient_noauth()
-        else:
-            remote_conn_pre = SSHClient()
+        remote_conn_pre = (
+            SSHClient_noauth()
+            if not self.use_keys and not self.password
+            else SSHClient()
+        )
 
         # Load host_keys for better SSH security
         if self.system_host_keys:
@@ -171,15 +180,15 @@ class HPProcurveSSH(HPProcurveBase):
 class HPProcurveTelnet(HPProcurveBase):
     def telnet_login(
         self,
-        pri_prompt_terminator="#",
-        alt_prompt_terminator=">",
-        username_pattern=r"Login Name:",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=60,
-    ):
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        username_pattern: str = r"Login Name:",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 60,
+    ) -> str:
         """Telnet login: can be username/password or just password."""
-        super().telnet_login(
+        return super().telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             username_pattern=username_pattern,
