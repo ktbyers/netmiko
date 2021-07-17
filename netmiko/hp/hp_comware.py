@@ -1,16 +1,19 @@
 import time
+import re
+from typing import Union, Sequence, TextIO, Any, Optional
+
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class HPComwareBase(CiscoSSHConnection):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         # Comware doesn't have a way to set terminal width which breaks cmd_verify
         global_cmd_verify = kwargs.get("global_cmd_verify")
         if global_cmd_verify is None:
             kwargs["global_cmd_verify"] = False
-        return super().__init__(**kwargs)
+        super().__init__(**kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
         Extra time to read HP banners.
@@ -35,28 +38,46 @@ class HPComwareBase(CiscoSSHConnection):
         self.clear_buffer()
 
     def config_mode(
-        self, config_command: str = "system-view", pattern: str = "", re_flags: int = 0
+            self,
+            config_command: str = "system-view",
+            pattern: str = "",
+            re_flags: int = 0
     ) -> str:
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="return", pattern=r">"):
+    def exit_config_mode(
+            self,
+            exit_config: str = "return",
+            pattern: str = r">") -> str:
         """Exit config mode."""
-        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
+        return super().exit_config_mode(
+            exit_config=exit_config, pattern=pattern)
 
-    def check_config_mode(self, check_string="]"):
+    def check_config_mode(
+            self,
+            check_string: str = "]",
+            pattern: str = ""
+    ) -> bool:
         """Check whether device is in configuration mode. Return a boolean."""
         return super().check_config_mode(check_string=check_string)
 
-    def send_config_set(self, config_commands=None, terminator=r"\]", **kwargs):
+    def send_config_set(
+            self,
+            config_commands: Union[str, Sequence[str], TextIO, None] = None,
+            terminator: str = r"\]",
+            **kwargs: Any) -> str:
         return super().send_config_set(
             config_commands=config_commands, terminator=terminator, **kwargs
         )
 
     def set_base_prompt(
-        self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1
-    ):
+            self,
+            pri_prompt_terminator: str = ">",
+            alt_prompt_terminator: str = "]",
+            delay_factor: int = 1
+    ) -> str:
         """
         Sets self.base_prompt
 
@@ -79,19 +100,35 @@ class HPComwareBase(CiscoSSHConnection):
         self.base_prompt = prompt
         return self.base_prompt
 
-    def enable(self, cmd="system-view"):
+    def enable(
+            self,
+            cmd: str = "system-view",
+            pattern: str = "ssword",
+            enable_pattern: Optional[str] = None,
+            re_flags: int = re.IGNORECASE,
+    ) -> str:
         """enable mode on Comware is system-view."""
         return self.config_mode(config_command=cmd)
 
-    def exit_enable_mode(self, exit_command="return"):
+    def exit_enable_mode(
+            self,
+            exit_command: str = "return"
+    ) -> str:
         """enable mode on Comware is system-view."""
         return self.exit_config_mode(exit_config=exit_command)
 
-    def check_enable_mode(self, check_string="]"):
+    def check_enable_mode(
+            self,
+            check_string: str = "]"
+    ) -> bool:
         """enable mode on Comware is system-view."""
         return self.check_config_mode(check_string=check_string)
 
-    def save_config(self, cmd="save force", confirm=False, confirm_response=""):
+    def save_config(
+            self,
+            cmd: str = "save force",
+            confirm: bool = False,
+            confirm_response: str = "") -> str:
         """Save Config."""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -103,7 +140,7 @@ class HPComwareSSH(HPComwareBase):
 
 
 class HPComwareTelnet(HPComwareBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
