@@ -1,21 +1,25 @@
 import paramiko
 import time
 import re
+from typing import Optional
+
+from netmiko.utilities import assert_str
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class FortinetSSH(NoConfig, CiscoSSHConnection):
-    def _modify_connection_params(self):
+    def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
-        paramiko.Transport._preferred_kex = (
+        paramiko_transport = getattr(paramiko, "Transport")
+        paramiko_transport._preferred_kex = (
             "diffie-hellman-group14-sha1",
             "diffie-hellman-group-exchange-sha1",
             "diffie-hellman-group-exchange-sha256",
             "diffie-hellman-group1-sha1",
         )
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
@@ -39,21 +43,30 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, **kwargs):
+    def disable_paging(
+        self,
+        command: str = "terminal length 0",
+        delay_factor: Optional[float] = None,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -> str:
         """Disable paging is only available with specific roles so it may fail."""
         check_command = "get system status | grep Virtual"
-        output = self.send_command_timing(check_command)
+        output = assert_str(self.send_command_timing(check_command))
         self.allow_disable_global = True
         self.vdoms = False
         self._output_mode = "more"
 
-        if re.search(r"Virtual domain configuration: (multiple|enable)", output):
+        if re.search(r"Virtual domain configuration: (multiple|enable)",
+                     output):
             self.vdoms = True
             vdom_additional_command = "config global"
-            output = self.send_command_timing(vdom_additional_command, delay_factor=2)
+            output = assert_str(self.send_command_timing(
+                vdom_additional_command, delay_factor=2))
             if "Command fail" in output:
                 self.allow_disable_global = False
-                self.remote_conn.close()
+                if self.remote_conn is not None:
+                    self.remote_conn.close()
                 self.establish_connection(width=100, height=1000)
 
         new_output = ""
@@ -68,7 +81,7 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
             if self.vdoms:
                 disable_paging_commands.append("end")
             outputlist = [
-                self.send_command_timing(command, delay_factor=2)
+                assert_str(self.send_command_timing(command, delay_factor=2))
                 for command in disable_paging_commands
             ]
             # Should test output is valid
@@ -76,17 +89,17 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
 
         return output + new_output
 
-    def _retrieve_output_mode(self):
+    def _retrieve_output_mode(self) -> None:
         """Save the state of the output mode so it can be reset at the end of the session."""
         reg_mode = re.compile(r"output\s+:\s+(?P<mode>.*)\s+\n")
-        output = self.send_command("get system console")
+        output = assert_str(self.send_command("get system console"))
         result_mode_re = reg_mode.search(output)
         if result_mode_re:
             result_mode = result_mode_re.group("mode").strip()
             if result_mode in ["more", "standard"]:
                 self._output_mode = result_mode
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Re-enable paging globally."""
         if self.allow_disable_global:
             # Return paging state
@@ -99,6 +112,11 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
                 self.send_command_timing(command)
         return super().cleanup(command=command)
 
-    def save_config(self, *args, **kwargs):
+    def save_config(
+            self,
+            cmd: str = "",
+            confirm: bool = False,
+            confirm_response: str = ""
+    ) -> str:
         """Not Implemented"""
         raise NotImplementedError
