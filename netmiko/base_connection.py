@@ -1409,6 +1409,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
         )
         return return_data
 
+    def _send_command_timing_str(self, *args: Any, **kwargs: Any) -> str:
+        """Wrapper for `send_command_timing` method that always returns a
+        string"""
+        output = self.send_command_timing(*args, **kwargs)
+        assert isinstance(output, str)
+        return output
+
     def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output.
 
@@ -1637,6 +1644,12 @@ You can also look at the Netmiko session_log or debug log for more information.
             ttp_template=ttp_template,
         )
         return return_val
+
+    def _send_command_str(self, *args: Any, **kwargs: Any) -> str:
+        """Wrapper for `send_command` method that always returns a string"""
+        output = self.send_command(*args, **kwargs)
+        assert isinstance(output, str)
+        return output
 
     def send_command_expect(
         self, *args: Any, **kwargs: Any

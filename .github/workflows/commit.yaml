@@ -36,7 +36,7 @@ jobs:
       - name: Run mypy
         run: |
           mypy ./netmiko/*.py
-          mypy ./netmiko/[a-e]*
+          mypy ./netmiko/[a-f]*
           mypy ./netmiko/mikrotik/
 
       - name: Run Tests

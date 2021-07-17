@@ -4,7 +4,7 @@ from netmiko.base_connection import BaseConnection
 
 
 class F5TmshSSH(NoConfig, BaseConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
@@ -18,7 +18,7 @@ class F5TmshSSH(NoConfig, BaseConnection):
         )
         self.clear_buffer()
 
-    def tmsh_mode(self, delay_factor=1):
+    def tmsh_mode(self, delay_factor: float = 1.0) -> None:
         """tmsh command is equivalent to config command on F5."""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -28,12 +28,12 @@ class F5TmshSSH(NoConfig, BaseConnection):
         self.clear_buffer()
         return None
 
-    def exit_tmsh(self):
-        output = self.send_command("quit", expect_string=r"#")
+    def exit_tmsh(self) -> str:
+        output = self._send_command_str("quit", expect_string=r"#")
         self.set_base_prompt()
         return output
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
             self.exit_tmsh()
