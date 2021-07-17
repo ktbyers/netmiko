@@ -79,7 +79,9 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
     def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
         return super().check_config_mode(check_string=check_string)
 
-    def exit_config_mode(self, exit_config: str = "return", pattern: str = r"#.*") -> str:
+    def exit_config_mode(
+        self, exit_config: str = "return", pattern: str = r"#.*"
+    ) -> str:
         return super().exit_config_mode(exit_config=exit_config)
 
     def check_enable_mode(self, check_string: str = "#") -> bool:
