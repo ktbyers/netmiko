@@ -1,5 +1,3 @@
-from typing import Union, List, Any, Dict
-
 import time
 from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
