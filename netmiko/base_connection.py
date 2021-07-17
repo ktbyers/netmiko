@@ -2019,6 +2019,11 @@ You can also look at the Netmiko session_log or debug log for more information.
         else:
             delay_factor = self.select_delay_factor(delay_factor)
 
+        if read_timeout is None:
+            read_timeout = 15
+        else:
+            read_timeout = read_timeout
+
         if config_commands is None:
             return ""
         elif isinstance(config_commands, str):
@@ -2040,7 +2045,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
-            output += self.read_channel_timing(read_timeout=15)
+            output += self.read_channel_timing(read_timeout=read_timeout)
 
         elif not cmd_verify:
             for cmd in config_commands:
@@ -2049,14 +2054,14 @@ You can also look at the Netmiko session_log or debug log for more information.
 
                 # Gather the output incrementally due to error_pattern requirements
                 if error_pattern:
-                    output += self.read_channel_timing(read_timeout=15)
+                    output += self.read_channel_timing(read_timeout=read_timeout)
                     if re.search(error_pattern, output, flags=re.M):
                         msg = f"Invalid input detected at command: {cmd}"
                         raise ConfigInvalidException(msg)
 
             # Standard output gathering (no error_pattern)
             if not error_pattern:
-                output += self.read_channel_timing(read_timeout=15)
+                output += self.read_channel_timing(read_timeout=read_timeout)
 
         else:
             for cmd in config_commands:
