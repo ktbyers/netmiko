@@ -1140,7 +1140,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             else:
                 return self.global_delay_factor
 
-    def special_login_handler(self, delay_factor: float = 1.0) -> None:
+    def special_login_handler(self, delay_factor: float = 1.0) -> Optional[str]:
         """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
         pass
 
