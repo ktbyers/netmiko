@@ -20,7 +20,7 @@ class F5TmshSSH(NoConfig, BaseConnection):
         )
         self.clear_buffer()
 
-    def tmsh_mode(self, delay_factor: float = 1.) -> None:
+    def tmsh_mode(self, delay_factor: float = 1.0) -> None:
         """tmsh command is equivalent to config command on F5."""
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
@@ -30,8 +30,8 @@ class F5TmshSSH(NoConfig, BaseConnection):
         self.clear_buffer()
         return None
 
-    def exit_tmsh(self) -> Union[str, List[Any], Dict[str, Any]]:
-        output = self.send_command("quit", expect_string=r"#")
+    def exit_tmsh(self) -> str:
+        output = self._send_command_str("quit", expect_string=r"#")
         self.set_base_prompt()
         return output
 
