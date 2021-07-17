@@ -1,5 +1,7 @@
 import time
 import re
+from typing import Optional
+
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko import log
 
@@ -7,7 +9,7 @@ from netmiko import log
 class HuaweiSmartAXSSH(CiscoBaseConnection):
     """Supports Huawei SmartAX and OLT."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read()
@@ -18,7 +20,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def strip_ansi_escape_codes(self, string_buffer):
+    def strip_ansi_escape_codes(self, string_buffer: str) -> str:
         """
         Huawei does a strange thing where they add a space and then add ESC[1D
         to move the cursor to the left one.
@@ -34,7 +36,9 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         log.debug(f"repr = {repr(output)}")
         return super().strip_ansi_escape_codes(output)
 
-    def _disable_smart_interaction(self, command="undo smart", delay_factor=1):
+    def _disable_smart_interaction(
+        self, command: str = "undo smart", delay_factor: float = 1.0
+    ) -> None:
         """Disables the { <cr> } prompt to avoid having to sent a 2nd return after each command"""
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * 0.1)
@@ -51,8 +55,19 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         log.debug(f"{output}")
         log.debug("Exiting disable_smart_interaction")
 
-    def disable_paging(self, command="scroll", **kwargs):
-        return super().disable_paging(command=command, **kwargs)
+    def disable_paging(
+        self,
+        command: str = "scroll",
+        delay_factor: Optional[float] = None,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -> str:
+        return super().disable_paging(
+            command=command,
+            delay_factor=delay_factor,
+            cmd_verify=cmd_verify,
+            pattern=pattern,
+        )
 
     def config_mode(
         self, config_command: str = "config", pattern: str = "", re_flags: int = 0
@@ -61,25 +76,40 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def check_config_mode(self, check_string=")#"):
+    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
         return super().check_config_mode(check_string=check_string)
 
-    def exit_config_mode(self, exit_config="return"):
+    def exit_config_mode(self, exit_config: str = "return", pattern: str = r"#.*") -> str:
         return super().exit_config_mode(exit_config=exit_config)
 
-    def check_enable_mode(self, check_string="#"):
+    def check_enable_mode(self, check_string: str = "#") -> bool:
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd="enable", pattern="", re_flags=re.IGNORECASE):
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+    def enable(
+        self,
+        cmd: str = "enable",
+        pattern: str = "",
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
+        return super().enable(
+            cmd=cmd, pattern=pattern, re_flags=re_flags, enable_pattern=enable_pattern
+        )
 
-    def set_base_prompt(self, pri_prompt_terminator=">", alt_prompt_terminator="#"):
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = ">",
+        alt_prompt_terminator: str = "#",
+        delay_factor: float = 1.0,
+    ) -> str:
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
         )
 
-    def save_config(self, cmd="save", confirm=False, confirm_response=""):
+    def save_config(
+        self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Save Config for HuaweiSSH"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
