@@ -1409,7 +1409,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         )
         return return_data
 
-    def _send_command_timing_str(self, *args, **kwargs) -> str:
+    def _send_command_timing_str(self, *args: Any, **kwargs: Any) -> str:
         """Wrapper for `send_command_timing` method that always returns a
         string"""
         output = self.send_command_timing(*args, **kwargs)
