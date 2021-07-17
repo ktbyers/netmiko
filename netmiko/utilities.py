@@ -653,9 +653,3 @@ def calc_old_timeout(
         max_loops = int(old_timeout / loop_delay)
 
     return max_loops * loop_delay * delay_factor
-
-
-def assert_str(param: Any) -> str:
-    """Verify that `param` argument has a type `str`."""
-    assert isinstance(param, str)
-    return param

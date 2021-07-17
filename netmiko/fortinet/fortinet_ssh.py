@@ -3,7 +3,6 @@ import time
 import re
 from typing import Optional
 
-from netmiko.utilities import assert_str
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -52,17 +51,17 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
     ) -> str:
         """Disable paging is only available with specific roles so it may fail."""
         check_command = "get system status | grep Virtual"
-        output = assert_str(self.send_command_timing(check_command))
+        output = self._send_command_timing_str(check_command)
         self.allow_disable_global = True
         self.vdoms = False
         self._output_mode = "more"
 
-        if re.search(r"Virtual domain configuration: (multiple|enable)",
-                     output):
+        if re.search(r"Virtual domain configuration: (multiple|enable)", output):
             self.vdoms = True
             vdom_additional_command = "config global"
-            output = assert_str(self.send_command_timing(
-                vdom_additional_command, delay_factor=2))
+            output = self._send_command_timing_str(
+                vdom_additional_command, delay_factor=2
+            )
             if "Command fail" in output:
                 self.allow_disable_global = False
                 if self.remote_conn is not None:
@@ -81,7 +80,7 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
             if self.vdoms:
                 disable_paging_commands.append("end")
             outputlist = [
-                assert_str(self.send_command_timing(command, delay_factor=2))
+                self._send_command_timing_str(command, delay_factor=2)
                 for command in disable_paging_commands
             ]
             # Should test output is valid
@@ -92,7 +91,7 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
     def _retrieve_output_mode(self) -> None:
         """Save the state of the output mode so it can be reset at the end of the session."""
         reg_mode = re.compile(r"output\s+:\s+(?P<mode>.*)\s+\n")
-        output = assert_str(self.send_command("get system console"))
+        output = self._send_command_str("get system console")
         result_mode_re = reg_mode.search(output)
         if result_mode_re:
             result_mode = result_mode_re.group("mode").strip()
@@ -113,10 +112,7 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
         return super().cleanup(command=command)
 
     def save_config(
-            self,
-            cmd: str = "",
-            confirm: bool = False,
-            confirm_response: str = ""
+        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Not Implemented"""
         raise NotImplementedError

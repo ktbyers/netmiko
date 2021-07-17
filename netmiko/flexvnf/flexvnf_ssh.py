@@ -5,7 +5,6 @@ import warnings
 
 from netmiko.no_enable import NoEnable
 from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
-from netmiko.utilities import assert_str
 
 
 class FlexvnfSSH(NoEnable, BaseConnection):
@@ -45,19 +44,12 @@ class FlexvnfSSH(NoEnable, BaseConnection):
                 break
             count += 1
 
-    def check_config_mode(
-            self,
-            check_string: str = "]",
-            pattern: str = ""
-    ) -> bool:
+    def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string)
 
     def config_mode(
-            self,
-            config_command: str = "configure",
-            pattern: str = "",
-            re_flags: int = 0
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
     ) -> str:
         """Enter configuration mode."""
         return super().config_mode(
@@ -65,21 +57,19 @@ class FlexvnfSSH(NoEnable, BaseConnection):
         )
 
     def exit_config_mode(
-            self,
-            exit_config: str = "exit configuration-mode",
-            pattern: str = ""
+        self, exit_config: str = "exit configuration-mode", pattern: str = ""
     ) -> str:
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
-            output += assert_str(self.send_command_timing(
+            output += self._send_command_timing_str(
                 exit_config, strip_prompt=False, strip_command=False
-            ))
+            )
             # if 'Exit with uncommitted changes?' in output:
             if "uncommitted changes" in output:
-                output += assert_str(self.send_command_timing(
+                output += self._send_command_timing_str(
                     "yes", strip_prompt=False, strip_command=False
-                ))
+                )
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
@@ -158,20 +148,20 @@ class FlexvnfSSH(NoEnable, BaseConnection):
         # and_quit will get out of config mode on commit
         if and_quit:
             prompt = self.base_prompt
-            output += assert_str(self.send_command(
+            output += self._send_command_str(
                 command_string,
                 expect_string=prompt,
                 strip_prompt=True,
                 strip_command=True,
                 read_timeout=read_timeout,
-            ))
+            )
         else:
-            output += assert_str(self.send_command(
+            output += self._send_command_str(
                 command_string,
                 strip_prompt=True,
                 strip_command=True,
                 read_timeout=read_timeout,
-            ))
+            )
 
         if commit_marker not in output:
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
