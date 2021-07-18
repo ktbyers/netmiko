@@ -1,7 +1,7 @@
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class CiscoS300SSH(CiscoSSHConnection):
+class CiscoS300Base(CiscoSSHConnection):
     """
     Support for Cisco SG300 series of devices.
 
@@ -28,3 +28,16 @@ class CiscoS300SSH(CiscoSSHConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+
+
+class CiscoS300SSH(CiscoS300Base):
+    pass
+
+
+class CiscoS300Telnet(CiscoS300Base):
+    """
+    Support for Cisco SG300 series of devices, with telnet.
+    Note: can be used with Sx200 series, with telnet enabled.
+    """
+
+    pass
