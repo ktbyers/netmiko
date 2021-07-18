@@ -2,7 +2,7 @@ import os
 import re
 import socket
 import time
-from typing import Any, Union, Sequence, TextIO, Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
