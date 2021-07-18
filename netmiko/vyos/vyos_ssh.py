@@ -120,10 +120,10 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         )
 
     def save_config(
-            self,
-            cmd: str = "copy running-config startup-config",
-            confirm: bool = False,
-            confirm_response: str = "",
+        self,
+        cmd: str = "copy running-config startup-config",
+        confirm: bool = False,
+        confirm_response: str = "",
     ) -> str:
         """Not Implemented"""
         raise NotImplementedError

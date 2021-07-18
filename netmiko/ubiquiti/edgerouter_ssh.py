@@ -15,7 +15,9 @@ class UbiquitiEdgeRouterSSH(VyOSSSH):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd: str="save", confirm:bool=False, confirm_response:str="")->str:
+    def save_config(
+        self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Saves Config."""
         if confirm is True:
             raise ValueError("EdgeRouter does not support save_config confirmation.")
