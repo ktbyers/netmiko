@@ -19,7 +19,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> str:
+    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode"""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
@@ -39,11 +39,11 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         """Exit configuration mode"""
         output = ""
         if self.check_config_mode():
-            output = self.send_command_timing(
+            output = self._send_command_timing_str(
                 exit_config, strip_prompt=False, strip_command=False
             )
             if "Cannot exit: configuration modified" in output:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     "exit discard", strip_prompt=False, strip_command=False
                 )
             if self.check_config_mode():
@@ -81,7 +81,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
             command_string += f' comment "{comment}"'
 
         output = self.config_mode()
-        output += self.send_command_expect(
+        output += self._send_command_str(
             command_string,
             strip_prompt=False,
             strip_command=False,
@@ -108,7 +108,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         self.base_prompt = prompt[:-2].strip()
         return self.base_prompt
 
-    def send_config_set(   # type: ignore
+    def send_config_set(  # type: ignore
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = False,
@@ -119,6 +119,6 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
         raise NotImplementedError
