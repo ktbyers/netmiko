@@ -584,7 +584,8 @@ where x is the total number of seconds to wait before timing out.\n"""
         output = ""
         loop_delay = 0.01
         start_time = time.time()
-        while (time.time() - start_time < read_timeout) or (int(read_timeout) == 0):
+        # if read_timeout == 0 or 0.0 keep reading indefinitely
+        while (time.time() - start_time < read_timeout) or (not read_timeout):
             output += self.read_channel()
             if re.search(pattern, output, flags=re_flags):
                 results = re.split(pattern, output, maxsplit=1, flags=re_flags)
@@ -662,7 +663,7 @@ You can also look at the Netmiko session_log or debug log for more information.\
         start_time = time.time()
 
         # Set read_timeout to 0 to never timeout
-        while (time.time() - start_time < read_timeout) or (int(read_timeout) == 0):
+        while (time.time() - start_time < read_timeout) or (not read_timeout):
             time.sleep(loop_delay)
             new_data = self.read_channel()
             if new_data:

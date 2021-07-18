@@ -7,10 +7,6 @@ PYTEST='py.test -s -v -x'
 echo "Starting tests...good luck:" \
 \
 && echo "Cisco IOS-XE SSH (including SCP)" \
-&& $PYTEST test_timeout_read_until_pattern.py --test_device cisco3 \
-&& $PYTEST test_timeout_send_command.py --test_device cisco3 \
-&& $PYTEST test_timeout_read_timing.py --test_device cisco3 \
-&& $PYTEST test_timeout_send_command_timing.py --test_device cisco3 \
 && $PYTEST test_netmiko_scp.py --test_device cisco3 \
 && $PYTEST test_netmiko_show.py --test_device cisco3 \
 && $PYTEST test_netmiko_config.py --test_device cisco3 \
@@ -101,8 +97,10 @@ echo "Starting tests...good luck:" \
 && $PYTEST test_netmiko_show.py --test_device linux_srv1 \
 \
 && echo "Test read_timeout on Cisco3 (slow, slow, and more slow)" \
-&& $PYTEST test_timeout_send_command.py --test_device cisco3 \
 && $PYTEST test_timeout_read_until_pattern.py --test_device cisco3 \
+&& $PYTEST test_timeout_send_command.py --test_device cisco3 \
+&& $PYTEST test_timeout_read_timing.py --test_device cisco3 \
+&& $PYTEST test_timeout_send_command_timing.py --test_device cisco3 \
 \
 && echo "Autodetect tests" \
 && $PYTEST test_netmiko_autodetect.py --test_device cisco1 \
