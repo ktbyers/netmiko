@@ -119,6 +119,11 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def save_config(self, *args: Any, **kwargs: Any) -> str:
+    def save_config(
+            self,
+            cmd: str = "copy running-config startup-config",
+            confirm: bool = False,
+            confirm_response: str = "",
+    ) -> str:
         """Not Implemented"""
         raise NotImplementedError
