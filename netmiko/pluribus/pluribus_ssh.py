@@ -20,7 +20,12 @@ class PluribusSSH(NoConfig, BaseConnection):
         pattern: Optional[str] = None,
     ) -> str:
         """Make sure paging is disabled."""
-        return super().disable_paging(command=command, delay_factor=delay_factor, cmd_verify=cmd_verify, pattern=pattern)
+        return super().disable_paging(
+            command=command,
+            delay_factor=delay_factor,
+            cmd_verify=cmd_verify,
+            pattern=pattern,
+        )
 
     def session_preparation(self) -> None:
         """Prepare the netmiko session."""
