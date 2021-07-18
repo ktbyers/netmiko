@@ -2,7 +2,8 @@ import re
 import time
 from typing import Any, Optional
 
-from cryptography.hazmat.primitives.asymmetric import dsa, DSAParameterNumbers
+from cryptography.hazmat.primitives.asymmetric import dsa
+from cryptography.hazmat.primitives.asymmetric.dsa import DSAParameterNumbers
 
 from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
