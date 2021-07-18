@@ -3,7 +3,7 @@ import re
 import time
 from socket import socket
 
-from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS
+from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
 from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
@@ -67,7 +67,7 @@ class RaisecomRoapSSH(RaisecomRoapBase):
 
 class RaisecomRoapTelnet(RaisecomRoapBase):
     @staticmethod
-    def _process_option(self, telnet_sock: socket, cmd: bytes, opt: bytes) -> None:
+    def _process_option(telnet_sock: socket, cmd: bytes, opt: bytes) -> None:
         """
         enable ECHO, SGA, set window size to [500, 50]
         """
@@ -97,6 +97,7 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
     ) -> str:
 
         # set callback function to handle telnet options.
+        assert isinstance(self.remote_conn, Telnet)
         self.remote_conn.set_option_negotiation_callback(self._process_option)
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
@@ -118,6 +119,7 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
 
                 # Search for password pattern / send password
                 if re.search(pwd_pattern, output, flags=re.I):
+                    assert self.password is not None
                     self.write_channel(self.password + self.TELNET_RETURN)
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
