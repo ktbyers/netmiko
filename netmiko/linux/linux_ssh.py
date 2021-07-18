@@ -2,6 +2,10 @@ import os
 import re
 import socket
 import time
+from typing import Any, Union, Sequence, TextIO, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from netmiko.base_connection import BaseConnection
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
@@ -13,29 +17,29 @@ LINUX_PROMPT_ROOT = os.getenv("NETMIKO_LINUX_PROMPT_ROOT", "#")
 
 
 class LinuxSSH(CiscoSSHConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         return super().session_preparation()
 
-    def _enter_shell(self):
+    def _enter_shell(self) -> str:
         """Already in shell."""
         return ""
 
-    def _return_cli(self):
+    def _return_cli(self) -> str:
         """The shell is the CLI."""
         return ""
 
-    def disable_paging(self, *args, **kwargs):
+    def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Linux doesn't have paging by default."""
         return ""
 
     def set_base_prompt(
         self,
-        pri_prompt_terminator=LINUX_PROMPT_PRI,
-        alt_prompt_terminator=LINUX_PROMPT_ALT,
-        delay_factor=1,
-    ):
+        pri_prompt_terminator: str = LINUX_PROMPT_PRI,
+        alt_prompt_terminator: str = LINUX_PROMPT_ALT,
+        delay_factor: float = 1.0,
+    ) -> str:
         """Determine base prompt."""
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
@@ -43,7 +47,9 @@ class LinuxSSH(CiscoSSHConnection):
             delay_factor=delay_factor,
         )
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+    def send_config_set(  # type: ignore
+        self, config_commands=None, exit_config_mode=True, **kwargs: Any
+    ) -> str:
         """Can't exit from root (if root)"""
         if self.username == "root":
             exit_config_mode = False
@@ -51,7 +57,9 @@ class LinuxSSH(CiscoSSHConnection):
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def check_config_mode(self, check_string=LINUX_PROMPT_ROOT, pattern=""):
+    def check_config_mode(
+        self, check_string: str = LINUX_PROMPT_ROOT, pattern: str = ""
+    ) -> bool:
         """Verify root"""
         return self.check_enable_mode(check_string=check_string)
 
@@ -64,14 +72,14 @@ class LinuxSSH(CiscoSSHConnection):
         """Attempt to become root."""
         return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
 
-    def exit_config_mode(self, exit_config="exit"):
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#.*") -> str:
         return self.exit_enable_mode(exit_command=exit_config)
 
-    def check_enable_mode(self, check_string=LINUX_PROMPT_ROOT):
+    def check_enable_mode(self, check_string: str = LINUX_PROMPT_ROOT) -> bool:
         """Verify root"""
         return super().check_enable_mode(check_string=check_string)
 
-    def exit_enable_mode(self, exit_command="exit"):
+    def exit_enable_mode(self, exit_command: str = "exit") -> str:
         """Exit enable mode."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
@@ -83,7 +91,13 @@ class LinuxSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def enable(self, cmd="sudo -s", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(
+        self,
+        cmd: str = "sudo -s",
+        pattern: str = "ssword",
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Attempt to become root."""
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
@@ -107,11 +121,11 @@ class LinuxSSH(CiscoSSHConnection):
                 raise ValueError(msg)
         return output
 
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Try to Gracefully exit the SSH session."""
         return super().cleanup(command=command)
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
         raise NotImplementedError
 
@@ -125,14 +139,14 @@ class LinuxFileTransfer(CiscoFileTransfer):
 
     def __init__(
         self,
-        ssh_conn,
-        source_file,
-        dest_file,
-        file_system="/var/tmp",
-        direction="put",
-        **kwargs,
-    ):
-        return super().__init__(
+        ssh_conn: "BaseConnection",
+        source_file: str,
+        dest_file: str,
+        file_system: Optional[str] = "/var/tmp",
+        direction: str = "put",
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
             dest_file=dest_file,
@@ -141,39 +155,43 @@ class LinuxFileTransfer(CiscoFileTransfer):
             **kwargs,
         )
 
-    def remote_space_available(self, search_pattern=""):
+    def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
-    def check_file_exists(self, remote_cmd=""):
+    def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         return self._check_file_exists_unix(remote_cmd=remote_cmd)
 
-    def remote_file_size(self, remote_cmd="", remote_file=None):
+    def remote_file_size(
+        self, remote_cmd: str = "", remote_file: Optional[str] = None
+    ) -> int:
         """Get the file size of the remote file."""
         return self._remote_file_size_unix(
             remote_cmd=remote_cmd, remote_file=remote_file
         )
 
-    def remote_md5(self, base_cmd="md5sum", remote_file=None):
+    def remote_md5(
+        self, base_cmd: str = "md5sum", remote_file: Optional[str] = None
+    ) -> str:
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, read_timeout=300)
+        dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
         dest_md5 = self.process_md5(dest_md5).strip()
         return dest_md5
 
     @staticmethod
-    def process_md5(md5_output, pattern=r"^(\S+)\s+"):
+    def process_md5(md5_output: str, pattern: str = r"^(\S+)\s+") -> str:
         return super(LinuxFileTransfer, LinuxFileTransfer).process_md5(
             md5_output, pattern=pattern
         )
 
-    def enable_scp(self, cmd=None):
+    def enable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError
