@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union, Sequence, TextIO, Any
 import time
 import warnings
 from netmiko.no_enable import NoEnable
@@ -9,7 +9,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class VyOSSSH(NoEnable, CiscoSSHConnection):
     """Implement methods for interacting with VyOS network devices."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         self.set_base_prompt()
@@ -19,9 +19,9 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string="#"):
+    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> str:
         """Checks if the device is in configuration mode"""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
         self,
@@ -33,7 +33,9 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="exit", pattern=r"exit"):
+    def exit_config_mode(
+        self, exit_config: str = "exit", pattern: str = r"exit"
+    ) -> str:
         """Exit configuration mode"""
         output = ""
         if self.check_config_mode():
@@ -51,7 +53,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
     def commit(
         self,
         comment: str = "",
-        read_timeout: float = 120,
+        read_timeout: float = 120.0,
         delay_factor: Optional[float] = None,
     ) -> str:
         """
@@ -91,8 +93,11 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         return output
 
     def set_base_prompt(
-        self, pri_prompt_terminator="$", alt_prompt_terminator="#", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = "$",
+        alt_prompt_terminator: str = "#",
+        delay_factor: float = 1.0,
+    ) -> str:
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
         prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
@@ -103,7 +108,12 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         self.base_prompt = prompt[:-2].strip()
         return self.base_prompt
 
-    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
+    def send_config_set(   # type: ignore
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ):
         """Remain in configuration mode."""
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
