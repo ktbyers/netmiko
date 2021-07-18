@@ -1,12 +1,14 @@
 from netmiko.cisco_base_connection import CiscoBaseConnection
 import re
 import time
+from socket import socket
+
 from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS
 from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
 class RaisecomRoapBase(CiscoBaseConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
@@ -16,15 +18,18 @@ class RaisecomRoapBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string=")#", pattern="#"):
+    def check_config_mode(self, check_string: str = ")#", pattern: str = "#") -> bool:
         """
         Checks if the device is in configuration mode or not.
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(
-        self, cmd="write startup-config", confirm=False, confirm_response=""
-    ):
+        self,
+        cmd: str = "write startup-config",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves Config."""
         self.exit_config_mode()
         self.enable()
@@ -34,7 +39,7 @@ class RaisecomRoapBase(CiscoBaseConnection):
 
 
 class RaisecomRoapSSH(RaisecomRoapBase):
-    def special_login_handler(self, delay_factor=1):
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """
         Raisecom presents with the following on login (in certain OS versions)
         Login: user
@@ -50,6 +55,7 @@ class RaisecomRoapSSH(RaisecomRoapBase):
                 if "Login:" in output:
                     self.write_channel(self.username + self.RETURN)
                 elif "Password:" in output:
+                    assert self.password is not None
                     self.write_channel(self.password + self.RETURN)
                     break
                 time.sleep(delay_factor * 1)
@@ -61,7 +67,7 @@ class RaisecomRoapSSH(RaisecomRoapBase):
 
 class RaisecomRoapTelnet(RaisecomRoapBase):
     @staticmethod
-    def _process_option(telnet_sock, cmd, opt):
+    def _process_option(self, telnet_sock: socket, cmd: bytes, opt: bytes) -> None:
         """
         enable ECHO, SGA, set window size to [500, 50]
         """
@@ -82,13 +88,13 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
 
     def telnet_login(
         self,
-        pri_prompt_terminator=r"#\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(Login|Username)",
-        pwd_pattern=r"Password",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"#\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(Login|Username)",
+        pwd_pattern: str = r"Password",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
 
         # set callback function to handle telnet options.
         self.remote_conn.set_option_negotiation_callback(self._process_option)
