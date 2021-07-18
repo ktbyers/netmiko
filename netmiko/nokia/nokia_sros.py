@@ -9,7 +9,7 @@
 import re
 import os
 import time
-from typing import Any, Optional, Union, Sequence, TextIO
+from typing import Any, Optional, Union, Sequence, TextIO, Callable
 
 from netmiko import log
 from netmiko.base_connection import BaseConnection
@@ -65,8 +65,9 @@ class NokiaSros(BaseConnection):
         match = re.search(r"\*?(.*?)(>.*)*#", cur_base_prompt)
         if match:
             # strip off >... from base_prompt; strip off leading *
-            self.base_prompt = match.group(1)
-            return self.base_prompt
+            self.base_prompt: str = match.group(1)
+
+        return self.base_prompt
 
     def _disable_complete_on_space(self) -> str:
         """
@@ -121,7 +122,7 @@ class NokiaSros(BaseConnection):
         """Enable config edit-mode for Nokia SR OS"""
         output = ""
         if not pattern:
-            pattern = (rf"\(ex\)\[.*{self.base_prompt}.*$",)
+            pattern = rf"\(ex\)\[.*{self.base_prompt}.*$"
             re_flags = re.DOTALL
         # Only model-driven CLI supports config-mode
         if "@" in self.base_prompt:
@@ -163,9 +164,9 @@ class NokiaSros(BaseConnection):
 
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Persist configuration to cflash for Nokia SR OS"""
-        return self.send_command(command_string="/admin save", expect_string=r"#")
+        return self._send_command_str(command_string="/admin save", expect_string=r"#")
 
-    def send_config_set(
+    def send_config_set(  # type: ignore
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = None,
@@ -258,10 +259,27 @@ class NokiaSrosTelnet(NokiaSros):
 
 class NokiaSrosFileTransfer(BaseFileTransfer):
     def __init__(
-        self, ssh_conn, source_file, dest_file, hash_supported=False, **kwargs
+        self,
+        ssh_conn: BaseConnection,
+        source_file: str,
+        dest_file: str,
+        file_system: Optional[str] = None,
+        direction: str = "put",
+        socket_timeout: float = 10.0,
+        progress: Optional[Callable[..., Any]] = None,
+        progress4: Optional[Callable[..., Any]] = None,
+        hash_supported: bool = True,
     ) -> None:
         super().__init__(
-            ssh_conn, source_file, dest_file, hash_supported=hash_supported, **kwargs
+            ssh_conn,
+            source_file,
+            dest_file,
+            file_system,
+            direction,
+            socket_timeout,
+            progress,
+            progress4,
+            hash_supported,
         )
 
     def _file_cmd_prefix(self) -> str:
@@ -280,8 +298,9 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         # Sample text for search_pattern.
         # "               3 Dir(s)               961531904 bytes free."
         remote_cmd = self._file_cmd_prefix() + "file dir {}".format(self.file_system)
-        remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
+        remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
         match = re.search(search_pattern, remote_output)
+        assert match is not None
         return int(match.group(1))
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:
@@ -302,6 +321,8 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
                 raise ValueError("Unexpected output from check_file_exists")
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
+        else:
+            raise ValueError("Unexpected value for self.direction")
 
     def remote_file_size(
         self, remote_cmd: Optional[str] = None, remote_file: Optional[str] = None
@@ -317,11 +338,12 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
             remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
                 self.file_system, remote_file
             )
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
 
         if "File Not Found" in remote_out:
             raise IOError("Unable to find file on remote system")
 
+        assert remote_file is not None
         dest_file_name = remote_file.replace("\\", "/").split("/")[-1]
         # Parse dir output for filename. Output format is:
         # "10/16/2019  10:00p                6738 {dest_file_name}"
@@ -346,15 +368,17 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
                 self.remote_file_size(remote_file=self.source_file)
                 == os.stat(self.dest_file).st_size
             )
+        else:
+            raise ValueError("Unexpected value of self.direction")
 
-    def file_md5(self, **kwargs: Any) -> str:
+    def file_md5(self, **kwargs: Any) -> str:  # type: ignore
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
 
-    def process_md5(self, **kwargs: Any) -> str:
+    def process_md5(self, **kwargs: Any) -> str:  # type: ignore
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
 
     def compare_md5(self, **kwargs: Any) -> bool:
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
 
-    def remote_md5(self, **kwargs: Any) -> None:
+    def remote_md5(self, **kwargs: Any) -> None:  # type: ignore
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
