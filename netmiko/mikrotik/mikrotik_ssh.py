@@ -90,7 +90,7 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
             delay_factor=delay_factor,
         )
         prompt = prompt.strip()
-        self.base_prompt = prompt
+        self.base_prompt: str = prompt
         return self.base_prompt
 
     def send_command_timing(  # type: ignore
