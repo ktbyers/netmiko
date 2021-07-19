@@ -1,5 +1,5 @@
 import time
-from typing import Any, Optional
+from typing import Any
 
 from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
