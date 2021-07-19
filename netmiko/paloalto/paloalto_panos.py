@@ -156,12 +156,6 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
 
         return a_string
 
-    def send_command_expect(
-        self, *args: Any, **kwargs: Any
-    ) -> Union[str, List[Any], Dict[str, Any]]:
-        """Palo Alto requires an extra delay"""
-        return self.send_command(*args, **kwargs)
-
     def send_command(
         self, *args: Any, **kwargs: Any
     ) -> Union[str, List[Any], Dict[str, Any]]:

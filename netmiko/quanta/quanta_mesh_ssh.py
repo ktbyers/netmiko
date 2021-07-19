@@ -4,20 +4,12 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class QuantaMeshSSH(CiscoSSHConnection):
-    def disable_paging(
-        self,
-        command: str = "no pager",
-        delay_factor: Optional[float] = None,
-        cmd_verify: bool = True,
-        pattern: Optional[str] = None,
-    ) -> str:
-        """Disable paging"""
-        return super().disable_paging(
-            command=command,
-            delay_factor=delay_factor,
-            cmd_verify=cmd_verify,
-            pattern=pattern,
-        )
+
+    def session_preparation(self) -> None:
+        self._test_channel_read()
+        self.set_base_prompt()
+        self.set_terminal_width()
+        self.disable_paging("no pager")
 
     def config_mode(
         self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
