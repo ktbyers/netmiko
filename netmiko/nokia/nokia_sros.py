@@ -171,7 +171,7 @@ class NokiaSros(BaseConnection):
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = None,
         **kwargs: Any,
-    ):
+    ) -> str:
         """Model driven CLI requires you not exit from configuration mode."""
         if exit_config_mode is None:
             # Set to False if model-driven CLI
@@ -268,18 +268,18 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         socket_timeout: float = 10.0,
         progress: Optional[Callable[..., Any]] = None,
         progress4: Optional[Callable[..., Any]] = None,
-        hash_supported: bool = True,
+        hash_supported: bool = False,
     ) -> None:
         super().__init__(
-            ssh_conn,
-            source_file,
-            dest_file,
-            file_system,
-            direction,
-            socket_timeout,
-            progress,
-            progress4,
-            hash_supported,
+            ssh_conn=ssh_conn,
+            source_file=source_file,
+            dest_file=dest_file,
+            file_system=file_system,
+            direction=direction,
+            socket_timeout=socket_timeout,
+            progress=progress,
+            progress4=progress4,
+            hash_supported=hash_supported,
         )
 
     def _file_cmd_prefix(self) -> str:
@@ -325,7 +325,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
             raise ValueError("Unexpected value for self.direction")
 
     def remote_file_size(
-        self, remote_cmd: Optional[str] = None, remote_file: Optional[str] = None
+        self, remote_cmd: str = "", remote_file: Optional[str] = None
     ) -> int:
         """Get the file size of the remote file."""
 
@@ -334,6 +334,8 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
+            else:
+                raise ValueError("Unexpected value for self.direction")
         if not remote_cmd:
             remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
                 self.file_system, remote_file
@@ -343,7 +345,6 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         if "File Not Found" in remote_out:
             raise IOError("Unable to find file on remote system")
 
-        assert remote_file is not None
         dest_file_name = remote_file.replace("\\", "/").split("/")[-1]
         # Parse dir output for filename. Output format is:
         # "10/16/2019  10:00p                6738 {dest_file_name}"
