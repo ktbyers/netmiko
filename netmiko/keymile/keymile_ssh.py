@@ -24,8 +24,6 @@ class KeymileSSH(NoEnable, NoConfig, CiscoIosBase):
 
     def strip_prompt(self, a_string: str) -> str:
         """Remove appending empty line and prompt from output"""
-        assert self.session_log is not None
-        self.session_log.write(a_string)
         a_string = a_string[:-1]
         return super().strip_prompt(a_string=a_string)
 
@@ -36,4 +34,8 @@ class KeymileSSH(NoEnable, NoConfig, CiscoIosBase):
         delay_factor: float = 1.0,
     ) -> str:
         """set prompt termination  to >"""
-        return super().set_base_prompt(pri_prompt_terminator=pri_prompt_terminator)
+        return super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+        )

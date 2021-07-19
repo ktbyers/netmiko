@@ -72,7 +72,7 @@ class LinuxSSH(CiscoSSHConnection):
         """Attempt to become root."""
         return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
 
-    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#.*") -> str:
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "") -> str:
         return self.exit_enable_mode(exit_command=exit_config)
 
     def check_enable_mode(self, check_string: str = LINUX_PROMPT_ROOT) -> bool:
