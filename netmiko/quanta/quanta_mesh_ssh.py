@@ -4,7 +4,6 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class QuantaMeshSSH(CiscoSSHConnection):
-
     def session_preparation(self) -> None:
         self._test_channel_read()
         self.set_base_prompt()
