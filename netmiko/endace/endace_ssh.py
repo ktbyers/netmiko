@@ -31,17 +31,13 @@ class EndaceSSH(CiscoSSHConnection):
     ) -> str:
         output = ""
         if not self.check_config_mode():
-            new_data = self.send_command_timing(
+            output += self._send_command_timing_str(
                 config_command, strip_command=False, strip_prompt=False
             )
-            assert isinstance(new_data, str)
-            output += new_data
             if "to enter configuration mode anyway" in output:
-                new_data = self.send_command_timing(
+                output += self._send_command_timing_str(
                     "YES", strip_command=False, strip_prompt=False
                 )
-                assert isinstance(new_data, str)
-                output += new_data
             if not self.check_config_mode():
                 raise ValueError("Failed to enter configuration mode")
         return output
