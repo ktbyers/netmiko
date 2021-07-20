@@ -213,7 +213,7 @@ class CiscoBaseConnection(BaseConnection):
             file_system = match.group(1)
             # Test file_system
             cmd = f"dir {file_system}"
-            output = self.send_command_expect(cmd)
+            output = self._send_command_str(cmd)
             if "% Invalid" in output or "%Error:" in output:
                 raise ValueError(
                     "An error occurred in dynamically determining remote file "
