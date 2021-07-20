@@ -86,12 +86,14 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
             command_string += f' comment "{comment}"'
 
         output = self.config_mode()
-        output += self._send_command_str(
+        new_data = self.send_command(
             command_string,
             strip_prompt=False,
             strip_command=True,
             read_timeout=read_timeout,
         )
+        assert isinstance(new_data, str)
+        output += new_data
 
         if not (any(x in output for x in commit_marker)):
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")

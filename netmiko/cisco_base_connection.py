@@ -207,13 +207,14 @@ class CiscoBaseConnection(BaseConnection):
         """Autodetect the file system on the remote device. Used by SCP operations."""
         if not self.check_enable_mode():
             raise ValueError("Must be in enable mode to auto-detect the file-system.")
-        output = self._send_command_str(cmd)
+        output = self.send_command_expect(cmd)
+        assert isinstance(output, str)
         match = re.search(pattern, output)
         if match:
             file_system = match.group(1)
             # Test file_system
             cmd = f"dir {file_system}"
-            output = self._send_command_str(cmd)
+            output = self.send_command_expect(cmd)
             if "% Invalid" in output or "%Error:" in output:
                 raise ValueError(
                     "An error occurred in dynamically determining remote file "
@@ -236,23 +237,29 @@ class CiscoBaseConnection(BaseConnection):
         """Saves Config."""
         self.enable()
         if confirm:
-            output = self._send_command_timing_str(
+            output = self.send_command_timing(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
+            assert isinstance(output, str)
             if confirm_response:
-                output += self._send_command_timing_str(
+                new_output = self.send_command_timing(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
+                assert isinstance(new_output, str)
+                output += new_output
             else:
                 # Send enter by default
-                output += self._send_command_timing_str(
+                new_output = self.send_command_timing(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
+                assert isinstance(new_output, str)
+                output += new_output
         else:
             # Some devices are slow so match on trailing-prompt if you can
-            output = self._send_command_str(
+            output = self.send_command(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
+        assert isinstance(output, str)
         return output
 
 

@@ -22,7 +22,8 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
 
     def _enter_shell(self) -> str:
         """Enter the Bourne Shell."""
-        output = self._send_command_str("diag shell", expect_string=r"[$#>]")
+        output = self.send_command("diag shell", expect_string=r"[$#>]")
+        assert isinstance(output, str)
         if "SHELL PARSER FAILURE" in output:
             msg = "SCP support on Ciena SAOS requires 'diag shell' permissions"
             raise ValueError(msg)
@@ -30,7 +31,9 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
 
     def _return_cli(self) -> str:
         """Return to the Ciena SAOS CLI."""
-        return self._send_command_str("exit", expect_string=r"[>]")
+        output = self.send_command("exit", expect_string=r"[>]")
+        assert isinstance(output, str)
+        return output
 
     def save_config(
         self,
@@ -88,7 +91,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         tmpfs                  1048576       648   1047928   0% /tmp
         """
         remote_cmd = f"file vols -P {self.file_system}"
-        remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
+        remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
+        assert isinstance(remote_output, str)
         remote_output = remote_output.strip()
         err_msg = (
             f"Parsing error, unexpected output from {remote_cmd}:\n{remote_output}"
@@ -123,7 +127,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         if self.direction == "put":
             if not remote_cmd:
                 remote_cmd = f"file ls {self.file_system}/{self.dest_file}"
-            remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
+            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            assert isinstance(remote_out, str)
             search_string = re.escape(f"{self.file_system}/{self.dest_file}")
             if "ERROR" in remote_out:
                 return False
@@ -151,7 +156,8 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         if not remote_cmd:
             remote_cmd = f"file ls -l {remote_file}"
 
-        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
+        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        assert isinstance(remote_out, str)
 
         if "No such file or directory" in remote_out:
             raise IOError("Unable to find file on remote system")
@@ -185,9 +191,10 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
 
         self.ssh_ctl_chan._enter_shell()
-        dest_md5 = self.ssh_ctl_chan._send_command_str(
+        dest_md5 = self.ssh_ctl_chan.send_command(
             remote_md5_cmd, expect_string=r"[$#>]"
         )
+        assert isinstance(dest_md5, str)
         self.ssh_ctl_chan._return_cli()
         dest_md5 = self.process_md5(dest_md5, pattern=r"([0-9a-f]+)\s+")
         return dest_md5
