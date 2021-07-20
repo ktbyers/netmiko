@@ -1648,8 +1648,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def _send_command_str(self, *args: Any, **kwargs: Any) -> str:
         """Wrapper for `send_command` method that always returns a string"""
-        output = self.send_command(*args, **kwargs)
-        assert isinstance(output, str)
+        output = self._send_command_str(*args, **kwargs)
         return output
 
     def send_command_expect(
@@ -1698,11 +1697,9 @@ You can also look at the Netmiko session_log or debug log for more information.
             # If list of commands just send directly using default_expect_string (probably prompt)
             for cmd in commands:
                 cmd = str(cmd)
-                new_data = self.send_command(
+                output += self._send_command_str(
                     cmd, expect_string=default_expect_string, **kwargs
                 )
-                assert isinstance(new_data, str)
-                output += new_data
         else:
             # If list of lists, then first element is cmd and second element is expect_string
             for cmd, expect_string in commands:  # type: ignore
@@ -1711,9 +1708,9 @@ You can also look at the Netmiko session_log or debug log for more information.
                 # If expect_string is null-string use default_expect_string
                 if not expect_string:
                     expect_string = default_expect_string
-                new_data = self.send_command(cmd, expect_string=expect_string, **kwargs)
-                assert isinstance(new_data, str)
-                output += new_data
+                output += self._send_command_str(
+                    cmd, expect_string=expect_string, **kwargs
+                )
         return output
 
     def send_multiline_timing(

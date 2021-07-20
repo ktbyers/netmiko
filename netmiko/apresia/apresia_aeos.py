@@ -19,8 +19,7 @@ class ApresiaAeosBase(CiscoSSHConnection):
 
         self.enable()
         check_command = f"show running-config | include {command}"
-        show_run = self.send_command(check_command)
-        assert isinstance(show_run, str)
+        show_run = self._send_command_str(check_command)
 
         output = ""
         if self.allow_auto_change and command not in show_run:
