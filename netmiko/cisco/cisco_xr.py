@@ -110,30 +110,35 @@ class CiscoXrBase(CiscoBaseConnection):
 
         # IOS-XR might do this:
         # This could be a few minutes if your config is large. Confirm? [y/n][confirm]
-        new_data = self._send_command_str(
+        new_data = self.send_command(
             command_string,
             expect_string=r"(#|onfirm)",
             strip_prompt=False,
             strip_command=False,
             read_timeout=read_timeout,
         )
+        assert isinstance(new_data, str)
         if "onfirm" in new_data:
             output += new_data
-            new_data = self._send_command_str(
+            new_data = self.send_command(
                 "y",
                 expect_string=r"#",
                 strip_prompt=False,
                 strip_command=False,
                 read_timeout=read_timeout,
             )
+
+        assert isinstance(new_data, str)
         output += new_data
         if error_marker in output:
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
-            output += self._send_command_timing_str(
+            new_data = self.send_command_timing(
                 "no", strip_prompt=False, strip_command=False
             )
+            assert isinstance(new_data, str)
+            output += new_data
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
         return output
@@ -225,7 +230,8 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
                 remote_file = self.source_file
         # IOS-XR requires both the leading slash and the slash between file-system and file here
         remote_md5_cmd = f"{base_cmd} /{self.file_system}/{remote_file}"
-        dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
+        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, read_timeout=300)
+        assert isinstance(dest_md5, str)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
