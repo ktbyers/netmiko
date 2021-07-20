@@ -37,7 +37,7 @@ class UbiquitiEdgeSSH(CiscoSSHConnection):
 
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#.*") -> str:
         """Exit configuration mode."""
-        return super().exit_config_mode(exit_config=exit_config)
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
         """Exit enable mode."""

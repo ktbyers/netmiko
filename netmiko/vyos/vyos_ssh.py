@@ -113,7 +113,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
-    ):
+    ) -> str:
         """Remain in configuration mode."""
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
