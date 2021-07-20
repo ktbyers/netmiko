@@ -146,8 +146,7 @@ class BaseFileTransfer(object):
     def remote_space_available(self, search_pattern: str = r"(\d+) \w+ free") -> int:
         """Return space available on remote device."""
         remote_cmd = f"dir {self.file_system}"
-        remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
-        assert isinstance(remote_output, str)
+        remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
         match = re.search(search_pattern, remote_output)
         if match:
             if "kbytes" in match.group(0) or "Kbytes" in match.group(0):
@@ -163,14 +162,13 @@ class BaseFileTransfer(object):
         """Return space available on *nix system (BSD/Linux)."""
         self.ssh_ctl_chan._enter_shell()
         remote_cmd = f"/bin/df -k {self.file_system}"
-        remote_output = self.ssh_ctl_chan.send_command(
+        remote_output = self.ssh_ctl_chan._send_command_str(
             remote_cmd, expect_string=r"[\$#]"
         )
 
         # Try to ensure parsing is correct:
         # Filesystem   1K-blocks  Used   Avail Capacity  Mounted on
         # /dev/bo0s3f    1264808 16376 1147248     1%    /cf/var
-        assert isinstance(remote_output, str)
         remote_output = remote_output.strip()
         output_lines = remote_output.splitlines()
 
@@ -224,8 +222,7 @@ class BaseFileTransfer(object):
         if self.direction == "put":
             if not remote_cmd:
                 remote_cmd = f"dir {self.file_system}/{self.dest_file}"
-            remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
-            assert isinstance(remote_out, str)
+            remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
             search_string = r"Directory of .*{0}".format(self.dest_file)
             if (
                 "Error opening" in remote_out
@@ -247,7 +244,7 @@ class BaseFileTransfer(object):
         if self.direction == "put":
             self.ssh_ctl_chan._enter_shell()
             remote_cmd = f"/bin/ls {self.file_system}"
-            remote_out = self.ssh_ctl_chan.send_command(
+            remote_out = self.ssh_ctl_chan._send_command_str(
                 remote_cmd, expect_string=r"[\$#]"
             )
             self.ssh_ctl_chan._return_cli()
@@ -268,11 +265,10 @@ class BaseFileTransfer(object):
                 remote_file = self.source_file
         if not remote_cmd:
             remote_cmd = f"dir {self.file_system}/{remote_file}"
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
-        assert isinstance(remote_out, str)
+        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
         # Strip out "Directory of flash:/filename line
-        remote_out = re.split(r"Directory of .*", remote_out)
-        remote_out = "".join(remote_out)
+        remote_out_lines = re.split(r"Directory of .*", remote_out)
+        remote_out = "".join(remote_out_lines)
         # Match line containing file name
         assert isinstance(remote_file, str)
         escape_file_name = re.escape(remote_file)
@@ -304,8 +300,9 @@ class BaseFileTransfer(object):
             remote_cmd = f"/bin/ls -l {remote_file}"
 
         self.ssh_ctl_chan._enter_shell()
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd, expect_string=r"[\$#]")
-        assert isinstance(remote_out, str)
+        remote_out = self.ssh_ctl_chan._send_command_str(
+            remote_cmd, expect_string=r"[\$#]"
+        )
         self.ssh_ctl_chan._return_cli()
 
         if "No such file or directory" in remote_out:
@@ -385,8 +382,7 @@ class BaseFileTransfer(object):
             elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, read_timeout=300)
-        assert isinstance(dest_md5, str)
+        dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
