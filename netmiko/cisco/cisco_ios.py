@@ -155,13 +155,12 @@ class InLineTransfer(CiscoIosFileTransfer):
     def _enter_tcl_mode(self) -> str:
         TCL_ENTER = "tclsh"
         cmd_failed = ['Translating "tclsh"', "% Unknown command", "% Bad IP address"]
-        output = self.ssh_ctl_chan.send_command(
+        output = self.ssh_ctl_chan._send_command_str(
             TCL_ENTER,
             expect_string=r"\(tcl\)#",
             strip_prompt=False,
             strip_command=False,
         )
-        assert isinstance(output, str)
         for pattern in cmd_failed:
             if pattern in output:
                 raise ValueError(f"Failed to enter tclsh mode on router: {output}")
