@@ -67,11 +67,9 @@ class DellIsilonSSH(BaseConnection):
         delay_factor = self.select_delay_factor(delay_factor=1)
         output = ""
         if not self.check_enable_mode():
-            new_data = self.send_command_timing(
+            output += self._send_command_timing_str(
                 cmd, strip_prompt=False, strip_command=False
             )
-            assert isinstance(new_data, str)
-            output += new_data
             if re.search(pattern, output, flags=re_flags):
                 self.write_channel(self.normalize_cmd(self.secret))
             output += self.read_until_pattern(pattern=r"#.*$")
