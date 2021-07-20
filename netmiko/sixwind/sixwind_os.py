@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 import time
 import warnings
 from netmiko.no_enable import NoEnable
@@ -7,7 +7,7 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class SixwindOSBase(NoEnable, CiscoBaseConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read()
@@ -16,13 +16,16 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, *args, **kwargs):
+    def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """6WIND requires no-pager at the end of command, not implemented at this time."""
         pass
 
     def set_base_prompt(
-        self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = ">",
+        alt_prompt_terminator: str = "#",
+        delay_factor: float = 1.0,
+    ) -> str:
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
 
         prompt = super().set_base_prompt(
@@ -63,7 +66,7 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
         command_string = "commit"
 
         output = self.config_mode()
-        output += self.send_command(
+        output += self._send_command_str(
             command_string,
             strip_prompt=False,
             strip_command=False,
@@ -77,19 +80,22 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
 
         return output
 
-    def exit_config_mode(self, exit_config="exit", pattern=r">"):
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r">") -> str:
         """Exit configuration mode."""
 
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def check_config_mode(self, check_string="#", pattern=""):
+    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
 
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(
-        self, cmd="copy running startup", confirm=True, confirm_response="y"
-    ):
+        self,
+        cmd: str = "copy running startup",
+        confirm: bool = True,
+        confirm_response: str = "y",
+    ) -> str:
         """Save Config for 6WIND"""
 
         return super().save_config(
