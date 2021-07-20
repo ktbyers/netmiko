@@ -1,12 +1,14 @@
 """SophosXG (SFOS) Firewall support"""
 import time
+from typing import Any
+
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class SophosSfosSSH(NoEnable, NoConfig, CiscoSSHConnection):
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read()
         """
@@ -32,6 +34,6 @@ class SophosSfosSSH(NoEnable, NoConfig, CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
         raise NotImplementedError
