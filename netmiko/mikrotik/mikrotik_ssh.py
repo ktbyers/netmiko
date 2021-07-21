@@ -1,4 +1,4 @@
-from typing import Any, Union, List, Dict
+from typing import Any, Union, List, Dict, Optional
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -93,15 +93,39 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         self.base_prompt: str = prompt
         return self.base_prompt
 
-    def send_command_timing(  # type: ignore
+    def send_command_timing(
         self,
         command_string: str,
+        last_read: float = 2.0,
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+        max_loops: Optional[int] = None,
+        strip_prompt: bool = True,
+        strip_command: bool = True,
+        normalize: bool = True,
+        use_textfsm: bool = False,
+        textfsm_template: Optional[str] = None,
+        use_ttp: bool = False,
+        ttp_template: Optional[str] = None,
+        use_genie: bool = False,
         cmd_verify: bool = True,
-        **kwargs: Any,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Force cmd_verify to be True due to all of the line repainting"""
         return super()._send_command_timing_str(
-            command_string=command_string, cmd_verify=cmd_verify, **kwargs
+            command_string=command_string,
+            last_read=last_read,
+            read_timeout=read_timeout,
+            delay_factor=delay_factor,
+            max_loops=max_loops,
+            strip_prompt=strip_prompt,
+            strip_command=strip_command,
+            normalize=normalize,
+            use_textfsm=use_textfsm,
+            textfsm_template=textfsm_template,
+            use_ttp=use_ttp,
+            ttp_template=ttp_template,
+            use_genie=use_genie,
+            cmd_verify=cmd_verify
         )
 
 
