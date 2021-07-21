@@ -8,7 +8,9 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 
 class SSHClient_noauth(SSHClient):
     def _auth(self, username: str, *args: Any) -> None:
-        self._transport.auth_none(username)  # type: ignore
+        transport = self.get_transport()
+        assert transport is not None
+        transport.auth_none(username)
         return
 
 
