@@ -6,7 +6,7 @@ from os import path
 from paramiko import SSHClient
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.ssh_exception import NetmikoTimeoutException
+from netmiko.exceptions import NetmikoTimeoutException
 
 
 class SSHClient_noauth(SSHClient):

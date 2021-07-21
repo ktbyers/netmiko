@@ -6,7 +6,7 @@ import serial
 
 from netmiko.utilities import write_bytes
 from netmiko.netmiko_globals import MAX_BUFFER
-from netmiko.ssh_exception import ReadException, WriteException
+from netmiko.exceptions import ReadException, WriteException
 
 
 class Channel(ABC):

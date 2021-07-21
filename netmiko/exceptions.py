@@ -8,10 +8,16 @@ class NetmikoTimeoutException(SSHException):
     pass
 
 
+NetMikoTimeoutException = NetmikoTimeoutException
+
+
 class NetmikoAuthenticationException(AuthenticationException):
     """SSH authentication exception based on Paramiko AuthenticationException."""
 
     pass
+
+
+NetMikoAuthenticationException = NetmikoAuthenticationException
 
 
 class NetmikoBaseException(Exception):
@@ -42,7 +48,3 @@ class ReadTimeout(ReadException):
     """General exception indicating an error occurred during a Netmiko read operation."""
 
     pass
-
-
-NetMikoTimeoutException = NetmikoTimeoutException
-NetMikoAuthenticationException = NetmikoAuthenticationException
