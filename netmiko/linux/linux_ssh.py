@@ -77,7 +77,7 @@ class LinuxSSH(CiscoSSHConnection):
             cmd_verify=cmd_verify,
             enter_config_mode=enter_config_mode,
             error_pattern=error_pattern,
-            terminator=terminator
+            terminator=terminator,
         )
 
     def check_config_mode(

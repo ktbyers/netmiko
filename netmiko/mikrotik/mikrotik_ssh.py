@@ -125,7 +125,7 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
             use_ttp=use_ttp,
             ttp_template=ttp_template,
             use_genie=use_genie,
-            cmd_verify=cmd_verify
+            cmd_verify=cmd_verify,
         )
 
 
