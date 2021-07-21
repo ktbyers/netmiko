@@ -35,6 +35,7 @@ class CiscoXrBase(CiscoBaseConnection):
         error_pattern: str = "",
         terminator: str = r"#",
     ) -> str:
+        """IOS-XR requires you not exit from configuration mode."""
         return super().send_config_set(
             config_commands=config_commands,
             exit_config_mode=exit_config_mode,
