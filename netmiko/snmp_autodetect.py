@@ -20,9 +20,10 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 """
-from typing import Optional, Dict
+from typing import Optional, Dict, NamedTuple, List
 from typing.re import Pattern
 import re
+import operator
 
 try:
     from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -32,83 +33,105 @@ except ImportError:
 from netmiko.ssh_dispatcher import CLASS_MAPPER
 
 
+class DeviceType(NamedTuple):
+    name: str
+    oid: str
+    expr: Pattern
+    priority: int
+
+
 # Higher priority indicates a better match.
 SNMP_MAPPER_BASE = {
-    "arista_eos": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
-        "priority": 99,
-    },
-    "paloalto_panos": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Palo Alto Networks.*", re.IGNORECASE),
-        "priority": 99,
-    },
-    "hp_comware": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*HP(E)? Comware.*", re.IGNORECASE),
-        "priority": 99,
-    },
-    "hp_procurve": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".ProCurve", re.IGNORECASE),
-        "priority": 99,
-    },
-    "cisco_ios": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
-        "priority": 60,
-    },
-    "cisco_xe": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*IOS-XE Software,.*", re.IGNORECASE),
-        "priority": 99,
-    },
-    "cisco_xr": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Cisco IOS XR Software.*", re.IGNORECASE),
-        "priority": 99,
-    },
-    "cisco_asa": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Cisco Adaptive Security Appliance.*", re.IGNORECASE),
-        "priority": 99,
-    },
-    "cisco_nxos": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Cisco NX-OS.*", re.IGNORECASE),
-        "priority": 99,
-    },
-    "cisco_wlc": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Cisco Controller.*", re.IGNORECASE),
-        "priority": 99,
-    },
-    "f5_tmsh": {
-        "oid": ".1.3.6.1.4.1.3375.2.1.4.1.0",
-        "expr": re.compile(r".*BIG-IP.*", re.IGNORECASE),
-        "priority": 99,
-    },
-    "fortinet": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r"Forti.*", re.IGNORECASE),
-        "priority": 80,
-    },
-    "checkpoint": {
-        "oid": ".1.3.6.1.4.1.2620.1.6.16.9.0",
-        "expr": re.compile(r"CheckPoint"),
-        "priority": 79,
-    },
-    "juniper_junos": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Juniper.*"),
-        "priority": 99,
-    },
-    "nokia_sros": {
-        "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*TiMOS.*"),
-        "priority": 99,
-    },
+    "arista_eos": DeviceType(
+        name="arista_eos",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
+        priority=99,
+    ),
+    "paloalto_panos": DeviceType(
+        name="paloalto_panos",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*Palo Alto Networks.*", re.IGNORECASE),
+        priority=99,
+    ),
+    "hp_comware": DeviceType(
+        name="hp_comware",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*HP(E)? Comware.*", re.IGNORECASE),
+        priority=99,
+    ),
+    "hp_procurve": DeviceType(
+        name="hp_procurve",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".ProCurve", re.IGNORECASE),
+        priority=99,
+    ),
+    "cisco_ios": DeviceType(
+        name="cisco_ios",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
+        priority=60,
+    ),
+    "cisco_xe": DeviceType(
+        name="cisco_xe",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*IOS-XE Software,.*", re.IGNORECASE),
+        priority=99,
+    ),
+    "cisco_xr": DeviceType(
+        name="cisco_xr",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*Cisco IOS XR Software.*", re.IGNORECASE),
+        priority=99,
+    ),
+    "cisco_asa": DeviceType(
+        name="cisco_asa",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*Cisco Adaptive Security Appliance.*", re.IGNORECASE),
+        priority=99,
+    ),
+    "cisco_nxos": DeviceType(
+        name="cisco_nxos",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*Cisco NX-OS.*", re.IGNORECASE),
+        priority=99,
+    ),
+    "cisco_wlc": DeviceType(
+        name="cisco_wlc",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*Cisco Controller.*", re.IGNORECASE),
+        priority=99,
+    ),
+    "f5_tmsh": DeviceType(
+        name="f5_tmsh",
+        oid=".1.3.6.1.4.1.3375.2.1.4.1.0",
+        expr=re.compile(r".*BIG-IP.*", re.IGNORECASE),
+        priority=99,
+    ),
+    "fortinet": DeviceType(
+        name="fortinet",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r"Forti.*", re.IGNORECASE),
+        priority=80,
+    ),
+    "checkpoint": DeviceType(
+        name="checkpoint",
+        oid=".1.3.6.1.4.1.2620.1.6.16.9.0",
+        expr=re.compile(r"CheckPoint"),
+        priority=79,
+    ),
+    "juniper_junos": DeviceType(
+        name="juniper_junos",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*Juniper.*"),
+        priority=99,
+    ),
+    "nokia_sros": DeviceType(
+        name="nokia_sros",
+        oid=".1.3.6.1.2.1.1.1.0",
+        expr=re.compile(r".*TiMOS.*"),
+        priority=99,
+    ),
 }
 
 # Ensure all SNMP device types are supported by Netmiko
@@ -318,30 +341,25 @@ class SNMPDetect(object):
         potential_type : str
             The name of the device_type that must be running.
         """
-        # Convert SNMP_MAPPER to a list and sort by priority
-        snmp_mapper_orig = []
-        for k, v in SNMP_MAPPER.items():
-            snmp_mapper_orig.append({k: v})
-        snmp_mapper_list = sorted(
-            snmp_mapper_orig, key=lambda x: list(x.values())[0]["priority"]  # type: ignore
+        snmp_mapper_list: List[DeviceType] = sorted(
+            SNMP_MAPPER.values(), key=operator.itemgetter("priority"),
+            reverse=True
         )
-        snmp_mapper_list.reverse()
 
         for entry in snmp_mapper_list:
-            for device_type, v in entry.items():
-                oid: str = v["oid"]  # type: ignore
-                regex: Pattern = v["expr"]
+            oid = entry.oid
+            regex: Pattern = entry.expr
 
-                # Used cache data if we already queryied this OID
-                if self._response_cache.get(oid):
-                    snmp_response = self._response_cache.get(oid)
-                else:
-                    snmp_response = self._get_snmp(oid)
-                    self._response_cache[oid] = snmp_response
+            # Used cache data if we already queryied this OID
+            if self._response_cache.get(oid):
+                snmp_response = self._response_cache.get(oid)
+            else:
+                snmp_response = self._get_snmp(oid)
+                self._response_cache[oid] = snmp_response
 
-                # See if we had a match
-                if re.search(regex, snmp_response):
-                    assert isinstance(device_type, str)
-                    return device_type
+            # See if we had a match
+            if re.search(regex, snmp_response):
+                assert isinstance(device_type, str)
+                return device_type
 
         return None
