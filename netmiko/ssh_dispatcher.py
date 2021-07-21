@@ -1,6 +1,7 @@
 """Controls selection of proper class based on the device type."""
-from typing import Any, Type
+from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
+from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.adtran import AdtranOSSSH, AdtranOSTelnet
@@ -335,6 +336,60 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
         )
     ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)
+
+
+def ConnLogOnly(
+    log_file: str = "netmiko.log",
+    log_level: Optional[int] = None,
+    log_format: Optional[str] = None,
+    **kwargs: Any,
+) -> Optional["BaseConnection"]:
+    """
+    Dispatcher function that will return either: netmiko_object or None
+
+    Excluding errors in logging configuration should never generate an exception
+    all errors should be logged.
+    """
+
+    import logging
+
+    if log_level is None:
+        log_level = logging.ERROR
+    if log_format is None:
+        log_format = "%(asctime)s %(levelname)s %(name)s %(message)s"
+
+    logging.basicConfig(filename=log_file, level=log_level, format=log_format)
+    logger = logging.getLogger(__name__)
+
+    try:
+        kwargs["auto_connect"] = False
+        net_connect = ConnectHandler(**kwargs)
+        hostname = net_connect.host
+        port = net_connect.port
+        device_type = net_connect.device_type
+
+        net_connect._open()
+        msg = f"Netmiko connection succesful to {hostname}:{port}"
+        logger.info(msg)
+        return net_connect
+    except NetmikoAuthenticationException as e:
+        msg = (
+            f"Authentication failure to: {hostname}:{port} ({device_type})\n\n{str(e)}"
+        )
+        logger.error(msg)
+        return None
+    except NetmikoTimeoutException as e:
+        if "DNS failure" in str(e):
+            msg = f"Device failed due to a DNS failure, hostname {hostname}"
+        elif "TCP connection to device failed" in str(e):
+            msg = f"Netmiko was unable to reach the provided host and port: {hostname}:{port}"
+            msg += f"\n\n{str(e)}"
+        logger.error(msg)
+        return None
+    except Exception as e:
+        msg = f"An unknown exception occurred during connection:\n\n{str(e)}"
+        logger.error(msg)
+        return None
 
 
 def ssh_dispatcher(device_type: str) -> Type["BaseConnection"]:
