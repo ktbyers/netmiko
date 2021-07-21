@@ -1,4 +1,4 @@
-from typing import Optional, Union, Sequence, TextIO, Any
+from typing import Optional, Union, Sequence, TextIO
 import time
 import warnings
 from netmiko.no_enable import NoEnable
@@ -108,15 +108,35 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         self.base_prompt = prompt[:-2].strip()
         return self.base_prompt
 
-    def send_config_set(  # type: ignore
+    def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = False,
-        **kwargs: Any,
+        read_timeout: Optional[float] = None,
+        delay_factor: Optional[float] = None,
+        max_loops: Optional[int] = None,
+        strip_prompt: bool = False,
+        strip_command: bool = False,
+        config_mode_command: Optional[str] = None,
+        cmd_verify: bool = True,
+        enter_config_mode: bool = True,
+        error_pattern: str = "",
+        terminator: str = r"#",
     ) -> str:
         """Remain in configuration mode."""
         return super().send_config_set(
-            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+            config_commands=config_commands,
+            exit_config_mode=exit_config_mode,
+            read_timeout=read_timeout,
+            delay_factor=delay_factor,
+            max_loops=max_loops,
+            strip_prompt=strip_prompt,
+            strip_command=strip_command,
+            config_mode_command=config_mode_command,
+            cmd_verify=cmd_verify,
+            enter_config_mode=enter_config_mode,
+            error_pattern=error_pattern,
+            terminator=terminator,
         )
 
     def save_config(
