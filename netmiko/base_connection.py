@@ -507,9 +507,10 @@ class BaseConnection:
                 log.debug("Sending IAC + NOP")
                 # Need to send multiple times to test connection
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                self.remote_conn.get_socket().sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.get_socket().sendall(telnetlib.IAC + telnetlib.NOP)
-                self.remote_conn.get_socket().sendall(telnetlib.IAC + telnetlib.NOP)
+                telnet_socket = self.remote_conn.get_socket()
+                telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
+                telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
+                telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 return True
             except AttributeError:
                 return False
