@@ -7,7 +7,7 @@
 #
 # Purpose: Provide basic SSH connection to CROS based router products
 
-from typing import Optional, Union, Sequence, TextIO, Any
+from typing import Optional, Union, Sequence, TextIO
 import time
 import warnings
 from netmiko.no_enable import NoEnable
@@ -55,7 +55,7 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
             cmd_verify=cmd_verify,
             enter_config_mode=enter_config_mode,
             error_pattern=error_pattern,
-            terminator=terminator
+            terminator=terminator,
         )
 
     def check_config_mode(
