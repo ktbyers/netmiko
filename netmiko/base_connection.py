@@ -1708,7 +1708,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         else:
             # If list of lists, then first element is cmd and second element is expect_string
             for cmd_item in commands:
-                assert  isinstance(cmd_item, tuple)
+                assert isinstance(cmd_item, tuple)
                 cmd, expect_string = (str(cmd_item[0]), str(cmd_item[1]))
                 # If expect_string is null-string use default_expect_string
                 if not expect_string:
@@ -2227,9 +2227,11 @@ You can also look at the Netmiko session_log or debug log for more information.
             if self.protocol == "ssh":
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":
-                self.remote_conn.close()  # type: ignore
+                assert isinstance(self.remote_conn, telnetlib.Telnet)
+                self.remote_conn.close()
             elif self.protocol == "serial":
-                self.remote_conn.close()  # type: ignore
+                assert isinstance(self.remote_conn, serial.Serial)
+                self.remote_conn.close()
         except Exception:
             # There have been race conditions observed on disconnect.
             pass
