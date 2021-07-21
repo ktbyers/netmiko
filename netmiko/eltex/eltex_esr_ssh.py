@@ -59,10 +59,9 @@ class EltexEsrSSH(CiscoSSHConnection):
         if self.check_config_mode():
             self.exit_config_mode()
 
-        output = self.send_command(
+        output = self._send_command_str(
             command_string=command_string, read_timeout=read_timeout
         )
-        assert isinstance(output, str)
 
         if error_marker in output:
             raise ValueError(
@@ -90,10 +89,9 @@ class EltexEsrSSH(CiscoSSHConnection):
         if self.check_config_mode():
             self.exit_config_mode()
 
-        output = self.send_command(
+        output = self._send_command_str(
             command_string=command_string, read_timeout=read_timeout
         )
-        assert isinstance(output, str)
 
         if error_marker in output:
             raise ValueError(
@@ -122,10 +120,9 @@ class EltexEsrSSH(CiscoSSHConnection):
         if self.check_config_mode():
             self.exit_config_mode()
 
-        output = self.send_command(
+        output = self._send_command_str(
             command_string=command_string, read_timeout=read_timeout
         )
-        assert isinstance(output, str)
 
         if error_marker in output:
             raise ValueError(

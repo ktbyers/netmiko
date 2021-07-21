@@ -38,32 +38,26 @@ class CiscoNxosSSH(CiscoSSHConnection):
 
         output = ""
         if confirm:
-            new_data = self.send_command_timing(
+            output += self._send_command_timing_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
-            assert isinstance(new_data, str)
-            output += new_data
             if confirm_response:
-                new_data = self.send_command_timing(
+                output += self._send_command_timing_str(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
             else:
                 # Send enter by default
-                new_data = self.send_command_timing(
+                output += self._send_command_timing_str(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
-            assert isinstance(new_data, str)
-            output += new_data
         else:
             # NX-OS is very slow on save_config ensure it waits long enough.
-            new_data = self.send_command(
+            output += self._send_command_str(
                 command_string=cmd,
                 strip_prompt=False,
                 strip_command=False,
                 read_timeout=100,
             )
-            assert isinstance(new_data, str)
-            output += new_data
         return output
 
 
@@ -113,8 +107,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         if self.direction == "put":
             if not remote_cmd:
                 remote_cmd = f"dir {self.file_system}{self.dest_file}"
-            remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
-            assert isinstance(remote_out, str)
+            remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
             search_string = r"{}.*Usage for".format(self.dest_file)
             if "No such file or directory" in remote_out:
                 return False
@@ -142,8 +135,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         if not remote_cmd:
             remote_cmd = f"dir {self.file_system}/{remote_file}"
 
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
-        assert isinstance(remote_out, str)
+        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
         if re.search("no such file or directory", remote_out, flags=re.I):
             raise IOError("Unable to find file on remote system")
         # Match line containing file name
@@ -171,8 +163,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = f"{base_cmd} {self.file_system}{remote_file} md5sum"
-        output = self.ssh_ctl_chan.send_command(remote_md5_cmd, read_timeout=300)
-        assert isinstance(output, str)
+        output = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
         output = output.strip()
         return output
 

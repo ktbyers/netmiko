@@ -62,9 +62,7 @@ class CiscoWlcSSH(BaseConnection):
         # If no delay_factor use 1 for default value
         delay_factor = kwargs.get("delay_factor", 1)
         kwargs["delay_factor"] = self.select_delay_factor(delay_factor)
-        new_data = self.send_command_timing(*args, **kwargs)
-        assert isinstance(new_data, str)
-        output = new_data
+        output = self._send_command_timing_str(*args, **kwargs)
 
         if "Press any key" in output or "Press Enter to" in output:
             new_args = list(args)
@@ -76,9 +74,7 @@ class CiscoWlcSSH(BaseConnection):
                 kwargs["max_loops"] = 150
 
             # Send an 'enter'
-            new_data = self.send_command_timing(*new_args, **kwargs)
-            assert isinstance(new_data, str)
-            output += new_data
+            output += self._send_command_timing_str(*new_args, **kwargs)
 
             # WLC has excessive delay after this appears on screen
             if "802.11b Advanced Configuration" in output:
@@ -111,14 +107,9 @@ class CiscoWlcSSH(BaseConnection):
         Even though pagination is disabled
         Arguments are the same as send_command_timing() method
         """
-        output = ""
-        new_data = self.send_command_timing(*args, **kwargs)
-        assert isinstance(new_data, str)
-        output += new_data
+        output = self._send_command_timing_str(*args, **kwargs)
         if "(y/n)" in output:
-            new_data = self.send_command_timing("y")
-            assert isinstance(new_data, str)
-            output += new_data
+            output += self._send_command_timing_str("y")
         strip_prompt = kwargs.get("strip_prompt", True)
         if strip_prompt:
             # Had to strip trailing prompt twice.
@@ -221,19 +212,13 @@ class CiscoWlcSSH(BaseConnection):
         """Saves Config."""
         self.enable()
         if confirm:
-            new_data = self.send_command_timing(command_string=cmd)
-            assert isinstance(new_data, str)
-            output = new_data
+            output = self._send_command_timing_str(command_string=cmd)
             if confirm_response:
-                new_data = self.send_command_timing(confirm_response)
+                output += self._send_command_timing_str(confirm_response)
             else:
                 # Send enter by default
-                new_data = self.send_command_timing(self.RETURN)
-            assert isinstance(new_data, str)
-            output += new_data
+                output += self._send_command_timing_str(self.RETURN)
         else:
             # Some devices are slow so match on trailing-prompt if you can
-            new_data = self.send_command(command_string=cmd)
-            assert isinstance(new_data, str)
-            output = new_data
+            output = self._send_command_str(command_string=cmd)
         return output
