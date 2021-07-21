@@ -5,6 +5,7 @@ log = logging.getLogger(__name__)  # noqa
 log.addHandler(logging.NullHandler())  # noqa
 
 from netmiko.ssh_dispatcher import ConnectHandler
+from netmiko.ssh_dispatcher import ConnLogOnly
 from netmiko.ssh_dispatcher import ssh_dispatcher
 from netmiko.ssh_dispatcher import redispatch
 from netmiko.ssh_dispatcher import platforms
@@ -32,6 +33,7 @@ Netmiko = ConnectHandler
 __version__ = "4.0.0a3"
 __all__ = (
     "ConnectHandler",
+    "ConnLogOnly",
     "ssh_dispatcher",
     "platforms",
     "SCPConn",
