@@ -70,30 +70,22 @@ class EricssonIposSSH(BaseConnection):
         """Saves configuration"""
         output = ""
         if confirm:
-            new_data = self.send_command_timing(
+            output += self._send_command_timing_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
-            assert isinstance(new_data, str)
-            output += new_data
 
             if confirm_response:
-                new_data = self.send_command_timing(
+                output += self._send_command_timing_str(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
-                assert isinstance(new_data, str)
-                output += new_data
             else:
-                new_data = self.send_command_timing(
+                output += self._send_command_timing_str(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
-                assert isinstance(new_data, str)
-                output += new_data
         else:
-            new_data = self.send_command(
+            output += self._send_command_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
-            assert isinstance(new_data, str)
-            output += new_data
         return output
 
     def commit(
@@ -139,14 +131,12 @@ class EricssonIposSSH(BaseConnection):
 
         output = self.config_mode()
 
-        new_data = self.send_command(
+        output += self._send_command_str(
             command_string,
             strip_prompt=False,
             strip_command=False,
             read_timeout=read_timeout,
         )
-        assert isinstance(new_data, str)
-        output += new_data
 
         if commit_marker not in output:
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
