@@ -4,7 +4,7 @@ import re
 import time
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
-from netmiko.ssh_exception import NetmikoAuthenticationException
+from netmiko.exceptions import NetmikoAuthenticationException
 
 
 class CiscoBaseConnection(BaseConnection):

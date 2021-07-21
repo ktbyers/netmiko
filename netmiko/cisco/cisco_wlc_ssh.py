@@ -4,7 +4,7 @@ import time
 import re
 import socket
 
-from netmiko.ssh_exception import NetmikoAuthenticationException
+from netmiko.exceptions import NetmikoAuthenticationException
 from netmiko.base_connection import BaseConnection
 
 

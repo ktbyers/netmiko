@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
-from netmiko.ssh_exception import NetmikoTimeoutException
+from netmiko.exceptions import NetmikoTimeoutException
 
 LINUX_PROMPT_PRI = os.getenv("NETMIKO_LINUX_PROMPT_PRI", "$")
 LINUX_PROMPT_ALT = os.getenv("NETMIKO_LINUX_PROMPT_ALT", "#")

@@ -4,7 +4,7 @@ import time
 from socket import socket
 
 from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
-from netmiko.ssh_exception import NetmikoAuthenticationException
+from netmiko.exceptions import NetmikoAuthenticationException
 
 
 class RaisecomRoapBase(CiscoBaseConnection):

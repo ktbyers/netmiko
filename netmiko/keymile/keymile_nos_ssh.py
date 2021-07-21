@@ -3,7 +3,7 @@ import re
 
 
 from netmiko.cisco.cisco_ios import CiscoIosBase
-from netmiko.ssh_exception import NetmikoAuthenticationException
+from netmiko.exceptions import NetmikoAuthenticationException
 
 
 class KeymileNOSSSH(CiscoIosBase):

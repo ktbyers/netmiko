@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives.asymmetric.dsa import DSAParameterNumbers
 
 from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.ssh_exception import NetmikoTimeoutException
+from netmiko.exceptions import NetmikoTimeoutException
 
 
 class TPLinkJetStreamBase(CiscoSSHConnection):

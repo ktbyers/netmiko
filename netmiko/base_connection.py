@@ -40,7 +40,7 @@ import warnings
 
 from netmiko import log
 from netmiko.netmiko_globals import BACKSPACE_CHAR
-from netmiko.ssh_exception import (
+from netmiko.exceptions import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
     ConfigInvalidException,

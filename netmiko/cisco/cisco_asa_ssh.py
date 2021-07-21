@@ -3,7 +3,7 @@ from typing import Any, Union, List, Dict, Optional
 import re
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
-from netmiko.ssh_exception import NetmikoAuthenticationException
+from netmiko.exceptions import NetmikoAuthenticationException
 
 
 class CiscoAsaSSH(CiscoSSHConnection):
