@@ -33,12 +33,8 @@ class DellSonicSSH(NoEnable, CiscoSSHConnection):
     def _enter_shell(self) -> str:
         """Enter the sonic-cli Shell."""
         log.debug("Enter sonic-cli Shell.")
-        output = self.send_command("sonic-cli", expect_string=r"\#")
-        assert isinstance(output, str)
-        return output
+        return self._send_command_str("sonic-cli", expect_string=r"\#")
 
     def _return_cli(self) -> str:
         """Return to the CLI."""
-        output = self.send_command("exit", expect_string=r"\$")
-        assert isinstance(output, str)
-        return output
+        return self._send_command_str("exit", expect_string=r"\$")

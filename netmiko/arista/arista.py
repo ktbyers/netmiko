@@ -66,14 +66,12 @@ class AristaBase(CiscoSSHConnection):
 
     def _enter_shell(self) -> str:
         """Enter the Bourne Shell."""
-        output = self.send_command("bash", expect_string=r"[\$#]")
-        assert isinstance(output, str)
+        output = self._send_command_str("bash", expect_string=r"[\$#]")
         return output
 
     def _return_cli(self) -> str:
         """Return to the CLI."""
-        output = self.send_command("exit", expect_string=r"[#>]")
-        assert isinstance(output, str)
+        output = self._send_command_str("exit", expect_string=r"[#>]")
         return output
 
 
@@ -134,8 +132,7 @@ class AristaFileTransfer(CiscoFileTransfer):
             elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = f"{base_cmd} file:{self.file_system}/{remote_file}"
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, read_timeout=600)
-        assert isinstance(dest_md5, str)
+        dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=600)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
