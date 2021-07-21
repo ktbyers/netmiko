@@ -56,8 +56,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
             else:
                 raise ValueError("self.direction is set to an invalid value")
         remote_cmd = f'system "ls -l {self.file_system}/{remote_file}"'
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
-        assert isinstance(remote_out, str)
+        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
         for line in remote_out.splitlines():
             if remote_file in line:
                 file_size = line.split()[4]
@@ -70,8 +69,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
     def remote_space_available(self, search_pattern: str = r"(\d+) bytes free") -> int:
         """Return space available on remote device."""
         remote_cmd = f'system "df {self.folder_name}"'
-        remote_output = self.ssh_ctl_chan.send_command(remote_cmd)
-        assert isinstance(remote_output, str)
+        remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
         for line in remote_output.splitlines():
             if self.folder_name in line:
                 space_available = line.split()[-3]
@@ -96,16 +94,14 @@ class DellOS10FileTransfer(BaseFileTransfer):
             else:
                 raise ValueError("self.direction is set to an invalid value")
         remote_md5_cmd = f'system "md5sum {self.file_system}/{remote_file}"'
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, read_timeout=300)
-        assert isinstance(dest_md5, str)
+        dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5.strip()
 
     def check_file_exists(self, remote_cmd: str = "dir home") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
-            remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
-            assert isinstance(remote_out, str)
+            remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
             search_string = r"Directory contents .*{}".format(self.dest_file)
             return bool(re.search(search_string, remote_out, flags=re.DOTALL))
         elif self.direction == "get":
