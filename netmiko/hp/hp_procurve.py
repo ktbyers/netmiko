@@ -13,7 +13,9 @@ class SSHClient_noauth(SSHClient):
     """Set noauth when manually handling SSH authentication."""
 
     def _auth(self, username: str, *args: Any) -> None:
-        self._transport.auth_none(username)  # type: ignore
+        transport = self.get_transport()
+        assert transport is not None
+        transport.auth_none(username)
         return
 
 
