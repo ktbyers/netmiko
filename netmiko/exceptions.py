@@ -2,6 +2,18 @@ from paramiko.ssh_exception import SSHException
 from paramiko.ssh_exception import AuthenticationException
 
 
+class NetmikoBaseException(Exception):
+    """General base exception except for exceptions that inherit from Paramiko."""
+
+    pass
+
+
+class ConnectionException(NetmikoBaseException):
+    """Generic exception indicating the connection failed."""
+
+    pass
+
+
 class NetmikoTimeoutException(SSHException):
     """SSH session timed trying to connect to the device."""
 
@@ -18,12 +30,6 @@ class NetmikoAuthenticationException(AuthenticationException):
 
 
 NetMikoAuthenticationException = NetmikoAuthenticationException
-
-
-class NetmikoBaseException(Exception):
-    """General base exception except for exceptions that inherit from Paramiko."""
-
-    pass
 
 
 class ConfigInvalidException(NetmikoBaseException):

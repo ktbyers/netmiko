@@ -6,6 +6,7 @@ log.addHandler(logging.NullHandler())  # noqa
 
 from netmiko.ssh_dispatcher import ConnectHandler
 from netmiko.ssh_dispatcher import ConnLogOnly
+from netmiko.ssh_dispatcher import ConnUnify
 from netmiko.ssh_dispatcher import ssh_dispatcher
 from netmiko.ssh_dispatcher import redispatch
 from netmiko.ssh_dispatcher import platforms
@@ -22,7 +23,7 @@ from netmiko.exceptions import (
 )
 from netmiko.exceptions import ConfigInvalidException
 from netmiko.exceptions import ReadException, ReadTimeout
-from netmiko.exceptions import NetmikoBaseException
+from netmiko.exceptions import NetmikoBaseException, ConnectionException
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_functions import file_transfer, progress_bar
@@ -30,15 +31,17 @@ from netmiko.scp_functions import file_transfer, progress_bar
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = "4.0.0a3"
+__version__ = "4.0.0a4"
 __all__ = (
     "ConnectHandler",
     "ConnLogOnly",
+    "ConnUnify",
     "ssh_dispatcher",
     "platforms",
     "SCPConn",
     "FileTransfer",
     "NetmikoBaseException",
+    "ConnectionException",
     "NetmikoTimeoutException",
     "NetMikoTimeoutException",
     "ConfigInvalidException",

@@ -1,6 +1,7 @@
 """Controls selection of proper class based on the device type."""
 from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
+from netmiko.exceptions import ConnectionException
 from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
@@ -390,6 +391,31 @@ def ConnLogOnly(
         msg = f"An unknown exception occurred during connection:\n\n{str(e)}"
         logger.error(msg)
         return None
+
+
+def ConnUnify(
+    **kwargs: Any,
+) -> "BaseConnection":
+
+    try:
+        kwargs["auto_connect"] = False
+        net_connect = ConnectHandler(**kwargs)
+        hostname = net_connect.host
+        port = net_connect.port
+        device_type = net_connect.device_type
+        general_msg = f"Connection failure to {hostname}:{port} ({device_type})\n\n"
+
+        net_connect._open()
+        return net_connect
+    except NetmikoAuthenticationException as e:
+        msg = general_msg + str(e)
+        raise ConnectionException(msg)
+    except NetmikoTimeoutException as e:
+        msg = general_msg + str(e)
+        raise ConnectionException(msg)
+    except Exception as e:
+        msg = f"An unknown exception occurred during connection:\n\n{str(e)}"
+        raise ConnectionException(msg)
 
 
 def ssh_dispatcher(device_type: str) -> Type["BaseConnection"]:
