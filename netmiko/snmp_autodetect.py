@@ -342,8 +342,7 @@ class SNMPDetect(object):
             The name of the device_type that must be running.
         """
         snmp_mapper_list: List[DeviceType] = sorted(
-            SNMP_MAPPER.values(), key=operator.itemgetter("priority"),
-            reverse=True
+            SNMP_MAPPER.values(), key=operator.itemgetter("priority"), reverse=True
         )
 
         for entry in snmp_mapper_list:
