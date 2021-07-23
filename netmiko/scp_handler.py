@@ -13,7 +13,7 @@ import os
 import hashlib
 
 import scp
-import platform
+import sys
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -195,11 +195,11 @@ class BaseFileTransfer(object):
 
     def local_space_available(self) -> int:
         """Return space available on local filesystem."""
-        if platform.system() == "Windows":
+        if sys.platform == "win32":
             import ctypes
 
             free_bytes = ctypes.c_ulonglong(0)
-            ctypes.windll.kernel32.GetDiskFreeSpaceExW(  # type: ignore
+            ctypes.windll.kernel32.GetDiskFreeSpaceExW(
                 ctypes.c_wchar_p("."), None, None, ctypes.pointer(free_bytes)
             )
             return free_bytes.value
