@@ -6,15 +6,8 @@ from os import path
 from paramiko import SSHClient
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.ssh_auth.py import SSHClient_noauth
 from netmiko.exceptions import NetmikoTimeoutException
-
-
-class SSHClient_noauth(SSHClient):
-    """Set noauth when manually handling SSH authentication."""
-
-    def _auth(self, username: str, *args: Any) -> None:
-        self._transport.auth_none(username)  # type: ignore
-        return
 
 
 class CalixB6Base(CiscoSSHConnection):
