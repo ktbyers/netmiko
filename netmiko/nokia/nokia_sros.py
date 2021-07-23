@@ -372,14 +372,15 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         else:
             raise ValueError("Unexpected value of self.direction")
 
-    def file_md5(self, **kwargs: Any) -> str:  # type: ignore
+    def file_md5(self, file_name: str, add_newline: bool = False) -> str:
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
 
-    def process_md5(self, **kwargs: Any) -> str:  # type: ignore
+    @staticmethod
+    def process_md5(md5_output: str, pattern: str = "") -> str:
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
 
-    def compare_md5(self, **kwargs: Any) -> bool:
+    def compare_md5(self) -> bool:
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
 
-    def remote_md5(self, **kwargs: Any) -> None:  # type: ignore
+    def remote_md5(self, base_cmd: str = "", remote_file: Optional[str] = None) -> str:
         raise AttributeError("SR-OS does not support an MD5-hash operation.")
