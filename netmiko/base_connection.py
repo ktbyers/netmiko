@@ -507,9 +507,10 @@ class BaseConnection:
                 log.debug("Sending IAC + NOP")
                 # Need to send multiple times to test connection
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)  # type: ignore
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)  # type: ignore
-                self.remote_conn.sock.sendall(telnetlib.IAC + telnetlib.NOP)  # type: ignore
+                telnet_socket = self.remote_conn.get_socket()
+                telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
+                telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
+                telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 return True
             except AttributeError:
                 return False
@@ -519,7 +520,9 @@ class BaseConnection:
                 # Try sending ASCII null byte to maintain the connection alive
                 log.debug("Sending the NULL byte")
                 self.write_channel(null)
-                result = self.remote_conn.transport.is_active()  # type: ignore
+                assert isinstance(self.remote_conn, paramiko.Channel)
+                assert self.remote_conn.transport is not None
+                result = self.remote_conn.transport.is_active()
                 assert isinstance(result, bool)
                 return result
             except (socket.error, EOFError):
@@ -1212,8 +1215,8 @@ Device settings: {self.device_type} {self.host}:{self.port}
 
     # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
     @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5),  # type: ignore
-        stop=stop_after_attempt(5),  # type: ignore
+        wait=wait_exponential(multiplier=0.33, min=0, max=5),
+        stop=stop_after_attempt(5),
         reraise=True,
     )
     def set_base_prompt(
@@ -1668,7 +1671,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_multiline(
         self,
-        commands: Sequence[Union[List[str], str]],
+        commands: Sequence[Union[str, List[str]]],
         multiline: bool = True,
         **kwargs: Any,
     ) -> str:
@@ -1704,10 +1707,9 @@ You can also look at the Netmiko session_log or debug log for more information.
                 )
         else:
             # If list of lists, then first element is cmd and second element is expect_string
-            for cmd, expect_string in commands:  # type: ignore
-                cmd = str(cmd)
-                expect_string = str(expect_string)
-                # If expect_string is null-string use default_expect_string
+            for cmd_item in commands:
+                assert not isinstance(cmd_item, str)
+                cmd, expect_string = cmd_item
                 if not expect_string:
                     expect_string = default_expect_string
                 output += self._send_command_str(
@@ -2222,9 +2224,11 @@ You can also look at the Netmiko session_log or debug log for more information.
             if self.protocol == "ssh":
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":
-                self.remote_conn.close()  # type: ignore
+                assert isinstance(self.remote_conn, telnetlib.Telnet)
+                self.remote_conn.close()
             elif self.protocol == "serial":
-                self.remote_conn.close()  # type: ignore
+                assert isinstance(self.remote_conn, serial.Serial)
+                self.remote_conn.close()
         except Exception:
             # There have been race conditions observed on disconnect.
             pass

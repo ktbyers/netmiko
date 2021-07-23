@@ -49,10 +49,10 @@ except ImportError:
     GENIE_INSTALLED = False
 
 # If we are on python < 3.7, we need to force the import of importlib.resources backport
-try:
-    from importlib.resources import path as importresources_path  # type: ignore
-except ModuleNotFoundError:
-    from importlib_resources import path as importresources_path
+if sys.version_info[:2] >= (3, 7):
+    import importlib.resources as pkg_resources
+else:
+    import importlib_resources as pkg_resources
 
 try:
     import serial.tools.list_ports
@@ -302,7 +302,7 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     else:
         # Try 'pip installed' ntc-templates
         try:
-            with importresources_path(
+            with pkg_resources.path(
                 package="ntc_templates", resource="parse.py"
             ) as posix_path:
                 # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
@@ -342,12 +342,13 @@ def _textfsm_parse(
     template_file: Optional[str] = None,
 ) -> Union[str, List[Dict[str, str]]]:
     """Perform the actual TextFSM parsing using the CliTable object."""
+    tfsm_parse: Callable[..., Any] = textfsm_obj.ParseCmd
     try:
         # Parse output through template
         if template_file is not None:
-            textfsm_obj.ParseCmd(raw_output, templates=template_file)  # type: ignore
+            tfsm_parse(raw_output, templates=template_file)
         else:
-            textfsm_obj.ParseCmd(raw_output, attrs)  # type: ignore
+            tfsm_parse(raw_output, attrs)
 
         structured_data = clitable_to_dict(textfsm_obj)
         if structured_data == []:
@@ -419,7 +420,8 @@ def get_structured_data_ttp(raw_output: str, template: str) -> Union[str, List[A
     try:
         ttp_parser = ttp(data=raw_output, template=template)
         ttp_parser.parse(one=True)
-        return ttp_parser.result(format="raw")  # type: ignore
+        result: List[Any] = ttp_parser.result(format="raw")
+        return result
     except Exception:
         return raw_output
 
@@ -536,8 +538,8 @@ def get_structured_data_genie(
     try:
         # Test whether there is a parser for given command (return Exception if fails)
         get_parser(command, device)
-        parsed_output = device.parse(command, output=raw_output)
-        return parsed_output  # type: ignore
+        parsed_output: Dict[str, Any] = device.parse(command, output=raw_output)
+        return parsed_output
     except Exception:
         return raw_output
 
