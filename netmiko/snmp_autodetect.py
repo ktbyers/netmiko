@@ -167,7 +167,6 @@ class SNMPDetect(object):
     encrypt_proto : str
         The SNMPv3 encryption protocol
 
-
     Methods
     -------
     autodetect()

@@ -41,6 +41,9 @@ Examples
 from typing import Any, List, Optional, Union, Dict
 import re
 import time
+
+import paramiko
+
 from netmiko.ssh_dispatcher import ConnectHandler
 from netmiko.base_connection import BaseConnection
 
@@ -238,7 +241,7 @@ cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1]
 
 # SSH_MAPPER_BASE is a list
 SSH_MAPPER_BASE = sorted(
-    SSH_MAPPER_DICT.items(), key=lambda item: int(cmd_count[item[1]["cmd"]])  # type: ignore
+    SSH_MAPPER_DICT.items(), key=lambda item: int(cmd_count[str(item[1]["cmd"])])
 )
 SSH_MAPPER_BASE.reverse()
 
@@ -389,7 +392,10 @@ class SSHDetect(object):
             return 0
 
         try:
-            remote_version = self.connection.remote_conn.transport.remote_version  # type: ignore
+            remote_conn = self.connection.remote_conn
+            assert isinstance(remote_conn, paramiko.Channel)
+            assert remote_conn.transport is not None
+            remote_version = remote_conn.transport.remote_version
             for pattern in invalid_responses:
                 match = re.search(pattern, remote_version, flags=re.I)
                 if match:
