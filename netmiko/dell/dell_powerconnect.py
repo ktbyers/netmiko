@@ -2,7 +2,7 @@
 from paramiko import SSHClient
 import time
 from os import path
-from netmiko.ssh_auth.py import SSHClient_noauth
+from netmiko.ssh_auth import SSHClient_noauth
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
