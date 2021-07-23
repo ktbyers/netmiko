@@ -1671,7 +1671,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_multiline(
         self,
-        commands: Sequence[Union[List[str], str]],
+        commands: List[Union[str, List[str]]],
         multiline: bool = True,
         **kwargs: Any,
     ) -> str:
@@ -1708,9 +1708,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         else:
             # If list of lists, then first element is cmd and second element is expect_string
             for cmd_item in commands:
-                assert isinstance(cmd_item, tuple)
-                cmd, expect_string = (str(cmd_item[0]), str(cmd_item[1]))
-                # If expect_string is null-string use default_expect_string
+                assert not isinstance(cmd_item, str)
+                cmd, expect_string = cmd_item
                 if not expect_string:
                     expect_string = default_expect_string
                 output += self._send_command_str(
