@@ -2143,6 +2143,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_carriage_return = chr(27) + r"\[1M"
         code_disable_line_wrapping = chr(27) + r"\[\?7l"
         code_reset_mode_screen_options = chr(27) + r"\[\?\d+l"
+        code_reset_graphics_mode = chr(27) + r"\[00m"
         code_erase_display = chr(27) + r"\[2J"
         code_erase_display_0 = chr(27) + r"\[J"
         code_graphics_mode = chr(27) + r"\[\dm"
@@ -2171,6 +2172,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_disable_line_wrapping,
             code_erase_line_end,
             code_reset_mode_screen_options,
+            code_reset_graphics_mode,
             code_erase_display,
             code_graphics_mode,
             code_graphics_mode1,
