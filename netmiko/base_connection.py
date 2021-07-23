@@ -1671,7 +1671,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_multiline(
         self,
-        commands: List[Union[str, List[str]]],
+        commands: Sequence[Union[str, List[str]]],
         multiline: bool = True,
         **kwargs: Any,
     ) -> str:
