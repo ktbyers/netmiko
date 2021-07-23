@@ -27,7 +27,7 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
         self.disable_paging(command="screen-length 0")
         return
 
-    def send_config_set(  # type: ignore
+    def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = False,

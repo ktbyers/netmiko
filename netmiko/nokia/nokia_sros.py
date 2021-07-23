@@ -166,7 +166,7 @@ class NokiaSros(BaseConnection):
         """Persist configuration to cflash for Nokia SR OS"""
         return self._send_command_str(command_string="/admin save", expect_string=r"#")
 
-    def send_config_set(  # type: ignore
+    def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = None,

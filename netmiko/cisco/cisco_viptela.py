@@ -34,7 +34,7 @@ class CiscoViptelaSSH(CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def send_config_set(  # type: ignore
+    def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = False,
