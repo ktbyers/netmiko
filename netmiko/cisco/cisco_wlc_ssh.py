@@ -189,7 +189,7 @@ class CiscoWlcSSH(BaseConnection):
         """Exit config_mode."""
         return super().exit_config_mode(exit_config, pattern)
 
-    def send_config_set(  # type: ignore
+    def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = False,

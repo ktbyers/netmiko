@@ -33,7 +33,7 @@ class CloudGenixIonSSH(NoConfig, CiscoSSHConnection):
         """Not Implemented"""
         raise NotImplementedError
 
-    def send_config_set(  # type: ignore
+    def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = False,

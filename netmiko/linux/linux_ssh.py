@@ -1,8 +1,8 @@
+from typing import Any, Optional, TYPE_CHECKING, Union, Sequence, TextIO
 import os
 import re
 import socket
 import time
-from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -47,8 +47,11 @@ class LinuxSSH(CiscoSSHConnection):
             delay_factor=delay_factor,
         )
 
-    def send_config_set(  # type: ignore
-        self, config_commands=None, exit_config_mode=True, **kwargs: Any
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = True,
+        **kwargs: Any,
     ) -> str:
         """Can't exit from root (if root)"""
         if self.username == "root":

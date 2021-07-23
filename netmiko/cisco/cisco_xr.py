@@ -20,7 +20,7 @@ class CiscoXrBase(CiscoBaseConnection):
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
 
-    def send_config_set(  # type: ignore
+    def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = False,

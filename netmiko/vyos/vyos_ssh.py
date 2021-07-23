@@ -108,7 +108,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         self.base_prompt = prompt[:-2].strip()
         return self.base_prompt
 
-    def send_config_set(  # type: ignore
+    def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
         exit_config_mode: bool = False,
