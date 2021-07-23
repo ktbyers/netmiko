@@ -1,15 +1,9 @@
 """Dell PowerConnect Driver."""
-from typing import Any
 from paramiko import SSHClient
 import time
 from os import path
+from netmiko.ssh_auth import SSHClient_noauth
 from netmiko.cisco_base_connection import CiscoBaseConnection
-
-
-class SSHClient_noauth(SSHClient):
-    def _auth(self, username: str, *args: Any) -> None:
-        self._transport.auth_none(username)  # type: ignore
-        return
 
 
 class DellPowerConnectBase(CiscoBaseConnection):

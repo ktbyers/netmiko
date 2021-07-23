@@ -2,19 +2,12 @@ import re
 import time
 import socket
 from os import path
-from typing import Any, Optional
+from typing import Optional
 
 from paramiko import SSHClient
+from netmiko.ssh_auth import SSHClient_noauth
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
-
-
-class SSHClient_noauth(SSHClient):
-    """Set noauth when manually handling SSH authentication."""
-
-    def _auth(self, username: str, *args: Any) -> None:
-        self._transport.auth_none(username)  # type: ignore
-        return
 
 
 class HPProcurveBase(CiscoSSHConnection):
@@ -160,11 +153,11 @@ class HPProcurveSSH(HPProcurveBase):
         """Allow passwordless authentication for HP devices being provisioned."""
 
         # Create instance of SSHClient object. If no SSH keys and no password, then use noauth
-        remote_conn_pre = (
-            SSHClient_noauth()
-            if not self.use_keys and not self.password
-            else SSHClient()
-        )
+        remote_conn_pre: SSHClient
+        if not self.use_keys and not self.password:
+            remote_conn_pre = SSHClient_noauth()
+        else:
+            remote_conn_pre = SSHClient()
 
         # Load host_keys for better SSH security
         if self.system_host_keys:
