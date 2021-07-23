@@ -342,13 +342,13 @@ def _textfsm_parse(
     template_file: Optional[str] = None,
 ) -> Union[str, List[Dict[str, str]]]:
     """Perform the actual TextFSM parsing using the CliTable object."""
-    parse: Callable[..., Any] = textfsm_obj.ParseCmd
+    tfsm_parse: Callable[..., Any] = textfsm_obj.ParseCmd
     try:
         # Parse output through template
         if template_file is not None:
-            parse(raw_output, templates=template_file)
+            tfsm_parse(raw_output, templates=template_file)
         else:
-            parse(raw_output, attrs)
+            tfsm_parse(raw_output, attrs)
 
         structured_data = clitable_to_dict(textfsm_obj)
         if structured_data == []:
