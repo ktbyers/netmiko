@@ -673,7 +673,7 @@ You can also look at the Netmiko session_log or debug log for more information.\
             if new_data:
                 channel_data += new_data
             # if we have some output, but nothing new, then do the last read
-            elif channel_data != ""
+            elif channel_data != "":
                 # Make sure really done (i.e. no new data)
                 time.sleep(last_read)
                 new_data = self.read_channel()
