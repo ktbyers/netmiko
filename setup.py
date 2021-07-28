@@ -51,6 +51,7 @@ setup(
         "paramiko>=2.6.0",
         "scp>=0.13.2",
         "tenacity",
+        "textfsm >= 1.1.1",
         "ntc-templates>=2.0.0",
         "pyserial",
         "importlib_resources ; python_version<'3.7'",
