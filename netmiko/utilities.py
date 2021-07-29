@@ -19,8 +19,8 @@ import os
 from pathlib import Path
 import functools
 from datetime import datetime
-from netmiko._textfsm import _clitable as clitable
-from netmiko._textfsm._clitable import CliTableError
+from textfsm import clitable
+from textfsm.clitable import CliTableError
 from netmiko import log
 
 # For decorators

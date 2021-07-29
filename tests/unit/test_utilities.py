@@ -6,7 +6,7 @@ from os.path import dirname, join, relpath
 import pytest
 
 from netmiko import utilities
-from netmiko._textfsm import _clitable as clitable
+from textfsm import clitable
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
 RELATIVE_RESOURCE_FOLDER = join(dirname(dirname(relpath(__file__))), "etc")
