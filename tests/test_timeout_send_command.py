@@ -137,7 +137,7 @@ def test_deprecation_max_loops(net_connect_newconn):
     "fast_cli,delay_factor,max_loops,compat_timeout",
     [
         (True, None, None, 10),
-        (False, None, None, 100),
+        (False, 1.0, 100, 20),
         (False, 2.0, 100, 40),
         (False, 5.0, 40, 40),
     ],
