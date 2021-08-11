@@ -15,14 +15,11 @@ class FlexvnfSSH(NoEnable, BaseConnection):
         Disable paging (the '--more--' prompts).
         Set the base prompt for interaction ('>').
         """
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[\$@>%]")
         self.enter_cli_mode()
         self.set_base_prompt()
         self.set_terminal_width(command="set screen width 511", pattern="set")
         self.disable_paging(command="set screen length 0")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def enter_cli_mode(self) -> None:
         """Check if at shell prompt root@ and go into CLI."""
@@ -171,9 +168,9 @@ class FlexvnfSSH(NoEnable, BaseConnection):
     def strip_prompt(self, *args: Any, **kwargs: Any) -> str:
         """Strip the trailing router prompt from the output."""
         a_string = super().strip_prompt(*args, **kwargs)
-        return self.strip_context_items(a_string)
+        return self._strip_context_items(a_string)
 
-    def strip_context_items(self, a_string: str) -> str:
+    def _strip_context_items(self, a_string: str) -> str:
         """Strip FLEXVNF-specific output.
 
         FLEXVNF will also put a configuration context:
