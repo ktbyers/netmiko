@@ -1,25 +1,22 @@
 """A10 support."""
-import time
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class A10SSH(CiscoSSHConnection):
     """A10 support."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """A10 requires to be enable mode to disable paging."""
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.enable()
 
-        # Will not do anything without A10 specific command
+        # terminal width ill not do anything without A10 specific command
         # self.set_terminal_width()
         self.disable_paging(command="terminal length 0")
 
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
-
-    def save_config(self, *args, **kwargs):
+    def save_config(
+        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Not Implemented"""
         raise NotImplementedError

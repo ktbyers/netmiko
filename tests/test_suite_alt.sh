@@ -5,6 +5,13 @@ PYTEST='py.test -s -v -x'
 
 # Exit on the first test failure and set RETURN_CODE = 1
 echo "Starting tests...good luck:" \
+\
+&& echo "Cisco IOS-XE SSH (including SCP)" \
+&& $PYTEST test_netmiko_scp.py --test_device cisco3 \
+&& $PYTEST test_netmiko_show.py --test_device cisco3 \
+&& $PYTEST test_netmiko_config.py --test_device cisco3 \
+&& $PYTEST test_netmiko_config_acl.py --test_device cisco3 \
+\
 && echo "Exception and Timeout Tests" \
 && $PYTEST test_netmiko_exceptions.py \
 \
@@ -12,11 +19,10 @@ echo "Starting tests...good luck:" \
 && $PYTEST test_netmiko_show.py --test_device juniper_vmx \
 && $PYTEST test_netmiko_config.py --test_device juniper_vmx \
 \
-&& echo "Cisco IOS-XE SSH (including SCP)" \
-&& $PYTEST test_netmiko_scp.py --test_device cisco3 \
-&& $PYTEST test_netmiko_show.py --test_device cisco3 \
-&& $PYTEST test_netmiko_config.py --test_device cisco3 \
-&& $PYTEST test_netmiko_config_acl.py --test_device cisco3 \
+&& echo "Cisco IOS-XR (Azure)" \
+&& $PYTEST test_netmiko_show.py --test_device cisco_xr_azure \
+&& $PYTEST test_netmiko_config.py --test_device cisco_xr_azure \
+&& $PYTEST test_netmiko_commit.py --test_device cisco_xr_azure \
 \
 && echo "Cisco IOS SSH (including SCP) using key auth" \
 && $PYTEST test_netmiko_tcl.py --test_device cisco881_key \
@@ -91,8 +97,10 @@ echo "Starting tests...good luck:" \
 && $PYTEST test_netmiko_show.py --test_device linux_srv1 \
 \
 && echo "Test read_timeout on Cisco3 (slow, slow, and more slow)" \
-&& $PYTEST test_timeout_send_command.py --test_device cisco3 \
 && $PYTEST test_timeout_read_until_pattern.py --test_device cisco3 \
+&& $PYTEST test_timeout_send_command.py --test_device cisco3 \
+&& $PYTEST test_timeout_read_timing.py --test_device cisco3 \
+&& $PYTEST test_timeout_send_command_timing.py --test_device cisco3 \
 \
 && echo "Autodetect tests" \
 && $PYTEST test_netmiko_autodetect.py --test_device cisco1 \
@@ -119,10 +127,6 @@ exit $RETURN_CODE
 # && py.test -v test_netmiko_scp.py --test_device cisco881 \
 # && py.test -v test_netmiko_scp.py --test_device cisco881_fast \
 #
-# && echo "Cisco IOS-XR (Azure)" \
-# && py.test -v test_netmiko_show.py --test_device cisco_xr_azure \
-# && py.test -v test_netmiko_config.py --test_device cisco_xr_azure \
-# && py.test -v test_netmiko_commit.py --test_device cisco_xr_azure \
 #
 #&& echo "Nokia SR-OS CLI" \
 #&& py.test -x -s -v test_netmiko_show.py --test_device sros2 \

@@ -1,8 +1,8 @@
 terminal width 511
 
 cisco1#terminal width 511
-terminal length 0
 cisco1#terminal length 0
+terminal length 0
 cisco1#
 
 cisco1#

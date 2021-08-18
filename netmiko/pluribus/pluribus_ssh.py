@@ -1,4 +1,6 @@
 import time
+from typing import Any
+
 from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
 
@@ -6,15 +8,11 @@ from netmiko.base_connection import BaseConnection
 class PluribusSSH(NoConfig, BaseConnection):
     """Common methods for Pluribus."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._config_mode = False
 
-    def disable_paging(self, command="pager off"):
-        """Make sure paging is disabled."""
-        return super().disable_paging(command=command)
-
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the netmiko session."""
         self._test_channel_read()
         self.set_base_prompt()

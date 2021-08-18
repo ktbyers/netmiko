@@ -21,6 +21,7 @@ from datetime import datetime
 
 def test_disable_paging(net_connect, commands, expected_responses):
     """Verify paging is disabled by looking for string after when paging would normally occur."""
+
     if net_connect.device_type == "arista_eos":
         # Arista logging buffer gets enormous
         net_connect.send_command("clear logging")
@@ -28,7 +29,9 @@ def test_disable_paging(net_connect, commands, expected_responses):
         # NX-OS logging buffer gets enormous (NX-OS fails when testing very high-latency +
         # packet loss)
         net_connect.send_command("clear logging logfile")
-    multiple_line_output = net_connect.send_command(commands["extended_output"])
+    multiple_line_output = net_connect.send_command(
+        commands["extended_output"], read_timeout=60
+    )
     assert expected_responses["multiple_line_output"] in multiple_line_output
 
 
@@ -153,17 +156,23 @@ def test_send_command_ttp(net_connect):
         net_connect.clear_buffer()
 
         # write a simple template to file
-        ttp_raw_template = """
-        description {{ description }}
-        """
+        ttp_raw_template = (
+            "interface {{ intf_name }}\n description {{ description | ORPHRASE}}"
+        )
+
         with open("show_run_interfaces.ttp", "w") as writer:
             writer.write(ttp_raw_template)
 
-        command = "show run | s interfaces"
+        command = "show run | s interface"
         show_ip_alt = net_connect.send_command(
             command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
         )
         assert isinstance(show_ip_alt, list)
+        # Unwrap outer lists
+        show_ip_alt = show_ip_alt[0][0]
+        assert isinstance(show_ip_alt, list)
+        assert isinstance(show_ip_alt[0], dict)
+        assert isinstance(show_ip_alt[0]["intf_name"], str)
 
 
 def test_send_command_genie(net_connect, commands, expected_responses):
@@ -195,6 +204,8 @@ def test_send_command_genie(net_connect, commands, expected_responses):
 
 def test_send_multiline_timing(net_connect):
 
+    debug = False
+
     if (
         "cisco_ios" not in net_connect.device_type
         and "cisco_xe" not in net_connect.device_type
@@ -203,6 +214,8 @@ def test_send_multiline_timing(net_connect):
     count = 100
     cmd_list = ["ping", "", "8.8.8.8", str(count), "", "", "", ""]
     output = net_connect.send_multiline_timing(cmd_list)
+    if debug:
+        print(output)
     assert output.count("!") >= 95
 
 
@@ -314,14 +327,18 @@ def test_normalize_linefeeds(net_connect, commands, expected_responses):
 
 def test_clear_buffer(net_connect, commands, expected_responses):
     """Test that clearing the buffer works."""
+
+    # x!@#!# Mikrotik
+    enter = net_connect.RETURN
     # Manually send a command down the channel so that data needs read.
-    net_connect.write_channel(commands["basic"] + "\n")
-    time.sleep(4)
+    net_connect.write_channel(f"{commands['basic']}{enter}")
+    time.sleep(1)
     net_connect.clear_buffer()
+    time.sleep(2)
 
     # Should not be anything there on the second pass
     clear_buffer_check = net_connect.clear_buffer()
-    assert clear_buffer_check is None
+    assert clear_buffer_check == ""
 
 
 def test_enable_mode(net_connect, commands, expected_responses):

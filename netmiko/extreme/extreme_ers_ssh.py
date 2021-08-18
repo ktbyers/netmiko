@@ -9,6 +9,12 @@ CTRL_Y = "\x19"
 class ExtremeErsSSH(CiscoSSHConnection):
     """Netmiko support for Extreme Ethernet Routing Switch."""
 
+    def session_preparation(self) -> None:
+        self._test_channel_read(pattern=r"[>#]")
+        self.set_base_prompt()
+        self.set_terminal_width()
+        self.disable_paging()
+
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """
         Extreme ERS presents the following as part of the login process:
@@ -26,8 +32,10 @@ class ExtremeErsSSH(CiscoSSHConnection):
                 if "Ctrl-Y" in output:
                     self.write_channel(CTRL_Y)
                 if "sername" in output:
+                    assert isinstance(self.username, str)
                     self.write_channel(self.username + self.RETURN)
                 elif "ssword" in output:
+                    assert isinstance(self.password, str)
                     self.write_channel(self.password + self.RETURN)
                     break
                 time.sleep(0.5 * delay_factor)
@@ -36,7 +44,12 @@ class ExtremeErsSSH(CiscoSSHConnection):
                 time.sleep(1 * delay_factor)
             i += 1
 
-    def save_config(self, cmd="save config", confirm=False, confirm_response=""):
+    def save_config(
+        self,
+        cmd: str = "save config",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Save Config"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response

@@ -1,6 +1,6 @@
 """Subclass specific to Cisco Viptela."""
+from typing import Union, Sequence, TextIO, Any
 import re
-import time
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -8,20 +8,17 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class CiscoViptelaSSH(CiscoSSHConnection):
     """Subclass specific to Cisco Viptela."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.disable_paging(command="paginate false")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
-    def check_config_mode(self, check_string=")#", pattern="#"):
+    def check_config_mode(self, check_string: str = ")#", pattern: str = "#") -> bool:
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def commit(self, confirm=False, confirm_response=""):
+    def commit(self, confirm: bool = False, confirm_response: str = "") -> str:
         cmd = "commit"
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -37,12 +34,17 @@ class CiscoViptelaSSH(CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -> str:
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def exit_config_mode(self, exit_config="end", pattern=r"#"):
+    def exit_config_mode(self, exit_config: str = "end", pattern: str = r"#") -> str:
         """
         Exit from configuration mode.
 
@@ -71,6 +73,8 @@ class CiscoViptelaSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit configuration mode")
         return output
 
-    def save_config(self, cmd="commit", confirm=False, confirm_response=""):
+    def save_config(
+        self, cmd: str = "commit", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
         """Saves Config"""
         raise NotImplementedError

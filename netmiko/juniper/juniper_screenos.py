@@ -9,7 +9,7 @@ class JuniperScreenOsSSH(NoEnable, NoConfig, BaseConnection):
     Implement methods for interacting with Juniper ScreenOS devices.
     """
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
 
@@ -23,6 +23,11 @@ class JuniperScreenOsSSH(NoEnable, NoConfig, BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd="save config", confirm=False, confirm_response=""):
+    def save_config(
+        self,
+        cmd: str = "save config",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Save Config."""
-        return self.send_command(command_string=cmd)
+        return self._send_command_str(command_string=cmd)

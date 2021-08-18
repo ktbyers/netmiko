@@ -4,7 +4,7 @@ import re
 import time
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
-from netmiko.ssh_exception import NetmikoAuthenticationException
+from netmiko.exceptions import NetmikoAuthenticationException
 
 
 class CiscoBaseConnection(BaseConnection):
@@ -207,13 +207,13 @@ class CiscoBaseConnection(BaseConnection):
         """Autodetect the file system on the remote device. Used by SCP operations."""
         if not self.check_enable_mode():
             raise ValueError("Must be in enable mode to auto-detect the file-system.")
-        output = self.send_command_expect(cmd)
+        output = self._send_command_str(cmd)
         match = re.search(pattern, output)
         if match:
             file_system = match.group(1)
             # Test file_system
             cmd = f"dir {file_system}"
-            output = self.send_command_expect(cmd)
+            output = self._send_command_str(cmd)
             if "% Invalid" in output or "%Error:" in output:
                 raise ValueError(
                     "An error occurred in dynamically determining remote file "
@@ -236,21 +236,21 @@ class CiscoBaseConnection(BaseConnection):
         """Saves Config."""
         self.enable()
         if confirm:
-            output = self.send_command_timing(
+            output = self._send_command_timing_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
             if confirm_response:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
             else:
                 # Send enter by default
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
         else:
             # Some devices are slow so match on trailing-prompt if you can
-            output = self.send_command(
+            output = self._send_command_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
         return output
