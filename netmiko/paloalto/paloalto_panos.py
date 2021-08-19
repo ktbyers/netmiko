@@ -64,13 +64,13 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         Set the base prompt for interaction ('>').
         """
         self.ansi_escape_codes = True
-        self._test_channel_read()
-        self.set_base_prompt(delay_factor=20)
+        self._test_channel_read(pattern=r"[>#]")
+        self.disable_paging(command="set cli scripting-mode on", cmd_verify=False)
+        self.set_terminal_width(
+            command="set cli terminal width 500", pattern=r"set cli terminal width 500"
+        )
         self.disable_paging(command="set cli pager off")
-        self.disable_paging(command="set cli scripting-mode on")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
     def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""
