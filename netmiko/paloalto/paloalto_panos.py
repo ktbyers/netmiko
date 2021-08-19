@@ -3,7 +3,7 @@ import time
 import re
 import warnings
 from os import path
-from paramiko import SSHClient
+from paramiko import SSHClient, Transport
 
 from netmiko.no_enable import NoEnable
 from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
@@ -12,18 +12,16 @@ from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 class SSHClient_interactive(SSHClient):
     """Set noauth when manually handling SSH authentication."""
 
-    def pa_banner_handler(self, title, instructions, prompt_list) -> Tuple[str]:
+    def pa_banner_handler(self, title: str, instructions: str, prompt_list: List[Tuple[str, bool]]) -> List[str]:
 
-        import ipdb
-
-        ipdb.set_trace()
         resp = []
         for prompt, echo in prompt_list:
             if "Do you accept" in prompt:
                 resp.append("yes")
             elif "ssword" in prompt:
+                assert isinstance(self.password, str)
                 resp.append(self.password)
-        return tuple(resp)
+        return resp
 
     def _auth(self, username: str, password: str, *args: Any) -> None:
         """
@@ -42,9 +40,12 @@ class SSHClient_interactive(SSHClient):
         passphrase,
         """
 
+        import ipdb; ipdb.set_trace()
         # Just gets the password up to the pa_banner_handler
         self.password = password
-        self._transport.auth_interactive(username, handler=self.pa_banner_handler)
+        transport = self.get_transport()
+        assert isinstance(transport, Transport)
+        transport.auth_interactive(username, handler=self.pa_banner_handler)
         return
 
 
@@ -219,13 +220,13 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
 
 
 class PaloAltoPanosSSH(PaloAltoPanosBase):
-    def _build_ssh_client(self):
+    def _build_ssh_client(self) -> SSHClient:
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
         # If not using SSH keys, we use noauth
 
         if not self.use_keys:
-            remote_conn_pre = SSHClient_interactive()
+            remote_conn_pre: SSHClient = SSHClient_interactive()
         else:
             remote_conn_pre = SSHClient()
 
