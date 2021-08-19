@@ -1,5 +1,4 @@
-from typing import Optional, Union, List, Any, Dict, Tuple
-import time
+from typing import Optional, List, Any, Tuple
 import re
 import warnings
 from os import path
@@ -12,7 +11,9 @@ from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 class SSHClient_interactive(SSHClient):
     """Set noauth when manually handling SSH authentication."""
 
-    def pa_banner_handler(self, title: str, instructions: str, prompt_list: List[Tuple[str, bool]]) -> List[str]:
+    def pa_banner_handler(
+        self, title: str, instructions: str, prompt_list: List[Tuple[str, bool]]
+    ) -> List[str]:
 
         resp = []
         for prompt, echo in prompt_list:
