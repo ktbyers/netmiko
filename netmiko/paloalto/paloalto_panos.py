@@ -1,4 +1,4 @@
-from typing import Optional, Union, List, Any, Dict
+from typing import Optional, Union, List, Any, Dict, Tuple
 import time
 import re
 import warnings
@@ -9,11 +9,42 @@ from netmiko.no_enable import NoEnable
 from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 
 
-class SSHClient_noauth(SSHClient):
+class SSHClient_interactive(SSHClient):
     """Set noauth when manually handling SSH authentication."""
 
-    def _auth(self, username, *args):
-        self._transport.auth_none(username)
+    def pa_banner_handler(self, title, instructions, prompt_list) -> Tuple[str]:
+
+        import ipdb
+
+        ipdb.set_trace()
+        resp = []
+        for prompt, echo in prompt_list:
+            if "Do you accept" in prompt:
+                resp.append("yes")
+            elif "ssword" in prompt:
+                resp.append(self.password)
+        return tuple(resp)
+
+    def _auth(self, username: str, password: str, *args: Any) -> None:
+        """
+        _auth: args as of aug-2021
+        self,
+        username,
+        password,
+        pkey,
+        key_filenames,
+        allow_agent,
+        look_for_keys,
+        gss_auth,
+        gss_kex,
+        gss_deleg_creds,
+        gss_host,
+        passphrase,
+        """
+
+        # Just gets the password up to the pa_banner_handler
+        self.password = password
+        self._transport.auth_interactive(username, handler=self.pa_banner_handler)
         return
 
 
@@ -40,41 +71,6 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-
-    def special_login_handler(self, delay_factor: float = 1.0) -> None:
-        """
-        PAN-OS may present something similar to the following on login.
-
-        login as: admin
-
-        Do you accept and acknowledge the statement above ? (yes/no) : yes
-
-        Password:
-        """
-        delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
-        time.sleep(delay_factor * 0.25)
-        output = ""
-        while i <= 20:
-            new_output = self.read_channel()
-            if re.search(r"login as", new_output):
-                self.write_channel(self.username + self.RETURN)
-                output += new_output
-            elif re.search(
-                r"Do you accept and acknowledge the statement above", new_output
-            ):
-                self.write_channel("yes" + self.RETURN)
-                output += new_output
-            elif re.search(r"ssword", new_output):
-                self.write_channel(self.password + self.RETURN)
-                output += new_output
-                break
-            else:
-                self.write_channel(self.RETURN)
-                time.sleep(delay_factor * 1)
-
-            time.sleep(delay_factor * 0.5)
-            i += 1
 
     def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""
@@ -227,8 +223,9 @@ class PaloAltoPanosSSH(PaloAltoPanosBase):
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
         # If not using SSH keys, we use noauth
+
         if not self.use_keys:
-            remote_conn_pre = SSHClient_noauth()
+            remote_conn_pre = SSHClient_interactive()
         else:
             remote_conn_pre = SSHClient()
 
