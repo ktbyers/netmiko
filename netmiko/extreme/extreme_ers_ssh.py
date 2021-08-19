@@ -4,7 +4,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 # Extreme ERS presents Enter Ctrl-Y to begin.
 CTRL_Y = "\x19"
-
+CTRL_C = "\x63"  #Microbuse
 
 class ExtremeErsSSH(CiscoSSHConnection):
     """Netmiko support for Extreme Ethernet Routing Switch."""
@@ -34,9 +34,11 @@ class ExtremeErsSSH(CiscoSSHConnection):
                 if "sername" in output:
                     assert isinstance(self.username, str)
                     self.write_channel(self.username + self.RETURN)
-                elif "ssword" in output:
+                if "ssword" in output:
                     assert isinstance(self.password, str)
                     self.write_channel(self.password + self.RETURN)
+                elif "Menu" in output:  #Microbuse
+                    self.write_channel(CTRL_C)  #Microbuse
                     break
                 time.sleep(0.5 * delay_factor)
             else:
