@@ -77,7 +77,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
-        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
+        self, config_command: str = "configure", pattern: str = r"#", re_flags: int = 0
     ) -> str:
         """Enter configuration mode."""
         return super().config_mode(
@@ -158,6 +158,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
             expect_string="100%",
             read_timeout=read_timeout,
         )
+        output += self.exit_config_mode()
 
         if commit_marker not in output.lower():
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
@@ -197,13 +198,6 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
 
         return a_string
-
-    def send_command(
-        self, *args: Any, **kwargs: Any
-    ) -> Union[str, List[Any], Dict[str, Any]]:
-        """Palo Alto requires an extra delay"""
-        kwargs["read_timeout"] = kwargs.get("read_timeout", 25)
-        return super().send_command(*args, **kwargs)
 
     def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
