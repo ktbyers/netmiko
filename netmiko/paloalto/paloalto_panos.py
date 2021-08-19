@@ -40,7 +40,6 @@ class SSHClient_interactive(SSHClient):
         passphrase,
         """
 
-        import ipdb; ipdb.set_trace()
         # Just gets the password up to the pa_banner_handler
         self.password = password
         transport = self.get_transport()
