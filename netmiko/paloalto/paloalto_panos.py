@@ -82,7 +82,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
 
     def find_prompt(self, delay_factor: float = 5.0) -> str:
         """PA devices can be very slow to respond (in certain situations)"""
-        return super.find_prompt(delay_factor=delay_factor)
+        return super().find_prompt(delay_factor=delay_factor)
 
     def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""
