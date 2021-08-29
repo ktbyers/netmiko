@@ -20,27 +20,17 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        output = ""
 
+        data = self._test_channel_read(pattern="to accept|[#$]")
         # If "set post-login-banner enable" is set it will require you to press 'a'
         # to accept the banner before you login. This will accept if it occurs
-        count = 1
-        while count <= 30:
-            output += self.read_channel()
-            if "to accept" in output:
-                self.write_channel("a\r")
-                break
-            else:
-                time.sleep(0.33 * delay_factor)
-            count += 1
+        if "to accept" in data:
+            self.write_channel("a\r")
+            time.sleep(0.3)
+            self.read_channel()
 
-        self._test_channel_read()
         self.set_base_prompt(alt_prompt_terminator="$")
         self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def disable_paging(
         self,
@@ -59,9 +49,7 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
         if re.search(r"Virtual domain configuration: (multiple|enable)", output):
             self.vdoms = True
             vdom_additional_command = "config global"
-            output = self._send_command_timing_str(
-                vdom_additional_command, delay_factor=2
-            )
+            output = self._send_command_timing_str(vdom_additional_command, last_read=3)
             if "Command fail" in output:
                 self.allow_disable_global = False
                 if self.remote_conn is not None:
@@ -80,7 +68,7 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
             if self.vdoms:
                 disable_paging_commands.append("end")
             outputlist = [
-                self._send_command_timing_str(command, delay_factor=2)
+                self._send_command_timing_str(command, last_read=3)
                 for command in disable_paging_commands
             ]
             # Should test output is valid
