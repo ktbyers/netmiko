@@ -6,7 +6,6 @@ pytest==5.1.2
 pylama==7.7.1
 twine==1.13.0
 pysnmp==4.4.12
-pdoc3==0.6.3
 types-paramiko
 types-PyYAML
 -r requirements.txt
