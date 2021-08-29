@@ -18,29 +18,29 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
             "diffie-hellman-group1-sha1",
         )
 
-    def session_preparation(self) -> None:
-        """Prepare the session after the connection has been established."""
+    def _post_login_banner(self) -> str:
+        """
+        If "set post-login-banner enable" is set it will require you to press 'a'
+        to accept the banner before you login.
+        """
         delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
-
-        # If "set post-login-banner enable" is set it will require you to press 'a'
-        # to accept the banner before you login. This will accept if it occurs
         count = 1
         while count <= 30:
             output += self.read_channel()
             if "to accept" in output:
                 self.write_channel("a\r")
-                break
+                return output
             else:
                 time.sleep(0.33 * delay_factor)
             count += 1
 
-        self._test_channel_read()
+    def session_preparation(self) -> None:
+        """Prepare the session after the connection has been established."""
+        self._post_login_banner()
+        self._test_channel_read(pattern=r"[#$]")
         self.set_base_prompt(alt_prompt_terminator="$")
         self.disable_paging()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def disable_paging(
         self,
