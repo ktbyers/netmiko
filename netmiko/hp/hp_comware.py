@@ -1,4 +1,3 @@
-import time
 import re
 from typing import Union, Sequence, TextIO, Any, Optional
 
@@ -15,7 +14,6 @@ class HPComwareBase(CiscoSSHConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
-        delay_factor = self.select_delay_factor(delay_factor=0)
         # Comware can have a banner that prompts you to continue
         # 'Press Y or ENTER to continue, N to exit.'
         data = self._test_channel_read(pattern=r"to continue|[>\]]")
