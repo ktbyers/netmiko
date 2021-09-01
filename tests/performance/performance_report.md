@@ -1,9 +1,9 @@
 
 # Netmiko performance
-![](netmiko_cisco_asa.svg)
-![](netmiko_arista_eos.svg)
-![](netmiko_cisco_ios.svg)
-![](netmiko_cisco_nxos.svg)
-![](netmiko_cisco_xe.svg)
-![](netmiko_cisco_xr.svg)
-![](netmiko_juniper_junos.svg)
+![](graphs/netmiko_arista_eos.svg)
+![](graphs/netmiko_cisco_asa.svg)
+![](graphs/netmiko_cisco_ios.svg)
+![](graphs/netmiko_cisco_nxos.svg)
+![](graphs/netmiko_cisco_xe.svg)
+![](graphs/netmiko_cisco_xr.svg)
+![](graphs/netmiko_juniper_junos.svg)
