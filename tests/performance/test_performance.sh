@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd /home/vera/netmiko/tests/performance
+
 pip install pyaml pygal jinja2
 if [ $? -eq 0 ]; then
     echo
