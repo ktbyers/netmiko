@@ -1,6 +1,7 @@
 import pygal
 import csv
 import yaml
+import jinja2
 from pprint import pprint
 from typing import Dict
 
@@ -62,6 +63,14 @@ def generate_graph(device_name: str, device_dict: Dict) -> None:
     line_chart.render_to_file(str(dir_path / outfile))
 
 
+perf_report_template = """
+# Netmiko performance
+{%- for graph in graphs %}
+![Graph]({{graph}})
+{%- endfor %}
+"""
+
+
 def test():
     f_name = "test_devices.yml"
     with open(f_name) as f:
@@ -69,6 +78,14 @@ def test():
         for device_name, device in devices.items():
             if "graph" in device:
                 generate_graph(device_name, device)
+
+
+def test_generate_report():
+    template = jinja2.Template(perf_report_template)
+    graph_files = [item.name for item in (Path.cwd() / "graphs").iterdir()]
+    report_file = Path.cwd() / "performance_report.md"
+    with report_file.open("w") as out_file:
+        out_file.writelines(template.render({"graphs": graph_files}))
 
 
 if __name__ == "__main__":
