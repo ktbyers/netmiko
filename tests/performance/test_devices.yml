@@ -3,11 +3,17 @@ cisco1:
   device_type: cisco_ios
   host: cisco1.lasthop.io
   username: pyclass
+  graph:
+    title: "Netmiko: Cisco IOS Performance (Cisco 881)"
+    outfile: "netmiko_cisco_ios.svg"
 
 cisco3:
   device_type: cisco_xe
   host: cisco3.lasthop.io
   username: pyclass
+  graph:
+    title: "Netmiko: Cisco IOS-XE Performance (Cisco C1111-4P)"
+    outfile: "netmiko_cisco_xe.svg"
 
 cisco5:
   device_type: cisco_xe
@@ -18,23 +24,35 @@ nxos1:
   device_type: cisco_nxos
   host: nxos1.lasthop.io
   username: pyclass
+  graph:
+    title: "Netmiko: Cisco NX-OS Performance (nx9k virtual)"
+    outfile: "netmiko_cisco_nxos.svg"
 
 cisco_xr_azure:
   device_type: cisco_xr
   host: iosxr3.lasthop.io
   username: pyclass
   secret: ''
+  graph:
+    title: "Netmiko: Cisco IOS-XR Performance (cisco IOS-XRv 9000)"
+    outfile: "netmiko_cisco_xr.svg"
 
 arista1:
   device_type: arista_eos
   host: arista1.lasthop.io
   username: pyclass
+  graph:
+    title: "Netmiko: Arista EOS Performance (vEOS)"
+    outfile: "netmiko_arista_eos.svg"
 
 juniper_vmx:
   device_type: juniper_junos
   host: vmx1.lasthop.io
   username: pyclass
   session_log: vmx1.out
+  graph:
+    title: "Netmiko: Juniper Junos Performance"
+    outfile: "netmiko_juniper_junos.svg"
 
 cisco_asa:
   device_type: cisco_asa

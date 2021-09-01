@@ -1,6 +1,8 @@
 import pygal
 import csv
+import yaml
 from pprint import pprint
+from typing import Dict
 
 from pathlib import Path
 
@@ -27,43 +29,11 @@ def read_csv(device):
     return entries
 
 
-def generate_graph():
+def generate_graph(device_name: str, device_dict: Dict) -> None:
 
-    cisco1 = {
-        "device": "cisco1",
-        "title": "Netmiko: Cisco IOS Performance (Cisco 881)",
-        "outfile": "netmiko_cisco_ios.svg",
-    }
-    cisco3 = {
-        "device": "cisco3",
-        "title": "Netmiko: Cisco IOS-XE Performance (Cisco C1111-4P)",
-        "outfile": "netmiko_cisco_xe.svg",
-    }
-    nxos1 = {
-        "device": "nxos1",
-        "title": "Netmiko: Cisco NX-OS Performance (nx9k virtual)",
-        "outfile": "netmiko_cisco_nxos.svg",
-    }
-    xr_azure = {
-        "device": "cisco_xr_azure",
-        "title": "Netmiko: Cisco IOS-XR Performance (cisco IOS-XRv 9000)",
-        "outfile": "netmiko_cisco_xr.svg",
-    }
-    arista1 = {
-        "device": "arista1",
-        "title": "Netmiko: Arista EOS Performance (vEOS)",
-        "outfile": "netmiko_arista_eos.svg",
-    }
+    test_device = device_dict["graph"]
 
-    juniper_junos = {
-        "device": "vmx1",
-        "title": "Netmiko: Juniper Junos Performance",
-        "outfile": "netmiko_juniper_junos.svg",
-    }
-
-    test_device = cisco1
-
-    device = test_device["device"]
+    device = device_name
     title = test_device["title"]
     outfile = test_device["outfile"]
     entries = read_csv(device)
@@ -87,13 +57,18 @@ def generate_graph():
     line_chart.add("Simple Config", send_config)
     line_chart.add("Large ACL", send_config_acl)
     dir_path = Path.cwd() / "graphs"
-    dir_path.mkdir()
+    if not dir_path.exists():
+        dir_path.mkdir()
     line_chart.render_to_file(str(dir_path / outfile))
 
 
 def test():
-    generate_graph()
+    f_name = "test_devices.yml"
+    with open(f_name) as f:
+        devices = yaml.load(f)
+        for device_name, device in devices.items():
+            generate_graph(device_name, device)
 
 
 if __name__ == "__main__":
-    generate_graph()
+    test()
