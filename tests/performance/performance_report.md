@@ -1,8 +1,8 @@
 
-<h1> Netmiko performance </h1>
-![Graph](netmiko_arista_eos.svg)
-![Graph](netmiko_cisco_ios.svg)
-![Graph](netmiko_cisco_nxos.svg)
-![Graph](netmiko_cisco_xe.svg)
-![Graph](netmiko_cisco_xr.svg)
-![Graph](netmiko_juniper_junos.svg)
+# Netmiko performance
+![](netmiko_arista_eos.svg)
+![](netmiko_cisco_ios.svg)
+![](netmiko_cisco_nxos.svg)
+![](netmiko_cisco_xe.svg)
+![](netmiko_cisco_xr.svg)
+![](netmiko_juniper_junos.svg)

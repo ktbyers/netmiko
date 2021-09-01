@@ -63,14 +63,6 @@ def generate_graph(device_name: str, device_dict: Dict) -> None:
     line_chart.render_to_file(str(dir_path / outfile))
 
 
-perf_report_template = """
-# Netmiko performance
-{%- for graph in graphs %}
-![Graph]({{graph}})
-{%- endfor %}
-"""
-
-
 def test():
     f_name = "test_devices.yml"
     with open(f_name) as f:
@@ -78,6 +70,14 @@ def test():
         for device_name, device in devices.items():
             if "graph" in device:
                 generate_graph(device_name, device)
+
+
+perf_report_template = """
+# Netmiko performance
+{%- for graph in graphs %}
+![]({{graph}})\n
+{%- endfor %}
+"""
 
 
 def test_generate_report():
