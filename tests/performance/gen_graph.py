@@ -34,8 +34,10 @@ def read_csv(device):
 def generate_graph(device_name: str, device_dict: Dict) -> None:
     test_device = device_dict["graph"]
     device = device_name
-    title = test_device["title"]
-    outfile = test_device["outfile"]
+    device_name = device_name.replace("_", ".")
+    title = f"Netmiko: {device_name} Performance"
+    device_type = device_dict["device_type"]
+    outfile = f"netmiko_{device_type}.svg"
     entries = read_csv(device)
 
     # Create relevant lists
@@ -83,6 +85,5 @@ if __name__ == "__main__":
     with open(f_name) as f:
         devices = yaml.load(f)
         for device_name, device in devices.items():
-            if "graph" in device:
-                generate_graph(device_name, device)
+            generate_graph(device_name, device)
     generate_report()

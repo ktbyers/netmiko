@@ -3,11 +3,11 @@
 pip install pyaml pygal jinja2
 if [ $? -eq 0 ]; then
     echo
-    echo "Installing dependancies ... [OK]"
+    echo "Installing dependencies ... [OK]"
     echo
 else
     echo
-    echo "Installing dependancies ... [FAIL]"
+    echo "Installing dependencies ... [FAIL]"
     exit 1
 fi
 
