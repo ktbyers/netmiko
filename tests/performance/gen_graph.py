@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import pygal
 import csv
 import yaml
@@ -63,15 +64,6 @@ def generate_graph(device_name: str, device_dict: Dict) -> None:
     line_chart.render_to_file(str(dir_path / outfile))
 
 
-def test():
-    f_name = "test_devices.yml"
-    with open(f_name) as f:
-        devices = yaml.load(f)
-        for device_name, device in devices.items():
-            if "graph" in device:
-                generate_graph(device_name, device)
-
-
 perf_report_template = """
 # Netmiko performance
 {%- for graph in graphs %}
@@ -80,7 +72,7 @@ perf_report_template = """
 """
 
 
-def test_generate_report():
+def generate_report():
     template = jinja2.Template(perf_report_template)
     graph_files = [item.name for item in (Path.cwd() / "graphs").iterdir()]
     report_file = Path.cwd() / "performance_report.md"
@@ -89,4 +81,10 @@ def test_generate_report():
 
 
 if __name__ == "__main__":
-    test()
+    f_name = "test_devices.yml"
+    with open(f_name) as f:
+        devices = yaml.load(f)
+        for device_name, device in devices.items():
+            if "graph" in device:
+                generate_graph(device_name, device)
+    generate_report()

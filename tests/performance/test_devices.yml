@@ -60,3 +60,6 @@ cisco_asa:
   username: pyclass
   allow_auto_change: True
   session_log: asa1.out
+  graph:
+    title: "Netmiko: Cisco ASA Performance"
+    outfile: "netmiko_cisco_asa.svg"
