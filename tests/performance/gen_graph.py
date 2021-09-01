@@ -32,7 +32,6 @@ def read_csv(device):
 
 
 def generate_graph(device_name: str, device_dict: Dict) -> None:
-    test_device = device_dict["graph"]
     device = device_name
     device_name = device_name.replace("_", ".")
     title = f"Netmiko: {device_name} Performance"
