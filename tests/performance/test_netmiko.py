@@ -175,6 +175,9 @@ def main():
 
     print("\n\n")
 
+def test_performance():
+    main()
+
 
 if __name__ == "__main__":
     main()
