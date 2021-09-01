@@ -25,7 +25,7 @@ def read_csv(device):
     return entries
 
 
-if __name__ == "__main__":
+def generate_graph():
 
     cisco1 = {
         "device": "cisco1",
@@ -85,3 +85,11 @@ if __name__ == "__main__":
     line_chart.add("Simple Config", send_config)
     line_chart.add("Large ACL", send_config_acl)
     line_chart.render_to_file("graphs/" + outfile)
+
+
+def test():
+    generate_graph()
+
+
+if __name__ == "__main__":
+    generate_graph()
