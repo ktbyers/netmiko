@@ -2,6 +2,8 @@ import pygal
 import csv
 from pprint import pprint
 
+from pathlib import Path
+
 
 def convert_time(time_str):
     """Convert time_str to seconds (float)."""
@@ -84,7 +86,9 @@ def generate_graph():
     line_chart.add("Show Command", send_command)
     line_chart.add("Simple Config", send_config)
     line_chart.add("Large ACL", send_config_acl)
-    line_chart.render_to_file("graphs/" + outfile)
+    dir_path = Path.cwd() / "graphs"
+    dir_path.mkdir()
+    line_chart.render_to_file(str(dir_path / outfile))
 
 
 def test():
