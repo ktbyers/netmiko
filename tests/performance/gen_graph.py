@@ -73,7 +73,8 @@ perf_report_template = """
 
 def generate_report():
     template = jinja2.Template(perf_report_template)
-    graph_files = [item.name for item in (Path.cwd() / "graphs").iterdir()]
+    graph_files = ["graphs/" + item.name
+                   for item in (Path.cwd() / "graphs").iterdir()]
     report_file = Path.cwd() / "performance_report.md"
     with report_file.open("w") as out_file:
         out_file.writelines(template.render({"graphs": graph_files}))
