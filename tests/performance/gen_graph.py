@@ -32,9 +32,7 @@ def read_csv(device):
 
 
 def generate_graph(device_name: str, device_dict: Dict) -> None:
-
     test_device = device_dict["graph"]
-
     device = device_name
     title = test_device["title"]
     outfile = test_device["outfile"]
