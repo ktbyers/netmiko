@@ -53,6 +53,12 @@ if __name__ == "__main__":
         "outfile": "netmiko_arista_eos.svg",
     }
 
+    juniper_junos = {
+        "device": "vmx1",
+        "title": "Netmiko: Juniper Junos Performance",
+        "outfile": "netmiko_juniper_junos.svg",
+    }
+
     test_device = cisco1
 
     device = test_device["device"]
@@ -78,4 +84,4 @@ if __name__ == "__main__":
     line_chart.add("Show Command", send_command)
     line_chart.add("Simple Config", send_config)
     line_chart.add("Large ACL", send_config_acl)
-    line_chart.render_to_file(outfile)
+    line_chart.render_to_file("graphs/" + outfile)
