@@ -85,5 +85,6 @@ if __name__ == "__main__":
     with open(f_name) as f:
         devices = yaml.load(f)
         for device_name, device in devices.items():
-            generate_graph(device_name, device)
+            if "graph" in device:
+                generate_graph(device_name, device)
     generate_report()
