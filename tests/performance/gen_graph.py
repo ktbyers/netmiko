@@ -19,7 +19,7 @@ def convert_time(time_str):
 
 
 def read_csv(device):
-    csv_file = "netmiko_performance_releases.csv"
+    csv_file = "netmiko_performance.csv"
     entries = []
     with open(csv_file) as f:
         read_csv = csv.DictReader(f)
