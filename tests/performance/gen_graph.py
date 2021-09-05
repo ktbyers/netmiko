@@ -44,7 +44,7 @@ def filter_versions(entries):
     last_versions = [f"{minor}.{patch}" for minor, patch in patches.items()]
     entries = filter(
         lambda entry: entry["netmiko_version"] in last_versions, entries)
-    return list(entries)
+    return sorted(entries, key=lambda x: x["netmiko_version"])
 
 
 def generate_graph(device_name: str, params: Dict) -> None:
