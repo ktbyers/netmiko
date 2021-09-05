@@ -37,11 +37,13 @@ def filter_versions(entries):
         version = entry["netmiko_version"]
         dot_pos = version.rfind(".")
         minor_version = version[:dot_pos]
-        patch_version = version[dot_pos + 1 :]
-        patches[minor_version] = max(patch_version, patches.get(minor_version, "0"))
+        dot_pos += 1
+        patch_version = version[dot_pos:]
+        current_patch = patches.get(minor_version, "0")
+        patches[minor_version] = max(patch_version, current_patch)
 
     last_versions = [f"{minor}.{patch}" for minor, patch in patches.items()]
-    entries = filter(lambda entry: entry["netmiko_version"] in last_versions, entries)
+    entries = filter(lambda x: x["netmiko_version"] in last_versions, entries)
     return sorted(entries, key=lambda x: x["netmiko_version"])
 
 
@@ -88,7 +90,8 @@ perf_report_template = """
 
 def generate_report():
     template = jinja2.Template(perf_report_template)
-    graph_files = ["graphs/" + item.name for item in (Path.cwd() / "graphs").iterdir()]
+    graphs_path = Path.cwd() / "graphs"
+    graph_files = ["graphs/" + item.name for item in graphs_path.iterdir()]
     report_file = Path.cwd() / "performance_report.md"
     with report_file.open("w") as out_file:
         out_file.writelines(template.render({"graphs": graph_files}))
