@@ -143,7 +143,8 @@ def main():
 
     devices = read_devices()
     print("\n\n")
-    for dev_name, dev_dict in devices.items():
+    for dev_name, params in devices.items():
+        dev_dict = params["device"]
         # if dev_name != "cisco_xr_azure":
         #    continue
         print("-" * 80)

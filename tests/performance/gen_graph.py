@@ -31,10 +31,10 @@ def read_csv(device):
     return entries
 
 
-def generate_graph(device_name: str, device_dict: Dict) -> None:
+def generate_graph(device_name: str, params: Dict) -> None:
     device = device_name
-    device_name = device_name.replace("_", ".")
-    title = f"Netmiko: {device_name} Performance"
+    title = params["graph"]["title"]
+    device_dict = params["device"]
     device_type = device_dict["device_type"]
     outfile = f"netmiko_{device_type}.svg"
     entries = read_csv(device)
