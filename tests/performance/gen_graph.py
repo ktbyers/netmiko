@@ -31,6 +31,22 @@ def read_csv(device):
     return entries
 
 
+def filter_versions(entries):
+    patches = dict()
+    for entry in entries:
+        version = entry["netmiko_version"]
+        dot_pos = version.rfind(".")
+        minor_version = version[:dot_pos]
+        patch_version = version[dot_pos + 1:]
+        patches[minor_version] = max(patch_version,
+                                     patches.get(minor_version, "0"))
+
+    last_versions = [f"{minor}.{patch}" for minor, patch in patches.items()]
+    entries = filter(
+        lambda entry: entry["netmiko_version"] in last_versions, entries)
+    return list(entries)
+
+
 def generate_graph(device_name: str, params: Dict) -> None:
     device = device_name
     title = params["graph"]["title"]
@@ -38,6 +54,7 @@ def generate_graph(device_name: str, params: Dict) -> None:
     device_type = device_dict["device_type"]
     outfile = f"netmiko_{device_type}.svg"
     entries = read_csv(device)
+    entries = filter_versions(entries)
 
     # Create relevant lists
     netmiko_versions = [v["netmiko_version"] for v in entries]

@@ -1,5 +1,6 @@
 #!/bin/sh
 
+export PYTHONPATH=/home/kbyers/netmiko/tests
 cd /home/vera/netmiko/tests/performance
 
 pip install pyaml pygal jinja2
