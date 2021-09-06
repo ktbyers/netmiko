@@ -1173,9 +1173,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         if cmd_verify and self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+            output = self.read_until_pattern(
+                pattern=re.escape(command.strip()), read_timeout=20
+            )
         elif pattern:
-            output = self.read_until_pattern(pattern=pattern)
+            output = self.read_until_pattern(pattern=pattern, read_timeout=20)
         else:
             output = self.read_until_prompt()
         log.debug(f"{output}")
