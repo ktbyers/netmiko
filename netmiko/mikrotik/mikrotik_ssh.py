@@ -31,7 +31,7 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         self.username += "+ctw511h4098"
 
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
-        """Microtik does not have paging by default."""
+        """Mikrotik does not have paging by default."""
         return ""
 
     def save_config(self, *args: Any, **kwargs: Any) -> str:
@@ -41,7 +41,7 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
     def config_mode(
         self, config_command: str = "", pattern: str = "", re_flags: int = 0
     ) -> str:
-        """No configuration mode on Microtik"""
+        """No configuration mode on Mikrotik"""
         self._in_config_mode = True
         return ""
 
@@ -50,7 +50,7 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         return self._in_config_mode
 
     def exit_config_mode(self, exit_config: str = ">", pattern: str = "") -> str:
-        """No configuration mode on Microtik"""
+        """No configuration mode on Mikrotik"""
         self._in_config_mode = False
         return ""
 
