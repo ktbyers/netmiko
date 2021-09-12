@@ -138,7 +138,24 @@ def cleanup_generic(device, command):
         PRINT_DEBUG and print(output)
 
 
+def remove_old_data():
+    results_file = "netmiko_performance.csv"
+    entries = []
+    with open(results_file) as f:
+        read_csv = csv.DictReader(f)
+        for entry in read_csv:
+            entry = dict(entry)
+            if entry["netmiko_version"] != __version__:
+                entries.append(entry)
+
+    with open(results_file, "w") as csv_file:
+        field_names = list(entries[0].keys())
+        csv_write = csv.DictWriter(csv_file, fieldnames=field_names)
+        csv_write.writerows(entries)
+
+
 def main():
+    remove_old_data()
     PASSWORD = os.environ["NORNIR_PASSWORD"]
 
     devices = read_devices()
