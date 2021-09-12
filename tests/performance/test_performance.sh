@@ -1,16 +1,15 @@
 #!/bin/sh
 
 export PYTHONPATH=/home/kbyers/netmiko/tests
-cd /home/vera/netmiko/tests/performance
 
-pip install pyaml pygal jinja2
+pip show pyaml pygal jinja2
 if [ $? -eq 0 ]; then
     echo
-    echo "Installing dependencies ... [OK]"
+    echo "Checking dependencies ... [OK]"
     echo
 else
     echo
-    echo "Installing dependencies ... [FAIL]"
+    echo "Checking dependencies ... [FAIL]"
     exit 1
 fi
 
@@ -22,6 +21,7 @@ if [ $? -eq 0 ]; then
 else
     echo
     echo "Running performance tests ... [FAIL]"
+    echo "Ensure that your current directory is {NETMIKO_REPO}/tests/performance"
     exit 1
 fi
 
@@ -33,5 +33,6 @@ if [ $? -eq 0 ]; then
 else
     echo
     echo "Generating graphs ... [FAIL]"
+    echo "Ensure that your current directory is {NETMIKO_REPO}/tests/performance"
     exit 1
 fi
