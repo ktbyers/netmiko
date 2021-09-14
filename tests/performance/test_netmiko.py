@@ -148,9 +148,10 @@ def remove_old_data():
             if entry["netmiko_version"] != __version__:
                 entries.append(entry)
 
-    with open(results_file, "w") as csv_file:
+    with open(results_file, "w", newline="") as csv_file:
         field_names = list(entries[0].keys())
         csv_write = csv.DictWriter(csv_file, fieldnames=field_names)
+        csv_write.writeheader()
         csv_write.writerows(entries)
 
 
