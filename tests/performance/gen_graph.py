@@ -106,4 +106,3 @@ if __name__ == "__main__":
             if "graph" in device:
                 generate_graph(device_name, device)
     generate_report()
-

@@ -138,14 +138,17 @@ def cleanup_generic(device, command):
         PRINT_DEBUG and print(output)
 
 
-def remove_old_data():
+def remove_old_data(device_name):
     results_file = "netmiko_performance.csv"
     entries = []
     with open(results_file) as f:
         read_csv = csv.DictReader(f)
         for entry in read_csv:
             entry = dict(entry)
-            if entry["netmiko_version"] != __version__:
+            version, device = entry["netmiko_version"], entry["device_name"]
+            if (
+                version != __version__ and device == device_name
+            ) or device_name != device:
                 entries.append(entry)
 
     with open(results_file, "w", newline="") as csv_file:
@@ -156,12 +159,12 @@ def remove_old_data():
 
 
 def main():
-    remove_old_data()
     PASSWORD = os.environ["NORNIR_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
     for dev_name, params in devices.items():
+        remove_old_data(dev_name)
         dev_dict = params["device"]
         # if dev_name != "cisco_xr_azure":
         #    continue
@@ -201,4 +204,3 @@ def test_performance():
 
 if __name__ == "__main__":
     main()
-
