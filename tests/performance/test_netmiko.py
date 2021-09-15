@@ -73,7 +73,7 @@ def f_exec_time(func):
 
 
 def read_devices():
-    f_name = "test_devices.yml"
+    f_name = os.environ.get("TEST_DEVICES", "test_devices.yml")
     with open(f_name) as f:
         return yaml.load(f)
 
@@ -201,3 +201,4 @@ def test_performance():
 
 if __name__ == "__main__":
     main()
+
