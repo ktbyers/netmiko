@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export PYTHONPATH=/home/vera/netmiko/tests
+export PYTHONPATH=/home/kbyers/netmiko/tests
 export TEST_DEVICES=new_devices.yml
 
 pip show netmiko
