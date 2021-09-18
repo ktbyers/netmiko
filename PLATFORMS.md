@@ -247,3 +247,17 @@
 - tplink_jetstream_telnet
 - yamaha_telnet
 - zte_zxros_telnet
+
+###### Supported Secure Copy device_type values
+
+- arista_eos
+- ciena_saos
+- cisco_asa
+- cisco_ios
+- cisco_nxos
+- cisco_xe
+- cisco_xr
+- dell_os10
+- juniper_junos
+- linux
+- nokia_sros

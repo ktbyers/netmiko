@@ -1,4 +1,3 @@
-import time
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
@@ -11,17 +10,17 @@ class JuniperScreenOsSSH(NoEnable, NoConfig, BaseConnection):
 
     def session_preparation(self) -> None:
         """
-        Prepare the session after the connection has been established.
-
-        Disable paging (the '--more--' prompts).
-        Set the base prompt for interaction ('>').
+        ScreenOS can be configured to require: Accept this agreement y/[n]
         """
-        self._test_channel_read()
+        terminator = r"\->"
+        pattern = rf"(Accept this|{terminator})"
+        data = self._test_channel_read(pattern=pattern)
+        if "Accept this" in data:
+            self.write_channel("y")
+            data += self._test_channel_read(pattern=terminator)
+
         self.set_base_prompt()
         self.disable_paging(command="set console page 0")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def save_config(
         self,
