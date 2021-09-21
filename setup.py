@@ -30,7 +30,7 @@ def find_version(*file_paths):
 setup(
     name="netmiko",
     version=find_version("netmiko", "__init__.py"),
-    description="Multi-vendor library to simplify Paramiko SSH connections to network devices",
+    description="Multi-vendor library to simplify legacy CLI connections to network devices",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ktbyers/netmiko",
@@ -42,14 +42,25 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     packages=find_packages(exclude=("test*",)),
     install_requires=[
         "setuptools>=38.4.0",
-        "paramiko>=2.4.3",
+        "paramiko>=2.6.0",
         "scp>=0.13.2",
+        "tenacity",
+        "textfsm>=1.1.2",
+        "ntc-templates>=2.0.0",
         "pyserial",
-        "textfsm",
+        "importlib_resources ; python_version<'3.7'",
     ],
-    extras_require={"test": ["pyyaml==5.1.2", "pytest>=5.1.2"]},
+    entry_points={
+        "console_scripts": [
+            "netmiko-grep = netmiko.cli_tools.netmiko_grep:main_ep",
+            "netmiko-show= netmiko.cli_tools.netmiko_show:main_ep",
+            "netmiko-cfg= netmiko.cli_tools.netmiko_cfg:main_ep",
+        ]
+    },
 )

@@ -1,6 +1,7 @@
 """MRV Communications Driver (OptiSwitch)."""
 import time
 import re
+from typing import Optional
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -8,7 +9,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class MrvOptiswitchSSH(CiscoSSHConnection):
     """MRV Communications Driver (OptiSwitch)."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
@@ -19,13 +20,19 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.clear_buffer()
 
-    def enable(self, cmd="enable", pattern=r"#", re_flags=re.IGNORECASE):
+    def enable(
+        self,
+        cmd: str = "enable",
+        pattern: str = r"#",
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Enable mode on MRV uses no password."""
         output = ""
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
             output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
+                pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
             if not self.check_enable_mode():
                 msg = (
@@ -35,7 +42,12 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
                 raise ValueError(msg)
         return output
 
-    def save_config(self, cmd="save config flash", confirm=False, confirm_response=""):
+    def save_config(
+        self,
+        cmd: str = "save config flash",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves configuration."""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response

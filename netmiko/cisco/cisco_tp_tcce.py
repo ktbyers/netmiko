@@ -4,23 +4,25 @@ Class to manage Cisco Telepresence Endpoint on TC/CE software release. Also work
 Expressway/VCS
 
 Written by Ahmad Barrin
+Updated by Kirk Byers
 """
+from typing import Any, Union, List, Dict
 import time
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class CiscoTpTcCeSSH(CiscoSSHConnection):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
 
-    def disable_paging(self, *args, **kwargs):
+    def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Paging is disabled by default."""
         return ""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established
 
@@ -32,24 +34,26 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_terminal_width()
         """
+        # Could not work out what the CLI looked like. It would be good to switch to
+        # a pattern on the _test_channel_read() call.
         self._test_channel_read()
         self.set_base_prompt()
-        self.disable_paging()
         self.set_terminal_width()
+        self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def set_base_prompt(self, *args, **kwargs):
+    def set_base_prompt(self, *args: Any, **kwargs: Any) -> str:
         """Use 'OK' as base_prompt."""
         self.base_prompt = "OK"
         return self.base_prompt
 
-    def find_prompt(self, *args, **kwargs):
+    def find_prompt(self, *args: Any, **kwargs: Any) -> str:
         """Use 'OK' as standard prompt."""
         return "OK"
 
-    def strip_prompt(self, a_string):
+    def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output."""
         expect_string = r"^(OK|ERROR|Command not recognized\.)$"
         response_list = a_string.split(self.RESPONSE_RETURN)
@@ -59,19 +63,14 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         else:
             return a_string
 
-    def send_command(self, *args, **kwargs):
+    def send_command(
+        self, *args: Any, **kwargs: Any
+    ) -> Union[str, List[Any], Dict[str, Any]]:
         """
         Send command to network device retrieve output until router_prompt or expect_string
 
         By default this method will keep waiting to receive data until the network device prompt is
         detected. The current network device prompt will be determined automatically.
-
-        command_string = command to execute
-        expect_string = pattern to search for uses re.search (use raw strings)
-        delay_factor = decrease the initial delay before we start looking for data
-        max_loops = number of iterations before we give up and raise an exception
-        strip_prompt = strip the trailing prompt from the output
-        strip_command = strip the leading command from the output
         """
         if len(args) >= 2:
             expect_string = args[1]
@@ -85,6 +84,6 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         output = super().send_command(*args, **kwargs)
         return output
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
         raise NotImplementedError

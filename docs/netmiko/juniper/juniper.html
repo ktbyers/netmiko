@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.6.2" />
+<meta name="generator" content="pdoc 0.6.3" />
 <title>netmiko.juniper.juniper API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
@@ -22,14 +22,11 @@
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">from __future__ import unicode_literals
-
-import re
+<pre><code class="python">import re
 import time
 
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
-from netmiko.py23_compat import text_type
 
 
 class JuniperBase(BaseConnection):
@@ -40,21 +37,26 @@ class JuniperBase(BaseConnection):
     methods.  Overrides several methods for Juniper-specific compatibility.
     &#34;&#34;&#34;
 
-    def session_preparation(self):
-        &#34;&#34;&#34;
-        Prepare the session after the connection has been established.
+    def __init__(self, *args, **kwargs):
+        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        return super().__init__(*args, **kwargs)
 
-        Disable paging (the &#39;--more--&#39; prompts).
-        Set the base prompt for interaction (&#39;&gt;&#39;).
-        &#34;&#34;&#34;
-        self._test_channel_read()
+    def session_preparation(self):
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.enter_cli_mode()
+        cmd = &#34;set cli screen-width 511&#34;
+        self.set_terminal_width(command=cmd, pattern=r&#34;Screen width set to&#34;)
+        # Overloading disable_paging which is confusing
+        self.disable_paging(
+            command=&#34;set cli complete-on-space off&#34;,
+            pattern=r&#34;Disabling complete-on-space&#34;,
+        )
+        self.disable_paging(
+            command=&#34;set cli screen-length 0&#34;, pattern=r&#34;Screen length set to&#34;
+        )
         self.set_base_prompt()
-        self.disable_paging(command=&#34;set cli screen-length 0&#34;)
-        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def _enter_shell(self):
         &#34;&#34;&#34;Enter the Bourne Shell.&#34;&#34;&#34;
@@ -96,11 +98,18 @@ class JuniperBase(BaseConnection):
 
     def check_config_mode(self, check_string=&#34;]&#34;):
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-        return super(JuniperBase, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command=&#34;configure&#34;):
+    def config_mode(
+        self,
+        config_command=&#34;configure&#34;,
+        pattern=r&#34;Entering configuration mode&#34;,
+        **kwargs,
+    ):
         &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
-        return super(JuniperBase, self).config_mode(config_command=config_command)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, **kwargs
+        )
 
     def exit_config_mode(self, exit_config=&#34;exit configuration-mode&#34;):
         &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
@@ -150,6 +159,12 @@ class JuniperBase(BaseConnection):
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
 
+        # Commit is very slow so this is needed.
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor &lt; 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         if check and (confirm or confirm_delay or comment):
             raise ValueError(&#34;Invalid arguments supplied with commit check&#34;)
 
@@ -166,7 +181,7 @@ class JuniperBase(BaseConnection):
             commit_marker = &#34;configuration check succeeds&#34;
         elif confirm:
             if confirm_delay:
-                command_string = &#34;commit confirmed &#34; + text_type(confirm_delay)
+                command_string = &#34;commit confirmed &#34; + str(confirm_delay)
             else:
                 command_string = &#34;commit confirmed&#34;
             commit_marker = &#34;commit confirmed will be automatically rolled back in&#34;
@@ -175,7 +190,7 @@ class JuniperBase(BaseConnection):
         if comment:
             if &#39;&#34;&#39; in comment:
                 raise ValueError(&#34;Invalid comment contains double quote&#34;)
-            comment = &#39;&#34;{0}&#34;&#39;.format(comment)
+            comment = f&#39;&#34;{comment}&#34;&#39;
             command_string += &#34; comment &#34; + comment
 
         if and_quit:
@@ -184,33 +199,33 @@ class JuniperBase(BaseConnection):
         # Enter config mode (if necessary)
         output = self.config_mode()
         # and_quit will get out of config mode on commit
+
         if and_quit:
-            prompt = self.base_prompt
-            output += self.send_command_expect(
-                command_string,
-                expect_string=prompt,
-                strip_prompt=False,
-                strip_command=False,
-                delay_factor=delay_factor,
-            )
+            expect_string = re.escape(self.base_prompt)
         else:
-            output += self.send_command_expect(
+            expect_string = None
+
+        try:
+            fast_cli_state = self.fast_cli
+            self.fast_cli = False
+            output += self.send_command(
                 command_string,
+                expect_string=expect_string,
                 strip_prompt=False,
                 strip_command=False,
                 delay_factor=delay_factor,
             )
+        finally:
+            self.fast_cli = fast_cli_state
 
         if commit_marker not in output:
-            raise ValueError(
-                &#34;Commit failed with the following errors:\n\n{0}&#34;.format(output)
-            )
+            raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
 
         return output
 
     def strip_prompt(self, *args, **kwargs):
         &#34;&#34;&#34;Strip the trailing router prompt from the output.&#34;&#34;&#34;
-        a_string = super(JuniperBase, self).strip_prompt(*args, **kwargs)
+        a_string = super().strip_prompt(*args, **kwargs)
         return self.strip_context_items(a_string)
 
     def strip_context_items(self, a_string):
@@ -241,6 +256,18 @@ class JuniperBase(BaseConnection):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
 
+    def cleanup(self, command=&#34;exit&#34;):
+        &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+        try:
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final &#39;exit&#39; (command)
+        self._session_log_fin = True
+        self.write_channel(command + self.RETURN)
+
 
 class JuniperSSH(JuniperBase):
     pass
@@ -250,21 +277,28 @@ class JuniperTelnet(JuniperBase):
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get(&#34;default_enter&#34;)
         kwargs[&#34;default_enter&#34;] = &#34;\r\n&#34; if default_enter is None else default_enter
-        super(JuniperTelnet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class JuniperFileTransfer(BaseFileTransfer):
     &#34;&#34;&#34;Juniper SCP File Transfer driver.&#34;&#34;&#34;
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system=&#34;/var/tmp&#34;, direction=&#34;put&#34;
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system=&#34;/var/tmp&#34;,
+        direction=&#34;put&#34;,
+        **kwargs,
     ):
-        return super(JuniperFileTransfer, self).__init__(
+        return super().__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
+            **kwargs,
         )
 
     def remote_space_available(self, search_pattern=&#34;&#34;):
@@ -282,9 +316,7 @@ class JuniperFileTransfer(BaseFileTransfer):
         )
 
     def remote_md5(self, base_cmd=&#34;file checksum md5&#34;, remote_file=None):
-        return super(JuniperFileTransfer, self).remote_md5(
-            base_cmd=base_cmd, remote_file=remote_file
-        )
+        return super().remote_md5(base_cmd=base_cmd, remote_file=remote_file)
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError
@@ -304,7 +336,7 @@ class JuniperFileTransfer(BaseFileTransfer):
 <dl>
 <dt id="netmiko.juniper.juniper.JuniperBase"><code class="flex name class">
 <span>class <span class="ident">JuniperBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with Juniper Networks devices.</p>
@@ -427,6 +459,19 @@ Overrides several methods for Juniper-specific compatibility.</p>
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
     :type encoding: str
+
+    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+            communication to the target host (default: None).
+    :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -438,21 +483,26 @@ Overrides several methods for Juniper-specific compatibility.</p>
     methods.  Overrides several methods for Juniper-specific compatibility.
     &#34;&#34;&#34;
 
-    def session_preparation(self):
-        &#34;&#34;&#34;
-        Prepare the session after the connection has been established.
+    def __init__(self, *args, **kwargs):
+        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        return super().__init__(*args, **kwargs)
 
-        Disable paging (the &#39;--more--&#39; prompts).
-        Set the base prompt for interaction (&#39;&gt;&#39;).
-        &#34;&#34;&#34;
-        self._test_channel_read()
+    def session_preparation(self):
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.enter_cli_mode()
+        cmd = &#34;set cli screen-width 511&#34;
+        self.set_terminal_width(command=cmd, pattern=r&#34;Screen width set to&#34;)
+        # Overloading disable_paging which is confusing
+        self.disable_paging(
+            command=&#34;set cli complete-on-space off&#34;,
+            pattern=r&#34;Disabling complete-on-space&#34;,
+        )
+        self.disable_paging(
+            command=&#34;set cli screen-length 0&#34;, pattern=r&#34;Screen length set to&#34;
+        )
         self.set_base_prompt()
-        self.disable_paging(command=&#34;set cli screen-length 0&#34;)
-        self.set_terminal_width(command=&#34;set cli screen-width 511&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def _enter_shell(self):
         &#34;&#34;&#34;Enter the Bourne Shell.&#34;&#34;&#34;
@@ -494,11 +544,18 @@ Overrides several methods for Juniper-specific compatibility.</p>
 
     def check_config_mode(self, check_string=&#34;]&#34;):
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-        return super(JuniperBase, self).check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command=&#34;configure&#34;):
+    def config_mode(
+        self,
+        config_command=&#34;configure&#34;,
+        pattern=r&#34;Entering configuration mode&#34;,
+        **kwargs,
+    ):
         &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
-        return super(JuniperBase, self).config_mode(config_command=config_command)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, **kwargs
+        )
 
     def exit_config_mode(self, exit_config=&#34;exit configuration-mode&#34;):
         &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
@@ -548,6 +605,12 @@ Overrides several methods for Juniper-specific compatibility.</p>
         &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor)
 
+        # Commit is very slow so this is needed.
+        # FIX: Cleanup in future versions of Netmiko
+        if delay_factor &lt; 1:
+            if not self._legacy_mode and self.fast_cli:
+                delay_factor = 1
+
         if check and (confirm or confirm_delay or comment):
             raise ValueError(&#34;Invalid arguments supplied with commit check&#34;)
 
@@ -564,7 +627,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
             commit_marker = &#34;configuration check succeeds&#34;
         elif confirm:
             if confirm_delay:
-                command_string = &#34;commit confirmed &#34; + text_type(confirm_delay)
+                command_string = &#34;commit confirmed &#34; + str(confirm_delay)
             else:
                 command_string = &#34;commit confirmed&#34;
             commit_marker = &#34;commit confirmed will be automatically rolled back in&#34;
@@ -573,7 +636,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
         if comment:
             if &#39;&#34;&#39; in comment:
                 raise ValueError(&#34;Invalid comment contains double quote&#34;)
-            comment = &#39;&#34;{0}&#34;&#39;.format(comment)
+            comment = f&#39;&#34;{comment}&#34;&#39;
             command_string += &#34; comment &#34; + comment
 
         if and_quit:
@@ -582,33 +645,33 @@ Overrides several methods for Juniper-specific compatibility.</p>
         # Enter config mode (if necessary)
         output = self.config_mode()
         # and_quit will get out of config mode on commit
+
         if and_quit:
-            prompt = self.base_prompt
-            output += self.send_command_expect(
-                command_string,
-                expect_string=prompt,
-                strip_prompt=False,
-                strip_command=False,
-                delay_factor=delay_factor,
-            )
+            expect_string = re.escape(self.base_prompt)
         else:
-            output += self.send_command_expect(
+            expect_string = None
+
+        try:
+            fast_cli_state = self.fast_cli
+            self.fast_cli = False
+            output += self.send_command(
                 command_string,
+                expect_string=expect_string,
                 strip_prompt=False,
                 strip_command=False,
                 delay_factor=delay_factor,
             )
+        finally:
+            self.fast_cli = fast_cli_state
 
         if commit_marker not in output:
-            raise ValueError(
-                &#34;Commit failed with the following errors:\n\n{0}&#34;.format(output)
-            )
+            raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
 
         return output
 
     def strip_prompt(self, *args, **kwargs):
         &#34;&#34;&#34;Strip the trailing router prompt from the output.&#34;&#34;&#34;
-        a_string = super(JuniperBase, self).strip_prompt(*args, **kwargs)
+        a_string = super().strip_prompt(*args, **kwargs)
         return self.strip_context_items(a_string)
 
     def strip_context_items(self, a_string):
@@ -637,7 +700,19 @@ Overrides several methods for Juniper-specific compatibility.</p>
         for pattern in strings_to_strip:
             if re.search(pattern, last_line):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
-        return a_string</code></pre>
+        return a_string
+
+    def cleanup(self, command=&#34;exit&#34;):
+        &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+        try:
+            # The pattern=&#34;&#34; forces use of send_command_timing
+            if self.check_config_mode(pattern=&#34;&#34;):
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final &#39;exit&#39; (command)
+        self._session_log_fin = True
+        self.write_channel(command + self.RETURN)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -659,7 +734,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <summary>Source code</summary>
 <pre><code class="python">def check_config_mode(self, check_string=&#34;]&#34;):
     &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-    return super(JuniperBase, self).check_config_mode(check_string=check_string)</code></pre>
+    return super().check_config_mode(check_string=check_string)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.check_enable_mode"><code class="name flex">
@@ -672,6 +747,26 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <pre><code class="python">def check_enable_mode(self, *args, **kwargs):
     &#34;&#34;&#34;No enable mode on Juniper.&#34;&#34;&#34;
     pass</code></pre>
+</details>
+</dd>
+<dt id="netmiko.juniper.juniper.JuniperBase.cleanup"><code class="name flex">
+<span>def <span class="ident">cleanup</span></span>(<span>self, command='exit')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Gracefully exit the SSH session.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def cleanup(self, command=&#34;exit&#34;):
+    &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+    try:
+        # The pattern=&#34;&#34; forces use of send_command_timing
+        if self.check_config_mode(pattern=&#34;&#34;):
+            self.exit_config_mode()
+    except Exception:
+        pass
+    # Always try to send final &#39;exit&#39; (command)
+    self._session_log_fin = True
+    self.write_channel(command + self.RETURN)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.commit"><code class="name flex">
@@ -729,6 +824,12 @@ command_string = commit check</p></section>
     &#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor)
 
+    # Commit is very slow so this is needed.
+    # FIX: Cleanup in future versions of Netmiko
+    if delay_factor &lt; 1:
+        if not self._legacy_mode and self.fast_cli:
+            delay_factor = 1
+
     if check and (confirm or confirm_delay or comment):
         raise ValueError(&#34;Invalid arguments supplied with commit check&#34;)
 
@@ -745,7 +846,7 @@ command_string = commit check</p></section>
         commit_marker = &#34;configuration check succeeds&#34;
     elif confirm:
         if confirm_delay:
-            command_string = &#34;commit confirmed &#34; + text_type(confirm_delay)
+            command_string = &#34;commit confirmed &#34; + str(confirm_delay)
         else:
             command_string = &#34;commit confirmed&#34;
         commit_marker = &#34;commit confirmed will be automatically rolled back in&#34;
@@ -754,7 +855,7 @@ command_string = commit check</p></section>
     if comment:
         if &#39;&#34;&#39; in comment:
             raise ValueError(&#34;Invalid comment contains double quote&#34;)
-        comment = &#39;&#34;{0}&#34;&#39;.format(comment)
+        comment = f&#39;&#34;{comment}&#34;&#39;
         command_string += &#34; comment &#34; + comment
 
     if and_quit:
@@ -763,41 +864,48 @@ command_string = commit check</p></section>
     # Enter config mode (if necessary)
     output = self.config_mode()
     # and_quit will get out of config mode on commit
+
     if and_quit:
-        prompt = self.base_prompt
-        output += self.send_command_expect(
-            command_string,
-            expect_string=prompt,
-            strip_prompt=False,
-            strip_command=False,
-            delay_factor=delay_factor,
-        )
+        expect_string = re.escape(self.base_prompt)
     else:
-        output += self.send_command_expect(
+        expect_string = None
+
+    try:
+        fast_cli_state = self.fast_cli
+        self.fast_cli = False
+        output += self.send_command(
             command_string,
+            expect_string=expect_string,
             strip_prompt=False,
             strip_command=False,
             delay_factor=delay_factor,
         )
+    finally:
+        self.fast_cli = fast_cli_state
 
     if commit_marker not in output:
-        raise ValueError(
-            &#34;Commit failed with the following errors:\n\n{0}&#34;.format(output)
-        )
+        raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
 
     return output</code></pre>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure')</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure', pattern='Entering configuration mode', **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter configuration mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;configure&#34;):
+<pre><code class="python">def config_mode(
+    self,
+    config_command=&#34;configure&#34;,
+    pattern=r&#34;Entering configuration mode&#34;,
+    **kwargs,
+):
     &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
-    return super(JuniperBase, self).config_mode(config_command=config_command)</code></pre>
+    return super().config_mode(
+        config_command=config_command, pattern=pattern, **kwargs
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.enable"><code class="name flex">
@@ -877,26 +985,23 @@ command_string = commit check</p></section>
 <span>def <span class="ident">session_preparation</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Prepare the session after the connection has been established.</p>
-<p>Disable paging (the '&ndash;more&ndash;' prompts).
-Set the base prompt for interaction ('&gt;').</p></section>
+<section class="desc"><p>Prepare the session after the connection has been established.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self):
-    &#34;&#34;&#34;
-    Prepare the session after the connection has been established.
-
-    Disable paging (the &#39;--more--&#39; prompts).
-    Set the base prompt for interaction (&#39;&gt;&#39;).
-    &#34;&#34;&#34;
-    self._test_channel_read()
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self.enter_cli_mode()
-    self.set_base_prompt()
-    self.disable_paging(command=&#34;set cli screen-length 0&#34;)
-    self.set_terminal_width(command=&#34;set cli screen-width 511&#34;)
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
+    cmd = &#34;set cli screen-width 511&#34;
+    self.set_terminal_width(command=cmd, pattern=r&#34;Screen width set to&#34;)
+    # Overloading disable_paging which is confusing
+    self.disable_paging(
+        command=&#34;set cli complete-on-space off&#34;,
+        pattern=r&#34;Disabling complete-on-space&#34;,
+    )
+    self.disable_paging(
+        command=&#34;set cli screen-length 0&#34;, pattern=r&#34;Screen length set to&#34;
+    )
+    self.set_base_prompt()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.strip_context_items"><code class="name flex">
@@ -949,7 +1054,7 @@ Set the base prompt for interaction ('&gt;').</p></section>
 <summary>Source code</summary>
 <pre><code class="python">def strip_prompt(self, *args, **kwargs):
     &#34;&#34;&#34;Strip the trailing router prompt from the output.&#34;&#34;&#34;
-    a_string = super(JuniperBase, self).strip_prompt(*args, **kwargs)
+    a_string = super().strip_prompt(*args, **kwargs)
     return self.strip_context_items(a_string)</code></pre>
 </details>
 </dd>
@@ -958,7 +1063,6 @@ Set the base prompt for interaction ('&gt;').</p></section>
 <ul class="hlist">
 <li><code><b><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.base_connection.BaseConnection.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
@@ -974,6 +1078,7 @@ Set the base prompt for interaction ('&gt;').</p></section>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.save_config" href="../base_connection.html#netmiko.base_connection.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -995,7 +1100,7 @@ Set the base prompt for interaction ('&gt;').</p></section>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperFileTransfer"><code class="flex name class">
 <span>class <span class="ident">JuniperFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system='/var/tmp', direction='put')</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system='/var/tmp', direction='put', **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Juniper SCP File Transfer driver.</p></section>
@@ -1005,14 +1110,21 @@ Set the base prompt for interaction ('&gt;').</p></section>
     &#34;&#34;&#34;Juniper SCP File Transfer driver.&#34;&#34;&#34;
 
     def __init__(
-        self, ssh_conn, source_file, dest_file, file_system=&#34;/var/tmp&#34;, direction=&#34;put&#34;
+        self,
+        ssh_conn,
+        source_file,
+        dest_file,
+        file_system=&#34;/var/tmp&#34;,
+        direction=&#34;put&#34;,
+        **kwargs,
     ):
-        return super(JuniperFileTransfer, self).__init__(
+        return super().__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
+            **kwargs,
         )
 
     def remote_space_available(self, search_pattern=&#34;&#34;):
@@ -1030,9 +1142,7 @@ Set the base prompt for interaction ('&gt;').</p></section>
         )
 
     def remote_md5(self, base_cmd=&#34;file checksum md5&#34;, remote_file=None):
-        return super(JuniperFileTransfer, self).remote_md5(
-            base_cmd=base_cmd, remote_file=remote_file
-        )
+        return super().remote_md5(base_cmd=base_cmd, remote_file=remote_file)
 
     def enable_scp(self, cmd=None):
         raise NotImplementedError
@@ -1071,7 +1181,7 @@ Set the base prompt for interaction ('&gt;').</p></section>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperSSH"><code class="flex name class">
 <span>class <span class="ident">JuniperSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Implement methods for interacting with Juniper Networks devices.</p>
@@ -1194,6 +1304,19 @@ Overrides several methods for Juniper-specific compatibility.</p>
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
     :type encoding: str
+
+    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+            communication to the target host (default: None).
+    :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1211,7 +1334,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <ul class="hlist">
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_config_mode" href="#netmiko.juniper.juniper.JuniperBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>
@@ -1233,6 +1356,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.save_config" href="../base_connection.html#netmiko.base_connection.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -1380,6 +1504,19 @@ Overrides several methods for Juniper-specific compatibility.</p>
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
     :type encoding: str
+
+    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+            communication to the target host (default: None).
+    :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1387,7 +1524,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
     def __init__(self, *args, **kwargs):
         default_enter = kwargs.get(&#34;default_enter&#34;)
         kwargs[&#34;default_enter&#34;] = &#34;\r\n&#34; if default_enter is None else default_enter
-        super(JuniperTelnet, self).__init__(*args, **kwargs)</code></pre>
+        super().__init__(*args, **kwargs)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1400,7 +1537,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <ul class="hlist">
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_config_mode" href="#netmiko.juniper.juniper.JuniperBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>
@@ -1422,6 +1559,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.save_config" href="../base_connection.html#netmiko.base_connection.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -1465,6 +1603,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <ul class="two-column">
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_config_mode" href="#netmiko.juniper.juniper.JuniperBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.check_enable_mode" href="#netmiko.juniper.juniper.JuniperBase.check_enable_mode">check_enable_mode</a></code></li>
+<li><code><a title="netmiko.juniper.juniper.JuniperBase.cleanup" href="#netmiko.juniper.juniper.JuniperBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.commit" href="#netmiko.juniper.juniper.JuniperBase.commit">commit</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.config_mode" href="#netmiko.juniper.juniper.JuniperBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.juniper.juniper.JuniperBase.enable" href="#netmiko.juniper.juniper.JuniperBase.enable">enable</a></code></li>
@@ -1491,7 +1630,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

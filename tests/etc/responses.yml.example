@@ -21,6 +21,16 @@ juniper:
   cmd_response_final: 'archive size 120k files 3'
   commit_comment: 'Unit test on commit with comment'
 
+juniper_screenos:
+  base_prompt: "ssg5-serial-"
+  router_prompt: "ssg5-serial->"
+  enable_prompt: "ssg5-serial->"
+  interface_ip: 100.65.1.1
+  multiple_line_output: 'Total Config size'
+  version_banner: 'Version: 6.3.0.1.0.0.0.0'
+  cmd_response_init: ""
+  cmd_response_final: 'set alias test'
+
 paloalto_panos:
   base_prompt: ntc@pa1
   router_prompt: ntc@pa1>
@@ -79,6 +89,16 @@ ubiquiti_edge:
   cmd_response_init: ""
   cmd_response_final: "logging persistent 4"
 
+ubiquiti_unifiswitch:
+  base_prompt: "(UBNT) "
+  router_prompt: "(UBNT) >"
+  enable_prompt: "(UBNT) #"
+  interface_ip: 10.0.132.4
+  version_banner: "Software Version"
+  multiple_line_output: "Current Configuration:"
+  cmd_response_init: ""
+  cmd_response_final: "logging persistent 4"
+
 dellos10:
   base_prompt: OS10
   router_prompt : OS10#
@@ -89,6 +109,16 @@ dellos10:
   cmd_response_init: "host-description test"
   cmd_response_final: "host-description node"
   scp_remote_space: 1000
+
+dell_sonic:
+  base_prompt: sonic
+  router_prompt : sonic#
+  enable_prompt: sonic#
+  interface_ip: 10.10.10.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface Management 0"
+  cmd_response_init: ""
+  cmd_response_final: "interface Vlan100"
 
 dell_powerconnect:
   base_prompt: myswitch
@@ -213,3 +243,99 @@ keymile_nos:
   interface_ip: 1.2.3.5 
   version_banner: "NOS version 2.09 #0001"
   multiple_line_output: "Interface br328"
+  
+dlink_ds:
+  base_prompt: DGS-3120-24TC:admin
+  router_prompt: DGS-3120-24TC:admin#
+  enable_prompt: DGS-3120-24TC:admin#
+  version_banner: "D-Link Corporation"
+  multiple_line_output: "End of configuration file"
+  interface_ip: 192.168.50.10
+
+dlink_ds_telnet:
+  base_prompt: DGS-3120-24TC:admin
+  router_prompt: DGS-3120-24TC:admin#
+  enable_prompt: DGS-3120-24TC:admin#
+  version_banner: "D-Link Corporation"
+  multiple_line_output: "End of configuration file"
+  interface_ip: 192.168.50.10
+
+ruijie_os:
+  base_prompt: Ruijie
+  router_prompt : Ruijie>
+  enable_prompt: Ruijie#
+  interface_ip: 172.30.31.101
+  version_banner: "Ruijie Networks"
+  multiple_line_output: ""
+  file_check_cmd: "logging buffered 8880"
+  save_config: 'OK'
+
+centec_os:
+  base_prompt: Centec
+  router_prompt : Centec>
+  enable_prompt: Centec#
+  interface_ip: 172.30.31.101
+  version_banner: "Centec Networks"
+  multiple_line_output: ""
+
+supermicro_nos:
+  base_prompt: SMIS
+  router_prompt: SMIS>
+  enable_prompt: SMIS#
+  interface_ip: 192.168.10.15
+  version_banner: "Firmware Version"
+  multiple_line_output: ""
+  save_config: '[OK]'
+  cmd_response_init: "logging buffered 110"
+  cmd_response_final: "logging buffered 110"
+
+sophos_sfos:
+  base_prompt: "console"
+  router_prompt: "console>"
+  enable_prompt: "console>"
+  interface_ip: 172.16.16.16
+  version_banner: "Serial Number"
+  multiple_line_output: ""
+
+adtran_os:
+  base_prompt: "adtrantest"
+  router_prompt: "adtrantest>"
+  enable_prompt: "adtrantest#"
+  interface_ip: 192.0.2.1
+  version_banner: "Serial number"
+
+huawei_smartax:
+  base_prompt: "ol01.test-lab.xyz"
+  router_prompt: "ol01.test-lab.xyz>"
+  enable_prompt: "ol01.test-lab.xyz#"
+  interface_ip: 192.0.2.1
+  version_banner: "VERSION :"
+  multiple_line_output: ""
+
+tplink_jetstream:
+  base_prompt: "T1500G-10PS"
+  router_prompt: "T1500G-10PS>"
+  enable_prompt: "T1500G-10PS#"
+  interface_ip: 192.168.0.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface vlan 1"
+  cmd_response_final: "no clipaging"
+
+tplink_jetstream_telnet:
+  base_prompt: "T1500G-10PS"
+  router_prompt: "T1500G-10PS>"
+  enable_prompt: "T1500G-10PS#"
+  interface_ip: 192.168.0.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface vlan 1"
+  cmd_response_final: "no clipaging"
+
+ubiquiti_edgerouter:
+  base_prompt: "ubnt@edgerouter"
+  router_prompt: "ubnt@edgerouter:~$"
+  enable_prompt: "ubnt@edgerouter:~$"
+  interface_ip: "192.168.1.1"
+  version_banner: "Ubiquiti Networks, Inc"
+  multiple_line_output: "switch switch0 {"
+  cmd_response_init: "enabled true"
+  cmd_response_final: "enabled false"

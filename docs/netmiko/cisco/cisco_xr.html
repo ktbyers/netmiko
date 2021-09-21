@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.6.2" />
+<meta name="generator" content="pdoc 0.6.3" />
 <title>netmiko.cisco.cisco_xr API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
@@ -22,29 +22,35 @@
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">from __future__ import print_function
-from __future__ import unicode_literals
-import time
-import re
+<pre><code class="python">import re
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
-from netmiko.py23_compat import text_type
 
 
 class CiscoXrBase(CiscoBaseConnection):
+    def __init__(self, *args, **kwargs):
+        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        return super().__init__(*args, **kwargs)
+
+    def establish_connection(self):
+        &#34;&#34;&#34;Establish SSH connection to the network device&#34;&#34;&#34;
+        super().establish_connection(width=511, height=511)
+
     def session_preparation(self):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read()
-        self.set_base_prompt()
+        # IOS-XR has an issue where it echoes the command even though it hasn&#39;t returned the prompt
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        cmd = &#34;terminal width 511&#34;
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.set_base_prompt()
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         &#34;&#34;&#34;IOS-XR requires you not exit from configuration mode.&#34;&#34;&#34;
-        return super(CiscoXrBase, self).send_config_set(
-            config_commands=config_commands, exit_config_mode=False, **kwargs
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
     def commit(
@@ -91,30 +97,24 @@ class CiscoXrBase(CiscoBaseConnection):
         if comment and confirm:
             raise ValueError(&#34;Invalid arguments supplied to XR commit&#34;)
 
-        # wrap the comment in quotes
-        if comment:
-            if &#39;&#34;&#39; in comment:
-                raise ValueError(&#34;Invalid comment contains double quote&#34;)
-            comment = &#39;&#34;{0}&#34;&#39;.format(comment)
-
-        label = text_type(label)
+        label = str(label)
         error_marker = &#34;Failed to&#34;
         alt_error_marker = &#34;One or more commits have occurred from other&#34;
 
         # Select proper command string based on arguments provided
         if label:
             if comment:
-                command_string = &#34;commit label {} comment {}&#34;.format(label, comment)
+                command_string = f&#34;commit label {label} comment {comment}&#34;
             elif confirm:
                 command_string = &#34;commit label {} confirmed {}&#34;.format(
-                    label, text_type(confirm_delay)
+                    label, str(confirm_delay)
                 )
             else:
-                command_string = &#34;commit label {}&#34;.format(label)
+                command_string = f&#34;commit label {label}&#34;
         elif confirm:
-            command_string = &#34;commit confirmed {}&#34;.format(text_type(confirm_delay))
+            command_string = f&#34;commit confirmed {str(confirm_delay)}&#34;
         elif comment:
-            command_string = &#34;commit comment {}&#34;.format(comment)
+            command_string = f&#34;commit comment {comment}&#34;
         else:
             command_string = &#34;commit&#34;
 
@@ -127,17 +127,13 @@ class CiscoXrBase(CiscoBaseConnection):
             delay_factor=delay_factor,
         )
         if error_marker in output:
-            raise ValueError(
-                &#34;Commit failed with the following errors:\n\n{0}&#34;.format(output)
-            )
+            raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
         if alt_error_marker in output:
             # Other commits occurred, don&#39;t proceed with commit
             output += self.send_command_timing(
                 &#34;no&#34;, strip_prompt=False, strip_command=False, delay_factor=delay_factor
             )
-            raise ValueError(
-                &#34;Commit failed with the following errors:\n\n{}&#34;.format(output)
-            )
+            raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
 
         return output
 
@@ -154,17 +150,24 @@ class CiscoXrBase(CiscoBaseConnection):
         output = output.replace(&#34;(admin)&#34;, &#34;&#34;)
         return check_string in output
 
-    def exit_config_mode(self, exit_config=&#34;end&#34;):
+    def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
         output = &#34;&#34;
         if self.check_config_mode():
-            output = self.send_command_timing(
-                exit_config, strip_prompt=False, strip_command=False
-            )
-            if &#34;Uncommitted changes found&#34; in output:
-                output += self.send_command_timing(
-                    &#34;no&#34;, strip_prompt=False, strip_command=False
+            self.write_channel(self.normalize_cmd(exit_config))
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
                 )
+            # Read until we detect either an Uncommitted change or the end prompt
+            if not re.search(r&#34;(Uncommitted|#$)&#34;, output):
+                output += self.read_until_pattern(pattern=r&#34;(Uncommitted|#$)&#34;)
+            if &#34;Uncommitted changes found&#34; in output:
+                self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
+                output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
+            if not re.search(pattern, output, flags=re.M):
+                output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError(&#34;Failed to exit configuration mode&#34;)
         return output
@@ -201,7 +204,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         if match:
             return match.group(1)
         else:
-            raise ValueError(&#34;Invalid output from MD5 command: {}&#34;.format(md5_output))
+            raise ValueError(f&#34;Invalid output from MD5 command: {md5_output}&#34;)
 
     def remote_md5(self, base_cmd=&#34;show md5 file&#34;, remote_file=None):
         &#34;&#34;&#34;
@@ -215,7 +218,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
         # IOS-XR requires both the leading slash and the slash between file-system and file here
-        remote_md5_cmd = &#34;{} /{}/{}&#34;.format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = f&#34;{base_cmd} /{self.file_system}/{remote_file}&#34;
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
@@ -238,7 +241,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
 <dl>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrBase"><code class="flex name class">
 <span>class <span class="ident">CiscoXrBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -358,24 +361,47 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
     :type encoding: str
+
+    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+            communication to the target host (default: None).
+    :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class CiscoXrBase(CiscoBaseConnection):
+    def __init__(self, *args, **kwargs):
+        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
+        kwargs.setdefault(&#34;fast_cli&#34;, True)
+        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
+        return super().__init__(*args, **kwargs)
+
+    def establish_connection(self):
+        &#34;&#34;&#34;Establish SSH connection to the network device&#34;&#34;&#34;
+        super().establish_connection(width=511, height=511)
+
     def session_preparation(self):
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read()
-        self.set_base_prompt()
+        # IOS-XR has an issue where it echoes the command even though it hasn&#39;t returned the prompt
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        cmd = &#34;terminal width 511&#34;
+        self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        self.set_terminal_width(command=&#34;terminal width 511&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.set_base_prompt()
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
         &#34;&#34;&#34;IOS-XR requires you not exit from configuration mode.&#34;&#34;&#34;
-        return super(CiscoXrBase, self).send_config_set(
-            config_commands=config_commands, exit_config_mode=False, **kwargs
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
     def commit(
@@ -422,30 +448,24 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         if comment and confirm:
             raise ValueError(&#34;Invalid arguments supplied to XR commit&#34;)
 
-        # wrap the comment in quotes
-        if comment:
-            if &#39;&#34;&#39; in comment:
-                raise ValueError(&#34;Invalid comment contains double quote&#34;)
-            comment = &#39;&#34;{0}&#34;&#39;.format(comment)
-
-        label = text_type(label)
+        label = str(label)
         error_marker = &#34;Failed to&#34;
         alt_error_marker = &#34;One or more commits have occurred from other&#34;
 
         # Select proper command string based on arguments provided
         if label:
             if comment:
-                command_string = &#34;commit label {} comment {}&#34;.format(label, comment)
+                command_string = f&#34;commit label {label} comment {comment}&#34;
             elif confirm:
                 command_string = &#34;commit label {} confirmed {}&#34;.format(
-                    label, text_type(confirm_delay)
+                    label, str(confirm_delay)
                 )
             else:
-                command_string = &#34;commit label {}&#34;.format(label)
+                command_string = f&#34;commit label {label}&#34;
         elif confirm:
-            command_string = &#34;commit confirmed {}&#34;.format(text_type(confirm_delay))
+            command_string = f&#34;commit confirmed {str(confirm_delay)}&#34;
         elif comment:
-            command_string = &#34;commit comment {}&#34;.format(comment)
+            command_string = f&#34;commit comment {comment}&#34;
         else:
             command_string = &#34;commit&#34;
 
@@ -458,17 +478,13 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
             delay_factor=delay_factor,
         )
         if error_marker in output:
-            raise ValueError(
-                &#34;Commit failed with the following errors:\n\n{0}&#34;.format(output)
-            )
+            raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
         if alt_error_marker in output:
             # Other commits occurred, don&#39;t proceed with commit
             output += self.send_command_timing(
                 &#34;no&#34;, strip_prompt=False, strip_command=False, delay_factor=delay_factor
             )
-            raise ValueError(
-                &#34;Commit failed with the following errors:\n\n{}&#34;.format(output)
-            )
+            raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
 
         return output
 
@@ -485,17 +501,24 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         output = output.replace(&#34;(admin)&#34;, &#34;&#34;)
         return check_string in output
 
-    def exit_config_mode(self, exit_config=&#34;end&#34;):
+    def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;&#34;):
         &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
         output = &#34;&#34;
         if self.check_config_mode():
-            output = self.send_command_timing(
-                exit_config, strip_prompt=False, strip_command=False
-            )
-            if &#34;Uncommitted changes found&#34; in output:
-                output += self.send_command_timing(
-                    &#34;no&#34;, strip_prompt=False, strip_command=False
+            self.write_channel(self.normalize_cmd(exit_config))
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
                 )
+            # Read until we detect either an Uncommitted change or the end prompt
+            if not re.search(r&#34;(Uncommitted|#$)&#34;, output):
+                output += self.read_until_pattern(pattern=r&#34;(Uncommitted|#$)&#34;)
+            if &#34;Uncommitted changes found&#34; in output:
+                self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
+                output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
+            if not re.search(pattern, output, flags=re.M):
+                output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError(&#34;Failed to exit configuration mode&#34;)
         return output
@@ -614,30 +637,24 @@ an exception to be generated.</p></section>
     if comment and confirm:
         raise ValueError(&#34;Invalid arguments supplied to XR commit&#34;)
 
-    # wrap the comment in quotes
-    if comment:
-        if &#39;&#34;&#39; in comment:
-            raise ValueError(&#34;Invalid comment contains double quote&#34;)
-        comment = &#39;&#34;{0}&#34;&#39;.format(comment)
-
-    label = text_type(label)
+    label = str(label)
     error_marker = &#34;Failed to&#34;
     alt_error_marker = &#34;One or more commits have occurred from other&#34;
 
     # Select proper command string based on arguments provided
     if label:
         if comment:
-            command_string = &#34;commit label {} comment {}&#34;.format(label, comment)
+            command_string = f&#34;commit label {label} comment {comment}&#34;
         elif confirm:
             command_string = &#34;commit label {} confirmed {}&#34;.format(
-                label, text_type(confirm_delay)
+                label, str(confirm_delay)
             )
         else:
-            command_string = &#34;commit label {}&#34;.format(label)
+            command_string = f&#34;commit label {label}&#34;
     elif confirm:
-        command_string = &#34;commit confirmed {}&#34;.format(text_type(confirm_delay))
+        command_string = f&#34;commit confirmed {str(confirm_delay)}&#34;
     elif comment:
-        command_string = &#34;commit comment {}&#34;.format(comment)
+        command_string = f&#34;commit comment {comment}&#34;
     else:
         command_string = &#34;commit&#34;
 
@@ -650,39 +667,54 @@ an exception to be generated.</p></section>
         delay_factor=delay_factor,
     )
     if error_marker in output:
-        raise ValueError(
-            &#34;Commit failed with the following errors:\n\n{0}&#34;.format(output)
-        )
+        raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
     if alt_error_marker in output:
         # Other commits occurred, don&#39;t proceed with commit
         output += self.send_command_timing(
             &#34;no&#34;, strip_prompt=False, strip_command=False, delay_factor=delay_factor
         )
-        raise ValueError(
-            &#34;Commit failed with the following errors:\n\n{}&#34;.format(output)
-        )
+        raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
 
     return output</code></pre>
 </details>
 </dd>
+<dt id="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection"><code class="name flex">
+<span>def <span class="ident">establish_connection</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Establish SSH connection to the network device</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def establish_connection(self):
+    &#34;&#34;&#34;Establish SSH connection to the network device&#34;&#34;&#34;
+    super().establish_connection(width=511, height=511)</code></pre>
+</details>
+</dd>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='end')</span>
+<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='end', pattern='')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Exit configuration mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config=&#34;end&#34;):
+<pre><code class="python">def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;&#34;):
     &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
     output = &#34;&#34;
     if self.check_config_mode():
-        output = self.send_command_timing(
-            exit_config, strip_prompt=False, strip_command=False
-        )
-        if &#34;Uncommitted changes found&#34; in output:
-            output += self.send_command_timing(
-                &#34;no&#34;, strip_prompt=False, strip_command=False
+        self.write_channel(self.normalize_cmd(exit_config))
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(
+                pattern=re.escape(exit_config.strip())
             )
+        # Read until we detect either an Uncommitted change or the end prompt
+        if not re.search(r&#34;(Uncommitted|#$)&#34;, output):
+            output += self.read_until_pattern(pattern=r&#34;(Uncommitted|#$)&#34;)
+        if &#34;Uncommitted changes found&#34; in output:
+            self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
+            output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
+        if not re.search(pattern, output, flags=re.M):
+            output += self.read_until_pattern(pattern=pattern)
         if self.check_config_mode():
             raise ValueError(&#34;Failed to exit configuration mode&#34;)
     return output</code></pre>
@@ -701,16 +733,16 @@ an exception to be generated.</p></section>
 </details>
 </dd>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrBase.send_config_set"><code class="name flex">
-<span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands=None, exit_config_mode=True, **kwargs)</span>
+<span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands=None, exit_config_mode=False, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>IOS-XR requires you not exit from configuration mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+<pre><code class="python">def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
     &#34;&#34;&#34;IOS-XR requires you not exit from configuration mode.&#34;&#34;&#34;
-    return super(CiscoXrBase, self).send_config_set(
-        config_commands=config_commands, exit_config_mode=False, **kwargs
+    return super().send_config_set(
+        config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
     )</code></pre>
 </details>
 </dd>
@@ -723,13 +755,13 @@ an exception to be generated.</p></section>
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self):
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    self._test_channel_read()
-    self.set_base_prompt()
+    # IOS-XR has an issue where it echoes the command even though it hasn&#39;t returned the prompt
+    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+    cmd = &#34;terminal width 511&#34;
+    self.set_terminal_width(command=cmd, pattern=cmd)
     self.disable_paging()
-    self.set_terminal_width(command=&#34;terminal width 511&#34;)
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
+    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+    self.set_base_prompt()</code></pre>
 </details>
 </dd>
 </dl>
@@ -745,7 +777,6 @@ an exception to be generated.</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
@@ -757,6 +788,7 @@ an exception to be generated.</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -777,7 +809,7 @@ an exception to be generated.</p></section>
 </dd>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoXrFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put')</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco IOS-XR SCP File Transfer driver.</p></section>
@@ -798,7 +830,7 @@ an exception to be generated.</p></section>
         if match:
             return match.group(1)
         else:
-            raise ValueError(&#34;Invalid output from MD5 command: {}&#34;.format(md5_output))
+            raise ValueError(f&#34;Invalid output from MD5 command: {md5_output}&#34;)
 
     def remote_md5(self, base_cmd=&#34;show md5 file&#34;, remote_file=None):
         &#34;&#34;&#34;
@@ -812,7 +844,7 @@ an exception to be generated.</p></section>
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
         # IOS-XR requires both the leading slash and the slash between file-system and file here
-        remote_md5_cmd = &#34;{} /{}/{}&#34;.format(base_cmd, self.file_system, remote_file)
+        remote_md5_cmd = f&#34;{base_cmd} /{self.file_system}/{remote_file}&#34;
         dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
@@ -853,7 +885,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
     if match:
         return match.group(1)
     else:
-        raise ValueError(&#34;Invalid output from MD5 command: {}&#34;.format(md5_output))</code></pre>
+        raise ValueError(f&#34;Invalid output from MD5 command: {md5_output}&#34;)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrFileTransfer.remote_md5"><code class="name flex">
@@ -876,7 +908,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
         elif self.direction == &#34;get&#34;:
             remote_file = self.source_file
     # IOS-XR requires both the leading slash and the slash between file-system and file here
-    remote_md5_cmd = &#34;{} /{}/{}&#34;.format(base_cmd, self.file_system, remote_file)
+    remote_md5_cmd = f&#34;{base_cmd} /{self.file_system}/{remote_file}&#34;
     dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
     dest_md5 = self.process_md5(dest_md5)
     return dest_md5</code></pre>
@@ -908,7 +940,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </dd>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoXrSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco XR SSH driver.</p>
@@ -1028,6 +1060,19 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
     :type encoding: str
+
+    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+            communication to the target host (default: None).
+    :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1056,7 +1101,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection" href="#netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode" href="#netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
@@ -1069,6 +1114,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.save_config" href="#netmiko.cisco.cisco_xr.CiscoXrBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -1092,7 +1138,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </dd>
 <dt id="netmiko.cisco.cisco_xr.CiscoXrTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoXrTelnet</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, timeout=100, session_timeout=60, auth_timeout=None, blocking_timeout=8, banner_timeout=5, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii')</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco XR Telnet driver.</p>
@@ -1212,6 +1258,19 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
     :type encoding: str
+
+    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+            communication to the target host (default: None).
+    :type sock: socket
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function `cmd_verify`
+            argument. Value of `None` indicates to use function `cmd_verify` argument.
+    :type global_cmd_verify: bool|None
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+    :type auto_connect: bool
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1240,7 +1299,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection" href="#netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode" href="#netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
@@ -1253,6 +1312,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.save_config" href="#netmiko.cisco.cisco_xr.CiscoXrBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -1292,9 +1352,10 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 <ul>
 <li>
 <h4><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase" href="#netmiko.cisco.cisco_xr.CiscoXrBase">CiscoXrBase</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.check_config_mode" href="#netmiko.cisco.cisco_xr.CiscoXrBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.commit" href="#netmiko.cisco.cisco_xr.CiscoXrBase.commit">commit</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection" href="#netmiko.cisco.cisco_xr.CiscoXrBase.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode" href="#netmiko.cisco.cisco_xr.CiscoXrBase.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.save_config" href="#netmiko.cisco.cisco_xr.CiscoXrBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_config_set" href="#netmiko.cisco.cisco_xr.CiscoXrBase.send_config_set">send_config_set</a></code></li>
@@ -1320,7 +1381,7 @@ c84843f0030efd44b01343fdb8c2e801</p></section>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

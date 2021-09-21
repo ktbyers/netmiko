@@ -58,7 +58,9 @@ def test_use_ssh_file():
         passphrase=None,
         auth_timeout=None,
         banner_timeout=10,
+        conn_timeout=5,
         ssh_config_file=join(RESOURCE_FOLDER, "ssh_config"),
+        sock=None,
     )
 
     connect_dict = connection._connect_params_dict()
@@ -71,7 +73,7 @@ def test_use_ssh_file():
         "look_for_keys": True,
         "allow_agent": False,
         "key_filename": "/home/user/.ssh/id_rsa",
-        "timeout": 60,
+        "timeout": 5,
         "pkey": None,
         "passphrase": None,
         "auth_timeout": None,
@@ -100,8 +102,10 @@ def test_use_ssh_file_proxyjump():
         pkey=None,
         passphrase=None,
         auth_timeout=None,
+        conn_timeout=5,
         banner_timeout=10,
         ssh_config_file=join(RESOURCE_FOLDER, "ssh_config_proxyjump"),
+        sock=None,
     )
 
     connect_dict = connection._connect_params_dict()
@@ -114,7 +118,7 @@ def test_use_ssh_file_proxyjump():
         "look_for_keys": True,
         "allow_agent": False,
         "key_filename": "/home/user/.ssh/id_rsa",
-        "timeout": 60,
+        "timeout": 5,
         "pkey": None,
         "passphrase": None,
         "auth_timeout": None,
@@ -143,7 +147,9 @@ def test_connect_params_dict():
         passphrase=None,
         auth_timeout=None,
         banner_timeout=10,
+        conn_timeout=3,
         ssh_config_file=None,
+        sock=None,
     )
 
     expected = {
@@ -154,11 +160,12 @@ def test_connect_params_dict():
         "look_for_keys": True,
         "allow_agent": False,
         "key_filename": "/home/user/.ssh/id_rsa",
-        "timeout": 60,
+        "timeout": 3,
         "pkey": None,
         "passphrase": None,
         "auth_timeout": None,
         "banner_timeout": 10,
+        "sock": None,
     }
     result = connection._connect_params_dict()
     assert result == expected
@@ -445,7 +452,6 @@ def test_strip_ansi_codes():
         "\x1b[2K",  # code_erase_line
         "\x1b[K",  # code_erase_start_line
         "\x1b[1;2r",  # code_enable_scroll
-        "\x1b[1L",  # code_form_feed
         "\x1b[1M",  # code_carriage_return
         "\x1b[?7l",  # code_disable_line_wrapping
         "\x1b[?7l",  # code_reset_mode_screen_options
@@ -459,6 +465,12 @@ def test_strip_ansi_codes():
     ]
     for ansi_code in ansi_codes_to_strip:
         assert connection.strip_ansi_escape_codes(ansi_code) == ""
+
+    # code_insert_line must be substituted with n-returns
+    ansi_insert_line = "\x1b[1L"
+    assert connection.strip_ansi_escape_codes(ansi_insert_line) == "\n"
+    ansi_insert_line = "\x1b[3L"
+    assert connection.strip_ansi_escape_codes(ansi_insert_line) == "\n\n\n"
 
     # code_next_line must be substituted with a return
     assert connection.strip_ansi_escape_codes("\x1bE") == "\n"

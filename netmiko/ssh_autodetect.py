@@ -10,7 +10,7 @@ The **SSHDetect** class is instantiated using the same parameters than a standar
 connection (see the *netmiko.ssh_dispatacher.ConnectHandler* function). The only acceptable value
 for the 'device_type' argument is 'autodetect'.
 
-The auto-detection is solely based on the *SSH_MAPPER_BASE* dictionary. The keys are the name of
+The auto-detection is solely based on *SSH_MAPPER_BASE*. The keys are the name of
 the 'device_type' supported for auto-detection and the value is another dictionary describing how
 to handle the auto-detection.
 
@@ -38,8 +38,12 @@ Examples
 >>> remote_device['device_type'] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
+from typing import Any, List, Optional, Union, Dict
 import re
 import time
+
+import paramiko
+
 from netmiko.ssh_dispatcher import ConnectHandler
 from netmiko.base_connection import BaseConnection
 
@@ -47,7 +51,7 @@ from netmiko.base_connection import BaseConnection
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
 # remaining keys indicate kwargs that will be passed to dispatch method.
 # Note, the 'cmd' needs to avoid output paging.
-SSH_MAPPER_BASE = {
+SSH_MAPPER_DICT = {
     "alcatel_aos": {
         "cmd": "show system",
         "search_patterns": [r"Alcatel-Lucent"],
@@ -101,13 +105,28 @@ SSH_MAPPER_BASE = {
     },
     "dell_force10": {
         "cmd": "show version",
-        "search_patterns": [r"S4048-ON"],
+        "search_patterns": [r"Real Time Operating System Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "dell_os9": {
+        "cmd": "show system",
+        "search_patterns": [
+            r"Dell Application Software Version:  9",
+            r"Dell Networking OS Version : 9",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     "dell_os10": {
         "cmd": "show version",
-        "search_patterns": [r"Dell EMC Networking OS10-Enterprise"],
+        "search_patterns": [r"Dell EMC Networking OS10.Enterprise"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "dell_powerconnect": {
+        "cmd": "show system",
+        "search_patterns": [r"PowerConnect"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -120,6 +139,12 @@ SSH_MAPPER_BASE = {
     "f5_linux": {
         "cmd": "cat /etc/issue",
         "search_patterns": [r"BIG-IP"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "hp_comware": {
+        "cmd": "display version",
+        "search_patterns": ["HPE Comware", "HP Comware"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -149,9 +174,9 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "brocade_netiron": {
+    "extreme_netiron": {
         "cmd": "show version",
-        "search_patterns": [r"NetIron"],
+        "search_patterns": [r"(NetIron|MLX)"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -167,7 +192,58 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cisco_wlc": {
+        "cmd": "",
+        "dispatch": "_autodetect_remote_version",
+        "search_patterns": [r"CISCO_WLC"],
+        "priority": 99,
+    },
+    "mellanox_mlnxos": {
+        "cmd": "show version",
+        "search_patterns": [r"Onyx", r"SX_PPC_M460EX"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "yamaha": {
+        "cmd": "show copyright",
+        "search_patterns": [r"Yamaha Corporation"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "fortinet": {
+        "cmd": "get system status",
+        "search_patterns": [r"FortiOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "paloalto_panos": {
+        "cmd": "show system info",
+        "search_patterns": [r"model:\s+PA"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "supermicro_smis": {
+        "cmd": "show system info",
+        "search_patterns": [r"Super Micro Computer"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
+
+# Sort SSH_MAPPER_DICT such that the most common commands are first
+cmd_count: Dict[str, int] = {}
+for k, v in SSH_MAPPER_DICT.items():
+    my_cmd = v["cmd"]
+    assert isinstance(my_cmd, str)
+    count = cmd_count.setdefault(my_cmd, 0)
+    cmd_count[my_cmd] = count + 1
+cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])}
+
+# SSH_MAPPER_BASE is a list
+SSH_MAPPER_BASE = sorted(
+    SSH_MAPPER_DICT.items(), key=lambda item: int(cmd_count[str(item[1]["cmd"])])
+)
+SSH_MAPPER_BASE.reverse()
 
 
 class SSHDetect(object):
@@ -197,20 +273,22 @@ class SSHDetect(object):
         Try to determine the device type.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Constructor of the SSHDetect class
         """
         if kwargs["device_type"] != "autodetect":
             raise ValueError("The connection device_type must be 'autodetect'")
+        # Always set cmd_verify to False for autodetect
+        kwargs["global_cmd_verify"] = False
         self.connection = ConnectHandler(*args, **kwargs)
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
         self.initial_buffer = output
-        self.potential_matches = {}
-        self._results_cache = {}
+        self.potential_matches: Dict[str, int] = {}
+        self._results_cache: Dict[str, str] = {}
 
-    def autodetect(self):
+    def autodetect(self) -> Union[str, None]:
         """
         Try to guess the best 'device_type' based on patterns defined in SSH_MAPPER_BASE
 
@@ -219,9 +297,10 @@ class SSHDetect(object):
         best_match : str or None
             The device type that is currently the best to use to interact with the device
         """
-        for device_type, autodetect_dict in SSH_MAPPER_BASE.items():
+        for device_type, autodetect_dict in SSH_MAPPER_BASE:
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop("dispatch")
+            assert isinstance(call_method, str)
             autodetect_method = getattr(self, call_method)
             accuracy = autodetect_method(**tmp_dict)
             if accuracy:
@@ -243,7 +322,7 @@ class SSHDetect(object):
         self.connection.disconnect()
         return best_match[0][0]
 
-    def _send_command(self, cmd=""):
+    def _send_command(self, cmd: str = "") -> str:
         """
         Handle reading/writing channel directly. It is also sanitizing the output received.
 
@@ -259,11 +338,11 @@ class SSHDetect(object):
         """
         self.connection.write_channel(cmd + "\n")
         time.sleep(1)
-        output = self.connection._read_channel_timing()
+        output = self.connection.read_channel_timing()
         output = self.connection.strip_backspaces(output)
         return output
 
-    def _send_command_wrapper(self, cmd):
+    def _send_command_wrapper(self, cmd: str) -> str:
         """
         Send command to the remote device with a caching feature to avoid sending the same command
         twice based on the SSH_MAPPER_BASE dict cmd key.
@@ -286,7 +365,56 @@ class SSHDetect(object):
         else:
             return cached_results
 
-    def _autodetect_std(self, cmd="", search_patterns=None, re_flags=re.I, priority=99):
+    def _autodetect_remote_version(
+        self,
+        search_patterns: Optional[List[str]] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+        **kwargs: Any
+    ) -> int:
+        """
+        Method to try auto-detect the device type, by matching a regular expression on the reported
+        remote version of the SSH server.
+
+        Parameters
+        ----------
+        search_patterns : list
+            A list of regular expression to look for in the reported remote SSH version
+            (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression (default: re.I).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        """
+        invalid_responses = [r"^$"]
+
+        if not search_patterns:
+            return 0
+
+        try:
+            remote_conn = self.connection.remote_conn
+            assert isinstance(remote_conn, paramiko.Channel)
+            assert remote_conn.transport is not None
+            remote_version = remote_conn.transport.remote_version
+            for pattern in invalid_responses:
+                match = re.search(pattern, remote_version, flags=re.I)
+                if match:
+                    return 0
+            for pattern in search_patterns:
+                match = re.search(pattern, remote_version, flags=re_flags)
+                if match:
+                    return priority
+        except Exception:
+            return 0
+        return 0
+
+    def _autodetect_std(
+        self,
+        cmd: str = "",
+        search_patterns: Optional[List[str]] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+    ) -> int:
         """
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
@@ -311,6 +439,7 @@ class SSHDetect(object):
             r"%Error",
             r"command not found",
             r"Syntax Error: unexpected argument",
+            r"% Unrecognized command found at",
         ]
         if not cmd or not search_patterns:
             return 0

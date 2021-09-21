@@ -1,28 +1,45 @@
-import time
+from typing import Optional, Any, Union, Sequence, TextIO
 import re
+import warnings
+from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
 
 
 class CiscoXrBase(CiscoBaseConnection):
-    def session_preparation(self):
-        """Prepare the session after the connection has been established."""
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.disable_paging()
-        self.set_terminal_width(command="terminal width 511")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+    def establish_connection(self, width: int = 511, height: int = 511) -> None:
+        """Establish SSH connection to the network device"""
+        super().establish_connection(width=width, height=height)
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, **kwargs):
+    def session_preparation(self) -> None:
+        """Prepare the session after the connection has been established."""
+        # IOS-XR has an issue where it echoes the command even though it hasn't returned the prompt
+        self._test_channel_read(pattern=r"[>#]")
+        cmd = "terminal width 511"
+        self.set_terminal_width(command=cmd, pattern=cmd)
+        self.disable_paging()
+        self._test_channel_read(pattern=r"[>#]")
+        self.set_base_prompt()
+
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -> str:
         """IOS-XR requires you not exit from configuration mode."""
         return super().send_config_set(
-            config_commands=config_commands, exit_config_mode=False, **kwargs
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
     def commit(
-        self, confirm=False, confirm_delay=None, comment="", label="", delay_factor=1
-    ):
+        self,
+        confirm: bool = False,
+        confirm_delay: Optional[int] = None,
+        comment: str = "",
+        label: str = "",
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -34,6 +51,8 @@ class CiscoXrBase(CiscoBaseConnection):
             command_string = commit label <label>
         comment:
             command_string = commit comment <comment>
+
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         supported combinations
         label and confirm:
@@ -56,19 +75,14 @@ class CiscoXrBase(CiscoBaseConnection):
         Exit of configuration mode with pending changes will cause the changes to be discarded and
         an exception to be generated.
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
         if confirm and not confirm_delay:
             raise ValueError("Invalid arguments supplied to XR commit")
         if confirm_delay and not confirm:
             raise ValueError("Invalid arguments supplied to XR commit")
         if comment and confirm:
             raise ValueError("Invalid arguments supplied to XR commit")
-
-        # wrap the comment in quotes
-        if comment:
-            if '"' in comment:
-                raise ValueError("Invalid comment contains double quote")
-            comment = f'"{comment}"'
 
         label = str(label)
         error_marker = "Failed to"
@@ -93,24 +107,40 @@ class CiscoXrBase(CiscoBaseConnection):
 
         # Enter config mode (if necessary)
         output = self.config_mode()
-        output += self.send_command_expect(
+
+        # IOS-XR might do this:
+        # This could be a few minutes if your config is large. Confirm? [y/n][confirm]
+        new_data = self._send_command_str(
             command_string,
+            expect_string=r"(#|onfirm)",
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
+        if "onfirm" in new_data:
+            output += new_data
+            new_data = self._send_command_str(
+                "y",
+                expect_string=r"#",
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=read_timeout,
+            )
+        output += new_data
         if error_marker in output:
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
-            output += self.send_command_timing(
-                "no", strip_prompt=False, strip_command=False, delay_factor=delay_factor
+            output += self._send_command_timing_str(
+                "no", strip_prompt=False, strip_command=False
             )
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
         return output
 
-    def check_config_mode(self, check_string=")#", pattern=r"[#\$]"):
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = r"[#\$]"
+    ) -> bool:
         """Checks if the device is in configuration mode or not.
 
         IOS-XR, unfortunately, does this:
@@ -123,22 +153,29 @@ class CiscoXrBase(CiscoBaseConnection):
         output = output.replace("(admin)", "")
         return check_string in output
 
-    def exit_config_mode(self, exit_config="end"):
+    def exit_config_mode(self, exit_config: str = "end", pattern: str = "") -> str:
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
-            output = self.send_command_timing(
-                exit_config, strip_prompt=False, strip_command=False
-            )
-            if "Uncommitted changes found" in output:
-                output += self.send_command_timing(
-                    "no", strip_prompt=False, strip_command=False
+            self.write_channel(self.normalize_cmd(exit_config))
+            # Make sure you read until you detect the command echo (avoid getting out of sync)
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(
+                    pattern=re.escape(exit_config.strip())
                 )
+            # Read until we detect either an Uncommitted change or the end prompt
+            if not re.search(r"(Uncommitted|#$)", output):
+                output += self.read_until_pattern(pattern=r"(Uncommitted|#$)")
+            if "Uncommitted changes found" in output:
+                self.write_channel(self.normalize_cmd("no\n"))
+                output += self.read_until_pattern(pattern=r"[>#]")
+            if not re.search(pattern, output, flags=re.M):
+                output += self.read_until_pattern(pattern=pattern)
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
         return output
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented (use commit() method)"""
         raise NotImplementedError
 
@@ -158,7 +195,8 @@ class CiscoXrTelnet(CiscoXrBase):
 class CiscoXrFileTransfer(CiscoFileTransfer):
     """Cisco IOS-XR SCP File Transfer driver."""
 
-    def process_md5(self, md5_output, pattern=r"^([a-fA-F0-9]+)$"):
+    @staticmethod
+    def process_md5(md5_output: str, pattern: str = r"^([a-fA-F0-9]+)$") -> str:
         """
         IOS-XR defaults with timestamps enabled
 
@@ -172,7 +210,9 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         else:
             raise ValueError(f"Invalid output from MD5 command: {md5_output}")
 
-    def remote_md5(self, base_cmd="show md5 file", remote_file=None):
+    def remote_md5(
+        self, base_cmd: str = "show md5 file", remote_file: Optional[str] = None
+    ) -> str:
         """
         IOS-XR for MD5 requires this extra leading /
 
@@ -185,12 +225,12 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
                 remote_file = self.source_file
         # IOS-XR requires both the leading slash and the slash between file-system and file here
         remote_md5_cmd = f"{base_cmd} /{self.file_system}/{remote_file}"
-        dest_md5 = self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500)
+        dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
-    def enable_scp(self, cmd=None):
+    def enable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError

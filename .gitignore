@@ -1,5 +1,6 @@
 *.pyc
 *.swp
+
 tests/old_format/DEVICE_CREDS.py
 tests/test_prep.sh
 tests/testx.txt
@@ -7,6 +8,8 @@ tests/standard_tests.sh
 tests/etc/test_devices.yml
 tests/etc/commands.yml
 tests/etc/responses.yml
+tests/etc/test_devices_exc.yml
+
 examples/SECRET_DEVICE_CREDS.py
 ./build
 ./build/*
@@ -15,9 +18,17 @@ dist
 netmiko.egg-info
 .cache
 bin/.netmiko.cfg
+
+# IDE Related files
 .vscode/*
 .idea/
+
+# Virtual Environment files
 .venv/
+bin/
+lib/
+pyvenv.cfg
+.devcontainer
 
 # Sphinx documentation
 docs/build/doctrees/
@@ -33,3 +44,7 @@ docs/build/doctrees/
 
 tests/cisco3-out.txt
 tests/test.log
+tests/test_out/*.out
+tests/test_out/*.stderr
+tests/cisco-xrv.txt
+tests/*.out

@@ -1,2 +1,0 @@
-logging buffered 8000
-logging console

@@ -20,6 +20,8 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 """
+from typing import Optional, Dict
+from typing.re import Pattern
 import re
 
 try:
@@ -44,7 +46,7 @@ SNMP_MAPPER_BASE = {
     },
     "hp_comware": {
         "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*HP Comware.*", re.IGNORECASE),
+        "expr": re.compile(r".*HP(E)? Comware.*", re.IGNORECASE),
         "priority": 99,
     },
     "hp_procurve": {
@@ -100,6 +102,11 @@ SNMP_MAPPER_BASE = {
     "juniper_junos": {
         "oid": ".1.3.6.1.2.1.1.1.0",
         "expr": re.compile(r".*Juniper.*"),
+        "priority": 99,
+    },
+    "nokia_sros": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*TiMOS.*"),
         "priority": 99,
     },
 }
@@ -160,7 +167,6 @@ class SNMPDetect(object):
     encrypt_proto : str
         The SNMPv3 encryption protocol
 
-
     Methods
     -------
     autodetect()
@@ -170,16 +176,16 @@ class SNMPDetect(object):
 
     def __init__(
         self,
-        hostname,
-        snmp_version="v3",
-        snmp_port=161,
-        community=None,
-        user="",
-        auth_key="",
-        encrypt_key="",
-        auth_proto="sha",
-        encrypt_proto="aes128",
-    ):
+        hostname: str,
+        snmp_version: str = "v3",
+        snmp_port: int = 161,
+        community: Optional[str] = None,
+        user: str = "",
+        auth_key: str = "",
+        encrypt_key: str = "",
+        auth_proto: str = "sha",
+        encrypt_proto: str = "aes128",
+    ) -> None:
 
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == "v1" or snmp_version == "v2c":
@@ -225,9 +231,9 @@ class SNMPDetect(object):
         self.encrypt_key = encrypt_key
         self.auth_proto = self._snmp_v3_authentication[auth_proto]
         self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
-        self._response_cache = {}
+        self._response_cache: Dict[str, str] = {}
 
-    def _get_snmpv3(self, oid):
+    def _get_snmpv3(self, oid: str) -> str:
         """
         Try to send an SNMP GET operation using SNMPv3 for the specified OID.
 
@@ -262,7 +268,7 @@ class SNMPDetect(object):
             return str(snmp_data[0][1])
         return ""
 
-    def _get_snmpv2c(self, oid):
+    def _get_snmpv2c(self, oid: str) -> str:
         """
         Try to send an SNMP GET operation using SNMPv2 for the specified OID.
 
@@ -291,14 +297,14 @@ class SNMPDetect(object):
             return str(snmp_data[0][1])
         return ""
 
-    def _get_snmp(self, oid):
+    def _get_snmp(self, oid: str) -> str:
         """Wrapper for generic SNMP call."""
         if self.snmp_version in ["v1", "v2c"]:
             return self._get_snmpv2c(oid)
         else:
             return self._get_snmpv3(oid)
 
-    def autodetect(self):
+    def autodetect(self) -> Optional[str]:
         """
         Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
         is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
@@ -312,28 +318,29 @@ class SNMPDetect(object):
             The name of the device_type that must be running.
         """
         # Convert SNMP_MAPPER to a list and sort by priority
-        snmp_mapper_list = []
+        snmp_mapper_orig = []
         for k, v in SNMP_MAPPER.items():
-            snmp_mapper_list.append({k: v})
+            snmp_mapper_orig.append({k: v})
         snmp_mapper_list = sorted(
-            snmp_mapper_list, key=lambda x: list(x.values())[0]["priority"]
+            snmp_mapper_orig, key=lambda x: list(x.values())[0]["priority"]  # type: ignore
         )
         snmp_mapper_list.reverse()
 
         for entry in snmp_mapper_list:
             for device_type, v in entry.items():
-                oid = v["oid"]
-                regex = v["expr"]
+                oid: str = v["oid"]  # type: ignore
+                regex: Pattern = v["expr"]
 
-            # Used cache data if we already queryied this OID
-            if self._response_cache.get(oid):
-                snmp_response = self._response_cache.get(oid)
-            else:
-                snmp_response = self._get_snmp(oid)
-                self._response_cache[oid] = snmp_response
+                # Used cache data if we already queryied this OID
+                if self._response_cache.get(oid):
+                    snmp_response = self._response_cache.get(oid)
+                else:
+                    snmp_response = self._get_snmp(oid)
+                    self._response_cache[oid] = snmp_response
 
-            # See if we had a match
-            if re.search(regex, snmp_response):
-                return device_type
+                # See if we had a match
+                if re.search(regex, snmp_response):
+                    assert isinstance(device_type, str)
+                    return device_type
 
         return None

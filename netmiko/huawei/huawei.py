@@ -1,65 +1,78 @@
+from typing import Optional, Any
 import time
 import re
+import warnings
+
+from netmiko.no_enable import NoEnable
+from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoBaseConnection
-from netmiko.ssh_exception import NetmikoAuthenticationException
+from netmiko.exceptions import NetmikoAuthenticationException
 from netmiko import log
 
 
-class HuaweiBase(CiscoBaseConnection):
-    def session_preparation(self):
+class HuaweiBase(NoEnable, CiscoBaseConnection):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
-        self._test_channel_read()
+        self.ansi_escape_codes = True
+        self._test_channel_read(pattern=r"[>\]]")
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
-    def config_mode(self, config_command="system-view"):
-        """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+    def strip_ansi_escape_codes(self, string_buffer: str) -> str:
+        """
+        Huawei does a strange thing where they add a space and then add ESC[1D
+        to move the cursor to the left one.
 
-    def exit_config_mode(self, exit_config="return", pattern=r">"):
+        The extra space is problematic.
+        """
+        code_cursor_left = chr(27) + r"\[\d+D"
+        output = string_buffer
+        pattern = rf" {code_cursor_left}"
+        output = re.sub(pattern, "", output)
+
+        return super().strip_ansi_escape_codes(output)
+
+    def config_mode(
+        self,
+        config_command: str = "system-view",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
+
+    def exit_config_mode(self, exit_config: str = "return", pattern: str = r">") -> str:
         """Exit configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def check_config_mode(self, check_string="]"):
+    def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
         return super().check_config_mode(check_string=check_string)
 
-    def check_enable_mode(self, *args, **kwargs):
-        """Huawei has no enable mode."""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """Huawei has no enable mode."""
-        return ""
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """Huawei has no enable mode."""
-        return ""
-
     def set_base_prompt(
-        self, pri_prompt_terminator=">", alt_prompt_terminator="]", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = ">",
+        alt_prompt_terminator: str = "]",
+        delay_factor: float = 1.0,
+    ) -> str:
         """
         Sets self.base_prompt
 
         Used as delimiter for stripping of trailing prompt in output.
 
-        Should be set to something that is general and applies in multiple contexts. For Comware
-        this will be the router prompt with < > or [ ] stripped off.
+        Should be set to something that is general and applies in multiple contexts.
+        For Huawei this will be the router prompt with < > or [ ] stripped off.
 
         This will be set on logging in, but not when entering system-view
         """
-        log.debug("In set_base_prompt")
+        # log.debug("In set_base_prompt")
         delay_factor = self.select_delay_factor(delay_factor)
         self.clear_buffer()
         self.write_channel(self.RETURN)
         time.sleep(0.5 * delay_factor)
 
         prompt = self.read_channel()
-        prompt = self.normalize_linefeeds(prompt)
 
         # If multiple lines in the output take the last line
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
@@ -80,8 +93,10 @@ class HuaweiBase(CiscoBaseConnection):
 
         return self.base_prompt
 
-    def save_config(self, cmd="save", confirm=True, confirm_response="y"):
-        """ Save Config for HuaweiSSH"""
+    def save_config(
+        self, cmd: str = "save", confirm: bool = True, confirm_response: str = "y"
+    ) -> str:
+        """Save Config for HuaweiSSH"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
@@ -90,7 +105,16 @@ class HuaweiBase(CiscoBaseConnection):
 class HuaweiSSH(HuaweiBase):
     """Huawei SSH driver."""
 
-    pass
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
+        """Handle password change request by ignoring it"""
+
+        # Huawei can prompt for password change. Search for that or for normal prompt
+        password_change_prompt = r"((Change now|Please choose))|([\]>]\s*$)"
+        output = self.read_until_pattern(password_change_prompt)
+        if re.search(password_change_prompt, output):
+            self.write_channel("N\n")
+            self.clear_buffer()
+        return None
 
 
 class HuaweiTelnet(HuaweiBase):
@@ -98,17 +122,17 @@ class HuaweiTelnet(HuaweiBase):
 
     def telnet_login(
         self,
-        pri_prompt_terminator=r"]\s*$",
-        alt_prompt_terminator=r">\s*$",
-        username_pattern=r"(?:user:|username|login|user name)",
-        pwd_pattern=r"assword",
-        delay_factor=1,
-        max_loops=20,
-    ):
+        pri_prompt_terminator: str = r"]\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"(?:user:|username|login|user name)",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
         """Telnet login for Huawei Devices"""
 
         delay_factor = self.select_delay_factor(delay_factor)
-        password_change_prompt = re.escape("Change now? [Y/N]")
+        password_change_prompt = r"(Change now|Please choose 'YES' or 'NO').+"
         combined_pattern = r"({}|{}|{})".format(
             pri_prompt_terminator, alt_prompt_terminator, password_change_prompt
         )
@@ -118,26 +142,22 @@ class HuaweiTelnet(HuaweiBase):
         i = 1
         while i <= max_loops:
             try:
-                output = self.read_channel()
-                return_msg += output
-
                 # Search for username pattern / send username
-                if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + self.TELNET_RETURN)
-                    time.sleep(1 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
+                output = self.read_until_pattern(
+                    pattern=username_pattern, re_flags=re.I
+                )
+                return_msg += output
+                self.write_channel(self.username + self.TELNET_RETURN)
 
                 # Search for password pattern / send password
-                if re.search(pwd_pattern, output, flags=re.I):
-                    self.write_channel(self.password + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                        return return_msg
+                output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+                return_msg += output
+                assert self.password is not None
+                self.write_channel(self.password + self.TELNET_RETURN)
+
+                # Waiting for combined output
+                output = self.read_until_pattern(pattern=combined_pattern)
+                return_msg += output
 
                 # Search for password change prompt, send "N"
                 if re.search(password_change_prompt, output):
@@ -156,6 +176,7 @@ class HuaweiTelnet(HuaweiBase):
                 i += 1
 
             except EOFError:
+                assert self.remote_conn is not None
                 self.remote_conn.close()
                 msg = f"Login failed: {self.host}"
                 raise NetmikoAuthenticationException(msg)
@@ -170,13 +191,19 @@ class HuaweiTelnet(HuaweiBase):
         ):
             return return_msg
 
+        assert self.remote_conn is not None
         self.remote_conn.close()
         msg = f"Login failed: {self.host}"
         raise NetmikoAuthenticationException(msg)
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
-    def commit(self, comment="", delay_factor=1):
+    def commit(
+        self,
+        comment: str = "",
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -188,8 +215,12 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         comment:
            command_string = commit comment <comment>
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
         error_marker = "Failed to generate committed config"
         command_string = "commit"
 
@@ -197,11 +228,11 @@ class HuaweiVrpv8SSH(HuaweiSSH):
             command_string += f' comment "{comment}"'
 
         output = self.config_mode()
-        output += self.send_command_expect(
+        output += self._send_command_str(
             command_string,
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
             expect_string=r"]",
         )
         output += self.exit_config_mode()
@@ -210,6 +241,6 @@ class HuaweiVrpv8SSH(HuaweiSSH):
             raise ValueError(f"Commit failed with following errors:\n\n{output}")
         return output
 
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
         raise NotImplementedError

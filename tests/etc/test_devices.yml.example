@@ -38,6 +38,12 @@ juniper:
   username: admin
   password: juniper123
 
+juniper_screenos:
+  device_type: juniper_screenos
+  ip: 100.65.1.1
+  username: netscreen
+  password: netscreen
+
 paloalto_panos:
   device_type: paloalto_panos
   ip: 10.10.10.15
@@ -92,6 +98,12 @@ dell_powerconnect:
 dellos10:
   device_type: dellos10
   ip: 192.168.23.129
+  username: admin
+  password: admin
+
+dell_sonic:
+  device_type: dell_sonic
+  ip: 192.168.23.130
   username: admin
   password: admin
 
@@ -171,3 +183,71 @@ keymile_nos:
   ip: 1.2.3.5
   username: TEST
   password: TEST
+
+dlink_ds:
+  device_type: dlink_ds
+  ip: 192.168.50.10
+  username: admin
+  password: admin
+
+dlink_ds_telnet:
+  device_type: dlink_ds_telnet
+  ip: 192.168.50.10
+  username: admin
+  password: admin
+
+ruijie_os:
+  device_type: ruijie_os
+  ip: 1.1.1.1
+  username: ruijie
+  password: ruijie
+  secret: ruijie
+
+centec_os:
+  device_type: centec_os
+  ip: 1.1.1.1
+  username: centec
+  password: centec
+  secret: centec
+
+supermicro_nos:
+  device_type: supermicro_nos
+  ip: 192.168.10.15
+  username: ADMIN
+  password: ADMIN
+
+sophos_sfos:
+  device_type: sophos_sfos
+  ip: 172.16.16.16
+  username: admin
+  password: admin
+
+adtran_os:
+  device_type: adtran_os
+  ip: 192.0.2.1
+  username: adtran
+  password: adtran
+
+huawei_smartax:
+  device_type: huawei_smartax
+  ip: 192.0.2.1
+  username: TEST
+  password: TEST
+
+tplink_jetstream:
+  device_type: tplink_jetstream
+  ip: 192.168.0.1
+  username: admin
+  password: 'admin'
+
+tplink_jetstream_telnet:
+  device_type: tplink_jetstream_telnet
+  ip: 192.168.0.1
+  username: admin
+  password: 'admin'
+
+ubiquiti_edgerouter:
+  device_type: ubiquiti_edgerouter
+  ip: 192.168.1.1
+  username: ubnt
+  password: ubnt

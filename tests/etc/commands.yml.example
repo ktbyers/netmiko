@@ -3,20 +3,62 @@
 cisco_ios:
   version: "show version"
   basic: "show ip interface brief"
+  wide_command: "show ip access-lists myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
   extended_output: "show version"   # requires paging to be disabled
-  config:
+  config: 
     - "logging buffered 20000"      # base command
     - "no logging console"
     - "logging buffered 20010"      # something you can verify has changed
   config_verification: "show run | inc logging buffer"
-  config_file: 'cisco_ios_commands.txt'
-  save_config_cmd: 'copy run start'
+  config_file: "cisco_ios_commands.txt"
+  save_config_confirm: False
+
+cisco_ios_telnet:
+  version: "show version"
+  basic: "show ip interface brief"
+  wide_command: "show ip access-lists myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
+  extended_output: "show version"   # requires paging to be disabled
+  config: 
+    - "logging buffered 20000"      # base command
+    - "no logging console"
+    - "logging buffered 20010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  config_file: "cisco_ios_commands.txt"
+  save_config_confirm: False
+
+cisco_xr:
+  version: "show version"
+  basic: "show ip interface brief"
+  basic_textfsm: "show interface brief"
+  wide_command: "show access-list myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
+  extended_output: "show version"   # requires paging to be disabled
+  config: 
+    - "logging buffered 4000000"      # base command
+    - "no logging console"
+    - "logging buffered 4000010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+  support_commit: True
+  commit_verification: "show configuration commit list 1 detail"
+
+cisco_s300:
+  version: "show version"
+  basic: "show ip interface"
+  wide_command: "show ip access-lists myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
+  extended_output: "show run"   # requires paging to be disabled
+  config:
+    - 'logging buffered notifications'
+    - 'no logging console'
+    - 'logging buffered warnings'
+  config_verification: "show run"
+  config_file: "cisco_ios_commands.txt"
   save_config_confirm: True
   save_config_response: ''
 
 cisco_asa:
   version: "show version"
   basic: "show ip"
+  wide_command: "show access-list myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
+  basic_textfsm: "show route"
   extended_output: "show version"   # requires paging to be disabled
   config:
     - 'logging buffered notifications'
@@ -28,8 +70,9 @@ cisco_asa:
 arista_eos:
   version: "show version"
   basic: "show ip int brief"
+  wide_command: "show ip access-lists myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
   extended_output: "show logging"   # requires paging to be disabled
-  config:
+  config: 
     - "logging buffered 20000"
     - "no logging console"
     - "logging buffered 20010"
@@ -38,18 +81,30 @@ arista_eos:
 hp_procurve:
   version: "show version"
   basic: "show ip"
+  basic_textfsm: "show system"
   extended_output: "show logging"   # requires paging to be disabled
-  config:
+  config: 
     - 'time timezone -420'
     - 'time daylight-time-rule Continental-US-and-Canada'
     - 'time timezone -480'
-  config_verification: "show run"
+  config_verification: "show run" 
 
-juniper:
+hp_comware:
+  version: "display version"
+  basic: "display ip int brief"
+  extended_output: "display version"   # requires paging to be disabled
+  config: 
+    - 'ip host test1 1.1.1.1'
+    - 'undo ip host test1 1.1.1.1'
+    - 'ip host test1 1.1.1.2'
+  config_verification: "display current-configuration"
+
+juniper_junos:
   version: "show version"
   basic: "show interfaces terse"
+  basic_textfsm: "show interfaces"
   extended_output: "show configuration"   # requires paging to be disabled
-  config:
+  config: 
    - 'set system syslog archive size 110k files 3'
    - 'set system time-zone America/New_York'
    - 'set system syslog archive size 120k files 3'
@@ -57,6 +112,54 @@ juniper:
   support_commit: True
   rollback: 'rollback 0'
   commit_verification: "run show system commit"
+
+linux:
+  version: "uname -a"
+  basic: "ifconfig -a | grep inet | grep -v inet6 "
+  wide_command: 'echo "cable modem deny 0015.f2fe.ba11"; echo "cable modem deny 0015.f2fe.ba12"; echo "cable modem deny 0015.f2fe.ba13"'
+  extended_output: "netstat -an"   # requires paging to be disabled
+  # config_long_command: "ls verylongcommandnamethatwillcauselinewrapissuesasitdoesnotfitonesinglescreengreaterthan127charsandthensomesothingsreallyarennotright"
+  # config_verification: "ls"
+
+dell_force10:
+  version: "show version"
+  basic: "show ip interface brief managementethernet 0/0"
+  extended_output: "show ip interface brief"   # requires paging to be disabled
+  config:
+    - "logging buffered 50000"      # base command
+    - "no logging console"
+    - "logging buffered 50010"      # something you can verify has changed
+  config_verification: "show run"
+
+cisco_nxos:
+  version: "show version"
+  basic: "show ip interface brief vrf management"
+  basic_textfsm: "show interface brief"
+  extended_output: "show logging"   # requires paging to be disabled
+  config: 
+    - "logging console 0"           # base command
+    - "no logging console"
+    - "logging console 4"           # something you can verify has changed
+  config_verification: "show run | inc logging"
+  config_long_command: "snmp-server location verylongsnmplocationnamethatwillcauselinewrapissuesasitdoesnotfitonesinglescreengreaterthan127charsandthensomesothingsreallyarennotright"
+
+cisco_xe:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"   # requires paging to be disabled
+  config: 
+    - "logging buffered 20000"      # base command
+    - "no logging console"
+    - "logging buffered 20010"      # something you can verify has changed
+  config_verification: "show run | inc logging buffer"
+
+juniper_screenos:
+  version: "get system version"
+  basic: "get route"
+  extended_output: "get config" # requires paging to be disabled
+  config:
+    - 'set alias test "test"'
+  config_verification: "get config | inc alias"
 
 fortinet:
   version: "get system status"
@@ -129,6 +232,16 @@ ubiquiti_edge:
     - "logging persistent 4"
   config_verification: "show running-config | include 'logging'"
 
+ubiquiti_unifiswitch:
+  version: "show version"
+  basic: "show network"
+  extended_output: "show running-config"
+  config:
+    - "logging persistent 3"
+    - "no logging persistent"
+    - "logging persistent 4"
+  config_verification: "show running-config | include 'logging'"
+
 dellos10:
   version: "show version"
   basic: "show ip interface brief"
@@ -138,6 +251,14 @@ dellos10:
     - "no host-description"
     - "host-description node"
   config_verification: "show running-config"
+
+dell_sonic:
+  version: "show version"
+  basic: "show ip interfaces"
+  extended_output: "show running-configuration"
+  config:
+    - "interface Vlan100"
+  config_verification: "show running-configuration"
 
 dell_powerconnect:
   version: "show version"
@@ -274,3 +395,98 @@ keymile_nos:
   save_config_confirm: True
   save_config_response: '[OK]'
 
+dlink_ds:
+  version: "show greeting_message"
+  basic: "show ipif"
+  config:
+    - enable command logging
+  config_verification: "show config current_config include \"logging\""
+  extended_output: "show config current_config"   # requires paging to be disabled
+
+dlink_ds_telnet:
+  version: "show greeting_message"
+  basic: "show ipif"
+  config:
+    - enable command logging
+  config_verification: "show config current_config include \"logging\""
+  extended_output: "show config current_config"   # requires paging to be disabled
+
+ruijie_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"
+  config:
+    - "logging buffered 20000"
+    - "no logging console"
+    - "logging buffered 20010"
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'
+
+centec_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show version"
+  config:
+    - "ip access-list centec"
+  config_verification: "show running-config | include ip access-list centec"
+  save_config_cmd: 'write'
+  save_config_response: 'OK'
+
+supermicro_nos:
+  version: "show version"
+  basic: "show ip interface"
+  extended_output: "show version"
+  config:
+    - "logging buffered 110"
+    - "logging buffered 110"
+  config_verification: "show run"
+  save_config_cmd: "write startup-config"
+  save_config_confirm: False
+  save_config_response: '[OK]'
+  support_commit: False
+
+sophos_sfos:
+  version: "system diagnostics show version-info"
+  basic: "system diagnostics utilities route lookup 172.16.16.16"
+  extended_output: "system diagnostics show version-info"
+
+adtran_os
+  version: "show version"
+  basic: "show system-management-evc"
+  extended_output: "show version"
+
+huawei_smartax:
+  version: "display version"
+  basic: "display system sys-info"
+  extended_output: "display version"
+  config:
+    - acl 2456
+  config_verification: "display current-configuration | include acl 2456"
+
+tplink_jetstream:
+  version: "show system-info"
+  basic: "show interface vlan 1"
+  extended_output: "show running-config all"
+  config:
+    - "no clipaging"
+  config_verification: "show running-config | include clipaging"
+
+tplink_jetstream_telnet:
+  version: "show system-info"
+  basic: "show interface vlan 1"
+  extended_output: "show running-config all"
+  config:
+    - "no clipaging"
+  config_verification: "show running-config | include clipaging"
+
+ubiquiti_edgerouter:
+  version: "show version"
+  basic: "show interfaces switch switch0"
+  extended_output: "show configuration all"
+  config:
+    - "set system coredump enabled true"
+    - "set system coredump enabled false"
+  support_commit: True
+  config_verification: "show system coredump enabled"

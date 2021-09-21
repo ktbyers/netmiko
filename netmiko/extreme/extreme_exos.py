@@ -1,25 +1,23 @@
 """Extreme support."""
-import time
+from typing import Any, Union, List, Dict
 import re
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ExtremeExosBase(CiscoSSHConnection):
+class ExtremeExosBase(NoConfig, CiscoSSHConnection):
     """Extreme Exos support.
 
     Designed for EXOS >= 15.0
     """
 
-    def session_preparation(self):
-        self._test_channel_read()
+    def session_preparation(self) -> None:
+        self._test_channel_read(pattern=r"#")
         self.set_base_prompt()
         self.disable_paging(command="disable clipaging")
         self.send_command_timing("disable cli prompting")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
-    def set_base_prompt(self, *args, **kwargs):
+    def set_base_prompt(self, *args: Any, **kwargs: Any) -> str:
         """
         Extreme attaches an id to the prompt. The id increases with every command.
         It needs to br stripped off to match the prompt. Eg.
@@ -43,7 +41,9 @@ class ExtremeExosBase(CiscoSSHConnection):
         else:
             return self.base_prompt
 
-    def send_command(self, *args, **kwargs):
+    def send_command(
+        self, *args: Any, **kwargs: Any
+    ) -> Union[str, List[Any], Dict[str, Any]]:
         """Extreme needs special handler here due to the prompt changes."""
 
         # Change send_command behavior to use self.base_prompt
@@ -53,21 +53,12 @@ class ExtremeExosBase(CiscoSSHConnection):
         self.set_base_prompt()
         return super().send_command(*args, **kwargs)
 
-    def config_mode(self, config_command=""):
-        """No configuration mode on Extreme Exos."""
-        return ""
-
-    def check_config_mode(self, check_string="#"):
-        """Checks whether in configuration mode. Returns a boolean."""
-        return super().check_config_mode(check_string=check_string)
-
-    def exit_config_mode(self, exit_config=""):
-        """No configuration mode on Extreme Exos."""
-        return ""
-
     def save_config(
-        self, cmd="save configuration primary", confirm=False, confirm_response=""
-    ):
+        self,
+        cmd: str = "save configuration primary",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Saves configuration."""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -79,7 +70,7 @@ class ExtremeExosSSH(ExtremeExosBase):
 
 
 class ExtremeExosTelnet(ExtremeExosBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
