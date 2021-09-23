@@ -77,7 +77,7 @@ SSH_MAPPER_DICT = {
         "dispatch": "_autodetect_std",
     },
     "ciena_saos": {
-        "cmd": "soft show",
+        "cmd": "software show",
         "search_patterns": [r"saos"],
         "priority": 99,
         "dispatch": "_autodetect_std",
