@@ -18,6 +18,9 @@ import pytest
 import time
 from datetime import datetime
 
+from test_utils import f_exec_time
+from netmiko import ConnectHandler
+
 
 def test_disable_paging(net_connect, commands, expected_responses):
     """Verify paging is disabled by looking for string after when paging would normally occur."""
@@ -378,3 +381,18 @@ def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses)
         assert time_delta.total_seconds() < 5
     else:
         assert True
+
+
+@f_exec_time
+def send_command_simple(device, commands):
+    with ConnectHandler(**device) as conn:
+        platform = device["device_type"]
+        cmd = commands(platform)["basic"]
+        output = conn.send_command(cmd)
+
+
+def test_performance(device, commands, expected_responses):
+    """Test performance of sending a simple command."""
+    if "performance_threshold" in expected_responses:
+        time_delta, result = send_command_simple(device, commands)
+        assert time_delta < expected_responses["performance_threshold"]

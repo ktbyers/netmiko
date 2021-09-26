@@ -9,6 +9,7 @@ cisco_ios:
   multiple_line_output: "Configuration register is"
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
+  performance_threshold: 4.64
 
 juniper:
   base_prompt: pyclass@pynet-jnpr-srx1
@@ -20,6 +21,7 @@ juniper:
   cmd_response_init: 'archive size 110k files 3'
   cmd_response_final: 'archive size 120k files 3'
   commit_comment: 'Unit test on commit with comment'
+  performance_threshold: 9.48
 
 juniper_screenos:
   base_prompt: "ssg5-serial-"

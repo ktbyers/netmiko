@@ -23,6 +23,15 @@ def pytest_addoption(parser):
     )
 
 
+@pytest.fixture()
+def device(request):
+    device_under_test = request.config.getoption("test_device")
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    device["verbose"] = False
+    return device
+
+
 @pytest.fixture(scope="module")
 def net_connect(request):
     """

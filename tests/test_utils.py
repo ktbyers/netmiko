@@ -4,6 +4,9 @@ Implement common functions for tests
 """
 import io
 import sys
+import functools
+
+from datetime import datetime
 
 
 def parse_yaml(yaml_file):
@@ -21,3 +24,16 @@ def parse_yaml(yaml_file):
             return yaml.safe_load(fname)
     except IOError:
         sys.exit("Unable to open YAML file: {0}".format(yaml_file))
+
+
+def f_exec_time(func):
+    @functools.wraps(func)
+    def wrapper_decorator(*args, **kwargs):
+        start_time = datetime.now()
+        result = func(*args, **kwargs)
+        end_time = datetime.now()
+        time_delta = end_time - start_time
+        print(f"{str(func)}: Elapsed time: {time_delta}")
+        return (time_delta, result)
+
+    return wrapper_decorator

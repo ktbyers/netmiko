@@ -6,7 +6,7 @@ from datetime import datetime
 import csv
 
 from netmiko import ConnectHandler, __version__
-from test_utils import parse_yaml
+from test_utils import parse_yaml, f_exec_time
 
 import network_utilities
 
@@ -57,19 +57,6 @@ def write_csv(device_name, netmiko_results):
         for func_name, exec_time in netmiko_results.items():
             entry[func_name] = exec_time
         csv_write.writerow(entry)
-
-
-def f_exec_time(func):
-    @functools.wraps(func)
-    def wrapper_decorator(*args, **kwargs):
-        start_time = datetime.now()
-        result = func(*args, **kwargs)
-        end_time = datetime.now()
-        time_delta = end_time - start_time
-        print(f"{str(func)}: Elapsed time: {time_delta}")
-        return (time_delta, result)
-
-    return wrapper_decorator
 
 
 def read_devices():
