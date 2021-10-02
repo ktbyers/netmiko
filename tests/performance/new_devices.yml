@@ -1,8 +1,0 @@
----
-cisco1:
-  device:
-    device_type: cisco_ios
-    host: cisco1.lasthop.io
-    username: pyclass
-  graph:
-    title: "Netmiko: Cisco IOS Performance (Cisco 881)"
