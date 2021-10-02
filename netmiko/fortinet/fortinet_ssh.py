@@ -1,5 +1,4 @@
 import paramiko
-import time
 import re
 from typing import Optional
 
@@ -26,8 +25,7 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
         # to accept the banner before you login. This will accept if it occurs
         if "to accept" in data:
             self.write_channel("a\r")
-            time.sleep(0.3)
-            self.read_channel()
+            self._test_channel_read(pattern=r"[#$]")
 
         self.set_base_prompt(alt_prompt_terminator="$")
         self.disable_paging()
