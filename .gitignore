@@ -48,4 +48,4 @@ tests/test_out/*.out
 tests/test_out/*.stderr
 tests/cisco-xrv.txt
 tests/*.out
-tests/performance/new_device.yml
+tests/performance/new_devices.yml

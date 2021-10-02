@@ -12,7 +12,6 @@ if [ $? -eq 0 ]; then
 else
     echo
     echo "Verifying that netmiko is not installed ... [OK]"
-
 fi
 
 vers=$(git tag -l)
