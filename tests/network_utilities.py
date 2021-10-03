@@ -15,6 +15,7 @@ def generate_acl(
         acl.append(cmd)
     return acl
 
+
 def generate_hp_procurve_acl(
     acl_name="netmiko_test_large_acl",
     entries=100,
@@ -35,6 +36,7 @@ def generate_hp_procurve_acl(
     for _ in range(50):
         acl += base_acl
     return acl
+
 
 def generate_ios_acl(
     acl_name="netmiko_test_large_acl",
