@@ -16,6 +16,28 @@ def generate_acl(
     return acl
 
 
+def generate_hp_procurve_acl(
+    acl_name="netmiko_test_large_acl",
+    entries=100,
+    base_cmd="ip access-list extended",
+    base_addr="192.168.0.0",
+):
+    """
+    Faked an ACL as did not see easy way to create ACL on my HPE device.
+
+    Just remove and add NTP server so 100 lines of cfg changes.
+    """
+
+    base_acl = [
+        "no sntp server 128.118.25.3",
+        "sntp server 128.118.25.3",
+    ]
+    acl = []
+    for _ in range(50):
+        acl += base_acl
+    return acl
+
+
 def generate_ios_acl(
     acl_name="netmiko_test_large_acl",
     entries=100,
