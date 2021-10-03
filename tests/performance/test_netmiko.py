@@ -124,6 +124,8 @@ def cleanup(device):
     platform = device["device_type"]
     if "juniper_junos" in platform:
         remove_acl_cmd = "rollback 0"
+    elif "hp_procurve" in platform:
+        remove_acl_cmd = None
     elif "cisco_asa" in platform:
         remove_acl_cmd = "clear configure access-list netmiko_test_large_acl"
     else:
@@ -133,6 +135,8 @@ def cleanup(device):
 
 
 def cleanup_generic(device, command):
+    if command is None:
+        return
     with ConnectHandler(**device) as conn:
         output = conn.send_config_set(command)
         PRINT_DEBUG and print(output)
@@ -159,6 +163,7 @@ def remove_old_data(device_name):
 
 
 def main():
+    # PASSWORD = os.environ["HPE_PASSWORD"]
     PASSWORD = os.environ["NORNIR_PASSWORD"]
 
     devices = read_devices()
