@@ -264,6 +264,7 @@ class BaseConnection:
                 3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
                 eliminated in Netmiko 5.x (default: False).
         """
+
         self.remote_conn: Union[
             None, telnetlib.Telnet, paramiko.Channel, serial.Serial
         ] = None

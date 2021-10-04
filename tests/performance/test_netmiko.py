@@ -1,6 +1,7 @@
 import os
 from os import path
 import yaml
+import time
 import functools
 from datetime import datetime
 import csv
@@ -190,11 +191,16 @@ def main():
             "cleanup",
         ]
         results = {}
+        platform = dev_dict["device_type"]
         for op in operations:
             func = globals()[op]
             time_delta, result = func(dev_dict)
             if op != "cleanup":
                 results[op] = time_delta
+            # Some platforms have an issue where the last test affects the
+            # next test?
+            if "procurve" in platform:
+                time.sleep(30)
         print("-" * 80)
         print()
 

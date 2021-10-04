@@ -15,6 +15,7 @@ else
 fi
 
 vers="2.4.2 3.0.0 3.1.0 3.2.0 3.3.3 3.4.0"
+# vers="4.0.0a4"
 
 for v in $vers
 do 

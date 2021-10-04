@@ -8,6 +8,7 @@ from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
+from netmiko.exceptions import ReadTimeout
 
 
 class HPProcurveBase(CiscoSSHConnection):
@@ -28,6 +29,14 @@ class HPProcurveBase(CiscoSSHConnection):
         self.set_terminal_width(command="terminal width 511", pattern="terminal")
         command = self.RETURN + "no page"
         self.disable_paging(command=command)
+
+    def check_config_mode(self, check_string: str = ")#", pattern: str = r"#") -> bool:
+        """
+        The pattern is needed as it is not in the parent class.
+
+        Not having this will make each check_config_mode() call take ~2 seconds.
+        """
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def enable(
         self,
@@ -87,37 +96,39 @@ class HPProcurveBase(CiscoSSHConnection):
 
         # Exit configuration mode.
         try:
-            # The pattern="" forces use of send_command_timing
-            if self.check_config_mode(pattern=""):
+            if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
             pass
 
         # Terminate SSH/telnet session
         self.write_channel(command + self.RETURN)
-        count = 0
+
         output = ""
-        while count <= 10:
-            time.sleep(0.3)
+        for _ in range(10):
 
             # The connection might be dead here.
             try:
-                new_output = self.read_channel()
+                # "Do you want to log out"
+                # "Do you want to save the current"
+                pattern = r"Do you want.*"
+                new_output = self.read_until_pattern(pattern, read_timeout=1.5)
                 output += new_output
+
+                if "Do you want to log out" in new_output:
+                    self.write_channel("y" + self.RETURN)
+                    break
+                elif "Do you want to save the current" in new_output:
+                    # Don't automatically save the config (user's responsibility)
+                    self.write_channel("n" + self.RETURN)
             except socket.error:
                 break
+            except ReadTimeout:
+                break
+            except Exception:
+                break
 
-            if "Do you want to log out" in new_output:
-                self.write_channel("y" + self.RETURN)
-            elif "Do you want to save the current" in new_output:
-                # Don't automatically save the config (user's responsibility)
-                self.write_channel("n" + self.RETURN)
-            else:
-                try:
-                    self.write_channel(self.RETURN)
-                except socket.error:
-                    break
-            count += 1
+            time.sleep(0.05)
 
         # Set outside of loop
         self._session_log_fin = True
