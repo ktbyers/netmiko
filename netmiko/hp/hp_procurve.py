@@ -102,9 +102,9 @@ class HPProcurveBase(CiscoSSHConnection):
 
             # The connection might be dead here.
             try:
-                # "Do you want to log out" 
+                # "Do you want to log out"
                 # "Do you want to save the current"
-                pattern=r"Do you want.*"
+                pattern = r"Do you want.*"
                 new_output = self.read_until_pattern(pattern, read_timeout=1.5)
                 output += new_output
 
