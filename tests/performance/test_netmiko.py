@@ -164,8 +164,8 @@ def remove_old_data(device_name):
 
 
 def main():
-    PASSWORD = os.environ["HPE_PASSWORD"]
-    # PASSWORD = os.environ["NORNIR_PASSWORD"]
+    # PASSWORD = os.environ["HPE_PASSWORD"]
+    PASSWORD = os.environ["NORNIR_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
