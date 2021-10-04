@@ -30,6 +30,14 @@ class HPProcurveBase(CiscoSSHConnection):
         command = self.RETURN + "no page"
         self.disable_paging(command=command)
 
+    def check_config_mode(self, check_string: str = ")#", pattern: str = r"#") -> bool:
+        """
+        The pattern is needed as it is not in the parent class.
+
+        Not having this will make each check_config_mode() call take ~2 seconds.
+        """
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
     def enable(
         self,
         cmd: str = "enable",

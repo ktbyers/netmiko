@@ -1475,6 +1475,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
             prompt = self.base_prompt
         return re.escape(prompt.strip())
 
+    @m_exec_time
     @select_cmd_verify
     def send_command(
         self,
@@ -1873,6 +1874,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 raise ValueError("Failed to exit enable mode.")
         return output
 
+    @m_exec_time
     def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not.
 
@@ -1890,6 +1892,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
 
+    @m_exec_time
     def config_mode(
         self, config_command: str = "", pattern: str = "", re_flags: int = 0
     ) -> str:
@@ -1920,6 +1923,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 raise ValueError("Failed to enter configuration mode.")
         return output
 
+    @m_exec_time
     def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
         """Exit from configuration mode.
 
@@ -1964,6 +1968,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         with io.open(config_file, "rt", encoding="utf-8") as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
+    @m_exec_time
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
@@ -2048,6 +2053,9 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
+        print("Before config mode")
+        from datetime import datetime
+        print(datetime.now())
 
         # Send config commands
         output = ""
@@ -2057,14 +2065,18 @@ You can also look at the Netmiko session_log or debug log for more information.
             else:
                 output += self.config_mode()
 
+        print("After config mode")
+        print(datetime.now())
         # Perform output gathering line-by-line (legacy way)
         if self.fast_cli and self._legacy_mode and not error_pattern:
+            print("Mode1")
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
             # Gather output
             output += self.read_channel_timing(read_timeout=read_timeout)
 
         elif not cmd_verify:
+            print("Mode2")
             for cmd in config_commands:
                 self.write_channel(self.normalize_cmd(cmd))
                 time.sleep(delay_factor * 0.05)
@@ -2082,6 +2094,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         else:
             for cmd in config_commands:
+                print("Mode3")
                 self.write_channel(self.normalize_cmd(cmd))
 
                 # Make sure command is echoed
