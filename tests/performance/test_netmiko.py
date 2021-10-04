@@ -81,7 +81,6 @@ def read_devices():
 
 @f_exec_time
 def connect(device):
-    return
     with ConnectHandler(**device) as conn:
         prompt = conn.find_prompt()
         PRINT_DEBUG and print(prompt)
@@ -89,17 +88,10 @@ def connect(device):
 
 @f_exec_time
 def send_command_simple(device):
-    return
-    from datetime import datetime
-    print(datetime.now())
     with ConnectHandler(**device) as conn:
-        print(datetime.now())
         platform = device["device_type"]
         cmd = commands(platform)["basic"]
-        print(cmd)
         output = conn.send_command(cmd)
-        print(datetime.now())
-        print(output)
         PRINT_DEBUG and print(output)
 
 
@@ -192,8 +184,8 @@ def main():
 
         # Run tests
         operations = [
-    #        "connect",
-    #        "send_command_simple",
+            "connect",
+            "send_command_simple",
             "send_config_simple",
             "send_config_large_acl",
             "cleanup",
@@ -206,9 +198,8 @@ def main():
             if op != "cleanup":
                 results[op] = time_delta
             # Some platforms have an issue where the last test affects the
-            # next test.
+            # next test?
             if "procurve" in platform:
-                print("Sleeping...")
                 time.sleep(30)
         print("-" * 80)
         print()

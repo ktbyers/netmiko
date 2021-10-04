@@ -96,8 +96,7 @@ class HPProcurveBase(CiscoSSHConnection):
 
         # Exit configuration mode.
         try:
-            # The pattern="" forces use of send_command_timing
-            if self.check_config_mode(pattern=""):
+            if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
             pass
