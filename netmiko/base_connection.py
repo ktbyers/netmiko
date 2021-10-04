@@ -6,7 +6,6 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
-from datetime import datetime
 from typing import (
     Optional,
     Callable,
@@ -266,8 +265,6 @@ class BaseConnection:
                 eliminated in Netmiko 5.x (default: False).
         """
 
-        print("Enter __init__")
-        print(datetime.now())
         self.remote_conn: Union[
             None, telnetlib.Telnet, paramiko.Channel, serial.Serial
         ] = None
@@ -413,22 +410,14 @@ class BaseConnection:
             self.ssh_config_file = ssh_config_file
 
         # Establish the remote connection
-        print("Just before _open call __init__")
         if auto_connect:
             self._open()
-        print("Just after _open call __init__")
 
     def _open(self) -> None:
         """Decouple connection creation from __init__ for mocking."""
-        print("_open")
-        print(datetime.now())
         self._modify_connection_params()
-        print(datetime.now())
         self.establish_connection()
-        print(datetime.now())
         self._try_session_preparation()
-        print(datetime.now())
-        print("_open end")
 
     def __enter__(self) -> "BaseConnection":
         """Establish a session using a Context Manager."""
@@ -1008,11 +997,7 @@ You can look at the Netmiko session_log or debug log for more information.
 
             # initiate SSH connection
             try:
-                print("Connect")
-                print(datetime.now())
                 self.remote_conn_pre.connect(**ssh_connect_params)
-                print(datetime.now())
-                print("Connect end")
             except socket.error as conn_error:
                 self.paramiko_cleanup()
                 msg = f"""TCP connection to device failed.
@@ -1266,7 +1251,6 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    @m_exec_time
     def find_prompt(self, delay_factor: float = 1.0) -> str:
         """Finds the current network device prompt, last line only.
 

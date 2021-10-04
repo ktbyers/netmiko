@@ -83,7 +83,6 @@ def connect(device):
     with ConnectHandler(**device) as conn:
         prompt = conn.find_prompt()
         PRINT_DEBUG and print(prompt)
-    raise ValueError()
 
 
 @f_exec_time
