@@ -64,3 +64,13 @@ cisco_asa:
     session_log: asa1.out
   graph:
     title: "Netmiko: Cisco ASA Performance"
+
+hp_procurve:
+  device:
+      device_type: hp_procurve
+      ip: 184.105.247.68
+      username: admin
+      secret: ""
+      session_log: hpe.out
+  graph:
+    title: "Netmiko: HPE ProCurve Performance"
