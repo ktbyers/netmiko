@@ -83,6 +83,7 @@ def connect(device):
     with ConnectHandler(**device) as conn:
         prompt = conn.find_prompt()
         PRINT_DEBUG and print(prompt)
+    raise ValueError()
 
 
 @f_exec_time
@@ -163,8 +164,8 @@ def remove_old_data(device_name):
 
 
 def main():
-    # PASSWORD = os.environ["HPE_PASSWORD"]
-    PASSWORD = os.environ["NORNIR_PASSWORD"]
+    PASSWORD = os.environ["HPE_PASSWORD"]
+    # PASSWORD = os.environ["NORNIR_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")

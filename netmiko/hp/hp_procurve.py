@@ -8,7 +8,9 @@ from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
-
+from netmiko.utilities import m_exec_time  # noqa
+from netmiko.exceptions import ReadTimeout
+from datetime import datetime
 
 class HPProcurveBase(CiscoSSHConnection):
     def session_preparation(self) -> None:
@@ -19,15 +21,20 @@ class HPProcurveBase(CiscoSSHConnection):
         self.ansi_escape_codes = True
 
         # Procurve over SSH uses 'Press any key to continue'
+        print(datetime.now())
         data = self._test_channel_read(pattern=r"(any key to continue|[>#])")
         if "any key to continue" in data:
             self.write_channel(self.RETURN)
             self._test_channel_read(pattern=r"[>#]")
+        print(datetime.now())
 
         self.set_base_prompt()
+        print(datetime.now())
         self.set_terminal_width(command="terminal width 511", pattern="terminal")
+        print(datetime.now())
         command = self.RETURN + "no page"
         self.disable_paging(command=command)
+        print(datetime.now())
 
     def enable(
         self,
@@ -82,9 +89,12 @@ class HPProcurveBase(CiscoSSHConnection):
             raise ValueError(msg)
         return output
 
+    @m_exec_time
     def cleanup(self, command: str = "logout") -> None:
         """Gracefully exit the SSH session."""
 
+        print("cleanup")
+        print(datetime.now())
         # Exit configuration mode.
         try:
             # The pattern="" forces use of send_command_timing
@@ -92,35 +102,46 @@ class HPProcurveBase(CiscoSSHConnection):
                 self.exit_config_mode()
         except Exception:
             pass
+        print(datetime.now())
 
         # Terminate SSH/telnet session
         self.write_channel(command + self.RETURN)
-        count = 0
+
         output = ""
-        while count <= 10:
-            time.sleep(0.3)
+        for _ in range(10):
 
             # The connection might be dead here.
             try:
-                new_output = self.read_channel()
+                # "Do you want to log out" 
+                # "Do you want to save the current"
+                pattern=r"Do you want.*"
+                new_output = self.read_until_pattern(pattern, read_timeout=1.5)
+                print(f"new_output: {new_output}")
                 output += new_output
+
+                if "Do you want to log out" in new_output:
+                    self.write_channel("y" + self.RETURN)
+                    break
+                elif "Do you want to save the current" in new_output:
+                    # Don't automatically save the config (user's responsibility)
+                    self.write_channel("n" + self.RETURN)
             except socket.error:
+                print("Socket Error")
+                break
+            except ReadTimeout:
+                print("ReadTimeout")
+                break
+            except Exception:
+                print("Generic exception")
                 break
 
-            if "Do you want to log out" in new_output:
-                self.write_channel("y" + self.RETURN)
-            elif "Do you want to save the current" in new_output:
-                # Don't automatically save the config (user's responsibility)
-                self.write_channel("n" + self.RETURN)
-            else:
-                try:
-                    self.write_channel(self.RETURN)
-                except socket.error:
-                    break
-            count += 1
+            print(datetime.now())
+            time.sleep(0.05)
 
         # Set outside of loop
         self._session_log_fin = True
+        print(datetime.now())
+        print("cleanup end")
 
     def save_config(
         self,
@@ -139,11 +160,14 @@ class HPProcurveSSH(HPProcurveBase):
         """Allow passwordless authentication for HP devices being provisioned."""
 
         # Create instance of SSHClient object. If no SSH keys and no password, then use noauth
+        print("_build_ssh_client")
+        print(datetime.now())
         remote_conn_pre: SSHClient
         if not self.use_keys and not self.password:
             remote_conn_pre = SSHClient_noauth()
         else:
             remote_conn_pre = SSHClient()
+        print(datetime.now())
 
         # Load host_keys for better SSH security
         if self.system_host_keys:
@@ -153,6 +177,8 @@ class HPProcurveSSH(HPProcurveBase):
 
         # Default is to automatically add untrusted hosts (make sure appropriate for your env)
         remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+        print(datetime.now())
+        print("_build_ssh_client end")
         return remote_conn_pre
 
 
