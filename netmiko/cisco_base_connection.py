@@ -122,7 +122,7 @@ class CiscoBaseConnection(BaseConnection):
 
 
                 # Search for linux host prompt pattern [xr:~] or x86 prompt pattern
-                linux_prompt_pattern = r"\[xr:~]\$" | r"\[[\w\-]+\]:~\$$"
+                linux_prompt_pattern = r"(\[xr:~]\$) | (\[[\w\-]+\]:~\$$)"
                 switch_to_xr_command = 'xr'
                 x86_prompt_pattern = r"(\S+@xr:~#)|(\S+@ios:~#)"
                 if re.search(linux_prompt_pattern, output) or re.search(x86_prompt_pattern, output):
