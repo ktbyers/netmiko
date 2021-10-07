@@ -174,7 +174,7 @@ class HPProcurveTelnet(HPProcurveBase):
         self,
         pri_prompt_terminator: str = "#",
         alt_prompt_terminator: str = ">",
-        username_pattern: str = r"Login Name:",
+        username_pattern: str = r"(Login Name:|sername:)",
         pwd_pattern: str = r"assword",
         delay_factor: float = 1.0,
         max_loops: int = 60,
