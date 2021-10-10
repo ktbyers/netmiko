@@ -1,6 +1,7 @@
 import os
 from os import path
 import yaml
+import time
 import functools
 from datetime import datetime
 import csv
@@ -60,7 +61,7 @@ def write_csv(device_name, netmiko_results):
 
 
 def read_devices():
-    f_name = "test_devices.yml"
+    f_name = os.environ.get("TEST_DEVICES", "test_devices.yml")
     with open(f_name) as f:
         return yaml.load(f)
 
@@ -111,6 +112,8 @@ def cleanup(device):
     platform = device["device_type"]
     if "juniper_junos" in platform:
         remove_acl_cmd = "rollback 0"
+    elif "hp_procurve" in platform:
+        remove_acl_cmd = None
     elif "cisco_asa" in platform:
         remove_acl_cmd = "clear configure access-list netmiko_test_large_acl"
     else:
@@ -120,19 +123,24 @@ def cleanup(device):
 
 
 def cleanup_generic(device, command):
+    if command is None:
+        return
     with ConnectHandler(**device) as conn:
         output = conn.send_config_set(command)
         PRINT_DEBUG and print(output)
 
 
-def remove_old_data():
+def remove_old_data(device_name):
     results_file = "netmiko_performance.csv"
     entries = []
     with open(results_file) as f:
         read_csv = csv.DictReader(f)
         for entry in read_csv:
             entry = dict(entry)
-            if entry["netmiko_version"] != __version__:
+            version, device = entry["netmiko_version"], entry["device_name"]
+            if (
+                version != __version__ and device == device_name
+            ) or device_name != device:
                 entries.append(entry)
 
     with open(results_file, "w", newline="") as csv_file:
@@ -143,12 +151,13 @@ def remove_old_data():
 
 
 def main():
-    remove_old_data()
+    # PASSWORD = os.environ["HPE_PASSWORD"]
     PASSWORD = os.environ["NORNIR_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
     for dev_name, params in devices.items():
+        remove_old_data(dev_name)
         dev_dict = params["device"]
         # if dev_name != "cisco_xr_azure":
         #    continue
@@ -169,11 +178,16 @@ def main():
             "cleanup",
         ]
         results = {}
+        platform = dev_dict["device_type"]
         for op in operations:
             func = globals()[op]
             time_delta, result = func(dev_dict)
             if op != "cleanup":
                 results[op] = time_delta
+            # Some platforms have an issue where the last test affects the
+            # next test?
+            if "procurve" in platform:
+                time.sleep(30)
         print("-" * 80)
         print()
 

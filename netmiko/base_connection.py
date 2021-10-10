@@ -264,6 +264,7 @@ class BaseConnection:
                 3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
                 eliminated in Netmiko 5.x (default: False).
         """
+
         self.remote_conn: Union[
             None, telnetlib.Telnet, paramiko.Channel, serial.Serial
         ] = None
@@ -1058,12 +1059,14 @@ Device settings: {self.device_type} {self.host}:{self.port}
             if self.keepalive:
                 assert isinstance(self.remote_conn.transport, paramiko.Transport)
                 self.remote_conn.transport.set_keepalive(self.keepalive)
+
+            # Migrating communication to channel class
+            self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
+
             self.special_login_handler()
             if self.verbose:
                 print("Interactive SSH session established")
 
-            # Migrating communication to channel class
-            self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
         return None
 
     def _test_channel_read(self, count: int = 40, pattern: str = "") -> str:

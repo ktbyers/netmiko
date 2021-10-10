@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import pygal
 import csv
 import yaml
@@ -98,7 +99,7 @@ def generate_report():
 
 
 if __name__ == "__main__":
-    f_name = "test_devices.yml"
+    f_name = os.environ.get("TEST_DEVICES", "test_devices.yml")
     with open(f_name) as f:
         devices = yaml.load(f)
         for device_name, device in devices.items():
