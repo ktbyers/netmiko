@@ -392,6 +392,6 @@ def send_command_simple(device, commands):
 
 def test_performance(device, commands, expected_responses):
     """Test performance of sending a simple command."""
-    threshold = expected_responses.get("performance_threshold", 5.)
+    threshold = expected_responses.get("performance_threshold", 5.0)
     time_delta, result = send_command_simple(device, commands)
     assert time_delta.total_seconds() < threshold
