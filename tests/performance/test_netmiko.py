@@ -2,7 +2,6 @@ import os
 from os import path
 import yaml
 import time
-import functools
 from datetime import datetime
 import csv
 
