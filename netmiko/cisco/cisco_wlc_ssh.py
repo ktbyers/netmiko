@@ -44,7 +44,7 @@ class CiscoWlcSSH(BaseConnection):
                     break
                 time.sleep(delay_factor * 1)
             else:
-                self.write_channel(self.RETURN)
+                # no output read, sleep and go for one more round of read channel
                 time.sleep(delay_factor * 1.5)
             i += 1
 
