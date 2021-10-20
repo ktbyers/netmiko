@@ -175,7 +175,7 @@ CLASS_MAPPER_BASE = {
     "extreme_netiron": ExtremeNetironSSH,
     "extreme_nos": ExtremeNosSSH,
     "extreme_slx": ExtremeSlxSSH,
-    "extreme_Tierra": ExtremeTierraSSH,
+    "extreme_tierra": ExtremeTierraSSH,
     "extreme_vdx": ExtremeNosSSH,
     "extreme_vsp": ExtremeVspSSH,
     "extreme_wing": ExtremeWingSSH,
