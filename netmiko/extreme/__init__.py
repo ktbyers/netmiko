@@ -16,6 +16,7 @@ __all__ = [
     "ExtremeNetironTelnet",
     "ExtremeNosSSH",
     "ExtremeSlxSSH",
+    "ExtremeTierraSSH",
     "ExtremeVspSSH",
     "ExtremeWingSSH",
 ]
