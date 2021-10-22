@@ -11,7 +11,7 @@ class ExtremeTierraSSH(NoEnable, CiscoSSHConnection):
         self._test_channel_read(pattern=r"#")
         self.set_base_prompt()
         self.set_terminal_width()
-        self.disable_paging()
+        self.disable_paging(command="terminal length 0")
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Adding a delay after login."""
