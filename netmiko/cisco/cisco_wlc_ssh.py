@@ -108,8 +108,15 @@ class CiscoWlcSSH(BaseConnection):
         Arguments are the same as send_command_timing() method
         """
         output = self._send_command_timing_str(*args, **kwargs)
+
         if "(y/n)" in output:
-            output += self._send_command_timing_str("y")
+            output = "\n".join(output.split("\n")[:-1])  # stripping y/n prompt line
+            new_args = list(args)
+            if len(args) == 1:
+                new_args[0] = "y"
+            else:
+                kwargs["command_string"] = "y"
+            output += self._send_command_timing_str(*new_args, **kwargs)
         strip_prompt = kwargs.get("strip_prompt", True)
         if strip_prompt:
             # Had to strip trailing prompt twice.
