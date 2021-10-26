@@ -151,3 +151,21 @@ def test_session_log_secrets(device_slog):
             assert conn.secret not in session_log
     else:
         assert True
+
+def test_unicode(device_slog):
+    """Verify that you can write unicode characters into the session_log."""
+    conn = ConnectHandler(**device_slog)
+
+    smiley_face = "\N{grinning face with smiling eyes}"
+    conn.session_log.write("\nTesting unicode\n")
+    conn.session_log.write(smiley_face)
+    conn.session_log.write(smiley_face)
+
+    session_log_obj = conn.session_log
+    if not isinstance(session_log_obj.session_log, io.BufferedIOBase):
+        with open(session_log_obj.session_log.name, "r") as f:
+            session_log = f.read()
+            print("HERE")
+            assert smiley_face in session_log
+    else:
+        assert True

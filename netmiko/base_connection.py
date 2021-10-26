@@ -160,7 +160,7 @@ class BaseConnection:
         session_log_record_writes: bool = False,
         session_log_file_mode: str = "write",
         allow_auto_change: bool = False,
-        encoding: str = "ascii",
+        encoding: str = "utf-8",
         sock: Optional[socket.socket] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
@@ -248,7 +248,7 @@ class BaseConnection:
                 (default: False)
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: ascii)
+                (default: utf-8)
 
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
