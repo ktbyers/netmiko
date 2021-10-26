@@ -152,6 +152,7 @@ def test_session_log_secrets(device_slog):
     else:
         assert True
 
+
 def test_unicode(device_slog):
     """Verify that you can write unicode characters into the session_log."""
     conn = ConnectHandler(**device_slog)
