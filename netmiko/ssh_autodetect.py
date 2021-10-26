@@ -204,6 +204,12 @@ SSH_MAPPER_DICT = {
         "search_patterns": [r"CISCO_WLC"],
         "priority": 99,
     },
+    "cisco_wlc_85": {
+        "cmd": "show inventory",
+        "dispatch": "_autodetect_std",
+        "search_patterns": [r"Cisco Wireless Controller"],
+        "priority": 99,
+    },
     "mellanox_mlnxos": {
         "cmd": "show version",
         "search_patterns": [r"Onyx", r"SX_PPC_M460EX"],
@@ -315,6 +321,10 @@ class SSHDetect(object):
                     best_match = sorted(
                         self.potential_matches.items(), key=lambda t: t[1], reverse=True
                     )
+                    # WLC needs two different auto-dectect solutions
+                    if "cisco_wlc_85" in best_match[0]:
+                        best_match[0] = ("cisco_wlc", 99)
+
                     self.connection.disconnect()
                     return best_match[0][0]
 
