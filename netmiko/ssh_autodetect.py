@@ -321,11 +321,10 @@ class SSHDetect(object):
                     best_match = sorted(
                         self.potential_matches.items(), key=lambda t: t[1], reverse=True
                     )
-                    # WLC needs to different auto-dectect solutions
+                    # WLC needs two different auto-dectect solutions
                     if "cisco_wlc_85" in best_match[0]:
-                        tmp_best_match = list(best_match[0])
-                        tmp_best_match[0] = "cisco_wlc"
-                        best_match[0] = tuple(tmp_best_match)
+                        best_match[0] = ("cisco_wlc", 99)
+
                     self.connection.disconnect()
                     return best_match[0][0]
 
