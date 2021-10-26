@@ -163,5 +163,3 @@ def test_session_log_bytesio(device_slog, commands, expected_responses):
     log_content = s_log.getvalue()
     session_log_md5 = calc_md5(contents=log_content)
     assert session_log_md5 == compare_log_md5
-
-
