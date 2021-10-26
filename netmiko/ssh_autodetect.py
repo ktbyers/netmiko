@@ -198,18 +198,18 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "cisco_wlc_85": {
+    "cisco_wlc": {
         "cmd": "",
         "dispatch": "_autodetect_remote_version",
         "search_patterns": [r"CISCO_WLC"],
-        "priority": 98,
+        "priority": 99,
     },
-    "cisco_wlc": {
+    "cisco_wlc_85": {
         "cmd": "show inventory",
         "dispatch": "_autodetect_std",
         "search_patterns": [r"Cisco Wireless Controller"],
         "priority": 99,
-     },
+    },
     "mellanox_mlnxos": {
         "cmd": "show version",
         "search_patterns": [r"Onyx", r"SX_PPC_M460EX"],
@@ -321,10 +321,10 @@ class SSHDetect(object):
                     best_match = sorted(
                         self.potential_matches.items(), key=lambda t: t[1], reverse=True
                     )
-                    # Fix to deal with multiple Cisco WLC device types
-                    if 'cisco_wlc_85' in best_match[0]:
+                    # WLC needs to different auto-dectect solutions
+                    if "cisco_wlc_85" in best_match[0]:
                         tmp_best_match = list(best_match[0])
-                        tmp_best_match[0] = 'cisco_wlc'
+                        tmp_best_match[0] = "cisco_wlc"
                         best_match[0] = tuple(tmp_best_match)
                     self.connection.disconnect()
                     return best_match[0][0]
@@ -337,10 +337,6 @@ class SSHDetect(object):
             self.potential_matches.items(), key=lambda t: t[1], reverse=True
         )
         self.connection.disconnect()
-        if 'cisco_wlc_85' in best_match[0]:
-            tmp_best_match = list(best_match[0])
-            tmp_best_match[0] = 'cisco_wlc'
-            best_match[0] = tuple(tmp_best_match)
         return best_match[0][0]
 
     def _send_command(self, cmd: str = "") -> str:
