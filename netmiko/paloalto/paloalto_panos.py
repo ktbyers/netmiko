@@ -66,12 +66,23 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         """
         self.ansi_escape_codes = True
         self._test_channel_read(pattern=r"[>#]")
-        self.disable_paging(command="set cli scripting-mode on", cmd_verify=False)
+        self.disable_paging(
+            command="set cli scripting-mode on", cmd_verify=False, pattern=r" on"
+        )
         self.set_terminal_width(
             command="set cli terminal width 500", pattern=r"set cli terminal width 500"
         )
         self.disable_paging(command="set cli pager off")
         self.set_base_prompt()
+
+        # PA devices can be really slow--try to make sure we are caught up
+        self.write_channel("show admins\n")
+        self._test_channel_read(pattern=r"Client")
+        self._test_channel_read(pattern=r"[>#]")
+
+    def find_prompt(self, delay_factor: float = 5.0) -> str:
+        """PA devices can be very slow to respond (in certain situations)"""
+        return super().find_prompt(delay_factor=delay_factor)
 
     def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""
