@@ -330,7 +330,6 @@ class BaseConnection:
                 self.session_log = SessionLog(
                     file_name=session_log,
                     file_mode=session_log_file_mode,
-                    file_encoding=encoding,
                     no_log=no_log,
                     record_writes=session_log_record_writes,
                 )

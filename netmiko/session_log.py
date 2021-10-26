@@ -9,7 +9,7 @@ class SessionLog:
         file_name: Optional[str] = None,
         buffered_io: Optional[io.BufferedIOBase] = None,
         file_mode: str = "write",
-        file_encoding: str = "ascii",
+        file_encoding: str = "utf-8",
         no_log: Dict[str, Any] = None,
         record_writes: bool = False,
     ) -> None:
