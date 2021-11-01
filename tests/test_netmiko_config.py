@@ -148,6 +148,23 @@ def test_config_error_pattern(net_connect, commands, expected_responses):
         print("Skipping test: no error_pattern supplied.")
 
 
+def test_banner(net_connect, commands, expected_responses):
+    """
+    Banner configuration has a special exclusing where cmd_verify is dynamically
+    disabled so make sure it works.
+    """
+    # Make sure banner comes in as separate lines
+    banner = commands.get("banner").splitlines()
+    if banner is None:
+        pytest.skip("No banner defined.")
+    config_base = commands.get("config")
+    config_list = config_base + banner
+
+    net_connect.send_config_set(config_commands=config_list)
+    show_run = net_connect.send_command("show run | inc banner log")
+    assert "banner login" in show_run
+
+
 def test_disconnect(net_connect, commands, expected_responses):
     """
     Terminate the SSH session

@@ -1965,7 +1965,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         :param kwargs: params to be sent to send_config_set method
         """
         with io.open(config_file, "rt", encoding="utf-8") as cfg_file:
-            return self.send_config_set(cfg_file, **kwargs)
+            commands = cfg_file.readlines()
+        return self.send_config_set(commands, **kwargs)
 
     def send_config_set(
         self,
@@ -2017,6 +2018,18 @@ You can also look at the Netmiko session_log or debug log for more information.
         :param terminator: Regular expression pattern to use as an alternate terminator in certain
         situations.
         """
+
+        if self.global_cmd_verify is not None:
+            cmd_verify = self.global_cmd_verify
+
+        # Commands where cmd_verify is automatically disabled
+        # reg-ex logical-or
+        bypass_commands = r"^banner .*$"
+        bypass_detected = any(
+            [True for cmd in config_commands if re.search(bypass_commands, cmd)]
+        )
+        if bypass_detected:
+            cmd_verify = False
 
         if delay_factor is not None or max_loops is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
