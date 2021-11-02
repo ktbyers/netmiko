@@ -54,6 +54,7 @@ class HPComwareBase(CiscoSSHConnection):
         enter_config_mode: bool = True,
         error_pattern: str = "",
         terminator: str = r"\]",
+        bypass_commands: Optional[str] = None,
     ) -> str:
         return super().send_config_set(
             config_commands=config_commands,
@@ -68,6 +69,7 @@ class HPComwareBase(CiscoSSHConnection):
             enter_config_mode=enter_config_mode,
             error_pattern=error_pattern,
             terminator=terminator,
+            bypass_commands=bypass_commands,
         )
 
     def set_base_prompt(
