@@ -1983,6 +1983,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         enter_config_mode: bool = True,
         error_pattern: str = "",
         terminator: str = r"#",
+        bypass_commands: Optional[str] = None,
     ) -> str:
         """
         Send configuration commands down the SSH channel.
@@ -2017,19 +2018,13 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param terminator: Regular expression pattern to use as an alternate terminator in certain
         situations.
+
+        :param bypass_commands: Regular expression pattern indicating configuration commands
+        where cmd_verify is automatically disabled.
         """
 
         if self.global_cmd_verify is not None:
             cmd_verify = self.global_cmd_verify
-
-        # Commands where cmd_verify is automatically disabled
-        # reg-ex logical-or
-        bypass_commands = r"^banner .*$"
-        bypass_detected = any(
-            [True for cmd in config_commands if re.search(bypass_commands, cmd)]
-        )
-        if bypass_detected:
-            cmd_verify = False
 
         if delay_factor is not None or max_loops is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
@@ -2064,6 +2059,19 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
+
+        if bypass_commands is None:
+            # Commands where cmd_verify is automatically disabled reg-ex logical-or
+            bypass_commands = r"^banner .*$"
+
+        # Set bypass_commands="" to force no-bypass (usually for testing)
+        bypass_detected = False
+        if bypass_commands:
+            bypass_detected = any(
+                [True for cmd in config_commands if re.search(bypass_commands, cmd)]
+            )
+        if bypass_detected:
+            cmd_verify = False
 
         # Send config commands
         output = ""
