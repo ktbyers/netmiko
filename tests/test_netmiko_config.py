@@ -155,9 +155,11 @@ def test_banner(net_connect, commands, expected_responses):
     disabled so make sure it works.
     """
     # Make sure banner comes in as separate lines
-    banner = commands.get("banner").splitlines()
+    banner = commands.get("banner")
     if banner is None:
         pytest.skip("No banner defined.")
+    # Make sure banner comes in as separate lines
+    banner = banner.splitlines()
     config_base = commands.get("config")
     config_list = config_base + banner
 
@@ -186,9 +188,11 @@ def test_global_cmd_verify(net_connect, commands, expected_responses):
     """
 
     # Make sure banner comes in as separate lines
-    banner = commands.get("banner").splitlines()
+    banner = commands.get("banner")
     if banner is None:
         pytest.skip("No banner defined.")
+    # Make sure banner comes in as separate lines
+    banner = banner.splitlines()
     config_base = commands.get("config")
     config_list = config_base + banner
 
