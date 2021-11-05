@@ -149,6 +149,38 @@ def test_config_error_pattern(net_connect, commands, expected_responses):
         print("Skipping test: no error_pattern supplied.")
 
 
+def test_banner(net_connect, commands, expected_responses):
+    """
+    Banner configuration has a special exclusing where cmd_verify is dynamically
+    disabled so make sure it works.
+    """
+    # Make sure banner comes in as separate lines
+    banner = commands.get("banner")
+    if banner is None:
+        pytest.skip("No banner defined.")
+    # Make sure banner comes in as separate lines
+    banner = banner.splitlines()
+    config_base = commands.get("config")
+    config_list = config_base + banner
+
+    # Remove any existing banner
+    net_connect.send_config_set("no banner login")
+
+    # bypass_commands="" should fail as cmd_verify will be True
+    with pytest.raises(ReadTimeout) as e:  # noqa
+        net_connect.send_config_set(config_commands=config_list, bypass_commands="")
+
+    # Recover from send_config_set failure. The "%" is to finish the failed banner.
+    net_connect.write_channel("%\n")
+    net_connect.exit_config_mode()
+
+    net_connect.send_config_set(config_commands=config_list)
+    show_run = net_connect.send_command("show run | inc banner log")
+    assert "banner login" in show_run
+
+    net_connect.send_config_set("no banner login")
+
+
 def test_global_cmd_verify(net_connect, commands, expected_responses):
     """
     Banner configuration has a special exclusing where cmd_verify is dynamically
@@ -156,9 +188,11 @@ def test_global_cmd_verify(net_connect, commands, expected_responses):
     """
 
     # Make sure banner comes in as separate lines
-    banner = commands.get("banner").splitlines()
+    banner = commands.get("banner")
     if banner is None:
         pytest.skip("No banner defined.")
+    # Make sure banner comes in as separate lines
+    banner = banner.splitlines()
     config_base = commands.get("config")
     config_list = config_base + banner
 
@@ -176,36 +210,6 @@ def test_global_cmd_verify(net_connect, commands, expected_responses):
     net_connect.global_cmd_verify = False
     # Should work now as global_cmd_verify is False
     net_connect.send_config_set(config_commands=config_list, bypass_commands="")
-    show_run = net_connect.send_command("show run | inc banner log")
-    assert "banner login" in show_run
-
-    net_connect.send_config_set("no banner login")
-
-
-def test_banner(net_connect, commands, expected_responses):
-    """
-    Banner configuration has a special exclusing where cmd_verify is dynamically
-    disabled so make sure it works.
-    """
-    # Make sure banner comes in as separate lines
-    banner = commands.get("banner").splitlines()
-    if banner is None:
-        pytest.skip("No banner defined.")
-    config_base = commands.get("config")
-    config_list = config_base + banner
-
-    # Remove any existing banner
-    net_connect.send_config_set("no banner login")
-
-    # bypass_commands="" should fail as cmd_verify will be True
-    with pytest.raises(ReadTimeout) as e:  # noqa
-        net_connect.send_config_set(config_commands=config_list, bypass_commands="")
-
-    # Recover from send_config_set failure. The "%" is to finish the failed banner.
-    net_connect.write_channel("%\n")
-    net_connect.exit_config_mode()
-
-    net_connect.send_config_set(config_commands=config_list)
     show_run = net_connect.send_command("show run | inc banner log")
     assert "banner login" in show_run
 
