@@ -15,7 +15,9 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
     Implements methods for interacting Ciena Saos devices.
     """
 
-    def set_base_prompt(self, pri_prompt_terminator="$", alt_prompt_terminator=">", delay_factor=1):
+    def set_base_prompt(
+        self, pri_prompt_terminator="$", alt_prompt_terminator=">", delay_factor=1
+    ):
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
