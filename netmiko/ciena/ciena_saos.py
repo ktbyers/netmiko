@@ -15,8 +15,16 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
     Implements methods for interacting Ciena Saos devices.
     """
 
+    def set_base_prompt(self, pri_prompt_terminator="$", alt_prompt_terminator=">", delay_factor=1):
+        prompt = self.find_prompt(delay_factor=delay_factor)
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError(f"Router prompt not found: {repr(prompt)}")
+        # Strip off trailing terminator
+        self.base_prompt = prompt[:-1]
+        return self.base_prompt
+
     def session_preparation(self) -> None:
-        self._test_channel_read(pattern=r"[>#]")
+        self._test_channel_read(pattern=r"[>#$]")
         self.set_base_prompt()
         self.disable_paging(command="system shell session set more off")
 
