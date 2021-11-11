@@ -251,3 +251,16 @@ ubiquiti_edgerouter:
   ip: 192.168.1.1
   username: ubnt
   password: ubnt
+
+cenet_osa:
+  device_type: cenet_osa
+  ip: 192.168.0.81
+  username: root
+  password: Qwe123!@#$
+
+cenet_osb:
+  device_type: cenet_osb
+  ip: 192.168.0.82
+  username: root
+  password: Qwe123!@#$
+  secret: Qwe123!@#$

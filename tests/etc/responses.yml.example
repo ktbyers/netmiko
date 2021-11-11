@@ -339,3 +339,17 @@ ubiquiti_edgerouter:
   multiple_line_output: "switch switch0 {"
   cmd_response_init: "enabled true"
   cmd_response_final: "enabled false"
+
+cenet_osa:
+  base_prompt: "switch"
+  router_prompt: "switch>"
+  enable_prompt: "switch#"
+  interface_ip: "192.168.0.81"
+  version_banner: "CEN Operating System Software"
+
+cenet_osb:
+  base_prompt: "switch"
+  router_prompt: "switch>"
+  enable_prompt: "switch#"
+  interface_ip: "192.168.0.82"
+  version_banner: "CEN Operating System Software"

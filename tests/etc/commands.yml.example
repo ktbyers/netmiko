@@ -490,3 +490,13 @@ ubiquiti_edgerouter:
     - "set system coredump enabled false"
   support_commit: True
   config_verification: "show system coredump enabled"
+
+cenet_osa:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show running-config"
+
+cenet_osb:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show running-config"

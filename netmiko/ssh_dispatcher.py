@@ -107,6 +107,7 @@ from netmiko.zte import ZteZxrosSSH
 from netmiko.zte import ZteZxrosTelnet
 from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
+from netmiko.coreedge import CenetOSASSH, CenetOSBSSH
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -229,6 +230,8 @@ CLASS_MAPPER_BASE = {
     "watchguard_fireware": WatchguardFirewareSSH,
     "zte_zxros": ZteZxrosSSH,
     "yamaha": YamahaSSH,
+    "cenet_osa": CenetOSASSH,
+    "cenet_osb": CenetOSBSSH,
 }
 
 FILE_TRANSFER_MAP = {
