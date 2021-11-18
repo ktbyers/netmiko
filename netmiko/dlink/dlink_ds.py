@@ -22,7 +22,7 @@ class DlinkDSBase(NoEnable, NoConfig, CiscoSSHConnection):
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
-    def cleanup(self, command: str = "exit") -> None:
+    def cleanup(self, command: str = "logout") -> None:
         """Return paging before disconnect"""
         self.send_command_timing("enable clipaging")
         return super().cleanup(command=command)
