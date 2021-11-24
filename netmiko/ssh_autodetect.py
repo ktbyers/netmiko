@@ -136,6 +136,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+  	"dlink_ds": {
+        "cmd": "show switch",
+        "search_patterns": [r"(DGS|DES)-.*"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "f5_tmsh": {
         "cmd": "show sys version",
         "search_patterns": [r"BIG-IP"],
@@ -456,6 +462,8 @@ class SSHDetect(object):
             r"command not found",
             r"Syntax Error: unexpected argument",
             r"% Unrecognized command found at",
+            r"Next possible completions:",
+            r"Available commands:",
         ]
         if not cmd or not search_patterns:
             return 0
