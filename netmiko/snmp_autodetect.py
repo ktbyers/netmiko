@@ -54,6 +54,11 @@ SNMP_MAPPER_BASE = {
         "expr": re.compile(r".ProCurve", re.IGNORECASE),
         "priority": 99,
     },
+    "huawei": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Huawei", re.IGNORECASE),
+        "priority": 99,
+    },
     "cisco_ios": {
         "oid": ".1.3.6.1.2.1.1.1.0",
         "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
