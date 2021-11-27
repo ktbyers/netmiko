@@ -255,7 +255,8 @@ class SNMPDetect(object):
         Returns
         -------
         string : str
-            The string as part of the value from the OID you are trying to retrieve.
+            The string as part of the value from the OID you are trying to retrieve or
+            no_snmp_response if no SNMP response received before timeout.
         """
         snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
@@ -274,13 +275,16 @@ class SNMPDetect(object):
             lookupValues=True,
         )
 
-        if not error_detected and snmp_data[0][1]:
+        if error_detected:
+            return "no_snmp_response"
+        elif not error_detected and snmp_data[0][1]:
             return str(snmp_data[0][1])
         return ""
 
     def _get_snmpv2c(self, oid: str) -> str:
         """
-        Try to send an SNMP GET operation using SNMPv2 for the specified OID.
+        Try to send an SNMP GET operation using SNMPv2 for the specified OID or
+            no_snmp_response if no SNMP response received before timeout.
 
         Parameters
         ----------
@@ -303,7 +307,9 @@ class SNMPDetect(object):
             lookupValues=True,
         )
 
-        if not error_detected and snmp_data[0][1]:
+        if error_detected:
+            return "no_snmp_response"
+        elif not error_detected and snmp_data[0][1]:
             return str(snmp_data[0][1])
         return ""
 
@@ -321,6 +327,9 @@ class SNMPDetect(object):
         dict.
 
         Thus you can use this name to retrieve automatically the right ConnectionClass
+        
+        If strict_mode is True, rise ConnectionError if device not a response by SNMP 
+        on condition unreachable or wrong community.
 
         Returns
         -------
@@ -347,6 +356,10 @@ class SNMPDetect(object):
                 else:
                     snmp_response = self._get_snmp(oid)
                     self._response_cache[oid] = snmp_response
+
+                # Generate exception if strict_mode = True and no SNMP response received before timeout
+                if strict_mode and snmp_response == "no_snmp_response":
+                    raise ConnectionError("No SNMP response received before timeout")
 
                 # See if we had a match
                 if re.search(regex, snmp_response):
