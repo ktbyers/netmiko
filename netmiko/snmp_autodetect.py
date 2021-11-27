@@ -357,7 +357,8 @@ class SNMPDetect(object):
                     snmp_response = self._get_snmp(oid)
                     self._response_cache[oid] = snmp_response
 
-                # Generate exception if strict_mode = True and no SNMP response received before timeout
+                # Generate exception if strict_mode = True and no SNMP response 
+                # received before timeout
                 if strict_mode and snmp_response == "no_snmp_response":
                     raise ConnectionError("No SNMP response received before timeout")
 
