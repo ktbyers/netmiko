@@ -320,7 +320,7 @@ class SNMPDetect(object):
         else:
             return self._get_snmpv3(oid)
 
-    def autodetect(self) -> Optional[str]:
+    def autodetect(self, strict_mode: bool = False) -> Optional[str]:
         """
         Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
         is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
