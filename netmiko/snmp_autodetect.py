@@ -327,8 +327,8 @@ class SNMPDetect(object):
         dict.
 
         Thus you can use this name to retrieve automatically the right ConnectionClass
-        
-        If strict_mode is True, rise ConnectionError if device not a response by SNMP 
+
+        If strict_mode is True, rise ConnectionError if device not a response by SNMP
         on condition unreachable or wrong community.
 
         Returns
