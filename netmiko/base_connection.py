@@ -316,12 +316,12 @@ class BaseConnection:
         self.sock = sock
 
         # prevent logging secret data
-        self.no_log = {}
+        no_log = {}
         if self.password:
-            self.no_log["password"] = self.password
+            no_log["password"] = self.password
         if self.secret:
-            self.no_log["secret"] = self.secret
-        log.addFilter(SecretsFilter(no_log=self.no_log))
+            no_log["secret"] = self.secret
+        log.addFilter(SecretsFilter(no_log=no_log))
 
         # Netmiko will close the session_log if we open the file
         self.session_log = None
@@ -332,7 +332,7 @@ class BaseConnection:
                 self.session_log = SessionLog(
                     file_name=session_log,
                     file_mode=session_log_file_mode,
-                    no_log=self.no_log,
+                    no_log=no_log,
                     record_writes=session_log_record_writes,
                 )
                 self.session_log.open()
@@ -340,7 +340,7 @@ class BaseConnection:
                 # In-memory buffer or an already open file handle
                 self.session_log = SessionLog(
                     buffered_io=session_log,
-                    no_log=self.no_log,
+                    no_log=no_log,
                     record_writes=session_log_record_writes,
                 )
             else:
