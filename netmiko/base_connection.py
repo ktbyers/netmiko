@@ -32,13 +32,14 @@ from collections import deque
 from os import path
 from threading import Lock
 import functools
+import logging
 
 import paramiko
 import serial
 from tenacity import retry, stop_after_attempt, wait_exponential
 import warnings
 
-from netmiko import log, SecretsFilter
+from netmiko import log
 from netmiko.netmiko_globals import BACKSPACE_CHAR
 from netmiko.exceptions import (
     NetmikoTimeoutException,
@@ -69,6 +70,19 @@ F = TypeVar("F", bound=Callable[..., Any])
 DELAY_FACTOR_DEPR_SIMPLE_MSG = """\n
 Netmiko 4.x and later has deprecated the use of delay_factor and/or max_loops in
 this context. You should remove any use of delay_factor=x from this method call.\n"""
+
+
+# Logging filter for #2597
+class SecretsFilter(logging.Filter):
+    def __init__(self, no_log: Optional[Dict[Any, str]] = None) -> None:
+        self.no_log = no_log
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """Removes secrets (no_log) from messages"""
+        if self.no_log:
+            for hidden_data in self.no_log.values():
+                record.msg = record.msg.replace(hidden_data, "********")
+        return True
 
 
 def lock_channel(func: F) -> F:
