@@ -28,6 +28,8 @@ from netmiko.ssh_autodetect import SSHDetect
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_functions import file_transfer, progress_bar
 
+from typing import Any, Dict, Optional
+
 # Alternate naming
 Netmiko = ConnectHandler
 
@@ -64,10 +66,10 @@ CNTL_SHIFT_6 = chr(30)
 
 # Logging filter for #2597
 class SecretsFilter(logging.Filter):
-    def __init__(self, no_log=None):
+    def __init__(self, no_log: Optional[Dict[Any, str]] = None) -> None:
         self.no_log = no_log
 
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         """Removes secrets (no_log) from messages"""
         if self.no_log:
             for hidden_data in self.no_log.values():

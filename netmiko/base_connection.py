@@ -115,6 +115,12 @@ class BaseConnection:
     Otherwise method left as a stub method.
     """
 
+    # resolve typing
+    session_log: Union[SessionLog, None]
+    _legacy_mode: bool
+    fast_cli: bool
+    global_cmd_verify: Union[bool, None]
+
     def __init__(
         self,
         ip: str = "",
