@@ -2,6 +2,7 @@
 import time
 import hashlib
 import io
+import logging
 from netmiko import ConnectHandler
 
 
@@ -128,6 +129,36 @@ def test_session_log_secrets(device_slog):
         assert conn.password not in session_log
     if conn.secret:
         assert conn.secret not in session_log
+
+
+def test_logging_filter_secrets(net_connect_slog_wr):
+    """Verify logging DEBUG output does not contain password or secret."""
+    nc = net_connect_slog_wr
+    # setup logger to output to file
+    file_name = nc.session_log.file_name
+    netmikologger = logging.getLogger("netmiko")
+    netmikologger.setLevel(logging.DEBUG)
+    file_handler = logging.FileHandler(file_name)
+    file_handler.setLevel(logging.DEBUG)
+    netmikologger.addHandler(file_handler)
+    # prevent session_log from further writing to the same file
+    nc.session_log = None
+    # cleanup the log file
+    with open(file_name, "w") as f:
+        f.write("")
+
+    # run sequence
+    nc.enable()
+    time.sleep(1)
+    nc.clear_buffer()
+    nc.disconnect()
+
+    with open(file_name, "r") as f:
+        session_log = f.read()
+    if nc.password:
+        assert nc.password not in session_log
+    if nc.secret:
+        assert nc.secret not in session_log
 
 
 def test_unicode(device_slog):
