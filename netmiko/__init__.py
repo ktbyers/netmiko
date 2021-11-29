@@ -4,19 +4,6 @@ import logging
 log = logging.getLogger(__name__)  # noqa
 log.addHandler(logging.NullHandler())  # noqa
 
-
-class SecretsFilter(logging.Filter):
-    def __init__(self, no_log=None):
-        self.no_log = no_log
-
-    def filter(self, record):
-        """Removes secrets (no_log) from messages"""
-        if self.no_log:
-            for hidden_data in self.no_log.values():
-                record.msg = record.msg.replace(hidden_data, "********")
-        return True
-
-
 from netmiko.ssh_dispatcher import ConnectHandler
 from netmiko.ssh_dispatcher import ConnLogOnly
 from netmiko.ssh_dispatcher import ConnUnify
@@ -73,3 +60,16 @@ __all__ = (
 
 # Cisco cntl-shift-six sequence
 CNTL_SHIFT_6 = chr(30)
+
+
+# Logging filter for #2597
+class SecretsFilter(logging.Filter):
+    def __init__(self, no_log=None):
+        self.no_log = no_log
+
+    def filter(self, record):
+        """Removes secrets (no_log) from messages"""
+        if self.no_log:
+            for hidden_data in self.no_log.values():
+                record.msg = record.msg.replace(hidden_data, "********")
+        return True
