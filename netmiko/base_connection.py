@@ -330,7 +330,6 @@ class BaseConnection:
                 self.session_log = SessionLog(
                     file_name=session_log,
                     file_mode=session_log_file_mode,
-                    file_encoding=encoding,
                     no_log=no_log,
                     record_writes=session_log_record_writes,
                 )
@@ -1176,9 +1175,11 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         if cmd_verify and self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+            output = self.read_until_pattern(
+                pattern=re.escape(command.strip()), read_timeout=20
+            )
         elif pattern:
-            output = self.read_until_pattern(pattern=pattern)
+            output = self.read_until_pattern(pattern=pattern, read_timeout=20)
         else:
             output = self.read_until_prompt()
         log.debug(f"{output}")
@@ -1964,7 +1965,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         :param kwargs: params to be sent to send_config_set method
         """
         with io.open(config_file, "rt", encoding="utf-8") as cfg_file:
-            return self.send_config_set(cfg_file, **kwargs)
+            commands = cfg_file.readlines()
+        return self.send_config_set(commands, **kwargs)
 
     def send_config_set(
         self,
@@ -1981,6 +1983,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         enter_config_mode: bool = True,
         error_pattern: str = "",
         terminator: str = r"#",
+        bypass_commands: Optional[str] = None,
     ) -> str:
         """
         Send configuration commands down the SSH channel.
@@ -2015,7 +2018,13 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param terminator: Regular expression pattern to use as an alternate terminator in certain
         situations.
+
+        :param bypass_commands: Regular expression pattern indicating configuration commands
+        where cmd_verify is automatically disabled.
         """
+
+        if self.global_cmd_verify is not None:
+            cmd_verify = self.global_cmd_verify
 
         if delay_factor is not None or max_loops is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
@@ -2050,6 +2059,19 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
+
+        if bypass_commands is None:
+            # Commands where cmd_verify is automatically disabled reg-ex logical-or
+            bypass_commands = r"^banner .*$"
+
+        # Set bypass_commands="" to force no-bypass (usually for testing)
+        bypass_detected = False
+        if bypass_commands:
+            bypass_detected = any(
+                [True for cmd in config_commands if re.search(bypass_commands, cmd)]
+            )
+        if bypass_detected:
+            cmd_verify = False
 
         # Send config commands
         output = ""

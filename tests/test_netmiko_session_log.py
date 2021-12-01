@@ -114,6 +114,37 @@ def test_session_log_append(device_slog, commands, expected_responses):
     session_log_md5_append(session_file, compare_file)
 
 
+def test_session_log_secrets(device_slog):
+    """Verify session_log does not contain password or secret."""
+    conn = ConnectHandler(**device_slog)
+    conn.session_log.write("\nTesting password and secret replacement\n")
+    conn.session_log.write("This is my password {}\n".format(conn.password))
+    conn.session_log.write("This is my secret {}\n".format(conn.secret))
+
+    file_name = device_slog["session_log"]
+    with open(file_name, "r") as f:
+        session_log = f.read()
+    if conn.password:
+        assert conn.password not in session_log
+    if conn.secret:
+        assert conn.secret not in session_log
+
+
+def test_unicode(device_slog):
+    """Verify that you can write unicode characters into the session_log."""
+    conn = ConnectHandler(**device_slog)
+
+    smiley_face = "\N{grinning face with smiling eyes}"
+    conn.session_log.write("\nTesting unicode\n")
+    conn.session_log.write(smiley_face)
+    conn.session_log.write(smiley_face)
+
+    file_name = device_slog["session_log"]
+    with open(file_name, "r") as f:
+        session_log = f.read()
+        assert smiley_face in session_log
+
+
 def test_session_log_bytesio(device_slog, commands, expected_responses):
     """Verify session_log matches expected content, but when channel writes are also logged."""
     s_log = io.BytesIO()
@@ -132,22 +163,3 @@ def test_session_log_bytesio(device_slog, commands, expected_responses):
     log_content = s_log.getvalue()
     session_log_md5 = calc_md5(contents=log_content)
     assert session_log_md5 == compare_log_md5
-
-
-def test_session_log_secrets(device_slog):
-    """Verify session_log does not contain password or secret."""
-    conn = ConnectHandler(**device_slog)
-    conn.session_log.write("\nTesting password and secret replacement\n")
-    conn.session_log.write("This is my password {}\n".format(conn.password))
-    conn.session_log.write("This is my secret {}\n".format(conn.secret))
-
-    session_log_obj = conn.session_log
-    if not isinstance(session_log_obj.session_log, io.BufferedIOBase):
-        with open(session_log_obj.session_log.name, "r") as f:
-            session_log = f.read()
-        if conn.password:
-            assert conn.password not in session_log
-        if conn.secret:
-            assert conn.secret not in session_log
-    else:
-        assert True
