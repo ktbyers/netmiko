@@ -175,7 +175,6 @@
 - keymile
 - keymile_nos
 - linux
-- mellanox
 - mellanox_mlnxos
 - mikrotik_routeros
 - mikrotik_switchos
@@ -185,6 +184,7 @@
 - netgear_prosafe
 - netscaler
 - nokia_sros
+- NVIDIA-Mellanox
 - oneaccess_oneos
 - ovs_linux
 - paloalto_panos
