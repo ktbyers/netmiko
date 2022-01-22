@@ -1229,6 +1229,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self,
         pri_prompt_terminator: str = "#",
         alt_prompt_terminator: str = ">",
+        tertiary_prompt_terminaor: str = ":"
         delay_factor: float = 1.0,
     ) -> str:
         """Sets self.base_prompt
@@ -1248,7 +1249,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param delay_factor: See __init__: global_delay_factor
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator, tertiary_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
