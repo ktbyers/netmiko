@@ -38,12 +38,12 @@
 - Huawei SmartAX
 - IP Infusion OcNOS
 - Juniper ScreenOS
-- Mellanox
 - MikroTik RouterOS
 - MikroTik SwitchOS
 - NetApp cDOT
 - Netgear ProSafe
 - Nokia/Alcatel SR OS
+- NVIDIA-Mellanox
 - OneAccess
 - Palo Alto PAN-OS
 - Pluribus
