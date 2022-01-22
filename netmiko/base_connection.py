@@ -129,12 +129,6 @@ class BaseConnection:
     Otherwise method left as a stub method.
     """
 
-    # resolve typing
-    session_log: Union[SessionLog, None]
-    _legacy_mode: bool
-    fast_cli: bool
-    global_cmd_verify: Union[bool, None]
-
     def __init__(
         self,
         ip: str = "",
@@ -334,6 +328,14 @@ class BaseConnection:
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
         self.sock = sock
+        self.fast_cli = fast_cli
+        self._legacy_mode = _legacy_mode
+        self.global_delay_factor = global_delay_factor
+        self.global_cmd_verify = global_cmd_verify
+        if self.fast_cli and self.global_delay_factor == 1:
+            self.global_delay_factor = 0.1
+        self.session_log = None
+        self._session_log_close = False
 
         # prevent logging secret data
         no_log = {}
@@ -344,8 +346,6 @@ class BaseConnection:
         log.addFilter(SecretsFilter(no_log=no_log))
 
         # Netmiko will close the session_log if we open the file
-        self.session_log = None
-        self._session_log_close = False
         if session_log is not None:
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
@@ -387,13 +387,6 @@ class BaseConnection:
             # Get the proper comm port reference if a name was enterred
             comm_port = check_serial_port(comm_port)
             self.serial_settings.update({"port": comm_port})
-
-        self.fast_cli = fast_cli
-        self._legacy_mode = _legacy_mode
-        self.global_delay_factor = global_delay_factor
-        self.global_cmd_verify = global_cmd_verify
-        if self.fast_cli and self.global_delay_factor == 1:
-            self.global_delay_factor = 0.1
 
         # set in set_base_prompt method
         self.base_prompt = ""

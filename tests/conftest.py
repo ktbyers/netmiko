@@ -89,7 +89,7 @@ def net_connect_cm(request):
     return my_prompt
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def net_connect_slog_wr(request):
     """
     Create the SSH connection to the remote device. Modify session_log init arguments.
