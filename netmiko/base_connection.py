@@ -32,6 +32,7 @@ from collections import deque
 from os import path
 from threading import Lock
 import functools
+import logging
 
 import paramiko
 import serial
@@ -69,6 +70,19 @@ F = TypeVar("F", bound=Callable[..., Any])
 DELAY_FACTOR_DEPR_SIMPLE_MSG = """\n
 Netmiko 4.x and later has deprecated the use of delay_factor and/or max_loops in
 this context. You should remove any use of delay_factor=x from this method call.\n"""
+
+
+# Logging filter for #2597
+class SecretsFilter(logging.Filter):
+    def __init__(self, no_log: Optional[Dict[Any, str]] = None) -> None:
+        self.no_log = no_log
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """Removes secrets (no_log) from messages"""
+        if self.no_log:
+            for hidden_data in self.no_log.values():
+                record.msg = record.msg.replace(hidden_data, "********")
+        return True
 
 
 def lock_channel(func: F) -> F:
@@ -314,17 +328,25 @@ class BaseConnection:
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
         self.sock = sock
-
-        # Netmiko will close the session_log if we open the file
+        self.fast_cli = fast_cli
+        self._legacy_mode = _legacy_mode
+        self.global_delay_factor = global_delay_factor
+        self.global_cmd_verify = global_cmd_verify
+        if self.fast_cli and self.global_delay_factor == 1:
+            self.global_delay_factor = 0.1
         self.session_log = None
         self._session_log_close = False
-        if session_log is not None:
-            no_log = {}
-            if self.password:
-                no_log["password"] = self.password
-            if self.secret:
-                no_log["secret"] = self.secret
 
+        # prevent logging secret data
+        no_log = {}
+        if self.password:
+            no_log["password"] = self.password
+        if self.secret:
+            no_log["secret"] = self.secret
+        log.addFilter(SecretsFilter(no_log=no_log))
+
+        # Netmiko will close the session_log if we open the file
+        if session_log is not None:
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
                 self.session_log = SessionLog(
@@ -365,13 +387,6 @@ class BaseConnection:
             # Get the proper comm port reference if a name was enterred
             comm_port = check_serial_port(comm_port)
             self.serial_settings.update({"port": comm_port})
-
-        self.fast_cli = fast_cli
-        self._legacy_mode = _legacy_mode
-        self.global_delay_factor = global_delay_factor
-        self.global_cmd_verify = global_cmd_verify
-        if self.fast_cli and self.global_delay_factor == 1:
-            self.global_delay_factor = 0.1
 
         # set in set_base_prompt method
         self.base_prompt = ""
