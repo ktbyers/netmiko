@@ -110,7 +110,7 @@ from netmiko.sophos import SophosSfosSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
-from netmiko.ubiquiti import UbiquitiEdgeRouterSSH
+from netmiko.ubiquiti import UbiquitiEdgeRouterSSH, UbiquitiEdgeRouterFileTransfer
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ubiquiti import UbiquitiUnifiSwitchSSH
 from netmiko.vyos import VyOSSSH
@@ -266,6 +266,7 @@ FILE_TRANSFER_MAP = {
     "linux": LinuxFileTransfer,
     "nokia_sros": NokiaSrosFileTransfer,
     "mikrotik_routeros": MikrotikRouterOsFileTransfer,
+    "ubiquiti_edgerouter": UbiquitiEdgeRouterFileTransfer,
 }
 
 # Also support keys that end in _ssh
