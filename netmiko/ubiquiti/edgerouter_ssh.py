@@ -1,9 +1,19 @@
-import time
+import time, re
+from typing import Optional
 from netmiko.vyos.vyos_ssh import VyOSSSH
+from netmiko.scp_handler import BaseFileTransfer
 
 
 class UbiquitiEdgeRouterSSH(VyOSSSH):
     """Implement methods for interacting with EdgeOS EdgeRouter network devices."""
+
+    def _enter_shell(self) -> str:
+        """Already in shell."""
+        return ""
+
+    def _return_cli(self) -> str:
+        """The shell is the CLI."""
+        return ""
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -25,3 +35,30 @@ class UbiquitiEdgeRouterSSH(VyOSSSH):
         if "Done" not in output:
             raise ValueError(f"Save failed with following errors:\n\n{output}")
         return output
+
+
+class UbiquitiEdgeRouterFileTransfer(BaseFileTransfer):
+    """Ubiquiti EdgeRouter SCP File Transfer driver."""
+
+    def check_file_exists(self, remote_cmd: str = "") -> bool:
+        """Check if the dest_file already exists on the file system."""
+        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+
+    def remote_space_available(self, search_pattern: str = "") -> int:
+        """Return space available on remote device."""
+        return self._remote_space_available_unix(search_pattern=search_pattern)
+
+    def remote_md5(
+        self, base_cmd: str = "md5sum", remote_file: Optional[str] = None
+    ) -> str:
+        """Calculate remote MD5 and returns the hash."""
+        return super().remote_md5(base_cmd=base_cmd, remote_file=remote_file)
+
+    @staticmethod
+    def process_md5(md5_output: str, pattern: str = r"(\S+)\s+") -> str:
+        """Process the string to retrieve the MD5 hash"""
+        match = re.search(pattern, md5_output)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError(f"Invalid output from MD5 command: {md5_output}")
