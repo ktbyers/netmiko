@@ -490,3 +490,12 @@ ubiquiti_edgerouter:
     - "set system coredump enabled false"
   support_commit: True
   config_verification: "show system coredump enabled"
+
+zyxel:
+  version: "sys atsh"
+  basic: "cfg lan get"
+  extended_output: "cfg wlan get"
+  config:
+    - "cfg wlan edit --Band 2.4GHz --MainSSID 1 --SSID 'NetmikoTest'"
+    - "cfg wlan edit --Band 2.4GHz --MainSSID 1 --SSID 'magic2000'"
+  config_verification: "cfg intf_group get"

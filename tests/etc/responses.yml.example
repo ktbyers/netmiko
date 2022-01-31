@@ -339,3 +339,13 @@ ubiquiti_edgerouter:
   multiple_line_output: "switch switch0 {"
   cmd_response_init: "enabled true"
   cmd_response_final: "enabled false"
+
+zyxel:
+  base_prompt: "ZySH"
+  router_prompt: "ZySH>"
+  enable_prompt: "ZySH>"
+  interface_ip: "192.168.1.100"
+  version_banner: "Zyxel Communications Corp."
+  multiple_line_output: "Index   Band     SSID                                Enable     Bandwidth  Channel    MaxDevices   SecurityMode         PskValue"
+  cmd_response_init: "NetmikoTest"
+  cmd_response_final: "magic2000"
