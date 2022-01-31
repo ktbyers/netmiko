@@ -42,7 +42,7 @@ def test_remote_file_size(scp_fixture):
 
 def test_md5_methods(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
-    if "nokia_sros" in ssh_conn.device_type or "extreme_exos" in ssh_conn.device_type:
+    if ssh_conn.device_type in ["nokia_sros", "extreme_exos", "mikrotik_routeros"]:
         pytest.skip("MD5 not supported on this platform")
     md5_value = "d8df36973ff832b564ad84642d07a261"
 
@@ -82,7 +82,7 @@ def test_scp_get(scp_fixture_get):
 def test_md5_methods_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
     platform = ssh_conn.device_type
-    if "nokia_sros" in ssh_conn.device_type or "extreme_exos" in ssh_conn.device_type:
+    if ssh_conn.device_type in ["nokia_sros", "extreme_exos", "mikrotik_routeros"]:
         pytest.skip("MD5 not supported on this platform")
     md5_value = "d8df36973ff832b564ad84642d07a261"
     local_md5 = scp_transfer.file_md5(f"test_{platform}/test9.txt")
