@@ -452,7 +452,7 @@ sophos_sfos:
   basic: "system diagnostics utilities route lookup 172.16.16.16"
   extended_output: "system diagnostics show version-info"
 
-adtran_os
+adtran_os:
   version: "show version"
   basic: "show system-management-evc"
   extended_output: "show version"
