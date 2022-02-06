@@ -50,7 +50,7 @@ from netmiko.endace import EndaceSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.ericsson import EricssonIposSSH
 from netmiko.extreme import ExtremeErsSSH
-from netmiko.extreme import ExtremeExosSSH
+from netmiko.extreme import ExtremeExosSSH, ExtremeExosFileTransfer
 from netmiko.extreme import ExtremeExosTelnet
 from netmiko.extreme import ExtremeNetironSSH
 from netmiko.extreme import ExtremeNetironTelnet
@@ -240,6 +240,7 @@ FILE_TRANSFER_MAP = {
     "cisco_xe": CiscoIosFileTransfer,
     "cisco_xr": CiscoXrFileTransfer,
     "dell_os10": DellOS10FileTransfer,
+    "extreme_exos": ExtremeExosFileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
     "nokia_sros": NokiaSrosFileTransfer,
