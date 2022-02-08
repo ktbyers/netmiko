@@ -1,4 +1,5 @@
-import time, re
+import time
+import re
 from typing import Optional
 from netmiko.vyos.vyos_ssh import VyOSSSH
 from netmiko.scp_handler import BaseFileTransfer
