@@ -145,6 +145,7 @@ class BaseConnection:
         key_file: Optional[str] = None,
         pkey: Optional[paramiko.PKey] = None,
         passphrase: Optional[str] = None,
+        disabled_algorithms: Optional[Dict[str, Any]] = None,
         allow_agent: bool = False,
         ssh_strict: bool = False,
         system_host_keys: bool = False,
@@ -213,6 +214,9 @@ class BaseConnection:
 
         :param passphrase: Passphrase to use for encrypted key; password will be used for key
                 decryption if not specified.
+
+        :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+                documentation for a description of the expected format.
 
         :param allow_agent: Enable use of SSH key-agent.
 
@@ -419,6 +423,7 @@ class BaseConnection:
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
             self.alt_key_file = alt_key_file
+            self.disabled_algorithms = disabled_algorithms or {}
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
@@ -954,6 +959,7 @@ You can look at the Netmiko session_log or debug log for more information.
             "key_filename": self.key_file,
             "pkey": self.pkey,
             "passphrase": self.passphrase,
+            "disabled_algorithms": self.disabled_algorithms,
             "timeout": self.conn_timeout,
             "auth_timeout": self.auth_timeout,
             "banner_timeout": self.banner_timeout,
