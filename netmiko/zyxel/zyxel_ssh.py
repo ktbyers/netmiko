@@ -1,31 +1,13 @@
 from typing import Any, Sequence, TextIO, Union
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 
 
-class ZyxelSSH(CiscoSSHConnection):
+class ZyxelSSH(NoEnable, NoConfig, CiscoSSHConnection):
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """No paging on Zyxel"""
-        pass
-
-    def check_enable_mode(self, *args: Any, **kwargs: Any) -> bool:
-        """No enable mode on Zyxel."""
-        pass
-
-    def enable(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on Zyxel."""
-        pass
-
-    def exit_enable_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No enable mode on Zyxel."""
-        pass
-
-    def config_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No config mode on Zyxel"""
         return ""
-
-    def exit_config_mode(self, *args: Any, **kwargs: Any) -> str:
-        """No config mode on Zyxel"""
-        pass
 
     def send_config_set(
         self,
