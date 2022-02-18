@@ -1,11 +1,12 @@
 """Extreme support."""
 import os
-from typing import Any, Callable, Optional, Union, List, Dict
+from typing import Any, Optional, Union, List, Dict
 import re
 from netmiko.base_connection import BaseConnection
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.scp_handler import BaseFileTransfer
+
 
 class ExtremeExosBase(NoConfig, CiscoSSHConnection):
     """Extreme Exos support.
@@ -80,6 +81,7 @@ class ExtremeExosTelnet(ExtremeExosBase):
 
 class ExtremeExosFileTransfer(BaseFileTransfer):
     """Extreme EXOS SCP File Transfer driver."""
+
     def __init__(
         self,
         ssh_conn: "BaseConnection",
@@ -94,9 +96,9 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
             source_file=source_file,
             dest_file=dest_file,
             file_system=file_system,
-            direction=direction,        
+            direction=direction,
             hash_supported=False,
-            **kwargs
+            **kwargs,
         )
 
     def remote_space_available(self, search_pattern: str = r"(\d+)\s+\d+%$") -> int:
@@ -162,9 +164,7 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
             # Format will be: "-rw-r--r--    1 admin    admin     3934 Jan 24  2022 filename"
             file_size = line.split()[4]
         else:
-            raise IOError(
-                "Unable to parse 'ls' output in remote_file_size method"
-            )
+            raise IOError("Unable to parse 'ls' output in remote_file_size method")
         if (
             "No such file or directory" in remote_out
             or "Invalid pathname" in remote_out
@@ -172,10 +172,8 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
             raise IOError("Unable to find file on remote system")
         else:
             return int(file_size)
-    
-    def remote_md5(
-        self, base_cmd: str = "", remote_file: Optional[str] = None
-    ) -> str:
+
+    def remote_md5(self, base_cmd: str = "", remote_file: Optional[str] = None) -> str:
         msg = "For the time being, do not use MD5 check --> disable_md5=True"
         raise NotImplementedError(msg)
 
