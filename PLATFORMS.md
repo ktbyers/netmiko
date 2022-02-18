@@ -91,6 +91,7 @@
 - Ubiquiti Unifi Switch
 - Versa Networks FlexVNF
 - Watchguard Firebox
+- Zyxel NOS
 - 6WIND TurboRouter
 
 ###### Supported SSH device_type values
@@ -207,6 +208,7 @@
 - watchguard_fireware
 - yamaha
 - zte_zxros
+- zyxel_os
  
 ###### Supported Telnet device_type values
  
