@@ -253,7 +253,7 @@ ubiquiti_edgerouter:
   password: ubnt
 
 zyxel:
-  device_type: zyxel
+  device_type: zyxel_os
   ip: 192.168.1.1
   username: admin
   password: 'pass'
