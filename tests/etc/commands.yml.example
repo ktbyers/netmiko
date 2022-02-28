@@ -491,7 +491,7 @@ ubiquiti_edgerouter:
   support_commit: True
   config_verification: "show system coredump enabled"
 
-zyxel:
+zyxel_os:
   version: "sys atsh"
   basic: "cfg lan get"
   extended_output: "cfg wlan get"
