@@ -56,6 +56,7 @@ from netmiko.extreme import ExtremeNetironSSH
 from netmiko.extreme import ExtremeNetironTelnet
 from netmiko.extreme import ExtremeNosSSH
 from netmiko.extreme import ExtremeSlxSSH
+from netmiko.extreme import ExtremeTierraSSH
 from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5TmshSSH
@@ -175,6 +176,7 @@ CLASS_MAPPER_BASE = {
     "extreme_netiron": ExtremeNetironSSH,
     "extreme_nos": ExtremeNosSSH,
     "extreme_slx": ExtremeSlxSSH,
+    "extreme_tierra": ExtremeTierraSSH,
     "extreme_vdx": ExtremeNosSSH,
     "extreme_vsp": ExtremeVspSSH,
     "extreme_wing": ExtremeWingSSH,

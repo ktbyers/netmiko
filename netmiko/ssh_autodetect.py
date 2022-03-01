@@ -192,6 +192,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "extreme_tierra": {
+        "cmd": "show version",
+        "search_patterns": [r"TierraOS Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "ubiquiti_edgeswitch": {
         "cmd": "show version",
         "search_patterns": [r"EdgeSwitch"],
