@@ -29,9 +29,10 @@
 - Dell PowerConnect
 - Ericsson IPOS
 - Extreme ERS (Avaya)
-- Extreme VSP (Avaya)
-- Extreme VDX (Brocade)
 - Extreme MLX/NetIron (Brocade/Foundry)
+- Extreme TierraOS
+- Extreme VDX (Brocade)
+- Extreme VSP (Avaya)
 - HPE Comware7
 - Huawei
 - Huawei OLT
