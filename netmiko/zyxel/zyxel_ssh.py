@@ -25,6 +25,6 @@ class ZyxelSSH(NoEnable, NoConfig, CiscoSSHConnection):
         )
 
     def session_preparation(self) -> None:
+        super().session_preparation()
         # Zyxel switches output ansi codes
         self.ansi_escape_codes = True
-
