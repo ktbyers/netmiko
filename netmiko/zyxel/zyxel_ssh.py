@@ -23,3 +23,8 @@ class ZyxelSSH(NoEnable, NoConfig, CiscoSSHConnection):
             enter_config_mode=enter_config_mode,
             **kwargs
         )
+
+    def session_preparation(self) -> None:
+        # Zyxel switches output ansi codes
+        self.ansi_escape_codes = True
+
