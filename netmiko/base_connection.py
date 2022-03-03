@@ -1572,7 +1572,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 loop_delay=0.2,
                 old_timeout=self.timeout,
             )
-            msg = """\n
+            msg = f"""\n
 You have chosen to use Netmiko's delay_factor compatibility mode for send_command.
 This will revert Netmiko to behave similarly to how it did in Netmiko 3.x (i.e.
 to use delay_factor/global_delay_factor and max_loops. Using these parameters
@@ -2168,8 +2168,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
         ESC[?7l      Disable line wrapping
         ESC[2J       Code erase display
-        ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
-                     ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
+        ESC[00;32m   Color Green (30 to 37 are different colors)
         ESC[6n       Get cursor position
         ESC[1D       Move cursor position leftward by x characters (1 in this case)
         ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
