@@ -68,8 +68,9 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 DELAY_FACTOR_DEPR_SIMPLE_MSG = """\n
-Netmiko 4.x and later has deprecated the use of delay_factor and/or max_loops in
-this context. You should remove any use of delay_factor=x from this method call.\n"""
+Netmiko 4.x and later has deprecated the use of delay_factor and/or
+max_loops in this context. You should remove any use of delay_factor=x
+from this method call.\n"""
 
 
 # Logging filter for #2597
@@ -653,8 +654,8 @@ You can also look at the Netmiko session_log or debug log for more information.\
         self,
         last_read: float = 2.0,
         read_timeout: float = 120.0,
-        delay_factor: float = 1.0,
-        max_loops: int = 150,
+        delay_factor: Optional[float] = None,
+        max_loops: Optional[int] = None,
     ) -> str:
         """Read data on the channel based on timing delays.
 
@@ -1572,12 +1573,14 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 loop_delay=0.2,
                 old_timeout=self.timeout,
             )
-            msg = """\n
-You have chosen to use Netmiko's delay_factor compatibility mode for send_command.
-This will revert Netmiko to behave similarly to how it did in Netmiko 3.x (i.e.
-to use delay_factor/global_delay_factor and max_loops. Using these parameters
-Netmiko has calculated an effective read_timeout of {compat_timeout} and will set
-the read_timeout to this value.
+            msg = f"""\n
+You have chosen to use Netmiko's delay_factor compatibility mode for
+send_command. This will revert Netmiko to behave similarly to how it
+did in Netmiko 3.x (i.e. to use delay_factor/global_delay_factor and
+max_loops).
+
+Using these parameters Netmiko has calculated an effective read_timeout
+of {compat_timeout} and will set the read_timeout to this value.
 
 Please convert your code to that new format i.e.:
 
@@ -1596,9 +1599,10 @@ delay_factor_compat will be removed in Netmiko 5.x.\n"""
             # delay_factor_compat
             if delay_factor is not None or max_loops is not None:
                 msg = """\n
-Netmiko 4.x has deprecated the use of delay_factor/max_loops with send_command.
-You should convert all uses of delay_factor and max_loops over to read_timeout=x
-where x is the total number of seconds to wait before timing out.\n"""
+Netmiko 4.x has deprecated the use of delay_factor/max_loops with
+send_command. You should convert all uses of delay_factor and max_loops
+over to read_timeout=x where x is the total number of seconds to wait
+before timing out.\n"""
                 warnings.warn(msg, DeprecationWarning)
 
         if expect_string is not None:
@@ -2168,8 +2172,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
         ESC[?7l      Disable line wrapping
         ESC[2J       Code erase display
-        ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
-                     ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
+        ESC[00;32m   Color Green (30 to 37 are different colors)
         ESC[6n       Get cursor position
         ESC[1D       Move cursor position leftward by x characters (1 in this case)
         ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
