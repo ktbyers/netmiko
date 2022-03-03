@@ -68,8 +68,9 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 DELAY_FACTOR_DEPR_SIMPLE_MSG = """\n
-Netmiko 4.x and later has deprecated the use of delay_factor and/or max_loops in
-this context. You should remove any use of delay_factor=x from this method call.\n"""
+Netmiko 4.x and later has deprecated the use of delay_factor and/or
+max_loops in this context. You should remove any use of delay_factor=x
+from this method call.\n"""
 
 
 # Logging filter for #2597
@@ -1598,9 +1599,10 @@ delay_factor_compat will be removed in Netmiko 5.x.\n"""
             # delay_factor_compat
             if delay_factor is not None or max_loops is not None:
                 msg = """\n
-Netmiko 4.x has deprecated the use of delay_factor/max_loops with send_command.
-You should convert all uses of delay_factor and max_loops over to read_timeout=x
-where x is the total number of seconds to wait before timing out.\n"""
+Netmiko 4.x has deprecated the use of delay_factor/max_loops with
+send_command. You should convert all uses of delay_factor and max_loops
+over to read_timeout=x where x is the total number of seconds to wait
+before timing out.\n"""
                 warnings.warn(msg, DeprecationWarning)
 
         if expect_string is not None:
