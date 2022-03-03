@@ -1573,11 +1573,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 old_timeout=self.timeout,
             )
             msg = f"""\n
-You have chosen to use Netmiko's delay_factor compatibility mode for send_command.
-This will revert Netmiko to behave similarly to how it did in Netmiko 3.x (i.e.
-to use delay_factor/global_delay_factor and max_loops. Using these parameters
-Netmiko has calculated an effective read_timeout of {compat_timeout} and will set
-the read_timeout to this value.
+You have chosen to use Netmiko's delay_factor compatibility mode for
+send_command. This will revert Netmiko to behave similarly to how it
+did in Netmiko 3.x (i.e. to use delay_factor/global_delay_factor and
+max_loops).
+
+Using these parameters Netmiko has calculated an effective read_timeout
+of {compat_timeout} and will set the read_timeout to this value.
 
 Please convert your code to that new format i.e.:
 
