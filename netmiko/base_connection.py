@@ -653,8 +653,8 @@ You can also look at the Netmiko session_log or debug log for more information.\
         self,
         last_read: float = 2.0,
         read_timeout: float = 120.0,
-        delay_factor: float = 1.0,
-        max_loops: int = 150,
+        delay_factor: Optional[float] = None,
+        max_loops: Optional[int] = None,
     ) -> str:
         """Read data on the channel based on timing delays.
 
