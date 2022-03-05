@@ -1,6 +1,6 @@
 """Extreme support."""
 import os
-from typing import Any, Optional, Union, List, Dict
+from typing import Any, Callable, Optional, Union, List, Dict
 import re
 from netmiko.base_connection import BaseConnection
 from netmiko.no_config import NoConfig
@@ -84,12 +84,15 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
 
     def __init__(
         self,
-        ssh_conn: "BaseConnection",
+        ssh_conn: BaseConnection,
         source_file: str,
         dest_file: str,
         file_system: Optional[str] = "/usr/local/cfg",
         direction: str = "put",
-        **kwargs: Any,
+        socket_timeout: float = 10.0,
+        progress: Optional[Callable[..., Any]] = None,
+        progress4: Optional[Callable[..., Any]] = None,
+        hash_supported: bool = False,
     ) -> None:
         super().__init__(
             ssh_conn=ssh_conn,
@@ -97,8 +100,10 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
-            hash_supported=False,
-            **kwargs,
+            socket_timeout=socket_timeout,
+            progress=progress,
+            progress4=progress4,
+            hash_supported=hash_supported,
         )
 
     def remote_space_available(self, search_pattern: str = r"(\d+)\s+\d+%$") -> int:
@@ -173,12 +178,41 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
         else:
             return int(file_size)
 
+    def file_md5(self, file_name: str, add_newline: bool = False) -> str:
+        msg = "EXOS does not support an MD5-hash operation."
+        raise AttributeError(msg)
+
+    @staticmethod
+    def process_md5(md5_output: str, pattern: str = "") -> str:
+        msg = "EXOS does not support an MD5-hash operation."
+        raise AttributeError(msg)
+
+    def compare_md5(self) -> bool:
+        msg = "EXOS does not support an MD5-hash operation."
+        raise AttributeError(msg)
+
     def remote_md5(self, base_cmd: str = "", remote_file: Optional[str] = None) -> str:
-        msg = "For the time being, do not use MD5 check --> disable_md5=True"
-        raise NotImplementedError(msg)
+        msg = "EXOS does not support an MD5-hash operation."
+        raise AttributeError(msg)
 
     def enable_scp(self, cmd: str = "") -> None:
-        raise NotImplementedError
+        msg = "EXOS does not support an enable SCP operation. SCP is always enabled."
+        raise AttributeError(msg)
 
     def disable_scp(self, cmd: str = "") -> None:
-        raise NotImplementedError
+        msg = "EXOS does not support a disable SCP operation."
+        raise AttributeError(msg)
+
+    def verify_file(self) -> bool:
+        """Verify the file has been transferred correctly based on filesize."""
+        if self.direction == "put":
+            return os.stat(self.source_file).st_size == self.remote_file_size(
+                remote_file=self.dest_file
+            )
+        elif self.direction == "get":
+            return (
+                self.remote_file_size(remote_file=self.source_file)
+                == os.stat(self.dest_file).st_size
+            )
+        else:
+            raise ValueError("Unexpected value of self.direction")
