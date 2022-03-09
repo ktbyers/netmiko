@@ -1265,7 +1265,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """
         if pattern is None:
             if pri_prompt_terminator and alt_prompt_terminator:
-                pattern = rf"({re.escape(pri_prompt_terminator)}|{re.escape(alt_prompt_terminator)})"
+                pri_term = re.escape(pri_prompt_terminator)
+                alt_term = re.escape(alt_prompt_terminator)
+                pattern = rf"({pri_term}|{alt_term})"
             elif pri_prompt_terminator:
                 pattern = re.escape(pri_prompt_terminator)
             elif alt_prompt_terminator:
@@ -1282,7 +1284,9 @@ Device settings: {self.device_type} {self.host}:{self.port}
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -> str:
         """Finds the current network device prompt, last line only.
 
         :param delay_factor: See __init__: global_delay_factor

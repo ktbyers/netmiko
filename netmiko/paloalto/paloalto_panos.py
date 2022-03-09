@@ -80,7 +80,9 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         self._test_channel_read(pattern=r"Client")
         self._test_channel_read(pattern=r"[>#]")
 
-    def find_prompt(self, delay_factor: float = 5.0, pattern: Optional[str] = None) -> str:
+    def find_prompt(
+        self, delay_factor: float = 5.0, pattern: Optional[str] = None
+    ) -> str:
         """PA devices can be very slow to respond (in certain situations)"""
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 

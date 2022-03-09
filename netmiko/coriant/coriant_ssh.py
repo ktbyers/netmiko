@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection

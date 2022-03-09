@@ -1,3 +1,4 @@
+from typing import Optional
 from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
 
