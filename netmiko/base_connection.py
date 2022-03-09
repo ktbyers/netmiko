@@ -1252,6 +1252,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         pri_prompt_terminator: str = "#",
         alt_prompt_terminator: str = ">",
         delay_factor: float = 1.0,
+        additional_terminators: List[str] = [],
     ) -> str:
         """Sets self.base_prompt
 
@@ -1268,9 +1269,13 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
 
         :param delay_factor: See __init__: global_delay_factor
+
+        :param additional_terminators: Additional trailing delimiter(s) for identifying a device prompt
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+        terminators = set([pri_prompt_terminator, alt_prompt_terminator])
+        terminators.update(additional_terminators)
+        if not prompt[-1] in terminators:
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]

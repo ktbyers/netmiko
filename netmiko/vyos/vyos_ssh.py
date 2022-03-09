@@ -1,4 +1,4 @@
-from typing import Optional, Union, Sequence, TextIO, Any
+from typing import Optional, Union, Sequence, TextIO, Any, List
 import time
 import warnings
 from netmiko.no_enable import NoEnable
@@ -97,12 +97,14 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         pri_prompt_terminator: str = "$",
         alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        additional_terminators: List[str] = [">"],
     ) -> str:
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
         prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            additional_terminators=additional_terminators,
         )
         # Set prompt to user@hostname (remove two additional characters)
         self.base_prompt = prompt[:-2].strip()
