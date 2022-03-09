@@ -1622,10 +1622,12 @@ before timing out.\n"""
         if cmd and cmd_verify:
             new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
 
+        MAX_CHARS = 2_000_000
+        DEQUE_SIZE = 20
         output = ""
         # Check only the past N-reads. This is for the case where the output is
         # very large (i.e. searching a very large string for a pattern a whole bunch of times)
-        past_n_reads: Deque[str] = deque(maxlen=20)
+        past_n_reads: Deque[str] = deque(maxlen=DEQUE_SIZE)
         first_line_processed = False
 
         # Keep reading data until search_pattern is found or until read_timeout
@@ -1645,9 +1647,14 @@ before timing out.\n"""
                         break
 
                 else:
-                    # Check if pattern is in the past n reads
-                    if re.search(search_pattern, "".join(past_n_reads)):
-                        break
+                    if len(output) <= MAX_CHARS:
+                        if re.search(search_pattern, output):
+                            break
+                    else:
+                        # Switch to deque mode if output is greater than MAX_CHARS
+                        # Check if pattern is in the past n reads
+                        if re.search(search_pattern, "".join(past_n_reads)):
+                            break
 
             time.sleep(loop_delay)
             new_data = self.read_channel()
