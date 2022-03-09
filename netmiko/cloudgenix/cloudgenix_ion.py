@@ -18,8 +18,8 @@ class CloudGenixIonSSH(NoConfig, CiscoSSHConnection):
         """Cloud Genix ION sets terminal height in establish_connection"""
         return ""
 
-    def find_prompt(self, delay_factor: float = 1.0) -> str:
-        prompt = super().find_prompt(delay_factor=delay_factor)
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
+        prompt = super().find_prompt(delay_factor=delay_factor, pattern=pattern)
         prompt = self.strip_backspaces(prompt).strip()
         return prompt
 
