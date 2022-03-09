@@ -1111,31 +1111,22 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor = self.select_delay_factor(delay_factor=0)
 
         if pattern:
-            new_data = self.read_until_pattern(pattern=pattern, read_timeout=20)
-            return new_data
+            return self.read_until_pattern(pattern=pattern, read_timeout=20)
 
         main_delay = delay_factor * 0.1
         time.sleep(main_delay * 10)
         new_data = ""
         while i <= count:
             new_data += self.read_channel_timing()
-            if new_data and pattern:
-                if re.search(pattern, new_data):
-                    break
-            elif new_data:
-                break
-            else:
-                self.write_channel(self.RETURN)
+            if new_data:
+                return new_data
 
+            self.write_channel(self.RETURN)
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
             i += 1
 
-        # check if data was ever present
-        if new_data:
-            return new_data
-        else:
-            raise NetmikoTimeoutException("Timed out waiting for data")
+        raise NetmikoTimeoutException("Timed out waiting for data")
 
     def _build_ssh_client(self) -> paramiko.SSHClient:
         """Prepare for Paramiko SSH connection."""
