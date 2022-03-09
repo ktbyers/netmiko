@@ -1111,31 +1111,22 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor = self.select_delay_factor(delay_factor=0)
 
         if pattern:
-            new_data = self.read_until_pattern(pattern=pattern, read_timeout=20)
-            return new_data
+            return self.read_until_pattern(pattern=pattern, read_timeout=20)
 
         main_delay = delay_factor * 0.1
         time.sleep(main_delay * 10)
         new_data = ""
         while i <= count:
             new_data += self.read_channel_timing()
-            if new_data and pattern:
-                if re.search(pattern, new_data):
-                    break
-            elif new_data:
-                break
-            else:
-                self.write_channel(self.RETURN)
+            if new_data:
+                return new_data
 
+            self.write_channel(self.RETURN)
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
             i += 1
 
-        # check if data was ever present
-        if new_data:
-            return new_data
-        else:
-            raise NetmikoTimeoutException("Timed out waiting for data")
+        raise NetmikoTimeoutException("Timed out waiting for data")
 
     def _build_ssh_client(self) -> paramiko.SSHClient:
         """Prepare for Paramiko SSH connection."""
@@ -1555,7 +1546,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """
 
         # Time to delay in each read loop
-        loop_delay = 0.01
+        loop_delay = 0.025
 
         if self.read_timeout_override:
             read_timeout = self.read_timeout_override
@@ -1622,15 +1613,19 @@ before timing out.\n"""
         if cmd and cmd_verify:
             new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
 
+        MAX_CHARS = 2_000_000
+        DEQUE_SIZE = 20
         output = ""
-        past_three_reads: Deque[str] = deque(maxlen=3)
+        # Check only the past N-reads. This is for the case where the output is
+        # very large (i.e. searching a very large string for a pattern a whole bunch of times)
+        past_n_reads: Deque[str] = deque(maxlen=DEQUE_SIZE)
         first_line_processed = False
 
         # Keep reading data until search_pattern is found or until read_timeout
         while time.time() - start_time < read_timeout:
             if new_data:
                 output += new_data
-                past_three_reads.append(new_data)
+                past_n_reads.append(new_data)
 
                 # Case where we haven't processed the first_line yet (there is a potential issue
                 # in the first line (in cases where the line is repainted).
@@ -1643,9 +1638,14 @@ before timing out.\n"""
                         break
 
                 else:
-                    # Check if pattern is in the past three reads
-                    if re.search(search_pattern, "".join(past_three_reads)):
-                        break
+                    if len(output) <= MAX_CHARS:
+                        if re.search(search_pattern, output):
+                            break
+                    else:
+                        # Switch to deque mode if output is greater than MAX_CHARS
+                        # Check if pattern is in the past n reads
+                        if re.search(search_pattern, "".join(past_n_reads)):
+                            break
 
             time.sleep(loop_delay)
             new_data = self.read_channel()
