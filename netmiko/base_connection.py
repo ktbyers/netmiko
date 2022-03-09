@@ -1555,7 +1555,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """
 
         # Time to delay in each read loop
-        loop_delay = 0.01
+        loop_delay = 0.025
 
         if self.read_timeout_override:
             read_timeout = self.read_timeout_override
@@ -1623,14 +1623,16 @@ before timing out.\n"""
             new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
 
         output = ""
-        past_three_reads: Deque[str] = deque(maxlen=3)
+        # Check only the past N-reads. This is for the case where the output is
+        # very large (i.e. searching a very large string for a pattern a whole bunch of times)
+        past_n_reads: Deque[str] = deque(maxlen=20)
         first_line_processed = False
 
         # Keep reading data until search_pattern is found or until read_timeout
         while time.time() - start_time < read_timeout:
             if new_data:
                 output += new_data
-                past_three_reads.append(new_data)
+                past_n_reads.append(new_data)
 
                 # Case where we haven't processed the first_line yet (there is a potential issue
                 # in the first line (in cases where the line is repainted).
@@ -1643,8 +1645,8 @@ before timing out.\n"""
                         break
 
                 else:
-                    # Check if pattern is in the past three reads
-                    if re.search(search_pattern, "".join(past_three_reads)):
+                    # Check if pattern is in the past n reads
+                    if re.search(search_pattern, "".join(past_n_reads)):
                         break
 
             time.sleep(loop_delay)
