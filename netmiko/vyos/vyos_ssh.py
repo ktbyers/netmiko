@@ -1,6 +1,7 @@
 from typing import Optional, Union, Sequence, TextIO, Any
 import time
 import warnings
+import re
 from netmiko.no_enable import NoEnable
 from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -100,6 +101,14 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         pattern: Optional[str] = None,
     ) -> str:
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
+
+        # VyOS can have a third terminator; switch to a pattern solution
+        if pattern is None:
+            pri_term = re.escape(pri_prompt_terminator)
+            alt_term = re.escape(alt_prompt_terminator)
+            third_terminator = re.escape(">")
+            pattern = rf"({pri_term}|{alt_term}|{third_terminator})"
+
         prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
