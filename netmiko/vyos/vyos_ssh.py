@@ -97,12 +97,14 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         pri_prompt_terminator: str = "$",
         alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
         prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
         # Set prompt to user@hostname (remove two additional characters)
         self.base_prompt = prompt[:-2].strip()

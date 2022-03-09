@@ -14,12 +14,14 @@ class CoriantSSH(NoEnable, NoConfig, CiscoSSHConnection):
         pri_prompt_terminator: str = ":",
         alt_prompt_terminator: str = ">",
         delay_factor: float = 2.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
         super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
         return self.base_prompt
 

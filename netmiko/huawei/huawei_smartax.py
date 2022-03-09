@@ -100,10 +100,13 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
         )
 
     def save_config(

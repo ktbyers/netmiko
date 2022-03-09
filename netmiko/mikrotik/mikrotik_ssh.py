@@ -82,15 +82,17 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = ">",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """Strip the trailing space off."""
         prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
         prompt = prompt.strip()
-        self.base_prompt: str = prompt
+        self.base_prompt = prompt
         return self.base_prompt
 
     def send_command_timing(  # type: ignore

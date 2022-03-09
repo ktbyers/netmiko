@@ -55,6 +55,7 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = "]",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """
         Sets self.base_prompt
@@ -66,31 +67,22 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
 
         This will be set on logging in, but not when entering system-view
         """
-        # log.debug("In set_base_prompt")
-        delay_factor = self.select_delay_factor(delay_factor)
-        self.clear_buffer()
-        self.write_channel(self.RETURN)
-        time.sleep(0.5 * delay_factor)
 
-        prompt = self.read_channel()
-
-        # If multiple lines in the output take the last line
-        prompt = prompt.split(self.RESPONSE_RETURN)[-1]
-        prompt = prompt.strip()
-
-        # Check that ends with a valid terminator character
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError(f"Router prompt not found: {prompt}")
+        prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
 
         # Strip off any leading HRP_. characters for USGv5 HA
         prompt = re.sub(r"^HRP_.", "", prompt, flags=re.M)
 
-        # Strip off leading and trailing terminator
-        prompt = prompt[1:-1]
+        # Strip off leading terminator
+        prompt = prompt[1:]
         prompt = prompt.strip()
         self.base_prompt = prompt
         log.debug(f"prompt: {self.base_prompt}")
-
         return self.base_prompt
 
     def save_config(
