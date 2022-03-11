@@ -1243,6 +1243,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         pri_prompt_terminator: str = "#",
         alt_prompt_terminator: str = ">",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """Sets self.base_prompt
 
@@ -1259,50 +1260,74 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
 
         :param delay_factor: See __init__: global_delay_factor
+
+        :param pattern: Regular expression pattern to search for in find_prompt() call
         """
-        prompt = self.find_prompt(delay_factor=delay_factor)
+        if pattern is None:
+            if pri_prompt_terminator and alt_prompt_terminator:
+                pri_term = re.escape(pri_prompt_terminator)
+                alt_term = re.escape(alt_prompt_terminator)
+                pattern = rf"({pri_term}|{alt_term})"
+            elif pri_prompt_terminator:
+                pattern = re.escape(pri_prompt_terminator)
+            elif alt_prompt_terminator:
+                pattern = re.escape(alt_prompt_terminator)
+
+        if pattern:
+            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
+        else:
+            prompt = self.find_prompt(delay_factor=delay_factor)
+
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(self, delay_factor: float = 1.0) -> str:
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -> str:
         """Finds the current network device prompt, last line only.
 
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
+
+        :param pattern: Regular expression pattern to determine whether prompt is valid
         """
         delay_factor = self.select_delay_factor(delay_factor)
+        sleep_time = delay_factor * 0.25
         self.clear_buffer()
         self.write_channel(self.RETURN)
-        sleep_time = delay_factor * 0.1
-        time.sleep(sleep_time)
 
-        # Initial attempt to get prompt
-        prompt = self.read_channel().strip()
-
-        # Check if the only thing you received was a newline
-        count = 0
-        while count <= 12 and not prompt:
+        if pattern:
+            try:
+                prompt = self.read_until_pattern(pattern=pattern)
+            except ReadTimeout:
+                pass
+        else:
+            # Initial read
+            time.sleep(sleep_time)
             prompt = self.read_channel().strip()
-            if not prompt:
-                self.write_channel(self.RETURN)
-                time.sleep(sleep_time)
-                if sleep_time <= 3:
-                    # Double the sleep_time when it is small
-                    sleep_time *= 2
-                else:
-                    sleep_time += 1
-            count += 1
+
+            count = 0
+            while count <= 12 and not prompt:
+                if not prompt:
+                    self.write_channel(self.RETURN)
+                    time.sleep(sleep_time)
+                    prompt = self.read_channel().strip()
+                    if sleep_time <= 3:
+                        # Double the sleep_time when it is small
+                        sleep_time *= 2
+                    else:
+                        sleep_time += 1
+                count += 1
 
         # If multiple lines in the output take the last line
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
+        self.clear_buffer()
         if not prompt:
             raise ValueError(f"Unable to find prompt: {prompt}")
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
         log.debug(f"[find_prompt()]: prompt is {prompt}")
         return prompt
 

@@ -1,4 +1,5 @@
 """Dell PowerConnect Driver."""
+from typing import Optional
 from paramiko import SSHClient
 import time
 from os import path
@@ -22,12 +23,14 @@ class DellPowerConnectBase(CiscoBaseConnection):
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
         prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
         prompt = prompt.strip()
         self.base_prompt = prompt
