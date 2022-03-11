@@ -180,6 +180,13 @@ class HPProcurveTelnet(HPProcurveBase):
         max_loops: int = 60,
     ) -> str:
         """Telnet login: can be username/password or just password."""
+
+        # What are you doing Procurve :-(
+        data = self._test_channel_read(pattern=r"(any key to continue|[>#])")
+        if "any key to continue" in data:
+            self.write_channel(self.RETURN)
+            time.sleep(delay_factor * 1)
+
         return super().telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
