@@ -1065,7 +1065,12 @@ Device settings: {self.device_type} {self.host}:{self.port}
                     )
                     raise NetmikoTimeoutException(msg)
                 else:
-                    msg = "A paramiko SSHException occurred during connection creation:\n\nstr(e)"
+                    msg = f"""
+A paramiko SSHException occurred during connection creation:
+
+{str(e)}
+
+"""
                     raise NetmikoTimeoutException(msg)
 
             if self.verbose:
