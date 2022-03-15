@@ -483,6 +483,8 @@ def scp_file_transfer(request):
     if os.path.exists(alt_file):
         os.remove(alt_file)
 
+    scp_transfer.close_scp_chan()
+
     return (ssh_conn, file_system)
 
 
