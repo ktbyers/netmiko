@@ -157,7 +157,7 @@ class BaseConnection:
         # Connect timeouts
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
-        conn_timeout: int = 5,
+        conn_timeout: int = 10,
         # Timeout to wait for authentication response
         auth_timeout: Optional[int] = None,
         banner_timeout: int = 15,  # Timeout to wait for the banner to be presented
@@ -1061,7 +1061,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 if "No existing session" in str(e):
                     msg = (
                         "Paramiko: 'No existing session' error: "
-                        "try increasing 'conn_timeout' to 10 seconds or larger."
+                        "try increasing 'conn_timeout' to 15 seconds or larger."
                     )
                     raise NetmikoTimeoutException(msg)
                 else:
