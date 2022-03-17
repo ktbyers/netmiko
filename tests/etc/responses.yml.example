@@ -349,3 +349,6 @@ zyxel:
   multiple_line_output: "Index   Band     SSID                                Enable     Bandwidth  Channel    MaxDevices   SecurityMode         PskValue"
   cmd_response_init: "NetmikoTest"
   cmd_response_final: "magic2000"
+
+extreme_exos:
+  scp_remote_space: 1000

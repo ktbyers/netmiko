@@ -257,3 +257,9 @@ zyxel:
   ip: 192.168.1.1
   username: admin
   password: 'pass'
+
+extreme_exos:
+  device_type: extreme_exos
+  ip: 192.0.2.1
+  username: admin
+  password: 'admin'
