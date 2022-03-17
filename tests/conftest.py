@@ -276,6 +276,13 @@ def delete_file_nokia_sros(ssh_conn, dest_file_system, dest_file):
     )
     return output
 
+def delete_file_extreme_exos(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for an Extreme EXOS device."""
+    full_file_name = "{}/{}".format(dest_file_system, dest_file)
+    cmd = "rm {}".format(full_file_name)
+    output = ssh_conn.send_command_timing(cmd, strip_command=False, strip_prompt=False)
+    return output
+
 
 @pytest.fixture(scope="module")
 def scp_fixture(request):
@@ -544,5 +551,10 @@ def get_platform_args():
             "file_system": "cf3:",
             "enable_scp": False,
             "delete_file": delete_file_nokia_sros,
+        },
+        "extreme_exos": {
+            "file_system": "/usr/local/cfg",
+            "enable_scp": False,
+            "delete_file": delete_file_extreme_exos,
         },
     }
