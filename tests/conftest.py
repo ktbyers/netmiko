@@ -276,6 +276,7 @@ def delete_file_nokia_sros(ssh_conn, dest_file_system, dest_file):
     )
     return output
 
+
 def delete_file_extreme_exos(ssh_conn, dest_file_system, dest_file):
     """Delete a remote file for an Extreme EXOS device."""
     full_file_name = "{}/{}".format(dest_file_system, dest_file)
