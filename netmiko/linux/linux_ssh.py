@@ -87,6 +87,9 @@ class LinuxSSH(CiscoSSHConnection):
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
         """Exit enable mode."""
         delay_factor = self.select_delay_factor(delay_factor=0)
+        # You can run into a timing issue here if the time.sleep is too small
+        if delay_factor < 1:
+            delay_factor = 1
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
