@@ -180,6 +180,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "extreme_exos": {
+        "cmd": "show version",
+        "search_patterns": [r"ExtremeXOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "extreme_netiron": {
         "cmd": "show version",
         "search_patterns": [r"(NetIron|MLX)"],
