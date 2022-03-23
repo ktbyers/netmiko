@@ -24,18 +24,20 @@
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">&#34;&#34;&#34;Netmiko driver for OneAccess ONEOS&#34;&#34;&#34;
-from netmiko.cisco_base_connection import CiscoBaseConnection
 import time
+from typing import Any
+
+from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class OneaccessOneOSBase(CiscoBaseConnection):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
         &#34;&#34;&#34;Init connection - similar as Cisco&#34;&#34;&#34;
         default_enter = kwargs.get(&#34;default_enter&#34;)
         kwargs[&#34;default_enter&#34;] = &#34;\r\n&#34; if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare connection - disable paging&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
@@ -45,7 +47,9 @@ class OneaccessOneOSBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
+    def save_config(
+        self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+    ) -&gt; str:
         &#34;&#34;&#34;Save config: write mem&#34;&#34;&#34;
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -79,13 +83,13 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class OneaccessOneOSBase(CiscoBaseConnection):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
         &#34;&#34;&#34;Init connection - similar as Cisco&#34;&#34;&#34;
         default_enter = kwargs.get(&#34;default_enter&#34;)
         kwargs[&#34;default_enter&#34;] = &#34;\r\n&#34; if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare connection - disable paging&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
@@ -95,7 +99,9 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
+    def save_config(
+        self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+    ) -&gt; str:
         &#34;&#34;&#34;Save config: write mem&#34;&#34;&#34;
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -120,7 +126,9 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <section class="desc"><p>Save config: write mem</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
+<pre><code class="python">def save_config(
+    self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+) -&gt; str:
     &#34;&#34;&#34;Save config: write mem&#34;&#34;&#34;
     return super().save_config(
         cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -134,7 +142,7 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <section class="desc"><p>Prepare connection - disable paging</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def session_preparation(self):
+<pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare connection - disable paging&#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
@@ -154,9 +162,8 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -167,9 +174,9 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -180,6 +187,7 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -219,9 +227,8 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -232,9 +239,9 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -246,6 +253,7 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.session_preparation" href="#netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
@@ -286,9 +294,8 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -299,9 +306,9 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -313,6 +320,7 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.session_preparation" href="#netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
