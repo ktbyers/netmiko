@@ -154,6 +154,7 @@
 - extreme_netiron
 - extreme_nos
 - extreme_slx
+- extreme_tierra
 - extreme_vdx
 - extreme_vsp
 - extreme_wing
@@ -212,7 +213,7 @@
 - zyxel_os
  
 ###### Supported Telnet device_type values
- 
+
 - adtran_os_telnet
 - apresia_aeos_telnet
 - arista_eos_telnet
@@ -223,20 +224,20 @@
 - centec_os_telnet
 - ciena_saos_telnet
 - cisco_ios_telnet
-- cisco_s300_telnet
 - cisco_xr_telnet
+- cisco_s300_telnet
 - dell_dnos6_telnet
 - dell_powerconnect_telnet
 - dlink_ds_telnet
+- extreme_telnet
 - extreme_exos_telnet
 - extreme_netiron_telnet
-- extreme_telnet
 - generic_telnet
 - generic_termserver_telnet
-- hp_comware_telnet
 - hp_procurve_telnet
-- huawei_olt_telnet
+- hp_comware_telnet
 - huawei_telnet
+- huawei_olt_telnet
 - ipinfusion_ocnos_telnet
 - juniper_junos_telnet
 - nokia_sros_telnet
@@ -261,6 +262,7 @@
 - cisco_xe
 - cisco_xr
 - dell_os10
+- extreme_exos
 - juniper_junos
 - linux
 - nokia_sros
