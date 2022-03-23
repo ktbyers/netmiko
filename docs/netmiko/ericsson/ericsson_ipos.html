@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>netmiko.ericsson.ericsson_ipos API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Ericsson Ipos looks like it was RedBack equipment." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,76 +20,54 @@
 <h1 class="title">Module <code>netmiko.ericsson.ericsson_ipos</code></h1>
 </header>
 <section id="section-intro">
+<p>Ericsson Ipos looks like it was RedBack equipment.</p>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">import re
+<pre><code class="python">&#34;&#34;&#34;
+Ericsson Ipos looks like it was RedBack equipment.
+&#34;&#34;&#34;
+from typing import Optional, Any, Union, Sequence, TextIO
+import re
+import warnings
 
-from netmiko.base_connection import BaseConnection
+from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 
 
 class EricssonIposSSH(BaseConnection):
-    def check_enable_mode(self, check_string=&#34;#&#34;):
-        &#34;&#34;&#34;
-        Check if in enable mode. Return boolean.
-        &#34;&#34;&#34;
+    def session_preparation(self) -&gt; None:
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 512&#34;, pattern=r&#34;terminal&#34;)
+        self.disable_paging()
+
+    def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd=&#34;enable 15&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
-        &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
-
-    def disable_paging(self, command=&#34;terminal length 0&#34;, delay_factor=1):
-        &#34;&#34;&#34;Disable paging default to a Cisco CLI method.
-
-        :param command: Device command to disable pagination of output
-        :type command: str
-
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
-        &#34;&#34;&#34;
-        return super().disable_paging(command=command, delay_factor=delay_factor)
-
-    def set_terminal_width(self, command=&#34;terminal width 512&#34;, delay_factor=1):
-        &#34;&#34;&#34;CLI terminals try to automatically adjust the line based on the width of the terminal.
-        This causes the output to get distorted when accessed programmatically.
-
-        Set terminal width to 511 which works on a broad set of devices.
-
-        :param command: Command string to send to the device
-        :type command: str
-
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
-        &#34;&#34;&#34;
-        return super().set_terminal_width(command=command, delay_factor=delay_factor)
-
-    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
-        &#34;&#34;&#34;Ericsson IPOS requires you not exit from configuration mode.&#34;&#34;&#34;
-        return super().send_config_set(
-            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+    def enable(
+        self,
+        cmd: str = &#34;enable 15&#34;,
+        pattern: str = &#34;ssword&#34;,
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -&gt; str:
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
         )
 
-    def exit_enable_mode(self, exit_command=&#34;disable&#34;):
-        &#34;&#34;&#34;
-        Exits enable (privileged exec) mode.
-        &#34;&#34;&#34;
+    def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;&#34;):
-        &#34;&#34;&#34;
-        Checks if the device is in configuration mode or not.
-        &#34;&#34;&#34;
+    def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = &#34;&#34;) -&gt; bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;configure&#34;, pattern=&#34;&#34;):
-        &#34;&#34;&#34;
-        Enter into configuration mode on remote device.
-        &#34;&#34;&#34;
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self, config_command: str = &#34;configure&#34;, pattern: str = &#34;&#34;, re_flags: int = 0
+    ) -&gt; str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;#&#34;):
+    def exit_config_mode(self, exit_config: str = &#34;end&#34;, pattern: str = &#34;#&#34;) -&gt; str:
         &#34;&#34;&#34;
         Exit from configuration mode.
         Ercisson output :
@@ -97,28 +75,52 @@ class EricssonIposSSH(BaseConnection):
         &#34;&#34;&#34;
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def save_config(self, cmd=&#34;save config&#34;, confirm=True, confirm_response=&#34;yes&#34;):
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -&gt; str:
+        &#34;&#34;&#34;Ericsson IPOS requires you not exit from configuration mode.&#34;&#34;&#34;
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+        )
+
+    def save_config(
+        self,
+        cmd: str = &#34;save config&#34;,
+        confirm: bool = True,
+        confirm_response: str = &#34;yes&#34;,
+    ) -&gt; str:
         &#34;&#34;&#34;Saves configuration&#34;&#34;&#34;
+        output = &#34;&#34;
         if confirm:
-            output = self.send_command_timing(
+            output += self._send_command_timing_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
 
             if confirm_response:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
             else:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
         else:
-            output = self.send_command(
+            output += self._send_command_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
         return output
 
-    def commit(self, confirm=False, confirm_delay=None, comment=&#34;&#34;, delay_factor=1):
+    def commit(
+        self,
+        confirm: bool = False,
+        confirm_delay: Optional[int] = None,
+        comment: str = &#34;&#34;,
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -&gt; str:
         &#34;&#34;&#34;
         Commit the candidate configuration.
 
@@ -127,10 +129,11 @@ class EricssonIposSSH(BaseConnection):
 
         Automatically enters configuration mode
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         &#34;&#34;&#34;
-
-        delay_factor = self.select_delay_factor(delay_factor)
-
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
         if confirm_delay and not confirm:
             raise ValueError(
                 &#34;Invalid arguments supplied to commit method both confirm and check&#34;
@@ -153,11 +156,11 @@ class EricssonIposSSH(BaseConnection):
 
         output = self.config_mode()
 
-        output += self.send_command_expect(
+        output += self._send_command_str(
             command_string,
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
 
         if commit_marker not in output:
@@ -179,7 +182,7 @@ class EricssonIposSSH(BaseConnection):
 <dl>
 <dt id="netmiko.ericsson.ericsson_ipos.EricssonIposSSH"><code class="flex name class">
 <span>class <span class="ident">EricssonIposSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, disabled_algorithms=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=10, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, read_timeout_override=None, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=True, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True, delay_factor_compat=False)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Defines vendor independent methods.</p>
@@ -188,197 +191,142 @@ class EricssonIposSSH(BaseConnection):
 
     :param ip: IP address of target device. Not required if `host` is
         provided.
-    :type ip: str
 
     :param host: Hostname of target device. Not required if `ip` is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
+
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class EricssonIposSSH(BaseConnection):
-    def check_enable_mode(self, check_string=&#34;#&#34;):
-        &#34;&#34;&#34;
-        Check if in enable mode. Return boolean.
-        &#34;&#34;&#34;
+    def session_preparation(self) -&gt; None:
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.set_base_prompt()
+        self.set_terminal_width(command=&#34;terminal width 512&#34;, pattern=r&#34;terminal&#34;)
+        self.disable_paging()
+
+    def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
         return super().check_enable_mode(check_string=check_string)
 
-    def enable(self, cmd=&#34;enable 15&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
-        &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
-
-    def disable_paging(self, command=&#34;terminal length 0&#34;, delay_factor=1):
-        &#34;&#34;&#34;Disable paging default to a Cisco CLI method.
-
-        :param command: Device command to disable pagination of output
-        :type command: str
-
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
-        &#34;&#34;&#34;
-        return super().disable_paging(command=command, delay_factor=delay_factor)
-
-    def set_terminal_width(self, command=&#34;terminal width 512&#34;, delay_factor=1):
-        &#34;&#34;&#34;CLI terminals try to automatically adjust the line based on the width of the terminal.
-        This causes the output to get distorted when accessed programmatically.
-
-        Set terminal width to 511 which works on a broad set of devices.
-
-        :param command: Command string to send to the device
-        :type command: str
-
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
-        &#34;&#34;&#34;
-        return super().set_terminal_width(command=command, delay_factor=delay_factor)
-
-    def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
-        &#34;&#34;&#34;Ericsson IPOS requires you not exit from configuration mode.&#34;&#34;&#34;
-        return super().send_config_set(
-            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+    def enable(
+        self,
+        cmd: str = &#34;enable 15&#34;,
+        pattern: str = &#34;ssword&#34;,
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -&gt; str:
+        return super().enable(
+            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
         )
 
-    def exit_enable_mode(self, exit_command=&#34;disable&#34;):
-        &#34;&#34;&#34;
-        Exits enable (privileged exec) mode.
-        &#34;&#34;&#34;
+    def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;&#34;):
-        &#34;&#34;&#34;
-        Checks if the device is in configuration mode or not.
-        &#34;&#34;&#34;
+    def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = &#34;&#34;) -&gt; bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command=&#34;configure&#34;, pattern=&#34;&#34;):
-        &#34;&#34;&#34;
-        Enter into configuration mode on remote device.
-        &#34;&#34;&#34;
-        if not pattern:
-            pattern = re.escape(self.base_prompt[:16])
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self, config_command: str = &#34;configure&#34;, pattern: str = &#34;&#34;, re_flags: int = 0
+    ) -&gt; str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;#&#34;):
+    def exit_config_mode(self, exit_config: str = &#34;end&#34;, pattern: str = &#34;#&#34;) -&gt; str:
         &#34;&#34;&#34;
         Exit from configuration mode.
         Ercisson output :
@@ -386,28 +334,52 @@ class EricssonIposSSH(BaseConnection):
         &#34;&#34;&#34;
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def save_config(self, cmd=&#34;save config&#34;, confirm=True, confirm_response=&#34;yes&#34;):
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -&gt; str:
+        &#34;&#34;&#34;Ericsson IPOS requires you not exit from configuration mode.&#34;&#34;&#34;
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+        )
+
+    def save_config(
+        self,
+        cmd: str = &#34;save config&#34;,
+        confirm: bool = True,
+        confirm_response: str = &#34;yes&#34;,
+    ) -&gt; str:
         &#34;&#34;&#34;Saves configuration&#34;&#34;&#34;
+        output = &#34;&#34;
         if confirm:
-            output = self.send_command_timing(
+            output += self._send_command_timing_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
 
             if confirm_response:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
             else:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
         else:
-            output = self.send_command(
+            output += self._send_command_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
         return output
 
-    def commit(self, confirm=False, confirm_delay=None, comment=&#34;&#34;, delay_factor=1):
+    def commit(
+        self,
+        confirm: bool = False,
+        confirm_delay: Optional[int] = None,
+        comment: str = &#34;&#34;,
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -&gt; str:
         &#34;&#34;&#34;
         Commit the candidate configuration.
 
@@ -416,10 +388,11 @@ class EricssonIposSSH(BaseConnection):
 
         Automatically enters configuration mode
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         &#34;&#34;&#34;
-
-        delay_factor = self.select_delay_factor(delay_factor)
-
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
         if confirm_delay and not confirm:
             raise ValueError(
                 &#34;Invalid arguments supplied to commit method both confirm and check&#34;
@@ -442,11 +415,11 @@ class EricssonIposSSH(BaseConnection):
 
         output = self.config_mode()
 
-        output += self.send_command_expect(
+        output += self._send_command_str(
             command_string,
             strip_prompt=False,
             strip_command=False,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
 
         if commit_marker not in output:
@@ -462,45 +435,25 @@ class EricssonIposSSH(BaseConnection):
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=')#', pattern='')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Checks if the device is in configuration mode or not.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;&#34;):
-    &#34;&#34;&#34;
-    Checks if the device is in configuration mode or not.
-    &#34;&#34;&#34;
-    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.check_enable_mode"><code class="name flex">
-<span>def <span class="ident">check_enable_mode</span></span>(<span>self, check_string='#')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Check if in enable mode. Return boolean.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def check_enable_mode(self, check_string=&#34;#&#34;):
-    &#34;&#34;&#34;
-    Check if in enable mode. Return boolean.
-    &#34;&#34;&#34;
-    return super().check_enable_mode(check_string=check_string)</code></pre>
-</details>
-</dd>
 <dt id="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.commit"><code class="name flex">
-<span>def <span class="ident">commit</span></span>(<span>self, confirm=False, confirm_delay=None, comment='', delay_factor=1)</span>
+<span>def <span class="ident">commit</span></span>(<span>self, confirm=False, confirm_delay=None, comment='', read_timeout=120.0, delay_factor=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Commit the candidate configuration.</p>
 <p>Commit the entered configuration. Raise an error and return the failure
 if the commit fails.</p>
-<p>Automatically enters configuration mode</p></section>
+<p>Automatically enters configuration mode</p>
+<p>delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def commit(self, confirm=False, confirm_delay=None, comment=&#34;&#34;, delay_factor=1):
+<pre><code class="python">def commit(
+    self,
+    confirm: bool = False,
+    confirm_delay: Optional[int] = None,
+    comment: str = &#34;&#34;,
+    read_timeout: float = 120.0,
+    delay_factor: Optional[float] = None,
+) -&gt; str:
     &#34;&#34;&#34;
     Commit the candidate configuration.
 
@@ -509,10 +462,11 @@ if the commit fails.</p>
 
     Automatically enters configuration mode
 
+    delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
     &#34;&#34;&#34;
-
-    delay_factor = self.select_delay_factor(delay_factor)
-
+    if delay_factor is not None:
+        warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
     if confirm_delay and not confirm:
         raise ValueError(
             &#34;Invalid arguments supplied to commit method both confirm and check&#34;
@@ -535,11 +489,11 @@ if the commit fails.</p>
 
     output = self.config_mode()
 
-    output += self.send_command_expect(
+    output += self._send_command_str(
         command_string,
         strip_prompt=False,
         strip_command=False,
-        delay_factor=delay_factor,
+        read_timeout=read_timeout,
     )
 
     if commit_marker not in output:
@@ -548,34 +502,6 @@ if the commit fails.</p>
     self.exit_config_mode()
 
     return output</code></pre>
-</details>
-</dd>
-<dt id="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure', pattern='')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Enter into configuration mode on remote device.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;configure&#34;, pattern=&#34;&#34;):
-    &#34;&#34;&#34;
-    Enter into configuration mode on remote device.
-    &#34;&#34;&#34;
-    if not pattern:
-        pattern = re.escape(self.base_prompt[:16])
-    return super().config_mode(config_command=config_command, pattern=pattern)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable 15', pattern='ssword', re_flags=<RegexFlag.IGNORECASE: 2>)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Enter enable mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def enable(self, cmd=&#34;enable 15&#34;, pattern=&#34;ssword&#34;, re_flags=re.IGNORECASE):
-    &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
-    return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.exit_config_mode"><code class="name flex">
@@ -588,27 +514,13 @@ end
 Commit configuration changes and return to exec mode</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config=&#34;end&#34;, pattern=&#34;#&#34;):
+<pre><code class="python">def exit_config_mode(self, exit_config: str = &#34;end&#34;, pattern: str = &#34;#&#34;) -&gt; str:
     &#34;&#34;&#34;
     Exit from configuration mode.
     Ercisson output :
         end                   Commit configuration changes and return to exec mode
     &#34;&#34;&#34;
     return super().exit_config_mode(exit_config=exit_config, pattern=pattern)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.exit_enable_mode"><code class="name flex">
-<span>def <span class="ident">exit_enable_mode</span></span>(<span>self, exit_command='disable')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Exits enable (privileged exec) mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def exit_enable_mode(self, exit_command=&#34;disable&#34;):
-    &#34;&#34;&#34;
-    Exits enable (privileged exec) mode.
-    &#34;&#34;&#34;
-    return super().exit_enable_mode(exit_command=exit_command)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.save_config"><code class="name flex">
@@ -618,23 +530,29 @@ Commit configuration changes and return to exec mode</p></section>
 <section class="desc"><p>Saves configuration</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def save_config(self, cmd=&#34;save config&#34;, confirm=True, confirm_response=&#34;yes&#34;):
+<pre><code class="python">def save_config(
+    self,
+    cmd: str = &#34;save config&#34;,
+    confirm: bool = True,
+    confirm_response: str = &#34;yes&#34;,
+) -&gt; str:
     &#34;&#34;&#34;Saves configuration&#34;&#34;&#34;
+    output = &#34;&#34;
     if confirm:
-        output = self.send_command_timing(
+        output += self._send_command_timing_str(
             command_string=cmd, strip_prompt=False, strip_command=False
         )
 
         if confirm_response:
-            output += self.send_command_timing(
+            output += self._send_command_timing_str(
                 confirm_response, strip_prompt=False, strip_command=False
             )
         else:
-            output += self.send_command_timing(
+            output += self._send_command_timing_str(
                 self.RETURN, strip_prompt=False, strip_command=False
             )
     else:
-        output = self.send_command(
+        output += self._send_command_str(
             command_string=cmd, strip_prompt=False, strip_command=False
         )
     return output</code></pre>
@@ -647,7 +565,12 @@ Commit configuration changes and return to exec mode</p></section>
 <section class="desc"><p>Ericsson IPOS requires you not exit from configuration mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def send_config_set(self, config_commands=None, exit_config_mode=False, **kwargs):
+<pre><code class="python">def send_config_set(
+    self,
+    config_commands: Union[str, Sequence[str], TextIO, None] = None,
+    exit_config_mode: bool = False,
+    **kwargs: Any,
+) -&gt; str:
     &#34;&#34;&#34;Ericsson IPOS requires you not exit from configuration mode.&#34;&#34;&#34;
     return super().send_config_set(
         config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
@@ -659,19 +582,23 @@ Commit configuration changes and return to exec mode</p></section>
 <ul class="hlist">
 <li><code><b><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.base_connection.BaseConnection.check_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.check_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.exit_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -681,6 +608,7 @@ Commit configuration changes and return to exec mode</p></section>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
@@ -713,14 +641,9 @@ Commit configuration changes and return to exec mode</p></section>
 <ul>
 <li>
 <h4><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH">EricssonIposSSH</a></code></h4>
-<ul class="two-column">
-<li><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.check_config_mode" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.check_enable_mode" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH.check_enable_mode">check_enable_mode</a></code></li>
+<ul class="">
 <li><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.commit" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH.commit">commit</a></code></li>
-<li><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.config_mode" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.enable" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH.enable">enable</a></code></li>
 <li><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.exit_config_mode" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.exit_enable_mode" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.save_config" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.ericsson.ericsson_ipos.EricssonIposSSH.send_config_set" href="#netmiko.ericsson.ericsson_ipos.EricssonIposSSH.send_config_set">send_config_set</a></code></li>
 </ul>

@@ -58,6 +58,8 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 &#34;&#34;&#34;
+from typing import Optional, Dict
+from typing.re import Pattern
 import re
 
 try:
@@ -145,6 +147,11 @@ SNMP_MAPPER_BASE = {
         &#34;expr&#34;: re.compile(r&#34;.*TiMOS.*&#34;),
         &#34;priority&#34;: 99,
     },
+    &#34;dell_powerconnect&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;PowerConnect.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 50,
+    },
 }
 
 # Ensure all SNMP device types are supported by Netmiko
@@ -203,7 +210,6 @@ class SNMPDetect(object):
     encrypt_proto : str
         The SNMPv3 encryption protocol
 
-
     Methods
     -------
     autodetect()
@@ -213,16 +219,16 @@ class SNMPDetect(object):
 
     def __init__(
         self,
-        hostname,
-        snmp_version=&#34;v3&#34;,
-        snmp_port=161,
-        community=None,
-        user=&#34;&#34;,
-        auth_key=&#34;&#34;,
-        encrypt_key=&#34;&#34;,
-        auth_proto=&#34;sha&#34;,
-        encrypt_proto=&#34;aes128&#34;,
-    ):
+        hostname: str,
+        snmp_version: str = &#34;v3&#34;,
+        snmp_port: int = 161,
+        community: Optional[str] = None,
+        user: str = &#34;&#34;,
+        auth_key: str = &#34;&#34;,
+        encrypt_key: str = &#34;&#34;,
+        auth_proto: str = &#34;sha&#34;,
+        encrypt_proto: str = &#34;aes128&#34;,
+    ) -&gt; None:
 
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == &#34;v1&#34; or snmp_version == &#34;v2c&#34;:
@@ -268,9 +274,9 @@ class SNMPDetect(object):
         self.encrypt_key = encrypt_key
         self.auth_proto = self._snmp_v3_authentication[auth_proto]
         self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
-        self._response_cache = {}
+        self._response_cache: Dict[str, str] = {}
 
-    def _get_snmpv3(self, oid):
+    def _get_snmpv3(self, oid: str) -&gt; str:
         &#34;&#34;&#34;
         Try to send an SNMP GET operation using SNMPv3 for the specified OID.
 
@@ -305,7 +311,7 @@ class SNMPDetect(object):
             return str(snmp_data[0][1])
         return &#34;&#34;
 
-    def _get_snmpv2c(self, oid):
+    def _get_snmpv2c(self, oid: str) -&gt; str:
         &#34;&#34;&#34;
         Try to send an SNMP GET operation using SNMPv2 for the specified OID.
 
@@ -334,14 +340,14 @@ class SNMPDetect(object):
             return str(snmp_data[0][1])
         return &#34;&#34;
 
-    def _get_snmp(self, oid):
+    def _get_snmp(self, oid: str) -&gt; str:
         &#34;&#34;&#34;Wrapper for generic SNMP call.&#34;&#34;&#34;
         if self.snmp_version in [&#34;v1&#34;, &#34;v2c&#34;]:
             return self._get_snmpv2c(oid)
         else:
             return self._get_snmpv3(oid)
 
-    def autodetect(self):
+    def autodetect(self) -&gt; Optional[str]:
         &#34;&#34;&#34;
         Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
         is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
@@ -355,18 +361,18 @@ class SNMPDetect(object):
             The name of the device_type that must be running.
         &#34;&#34;&#34;
         # Convert SNMP_MAPPER to a list and sort by priority
-        snmp_mapper_list = []
+        snmp_mapper_orig = []
         for k, v in SNMP_MAPPER.items():
-            snmp_mapper_list.append({k: v})
+            snmp_mapper_orig.append({k: v})
         snmp_mapper_list = sorted(
-            snmp_mapper_list, key=lambda x: list(x.values())[0][&#34;priority&#34;]
+            snmp_mapper_orig, key=lambda x: list(x.values())[0][&#34;priority&#34;]  # type: ignore
         )
         snmp_mapper_list.reverse()
 
         for entry in snmp_mapper_list:
             for device_type, v in entry.items():
-                oid = v[&#34;oid&#34;]
-                regex = v[&#34;expr&#34;]
+                oid: str = v[&#34;oid&#34;]  # type: ignore
+                regex: Pattern = v[&#34;expr&#34;]
 
                 # Used cache data if we already queryied this OID
                 if self._response_cache.get(oid):
@@ -377,6 +383,7 @@ class SNMPDetect(object):
 
                 # See if we had a match
                 if re.search(regex, snmp_response):
+                    assert isinstance(device_type, str)
                     return device_type
 
         return None</code></pre>
@@ -493,7 +500,6 @@ Try to determine the device type.</p></section>
     encrypt_proto : str
         The SNMPv3 encryption protocol
 
-
     Methods
     -------
     autodetect()
@@ -503,16 +509,16 @@ Try to determine the device type.</p></section>
 
     def __init__(
         self,
-        hostname,
-        snmp_version=&#34;v3&#34;,
-        snmp_port=161,
-        community=None,
-        user=&#34;&#34;,
-        auth_key=&#34;&#34;,
-        encrypt_key=&#34;&#34;,
-        auth_proto=&#34;sha&#34;,
-        encrypt_proto=&#34;aes128&#34;,
-    ):
+        hostname: str,
+        snmp_version: str = &#34;v3&#34;,
+        snmp_port: int = 161,
+        community: Optional[str] = None,
+        user: str = &#34;&#34;,
+        auth_key: str = &#34;&#34;,
+        encrypt_key: str = &#34;&#34;,
+        auth_proto: str = &#34;sha&#34;,
+        encrypt_proto: str = &#34;aes128&#34;,
+    ) -&gt; None:
 
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == &#34;v1&#34; or snmp_version == &#34;v2c&#34;:
@@ -558,9 +564,9 @@ Try to determine the device type.</p></section>
         self.encrypt_key = encrypt_key
         self.auth_proto = self._snmp_v3_authentication[auth_proto]
         self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
-        self._response_cache = {}
+        self._response_cache: Dict[str, str] = {}
 
-    def _get_snmpv3(self, oid):
+    def _get_snmpv3(self, oid: str) -&gt; str:
         &#34;&#34;&#34;
         Try to send an SNMP GET operation using SNMPv3 for the specified OID.
 
@@ -595,7 +601,7 @@ Try to determine the device type.</p></section>
             return str(snmp_data[0][1])
         return &#34;&#34;
 
-    def _get_snmpv2c(self, oid):
+    def _get_snmpv2c(self, oid: str) -&gt; str:
         &#34;&#34;&#34;
         Try to send an SNMP GET operation using SNMPv2 for the specified OID.
 
@@ -624,14 +630,14 @@ Try to determine the device type.</p></section>
             return str(snmp_data[0][1])
         return &#34;&#34;
 
-    def _get_snmp(self, oid):
+    def _get_snmp(self, oid: str) -&gt; str:
         &#34;&#34;&#34;Wrapper for generic SNMP call.&#34;&#34;&#34;
         if self.snmp_version in [&#34;v1&#34;, &#34;v2c&#34;]:
             return self._get_snmpv2c(oid)
         else:
             return self._get_snmpv3(oid)
 
-    def autodetect(self):
+    def autodetect(self) -&gt; Optional[str]:
         &#34;&#34;&#34;
         Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
         is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
@@ -645,18 +651,18 @@ Try to determine the device type.</p></section>
             The name of the device_type that must be running.
         &#34;&#34;&#34;
         # Convert SNMP_MAPPER to a list and sort by priority
-        snmp_mapper_list = []
+        snmp_mapper_orig = []
         for k, v in SNMP_MAPPER.items():
-            snmp_mapper_list.append({k: v})
+            snmp_mapper_orig.append({k: v})
         snmp_mapper_list = sorted(
-            snmp_mapper_list, key=lambda x: list(x.values())[0][&#34;priority&#34;]
+            snmp_mapper_orig, key=lambda x: list(x.values())[0][&#34;priority&#34;]  # type: ignore
         )
         snmp_mapper_list.reverse()
 
         for entry in snmp_mapper_list:
             for device_type, v in entry.items():
-                oid = v[&#34;oid&#34;]
-                regex = v[&#34;expr&#34;]
+                oid: str = v[&#34;oid&#34;]  # type: ignore
+                regex: Pattern = v[&#34;expr&#34;]
 
                 # Used cache data if we already queryied this OID
                 if self._response_cache.get(oid):
@@ -667,6 +673,7 @@ Try to determine the device type.</p></section>
 
                 # See if we had a match
                 if re.search(regex, snmp_response):
+                    assert isinstance(device_type, str)
                     return device_type
 
         return None</code></pre>
@@ -688,7 +695,7 @@ dict.</p>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def autodetect(self):
+<pre><code class="python">def autodetect(self) -&gt; Optional[str]:
     &#34;&#34;&#34;
     Try to guess the device_type using SNMP GET based on the SNMP_MAPPER dict. The type which
     is returned is directly matching the name in *netmiko.ssh_dispatcher.CLASS_MAPPER_BASE*
@@ -702,18 +709,18 @@ dict.</p>
         The name of the device_type that must be running.
     &#34;&#34;&#34;
     # Convert SNMP_MAPPER to a list and sort by priority
-    snmp_mapper_list = []
+    snmp_mapper_orig = []
     for k, v in SNMP_MAPPER.items():
-        snmp_mapper_list.append({k: v})
+        snmp_mapper_orig.append({k: v})
     snmp_mapper_list = sorted(
-        snmp_mapper_list, key=lambda x: list(x.values())[0][&#34;priority&#34;]
+        snmp_mapper_orig, key=lambda x: list(x.values())[0][&#34;priority&#34;]  # type: ignore
     )
     snmp_mapper_list.reverse()
 
     for entry in snmp_mapper_list:
         for device_type, v in entry.items():
-            oid = v[&#34;oid&#34;]
-            regex = v[&#34;expr&#34;]
+            oid: str = v[&#34;oid&#34;]  # type: ignore
+            regex: Pattern = v[&#34;expr&#34;]
 
             # Used cache data if we already queryied this OID
             if self._response_cache.get(oid):
@@ -724,6 +731,7 @@ dict.</p>
 
             # See if we had a match
             if re.search(regex, snmp_response):
+                assert isinstance(device_type, str)
                 return device_type
 
     return None</code></pre>

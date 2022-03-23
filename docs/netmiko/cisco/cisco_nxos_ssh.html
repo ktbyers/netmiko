@@ -22,20 +22,16 @@
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">import re
+<pre><code class="python">from typing import Any, Optional, Callable
+import re
 import os
+from netmiko.base_connection import BaseConnection
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
-    def __init__(self, *args, **kwargs):
-        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
-        kwargs.setdefault(&#34;fast_cli&#34;, True)
-        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
-        return super().__init__(*args, **kwargs)
-
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
         # NX-OS has an issue where it echoes the command even though it hasn&#39;t returned the prompt
@@ -46,46 +42,45 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_base_prompt()
 
-    def normalize_linefeeds(self, a_string):
+    def normalize_linefeeds(self, a_string: str) -&gt; str:
         &#34;&#34;&#34;Convert &#39;\r\n&#39; or &#39;\r\r\n&#39; to &#39;\n, and remove extra &#39;\r&#39;s in the text.&#34;&#34;&#34;
         newline = re.compile(r&#34;(\r\r\n\r|\r\r\n|\r\n)&#34;)
         # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace(&#34;\r&#34;, &#34;\n&#34;)
 
-    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
+    def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = &#34;#&#34;) -&gt; bool:
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(
         self,
-        cmd=&#34;copy running-config startup-config&#34;,
-        confirm=False,
-        confirm_response=&#34;&#34;,
-    ):
+        cmd: str = &#34;copy running-config startup-config&#34;,
+        confirm: bool = False,
+        confirm_response: str = &#34;&#34;,
+    ) -&gt; str:
         self.enable()
 
+        output = &#34;&#34;
         if confirm:
-            output = self.send_command_timing(
+            output += self._send_command_timing_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
             if confirm_response:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
             else:
                 # Send enter by default
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
         else:
             # NX-OS is very slow on save_config ensure it waits long enough.
-            # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
-            # send_command so increase max_loops.
-            output = self.send_command(
+            output += self._send_command_str(
                 command_string=cmd,
                 strip_prompt=False,
                 strip_command=False,
-                max_loops=5000,
+                read_timeout=100,
             )
         return output
 
@@ -95,19 +90,23 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
 
     def __init__(
         self,
-        ssh_conn,
-        source_file,
-        dest_file,
-        file_system=&#34;bootflash:&#34;,
-        direction=&#34;put&#34;,
-        socket_timeout=10.0,
-        progress=None,
-        progress4=None,
-    ):
+        ssh_conn: BaseConnection,
+        source_file: str,
+        dest_file: str,
+        file_system: str = &#34;bootflash:&#34;,
+        direction: str = &#34;put&#34;,
+        socket_timeout: float = 10.0,
+        progress: Optional[Callable[..., Any]] = None,
+        progress4: Optional[Callable[..., Any]] = None,
+        hash_supported: bool = True,
+    ) -&gt; None:
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+
+        if hash_supported is False:
+            raise ValueError(&#34;hash_supported=False is not supported for NX-OS&#34;)
 
         if file_system:
             self.file_system = file_system
@@ -127,12 +126,12 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         self.progress = progress
         self.progress4 = progress4
 
-    def check_file_exists(self, remote_cmd=&#34;&#34;):
+    def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
             if not remote_cmd:
                 remote_cmd = f&#34;dir {self.file_system}{self.dest_file}&#34;
-            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
             search_string = r&#34;{}.*Usage for&#34;.format(self.dest_file)
             if &#34;No such file or directory&#34; in remote_out:
                 return False
@@ -142,19 +141,25 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
                 raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
         elif self.direction == &#34;get&#34;:
             return os.path.exists(self.dest_file)
+        else:
+            raise ValueError(&#34;Invalid value for file transfer direction.&#34;)
 
-    def remote_file_size(self, remote_cmd=&#34;&#34;, remote_file=None):
+    def remote_file_size(
+        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
+    ) -&gt; int:
         &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
         if remote_file is None:
             if self.direction == &#34;put&#34;:
                 remote_file = self.dest_file
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
+            else:
+                raise ValueError(&#34;Invalid value for file transfer direction.&#34;)
 
         if not remote_cmd:
             remote_cmd = f&#34;dir {self.file_system}/{remote_file}&#34;
 
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
         if re.search(&#34;no such file or directory&#34;, remote_out, flags=re.I):
             raise IOError(&#34;Unable to find file on remote system&#34;)
         # Match line containing file name
@@ -169,23 +174,27 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         raise IOError(&#34;Unable to find file on remote system&#34;)
 
     @staticmethod
-    def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
+    def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
         &#34;&#34;&#34;Not needed on NX-OS.&#34;&#34;&#34;
         raise NotImplementedError
 
-    def remote_md5(self, base_cmd=&#34;show file&#34;, remote_file=None):
+    def remote_md5(
+        self, base_cmd: str = &#34;show file&#34;, remote_file: Optional[str] = None
+    ) -&gt; str:
         if remote_file is None:
             if self.direction == &#34;put&#34;:
                 remote_file = self.dest_file
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
         remote_md5_cmd = f&#34;{base_cmd} {self.file_system}{remote_file} md5sum&#34;
-        return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500).strip()
+        output = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
+        output = output.strip()
+        return output
 
-    def enable_scp(self, cmd=None):
+    def enable_scp(self, cmd: str = &#34;&#34;) -&gt; None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: str = &#34;&#34;) -&gt; None:
         raise NotImplementedError</code></pre>
 </details>
 </section>
@@ -200,7 +209,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
 <dl>
 <dt id="netmiko.cisco.cisco_nxos_ssh.CiscoNxosFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoNxosFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system='bootflash:', direction='put', socket_timeout=10.0, progress=None, progress4=None)</span>
+<span>(</span><span>ssh_conn, source_file, dest_file, file_system='bootflash:', direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cisco NXOS SCP File Transfer driver.</p></section>
@@ -211,19 +220,23 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
 
     def __init__(
         self,
-        ssh_conn,
-        source_file,
-        dest_file,
-        file_system=&#34;bootflash:&#34;,
-        direction=&#34;put&#34;,
-        socket_timeout=10.0,
-        progress=None,
-        progress4=None,
-    ):
+        ssh_conn: BaseConnection,
+        source_file: str,
+        dest_file: str,
+        file_system: str = &#34;bootflash:&#34;,
+        direction: str = &#34;put&#34;,
+        socket_timeout: float = 10.0,
+        progress: Optional[Callable[..., Any]] = None,
+        progress4: Optional[Callable[..., Any]] = None,
+        hash_supported: bool = True,
+    ) -&gt; None:
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+
+        if hash_supported is False:
+            raise ValueError(&#34;hash_supported=False is not supported for NX-OS&#34;)
 
         if file_system:
             self.file_system = file_system
@@ -243,12 +256,12 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         self.progress = progress
         self.progress4 = progress4
 
-    def check_file_exists(self, remote_cmd=&#34;&#34;):
+    def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
             if not remote_cmd:
                 remote_cmd = f&#34;dir {self.file_system}{self.dest_file}&#34;
-            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
             search_string = r&#34;{}.*Usage for&#34;.format(self.dest_file)
             if &#34;No such file or directory&#34; in remote_out:
                 return False
@@ -258,19 +271,25 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
                 raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
         elif self.direction == &#34;get&#34;:
             return os.path.exists(self.dest_file)
+        else:
+            raise ValueError(&#34;Invalid value for file transfer direction.&#34;)
 
-    def remote_file_size(self, remote_cmd=&#34;&#34;, remote_file=None):
+    def remote_file_size(
+        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
+    ) -&gt; int:
         &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
         if remote_file is None:
             if self.direction == &#34;put&#34;:
                 remote_file = self.dest_file
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
+            else:
+                raise ValueError(&#34;Invalid value for file transfer direction.&#34;)
 
         if not remote_cmd:
             remote_cmd = f&#34;dir {self.file_system}/{remote_file}&#34;
 
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
         if re.search(&#34;no such file or directory&#34;, remote_out, flags=re.I):
             raise IOError(&#34;Unable to find file on remote system&#34;)
         # Match line containing file name
@@ -285,23 +304,27 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         raise IOError(&#34;Unable to find file on remote system&#34;)
 
     @staticmethod
-    def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
+    def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
         &#34;&#34;&#34;Not needed on NX-OS.&#34;&#34;&#34;
         raise NotImplementedError
 
-    def remote_md5(self, base_cmd=&#34;show file&#34;, remote_file=None):
+    def remote_md5(
+        self, base_cmd: str = &#34;show file&#34;, remote_file: Optional[str] = None
+    ) -&gt; str:
         if remote_file is None:
             if self.direction == &#34;put&#34;:
                 remote_file = self.dest_file
             elif self.direction == &#34;get&#34;:
                 remote_file = self.source_file
         remote_md5_cmd = f&#34;{base_cmd} {self.file_system}{remote_file} md5sum&#34;
-        return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500).strip()
+        output = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
+        output = output.strip()
+        return output
 
-    def enable_scp(self, cmd=None):
+    def enable_scp(self, cmd: str = &#34;&#34;) -&gt; None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: str = &#34;&#34;) -&gt; None:
         raise NotImplementedError</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -319,7 +342,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@staticmethod
-def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
+def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
     &#34;&#34;&#34;Not needed on NX-OS.&#34;&#34;&#34;
     raise NotImplementedError</code></pre>
 </details>
@@ -351,7 +374,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 </dd>
 <dt id="netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoNxosSSH</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, disabled_algorithms=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=10, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, read_timeout_override=None, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=True, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True, delay_factor_compat=False)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -359,142 +382,109 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 
     :param ip: IP address of target device. Not required if `host` is
         provided.
-    :type ip: str
 
     :param host: Hostname of target device. Not required if `ip` is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
+
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class CiscoNxosSSH(CiscoSSHConnection):
-    def __init__(self, *args, **kwargs):
-        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
-        kwargs.setdefault(&#34;fast_cli&#34;, True)
-        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
-        return super().__init__(*args, **kwargs)
-
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
         # NX-OS has an issue where it echoes the command even though it hasn&#39;t returned the prompt
@@ -505,46 +495,45 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
         self.disable_paging()
         self.set_base_prompt()
 
-    def normalize_linefeeds(self, a_string):
+    def normalize_linefeeds(self, a_string: str) -&gt; str:
         &#34;&#34;&#34;Convert &#39;\r\n&#39; or &#39;\r\r\n&#39; to &#39;\n, and remove extra &#39;\r&#39;s in the text.&#34;&#34;&#34;
         newline = re.compile(r&#34;(\r\r\n\r|\r\r\n|\r\n)&#34;)
         # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace(&#34;\r&#34;, &#34;\n&#34;)
 
-    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
+    def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = &#34;#&#34;) -&gt; bool:
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(
         self,
-        cmd=&#34;copy running-config startup-config&#34;,
-        confirm=False,
-        confirm_response=&#34;&#34;,
-    ):
+        cmd: str = &#34;copy running-config startup-config&#34;,
+        confirm: bool = False,
+        confirm_response: str = &#34;&#34;,
+    ) -&gt; str:
         self.enable()
 
+        output = &#34;&#34;
         if confirm:
-            output = self.send_command_timing(
+            output += self._send_command_timing_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
             if confirm_response:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
             else:
                 # Send enter by default
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
         else:
             # NX-OS is very slow on save_config ensure it waits long enough.
-            # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
-            # send_command so increase max_loops.
-            output = self.send_command(
+            output += self._send_command_str(
                 command_string=cmd,
                 strip_prompt=False,
                 strip_command=False,
-                max_loops=5000,
+                read_timeout=100,
             )
         return output</code></pre>
 </details>
@@ -563,7 +552,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 <section class="desc"><p>Checks if the device is in configuration mode or not.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
+<pre><code class="python">def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = &#34;#&#34;) -&gt; bool:
     &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
     return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
 </details>
@@ -579,7 +568,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 's in the text.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def normalize_linefeeds(self, a_string):
+<pre><code class="python">def normalize_linefeeds(self, a_string: str) -&gt; str:
     &#34;&#34;&#34;Convert &#39;\r\n&#39; or &#39;\r\r\n&#39; to &#39;\n, and remove extra &#39;\r&#39;s in the text.&#34;&#34;&#34;
     newline = re.compile(r&#34;(\r\r\n\r|\r\r\n|\r\n)&#34;)
     # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
@@ -593,7 +582,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 <section class="desc"><p>Prepare the session after the connection has been established.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def session_preparation(self):
+<pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self.ansi_escape_codes = True
     # NX-OS has an issue where it echoes the command even though it hasn&#39;t returned the prompt
@@ -613,9 +602,8 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -625,9 +613,9 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -639,6 +627,7 @@ def process_md5(md5_output, pattern=r&#34;= (.*)&#34;):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>

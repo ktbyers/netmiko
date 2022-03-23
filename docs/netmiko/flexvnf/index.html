@@ -45,161 +45,137 @@ __all__ = [&#34;FlexvnfSSH&#34;]</code></pre>
 <dl>
 <dt id="netmiko.flexvnf.FlexvnfSSH"><code class="flex name class">
 <span>class <span class="ident">FlexvnfSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, disabled_algorithms=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=10, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, read_timeout_override=None, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=True, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True, delay_factor_compat=False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Defines vendor independent methods.</p>
-<p>Otherwise method left as a stub method.</p>
+<section class="desc"><p>Class for platforms that have no enable mode.</p>
+<p>Netmiko translates the meaning of "enable" mode to be a proxy for "can
+go into config mode". In other words, that you ultimately have privileges
+to execute configuration changes.</p>
+<p>The expectation on platforms that have no method for elevating privileges
+is that the standard default privileges allow configuration changes.</p>
+<p>Consequently check_enable_mode returns True by default for platforms that
+don't explicitly support enable mode.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
     :param ip: IP address of target device. Not required if `host` is
         provided.
-    :type ip: str
 
     :param host: Hostname of target device. Not required if `ip` is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
+
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class FlexvnfSSH(BaseConnection):
-    def session_preparation(self):
+<pre><code class="python">class FlexvnfSSH(NoEnable, BaseConnection):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;
         Prepare the session after the connection has been established.
 
         Disable paging (the &#39;--more--&#39; prompts).
         Set the base prompt for interaction (&#39;&gt;&#39;).
         &#34;&#34;&#34;
-        self._test_channel_read()
+        self._test_channel_read(pattern=r&#34;[\$@&gt;%]&#34;)
         self.enter_cli_mode()
         self.set_base_prompt()
         self.set_terminal_width(command=&#34;set screen width 511&#34;, pattern=&#34;set&#34;)
         self.disable_paging(command=&#34;set screen length 0&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
-    def enter_cli_mode(self):
+    def enter_cli_mode(self) -&gt; None:
         &#34;&#34;&#34;Check if at shell prompt root@ and go into CLI.&#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor=0)
         count = 0
@@ -209,7 +185,7 @@ __all__ = [&#34;FlexvnfSSH&#34;]</code></pre>
             time.sleep(0.1 * delay_factor)
             cur_prompt = self.read_channel()
             if re.search(r&#34;admin@&#34;, cur_prompt) or re.search(
-                r&#34;^\$$&#34;, cur_prompt.strip()
+                r&#34;\$$&#34;, cur_prompt.strip()
             ):
                 self.write_channel(&#34;cli&#34; + self.RETURN)
                 time.sleep(0.3 * delay_factor)
@@ -219,36 +195,30 @@ __all__ = [&#34;FlexvnfSSH&#34;]</code></pre>
                 break
             count += 1
 
-    def check_enable_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;No enable mode on flexvnf.&#34;&#34;&#34;
-        pass
-
-    def enable(self, *args, **kwargs):
-        &#34;&#34;&#34;No enable mode on flexvnf.&#34;&#34;&#34;
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;No enable mode on flexvnf.&#34;&#34;&#34;
-        pass
-
-    def check_config_mode(self, check_string=&#34;]&#34;):
+    def check_config_mode(self, check_string: str = &#34;]&#34;, pattern: str = &#34;&#34;) -&gt; bool:
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string)
 
-    def config_mode(self, config_command=&#34;configure&#34;):
+    def config_mode(
+        self, config_command: str = &#34;configure&#34;, pattern: str = &#34;&#34;, re_flags: int = 0
+    ) -&gt; str:
         &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
-        return super().config_mode(config_command=config_command)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config=&#34;exit configuration-mode&#34;):
+    def exit_config_mode(
+        self, exit_config: str = &#34;exit configuration-mode&#34;, pattern: str = &#34;&#34;
+    ) -&gt; str:
         &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
         output = &#34;&#34;
         if self.check_config_mode():
-            output = self.send_command_timing(
+            output += self._send_command_timing_str(
                 exit_config, strip_prompt=False, strip_command=False
             )
             # if &#39;Exit with uncommitted changes?&#39; in output:
             if &#34;uncommitted changes&#34; in output:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     &#34;yes&#34;, strip_prompt=False, strip_command=False
                 )
             if self.check_config_mode():
@@ -257,13 +227,14 @@ __all__ = [&#34;FlexvnfSSH&#34;]</code></pre>
 
     def commit(
         self,
-        confirm=False,
-        confirm_delay=None,
-        check=False,
-        comment=&#34;&#34;,
-        and_quit=False,
-        delay_factor=1,
-    ):
+        confirm: bool = False,
+        confirm_delay: Optional[int] = None,
+        check: bool = False,
+        comment: str = &#34;&#34;,
+        and_quit: bool = False,
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -&gt; str:
         &#34;&#34;&#34;
         Commit the candidate configuration.
 
@@ -285,8 +256,12 @@ __all__ = [&#34;FlexvnfSSH&#34;]</code></pre>
         check:
             command_string = commit check
 
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         &#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor)
+
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
 
         if check and (confirm or confirm_delay or comment):
             raise ValueError(&#34;Invalid arguments supplied with commit check&#34;)
@@ -324,19 +299,19 @@ __all__ = [&#34;FlexvnfSSH&#34;]</code></pre>
         # and_quit will get out of config mode on commit
         if and_quit:
             prompt = self.base_prompt
-            output += self.send_command_expect(
+            output += self._send_command_str(
                 command_string,
                 expect_string=prompt,
                 strip_prompt=True,
                 strip_command=True,
-                delay_factor=delay_factor,
+                read_timeout=read_timeout,
             )
         else:
-            output += self.send_command_expect(
+            output += self._send_command_str(
                 command_string,
                 strip_prompt=True,
                 strip_command=True,
-                delay_factor=delay_factor,
+                read_timeout=read_timeout,
             )
 
         if commit_marker not in output:
@@ -344,12 +319,12 @@ __all__ = [&#34;FlexvnfSSH&#34;]</code></pre>
 
         return output
 
-    def strip_prompt(self, *args, **kwargs):
+    def strip_prompt(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;Strip the trailing router prompt from the output.&#34;&#34;&#34;
         a_string = super().strip_prompt(*args, **kwargs)
-        return self.strip_context_items(a_string)
+        return self._strip_context_items(a_string)
 
-    def strip_context_items(self, a_string):
+    def _strip_context_items(self, a_string: str) -&gt; str:
         &#34;&#34;&#34;Strip FLEXVNF-specific output.
 
         FLEXVNF will also put a configuration context:
@@ -383,36 +358,25 @@ __all__ = [&#34;FlexvnfSSH&#34;]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.flexvnf.FlexvnfSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=']')</span>
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=']', pattern='')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Checks if the device is in configuration mode or not.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, check_string=&#34;]&#34;):
+<pre><code class="python">def check_config_mode(self, check_string: str = &#34;]&#34;, pattern: str = &#34;&#34;) -&gt; bool:
     &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
     return super().check_config_mode(check_string=check_string)</code></pre>
 </details>
 </dd>
-<dt id="netmiko.flexvnf.FlexvnfSSH.check_enable_mode"><code class="name flex">
-<span>def <span class="ident">check_enable_mode</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>No enable mode on flexvnf.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def check_enable_mode(self, *args, **kwargs):
-    &#34;&#34;&#34;No enable mode on flexvnf.&#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
 <dt id="netmiko.flexvnf.FlexvnfSSH.commit"><code class="name flex">
-<span>def <span class="ident">commit</span></span>(<span>self, confirm=False, confirm_delay=None, check=False, comment='', and_quit=False, delay_factor=1)</span>
+<span>def <span class="ident">commit</span></span>(<span>self, confirm=False, confirm_delay=None, check=False, comment='', and_quit=False, read_timeout=120.0, delay_factor=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Commit the candidate configuration.</p>
@@ -430,18 +394,20 @@ confirm_delay option
 comment option
 command_string = commit confirmed or commit confirmed <confirm_delay>
 check:
-command_string = commit check</p></section>
+command_string = commit check</p>
+<p>delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def commit(
     self,
-    confirm=False,
-    confirm_delay=None,
-    check=False,
-    comment=&#34;&#34;,
-    and_quit=False,
-    delay_factor=1,
-):
+    confirm: bool = False,
+    confirm_delay: Optional[int] = None,
+    check: bool = False,
+    comment: str = &#34;&#34;,
+    and_quit: bool = False,
+    read_timeout: float = 120.0,
+    delay_factor: Optional[float] = None,
+) -&gt; str:
     &#34;&#34;&#34;
     Commit the candidate configuration.
 
@@ -463,8 +429,12 @@ command_string = commit check</p></section>
     check:
         command_string = commit check
 
+    delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
     &#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor)
+
+    if delay_factor is not None:
+        warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
 
     if check and (confirm or confirm_delay or comment):
         raise ValueError(&#34;Invalid arguments supplied with commit check&#34;)
@@ -502,19 +472,19 @@ command_string = commit check</p></section>
     # and_quit will get out of config mode on commit
     if and_quit:
         prompt = self.base_prompt
-        output += self.send_command_expect(
+        output += self._send_command_str(
             command_string,
             expect_string=prompt,
             strip_prompt=True,
             strip_command=True,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
     else:
-        output += self.send_command_expect(
+        output += self._send_command_str(
             command_string,
             strip_prompt=True,
             strip_command=True,
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
 
     if commit_marker not in output:
@@ -524,27 +494,19 @@ command_string = commit check</p></section>
 </details>
 </dd>
 <dt id="netmiko.flexvnf.FlexvnfSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure')</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure', pattern='', re_flags=0)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter configuration mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def config_mode(self, config_command=&#34;configure&#34;):
+<pre><code class="python">def config_mode(
+    self, config_command: str = &#34;configure&#34;, pattern: str = &#34;&#34;, re_flags: int = 0
+) -&gt; str:
     &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
-    return super().config_mode(config_command=config_command)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.flexvnf.FlexvnfSSH.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>No enable mode on flexvnf.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def enable(self, *args, **kwargs):
-    &#34;&#34;&#34;No enable mode on flexvnf.&#34;&#34;&#34;
-    pass</code></pre>
+    return super().config_mode(
+        config_command=config_command, pattern=pattern, re_flags=re_flags
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.flexvnf.FlexvnfSSH.enter_cli_mode"><code class="name flex">
@@ -554,7 +516,7 @@ command_string = commit check</p></section>
 <section class="desc"><p>Check if at shell prompt root@ and go into CLI.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def enter_cli_mode(self):
+<pre><code class="python">def enter_cli_mode(self) -&gt; None:
     &#34;&#34;&#34;Check if at shell prompt root@ and go into CLI.&#34;&#34;&#34;
     delay_factor = self.select_delay_factor(delay_factor=0)
     count = 0
@@ -564,7 +526,7 @@ command_string = commit check</p></section>
         time.sleep(0.1 * delay_factor)
         cur_prompt = self.read_channel()
         if re.search(r&#34;admin@&#34;, cur_prompt) or re.search(
-            r&#34;^\$$&#34;, cur_prompt.strip()
+            r&#34;\$$&#34;, cur_prompt.strip()
         ):
             self.write_channel(&#34;cli&#34; + self.RETURN)
             time.sleep(0.3 * delay_factor)
@@ -576,39 +538,29 @@ command_string = commit check</p></section>
 </details>
 </dd>
 <dt id="netmiko.flexvnf.FlexvnfSSH.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='exit configuration-mode')</span>
+<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='exit configuration-mode', pattern='')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Exit configuration mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config=&#34;exit configuration-mode&#34;):
+<pre><code class="python">def exit_config_mode(
+    self, exit_config: str = &#34;exit configuration-mode&#34;, pattern: str = &#34;&#34;
+) -&gt; str:
     &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
     output = &#34;&#34;
     if self.check_config_mode():
-        output = self.send_command_timing(
+        output += self._send_command_timing_str(
             exit_config, strip_prompt=False, strip_command=False
         )
         # if &#39;Exit with uncommitted changes?&#39; in output:
         if &#34;uncommitted changes&#34; in output:
-            output += self.send_command_timing(
+            output += self._send_command_timing_str(
                 &#34;yes&#34;, strip_prompt=False, strip_command=False
             )
         if self.check_config_mode():
             raise ValueError(&#34;Failed to exit configuration mode&#34;)
     return output</code></pre>
-</details>
-</dd>
-<dt id="netmiko.flexvnf.FlexvnfSSH.exit_enable_mode"><code class="name flex">
-<span>def <span class="ident">exit_enable_mode</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>No enable mode on flexvnf.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def exit_enable_mode(self, *args, **kwargs):
-    &#34;&#34;&#34;No enable mode on flexvnf.&#34;&#34;&#34;
-    pass</code></pre>
 </details>
 </dd>
 <dt id="netmiko.flexvnf.FlexvnfSSH.session_preparation"><code class="name flex">
@@ -620,66 +572,18 @@ command_string = commit check</p></section>
 Set the base prompt for interaction ('&gt;').</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def session_preparation(self):
+<pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;
     Prepare the session after the connection has been established.
 
     Disable paging (the &#39;--more--&#39; prompts).
     Set the base prompt for interaction (&#39;&gt;&#39;).
     &#34;&#34;&#34;
-    self._test_channel_read()
+    self._test_channel_read(pattern=r&#34;[\$@&gt;%]&#34;)
     self.enter_cli_mode()
     self.set_base_prompt()
     self.set_terminal_width(command=&#34;set screen width 511&#34;, pattern=&#34;set&#34;)
-    self.disable_paging(command=&#34;set screen length 0&#34;)
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
-</details>
-</dd>
-<dt id="netmiko.flexvnf.FlexvnfSSH.strip_context_items"><code class="name flex">
-<span>def <span class="ident">strip_context_items</span></span>(<span>self, a_string)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Strip FLEXVNF-specific output.</p>
-<p>FLEXVNF will also put a configuration context:
-[edit]</p>
-<p>and various chassis contexts:
-{master:0}, {backup:1}</p>
-<p>This method removes those lines.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def strip_context_items(self, a_string):
-    &#34;&#34;&#34;Strip FLEXVNF-specific output.
-
-    FLEXVNF will also put a configuration context:
-    [edit]
-
-    and various chassis contexts:
-    {master:0}, {backup:1}
-
-    This method removes those lines.
-    &#34;&#34;&#34;
-    strings_to_strip = [
-        r&#34;admin@lab-pg-dev-cp02v.*&#34;,
-        r&#34;\[edit.*\]&#34;,
-        r&#34;\[edit\]&#34;,
-        r&#34;\[ok\]&#34;,
-        r&#34;\[.*\]&#34;,
-        r&#34;\{master:.*\}&#34;,
-        r&#34;\{backup:.*\}&#34;,
-        r&#34;\{line.*\}&#34;,
-        r&#34;\{primary.*\}&#34;,
-        r&#34;\{secondary.*\}&#34;,
-    ]
-
-    response_list = a_string.split(self.RESPONSE_RETURN)
-    last_line = response_list[0]
-
-    for pattern in strings_to_strip:
-        if re.search(pattern, last_line):
-            return self.RESPONSE_RETURN.join(response_list[:-1])
-    return a_string</code></pre>
+    self.disable_paging(command=&#34;set screen length 0&#34;)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.flexvnf.FlexvnfSSH.strip_prompt"><code class="name flex">
@@ -689,10 +593,10 @@ Set the base prompt for interaction ('&gt;').</p></section>
 <section class="desc"><p>Strip the trailing router prompt from the output.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def strip_prompt(self, *args, **kwargs):
+<pre><code class="python">def strip_prompt(self, *args: Any, **kwargs: Any) -&gt; str:
     &#34;&#34;&#34;Strip the trailing router prompt from the output.&#34;&#34;&#34;
     a_string = super().strip_prompt(*args, **kwargs)
-    return self.strip_context_items(a_string)</code></pre>
+    return self._strip_context_items(a_string)</code></pre>
 </details>
 </dd>
 </dl>
@@ -700,19 +604,21 @@ Set the base prompt for interaction ('&gt;').</p></section>
 <ul class="hlist">
 <li><code><b><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.base_connection.BaseConnection.check_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.exit_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -724,6 +630,7 @@ Set the base prompt for interaction ('&gt;').</p></section>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -761,15 +668,11 @@ Set the base prompt for interaction ('&gt;').</p></section>
 <h4><code><a title="netmiko.flexvnf.FlexvnfSSH" href="#netmiko.flexvnf.FlexvnfSSH">FlexvnfSSH</a></code></h4>
 <ul class="two-column">
 <li><code><a title="netmiko.flexvnf.FlexvnfSSH.check_config_mode" href="#netmiko.flexvnf.FlexvnfSSH.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.flexvnf.FlexvnfSSH.check_enable_mode" href="#netmiko.flexvnf.FlexvnfSSH.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.flexvnf.FlexvnfSSH.commit" href="#netmiko.flexvnf.FlexvnfSSH.commit">commit</a></code></li>
 <li><code><a title="netmiko.flexvnf.FlexvnfSSH.config_mode" href="#netmiko.flexvnf.FlexvnfSSH.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.flexvnf.FlexvnfSSH.enable" href="#netmiko.flexvnf.FlexvnfSSH.enable">enable</a></code></li>
 <li><code><a title="netmiko.flexvnf.FlexvnfSSH.enter_cli_mode" href="#netmiko.flexvnf.FlexvnfSSH.enter_cli_mode">enter_cli_mode</a></code></li>
 <li><code><a title="netmiko.flexvnf.FlexvnfSSH.exit_config_mode" href="#netmiko.flexvnf.FlexvnfSSH.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.flexvnf.FlexvnfSSH.exit_enable_mode" href="#netmiko.flexvnf.FlexvnfSSH.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.flexvnf.FlexvnfSSH.session_preparation" href="#netmiko.flexvnf.FlexvnfSSH.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.flexvnf.FlexvnfSSH.strip_context_items" href="#netmiko.flexvnf.FlexvnfSSH.strip_context_items">strip_context_items</a></code></li>
 <li><code><a title="netmiko.flexvnf.FlexvnfSSH.strip_prompt" href="#netmiko.flexvnf.FlexvnfSSH.strip_prompt">strip_prompt</a></code></li>
 </ul>
 </li>

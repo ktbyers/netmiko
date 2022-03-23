@@ -22,23 +22,19 @@
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">import time
+<pre><code class="python">from typing import Any
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class EltexSSH(CiscoSSHConnection):
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
-        self._test_channel_read()
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         self.disable_paging(command=&#34;terminal datadump&#34;)
 
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
-
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
         raise NotImplementedError</code></pre>
 </details>
@@ -54,7 +50,7 @@ class EltexSSH(CiscoSSHConnection):
 <dl>
 <dt id="netmiko.eltex.eltex_ssh.EltexSSH"><code class="flex name class">
 <span>class <span class="ident">EltexSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, disabled_algorithms=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=10, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, read_timeout_override=None, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=True, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True, delay_factor_compat=False)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -62,147 +58,116 @@ class EltexSSH(CiscoSSHConnection):
 
     :param ip: IP address of target device. Not required if `host` is
         provided.
-    :type ip: str
 
     :param host: Hostname of target device. Not required if `ip` is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
+
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class EltexSSH(CiscoSSHConnection):
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
-        self._test_channel_read()
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         self.disable_paging(command=&#34;terminal datadump&#34;)
 
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
-
-    def save_config(self, *args, **kwargs):
+    def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
         raise NotImplementedError</code></pre>
 </details>
@@ -221,7 +186,7 @@ class EltexSSH(CiscoSSHConnection):
 <section class="desc"><p>Not Implemented</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def save_config(self, *args, **kwargs):
+<pre><code class="python">def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
     &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
     raise NotImplementedError</code></pre>
 </details>
@@ -233,16 +198,12 @@ class EltexSSH(CiscoSSHConnection):
 <section class="desc"><p>Prepare the session after the connection has been established.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def session_preparation(self):
+<pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self.ansi_escape_codes = True
-    self._test_channel_read()
+    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
     self.set_base_prompt()
-    self.disable_paging(command=&#34;terminal datadump&#34;)
-
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
+    self.disable_paging(command=&#34;terminal datadump&#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -254,9 +215,8 @@ class EltexSSH(CiscoSSHConnection):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -267,9 +227,9 @@ class EltexSSH(CiscoSSHConnection):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -280,6 +240,7 @@ class EltexSSH(CiscoSSHConnection):
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>

@@ -5,6 +5,5 @@ from netmiko.ubiquiti.unifiswitch_ssh import UbiquitiUnifiSwitchSSH
 __all__ = [
     "UbiquitiEdgeRouterSSH",
     "UbiquitiEdgeSSH",
-    "UnifiSwitchSSH",
     "UbiquitiUnifiSwitchSSH",
 ]

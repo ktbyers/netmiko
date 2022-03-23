@@ -24,14 +24,17 @@
 <summary>Source code</summary>
 <pre><code class="python">import re
 import time
-from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT
+from socket import socket
+from typing import Optional, Any
+
+from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT, Telnet
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class RuckusFastironBase(CiscoSSHConnection):
     &#34;&#34;&#34;Ruckus FastIron aka ICX support.&#34;&#34;&#34;
 
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;FastIron requires to be enable mode to disable paging.&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
@@ -42,8 +45,12 @@ class RuckusFastironBase(CiscoSSHConnection):
         self.clear_buffer()
 
     def enable(
-        self, cmd=&#34;enable&#34;, pattern=r&#34;(ssword|User Name)&#34;, re_flags=re.IGNORECASE
-    ):
+        self,
+        cmd: str = &#34;enable&#34;,
+        pattern: str = r&#34;(ssword|User Name)&#34;,
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -&gt; str:
         &#34;&#34;&#34;Enter enable mode.
         With RADIUS can prompt for User Name
         SSH@Lab-ICX7250&gt;en
@@ -58,23 +65,23 @@ class RuckusFastironBase(CiscoSSHConnection):
             while i &lt; count:
                 self.write_channel(self.normalize_cmd(cmd))
                 new_data = self.read_until_prompt_or_pattern(
-                    pattern=pattern, re_flags=re_flags
+                    pattern=pattern, re_flags=re_flags, read_entire_line=True
                 )
                 output += new_data
                 if &#34;User Name&#34; in new_data:
                     self.write_channel(self.normalize_cmd(self.username))
                     new_data = self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
+                        pattern=pattern, re_flags=re_flags, read_entire_line=True
                     )
                     output += new_data
                 if &#34;ssword&#34; in new_data:
                     self.write_channel(self.normalize_cmd(self.secret))
-                    new_data = self.read_until_prompt()
+                    new_data = self.read_until_prompt(read_entire_line=True)
                     output += new_data
                     if not re.search(
                         r&#34;error.*incorrect.*password&#34;, new_data, flags=re.I
                     ):
-                        return output
+                        break
 
                 time.sleep(1)
                 i += 1
@@ -86,7 +93,11 @@ class RuckusFastironBase(CiscoSSHConnection):
             )
             raise ValueError(msg)
 
-    def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
+        return output
+
+    def save_config(
+        self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+    ) -&gt; str:
         &#34;&#34;&#34;Saves configuration.&#34;&#34;&#34;
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -94,12 +105,12 @@ class RuckusFastironBase(CiscoSSHConnection):
 
 
 class RuckusFastironTelnet(RuckusFastironBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
         default_enter = kwargs.get(&#34;default_enter&#34;)
         kwargs[&#34;default_enter&#34;] = &#34;\r\n&#34; if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
 
-    def _process_option(self, tsocket, command, option):
+    def _process_option(self, tsocket: socket, command: bytes, option: bytes) -&gt; None:
         &#34;&#34;&#34;
         Ruckus FastIron/ICX does not always echo commands to output by default.
         If server expresses interest in &#39;ECHO&#39; option, then reply back with &#39;DO
@@ -112,8 +123,9 @@ class RuckusFastironTelnet(RuckusFastironBase):
         elif command in (WILL, WONT):
             tsocket.sendall(IAC + DONT + option)
 
-    def telnet_login(self, *args, **kwargs):
+    def telnet_login(self, *args: Any, **kwargs: Any) -&gt; str:
         # set callback function to handle telnet options.
+        assert isinstance(self.remote_conn, Telnet)
         self.remote_conn.set_option_negotiation_callback(self._process_option)
         return super().telnet_login(*args, **kwargs)
 
@@ -133,7 +145,7 @@ class RuckusFastironSSH(RuckusFastironBase):
 <dl>
 <dt id="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase"><code class="flex name class">
 <span>class <span class="ident">RuckusFastironBase</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, disabled_algorithms=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=10, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, read_timeout_override=None, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=True, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True, delay_factor_compat=False)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Ruckus FastIron aka ICX support.</p>
@@ -141,138 +153,111 @@ class RuckusFastironSSH(RuckusFastironBase):
 
     :param ip: IP address of target device. Not required if `host` is
         provided.
-    :type ip: str
 
     :param host: Hostname of target device. Not required if `ip` is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
+
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class RuckusFastironBase(CiscoSSHConnection):
     &#34;&#34;&#34;Ruckus FastIron aka ICX support.&#34;&#34;&#34;
 
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;FastIron requires to be enable mode to disable paging.&#34;&#34;&#34;
         self._test_channel_read()
         self.set_base_prompt()
@@ -283,8 +268,12 @@ class RuckusFastironSSH(RuckusFastironBase):
         self.clear_buffer()
 
     def enable(
-        self, cmd=&#34;enable&#34;, pattern=r&#34;(ssword|User Name)&#34;, re_flags=re.IGNORECASE
-    ):
+        self,
+        cmd: str = &#34;enable&#34;,
+        pattern: str = r&#34;(ssword|User Name)&#34;,
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -&gt; str:
         &#34;&#34;&#34;Enter enable mode.
         With RADIUS can prompt for User Name
         SSH@Lab-ICX7250&gt;en
@@ -299,23 +288,23 @@ class RuckusFastironSSH(RuckusFastironBase):
             while i &lt; count:
                 self.write_channel(self.normalize_cmd(cmd))
                 new_data = self.read_until_prompt_or_pattern(
-                    pattern=pattern, re_flags=re_flags
+                    pattern=pattern, re_flags=re_flags, read_entire_line=True
                 )
                 output += new_data
                 if &#34;User Name&#34; in new_data:
                     self.write_channel(self.normalize_cmd(self.username))
                     new_data = self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
+                        pattern=pattern, re_flags=re_flags, read_entire_line=True
                     )
                     output += new_data
                 if &#34;ssword&#34; in new_data:
                     self.write_channel(self.normalize_cmd(self.secret))
-                    new_data = self.read_until_prompt()
+                    new_data = self.read_until_prompt(read_entire_line=True)
                     output += new_data
                     if not re.search(
                         r&#34;error.*incorrect.*password&#34;, new_data, flags=re.I
                     ):
-                        return output
+                        break
 
                 time.sleep(1)
                 i += 1
@@ -327,7 +316,11 @@ class RuckusFastironSSH(RuckusFastironBase):
             )
             raise ValueError(msg)
 
-    def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
+        return output
+
+    def save_config(
+        self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+    ) -&gt; str:
         &#34;&#34;&#34;Saves configuration.&#34;&#34;&#34;
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -347,7 +340,7 @@ class RuckusFastironSSH(RuckusFastironBase):
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='(ssword|User Name)', re_flags=<RegexFlag.IGNORECASE: 2>)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='(ssword|User Name)', enable_pattern=None, re_flags=<RegexFlag.IGNORECASE: 2>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter enable mode.
@@ -359,8 +352,12 @@ SSH@Lab-ICX7250#</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def enable(
-    self, cmd=&#34;enable&#34;, pattern=r&#34;(ssword|User Name)&#34;, re_flags=re.IGNORECASE
-):
+    self,
+    cmd: str = &#34;enable&#34;,
+    pattern: str = r&#34;(ssword|User Name)&#34;,
+    enable_pattern: Optional[str] = None,
+    re_flags: int = re.IGNORECASE,
+) -&gt; str:
     &#34;&#34;&#34;Enter enable mode.
     With RADIUS can prompt for User Name
     SSH@Lab-ICX7250&gt;en
@@ -375,23 +372,23 @@ SSH@Lab-ICX7250#</p></section>
         while i &lt; count:
             self.write_channel(self.normalize_cmd(cmd))
             new_data = self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
+                pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
             output += new_data
             if &#34;User Name&#34; in new_data:
                 self.write_channel(self.normalize_cmd(self.username))
                 new_data = self.read_until_prompt_or_pattern(
-                    pattern=pattern, re_flags=re_flags
+                    pattern=pattern, re_flags=re_flags, read_entire_line=True
                 )
                 output += new_data
             if &#34;ssword&#34; in new_data:
                 self.write_channel(self.normalize_cmd(self.secret))
-                new_data = self.read_until_prompt()
+                new_data = self.read_until_prompt(read_entire_line=True)
                 output += new_data
                 if not re.search(
                     r&#34;error.*incorrect.*password&#34;, new_data, flags=re.I
                 ):
-                    return output
+                    break
 
             time.sleep(1)
             i += 1
@@ -401,7 +398,9 @@ SSH@Lab-ICX7250#</p></section>
             &#34;Failed to enter enable mode. Please ensure you pass &#34;
             &#34;the &#39;secret&#39; argument to ConnectHandler.&#34;
         )
-        raise ValueError(msg)</code></pre>
+        raise ValueError(msg)
+
+    return output</code></pre>
 </details>
 </dd>
 <dt id="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.save_config"><code class="name flex">
@@ -411,7 +410,9 @@ SSH@Lab-ICX7250#</p></section>
 <section class="desc"><p>Saves configuration.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
+<pre><code class="python">def save_config(
+    self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+) -&gt; str:
     &#34;&#34;&#34;Saves configuration.&#34;&#34;&#34;
     return super().save_config(
         cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -425,7 +426,7 @@ SSH@Lab-ICX7250#</p></section>
 <section class="desc"><p>FastIron requires to be enable mode to disable paging.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def session_preparation(self):
+<pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;FastIron requires to be enable mode to disable paging.&#34;&#34;&#34;
     self._test_channel_read()
     self.set_base_prompt()
@@ -445,9 +446,8 @@ SSH@Lab-ICX7250#</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
@@ -457,9 +457,9 @@ SSH@Lab-ICX7250#</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -470,6 +470,7 @@ SSH@Lab-ICX7250#</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -485,7 +486,7 @@ SSH@Lab-ICX7250#</p></section>
 </dd>
 <dt id="netmiko.ruckus.ruckus_fastiron.RuckusFastironSSH"><code class="flex name class">
 <span>class <span class="ident">RuckusFastironSSH</span></span>
-<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=5, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=False, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True)</span>
+<span>(</span><span>ip='', host='', username='', password=None, secret='', port=None, device_type='', verbose=False, global_delay_factor=1.0, global_cmd_verify=None, use_keys=False, key_file=None, pkey=None, passphrase=None, disabled_algorithms=None, allow_agent=False, ssh_strict=False, system_host_keys=False, alt_host_keys=False, alt_key_file='', ssh_config_file=None, conn_timeout=10, auth_timeout=None, banner_timeout=15, blocking_timeout=20, timeout=100, session_timeout=60, read_timeout_override=None, keepalive=0, default_enter=None, response_return=None, serial_settings=None, fast_cli=True, session_log=None, session_log_record_writes=False, session_log_file_mode='write', allow_auto_change=False, encoding='ascii', sock=None, auto_connect=True, delay_factor_compat=False)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Ruckus FastIron aka ICX support.</p>
@@ -493,131 +494,104 @@ SSH@Lab-ICX7250#</p></section>
 
     :param ip: IP address of target device. Not required if `host` is
         provided.
-    :type ip: str
 
     :param host: Hostname of target device. Not required if `ip` is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
+
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -639,9 +613,8 @@ SSH@Lab-ICX7250#</p></section>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.enable" href="#netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.enable">enable</a></code></li>
@@ -652,9 +625,9 @@ SSH@Lab-ICX7250#</p></section>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -666,6 +639,7 @@ SSH@Lab-ICX7250#</p></section>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.session_preparation" href="#netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
@@ -690,141 +664,114 @@ SSH@Lab-ICX7250#</p></section>
 
     :param ip: IP address of target device. Not required if `host` is
         provided.
-    :type ip: str
 
     :param host: Hostname of target device. Not required if `ip` is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
+
     :param alt_host_keys: If `True` host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
     :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function `cmd_verify`
             argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class RuckusFastironTelnet(RuckusFastironBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
         default_enter = kwargs.get(&#34;default_enter&#34;)
         kwargs[&#34;default_enter&#34;] = &#34;\r\n&#34; if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
 
-    def _process_option(self, tsocket, command, option):
+    def _process_option(self, tsocket: socket, command: bytes, option: bytes) -&gt; None:
         &#34;&#34;&#34;
         Ruckus FastIron/ICX does not always echo commands to output by default.
         If server expresses interest in &#39;ECHO&#39; option, then reply back with &#39;DO
@@ -837,8 +784,9 @@ SSH@Lab-ICX7250#</p></section>
         elif command in (WILL, WONT):
             tsocket.sendall(IAC + DONT + option)
 
-    def telnet_login(self, *args, **kwargs):
+    def telnet_login(self, *args: Any, **kwargs: Any) -&gt; str:
         # set callback function to handle telnet options.
+        assert isinstance(self.remote_conn, Telnet)
         self.remote_conn.set_option_negotiation_callback(self._process_option)
         return super().telnet_login(*args, **kwargs)</code></pre>
 </details>
@@ -857,9 +805,8 @@ SSH@Lab-ICX7250#</p></section>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.enable" href="#netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.enable">enable</a></code></li>
@@ -870,9 +817,9 @@ SSH@Lab-ICX7250#</p></section>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -884,6 +831,7 @@ SSH@Lab-ICX7250#</p></section>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.session_preparation" href="#netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>

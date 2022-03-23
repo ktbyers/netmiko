@@ -22,60 +22,49 @@
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">import time
+<pre><code class="python">from typing import Any, Optional
+import time
 
+from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.cisco.cisco_ios import CiscoIosBase
 
 
-class KeymileSSH(CiscoIosBase):
-    def __init__(self, **kwargs):
+class KeymileSSH(NoEnable, NoConfig, CiscoIosBase):
+    def __init__(self, **kwargs: Any) -&gt; None:
         kwargs.setdefault(&#34;default_enter&#34;, &#34;\r\n&#34;)
-        return super().__init__(**kwargs)
+        super().__init__(**kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self._test_channel_read(pattern=r&#34;&gt;&#34;)
         self.set_base_prompt()
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, *args, **kwargs):
+    def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;Keymile does not use paging.&#34;&#34;&#34;
         return &#34;&#34;
 
-    def check_config_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use config mode.&#34;&#34;&#34;
-        return False
-
-    def config_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use config mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def exit_config_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use config mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def check_enable_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use enable mode.&#34;&#34;&#34;
-        return False
-
-    def enable(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use enable mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def exit_enable_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use enable mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def strip_prompt(self, a_string):
+    def strip_prompt(self, a_string: str) -&gt; str:
         &#34;&#34;&#34;Remove appending empty line and prompt from output&#34;&#34;&#34;
-        self._write_session_log(a_string)
         a_string = a_string[:-1]
         return super().strip_prompt(a_string=a_string)
 
-    def set_base_prompt(self, pri_prompt_terminator=&#34;&gt;&#34;, **kwargs):
-        &#34;&#34;&#34; set prompt termination  to &gt;&#34;&#34;&#34;
-        return super().set_base_prompt(pri_prompt_terminator=pri_prompt_terminator)</code></pre>
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;&gt;&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;set prompt termination to &gt;&#34;&#34;&#34;
+        return super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )</code></pre>
 </details>
 </section>
 <section>
@@ -92,233 +81,62 @@ class KeymileSSH(CiscoIosBase):
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Common Methods for IOS (both SSH and telnet).</p>
-<pre><code>    Initialize attributes for establishing connection to target device.
-
-    :param ip: IP address of target device. Not required if `host` is
-        provided.
-    :type ip: str
-
-    :param host: Hostname of target device. Not required if `ip` is
-            provided.
-    :type host: str
-
-    :param username: Username to authenticate against target device if
-            required.
-    :type username: str
-
-    :param password: Password to authenticate against target device if
-            required.
-    :type password: str
-
-    :param secret: The enable password if target device requires one.
-    :type secret: str
-
-    :param port: The destination port used to connect to the target
-            device.
-    :type port: int or None
-
-    :param device_type: Class selection based on device type.
-    :type device_type: str
-
-    :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
-
-    :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
-
-    :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
-
-    :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
-
-    :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
-
-    :param passphrase: Passphrase to use for encrypted key; password will be used for key
-            decryption if not specified.
-    :type passphrase: str
-
-    :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
-
-    :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
-            means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
-
-    :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
-    :param alt_host_keys: If `True` host keys will be loaded from the file specified in
-            alt_key_file.
-    :type alt_host_keys: bool
-
-    :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
-
-    :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
-
-    :param timeout: Connection timeout.
-    :type timeout: float
-
-    :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
-
-    :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
-
-    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
-
-    :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
-            Currently defaults to 0, for backwards compatibility (it will not attempt
-            to keep the connection alive).
-    :type keepalive: int
-
-    :param default_enter: Character(s) to send to correspond to enter key (default:
-</code></pre>
-<p>).
-:type default_enter: str</p>
-<pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default:
-</code></pre>
-<p>)
-:type response_return: str</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
-            to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
-
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
-
-    :param session_log_record_writes: The session log generally only records channel reads due
-            to eliminate command duplication due to command echo. You can enable this if you
-            want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
-
-    :param session_log_file_mode: "write" or "append" for session_log file mode
-            (default: "write")
-    :type session_log_file_mode: str
-
-    :param allow_auto_change: Allow automatic configuration changes for terminal settings.
-            (default: False)
-    :type allow_auto_change: bool
-
-    :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
-    :type encoding: str
-
-    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
-            communication to the target host (default: None).
-    :type sock: socket
-
-    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
-            (default: None). Global attribute takes precedence over function `cmd_verify`
-            argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
-
-    :param auto_connect: Control whether Netmiko automatically establishes the connection as
-            part of the object creation (default: True).
-    :type auto_connect: bool
-</code></pre></section>
+<section class="desc"><p>Class for platforms that have no enable mode.</p>
+<p>Netmiko translates the meaning of "enable" mode to be a proxy for "can
+go into config mode". In other words, that you ultimately have privileges
+to execute configuration changes.</p>
+<p>The expectation on platforms that have no method for elevating privileges
+is that the standard default privileges allow configuration changes.</p>
+<p>Consequently check_enable_mode returns True by default for platforms that
+don't explicitly support enable mode.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class KeymileSSH(CiscoIosBase):
-    def __init__(self, **kwargs):
+<pre><code class="python">class KeymileSSH(NoEnable, NoConfig, CiscoIosBase):
+    def __init__(self, **kwargs: Any) -&gt; None:
         kwargs.setdefault(&#34;default_enter&#34;, &#34;\r\n&#34;)
-        return super().__init__(**kwargs)
+        super().__init__(**kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self._test_channel_read(pattern=r&#34;&gt;&#34;)
         self.set_base_prompt()
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self, *args, **kwargs):
+    def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;Keymile does not use paging.&#34;&#34;&#34;
         return &#34;&#34;
 
-    def check_config_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use config mode.&#34;&#34;&#34;
-        return False
-
-    def config_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use config mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def exit_config_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use config mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def check_enable_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use enable mode.&#34;&#34;&#34;
-        return False
-
-    def enable(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use enable mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def exit_enable_mode(self, *args, **kwargs):
-        &#34;&#34;&#34;Keymile does not use enable mode.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def strip_prompt(self, a_string):
+    def strip_prompt(self, a_string: str) -&gt; str:
         &#34;&#34;&#34;Remove appending empty line and prompt from output&#34;&#34;&#34;
-        self._write_session_log(a_string)
         a_string = a_string[:-1]
         return super().strip_prompt(a_string=a_string)
 
-    def set_base_prompt(self, pri_prompt_terminator=&#34;&gt;&#34;, **kwargs):
-        &#34;&#34;&#34; set prompt termination  to &gt;&#34;&#34;&#34;
-        return super().set_base_prompt(pri_prompt_terminator=pri_prompt_terminator)</code></pre>
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;&gt;&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;set prompt termination to &gt;&#34;&#34;&#34;
+        return super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
+<li><a title="netmiko.no_config.NoConfig" href="../no_config.html#netmiko.no_config.NoConfig">NoConfig</a></li>
 <li><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="../cisco/cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.keymile.keymile_ssh.KeymileSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Keymile does not use config mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, *args, **kwargs):
-    &#34;&#34;&#34;Keymile does not use config mode.&#34;&#34;&#34;
-    return False</code></pre>
-</details>
-</dd>
-<dt id="netmiko.keymile.keymile_ssh.KeymileSSH.check_enable_mode"><code class="name flex">
-<span>def <span class="ident">check_enable_mode</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Keymile does not use enable mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def check_enable_mode(self, *args, **kwargs):
-    &#34;&#34;&#34;Keymile does not use enable mode.&#34;&#34;&#34;
-    return False</code></pre>
-</details>
-</dd>
-<dt id="netmiko.keymile.keymile_ssh.KeymileSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Keymile does not use config mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def config_mode(self, *args, **kwargs):
-    &#34;&#34;&#34;Keymile does not use config mode.&#34;&#34;&#34;
-    return &#34;&#34;</code></pre>
-</details>
-</dd>
 <dt id="netmiko.keymile.keymile_ssh.KeymileSSH.disable_paging"><code class="name flex">
 <span>def <span class="ident">disable_paging</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
@@ -326,58 +144,32 @@ class KeymileSSH(CiscoIosBase):
 <section class="desc"><p>Keymile does not use paging.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def disable_paging(self, *args, **kwargs):
+<pre><code class="python">def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
     &#34;&#34;&#34;Keymile does not use paging.&#34;&#34;&#34;
     return &#34;&#34;</code></pre>
 </details>
 </dd>
-<dt id="netmiko.keymile.keymile_ssh.KeymileSSH.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Keymile does not use enable mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def enable(self, *args, **kwargs):
-    &#34;&#34;&#34;Keymile does not use enable mode.&#34;&#34;&#34;
-    return &#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="netmiko.keymile.keymile_ssh.KeymileSSH.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Keymile does not use config mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def exit_config_mode(self, *args, **kwargs):
-    &#34;&#34;&#34;Keymile does not use config mode.&#34;&#34;&#34;
-    return &#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="netmiko.keymile.keymile_ssh.KeymileSSH.exit_enable_mode"><code class="name flex">
-<span>def <span class="ident">exit_enable_mode</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Keymile does not use enable mode.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def exit_enable_mode(self, *args, **kwargs):
-    &#34;&#34;&#34;Keymile does not use enable mode.&#34;&#34;&#34;
-    return &#34;&#34;</code></pre>
-</details>
-</dd>
 <dt id="netmiko.keymile.keymile_ssh.KeymileSSH.set_base_prompt"><code class="name flex">
-<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator='>', **kwargs)</span>
+<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator='>', alt_prompt_terminator='>', delay_factor=1.0, pattern=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>set prompt termination
-to &gt;</p></section>
+<section class="desc"><p>set prompt termination to &gt;</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def set_base_prompt(self, pri_prompt_terminator=&#34;&gt;&#34;, **kwargs):
-    &#34;&#34;&#34; set prompt termination  to &gt;&#34;&#34;&#34;
-    return super().set_base_prompt(pri_prompt_terminator=pri_prompt_terminator)</code></pre>
+<pre><code class="python">def set_base_prompt(
+    self,
+    pri_prompt_terminator: str = &#34;&gt;&#34;,
+    alt_prompt_terminator: str = &#34;&gt;&#34;,
+    delay_factor: float = 1.0,
+    pattern: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;set prompt termination to &gt;&#34;&#34;&#34;
+    return super().set_base_prompt(
+        pri_prompt_terminator=pri_prompt_terminator,
+        alt_prompt_terminator=alt_prompt_terminator,
+        delay_factor=delay_factor,
+        pattern=pattern,
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.keymile.keymile_ssh.KeymileSSH.strip_prompt"><code class="name flex">
@@ -387,9 +179,8 @@ to &gt;</p></section>
 <section class="desc"><p>Remove appending empty line and prompt from output</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def strip_prompt(self, a_string):
+<pre><code class="python">def strip_prompt(self, a_string: str) -&gt; str:
     &#34;&#34;&#34;Remove appending empty line and prompt from output&#34;&#34;&#34;
-    self._write_session_log(a_string)
     a_string = a_string[:-1]
     return super().strip_prompt(a_string=a_string)</code></pre>
 </details>
@@ -399,19 +190,24 @@ to &gt;</p></section>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="../cisco/cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
@@ -423,6 +219,7 @@ to &gt;</p></section>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="../cisco/cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -453,14 +250,8 @@ to &gt;</p></section>
 <ul>
 <li>
 <h4><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH" href="#netmiko.keymile.keymile_ssh.KeymileSSH">KeymileSSH</a></code></h4>
-<ul class="two-column">
-<li><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH.check_config_mode" href="#netmiko.keymile.keymile_ssh.KeymileSSH.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH.check_enable_mode" href="#netmiko.keymile.keymile_ssh.KeymileSSH.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH.config_mode" href="#netmiko.keymile.keymile_ssh.KeymileSSH.config_mode">config_mode</a></code></li>
+<ul class="">
 <li><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH.disable_paging" href="#netmiko.keymile.keymile_ssh.KeymileSSH.disable_paging">disable_paging</a></code></li>
-<li><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH.enable" href="#netmiko.keymile.keymile_ssh.KeymileSSH.enable">enable</a></code></li>
-<li><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH.exit_config_mode" href="#netmiko.keymile.keymile_ssh.KeymileSSH.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH.exit_enable_mode" href="#netmiko.keymile.keymile_ssh.KeymileSSH.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH.set_base_prompt" href="#netmiko.keymile.keymile_ssh.KeymileSSH.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.keymile.keymile_ssh.KeymileSSH.strip_prompt" href="#netmiko.keymile.keymile_ssh.KeymileSSH.strip_prompt">strip_prompt</a></code></li>
 </ul>
