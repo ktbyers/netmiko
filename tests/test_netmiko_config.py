@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import pytest
+from netmiko import ConfigInvalidException
+from netmiko import ReadTimeout
 
 
 def test_ssh_connect(net_connect, commands, expected_responses):
@@ -46,6 +48,7 @@ def test_exit_config_mode(net_connect, commands, expected_responses):
 
 def test_config_set(net_connect, commands, expected_responses):
     """Test sending configuration commands."""
+
     config_commands = commands["config"]
     support_commit = commands.get("support_commit")
     config_verify = commands["config_verification"]
@@ -90,9 +93,11 @@ def test_config_hostname(net_connect, commands, expected_responses):
         net_connect.send_config_set(command)
         new_hostname = net_connect.find_prompt()
         assert hostname in new_hostname
+
         # Reset prompt back to original value
         net_connect.set_base_prompt()
         net_connect.send_config_set(f"hostname {current_hostname}")
+        net_connect.set_base_prompt()
 
 
 def test_config_from_file(net_connect, commands, expected_responses):
@@ -106,10 +111,109 @@ def test_config_from_file(net_connect, commands, expected_responses):
         config_commands_output = net_connect.send_command_expect(config_verify)
         assert expected_responses["file_check_cmd"] in config_commands_output
     else:
-        print("Skipping test (no file specified)...")
+        assert pytest.skip()
 
     if "nokia_sros" in net_connect.device_type:
         net_connect.save_config()
+
+
+def test_config_error_pattern(net_connect, commands, expected_responses):
+    """
+    Raise exception when config_error_str is present in output
+    """
+    error_pattern = commands.get("error_pattern")
+    if error_pattern is None:
+        pytest.skip("No error_pattern defined.")
+    config_base = commands.get("config")
+    config_err = commands.get("invalid_config")
+    config_list = config_base + [config_err]
+
+    # Should not raise an exception since error_pattern not specified
+    net_connect.send_config_set(config_commands=config_list)
+
+    if config_list and error_pattern:
+        with pytest.raises(ConfigInvalidException):
+            net_connect.send_config_set(
+                config_commands=config_list, error_pattern=error_pattern
+            )
+
+        # Try it with cmd_verify=True also
+        with pytest.raises(ConfigInvalidException):
+            net_connect.send_config_set(
+                config_commands=config_list,
+                error_pattern=error_pattern,
+                cmd_verify=True,
+            )
+
+    else:
+        print("Skipping test: no error_pattern supplied.")
+
+
+def test_banner(net_connect, commands, expected_responses):
+    """
+    Banner configuration has a special exclusing where cmd_verify is dynamically
+    disabled so make sure it works.
+    """
+    # Make sure banner comes in as separate lines
+    banner = commands.get("banner")
+    if banner is None:
+        pytest.skip("No banner defined.")
+    # Make sure banner comes in as separate lines
+    banner = banner.splitlines()
+    config_base = commands.get("config")
+    config_list = config_base + banner
+
+    # Remove any existing banner
+    net_connect.send_config_set("no banner login")
+
+    # bypass_commands="" should fail as cmd_verify will be True
+    with pytest.raises(ReadTimeout) as e:  # noqa
+        net_connect.send_config_set(config_commands=config_list, bypass_commands="")
+
+    # Recover from send_config_set failure. The "%" is to finish the failed banner.
+    net_connect.write_channel("%\n")
+    net_connect.exit_config_mode()
+
+    net_connect.send_config_set(config_commands=config_list)
+    show_run = net_connect.send_command("show run | inc banner log")
+    assert "banner login" in show_run
+
+    net_connect.send_config_set("no banner login")
+
+
+def test_global_cmd_verify(net_connect, commands, expected_responses):
+    """
+    Banner configuration has a special exclusing where cmd_verify is dynamically
+    disabled so make sure it works.
+    """
+
+    # Make sure banner comes in as separate lines
+    banner = commands.get("banner")
+    if banner is None:
+        pytest.skip("No banner defined.")
+    # Make sure banner comes in as separate lines
+    banner = banner.splitlines()
+    config_base = commands.get("config")
+    config_list = config_base + banner
+
+    # Remove any existing banner
+    net_connect.send_config_set("no banner login")
+
+    # bypass_commands="" should fail as cmd_verify will be True
+    with pytest.raises(ReadTimeout) as e:  # noqa
+        net_connect.send_config_set(config_commands=config_list, bypass_commands="")
+
+    # Recover from send_config_set failure. The "%" is to finish the failed banner.
+    net_connect.write_channel("%\n")
+    net_connect.exit_config_mode()
+
+    net_connect.global_cmd_verify = False
+    # Should work now as global_cmd_verify is False
+    net_connect.send_config_set(config_commands=config_list, bypass_commands="")
+    show_run = net_connect.send_command("show run | inc banner log")
+    assert "banner login" in show_run
+
+    net_connect.send_config_set("no banner login")
 
 
 def test_disconnect(net_connect, commands, expected_responses):

@@ -6,7 +6,7 @@ import os
 import pytest
 
 from netmiko import ConnectHandler, FileTransfer, InLineTransfer, SSHDetect
-from tests.test_utils import parse_yaml
+from test_utils import parse_yaml
 
 
 PWD = path.dirname(path.realpath(__file__))
@@ -51,6 +51,7 @@ def net_connect_cmd_verify(request):
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device["verbose"] = False
+    device["fast_cli"] = False
     device["global_cmd_verify"] = False
     conn = ConnectHandler(**device)
     return conn
@@ -88,7 +89,7 @@ def net_connect_cm(request):
     return my_prompt
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def net_connect_slog_wr(request):
     """
     Create the SSH connection to the remote device. Modify session_log init arguments.
@@ -116,6 +117,8 @@ def device_slog(request):
     device_under_test = request.config.getoption("test_device")
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
+    # Fictional secret
+    device["secret"] = "invalid"
     device["verbose"] = False
     device["session_log_file_mode"] = "append"
     return device
@@ -201,15 +204,15 @@ def delete_file_xr(ssh_conn, dest_file_system, dest_file):
 
 def delete_file_ios(ssh_conn, dest_file_system, dest_file):
     """
-    Delete a remote file for a Cisco IOS device:
+        Delete a remote file for a Cisco IOS device:
 
-    cisco1#del flash:/useless_file.cfg
-    Delete filename [useless_file.cfg]?
-    Delete flash:/useless_file.cfg? [confirm]y
+        cisco1#del flash:/useless_file.cfg
+        Delete filename [useless_file.cfg]?
+        Delete flash:/useless_file.cfg? [confirm]y
 
-delete disk0:/test9.txt
-Mon Aug 31 17:56:15.008 UTC
-Delete disk0:/test9.txt[confirm]
+    delete disk0:/test9.txt
+    Mon Aug 31 17:56:15.008 UTC
+    Delete disk0:/test9.txt[confirm]
     """
     if not dest_file_system:
         raise ValueError("Invalid file system specified")
@@ -274,6 +277,14 @@ def delete_file_nokia_sros(ssh_conn, dest_file_system, dest_file):
     return output
 
 
+def delete_file_extreme_exos(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for an Extreme EXOS device."""
+    full_file_name = "{}/{}".format(dest_file_system, dest_file)
+    cmd = "rm {}".format(full_file_name)
+    output = ssh_conn.send_command_timing(cmd, strip_command=False, strip_prompt=False)
+    return output
+
+
 @pytest.fixture(scope="module")
 def scp_fixture(request):
     """
@@ -306,7 +317,7 @@ def scp_fixture(request):
 
     source_file = "test9.txt"
     dest_file = "test9.txt"
-    local_file = "testx.txt"
+    local_file = f"test_{platform}/testx.txt"
     direction = "put"
 
     scp_transfer = FileTransfer(
@@ -348,7 +359,7 @@ def scp_fixture_get(request):
     platform = device["device_type"]
     dest_file_system = platform_args[platform]["file_system"]
     source_file = "test9.txt"
-    local_file = "testx.txt"
+    local_file = f"test_{platform}/testx.txt"
     dest_file = local_file
     direction = "get"
 
@@ -387,12 +398,13 @@ def tcl_fixture(request):
     test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
     device = test_devices[device_under_test]
     device["verbose"] = False
+    platform = device["device_type"]
     ssh_conn = ConnectHandler(**device)
 
     dest_file_system = "flash:"
     source_file = "test9.txt"
     dest_file = "test9.txt"
-    local_file = "testx.txt"
+    local_file = f"test_{platform}/testx.txt"
     direction = "put"
 
     tcl_transfer = InLineTransfer(
@@ -457,7 +469,7 @@ def scp_file_transfer(request):
     file_system = platform_args[platform]["file_system"]
     source_file = "test9.txt"
     dest_file = "test9.txt"
-    local_file = "testx.txt"
+    local_file = f"test_{platform}/testx.txt"
     alt_file = "test2.txt"
     direction = "put"
 
@@ -479,6 +491,8 @@ def scp_file_transfer(request):
     if os.path.exists(alt_file):
         os.remove(alt_file)
 
+    scp_transfer.close_scp_chan()
+
     return (ssh_conn, file_system)
 
 
@@ -487,6 +501,16 @@ def get_platform_args():
         "cisco_ios": {
             "file_system": "flash:",
             "enable_scp": True,
+            "delete_file": delete_file_ios,
+        },
+        "cisco_xe": {
+            "file_system": "flash:",
+            "enable_scp": True,
+            "delete_file": delete_file_ios,
+        },
+        "cisco_asa": {
+            "file_system": "flash:",
+            "enable_scp": False,
             "delete_file": delete_file_ios,
         },
         "juniper_junos": {
@@ -528,5 +552,10 @@ def get_platform_args():
             "file_system": "cf3:",
             "enable_scp": False,
             "delete_file": delete_file_nokia_sros,
+        },
+        "extreme_exos": {
+            "file_system": "/usr/local/cfg",
+            "enable_scp": False,
+            "delete_file": delete_file_extreme_exos,
         },
     }

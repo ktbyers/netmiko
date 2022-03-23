@@ -10,10 +10,6 @@ tests/etc/commands.yml
 tests/etc/responses.yml
 tests/etc/test_devices_exc.yml
 
-tests_new/etc/commands.yml
-tests_new/etc/responses.yml
-tests_new/etc/test_devices.yml
-
 examples/SECRET_DEVICE_CREDS.py
 ./build
 ./build/*
@@ -48,8 +44,9 @@ docs/build/doctrees/
 
 tests/cisco3-out.txt
 tests/test.log
-tests_new/test_out/*.out
-tests_new/test_out/*.stderr
-tests_new/cisco-xrv.txt
-tests_new/*.out
+tests/test_out/*.out
+tests/test_out/*.stderr
+tests/cisco-xrv.txt
 tests/*.out
+tests/performance/new_devices.yml
+tests/performance/*.out

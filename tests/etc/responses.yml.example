@@ -110,6 +110,16 @@ dellos10:
   cmd_response_final: "host-description node"
   scp_remote_space: 1000
 
+dell_sonic:
+  base_prompt: sonic
+  router_prompt : sonic#
+  enable_prompt: sonic#
+  interface_ip: 10.10.10.1
+  version_banner: "Software Version"
+  multiple_line_output: "interface Management 0"
+  cmd_response_init: ""
+  cmd_response_final: "interface Vlan100"
+
 dell_powerconnect:
   base_prompt: myswitch
   router_prompt : myswitch#
@@ -329,3 +339,16 @@ ubiquiti_edgerouter:
   multiple_line_output: "switch switch0 {"
   cmd_response_init: "enabled true"
   cmd_response_final: "enabled false"
+
+zyxel:
+  base_prompt: "ZySH"
+  router_prompt: "ZySH>"
+  enable_prompt: "ZySH>"
+  interface_ip: "192.168.1.100"
+  version_banner: "Zyxel Communications Corp."
+  multiple_line_output: "Index   Band     SSID                                Enable     Bandwidth  Channel    MaxDevices   SecurityMode         PskValue"
+  cmd_response_init: "NetmikoTest"
+  cmd_response_final: "magic2000"
+
+extreme_exos:
+  scp_remote_space: 1000
