@@ -164,8 +164,8 @@ def remove_old_data(device_name):
 
 
 def main():
-    PASSWORD = os.environ["HPE_PASSWORD"]
-    # PASSWORD = os.environ["NETMIKO_PASSWORD"]
+    PASSWORD = os.environ["NETMIKO_PASSWORD"]
+    HP_PASSWORD = os.environ["HPE_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
@@ -181,6 +181,8 @@ def main():
         dev_dict["password"] = PASSWORD
         if dev_name == "cisco_asa":
             dev_dict["secret"] = PASSWORD
+        elif dev_name == "hp_procurve":
+            dev_dict["password"] = HP_PASSWORD
 
         # Run tests
         operations = [
