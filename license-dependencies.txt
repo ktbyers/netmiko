@@ -13,6 +13,7 @@ scp            0.14.4   GNU Library or Lesser General Public License (LGPL)
 tenacity       8.0.1    Apache Software License                             
 ntc-templates  3.0.0    Apache Software License                             
 pyserial       3.5      BSD License
+PyYAML         6.0      MIT License                                         
 
 ##### Child dependencies
 Name                 Version  License
@@ -25,5 +26,5 @@ pycparser            2.21     BSD License
 cffi                 1.15.0   MIT License                                         
 future               0.18.2   MIT License                                         
 six                  1.16.0   MIT License                                         
-importlib-resources  5.4.0    Apache Software License                             
-zipp                 3.6.0    MIT License                                         
+
+With assistance from `pip-licenses -o license`
