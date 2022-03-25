@@ -40,7 +40,6 @@ setup(
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -49,13 +48,13 @@ setup(
     packages=find_packages(exclude=("test*",)),
     install_requires=[
         "setuptools>=38.4.0",
-        "paramiko>=2.6.0",
-        "scp>=0.13.2",
+        "paramiko>=2.7.2",
+        "scp>=0.13.3",
         "tenacity",
+        "pyyaml>=5.3",
         "textfsm>=1.1.2",
         "ntc-templates>=2.0.0",
         "pyserial",
-        "importlib_resources ; python_version<'3.7'",
     ],
     entry_points={
         "console_scripts": [
