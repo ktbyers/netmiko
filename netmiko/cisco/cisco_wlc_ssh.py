@@ -107,9 +107,23 @@ class CiscoWlcSSH(BaseConnection):
         Even though pagination is disabled
         Arguments are the same as send_command_timing() method
         """
+        if len(args) > 1:
+            raise ValueError("Must pass in delay_factor as keyword argument")
+
+        # If no delay_factor use 1 for default value
+        delay_factor = kwargs.get("delay_factor", 1)
+        kwargs["delay_factor"] = self.select_delay_factor(delay_factor)
+
         output = self._send_command_timing_str(*args, **kwargs)
+
         if "(y/n)" in output:
-            output += self._send_command_timing_str("y")
+            output = "\n".join(output.split("\n")[:-1])  # stripping y/n prompt line
+            new_args = list(args)
+            if len(args) == 1:
+                new_args[0] = "y"
+            else:
+                kwargs["command_string"] = "y"
+            output += self._send_command_timing_str(*new_args, **kwargs)
         strip_prompt = kwargs.get("strip_prompt", True)
         if strip_prompt:
             # Had to strip trailing prompt twice.
