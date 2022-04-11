@@ -51,10 +51,12 @@ class CiscoWlcSSH(BaseConnection):
     def send_command_w_enter(self, *args: Any, **kwargs: Any) -> str:
         """
         For 'show run-config' Cisco WLC adds a 'Press Enter to continue...' message
-        Even though pagination is disabled
+        Even though pagination is disabled.
+
         show run-config also has excessive delays in the output which requires special
         handling.
-        Arguments are the same as send_command_timing() method
+
+        Arguments are the same as send_command_timing() method.
         """
         if len(args) > 1:
             raise ValueError("Must pass in delay_factor as keyword argument")
@@ -64,17 +66,18 @@ class CiscoWlcSSH(BaseConnection):
         kwargs["delay_factor"] = self.select_delay_factor(delay_factor)
         output = self._send_command_timing_str(*args, **kwargs)
 
+        second_args = list(args)
+        if len(args) == 1:
+            second_args[0] = self.RETURN
+        else:
+            kwargs["command_string"] = self.RETURN
+        if not kwargs.get("max_loops"):
+            kwargs["max_loops"] = 150
+
         if "Press any key" in output or "Press Enter to" in output:
-            new_args = list(args)
-            if len(args) == 1:
-                new_args[0] = self.RETURN
-            else:
-                kwargs["command_string"] = self.RETURN
-            if not kwargs.get("max_loops"):
-                kwargs["max_loops"] = 150
 
             # Send an 'enter'
-            output += self._send_command_timing_str(*new_args, **kwargs)
+            output += self._send_command_timing_str(*second_args, **kwargs)
 
             # WLC has excessive delay after this appears on screen
             if "802.11b Advanced Configuration" in output:
@@ -100,12 +103,13 @@ class CiscoWlcSSH(BaseConnection):
             output = self.strip_prompt(output)
         return output
 
-    def send_command_w_yes(self, *args: Any, **kwargs: Any) -> str:
+    def _send_command_w_yes(self, *args: Any, **kwargs: Any) -> str:
         """
         For 'show interface summary' Cisco WLC adds a
-        'Would you like to display the next 15 entries?' message
+        'Would you like to display the next 15 entries?' message.
+
         Even though pagination is disabled
-        Arguments are the same as send_command_timing() method
+        Arguments are the same as send_command_timing() method.
         """
         if len(args) > 1:
             raise ValueError("Must pass in delay_factor as keyword argument")
@@ -114,17 +118,27 @@ class CiscoWlcSSH(BaseConnection):
         delay_factor = kwargs.get("delay_factor", 1)
         kwargs["delay_factor"] = self.select_delay_factor(delay_factor)
 
-        output = self._send_command_timing_str(*args, **kwargs)
+        output = ""
+        new_output = self._send_command_timing_str(*args, **kwargs)
 
-        if "(y/n)" in output:
-            output = "\n".join(output.split("\n")[:-1])  # stripping y/n prompt line
-            new_args = list(args)
-            if len(args) == 1:
-                new_args[0] = "y"
-            else:
-                kwargs["command_string"] = "y"
-            output += self._send_command_timing_str(*new_args, **kwargs)
+        second_args = list(args)
+        if len(args) == 1:
+            second_args[0] = "y"
+        else:
+            kwargs["command_string"] = "y"
         strip_prompt = kwargs.get("strip_prompt", True)
+
+        while True:
+            output += new_output
+            if "display the next" in new_output.lower():
+                new_output = self._send_command_timing_str(*second_args, **kwargs)
+            else:
+                break
+
+        # Remove from output 'Would you like to display the next 15 entries? (y/n)'
+        pattern = r"^.*display the next.*\n$"
+        output = re.sub(pattern, "", output, flags=re.M)
+
         if strip_prompt:
             # Had to strip trailing prompt twice.
             output = self.strip_prompt(output)
