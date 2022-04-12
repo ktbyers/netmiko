@@ -17,20 +17,18 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
         try:
             password_change_prompt = r"(Change now|Please choose)"
             data = self.read_until_pattern(
-                pattern=rf"({password_change_prompt}|[>\]])", read_timeout=3.0
+                pattern=rf"({password_change_prompt}|[>\]])"
             )
             if re.search(password_change_prompt, data):
                 self.write_channel("N" + self.RETURN)
-                self.read_until_pattern(pattern=r"[>\]]", read_timeout=3.0)
+                self.read_until_pattern(pattern=r"[>\]]")
         except ReadTimeout:
             pass
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        # The prompt might have already been read (in special_login_handler)
-        self.write_channel(self.RETURN)
-        self._test_channel_read(pattern=r"[>\]]")
+        # The _test_channel_read happens in special_login_handler()
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary")
 
