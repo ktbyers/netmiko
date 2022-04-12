@@ -15,7 +15,7 @@ class ExtremeExosBase(NoConfig, CiscoSSHConnection):
     """
 
     def session_preparation(self) -> None:
-        self._test_channel_read(pattern=r"#")
+        self._test_channel_read(pattern=r"[>\#]")
         self.set_base_prompt()
         self.disable_paging(command="disable clipaging")
         self.send_command_timing("disable cli prompting")
