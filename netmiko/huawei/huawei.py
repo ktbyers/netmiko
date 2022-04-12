@@ -11,24 +11,23 @@ from netmiko import log
 
 
 class HuaweiBase(NoEnable, CiscoBaseConnection):
-    def session_preparation(self) -> None:
-        """Prepare the session after the connection has been established."""
-        self.ansi_escape_codes = True
-
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         # Huawei prompts for password change before displaying the initial base prompt.
         # Search for that password change prompt or for base prompt.
         try:
-            password_change_prompt = r"(?:Change now|Please choose).+"
+            password_change_prompt = r"(Change now|Please choose)"
             data = self.read_until_pattern(
                 pattern=rf"({password_change_prompt}|[>\]])", read_timeout=3.0
             )
-            # Search for password change prompt, send "N"
             if re.search(password_change_prompt, data):
                 self.write_channel("N" + self.RETURN)
                 self.read_until_pattern(pattern=r"[>\]]", read_timeout=3.0)
         except ReadTimeout:
             pass
 
+    def session_preparation(self) -> None:
+        """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary")
 
