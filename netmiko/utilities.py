@@ -12,6 +12,7 @@ from typing import (
     Tuple,
 )
 from typing import TYPE_CHECKING
+import re
 from glob import glob
 import sys
 import io
@@ -650,3 +651,17 @@ def calc_old_timeout(
         max_loops = int(old_timeout / loop_delay)
 
     return max_loops * loop_delay * delay_factor
+
+
+def nokia_context_filter(data: str, re_flags: int = re.M) -> str:
+    """
+    Nokia context from string. Examples:
+
+    (ro)[]
+
+    (ex)[configure router "Base" bgp]
+
+    Converted over to a standalone function for easier unit testing.
+    """
+    context_pattern = r"^\!?\*?(\((ex|gl|pr|ro)\))?\[.*\]"
+    return re.sub(context_pattern, "", data, flags=re_flags)

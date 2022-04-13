@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014 - 2020 Kirk Byers
-# Copyright (c) 2014 - 2020 Twin Bridges Technology
+# Copyright (c) 2014 - 2022 Kirk Byers
+# Copyright (c) 2014 - 2022 Twin Bridges Technology
 # Copyright (c) 2019 - 2020 NOKIA Inc.
 # MIT License - See License file at:
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
@@ -14,6 +14,7 @@ from typing import Any, Optional, Union, Sequence, TextIO, Callable
 from netmiko import log
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
+from netmiko.utilities import nokia_context_filter
 
 
 class NokiaSros(BaseConnection):
@@ -226,9 +227,13 @@ class NokiaSros(BaseConnection):
         """Strip prompt from the output."""
         output = super().strip_prompt(*args, **kwargs)
         if "@" in self.base_prompt:
-            # Remove context prompt too
-            strips = r"[\r\n]*\!?\*?(\((ex|gl|pr|ro)\))?\[\S*\][\r\n]*"
-            return re.sub(strips, "", output)
+            # Remove Nokia context prompt too
+            output_list = output.rstrip().splitlines()
+            last_line = output_list[-1]
+            other_lines = output_list[:-1]
+            last_line = nokia_context_filter(last_line)
+            output_list = other_lines + [last_line]
+            return "\n".join(output_list).rstrip()
         else:
             return output
 
