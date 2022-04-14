@@ -38,7 +38,7 @@ class CiscoXrBase(CiscoBaseConnection):
             delay_factor=delay_factor,
             pattern=pattern,
         )
-        self.base_prompt = base_prompt[:16]
+        self.base_prompt = base_prompt[:31]
         return self.base_prompt
 
     def send_config_set(
