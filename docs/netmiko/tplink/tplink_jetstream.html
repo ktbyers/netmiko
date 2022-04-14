@@ -492,7 +492,7 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
 </details>
 </dd>
 <dt id="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', enable_pattern=None, re_flags=<RegexFlag.IGNORECASE: 2>)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', enable_pattern=None, re_flags=re.IGNORECASE)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>TPLink JetStream requires you to first execute "enable" and then execute "enable-admin".

@@ -23,7 +23,6 @@
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">import re
-import time
 import warnings
 from typing import Optional, Any
 
@@ -41,7 +40,10 @@ class JuniperBase(NoEnable, BaseConnection):
 
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        pattern = r&#34;[%&gt;$#]&#34;
+        self._test_channel_read(pattern=pattern)
         self.enter_cli_mode()
+
         cmd = &#34;set cli screen-width 511&#34;
         self.set_terminal_width(command=cmd, pattern=r&#34;Screen width set to&#34;)
         # Overloading disable_paging which is confusing
@@ -62,23 +64,32 @@ class JuniperBase(NoEnable, BaseConnection):
         &#34;&#34;&#34;Return to the Juniper CLI.&#34;&#34;&#34;
         return self._send_command_str(&#34;exit&#34;, expect_string=r&#34;[#&gt;]&#34;)
 
+    def _determine_mode(self, data: str = &#34;&#34;) -&gt; str:
+        &#34;&#34;&#34;Determine whether in shell or CLI.&#34;&#34;&#34;
+        pattern = r&#34;[%&gt;$#]&#34;
+        if not data:
+            self.write_channel(self.RETURN)
+            data = self.read_until_pattern(pattern=pattern, read_timeout=10)
+
+        if &#34;%&#34; in data or &#34;$&#34; in data:
+            return &#34;shell&#34;
+        elif &#34;&gt;&#34; in data or &#34;#&#34; in data:
+            return &#34;cli&#34;
+        else:
+            raise ValueError(f&#34;Unexpected data returned for prompt: {data}&#34;)
+
     def enter_cli_mode(self) -&gt; None:
         &#34;&#34;&#34;Check if at shell prompt root@ and go into CLI.&#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        count = 0
-        cur_prompt = &#34;&#34;
-        while count &lt; 50:
+        mode = self._determine_mode()
+        if mode == &#34;shell&#34;:
+            shell_pattern = r&#34;[%$]&#34;
             self.write_channel(self.RETURN)
-            time.sleep(0.1 * delay_factor)
-            cur_prompt = self.read_channel()
+            cur_prompt = self.read_until_pattern(pattern=shell_pattern, read_timeout=10)
             if re.search(r&#34;root@&#34;, cur_prompt) or re.search(r&#34;^%$&#34;, cur_prompt.strip()):
+                cli_pattern = r&#34;[&gt;#]&#34;
                 self.write_channel(&#34;cli&#34; + self.RETURN)
-                time.sleep(0.3 * delay_factor)
-                self.clear_buffer()
-                break
-            elif &#34;&gt;&#34; in cur_prompt or &#34;#&#34; in cur_prompt:
-                break
-            count += 1
+                self.read_until_pattern(pattern=cli_pattern, read_timeout=10)
+        return
 
     def check_config_mode(self, check_string: str = &#34;]&#34;, pattern: str = &#34;&#34;) -&gt; bool:
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
@@ -435,7 +446,10 @@ Overrides several methods for Juniper-specific compatibility.</p>
 
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        pattern = r&#34;[%&gt;$#]&#34;
+        self._test_channel_read(pattern=pattern)
         self.enter_cli_mode()
+
         cmd = &#34;set cli screen-width 511&#34;
         self.set_terminal_width(command=cmd, pattern=r&#34;Screen width set to&#34;)
         # Overloading disable_paging which is confusing
@@ -456,23 +470,32 @@ Overrides several methods for Juniper-specific compatibility.</p>
         &#34;&#34;&#34;Return to the Juniper CLI.&#34;&#34;&#34;
         return self._send_command_str(&#34;exit&#34;, expect_string=r&#34;[#&gt;]&#34;)
 
+    def _determine_mode(self, data: str = &#34;&#34;) -&gt; str:
+        &#34;&#34;&#34;Determine whether in shell or CLI.&#34;&#34;&#34;
+        pattern = r&#34;[%&gt;$#]&#34;
+        if not data:
+            self.write_channel(self.RETURN)
+            data = self.read_until_pattern(pattern=pattern, read_timeout=10)
+
+        if &#34;%&#34; in data or &#34;$&#34; in data:
+            return &#34;shell&#34;
+        elif &#34;&gt;&#34; in data or &#34;#&#34; in data:
+            return &#34;cli&#34;
+        else:
+            raise ValueError(f&#34;Unexpected data returned for prompt: {data}&#34;)
+
     def enter_cli_mode(self) -&gt; None:
         &#34;&#34;&#34;Check if at shell prompt root@ and go into CLI.&#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        count = 0
-        cur_prompt = &#34;&#34;
-        while count &lt; 50:
+        mode = self._determine_mode()
+        if mode == &#34;shell&#34;:
+            shell_pattern = r&#34;[%$]&#34;
             self.write_channel(self.RETURN)
-            time.sleep(0.1 * delay_factor)
-            cur_prompt = self.read_channel()
+            cur_prompt = self.read_until_pattern(pattern=shell_pattern, read_timeout=10)
             if re.search(r&#34;root@&#34;, cur_prompt) or re.search(r&#34;^%$&#34;, cur_prompt.strip()):
+                cli_pattern = r&#34;[&gt;#]&#34;
                 self.write_channel(&#34;cli&#34; + self.RETURN)
-                time.sleep(0.3 * delay_factor)
-                self.clear_buffer()
-                break
-            elif &#34;&gt;&#34; in cur_prompt or &#34;#&#34; in cur_prompt:
-                break
-            count += 1
+                self.read_until_pattern(pattern=cli_pattern, read_timeout=10)
+        return
 
     def check_config_mode(self, check_string: str = &#34;]&#34;, pattern: str = &#34;&#34;) -&gt; bool:
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
@@ -819,21 +842,16 @@ command_string = commit check</p>
 <summary>Source code</summary>
 <pre><code class="python">def enter_cli_mode(self) -&gt; None:
     &#34;&#34;&#34;Check if at shell prompt root@ and go into CLI.&#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor=0)
-    count = 0
-    cur_prompt = &#34;&#34;
-    while count &lt; 50:
+    mode = self._determine_mode()
+    if mode == &#34;shell&#34;:
+        shell_pattern = r&#34;[%$]&#34;
         self.write_channel(self.RETURN)
-        time.sleep(0.1 * delay_factor)
-        cur_prompt = self.read_channel()
+        cur_prompt = self.read_until_pattern(pattern=shell_pattern, read_timeout=10)
         if re.search(r&#34;root@&#34;, cur_prompt) or re.search(r&#34;^%$&#34;, cur_prompt.strip()):
+            cli_pattern = r&#34;[&gt;#]&#34;
             self.write_channel(&#34;cli&#34; + self.RETURN)
-            time.sleep(0.3 * delay_factor)
-            self.clear_buffer()
-            break
-        elif &#34;&gt;&#34; in cur_prompt or &#34;#&#34; in cur_prompt:
-            break
-        count += 1</code></pre>
+            self.read_until_pattern(pattern=cli_pattern, read_timeout=10)
+    return</code></pre>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.exit_config_mode"><code class="name flex">
@@ -870,7 +888,10 @@ command_string = commit check</p>
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    pattern = r&#34;[%&gt;$#]&#34;
+    self._test_channel_read(pattern=pattern)
     self.enter_cli_mode()
+
     cmd = &#34;set cli screen-width 511&#34;
     self.set_terminal_width(command=cmd, pattern=r&#34;Screen width set to&#34;)
     # Overloading disable_paging which is confusing

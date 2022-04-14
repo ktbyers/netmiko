@@ -37,6 +37,7 @@ from typing import (
     Tuple,
 )
 from typing import TYPE_CHECKING
+import re
 from glob import glob
 import sys
 import io
@@ -44,6 +45,7 @@ import os
 from pathlib import Path
 import functools
 from datetime import datetime
+import importlib.resources as pkg_resources
 from textfsm import clitable
 from textfsm.clitable import CliTableError
 from netmiko import log
@@ -72,12 +74,6 @@ try:
     GENIE_INSTALLED = True
 except ImportError:
     GENIE_INSTALLED = False
-
-# If we are on python &lt; 3.7, we need to force the import of importlib.resources backport
-if sys.version_info[:2] &gt;= (3, 7):
-    import importlib.resources as pkg_resources
-else:
-    import importlib_resources as pkg_resources
 
 try:
     import serial.tools.list_ports
@@ -327,7 +323,7 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     else:
         # Try &#39;pip installed&#39; ntc-templates
         try:
-            with pkg_resources.path(
+            with pkg_resources.path(  # type: ignore
                 package=&#34;ntc_templates&#34;, resource=&#34;parse.py&#34;
             ) as posix_path:
                 # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
@@ -679,7 +675,21 @@ def calc_old_timeout(
     if delay_factor == 1 and max_loops == 500:
         max_loops = int(old_timeout / loop_delay)
 
-    return max_loops * loop_delay * delay_factor</code></pre>
+    return max_loops * loop_delay * delay_factor
+
+
+def nokia_context_filter(data: str, re_flags: int = re.M) -&gt; str:
+    &#34;&#34;&#34;
+    Nokia context from string. Examples:
+
+    (ro)[]
+
+    (ex)[configure router &#34;Base&#34; bgp]
+
+    Converted over to a standalone function for easier unit testing.
+    &#34;&#34;&#34;
+    context_pattern = r&#34;^\!?\*?(\((ex|gl|pr|ro)\))?\[.*\]&#34;
+    return re.sub(context_pattern, &#34;&#34;, data, flags=re_flags)</code></pre>
 </details>
 </section>
 <section>
@@ -1152,7 +1162,7 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     else:
         # Try &#39;pip installed&#39; ntc-templates
         try:
-            with pkg_resources.path(
+            with pkg_resources.path(  # type: ignore
                 package=&#34;ntc_templates&#34;, resource=&#34;parse.py&#34;
             ) as posix_path:
                 # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
@@ -1225,6 +1235,30 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
         return result
 
     return cast(F, wrapper_decorator)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.utilities.nokia_context_filter"><code class="name flex">
+<span>def <span class="ident">nokia_context_filter</span></span>(<span>data, re_flags=re.MULTILINE)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Nokia context from string. Examples:</p>
+<p>(ro)[]</p>
+<p>(ex)[configure router "Base" bgp]</p>
+<p>Converted over to a standalone function for easier unit testing.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def nokia_context_filter(data: str, re_flags: int = re.M) -&gt; str:
+    &#34;&#34;&#34;
+    Nokia context from string. Examples:
+
+    (ro)[]
+
+    (ex)[configure router &#34;Base&#34; bgp]
+
+    Converted over to a standalone function for easier unit testing.
+    &#34;&#34;&#34;
+    context_pattern = r&#34;^\!?\*?(\((ex|gl|pr|ro)\))?\[.*\]&#34;
+    return re.sub(context_pattern, &#34;&#34;, data, flags=re_flags)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.utilities.obtain_all_devices"><code class="name flex">
@@ -1480,6 +1514,7 @@ The argument &#39;ttp_template=/path/to/template.ttp&#39; must be set when use_t
 <li><code><a title="netmiko.utilities.load_devices" href="#netmiko.utilities.load_devices">load_devices</a></code></li>
 <li><code><a title="netmiko.utilities.load_yaml_file" href="#netmiko.utilities.load_yaml_file">load_yaml_file</a></code></li>
 <li><code><a title="netmiko.utilities.m_exec_time" href="#netmiko.utilities.m_exec_time">m_exec_time</a></code></li>
+<li><code><a title="netmiko.utilities.nokia_context_filter" href="#netmiko.utilities.nokia_context_filter">nokia_context_filter</a></code></li>
 <li><code><a title="netmiko.utilities.obtain_all_devices" href="#netmiko.utilities.obtain_all_devices">obtain_all_devices</a></code></li>
 <li><code><a title="netmiko.utilities.obtain_netmiko_filename" href="#netmiko.utilities.obtain_netmiko_filename">obtain_netmiko_filename</a></code></li>
 <li><code><a title="netmiko.utilities.run_ttp_template" href="#netmiko.utilities.run_ttp_template">run_ttp_template</a></code></li>

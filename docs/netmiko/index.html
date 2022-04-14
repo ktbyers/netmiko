@@ -55,7 +55,7 @@ from netmiko.scp_functions import file_transfer, progress_bar
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = &#34;4.0.0&#34;
+__version__ = &#34;4.0.1&#34;
 __all__ = (
     &#34;ConnectHandler&#34;,
     &#34;ConnLogOnly&#34;,
@@ -3417,7 +3417,7 @@ def strip_backspaces(output: str) -&gt; str:
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', enable_pattern=None, re_flags=<RegexFlag.IGNORECASE: 2>)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', enable_pattern=None, re_flags=re.IGNORECASE)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter enable mode.</p>
