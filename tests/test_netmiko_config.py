@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import re
 import pytest
 from netmiko import ConfigInvalidException
 from netmiko import ReadTimeout
@@ -220,8 +221,12 @@ def test_disconnect(net_connect, commands, expected_responses):
     """
     Terminate the SSH session
     """
-    if net_connect.host == "cisco3.lasthop.io":
+    if net_connect.host in ["cisco3.lasthop.io", "iosxr3.lasthop.io"]:
         hostname = net_connect.send_command("show run | inc hostname")
-        if "long-hostname" in hostname:
+        if re.search("cisco3.*long", hostname):
             net_connect.send_config_set("hostname cisco3")
+        elif re.search("iosxr3.*long", hostname):
+            net_connect.send_config_set("hostname iosxr3")
+            net_connect.commit()
+            net_connect.exit_config_mode()
     net_connect.disconnect()
