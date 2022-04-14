@@ -229,9 +229,10 @@ def test_ntc_templates_discovery():
     assert ntc_path == f"{packages_dir}/ntc_templates/templates"
 
     # Next should use local index file in ~
-    home_dir = os.path.expanduser("~")
     # Will not work for CI-CD without pain so just test locally
-    if "kbyers" in home_dir or "ktbyers" in home_dir:
+    environment = os.getenv("environment", "local")
+    if environment != "gh_actions":
+        home_dir = os.path.expanduser("~")
         ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
         assert ntc_path == f"{home_dir}/ntc-templates/ntc_templates/templates"
     else:

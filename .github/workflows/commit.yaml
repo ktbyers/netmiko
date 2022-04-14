@@ -1,6 +1,8 @@
 --- 
 name: build
 on: [push, pull_request]
+env:
+  environment: gh_actions
 jobs:
   std_tests:
     runs-on: ubuntu-latest
