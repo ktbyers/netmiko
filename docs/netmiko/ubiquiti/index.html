@@ -427,13 +427,41 @@ __all__ = [
     def save_config(
         self,
         cmd: str = &#34;write memory&#34;,
-        confirm: bool = False,
-        confirm_response: str = &#34;&#34;,
+        confirm: bool = True,
+        confirm_response: str = &#34;y&#34;,
     ) -&gt; str:
-        &#34;&#34;&#34;Saves configuration.&#34;&#34;&#34;
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )</code></pre>
+        &#34;&#34;&#34;
+        EdgeSwitch might do the following:
+
+        Are you sure you want to save? (y/n) y
+
+        It is not clear to me that it always does this (or sometimes doesn&#39;t).
+
+        Consequently, save_config() handles both cases.
+        &#34;&#34;&#34;
+        self.enable()
+        confirm_msg = &#34;Are you sure&#34;
+        pattern = rf&#34;({confirm_msg}|\#)&#34;
+        if confirm:
+            output = self._send_command_str(
+                command_string=cmd,
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
+            )
+            if confirm_response and confirm_msg in output:
+                output += self._send_command_str(
+                    confirm_response,
+                    expect_string=r&#34;\#&#34;,
+                    strip_prompt=False,
+                    strip_command=False,
+                )
+        else:
+            # Shouldn&#39;t really be here--but handle base case if someone disables &#34;confirm&#34;.
+            output = self._send_command_str(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
+        return output</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -500,22 +528,53 @@ __all__ = [
 </details>
 </dd>
 <dt id="netmiko.ubiquiti.UbiquitiEdgeSSH.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, cmd='write memory', confirm=False, confirm_response='')</span>
+<span>def <span class="ident">save_config</span></span>(<span>self, cmd='write memory', confirm=True, confirm_response='y')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Saves configuration.</p></section>
+<section class="desc"><p>EdgeSwitch might do the following:</p>
+<p>Are you sure you want to save? (y/n) y</p>
+<p>It is not clear to me that it always does this (or sometimes doesn't).</p>
+<p>Consequently, save_config() handles both cases.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def save_config(
     self,
     cmd: str = &#34;write memory&#34;,
-    confirm: bool = False,
-    confirm_response: str = &#34;&#34;,
+    confirm: bool = True,
+    confirm_response: str = &#34;y&#34;,
 ) -&gt; str:
-    &#34;&#34;&#34;Saves configuration.&#34;&#34;&#34;
-    return super().save_config(
-        cmd=cmd, confirm=confirm, confirm_response=confirm_response
-    )</code></pre>
+    &#34;&#34;&#34;
+    EdgeSwitch might do the following:
+
+    Are you sure you want to save? (y/n) y
+
+    It is not clear to me that it always does this (or sometimes doesn&#39;t).
+
+    Consequently, save_config() handles both cases.
+    &#34;&#34;&#34;
+    self.enable()
+    confirm_msg = &#34;Are you sure&#34;
+    pattern = rf&#34;({confirm_msg}|\#)&#34;
+    if confirm:
+        output = self._send_command_str(
+            command_string=cmd,
+            expect_string=pattern,
+            strip_prompt=False,
+            strip_command=False,
+        )
+        if confirm_response and confirm_msg in output:
+            output += self._send_command_str(
+                confirm_response,
+                expect_string=r&#34;\#&#34;,
+                strip_prompt=False,
+                strip_command=False,
+            )
+    else:
+        # Shouldn&#39;t really be here--but handle base case if someone disables &#34;confirm&#34;.
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+    return output</code></pre>
 </details>
 </dd>
 </dl>
