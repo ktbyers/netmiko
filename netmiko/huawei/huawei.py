@@ -11,10 +11,19 @@ from netmiko import log
 
 
 class HuaweiBase(NoEnable, CiscoBaseConnection):
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
+        # Huawei prompts for password change before displaying the initial base prompt.
+        # Search for that password change prompt or for base prompt.
+        password_change_prompt = r"(Change now|Please choose)"
+        data = self.read_until_pattern(pattern=rf"({password_change_prompt}|[>\]])")
+        if re.search(password_change_prompt, data):
+            self.write_channel("N" + self.RETURN)
+            self.read_until_pattern(pattern=r"[>\]]")
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r"[>\]]")
+        # The _test_channel_read happens in special_login_handler()
         self.set_base_prompt()
         self.disable_paging(command="screen-length 0 temporary")
 
@@ -97,16 +106,7 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
 class HuaweiSSH(HuaweiBase):
     """Huawei SSH driver."""
 
-    def special_login_handler(self, delay_factor: float = 1.0) -> None:
-        """Handle password change request by ignoring it"""
-
-        # Huawei can prompt for password change. Search for that or for normal prompt
-        password_change_prompt = r"((Change now|Please choose))|([\]>]\s*$)"
-        output = self.read_until_pattern(password_change_prompt)
-        if re.search(password_change_prompt, output):
-            self.write_channel("N\n")
-            self.clear_buffer()
-        return None
+    pass
 
 
 class HuaweiTelnet(HuaweiBase):
