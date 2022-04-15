@@ -11,15 +11,6 @@ from netmiko import log
 
 
 class HuaweiBase(NoEnable, CiscoBaseConnection):
-    def special_login_handler(self, delay_factor: float = 1.0) -> None:
-        # Huawei prompts for password change before displaying the initial base prompt.
-        # Search for that password change prompt or for base prompt.
-        password_change_prompt = r"(Change now|Please choose)"
-        data = self.read_until_pattern(pattern=rf"({password_change_prompt}|[>\]])")
-        if re.search(password_change_prompt, data):
-            self.write_channel("N" + self.RETURN)
-            self.read_until_pattern(pattern=r"[>\]]")
-
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -106,7 +97,15 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
 class HuaweiSSH(HuaweiBase):
     """Huawei SSH driver."""
 
-    pass
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
+        # Huawei prompts for password change before displaying the initial base prompt.
+        # Search for that password change prompt or for base prompt.
+        password_change_prompt = r"(Change now|Please choose)"
+        prompt_or_password_change = r"(?:Change now|Please choose|[>\]])"
+        data = self.read_until_pattern(pattern=prompt_or_password_change)
+        if re.search(password_change_prompt, data):
+            self.write_channel("N" + self.RETURN)
+            self.read_until_pattern(pattern=r"[>\]]")
 
 
 class HuaweiTelnet(HuaweiBase):
