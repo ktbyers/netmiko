@@ -615,7 +615,7 @@ where x is the total number of seconds to wait before timing out.\n"""
                 results = re.split(pattern, output, maxsplit=1, flags=re_flags)
 
                 # The string matched by pattern must be retained in the output string.
-                # re.split will do this if capturing parentesis are used.
+                # re.split will do this if capturing parenthesis are used.
                 if len(results) == 2:
                     # no capturing parenthesis, convert and try again.
                     pattern = f"({pattern})"

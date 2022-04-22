@@ -58,6 +58,9 @@ Clear buffer detects data in the channel
 read_channel: 
 write_channel: b'\n'
 read_channel: 
+read_channel: 
+cisco1>
+Pattern found: (\#|>) 
 cisco1>
 read_channel: 
 [find_prompt()]: prompt is cisco1>
@@ -85,6 +88,9 @@ Clear buffer detects data in the channel
 read_channel: 
 write_channel: b'\n'
 read_channel: 
+read_channel: 
+cisco1>
+Pattern found: (\#|>) 
 cisco1>
 read_channel: 
 [find_prompt()]: prompt is cisco1>

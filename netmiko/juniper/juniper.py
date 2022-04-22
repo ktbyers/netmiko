@@ -1,5 +1,4 @@
 import re
-import time
 import warnings
 from typing import Optional, Any
 
@@ -17,7 +16,10 @@ class JuniperBase(NoEnable, BaseConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
+        pattern = r"[%>$#]"
+        self._test_channel_read(pattern=pattern)
         self.enter_cli_mode()
+
         cmd = "set cli screen-width 511"
         self.set_terminal_width(command=cmd, pattern=r"Screen width set to")
         # Overloading disable_paging which is confusing
@@ -38,23 +40,32 @@ class JuniperBase(NoEnable, BaseConnection):
         """Return to the Juniper CLI."""
         return self._send_command_str("exit", expect_string=r"[#>]")
 
+    def _determine_mode(self, data: str = "") -> str:
+        """Determine whether in shell or CLI."""
+        pattern = r"[%>$#]"
+        if not data:
+            self.write_channel(self.RETURN)
+            data = self.read_until_pattern(pattern=pattern, read_timeout=10)
+
+        if "%" in data or "$" in data:
+            return "shell"
+        elif ">" in data or "#" in data:
+            return "cli"
+        else:
+            raise ValueError(f"Unexpected data returned for prompt: {data}")
+
     def enter_cli_mode(self) -> None:
         """Check if at shell prompt root@ and go into CLI."""
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        count = 0
-        cur_prompt = ""
-        while count < 50:
+        mode = self._determine_mode()
+        if mode == "shell":
+            shell_pattern = r"[%$]"
             self.write_channel(self.RETURN)
-            time.sleep(0.1 * delay_factor)
-            cur_prompt = self.read_channel()
+            cur_prompt = self.read_until_pattern(pattern=shell_pattern, read_timeout=10)
             if re.search(r"root@", cur_prompt) or re.search(r"^%$", cur_prompt.strip()):
+                cli_pattern = r"[>#]"
                 self.write_channel("cli" + self.RETURN)
-                time.sleep(0.3 * delay_factor)
-                self.clear_buffer()
-                break
-            elif ">" in cur_prompt or "#" in cur_prompt:
-                break
-            count += 1
+                self.read_until_pattern(pattern=cli_pattern, read_timeout=10)
+        return
 
     def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
         """Checks if the device is in configuration mode or not."""

@@ -164,8 +164,8 @@ def remove_old_data(device_name):
 
 
 def main():
-    # PASSWORD = os.environ["HPE_PASSWORD"]
-    PASSWORD = os.environ["NORNIR_PASSWORD"]
+    PASSWORD = os.environ["NETMIKO_PASSWORD"]
+    HP_PASSWORD = os.environ["HPE_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
@@ -181,6 +181,8 @@ def main():
         dev_dict["password"] = PASSWORD
         if dev_name == "cisco_asa":
             dev_dict["secret"] = PASSWORD
+        elif dev_name == "hp_procurve":
+            dev_dict["password"] = HP_PASSWORD
 
         # Run tests
         operations = [
@@ -200,7 +202,9 @@ def main():
             # Some platforms have an issue where the last test affects the
             # next test?
             if "procurve" in platform:
+                print("Sleeping 30 seconds...")
                 time.sleep(30)
+                print("Done")
         print("-" * 80)
         print()
 

@@ -6,6 +6,8 @@ pytest==6.2.5
 pylama==7.7.1
 twine==1.13.0
 pysnmp==4.4.12
+# Black/click issue (can go away when black is upgraded to >= 22.3.0)
+click==8.0.0
 types-paramiko
 types-PyYAML
 -r requirements.txt
