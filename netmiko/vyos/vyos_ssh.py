@@ -131,10 +131,12 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         )
 
     def save_config(
-        self,
-        cmd: str = "copy running-config startup-config",
-        confirm: bool = False,
-        confirm_response: str = "",
+        self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
     ) -> str:
-        """Not Implemented"""
-        raise NotImplementedError
+        """Saves Config."""
+        output = super().save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
+        if "Done" not in output:
+            raise ValueError(f"Save failed with following errors:\n\n{output}")
+        return output
