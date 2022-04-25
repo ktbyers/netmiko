@@ -67,9 +67,11 @@ class JuniperBase(NoEnable, BaseConnection):
                 self.read_until_pattern(pattern=cli_pattern, read_timeout=10)
         return
 
-    def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "]", pattern: str = r"[>#]"
+    ) -> bool:
         """Checks if the device is in configuration mode or not."""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
         self,
@@ -88,12 +90,17 @@ class JuniperBase(NoEnable, BaseConnection):
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
-            output = self._send_command_timing_str(
-                exit_config, strip_prompt=False, strip_command=False
+            confirm_msg = "Exit with uncommitted changes"
+            pattern = rf"(?:>|{confirm_msg})"
+            output = self._send_command_str(
+                exit_config,
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
             )
-            if "Exit with uncommitted changes?" in output:
-                output += self._send_command_timing_str(
-                    "yes", strip_prompt=False, strip_command=False
+            if confirm_msg in output:
+                output += self._send_command_str(
+                    "yes", expect_string=r">", strip_prompt=False, strip_command=False
                 )
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
@@ -221,8 +228,7 @@ class JuniperBase(NoEnable, BaseConnection):
     def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
-            # The pattern="" forces use of send_command_timing
-            if self.check_config_mode(pattern=""):
+            if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
             pass
