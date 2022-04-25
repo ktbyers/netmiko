@@ -134,9 +134,9 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Saves Config."""
-        output = self._send_command_str(command_string=cmd)
-        if "Done" not in output:
-            raise ValueError(f"Save failed with following errors:\n\n{output}")
-        return super().save_config(
+        output = super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+        if "Done" not in output:
+            raise ValueError(f"Save failed with following errors:\n\n{output}")
+        return output
