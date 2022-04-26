@@ -55,7 +55,7 @@ def generate_graph(device_name: str, params: Dict) -> None:
     device_type = device_dict["device_type"]
     outfile = f"netmiko_{device_type}.svg"
     entries = read_csv(device)
-    entries = filter_versions(entries)
+    # entries = filter_versions(entries)
 
     # Create relevant lists
     netmiko_versions = [v["netmiko_version"] for v in entries]
@@ -101,7 +101,7 @@ def generate_report():
 if __name__ == "__main__":
     f_name = os.environ.get("TEST_DEVICES", "test_devices.yml")
     with open(f_name) as f:
-        devices = yaml.load(f)
+        devices = yaml.safe_load(f)
         for device_name, device in devices.items():
             if "graph" in device:
                 generate_graph(device_name, device)

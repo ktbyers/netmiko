@@ -76,7 +76,7 @@ def f_exec_time(func):
 def read_devices():
     f_name = os.environ.get("TEST_DEVICES", "test_devices.yml")
     with open(f_name) as f:
-        return yaml.load(f)
+        return yaml.safe_load(f)
 
 
 @f_exec_time
