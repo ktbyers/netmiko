@@ -96,6 +96,17 @@ def send_command_simple(device):
 
 
 @f_exec_time
+def save_config(device):
+    platform = device["device_type"]
+    if "cisco_xr" in platform or "juniper" in platform:
+        return
+    with ConnectHandler(**device) as conn:
+        platform = device["device_type"]
+        output = conn.save_config()
+        PRINT_DEBUG and print(output)
+
+
+@f_exec_time
 def send_config_simple(device):
     with ConnectHandler(**device) as conn:
         platform = device["device_type"]
@@ -188,6 +199,7 @@ def main():
         operations = [
             "connect",
             "send_command_simple",
+            # "save_config",
             "send_config_simple",
             "send_config_large_acl",
             "cleanup",
