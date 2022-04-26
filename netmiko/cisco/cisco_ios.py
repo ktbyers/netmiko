@@ -41,7 +41,9 @@ class CiscoIosBase(CiscoBaseConnection):
         self.base_prompt = base_prompt[:16]
         return self.base_prompt
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = r"#") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = r"[>#]"
+    ) -> bool:
         """
         Checks if the device is in configuration mode or not.
 
