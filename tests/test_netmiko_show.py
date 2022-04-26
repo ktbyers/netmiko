@@ -377,4 +377,4 @@ def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses)
         assert net_connect.remote_conn is None
         assert time_delta.total_seconds() < 5
     else:
-        assert True
+        assert pytest.skip()
