@@ -55,7 +55,7 @@ from netmiko.scp_functions import file_transfer, progress_bar
 # Alternate naming
 Netmiko = ConnectHandler
 
-__version__ = &#34;4.0.0&#34;
+__version__ = &#34;4.0.1a1&#34;
 __all__ = (
     &#34;ConnectHandler&#34;,
     &#34;ConnLogOnly&#34;,
@@ -1365,7 +1365,7 @@ where x is the total number of seconds to wait before timing out.\n&#34;&#34;&#3
                 results = re.split(pattern, output, maxsplit=1, flags=re_flags)
 
                 # The string matched by pattern must be retained in the output string.
-                # re.split will do this if capturing parentesis are used.
+                # re.split will do this if capturing parenthesis are used.
                 if len(results) == 2:
                     # no capturing parenthesis, convert and try again.
                     pattern = f&#34;({pattern})&#34;
@@ -1872,7 +1872,7 @@ A paramiko SSHException occurred during connection creation:
         time.sleep(main_delay * 10)
         new_data = &#34;&#34;
         while i &lt;= count:
-            new_data += self.read_channel_timing()
+            new_data += self.read_channel_timing(read_timeout=20)
             if new_data:
                 return new_data
 
@@ -2693,7 +2693,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
         if not pattern:
-            output = self.read_channel_timing()
+            output = self.read_channel_timing(read_timeout=10.0)
         else:
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output
@@ -3189,7 +3189,7 @@ def strip_backspaces(output: str) -&gt; str:
     self.write_channel(self.RETURN)
     # You can encounter an issue here (on router name changes) prefer delay-based solution
     if not pattern:
-        output = self.read_channel_timing()
+        output = self.read_channel_timing(read_timeout=10.0)
     else:
         output = self.read_until_pattern(pattern=pattern)
     return check_string in output</code></pre>
@@ -3417,7 +3417,7 @@ def strip_backspaces(output: str) -&gt; str:
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', enable_pattern=None, re_flags=<RegexFlag.IGNORECASE: 2>)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='', pattern='ssword', enable_pattern=None, re_flags=re.IGNORECASE)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter enable mode.</p>
@@ -4008,7 +4008,7 @@ where x is the total number of seconds to wait before timing out.\n&#34;&#34;&#3
                 results = re.split(pattern, output, maxsplit=1, flags=re_flags)
 
                 # The string matched by pattern must be retained in the output string.
-                # re.split will do this if capturing parentesis are used.
+                # re.split will do this if capturing parenthesis are used.
                 if len(results) == 2:
                     # no capturing parenthesis, convert and try again.
                     pattern = f&#34;({pattern})&#34;

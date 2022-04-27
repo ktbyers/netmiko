@@ -44,6 +44,27 @@ class CiscoXrBase(CiscoBaseConnection):
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
 
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;#&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        Cisco IOS-XR abbreviates the prompt at 31-chars in config mode.
+
+        Consequently, abbreviate the base_prompt
+        &#34;&#34;&#34;
+        base_prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+        self.base_prompt = base_prompt[:31]
+        return self.base_prompt
+
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
@@ -394,6 +415,27 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         self.disable_paging()
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
+
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;#&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        Cisco IOS-XR abbreviates the prompt at 31-chars in config mode.
+
+        Consequently, abbreviate the base_prompt
+        &#34;&#34;&#34;
+        base_prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+        self.base_prompt = base_prompt[:31]
+        return self.base_prompt
 
     def send_config_set(
         self,
@@ -822,6 +864,36 @@ an exception to be generated.</p></section>
     self.set_base_prompt()</code></pre>
 </details>
 </dd>
+<dt id="netmiko.cisco.cisco_xr.CiscoXrBase.set_base_prompt"><code class="name flex">
+<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator='#', alt_prompt_terminator='>', delay_factor=1.0, pattern=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Cisco IOS-XR abbreviates the prompt at 31-chars in config mode.</p>
+<p>Consequently, abbreviate the base_prompt</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def set_base_prompt(
+    self,
+    pri_prompt_terminator: str = &#34;#&#34;,
+    alt_prompt_terminator: str = &#34;&gt;&#34;,
+    delay_factor: float = 1.0,
+    pattern: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;
+    Cisco IOS-XR abbreviates the prompt at 31-chars in config mode.
+
+    Consequently, abbreviate the base_prompt
+    &#34;&#34;&#34;
+    base_prompt = super().set_base_prompt(
+        pri_prompt_terminator=pri_prompt_terminator,
+        alt_prompt_terminator=alt_prompt_terminator,
+        delay_factor=delay_factor,
+        pattern=pattern,
+    )
+    self.base_prompt = base_prompt[:31]
+    return self.base_prompt</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -852,7 +924,6 @@ an exception to be generated.</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -1163,7 +1234,7 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_config_set" href="#netmiko.cisco.cisco_xr.CiscoXrBase.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.session_preparation" href="#netmiko.cisco.cisco_xr.CiscoXrBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.set_base_prompt" href="#netmiko.cisco.cisco_xr.CiscoXrBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -1334,7 +1405,7 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_config_set" href="#netmiko.cisco.cisco_xr.CiscoXrBase.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.session_preparation" href="#netmiko.cisco.cisco_xr.CiscoXrBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.set_base_prompt" href="#netmiko.cisco.cisco_xr.CiscoXrBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -1373,6 +1444,7 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.save_config" href="#netmiko.cisco.cisco_xr.CiscoXrBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.send_config_set" href="#netmiko.cisco.cisco_xr.CiscoXrBase.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.session_preparation" href="#netmiko.cisco.cisco_xr.CiscoXrBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_xr.CiscoXrBase.set_base_prompt" href="#netmiko.cisco.cisco_xr.CiscoXrBase.set_base_prompt">set_base_prompt</a></code></li>
 </ul>
 </li>
 <li>

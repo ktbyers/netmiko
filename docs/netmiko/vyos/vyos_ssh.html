@@ -155,13 +155,15 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         )
 
     def save_config(
-        self,
-        cmd: str = &#34;copy running-config startup-config&#34;,
-        confirm: bool = False,
-        confirm_response: str = &#34;&#34;,
+        self, cmd: str = &#34;save&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
     ) -&gt; str:
-        &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
-        raise NotImplementedError</code></pre>
+        &#34;&#34;&#34;Saves Config.&#34;&#34;&#34;
+        output = super().save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
+        if &#34;Done&#34; not in output:
+            raise ValueError(f&#34;Save failed with following errors:\n\n{output}&#34;)
+        return output</code></pre>
 </details>
 </section>
 <section>
@@ -408,13 +410,15 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         )
 
     def save_config(
-        self,
-        cmd: str = &#34;copy running-config startup-config&#34;,
-        confirm: bool = False,
-        confirm_response: str = &#34;&#34;,
+        self, cmd: str = &#34;save&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
     ) -&gt; str:
-        &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
-        raise NotImplementedError</code></pre>
+        &#34;&#34;&#34;Saves Config.&#34;&#34;&#34;
+        output = super().save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
+        if &#34;Done&#34; not in output:
+            raise ValueError(f&#34;Save failed with following errors:\n\n{output}&#34;)
+        return output</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -523,23 +527,6 @@ command_string = commit comment <comment></p>
     return output</code></pre>
 </details>
 </dd>
-<dt id="netmiko.vyos.vyos_ssh.VyOSSSH.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, cmd='copy running-config startup-config', confirm=False, confirm_response='')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Not Implemented</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def save_config(
-    self,
-    cmd: str = &#34;copy running-config startup-config&#34;,
-    confirm: bool = False,
-    confirm_response: str = &#34;&#34;,
-) -&gt; str:
-    &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
-    raise NotImplementedError</code></pre>
-</details>
-</dd>
 <dt id="netmiko.vyos.vyos_ssh.VyOSSSH.send_config_set"><code class="name flex">
 <span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands=None, exit_config_mode=False, **kwargs)</span>
 </code></dt>
@@ -636,6 +623,7 @@ command_string = commit comment <comment></p>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -676,7 +664,6 @@ command_string = commit comment <comment></p>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.check_config_mode" href="#netmiko.vyos.vyos_ssh.VyOSSSH.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.commit" href="#netmiko.vyos.vyos_ssh.VyOSSSH.commit">commit</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.exit_config_mode" href="#netmiko.vyos.vyos_ssh.VyOSSSH.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.save_config" href="#netmiko.vyos.vyos_ssh.VyOSSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.send_config_set" href="#netmiko.vyos.vyos_ssh.VyOSSSH.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.session_preparation" href="#netmiko.vyos.vyos_ssh.VyOSSSH.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.set_base_prompt" href="#netmiko.vyos.vyos_ssh.VyOSSSH.set_base_prompt">set_base_prompt</a></code></li>

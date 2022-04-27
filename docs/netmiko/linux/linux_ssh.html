@@ -627,7 +627,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.linux.linux_ssh.LinuxSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='sudo -s', pattern='ssword', re_flags=<RegexFlag.IGNORECASE: 2>)</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='sudo -s', pattern='ssword', re_flags=re.IGNORECASE)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Attempt to become root.</p></section>
@@ -656,7 +656,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.linux.linux_ssh.LinuxSSH.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='sudo -s', pattern='ssword', enable_pattern=None, re_flags=<RegexFlag.IGNORECASE: 2>)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='sudo -s', pattern='ssword', enable_pattern=None, re_flags=re.IGNORECASE)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Attempt to become root.</p></section>

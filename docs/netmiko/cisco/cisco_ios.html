@@ -44,7 +44,30 @@ class CiscoIosBase(CiscoBaseConnection):
         self.disable_paging()
         self.set_base_prompt()
 
-    def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = r&#34;#&#34;) -&gt; bool:
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;#&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        Cisco IOS/IOS-XE abbreviates the prompt at 20-chars in config mode.
+
+        Consequently, abbreviate the base_prompt
+        &#34;&#34;&#34;
+        base_prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+        self.base_prompt = base_prompt[:16]
+        return self.base_prompt
+
+    def check_config_mode(
+        self, check_string: str = &#34;)#&#34;, pattern: str = r&#34;[&gt;#]&#34;
+    ) -&gt; bool:
         &#34;&#34;&#34;
         Checks if the device is in configuration mode or not.
 
@@ -419,7 +442,30 @@ class InLineTransfer(CiscoIosFileTransfer):
         self.disable_paging()
         self.set_base_prompt()
 
-    def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = r&#34;#&#34;) -&gt; bool:
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;#&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        Cisco IOS/IOS-XE abbreviates the prompt at 20-chars in config mode.
+
+        Consequently, abbreviate the base_prompt
+        &#34;&#34;&#34;
+        base_prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+        self.base_prompt = base_prompt[:16]
+        return self.base_prompt
+
+    def check_config_mode(
+        self, check_string: str = &#34;)#&#34;, pattern: str = r&#34;[&gt;#]&#34;
+    ) -&gt; bool:
         &#34;&#34;&#34;
         Checks if the device is in configuration mode or not.
 
@@ -481,6 +527,36 @@ class InLineTransfer(CiscoIosFileTransfer):
     self.set_base_prompt()</code></pre>
 </details>
 </dd>
+<dt id="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt"><code class="name flex">
+<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator='#', alt_prompt_terminator='>', delay_factor=1.0, pattern=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Cisco IOS/IOS-XE abbreviates the prompt at 20-chars in config mode.</p>
+<p>Consequently, abbreviate the base_prompt</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def set_base_prompt(
+    self,
+    pri_prompt_terminator: str = &#34;#&#34;,
+    alt_prompt_terminator: str = &#34;&gt;&#34;,
+    delay_factor: float = 1.0,
+    pattern: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;
+    Cisco IOS/IOS-XE abbreviates the prompt at 20-chars in config mode.
+
+    Consequently, abbreviate the base_prompt
+    &#34;&#34;&#34;
+    base_prompt = super().set_base_prompt(
+        pri_prompt_terminator=pri_prompt_terminator,
+        alt_prompt_terminator=alt_prompt_terminator,
+        delay_factor=delay_factor,
+        pattern=pattern,
+    )
+    self.base_prompt = base_prompt[:16]
+    return self.base_prompt</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -516,7 +592,6 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -734,7 +809,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -905,7 +980,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -1076,7 +1151,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -1387,6 +1462,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <ul class="">
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.save_config" href="#netmiko.cisco.cisco_ios.CiscoIosBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>
 </ul>
 </li>
 <li>
