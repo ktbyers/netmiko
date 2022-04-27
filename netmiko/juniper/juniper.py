@@ -68,12 +68,12 @@ class JuniperBase(NoEnable, BaseConnection):
         return
 
     def check_config_mode(
-        self, check_string: str = "]", pattern: str = r"(?m)[>#] $"
+        self, check_string: str = "]", pattern: str = r"(?m:[>#] $)"
     ) -> bool:
         """
         Checks if the device is in configuration mode or not.
 
-        (?m) = Use multiline matching
+        ?m = Use multiline matching
 
         Juniper unfortunately will use # as a message indicator when not in config mode
         For example, with commit confirmed.
@@ -84,13 +84,13 @@ class JuniperBase(NoEnable, BaseConnection):
     def config_mode(
         self,
         config_command: str = "configure",
-        pattern: str = r"(?s)Entering configuration mode.*\].*#",
+        pattern: str = r"(?s:Entering configuration mode.*\].*#)",
         re_flags: int = 0,
     ) -> str:
         """
         Enter configuration mode.
 
-        (?s) enables re.DOTALL in regex pattern.
+        ?s = enables re.DOTALL in regex pattern.
         """
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
