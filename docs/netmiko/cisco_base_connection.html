@@ -216,8 +216,7 @@ class CiscoBaseConnection(BaseConnection):
     def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
         try:
-            # The pattern=&#34;&#34; forces use of send_command_timing
-            if self.check_config_mode(pattern=&#34;&#34;):
+            if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
             pass
@@ -593,8 +592,7 @@ class CiscoFileTransfer(BaseFileTransfer):
     def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
         try:
-            # The pattern=&#34;&#34; forces use of send_command_timing
-            if self.check_config_mode(pattern=&#34;&#34;):
+            if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
             pass
@@ -722,8 +720,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <pre><code class="python">def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
     &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
     try:
-        # The pattern=&#34;&#34; forces use of send_command_timing
-        if self.check_config_mode(pattern=&#34;&#34;):
+        if self.check_config_mode():
             self.exit_config_mode()
     except Exception:
         pass
@@ -734,7 +731,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='ssword', enable_pattern=None, re_flags=<RegexFlag.IGNORECASE: 2>)</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd='enable', pattern='ssword', enable_pattern=None, re_flags=re.IGNORECASE)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enter enable mode.</p></section>

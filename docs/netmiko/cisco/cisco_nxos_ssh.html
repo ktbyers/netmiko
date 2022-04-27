@@ -48,7 +48,9 @@ class CiscoNxosSSH(CiscoSSHConnection):
         # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace(&#34;\r&#34;, &#34;\n&#34;)
 
-    def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = &#34;#&#34;) -&gt; bool:
+    def check_config_mode(
+        self, check_string: str = &#34;)#&#34;, pattern: str = r&#34;[&gt;#]&#34;
+    ) -&gt; bool:
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
@@ -501,7 +503,9 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
         # NX-OS fix for incorrect MD5 on 9K (due to strange &lt;enter&gt; patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace(&#34;\r&#34;, &#34;\n&#34;)
 
-    def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = &#34;#&#34;) -&gt; bool:
+    def check_config_mode(
+        self, check_string: str = &#34;)#&#34;, pattern: str = r&#34;[&gt;#]&#34;
+    ) -&gt; bool:
         &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
@@ -546,13 +550,15 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=')#', pattern='#')</span>
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=')#', pattern='[>#]')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Checks if the device is in configuration mode or not.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, check_string: str = &#34;)#&#34;, pattern: str = &#34;#&#34;) -&gt; bool:
+<pre><code class="python">def check_config_mode(
+    self, check_string: str = &#34;)#&#34;, pattern: str = r&#34;[&gt;#]&#34;
+) -&gt; bool:
     &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
     return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
 </details>
