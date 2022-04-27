@@ -15,13 +15,11 @@ $ pdoc3 --html --output-dir docs netmiko --force
 
 # python setup.py sdist bdist_wheel
 
-# Check FIX issues in _release.sh
-
 # Run ./_release.sh
 
 # Create a tag for the version
-git tag -a v4.0.0 -m "Version 4.0.0 Release"
-git push origin_ssh v4.0.0
+git tag -a v4.1.0 -m "Version 4.1.0 Release"
+git push origin_ssh v4.1.0
 
 # Make sure to run the performance tests for the new release and to update the graphs!
 

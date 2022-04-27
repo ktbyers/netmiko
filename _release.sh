@@ -69,7 +69,7 @@ if [ -d "netmiko_packaging" ]; then
     exit 1
 else
     echo "Create virtualenv"
-    /usr/bin/virtualenv-3.6 -p /usr/bin/python3.6 --no-site-packages netmiko_packaging
+    /usr/local/bin/python3.9 -m venv netmiko_packaging
     echo "Source virtualenv"
     source /home/kbyers/VENV/netmiko_packaging/bin/activate
     which python
@@ -141,7 +141,7 @@ if [ -d "netmiko_packaging" ]; then
     exit 1
 else
     echo "Create virtualenv"
-    /usr/bin/virtualenv-3.6 -p /usr/bin/python3.6 --no-site-packages netmiko_packaging
+    /usr/local/bin/python3.9 -m venv netmiko_packaging
     echo "Source virtualenv"
     deactivate
     source /home/kbyers/VENV/netmiko_packaging/bin/activate
