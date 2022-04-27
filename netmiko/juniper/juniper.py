@@ -84,10 +84,14 @@ class JuniperBase(NoEnable, BaseConnection):
     def config_mode(
         self,
         config_command: str = "configure",
-        pattern: str = r"Entering configuration mode",
+        pattern: str = r"(?s)Entering configuration mode.*\].*#",
         re_flags: int = 0,
     ) -> str:
-        """Enter configuration mode."""
+        """
+        Enter configuration mode.
+
+        (?s) enables re.DOTALL in regex pattern.
+        """
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
