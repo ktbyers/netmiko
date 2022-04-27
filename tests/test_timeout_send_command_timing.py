@@ -18,7 +18,7 @@ def test_read_show_tech(net_connect_newconn):
 
     read_timeout = 0
     output, exec_time = execute_cmd(
-        net_connect_newconn, read_timeout=read_timeout, last_read=4.0
+        net_connect_newconn, read_timeout=read_timeout, last_read=8.0
     )
     assert "show interface" in output
     assert "cisco3#" in output
