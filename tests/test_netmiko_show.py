@@ -332,7 +332,7 @@ def test_clear_buffer(net_connect, commands, expected_responses):
     enter = net_connect.RETURN
     # Manually send a command down the channel so that data needs read.
     net_connect.write_channel(f"{commands['basic']}{enter}")
-    time.sleep(1)
+    time.sleep(4)
     net_connect.clear_buffer()
     time.sleep(2)
 
@@ -377,4 +377,4 @@ def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses)
         assert net_connect.remote_conn is None
         assert time_delta.total_seconds() < 5
     else:
-        assert True
+        assert pytest.skip()

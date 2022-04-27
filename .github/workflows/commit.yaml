@@ -1,13 +1,15 @@
 --- 
 name: build
 on: [push, pull_request]
+env:
+  environment: gh_actions
 jobs:
   std_tests:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.10.0]
+        python-version: [3.7, 3.8, 3.9, 3.10.0]
 
     steps:
       - name: Checkout repository

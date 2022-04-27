@@ -12,6 +12,10 @@ echo "Starting tests...good luck:" \
 && $PYTEST test_netmiko_config.py --test_device cisco3 \
 && $PYTEST test_netmiko_config_acl.py --test_device cisco3 \
 \
+&& echo "Cisco IOS-XE and IOS-XR Long Name Test" \
+&& $PYTEST test_netmiko_config.py --test_device cisco3_long_name \
+&& $PYTEST test_netmiko_config.py --test_device cisco_xr_long_name \
+\
 && echo "Exception and Timeout Tests" \
 && $PYTEST test_netmiko_exceptions.py \
 \

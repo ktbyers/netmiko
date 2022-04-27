@@ -172,7 +172,7 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         self.enable()
-        self.disable_paging(command=&#34;no page&#34;)
+        self.disable_paging(command=&#34;no paging&#34;)
 
     def check_config_mode(
         self, check_string: str = &#34;(config) #&#34;, pattern: str = r&#34;[&gt;#]&#34;
@@ -255,7 +255,7 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
     self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
     self.set_base_prompt()
     self.enable()
-    self.disable_paging(command=&#34;no page&#34;)</code></pre>
+    self.disable_paging(command=&#34;no paging&#34;)</code></pre>
 </details>
 </dd>
 </dl>

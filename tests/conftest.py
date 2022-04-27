@@ -35,6 +35,13 @@ def net_connect(request):
     device = test_devices[device_under_test]
     device["verbose"] = False
     conn = ConnectHandler(**device)
+    # Temporarily set the hostname
+    if device_under_test == "cisco3_long_name":
+        conn.send_config_set("hostname cisco3-with-a-very-long-hostname")
+    elif device_under_test == "cisco_xr_long_name":
+        conn.send_config_set("hostname iosxr3-with-very-long-hostname-plus")
+        conn.commit()
+        conn.exit_config_mode()
     return conn
 
 

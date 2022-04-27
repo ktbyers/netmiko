@@ -615,7 +615,7 @@ where x is the total number of seconds to wait before timing out.\n"""
                 results = re.split(pattern, output, maxsplit=1, flags=re_flags)
 
                 # The string matched by pattern must be retained in the output string.
-                # re.split will do this if capturing parentesis are used.
+                # re.split will do this if capturing parenthesis are used.
                 if len(results) == 2:
                     # no capturing parenthesis, convert and try again.
                     pattern = f"({pattern})"
@@ -1122,7 +1122,7 @@ A paramiko SSHException occurred during connection creation:
         time.sleep(main_delay * 10)
         new_data = ""
         while i <= count:
-            new_data += self.read_channel_timing()
+            new_data += self.read_channel_timing(read_timeout=20)
             if new_data:
                 return new_data
 
@@ -1943,7 +1943,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
         if not pattern:
-            output = self.read_channel_timing()
+            output = self.read_channel_timing(read_timeout=10.0)
         else:
             output = self.read_until_pattern(pattern=pattern)
         return check_string in output

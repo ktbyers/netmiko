@@ -229,9 +229,10 @@ def test_ntc_templates_discovery():
     assert ntc_path == f"{packages_dir}/ntc_templates/templates"
 
     # Next should use local index file in ~
-    home_dir = os.path.expanduser("~")
     # Will not work for CI-CD without pain so just test locally
-    if "kbyers" in home_dir:
+    environment = os.getenv("environment", "local")
+    if environment != "gh_actions":
+        home_dir = os.path.expanduser("~")
         ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
         assert ntc_path == f"{home_dir}/ntc-templates/ntc_templates/templates"
     else:
@@ -394,3 +395,31 @@ def test_delay_factor_compat(max_loops, delay_factor, timeout, result):
     )
     print(read_timeout)
     assert read_timeout == result
+
+
+def test_nokia_context_filter():
+    data = [
+        "(ex)[configure aaa]",
+        "*(ex)[configure aaa]",
+        "!(ex)[configure aaa]",
+        "[]",
+        '(ex)[configure router "Base" bgp]',
+        "(ro)[]",
+        "(ex)[]",
+        '[show router "Base" bgp]',
+        '!*[pr:configure router "Base" bgp]',
+    ]
+
+    results = []
+
+    for test_case in data:
+        out = utilities.nokia_context_filter(test_case)
+        results.append(out)
+
+    # All strings in results should be null-string
+    assert any(results) is False
+
+    # Create a case that won't be stripped
+    test_case = 'foo[show router "Base" bgp]'
+    out = utilities.nokia_context_filter(test_case)
+    assert out != ""

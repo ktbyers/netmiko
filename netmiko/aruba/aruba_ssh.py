@@ -26,7 +26,7 @@ class ArubaSSH(CiscoSSHConnection):
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.enable()
-        self.disable_paging(command="no page")
+        self.disable_paging(command="no paging")
 
     def check_config_mode(
         self, check_string: str = "(config) #", pattern: str = r"[>#]"

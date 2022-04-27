@@ -19,13 +19,30 @@ class HPProcurveBase(CiscoSSHConnection):
         # HP output contains VT100 escape codes
         self.ansi_escape_codes = True
 
-        # Procurve over SSH uses 'Press any key to continue'
-        data = self._test_channel_read(pattern=r"(any key to continue|[>#])")
-        if "any key to continue" in data:
-            self.write_channel(self.RETURN)
-            self._test_channel_read(pattern=r"[>#]")
+        # ProCurve has an odd behavior where the router prompt can show up
+        # before the 'Press any key to continue' message. Read up until the
+        # Copyright banner to get past this.
+        try:
+            self.read_until_pattern(pattern=r".*opyright", read_timeout=1.3)
+        except ReadTimeout:
+            pass
+
+        # Procurve uses 'Press any key to continue'
+        try:
+            data = self.read_until_pattern(
+                pattern=r"(any key to continue|[>#])", read_timeout=3.0
+            )
+            if "any key to continue" in data:
+                self.write_channel(self.RETURN)
+                self.read_until_pattern(pattern=r"[>#]", read_timeout=3.0)
+        except ReadTimeout:
+            pass
 
         self.set_base_prompt()
+        # If prompt still looks odd, try one more time
+        if len(self.base_prompt) >= 25:
+            self.set_base_prompt()
+
         self.set_terminal_width(command="terminal width 511", pattern="terminal")
         command = self.RETURN + "no page"
         self.disable_paging(command=command)

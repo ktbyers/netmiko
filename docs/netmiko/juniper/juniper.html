@@ -23,7 +23,6 @@
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">import re
-import time
 import warnings
 from typing import Optional, Any
 
@@ -41,7 +40,10 @@ class JuniperBase(NoEnable, BaseConnection):
 
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        pattern = r&#34;[%&gt;$#]&#34;
+        self._test_channel_read(pattern=pattern)
         self.enter_cli_mode()
+
         cmd = &#34;set cli screen-width 511&#34;
         self.set_terminal_width(command=cmd, pattern=r&#34;Screen width set to&#34;)
         # Overloading disable_paging which is confusing
@@ -62,35 +64,58 @@ class JuniperBase(NoEnable, BaseConnection):
         &#34;&#34;&#34;Return to the Juniper CLI.&#34;&#34;&#34;
         return self._send_command_str(&#34;exit&#34;, expect_string=r&#34;[#&gt;]&#34;)
 
+    def _determine_mode(self, data: str = &#34;&#34;) -&gt; str:
+        &#34;&#34;&#34;Determine whether in shell or CLI.&#34;&#34;&#34;
+        pattern = r&#34;[%&gt;$#]&#34;
+        if not data:
+            self.write_channel(self.RETURN)
+            data = self.read_until_pattern(pattern=pattern, read_timeout=10)
+
+        if &#34;%&#34; in data or &#34;$&#34; in data:
+            return &#34;shell&#34;
+        elif &#34;&gt;&#34; in data or &#34;#&#34; in data:
+            return &#34;cli&#34;
+        else:
+            raise ValueError(f&#34;Unexpected data returned for prompt: {data}&#34;)
+
     def enter_cli_mode(self) -&gt; None:
         &#34;&#34;&#34;Check if at shell prompt root@ and go into CLI.&#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        count = 0
-        cur_prompt = &#34;&#34;
-        while count &lt; 50:
+        mode = self._determine_mode()
+        if mode == &#34;shell&#34;:
+            shell_pattern = r&#34;[%$]&#34;
             self.write_channel(self.RETURN)
-            time.sleep(0.1 * delay_factor)
-            cur_prompt = self.read_channel()
+            cur_prompt = self.read_until_pattern(pattern=shell_pattern, read_timeout=10)
             if re.search(r&#34;root@&#34;, cur_prompt) or re.search(r&#34;^%$&#34;, cur_prompt.strip()):
+                cli_pattern = r&#34;[&gt;#]&#34;
                 self.write_channel(&#34;cli&#34; + self.RETURN)
-                time.sleep(0.3 * delay_factor)
-                self.clear_buffer()
-                break
-            elif &#34;&gt;&#34; in cur_prompt or &#34;#&#34; in cur_prompt:
-                break
-            count += 1
+                self.read_until_pattern(pattern=cli_pattern, read_timeout=10)
+        return
 
-    def check_config_mode(self, check_string: str = &#34;]&#34;, pattern: str = &#34;&#34;) -&gt; bool:
-        &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-        return super().check_config_mode(check_string=check_string)
+    def check_config_mode(
+        self, check_string: str = &#34;]&#34;, pattern: str = r&#34;(?m:[&gt;#] $)&#34;
+    ) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if the device is in configuration mode or not.
+
+        ?m = Use multiline matching
+
+        Juniper unfortunately will use # as a message indicator when not in config mode
+        For example, with commit confirmed.
+
+        &#34;&#34;&#34;
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
         self,
         config_command: str = &#34;configure&#34;,
-        pattern: str = r&#34;Entering configuration mode&#34;,
+        pattern: str = r&#34;(?s:Entering configuration mode.*\].*#)&#34;,
         re_flags: int = 0,
     ) -&gt; str:
-        &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
+        &#34;&#34;&#34;
+        Enter configuration mode.
+
+        ?s = enables re.DOTALL in regex pattern.
+        &#34;&#34;&#34;
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
@@ -101,12 +126,17 @@ class JuniperBase(NoEnable, BaseConnection):
         &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
         output = &#34;&#34;
         if self.check_config_mode():
-            output = self._send_command_timing_str(
-                exit_config, strip_prompt=False, strip_command=False
+            confirm_msg = &#34;Exit with uncommitted changes&#34;
+            pattern = rf&#34;(?:&gt;|{confirm_msg})&#34;
+            output = self._send_command_str(
+                exit_config,
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
             )
-            if &#34;Exit with uncommitted changes?&#34; in output:
-                output += self._send_command_timing_str(
-                    &#34;yes&#34;, strip_prompt=False, strip_command=False
+            if confirm_msg in output:
+                output += self._send_command_str(
+                    &#34;yes&#34;, expect_string=r&#34;&gt;&#34;, strip_prompt=False, strip_command=False
                 )
             if self.check_config_mode():
                 raise ValueError(&#34;Failed to exit configuration mode&#34;)
@@ -234,8 +264,7 @@ class JuniperBase(NoEnable, BaseConnection):
     def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
         try:
-            # The pattern=&#34;&#34; forces use of send_command_timing
-            if self.check_config_mode(pattern=&#34;&#34;):
+            if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
             pass
@@ -435,7 +464,10 @@ Overrides several methods for Juniper-specific compatibility.</p>
 
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        pattern = r&#34;[%&gt;$#]&#34;
+        self._test_channel_read(pattern=pattern)
         self.enter_cli_mode()
+
         cmd = &#34;set cli screen-width 511&#34;
         self.set_terminal_width(command=cmd, pattern=r&#34;Screen width set to&#34;)
         # Overloading disable_paging which is confusing
@@ -456,35 +488,58 @@ Overrides several methods for Juniper-specific compatibility.</p>
         &#34;&#34;&#34;Return to the Juniper CLI.&#34;&#34;&#34;
         return self._send_command_str(&#34;exit&#34;, expect_string=r&#34;[#&gt;]&#34;)
 
+    def _determine_mode(self, data: str = &#34;&#34;) -&gt; str:
+        &#34;&#34;&#34;Determine whether in shell or CLI.&#34;&#34;&#34;
+        pattern = r&#34;[%&gt;$#]&#34;
+        if not data:
+            self.write_channel(self.RETURN)
+            data = self.read_until_pattern(pattern=pattern, read_timeout=10)
+
+        if &#34;%&#34; in data or &#34;$&#34; in data:
+            return &#34;shell&#34;
+        elif &#34;&gt;&#34; in data or &#34;#&#34; in data:
+            return &#34;cli&#34;
+        else:
+            raise ValueError(f&#34;Unexpected data returned for prompt: {data}&#34;)
+
     def enter_cli_mode(self) -&gt; None:
         &#34;&#34;&#34;Check if at shell prompt root@ and go into CLI.&#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        count = 0
-        cur_prompt = &#34;&#34;
-        while count &lt; 50:
+        mode = self._determine_mode()
+        if mode == &#34;shell&#34;:
+            shell_pattern = r&#34;[%$]&#34;
             self.write_channel(self.RETURN)
-            time.sleep(0.1 * delay_factor)
-            cur_prompt = self.read_channel()
+            cur_prompt = self.read_until_pattern(pattern=shell_pattern, read_timeout=10)
             if re.search(r&#34;root@&#34;, cur_prompt) or re.search(r&#34;^%$&#34;, cur_prompt.strip()):
+                cli_pattern = r&#34;[&gt;#]&#34;
                 self.write_channel(&#34;cli&#34; + self.RETURN)
-                time.sleep(0.3 * delay_factor)
-                self.clear_buffer()
-                break
-            elif &#34;&gt;&#34; in cur_prompt or &#34;#&#34; in cur_prompt:
-                break
-            count += 1
+                self.read_until_pattern(pattern=cli_pattern, read_timeout=10)
+        return
 
-    def check_config_mode(self, check_string: str = &#34;]&#34;, pattern: str = &#34;&#34;) -&gt; bool:
-        &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-        return super().check_config_mode(check_string=check_string)
+    def check_config_mode(
+        self, check_string: str = &#34;]&#34;, pattern: str = r&#34;(?m:[&gt;#] $)&#34;
+    ) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if the device is in configuration mode or not.
+
+        ?m = Use multiline matching
+
+        Juniper unfortunately will use # as a message indicator when not in config mode
+        For example, with commit confirmed.
+
+        &#34;&#34;&#34;
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
         self,
         config_command: str = &#34;configure&#34;,
-        pattern: str = r&#34;Entering configuration mode&#34;,
+        pattern: str = r&#34;(?s:Entering configuration mode.*\].*#)&#34;,
         re_flags: int = 0,
     ) -&gt; str:
-        &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
+        &#34;&#34;&#34;
+        Enter configuration mode.
+
+        ?s = enables re.DOTALL in regex pattern.
+        &#34;&#34;&#34;
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
@@ -495,12 +550,17 @@ Overrides several methods for Juniper-specific compatibility.</p>
         &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
         output = &#34;&#34;
         if self.check_config_mode():
-            output = self._send_command_timing_str(
-                exit_config, strip_prompt=False, strip_command=False
+            confirm_msg = &#34;Exit with uncommitted changes&#34;
+            pattern = rf&#34;(?:&gt;|{confirm_msg})&#34;
+            output = self._send_command_str(
+                exit_config,
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
             )
-            if &#34;Exit with uncommitted changes?&#34; in output:
-                output += self._send_command_timing_str(
-                    &#34;yes&#34;, strip_prompt=False, strip_command=False
+            if confirm_msg in output:
+                output += self._send_command_str(
+                    &#34;yes&#34;, expect_string=r&#34;&gt;&#34;, strip_prompt=False, strip_command=False
                 )
             if self.check_config_mode():
                 raise ValueError(&#34;Failed to exit configuration mode&#34;)
@@ -628,8 +688,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
     def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
         &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
         try:
-            # The pattern=&#34;&#34; forces use of send_command_timing
-            if self.check_config_mode(pattern=&#34;&#34;):
+            if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
             pass
@@ -650,15 +709,28 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.juniper.juniper.JuniperBase.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=']', pattern='')</span>
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string=']', pattern='(?m:[>#] $)')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks if the device is in configuration mode or not.</p></section>
+<section class="desc"><p>Checks if the device is in configuration mode or not.</p>
+<p>?m = Use multiline matching</p>
+<p>Juniper unfortunately will use # as a message indicator when not in config mode
+For example, with commit confirmed.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, check_string: str = &#34;]&#34;, pattern: str = &#34;&#34;) -&gt; bool:
-    &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-    return super().check_config_mode(check_string=check_string)</code></pre>
+<pre><code class="python">def check_config_mode(
+    self, check_string: str = &#34;]&#34;, pattern: str = r&#34;(?m:[&gt;#] $)&#34;
+) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if the device is in configuration mode or not.
+
+    ?m = Use multiline matching
+
+    Juniper unfortunately will use # as a message indicator when not in config mode
+    For example, with commit confirmed.
+
+    &#34;&#34;&#34;
+    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.cleanup"><code class="name flex">
@@ -671,8 +743,7 @@ Overrides several methods for Juniper-specific compatibility.</p>
 <pre><code class="python">def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
     &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
     try:
-        # The pattern=&#34;&#34; forces use of send_command_timing
-        if self.check_config_mode(pattern=&#34;&#34;):
+        if self.check_config_mode():
             self.exit_config_mode()
     except Exception:
         pass
@@ -792,19 +863,24 @@ command_string = commit check</p>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure', pattern='Entering configuration mode', re_flags=0)</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='configure', pattern='(?s:Entering configuration mode.*\\].*#)', re_flags=0)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Enter configuration mode.</p></section>
+<section class="desc"><p>Enter configuration mode.</p>
+<p>?s = enables re.DOTALL in regex pattern.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def config_mode(
     self,
     config_command: str = &#34;configure&#34;,
-    pattern: str = r&#34;Entering configuration mode&#34;,
+    pattern: str = r&#34;(?s:Entering configuration mode.*\].*#)&#34;,
     re_flags: int = 0,
 ) -&gt; str:
-    &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Enter configuration mode.
+
+    ?s = enables re.DOTALL in regex pattern.
+    &#34;&#34;&#34;
     return super().config_mode(
         config_command=config_command, pattern=pattern, re_flags=re_flags
     )</code></pre>
@@ -819,21 +895,16 @@ command_string = commit check</p>
 <summary>Source code</summary>
 <pre><code class="python">def enter_cli_mode(self) -&gt; None:
     &#34;&#34;&#34;Check if at shell prompt root@ and go into CLI.&#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor=0)
-    count = 0
-    cur_prompt = &#34;&#34;
-    while count &lt; 50:
+    mode = self._determine_mode()
+    if mode == &#34;shell&#34;:
+        shell_pattern = r&#34;[%$]&#34;
         self.write_channel(self.RETURN)
-        time.sleep(0.1 * delay_factor)
-        cur_prompt = self.read_channel()
+        cur_prompt = self.read_until_pattern(pattern=shell_pattern, read_timeout=10)
         if re.search(r&#34;root@&#34;, cur_prompt) or re.search(r&#34;^%$&#34;, cur_prompt.strip()):
+            cli_pattern = r&#34;[&gt;#]&#34;
             self.write_channel(&#34;cli&#34; + self.RETURN)
-            time.sleep(0.3 * delay_factor)
-            self.clear_buffer()
-            break
-        elif &#34;&gt;&#34; in cur_prompt or &#34;#&#34; in cur_prompt:
-            break
-        count += 1</code></pre>
+            self.read_until_pattern(pattern=cli_pattern, read_timeout=10)
+    return</code></pre>
 </details>
 </dd>
 <dt id="netmiko.juniper.juniper.JuniperBase.exit_config_mode"><code class="name flex">
@@ -849,12 +920,17 @@ command_string = commit check</p>
     &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
     output = &#34;&#34;
     if self.check_config_mode():
-        output = self._send_command_timing_str(
-            exit_config, strip_prompt=False, strip_command=False
+        confirm_msg = &#34;Exit with uncommitted changes&#34;
+        pattern = rf&#34;(?:&gt;|{confirm_msg})&#34;
+        output = self._send_command_str(
+            exit_config,
+            expect_string=pattern,
+            strip_prompt=False,
+            strip_command=False,
         )
-        if &#34;Exit with uncommitted changes?&#34; in output:
-            output += self._send_command_timing_str(
-                &#34;yes&#34;, strip_prompt=False, strip_command=False
+        if confirm_msg in output:
+            output += self._send_command_str(
+                &#34;yes&#34;, expect_string=r&#34;&gt;&#34;, strip_prompt=False, strip_command=False
             )
         if self.check_config_mode():
             raise ValueError(&#34;Failed to exit configuration mode&#34;)
@@ -870,7 +946,10 @@ command_string = commit check</p>
 <summary>Source code</summary>
 <pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    pattern = r&#34;[%&gt;$#]&#34;
+    self._test_channel_read(pattern=pattern)
     self.enter_cli_mode()
+
     cmd = &#34;set cli screen-width 511&#34;
     self.set_terminal_width(command=cmd, pattern=r&#34;Screen width set to&#34;)
     # Overloading disable_paging which is confusing

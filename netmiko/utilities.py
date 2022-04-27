@@ -12,6 +12,7 @@ from typing import (
     Tuple,
 )
 from typing import TYPE_CHECKING
+import re
 from glob import glob
 import sys
 import io
@@ -19,6 +20,7 @@ import os
 from pathlib import Path
 import functools
 from datetime import datetime
+import importlib.resources as pkg_resources
 from textfsm import clitable
 from textfsm.clitable import CliTableError
 from netmiko import log
@@ -47,12 +49,6 @@ try:
     GENIE_INSTALLED = True
 except ImportError:
     GENIE_INSTALLED = False
-
-# If we are on python < 3.7, we need to force the import of importlib.resources backport
-if sys.version_info[:2] >= (3, 7):
-    import importlib.resources as pkg_resources
-else:
-    import importlib_resources as pkg_resources
 
 try:
     import serial.tools.list_ports
@@ -302,7 +298,7 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     else:
         # Try 'pip installed' ntc-templates
         try:
-            with pkg_resources.path(
+            with pkg_resources.path(  # type: ignore
                 package="ntc_templates", resource="parse.py"
             ) as posix_path:
                 # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
@@ -655,3 +651,17 @@ def calc_old_timeout(
         max_loops = int(old_timeout / loop_delay)
 
     return max_loops * loop_delay * delay_factor
+
+
+def nokia_context_filter(data: str, re_flags: int = re.M) -> str:
+    """
+    Nokia context from string. Examples:
+
+    (ro)[]
+
+    (ex)[configure router "Base" bgp]
+
+    Converted over to a standalone function for easier unit testing.
+    """
+    context_pattern = r"^\!?\*?(\((ex|gl|pr|ro)\))?\[.*\]"
+    return re.sub(context_pattern, "", data, flags=re_flags)

@@ -203,28 +203,6 @@ class UbiquitiEdgeRouterSSH(VyOSSSH):
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="netmiko.ubiquiti.edgerouter_ssh.UbiquitiEdgeRouterSSH.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, cmd='save', confirm=False, confirm_response='')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Saves Config.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def save_config(
-    self, cmd: str = &#34;save&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
-) -&gt; str:
-    &#34;&#34;&#34;Saves Config.&#34;&#34;&#34;
-    if confirm is True:
-        raise ValueError(&#34;EdgeRouter does not support save_config confirmation.&#34;)
-    output = self._send_command_str(command_string=cmd)
-    if &#34;Done&#34; not in output:
-        raise ValueError(f&#34;Save failed with following errors:\n\n{output}&#34;)
-    return output</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="netmiko.vyos.vyos_ssh.VyOSSSH" href="../vyos/vyos_ssh.html#netmiko.vyos.vyos_ssh.VyOSSSH">VyOSSSH</a></b></code>:
@@ -252,6 +230,7 @@ class UbiquitiEdgeRouterSSH(VyOSSSH):
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
+<li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.vyos.vyos_ssh.VyOSSSH.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -291,9 +270,6 @@ class UbiquitiEdgeRouterSSH(VyOSSSH):
 <ul>
 <li>
 <h4><code><a title="netmiko.ubiquiti.edgerouter_ssh.UbiquitiEdgeRouterSSH" href="#netmiko.ubiquiti.edgerouter_ssh.UbiquitiEdgeRouterSSH">UbiquitiEdgeRouterSSH</a></code></h4>
-<ul class="">
-<li><code><a title="netmiko.ubiquiti.edgerouter_ssh.UbiquitiEdgeRouterSSH.save_config" href="#netmiko.ubiquiti.edgerouter_ssh.UbiquitiEdgeRouterSSH.save_config">save_config</a></code></li>
-</ul>
 </li>
 </ul>
 </li>

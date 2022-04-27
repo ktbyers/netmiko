@@ -76,7 +76,7 @@ def f_exec_time(func):
 def read_devices():
     f_name = os.environ.get("TEST_DEVICES", "test_devices.yml")
     with open(f_name) as f:
-        return yaml.load(f)
+        return yaml.safe_load(f)
 
 
 @f_exec_time
@@ -92,6 +92,17 @@ def send_command_simple(device):
         platform = device["device_type"]
         cmd = commands(platform)["basic"]
         output = conn.send_command(cmd)
+        PRINT_DEBUG and print(output)
+
+
+@f_exec_time
+def save_config(device):
+    platform = device["device_type"]
+    if "cisco_xr" in platform or "juniper" in platform:
+        return
+    with ConnectHandler(**device) as conn:
+        platform = device["device_type"]
+        output = conn.save_config()
         PRINT_DEBUG and print(output)
 
 
@@ -164,8 +175,8 @@ def remove_old_data(device_name):
 
 
 def main():
-    # PASSWORD = os.environ["HPE_PASSWORD"]
-    PASSWORD = os.environ["NORNIR_PASSWORD"]
+    PASSWORD = os.environ["NETMIKO_PASSWORD"]
+    HP_PASSWORD = os.environ["HPE_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
@@ -181,11 +192,14 @@ def main():
         dev_dict["password"] = PASSWORD
         if dev_name == "cisco_asa":
             dev_dict["secret"] = PASSWORD
+        elif dev_name == "hp_procurve":
+            dev_dict["password"] = HP_PASSWORD
 
         # Run tests
         operations = [
             "connect",
             "send_command_simple",
+            # "save_config",
             "send_config_simple",
             "send_config_large_acl",
             "cleanup",
@@ -200,7 +214,9 @@ def main():
             # Some platforms have an issue where the last test affects the
             # next test?
             if "procurve" in platform:
+                print("Sleeping 30 seconds...")
                 time.sleep(30)
+                print("Done")
         print("-" * 80)
         print()
 

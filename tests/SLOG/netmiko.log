@@ -16,6 +16,7 @@ write_channel: b'********\n'
 read_channel: 
 read_channel: 
 read_channel: 
+read_channel: 
 cisco1#
 Pattern found: (cisco1) : 
 cisco1
@@ -28,9 +29,10 @@ cisco1#
 read_channel: 
 write_channel: b'\n'
 read_channel: 
+read_channel: 
 cisco1#
-read_channel: 
-read_channel: 
+Pattern found: ([>#]) 
+cisco1#
 write_channel: b'exit\n'
 write_channel: b'terminal width 511\n'
 read_channel: 
@@ -58,6 +60,9 @@ Clear buffer detects data in the channel
 read_channel: 
 write_channel: b'\n'
 read_channel: 
+read_channel: 
+cisco1>
+Pattern found: (\#|>) 
 cisco1>
 read_channel: 
 [find_prompt()]: prompt is cisco1>
@@ -85,6 +90,9 @@ Clear buffer detects data in the channel
 read_channel: 
 write_channel: b'\n'
 read_channel: 
+read_channel: 
+cisco1>
+Pattern found: (\#|>) 
 cisco1>
 read_channel: 
 [find_prompt()]: prompt is cisco1>
@@ -111,7 +119,8 @@ Pattern found: (show\ ip\ interface\ brief) show ip interface brief
 read_channel: 
 write_channel: b'\n'
 read_channel: 
+read_channel: 
 cisco1>
-read_channel: 
-read_channel: 
+Pattern found: ([>#]) 
+cisco1>
 write_channel: b'exit\n'

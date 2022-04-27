@@ -20,6 +20,27 @@ class CiscoXrBase(CiscoBaseConnection):
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
 
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
+        """
+        Cisco IOS-XR abbreviates the prompt at 31-chars in config mode.
+
+        Consequently, abbreviate the base_prompt
+        """
+        base_prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+        self.base_prompt = base_prompt[:31]
+        return self.base_prompt
+
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,

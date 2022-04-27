@@ -1,5 +1,4 @@
 import re
-import time
 import warnings
 from typing import Optional, Any
 
@@ -17,7 +16,10 @@ class JuniperBase(NoEnable, BaseConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
+        pattern = r"[%>$#]"
+        self._test_channel_read(pattern=pattern)
         self.enter_cli_mode()
+
         cmd = "set cli screen-width 511"
         self.set_terminal_width(command=cmd, pattern=r"Screen width set to")
         # Overloading disable_paging which is confusing
@@ -38,35 +40,58 @@ class JuniperBase(NoEnable, BaseConnection):
         """Return to the Juniper CLI."""
         return self._send_command_str("exit", expect_string=r"[#>]")
 
+    def _determine_mode(self, data: str = "") -> str:
+        """Determine whether in shell or CLI."""
+        pattern = r"[%>$#]"
+        if not data:
+            self.write_channel(self.RETURN)
+            data = self.read_until_pattern(pattern=pattern, read_timeout=10)
+
+        if "%" in data or "$" in data:
+            return "shell"
+        elif ">" in data or "#" in data:
+            return "cli"
+        else:
+            raise ValueError(f"Unexpected data returned for prompt: {data}")
+
     def enter_cli_mode(self) -> None:
         """Check if at shell prompt root@ and go into CLI."""
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        count = 0
-        cur_prompt = ""
-        while count < 50:
+        mode = self._determine_mode()
+        if mode == "shell":
+            shell_pattern = r"[%$]"
             self.write_channel(self.RETURN)
-            time.sleep(0.1 * delay_factor)
-            cur_prompt = self.read_channel()
+            cur_prompt = self.read_until_pattern(pattern=shell_pattern, read_timeout=10)
             if re.search(r"root@", cur_prompt) or re.search(r"^%$", cur_prompt.strip()):
+                cli_pattern = r"[>#]"
                 self.write_channel("cli" + self.RETURN)
-                time.sleep(0.3 * delay_factor)
-                self.clear_buffer()
-                break
-            elif ">" in cur_prompt or "#" in cur_prompt:
-                break
-            count += 1
+                self.read_until_pattern(pattern=cli_pattern, read_timeout=10)
+        return
 
-    def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
-        """Checks if the device is in configuration mode or not."""
-        return super().check_config_mode(check_string=check_string)
+    def check_config_mode(
+        self, check_string: str = "]", pattern: str = r"(?m:[>#] $)"
+    ) -> bool:
+        """
+        Checks if the device is in configuration mode or not.
+
+        ?m = Use multiline matching
+
+        Juniper unfortunately will use # as a message indicator when not in config mode
+        For example, with commit confirmed.
+
+        """
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
         self,
         config_command: str = "configure",
-        pattern: str = r"Entering configuration mode",
+        pattern: str = r"(?s:Entering configuration mode.*\].*#)",
         re_flags: int = 0,
     ) -> str:
-        """Enter configuration mode."""
+        """
+        Enter configuration mode.
+
+        ?s = enables re.DOTALL in regex pattern.
+        """
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
@@ -77,12 +102,17 @@ class JuniperBase(NoEnable, BaseConnection):
         """Exit configuration mode."""
         output = ""
         if self.check_config_mode():
-            output = self._send_command_timing_str(
-                exit_config, strip_prompt=False, strip_command=False
+            confirm_msg = "Exit with uncommitted changes"
+            pattern = rf"(?:>|{confirm_msg})"
+            output = self._send_command_str(
+                exit_config,
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
             )
-            if "Exit with uncommitted changes?" in output:
-                output += self._send_command_timing_str(
-                    "yes", strip_prompt=False, strip_command=False
+            if confirm_msg in output:
+                output += self._send_command_str(
+                    "yes", expect_string=r">", strip_prompt=False, strip_command=False
                 )
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
@@ -210,8 +240,7 @@ class JuniperBase(NoEnable, BaseConnection):
     def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
-            # The pattern="" forces use of send_command_timing
-            if self.check_config_mode(pattern=""):
+            if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
             pass
