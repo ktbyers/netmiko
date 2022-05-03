@@ -30,8 +30,10 @@ from netmiko.cisco import (
 from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco import CiscoS300SSH, CiscoS300Telnet
 from netmiko.cisco import CiscoTpTcCeSSH
+from netmiko.cisco import CiscoUCMSSH
 from netmiko.cisco import CiscoViptelaSSH
 from netmiko.cisco import CiscoWlcSSH
+from netmiko.cisco import CiscoCUCMSSH
 from netmiko.cisco import CiscoXrSSH, CiscoXrTelnet, CiscoXrFileTransfer
 from netmiko.citrix import NetscalerSSH
 from netmiko.cloudgenix import CloudGenixIonSSH
@@ -151,6 +153,7 @@ CLASS_MAPPER_BASE = {
     "cisco_s300": CiscoS300SSH,
     "cisco_tp": CiscoTpTcCeSSH,
     "cisco_viptela": CiscoViptelaSSH,
+    "cisco_ucm": CiscoUCMSSH,
     "cisco_wlc": CiscoWlcSSH,
     "cisco_xe": CiscoIosSSH,
     "cisco_xr": CiscoXrSSH,
