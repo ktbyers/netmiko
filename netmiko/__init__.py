@@ -7,7 +7,7 @@ MIN_PYTHON_VER = "3.7"
 
 
 # Make sure user is using a valid Python version (for Netmiko)
-def check_python_version():     # type: ignore
+def check_python_version():  # type: ignore
     python_snake = "\U0001F40D"
 
     # Use old-school .format() method in case someone tries to use Netmiko with very old Python
@@ -30,6 +30,12 @@ check_python_version()  # type: ignore
 
 
 import logging  # noqa
+
+
+# Logging configuration
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
 
 from netmiko.ssh_dispatcher import ConnectHandler  # noqa
 from netmiko.ssh_dispatcher import ConnLogOnly  # noqa
@@ -54,10 +60,6 @@ from netmiko.exceptions import NetmikoBaseException, ConnectionException  # noqa
 from netmiko.ssh_autodetect import SSHDetect  # noqa
 from netmiko.base_connection import BaseConnection  # noqa
 from netmiko.scp_functions import file_transfer, progress_bar  # noqa
-
-# Logging configuration
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 # Alternate naming
 Netmiko = ConnectHandler
