@@ -120,6 +120,9 @@ class HPComwareBase(CiscoSSHConnection):
         """enable mode on Comware is system-view."""
         return self.check_config_mode(check_string=check_string)
 
+    def cleanup(self, command: str = "quit") -> None:
+        return super().cleanup(command=command)
+
     def save_config(
         self, cmd: str = "save force", confirm: bool = False, confirm_response: str = ""
     ) -> str:
