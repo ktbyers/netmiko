@@ -232,6 +232,9 @@ class HuaweiVrpv8SSH(HuaweiSSH):
             raise ValueError(f"Commit failed with following errors:\n\n{output}")
         return output
 
+    def cleanup(self, command: str = "quit") -> None:
+        return super().cleanup(command=command)
+
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
         raise NotImplementedError
