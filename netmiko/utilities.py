@@ -20,7 +20,7 @@ import os
 from pathlib import Path
 import functools
 from datetime import datetime
-import importlib.resources as pkg_resources
+import importlib_resources as pkg_resources
 from textfsm import clitable
 from textfsm.clitable import CliTableError
 from netmiko import log
