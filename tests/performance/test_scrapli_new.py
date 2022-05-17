@@ -1,4 +1,4 @@
-# import functools
+import functools
 import os
 from os import path
 import time
@@ -28,6 +28,19 @@ netmiko_scrapli_platform = {
 }
 
 
+def f_exec_time(func):
+    @functools.wraps(func)
+    def wrapper_decorator(*args, **kwargs):
+        start_time = datetime.now()
+        result = func(*args, **kwargs)
+        end_time = datetime.now()
+        time_delta = end_time - start_time
+        print(f"{str(func)}: Elapsed time: {time_delta}")
+        return (time_delta, result)
+
+    return wrapper_decorator
+
+
 def read_devices():
     f_name = "test_devices_scrapli.yml"
     with open(f_name) as f:
@@ -48,13 +61,11 @@ def generate_csv_timestamp():
     return t_stamp
 
 
-def write_csv(device_name, netmiko_results):
+def write_csv(device_name, results):
     results_file = "netmiko_scrapli_performance.csv"
     file_exists = os.path.isfile(results_file)
     with open(results_file, "a") as csv_file:
-        field_names = ["date", "netmiko_version", "device_name"] + list(
-            netmiko_results.keys()
-        )
+        field_names = ["date", "version", "device_name"] + list(results.keys())
         t_stamp = generate_csv_timestamp()
         csv_write = csv.DictWriter(csv_file, fieldnames=field_names)
 
@@ -68,7 +79,7 @@ def write_csv(device_name, netmiko_results):
             "device_name": device_name,
         }
 
-        for func_name, exec_time in netmiko_results.items():
+        for func_name, exec_time in results.items():
             entry[func_name] = exec_time
         csv_write.writerow(entry)
 
@@ -78,7 +89,6 @@ def write_csv(device_name, netmiko_results):
 #
 # # --------------- HERE ------
 # import yaml
-# import functools
 # from datetime import datetime
 #
 # from netmiko import ConnectHandler, __version__
@@ -86,20 +96,19 @@ def write_csv(device_name, netmiko_results):
 # import network_utilities
 #
 #
-# def f_exec_time(func):
-#    @functools.wraps(func)
-#    def wrapper_decorator(*args, **kwargs):
-#        start_time = datetime.now()
-#        result = func(*args, **kwargs)
-#        end_time = datetime.now()
-#        time_delta = end_time - start_time
-#        print(f"{str(func)}: Elapsed time: {time_delta}")
-#        return (time_delta, result)
-#
-#    return wrapper_decorator
-#
-#
-#
+
+
+@f_exec_time
+def connect(driver, device):
+    print(datetime.now())
+    ScrapliClass = globals()[driver]
+    print(datetime.now())
+    with ScrapliClass(**device) as conn:
+        conn.open()
+        prompt = conn.get_prompt()
+        PRINT_DEBUG and print(prompt)
+
+
 # @f_exec_time
 # def connect(device):
 #    with ConnectHandler(**device) as conn:
@@ -198,18 +207,17 @@ def main():
         # Run tests
         operations = [
             "connect",
-            "send_command_simple",
-            "send_config_simple",
-            "send_config_large_acl",
-            "cleanup",
+            #            "send_command_simple",
+            #            "send_config_simple",
+            #            "send_config_large_acl",
+            #            "cleanup",
         ]
-        operations = []
         results = {}
-        driver = dev_dict["driver"]
+        driver = dev_dict.pop("driver")
         platform = netmiko_scrapli_platform[str(driver)]
         for op in operations:
             func = globals()[op]
-            time_delta, result = func(dev_dict)
+            time_delta, result = func(driver, dev_dict)
             if op != "cleanup":
                 results[op] = time_delta
             # Some platforms have an issue where the last test affects the next test?
@@ -245,31 +253,3 @@ if __name__ == "__main__":
 #    return wrapper_decorator
 #
 #
-# @f_exec_time
-# def simple_show_cmd(driver, device):
-#    ScrapliClass = globals()[driver]
-#    with ScrapliClass(**device) as conn:
-#        conn.open()
-#        return conn.send_command("show ip int brief")
-#
-#
-#if __name__ == "__main__":
-#
-#    my_devices = read_devices()
-#    for device_name, device in my_devices.items():
-#        print("\n")
-#        driver = device.pop("driver")
-#        print(driver)
-#        platform = netmiko_scrapli_platform[str(driver)]
-#        print(platform)
-#
-#        device_type = device.pop("device_type")
-#        (time_delta, response) = simple_show_cmd(driver, device)
-#
-#        print()
-#        print(driver)
-#        print("-" * 60)
-#        print(response.result)
-#        print("-" * 60)
-#        print()
-#        print("\n")

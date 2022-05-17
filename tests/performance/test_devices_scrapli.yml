@@ -5,7 +5,6 @@ cisco1:
     host: cisco1.lasthop.io
     auth_username: pyclass
     auth_strict_key: False
-    device_type: cisco_ios
   graph:
     title: "Netmiko: Arista EOS Performance (vEOS)"
 
@@ -15,7 +14,6 @@ cisco3:
     host: cisco3.lasthop.io
     auth_username: pyclass
     auth_strict_key: False
-    device_type: cisco_xe
   graph:
     title: "Netmiko: Arista EOS Performance (vEOS)"
 
@@ -25,7 +23,6 @@ cisco5:
     host: cisco5.lasthop.io
     auth_username: pyclass
     auth_strict_key: False
-    device_type: cisco_xe
   graph:
     title: "Netmiko: Arista EOS Performance (vEOS)"
 
@@ -35,7 +32,6 @@ nxos1:
     host: nxos1.lasthop.io
     auth_username: pyclass
     auth_strict_key: False
-    device_type: cisco_nxos
   graph:
     title: "Netmiko: Arista EOS Performance (vEOS)"
 
@@ -45,7 +41,6 @@ iosxr3:
     host: iosxr3.lasthop.io
     auth_username: pyclass
     auth_strict_key: False
-    device_type: cisco_xr
   graph:
     title: "Netmiko: Arista EOS Performance (vEOS)"
 
@@ -55,6 +50,5 @@ arista1:
     host: arista1.lasthop.io
     auth_username: pyclass
     auth_strict_key: False
-    device_type: arista_eos
   graph:
     title: "Netmiko: Arista EOS Performance (vEOS)"
