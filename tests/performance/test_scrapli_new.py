@@ -1,8 +1,9 @@
 # import functools
-# from datetime import datetime
 import os
 from os import path
 import time
+from datetime import datetime
+import csv
 import yaml
 from rich import print
 from test_utils import parse_yaml
@@ -13,6 +14,7 @@ from scrapli.driver.core import IOSXRDriver  # noqa
 from scrapli.driver.core import EOSDriver  # noqa
 from scrapli.driver.core import JunosDriver  # noqa
 
+SCRAPLI_VERSION = "2022.1.30.post1"
 PRINT_DEBUG = False
 
 PWD = path.dirname(path.realpath(__file__))
@@ -62,7 +64,7 @@ def write_csv(device_name, netmiko_results):
 
         entry = {
             "date": t_stamp,
-            "netmiko_version": __version__,
+            "version": SCRAPLI_VERSION,
             "device_name": device_name,
         }
 
@@ -78,7 +80,6 @@ def write_csv(device_name, netmiko_results):
 # import yaml
 # import functools
 # from datetime import datetime
-# import csv
 #
 # from netmiko import ConnectHandler, __version__
 #
@@ -228,9 +229,9 @@ def test_performance():
     main()
 
 
-# if __name__ == "__main__":
-#    main()
-#
+if __name__ == "__main__":
+    main()
+
 # def f_exec_time(func):
 #    @functools.wraps(func)
 #    def wrapper_decorator(*args, **kwargs):
@@ -252,16 +253,16 @@ def test_performance():
 #        return conn.send_command("show ip int brief")
 #
 #
-if __name__ == "__main__":
-
-    my_devices = read_devices()
-    for device_name, device in my_devices.items():
-        print("\n")
-        driver = device.pop("driver")
-        print(driver)
-        platform = netmiko_scrapli_platform[str(driver)]
-        print(platform)
-
+#if __name__ == "__main__":
+#
+#    my_devices = read_devices()
+#    for device_name, device in my_devices.items():
+#        print("\n")
+#        driver = device.pop("driver")
+#        print(driver)
+#        platform = netmiko_scrapli_platform[str(driver)]
+#        print(platform)
+#
 #        device_type = device.pop("device_type")
 #        (time_delta, response) = simple_show_cmd(driver, device)
 #
