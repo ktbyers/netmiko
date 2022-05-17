@@ -20,6 +20,8 @@ cisco5:
     device_type: cisco_xe
     host: cisco5.lasthop.io
     username: pyclass
+  graph:
+    title: "Netmiko: Cisco IOS-XE Performance (CSR1000V)"
 
 nxos1:
   device:

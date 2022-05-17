@@ -6,7 +6,7 @@ cisco1:
     auth_username: pyclass
     auth_strict_key: False
   graph:
-    title: "Netmiko: Arista EOS Performance (vEOS)"
+    title: "Cisco IOS Performance (Cisco 881)"
 
 cisco3:
   device:
@@ -15,7 +15,7 @@ cisco3:
     auth_username: pyclass
     auth_strict_key: False
   graph:
-    title: "Netmiko: Arista EOS Performance (vEOS)"
+    title: "Cisco IOS-XE Performance (Cisco C1111-4P)"
 
 cisco5:
   device:
@@ -24,7 +24,7 @@ cisco5:
     auth_username: pyclass
     auth_strict_key: False
   graph:
-    title: "Netmiko: Arista EOS Performance (vEOS)"
+    title: "Cisco IOS-XE Performance (CSR1000V)"
 
 nxos1:
   device:
@@ -33,7 +33,7 @@ nxos1:
     auth_username: pyclass
     auth_strict_key: False
   graph:
-    title: "Netmiko: Arista EOS Performance (vEOS)"
+    title: "Cisco NX-OS Performance (nx9k virtual)"
 
 iosxr3:
   device:
@@ -42,7 +42,7 @@ iosxr3:
     auth_username: pyclass
     auth_strict_key: False
   graph:
-    title: "Netmiko: Arista EOS Performance (vEOS)"
+    title: "Cisco IOS-XR Performance (cisco IOS-XRv 9000)"
 
 arista1:
   device:
@@ -51,7 +51,7 @@ arista1:
     auth_username: pyclass
     auth_strict_key: False
   graph:
-    title: "Netmiko: Arista EOS Performance (vEOS)"
+    title: "Arista EOS Performance (vEOS)"
 
 juniper_vmx:
   device:
@@ -60,4 +60,4 @@ juniper_vmx:
     auth_username: pyclass
     auth_strict_key: False
   graph:
-    title: "Netmiko: Juniper Junos Performance"
+    title: "Juniper Junos Performance"
