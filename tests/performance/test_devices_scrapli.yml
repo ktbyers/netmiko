@@ -52,3 +52,12 @@ arista1:
     auth_strict_key: False
   graph:
     title: "Netmiko: Arista EOS Performance (vEOS)"
+
+juniper_vmx:
+  device:
+    driver: JunosDriver
+    host: vmx1.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+  graph:
+    title: "Netmiko: Juniper Junos Performance"

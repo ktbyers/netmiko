@@ -151,31 +151,37 @@ def send_config_large_acl(driver, device):
         PRINT_DEBUG and print(response.result)
 
 
-# @f_exec_time
-# def cleanup(device):
-#
-#    # Results will be marginally distorted by generating the ACL here.
-#    platform = device["device_type"]
-#    if "juniper_junos" in platform:
-#        remove_acl_cmd = "rollback 0"
-#    elif "hp_procurve" in platform:
-#        remove_acl_cmd = None
-#    elif "cisco_asa" in platform:
-#        remove_acl_cmd = "clear configure access-list netmiko_test_large_acl"
-#    else:
-#        base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
-#        remove_acl_cmd = f"no {base_acl_cmd}"
-#    cleanup_generic(device, remove_acl_cmd)
-#
-#
-# def cleanup_generic(device, command):
-#    if command is None:
-#        return
-#    with ConnectHandler(**device) as conn:
-#        output = conn.send_config_set(command)
-#        PRINT_DEBUG and print(output)
-#
-#
+@f_exec_time
+def cleanup(driver, device):
+
+    # Results will be marginally distorted by generating the ACL here.
+    platform = netmiko_scrapli_platform[str(driver)]
+    if "juniper_junos" in platform:
+        remove_acl_cmd = "rollback 0"
+    elif "hp_procurve" in platform:
+        remove_acl_cmd = None
+    elif "cisco_asa" in platform:
+        remove_acl_cmd = "clear configure access-list netmiko_test_large_acl"
+    else:
+        base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
+        remove_acl_cmd = f"no {base_acl_cmd}"
+    cleanup_generic(driver, device, remove_acl_cmd)
+
+
+def cleanup_generic(driver, device, command):
+
+    ScrapliClass = globals()[driver]
+
+    if command is None:
+        return
+    if "IOSXR" in str(ScrapliClass):
+        # IOSXR is failing on disconnect (maybe due to no-commit?)
+        return None
+
+    with ScrapliClass(**device) as conn:
+        conn.open()
+        response = conn.send_configs(command)
+        PRINT_DEBUG and print(response.result)
 
 
 def main():
