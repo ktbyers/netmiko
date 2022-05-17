@@ -93,6 +93,9 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
+    def cleanup(self, command: str = "quit") -> None:
+        return super().cleanup(command=command)
+
 
 class HuaweiSSH(HuaweiBase):
     """Huawei SSH driver."""
@@ -231,9 +234,6 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         if error_marker in output:
             raise ValueError(f"Commit failed with following errors:\n\n{output}")
         return output
-
-    def cleanup(self, command: str = "quit") -> None:
-        return super().cleanup(command=command)
 
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
