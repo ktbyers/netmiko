@@ -86,7 +86,7 @@ CLASS_MAPPER_BASE = {
     'cisco_xe': CiscoIosSSH,
     'cisco_xr': CiscoXrSSH,
     'cisco_cloudnative': CiscoCloudnativeSSH,
-    'cisco_bsp_ssh': CiscoBspSSH,
+    'cisco_bsp': CiscoBspSSH,
     'cisco_bsp_telnet': CiscoBspTelnet,
     'cisco_xr_telnet': CiscoXrTelnet,
     'cisco_cxr_ha_telnet': CiscoCxrHa,
