@@ -64,6 +64,8 @@ def generate_graph(device_name: str, params: Dict) -> None:
     driver = device_dict.pop("driver")
     device_type = netmiko_scrapli_platform[str(driver)]
 
+    if device_name == "cisco1":
+        device_type = "cisco_ios"
     outfile = f"netmiko_scrapli_{device_type}.svg"
     entries = read_csv(device)
     # entries = filter_versions(entries)

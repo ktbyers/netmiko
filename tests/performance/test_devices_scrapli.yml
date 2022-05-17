@@ -23,8 +23,6 @@ cisco5:
     host: cisco5.lasthop.io
     auth_username: pyclass
     auth_strict_key: False
-  graph:
-    title: "Cisco IOS-XE Performance (CSR1000V)"
 
 nxos1:
   device:
