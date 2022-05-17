@@ -15,7 +15,7 @@ from scrapli.driver.core import EOSDriver  # noqa
 from scrapli.driver.core import JunosDriver  # noqa
 
 SCRAPLI_VERSION = "2022.1.30.post1"
-PRINT_DEBUG = False
+PRINT_DEBUG = True
 
 PWD = path.dirname(path.realpath(__file__))
 
@@ -100,31 +100,24 @@ def write_csv(device_name, results):
 
 @f_exec_time
 def connect(driver, device):
-    print(datetime.now())
     ScrapliClass = globals()[driver]
-    print(datetime.now())
     with ScrapliClass(**device) as conn:
         conn.open()
         prompt = conn.get_prompt()
         PRINT_DEBUG and print(prompt)
 
 
-# @f_exec_time
-# def connect(device):
-#    with ConnectHandler(**device) as conn:
-#        prompt = conn.find_prompt()
-#        PRINT_DEBUG and print(prompt)
-#
-#
-# @f_exec_time
-# def send_command_simple(device):
-#    with ConnectHandler(**device) as conn:
-#        platform = device["device_type"]
-#        cmd = commands(platform)["basic"]
-#        output = conn.send_command(cmd)
-#        PRINT_DEBUG and print(output)
-#
-#
+@f_exec_time
+def send_command_simple(driver, device):
+    ScrapliClass = globals()[driver]
+    with ScrapliClass(**device) as conn:
+        platform = netmiko_scrapli_platform[str(driver)]
+        cmd = commands(platform)["basic"]
+        conn.open()
+        output = conn.send_command(cmd)
+        PRINT_DEBUG and print(output.result)
+
+
 # @f_exec_time
 # def save_config(device):
 #    platform = device["device_type"]
@@ -207,7 +200,7 @@ def main():
         # Run tests
         operations = [
             "connect",
-            #            "send_command_simple",
+            "send_command_simple",
             #            "send_config_simple",
             #            "send_config_large_acl",
             #            "cleanup",
@@ -239,17 +232,3 @@ def test_performance():
 
 if __name__ == "__main__":
     main()
-
-# def f_exec_time(func):
-#    @functools.wraps(func)
-#    def wrapper_decorator(*args, **kwargs):
-#        start_time = datetime.now()
-#        result = func(*args, **kwargs)
-#        end_time = datetime.now()
-#        time_delta = end_time - start_time
-#        print(f"{str(func)}: Elapsed time: {time_delta}")
-#        return (time_delta, result)
-#
-#    return wrapper_decorator
-#
-#
