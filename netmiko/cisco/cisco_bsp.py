@@ -12,6 +12,15 @@ class CiscoBsp(CiscoBaseConnection):
     CiscoBsp is based of CiscoBaseConnection
     '''
     def bmc_to_bsp_prompt(self,bmc_prompt_pattern=r'\s*\#',bsp_prompt_pattern=r']\s*\#',delay_factor=1,max_loops=20):
+        '''
+        Switch from BMC to BSP prompt
+
+        :param bmc_prompt_pattern: expected BMC prompt
+        :param bsp_prompt_pattern: expected BSP prompt
+        :param delay_factor: Factor to adjust delays
+        :param max_loops: max number of iterations for attempting to switch prompts
+        :return:
+        '''
 
         self.TELNET_RETURN = '\n'
         bmc_to_bsp_cmd = "sol.sh"
@@ -35,6 +44,15 @@ class CiscoBsp(CiscoBaseConnection):
                 return
 
     def bsp_to_bmc_prompt(self,bmc_prompt_pattern=r'\s*\#',bsp_prompt_pattern=r']\s*\#',delay_factor=1, max_loops=20):
+        '''
+        Switch from BSP to BMC prompt
+
+        :param bmc_prompt_pattern: expected BMC prompt
+        :param bsp_prompt_pattern: expected BSP prompt
+        :param delay_factor: Factor to adjust delays
+        :param max_loops: max number of iterations for attempting to switch prompts
+        :return:
+        '''
 
         self.TELNET_RETURN = '\n'
         CTRL_L = "\x0c"
@@ -58,6 +76,16 @@ class CiscoBsp(CiscoBaseConnection):
                 return
 
     def bmc_login(self,prompt_pattern=r'\s*\#',username_pattern='login',pwd_pattern=r'assword',delay_factor=1, max_loops=20):
+        '''
+        Handle BMC login prompt
+
+        :param prompt_pattern: expected BMC prompt
+        :param username_pattern: username prompt pattern
+        :param pwd_pattern: password prompt pattern
+        :param delay_factor: Factor to adjust delays
+        :param max_loops: max number of iterations for attempting to login to BMC prompt before raising exception
+        :return:
+        '''
 
         bmc_username = "root"
         bmc_pass = "0penBmc"
@@ -150,6 +178,18 @@ class CiscoBspTelnet(CiscoBsp):
     '''
 
     def telnet_login(self,pri_prompt_terminator=r']\s*\#',alt_prompt_terminator=r']\s*\$',username_pattern=r'login',pwd_pattern=r'assword',delay_factor=1,max_loops=20):
+        '''
+        Telnet login to BSP prompt
+
+        :param pri_prompt_terminator: primary prompt pattern (for root user)
+        :param alt_prompt_terminator: alternate prompt pattern (for non-root user eg: cisco user)
+        :param username_pattern: username prompt pattern
+        :param pwd_pattern: password prompt pattern
+        :param delay_factor: Factor to adjust delays
+        :param max_loops: max number of iterations for attempting to login to BSP prompt before raising exception
+        :return:
+        '''
+
         self.TELNET_RETURN = '\n'
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
