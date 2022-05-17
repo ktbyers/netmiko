@@ -1,13 +1,21 @@
-import functools
-from datetime import datetime
+# import functools
+# from datetime import datetime
+import os
+from os import path
+import time
 import yaml
 from rich import print
+from test_utils import parse_yaml
 
-from scrapli.driver.core import IOSXEDriver
-from scrapli.driver.core import NXOSDriver
-from scrapli.driver.core import IOSXRDriver
-from scrapli.driver.core import EOSDriver
-from scrapli.driver.core import JunosDriver
+from scrapli.driver.core import IOSXEDriver  # noqa
+from scrapli.driver.core import NXOSDriver  # noqa
+from scrapli.driver.core import IOSXRDriver  # noqa
+from scrapli.driver.core import EOSDriver  # noqa
+from scrapli.driver.core import JunosDriver  # noqa
+
+PRINT_DEBUG = False
+
+PWD = path.dirname(path.realpath(__file__))
 
 netmiko_scrapli_platform = {
     "IOSXEDriver": "cisco_xe",
@@ -17,11 +25,11 @@ netmiko_scrapli_platform = {
     "JunosDriver": "juniper_junos",
 }
 
+
 def read_devices():
     f_name = "test_devices_scrapli.yml"
     with open(f_name) as f:
         return yaml.safe_load(f)
-
 
 
 def commands(platform):
@@ -31,62 +39,53 @@ def commands(platform):
     return commands_yml[test_platform]
 
 
+def generate_csv_timestamp():
+    """yyyy-MM-dd HH:mm:ss"""
+    now = datetime.now()
+    t_stamp = f"{now.year}-{now.month}-{now.day} {now.hour}:{now.minute}:{now.second}"
+    return t_stamp
+
+
+def write_csv(device_name, netmiko_results):
+    results_file = "netmiko_scrapli_performance.csv"
+    file_exists = os.path.isfile(results_file)
+    with open(results_file, "a") as csv_file:
+        field_names = ["date", "netmiko_version", "device_name"] + list(
+            netmiko_results.keys()
+        )
+        t_stamp = generate_csv_timestamp()
+        csv_write = csv.DictWriter(csv_file, fieldnames=field_names)
+
+        # Write the header only once
+        if not file_exists:
+            csv_write.writeheader()
+
+        entry = {
+            "date": t_stamp,
+            "netmiko_version": __version__,
+            "device_name": device_name,
+        }
+
+        for func_name, exec_time in netmiko_results.items():
+            entry[func_name] = exec_time
+        csv_write.writerow(entry)
+
 
 #
 #
 #
-## --------------- HERE ------
-#import os
-#from os import path
-#import yaml
-#import time
-#import functools
-#from datetime import datetime
-#import csv
+# # --------------- HERE ------
+# import yaml
+# import functools
+# from datetime import datetime
+# import csv
 #
-#from netmiko import ConnectHandler, __version__
-#from test_utils import parse_yaml
+# from netmiko import ConnectHandler, __version__
 #
-#import network_utilities
-#
-#PRINT_DEBUG = False
-#
-#PWD = path.dirname(path.realpath(__file__))
+# import network_utilities
 #
 #
-#def generate_csv_timestamp():
-#    """yyyy-MM-dd HH:mm:ss"""
-#    now = datetime.now()
-#    t_stamp = f"{now.year}-{now.month}-{now.day} {now.hour}:{now.minute}:{now.second}"
-#    return t_stamp
-#
-#
-#def write_csv(device_name, netmiko_results):
-#    results_file = "netmiko_performance.csv"
-#    file_exists = os.path.isfile(results_file)
-#    with open(results_file, "a") as csv_file:
-#        field_names = ["date", "netmiko_version", "device_name"] + list(
-#            netmiko_results.keys()
-#        )
-#        t_stamp = generate_csv_timestamp()
-#        csv_write = csv.DictWriter(csv_file, fieldnames=field_names)
-#
-#        # Write the header only once
-#        if not file_exists:
-#            csv_write.writeheader()
-#
-#        entry = {
-#            "date": t_stamp,
-#            "netmiko_version": __version__,
-#            "device_name": device_name,
-#        }
-#
-#        for func_name, exec_time in netmiko_results.items():
-#            entry[func_name] = exec_time
-#        csv_write.writerow(entry)
-#
-#
-#def f_exec_time(func):
+# def f_exec_time(func):
 #    @functools.wraps(func)
 #    def wrapper_decorator(*args, **kwargs):
 #        start_time = datetime.now()
@@ -100,15 +99,15 @@ def commands(platform):
 #
 #
 #
-#@f_exec_time
-#def connect(device):
+# @f_exec_time
+# def connect(device):
 #    with ConnectHandler(**device) as conn:
 #        prompt = conn.find_prompt()
 #        PRINT_DEBUG and print(prompt)
 #
 #
-#@f_exec_time
-#def send_command_simple(device):
+# @f_exec_time
+# def send_command_simple(device):
 #    with ConnectHandler(**device) as conn:
 #        platform = device["device_type"]
 #        cmd = commands(platform)["basic"]
@@ -116,8 +115,8 @@ def commands(platform):
 #        PRINT_DEBUG and print(output)
 #
 #
-#@f_exec_time
-#def save_config(device):
+# @f_exec_time
+# def save_config(device):
 #    platform = device["device_type"]
 #    if "cisco_xr" in platform or "juniper" in platform:
 #        return
@@ -127,8 +126,8 @@ def commands(platform):
 #        PRINT_DEBUG and print(output)
 #
 #
-#@f_exec_time
-#def send_config_simple(device):
+# @f_exec_time
+# def send_config_simple(device):
 #    with ConnectHandler(**device) as conn:
 #        platform = device["device_type"]
 #        cmd = commands(platform)["config"][0]
@@ -136,8 +135,8 @@ def commands(platform):
 #        PRINT_DEBUG and print(output)
 #
 #
-#@f_exec_time
-#def send_config_large_acl(device):
+# @f_exec_time
+# def send_config_large_acl(device):
 #
 #    # Results will be marginally distorted by generating the ACL here.
 #    device_type = device["device_type"]
@@ -150,8 +149,8 @@ def commands(platform):
 #        PRINT_DEBUG and print(output)
 #
 #
-#@f_exec_time
-#def cleanup(device):
+# @f_exec_time
+# def cleanup(device):
 #
 #    # Results will be marginally distorted by generating the ACL here.
 #    platform = device["device_type"]
@@ -167,7 +166,7 @@ def commands(platform):
 #    cleanup_generic(device, remove_acl_cmd)
 #
 #
-#def cleanup_generic(device, command):
+# def cleanup_generic(device, command):
 #    if command is None:
 #        return
 #    with ConnectHandler(**device) as conn:
@@ -185,36 +184,34 @@ def main():
     print("\n\n")
     for dev_name, params in devices.items():
         dev_dict = params["device"]
-        # if dev_name != "cisco_xr_azure":
-        #    continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
         print("-" * 12)
 
-        dev_dict["password"] = PASSWORD
-        if dev_name == "cisco_asa":
-            dev_dict["secret"] = PASSWORD
-        elif dev_name == "hp_procurve":
-            dev_dict["password"] = HP_PASSWORD
+        dev_dict["auth_password"] = PASSWORD
+        # if dev_name == "cisco_asa":
+        #    dev_dict["secret"] = PASSWORD
+        if dev_name == "hp_procurve":
+            dev_dict["auth_password"] = HP_PASSWORD
 
         # Run tests
         operations = [
             "connect",
             "send_command_simple",
-            # "save_config",
             "send_config_simple",
             "send_config_large_acl",
             "cleanup",
         ]
+        operations = []
         results = {}
-        platform = dev_dict["device_type"]
+        driver = dev_dict["driver"]
+        platform = netmiko_scrapli_platform[str(driver)]
         for op in operations:
             func = globals()[op]
             time_delta, result = func(dev_dict)
             if op != "cleanup":
                 results[op] = time_delta
-            # Some platforms have an issue where the last test affects the
-            # next test?
+            # Some platforms have an issue where the last test affects the next test?
             if "procurve" in platform:
                 print("Sleeping 30 seconds...")
                 time.sleep(30)
@@ -227,14 +224,14 @@ def main():
     print("\n\n")
 
 
-#def test_performance():
+def test_performance():
+    main()
+
+
+# if __name__ == "__main__":
 #    main()
 #
-#
-#if __name__ == "__main__":
-#    main()
-#
-#def f_exec_time(func):
+# def f_exec_time(func):
 #    @functools.wraps(func)
 #    def wrapper_decorator(*args, **kwargs):
 #        start_time = datetime.now()
@@ -247,8 +244,8 @@ def main():
 #    return wrapper_decorator
 #
 #
-#@f_exec_time
-#def simple_show_cmd(driver, device):
+# @f_exec_time
+# def simple_show_cmd(driver, device):
 #    ScrapliClass = globals()[driver]
 #    with ScrapliClass(**device) as conn:
 #        conn.open()

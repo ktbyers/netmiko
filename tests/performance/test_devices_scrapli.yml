@@ -1,0 +1,60 @@
+---
+cisco1:
+  device:
+    driver: IOSXEDriver
+    host: cisco1.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+    device_type: cisco_ios
+  graph:
+    title: "Netmiko: Arista EOS Performance (vEOS)"
+
+cisco3:
+  device:
+    driver: IOSXEDriver
+    host: cisco3.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+    device_type: cisco_xe
+  graph:
+    title: "Netmiko: Arista EOS Performance (vEOS)"
+
+cisco5:
+  device:
+    driver: IOSXEDriver
+    host: cisco5.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+    device_type: cisco_xe
+  graph:
+    title: "Netmiko: Arista EOS Performance (vEOS)"
+
+nxos1:
+  device:
+    driver: NXOSDriver
+    host: nxos1.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+    device_type: cisco_nxos
+  graph:
+    title: "Netmiko: Arista EOS Performance (vEOS)"
+
+iosxr3:
+  device:
+    driver: IOSXRDriver
+    host: iosxr3.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+    device_type: cisco_xr
+  graph:
+    title: "Netmiko: Arista EOS Performance (vEOS)"
+
+arista1:
+  device:
+    driver: EOSDriver
+    host: arista1.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+    device_type: arista_eos
+  graph:
+    title: "Netmiko: Arista EOS Performance (vEOS)"
