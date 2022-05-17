@@ -29,7 +29,7 @@ def convert_time(time_str):
 
 
 def read_csv(device):
-    csv_file = "netmiko_performance.csv"
+    csv_file = "netmiko_scrapli_performance.csv"
     entries = []
     with open(csv_file) as f:
         read_csv = csv.DictReader(f)
@@ -44,7 +44,7 @@ def read_csv(device):
 def filter_versions(entries):
     patches = dict()
     for entry in entries:
-        version = entry["netmiko_version"]
+        version = entry["version"]
         dot_pos = version.rfind(".")
         minor_version = version[:dot_pos]
         dot_pos += 1
@@ -53,8 +53,8 @@ def filter_versions(entries):
         patches[minor_version] = max(patch_version, current_patch)
 
     last_versions = [f"{minor}.{patch}" for minor, patch in patches.items()]
-    entries = filter(lambda x: x["netmiko_version"] in last_versions, entries)
-    return sorted(entries, key=lambda x: x["netmiko_version"])
+    entries = filter(lambda x: x["version"] in last_versions, entries)
+    return sorted(entries, key=lambda x: x["version"])
 
 
 def generate_graph(device_name: str, params: Dict) -> None:
@@ -69,19 +69,19 @@ def generate_graph(device_name: str, params: Dict) -> None:
     # entries = filter_versions(entries)
 
     # Create relevant lists
-    netmiko_versions = [v["netmiko_version"] for v in entries]
+    versions = [v["version"] for v in entries]
     connect = [convert_time(v["connect"]) for v in entries]
     send_command = [convert_time(v["send_command_simple"]) for v in entries]
     send_config = [convert_time(v["send_config_simple"]) for v in entries]
     send_config_acl = [convert_time(v["send_config_large_acl"]) for v in entries]
     pprint(entries)
-    print(netmiko_versions)
+    print(versions)
     print(connect)
 
     # Graph It
     line_chart = pygal.Line(include_x_axis=True)
     line_chart.title = title
-    line_chart.x_labels = netmiko_versions
+    line_chart.x_labels = versions
     line_chart.add("Connect", connect)
     line_chart.add("Show Command", send_command)
     line_chart.add("Simple Config", send_config)
@@ -103,7 +103,7 @@ perf_report_template = """
 def generate_report():
     template = jinja2.Template(perf_report_template)
     graphs_path = Path.cwd() / "graphs_netmiko_scrapli"
-    graph_files = ["graphs/" + item.name for item in graphs_path.iterdir()]
+    graph_files = ["graphs_netmiko_scrapli/" + item.name for item in graphs_path.iterdir()]
     report_file = Path.cwd() / "performance_netmiko_scrapli.md"
     with report_file.open("w") as out_file:
         out_file.writelines(template.render({"graphs": graph_files}))
