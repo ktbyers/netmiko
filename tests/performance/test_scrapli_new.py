@@ -7,6 +7,7 @@ import csv
 import yaml
 from rich import print
 from test_utils import parse_yaml
+import network_utilities
 
 from scrapli.driver.core import IOSXEDriver  # noqa
 from scrapli.driver.core import NXOSDriver  # noqa
@@ -93,7 +94,6 @@ def write_csv(device_name, results):
 #
 # from netmiko import ConnectHandler, __version__
 #
-# import network_utilities
 #
 #
 
@@ -118,40 +118,39 @@ def send_command_simple(driver, device):
         PRINT_DEBUG and print(output.result)
 
 
-# @f_exec_time
-# def save_config(device):
-#    platform = device["device_type"]
-#    if "cisco_xr" in platform or "juniper" in platform:
-#        return
-#    with ConnectHandler(**device) as conn:
-#        platform = device["device_type"]
-#        output = conn.save_config()
-#        PRINT_DEBUG and print(output)
-#
-#
-# @f_exec_time
-# def send_config_simple(device):
-#    with ConnectHandler(**device) as conn:
-#        platform = device["device_type"]
-#        cmd = commands(platform)["config"][0]
-#        output = conn.send_config_set(cmd)
-#        PRINT_DEBUG and print(output)
-#
-#
-# @f_exec_time
-# def send_config_large_acl(device):
-#
-#    # Results will be marginally distorted by generating the ACL here.
-#    device_type = device["device_type"]
-#    func_name = f"generate_{device_type}_acl"
-#    func = getattr(network_utilities, func_name)
-#
-#    with ConnectHandler(**device) as conn:
-#        cfg = func(entries=100)
-#        output = conn.send_config_set(cfg)
-#        PRINT_DEBUG and print(output)
-#
-#
+@f_exec_time
+def send_config_simple(driver, device):
+    ScrapliClass = globals()[driver]
+    if "IOSXR" in str(ScrapliClass):
+        # IOSXR is failing on disconnect (maybe due to no-commit?)
+        return None
+    with ScrapliClass(**device) as conn:
+        platform = netmiko_scrapli_platform[str(driver)]
+        cmd = commands(platform)["config"][0]
+        conn.open()
+        response = conn.send_config(cmd)
+        PRINT_DEBUG and print(response.result)
+
+
+@f_exec_time
+def send_config_large_acl(driver, device):
+    ScrapliClass = globals()[driver]
+    device_type = netmiko_scrapli_platform[str(driver)]
+
+    # Results will be marginally distorted by generating the ACL here.
+    func_name = f"generate_{device_type}_acl"
+    func = getattr(network_utilities, func_name)
+
+    if "IOSXR" in str(ScrapliClass):
+        # IOSXR is failing on disconnect (maybe due to no-commit?)
+        return None
+    with ScrapliClass(**device) as conn:
+        cfg = func(entries=100)
+        conn.open()
+        response = conn.send_configs(cfg)
+        PRINT_DEBUG and print(response.result)
+
+
 # @f_exec_time
 # def cleanup(device):
 #
@@ -186,6 +185,8 @@ def main():
     devices = read_devices()
     print("\n\n")
     for dev_name, params in devices.items():
+        # if dev_name != "iosxr3":
+        #    continue
         dev_dict = params["device"]
         print("-" * 80)
         print(f"Device name: {dev_name}")
@@ -201,8 +202,8 @@ def main():
         operations = [
             "connect",
             "send_command_simple",
-            #            "send_config_simple",
-            #            "send_config_large_acl",
+            "send_config_simple",
+            "send_config_large_acl",
             #            "cleanup",
         ]
         results = {}
