@@ -105,7 +105,9 @@ perf_report_template = """
 def generate_report():
     template = jinja2.Template(perf_report_template)
     graphs_path = Path.cwd() / "graphs_netmiko_scrapli"
-    graph_files = ["graphs_netmiko_scrapli/" + item.name for item in graphs_path.iterdir()]
+    graph_files = [
+        "graphs_netmiko_scrapli/" + item.name for item in graphs_path.iterdir()
+    ]
     report_file = Path.cwd() / "performance_netmiko_scrapli.md"
     with report_file.open("w") as out_file:
         out_file.writelines(template.render({"graphs": graph_files}))
