@@ -4,7 +4,7 @@ import pygal
 import csv
 import yaml
 import jinja2
-from pprint import pprint
+from rich import print
 from typing import Dict
 
 from pathlib import Path
@@ -71,23 +71,31 @@ def generate_graph(device_name: str, params: Dict) -> None:
     # entries = filter_versions(entries)
 
     # Create relevant lists
-    versions = [v["version"] for v in entries]
-    connect = [convert_time(v["connect"]) for v in entries]
-    send_command = [convert_time(v["send_command_simple"]) for v in entries]
-    send_config = [convert_time(v["send_config_simple"]) for v in entries]
-    send_config_acl = [convert_time(v["send_config_large_acl"]) for v in entries]
-    pprint(entries)
-    print(versions)
-    print(connect)
+    netmiko_version = "4.1.0"
+    netmiko_results = []
+    scrapli_version = "2022.1.30.post1"
+    scrapli_results = []
+    for v in entries:
+        if v["version"] == netmiko_version:
+            netmiko_results.append(convert_time(v["connect"]))
+            netmiko_results.append(convert_time(v["send_command_simple"]))
+            netmiko_results.append(convert_time(v["send_config_simple"]))
+            netmiko_results.append(convert_time(v["send_config_large_acl"]))
+        if v["version"] == scrapli_version:
+            scrapli_results.append(convert_time(v["connect"]))
+            scrapli_results.append(convert_time(v["send_command_simple"]))
+            scrapli_results.append(convert_time(v["send_config_simple"]))
+            scrapli_results.append(convert_time(v["send_config_large_acl"]))
+
+    print(netmiko_results)
+    print(scrapli_results)
 
     # Graph It
     line_chart = pygal.Line(include_x_axis=True)
     line_chart.title = title
-    line_chart.x_labels = versions
-    line_chart.add("Connect", connect)
-    line_chart.add("Show Command", send_command)
-    line_chart.add("Simple Config", send_config)
-    line_chart.add("Large ACL", send_config_acl)
+    line_chart.x_labels = ["Connect", "Show Command", "Simple Config", "Large ACL"]
+    line_chart.add(f"Netmiko {netmiko_version}", netmiko_results)
+    line_chart.add(f"Scrapli {scrapli_version}", scrapli_results)
     dir_path = Path.cwd() / "graphs_netmiko_scrapli"
     if not dir_path.exists():
         dir_path.mkdir()
@@ -95,7 +103,7 @@ def generate_graph(device_name: str, params: Dict) -> None:
 
 
 perf_report_template = """
-# Netmiko performance
+# Netmiko-Scrapli performance comparison
 {%- for graph in graphs %}
 ![]({{graph}})\n
 {%- endfor %}

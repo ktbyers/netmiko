@@ -1,5 +1,5 @@
 
-# Netmiko performance
+# Netmiko-Scrapli performance comparison
 ![](graphs_netmiko_scrapli/netmiko_scrapli_cisco_xr.svg)
 ![](graphs_netmiko_scrapli/netmiko_scrapli_cisco_ios.svg)
 ![](graphs_netmiko_scrapli/netmiko_scrapli_cisco_nxos.svg)
