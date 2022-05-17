@@ -39,8 +39,6 @@ iosxr3:
     host: iosxr3.lasthop.io
     auth_username: pyclass
     auth_strict_key: False
-  graph:
-    title: "Cisco IOS-XR Performance (cisco IOS-XRv 9000)"
 
 arista1:
   device:

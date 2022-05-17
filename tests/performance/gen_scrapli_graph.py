@@ -103,7 +103,9 @@ def generate_graph(device_name: str, params: Dict) -> None:
 
 
 perf_report_template = """
-# Netmiko-Scrapli performance comparison
+# Netmiko-Scrapli Performance Comparison
+# Netmiko Version: {{netmiko_version}}
+# Scrapli Version: {{scrapli_version}}
 {%- for graph in graphs %}
 ![]({{graph}})\n
 {%- endfor %}
@@ -118,7 +120,11 @@ def generate_report():
     ]
     report_file = Path.cwd() / "performance_netmiko_scrapli.md"
     with report_file.open("w") as out_file:
-        out_file.writelines(template.render({"graphs": graph_files}))
+        j2_vars = {}
+        j2_vars["graphs"] = graph_files
+        j2_vars["netmiko_version"] = "4.1.0"
+        j2_vars["scrapli_version"] = "2022.1.30.post1"
+        out_file.writelines(template.render(**j2_vars))
 
 
 if __name__ == "__main__":
