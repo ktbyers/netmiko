@@ -1,12 +1,11 @@
 import functools
 import os
-from os import path
 import time
 from datetime import datetime
 import csv
 import yaml
 from rich import print
-from test_utils import parse_yaml
+from perf_utils import commands
 import network_utilities
 
 from scrapli.driver.core import IOSXEDriver  # noqa
@@ -17,8 +16,6 @@ from scrapli.driver.core import JunosDriver  # noqa
 
 SCRAPLI_VERSION = "2022.1.30.post1"
 PRINT_DEBUG = True
-
-PWD = path.dirname(path.realpath(__file__))
 
 netmiko_scrapli_platform = {
     "IOSXEDriver": "cisco_xe",
@@ -46,13 +43,6 @@ def read_devices():
     f_name = "test_devices_scrapli.yml"
     with open(f_name) as f:
         return yaml.safe_load(f)
-
-
-def commands(platform):
-    """Parse the commands.yml file to get a commands dictionary."""
-    test_platform = platform
-    commands_yml = parse_yaml(PWD + "/../etc/commands.yml")
-    return commands_yml[test_platform]
 
 
 def generate_csv_timestamp():

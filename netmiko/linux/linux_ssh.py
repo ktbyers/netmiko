@@ -17,10 +17,24 @@ LINUX_PROMPT_ROOT = os.getenv("NETMIKO_LINUX_PROMPT_ROOT", "#")
 
 
 class LinuxSSH(CiscoSSHConnection):
+    prompt_pattern = rf"[{re.escape(LINUX_PROMPT_PRI)}{re.escape(LINUX_PROMPT_ALT)}]"
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
+        print(self.prompt_pattern)
+        self._test_channel_read(pattern=self.prompt_pattern)
+
+        self.set_base_prompt()
+        self.set_terminal_width()
+        self.disable_paging()
         return super().session_preparation()
+
+ 15         self.set_terminal_width(
+ 16             command="terminal width 511", pattern=r"terminal width 511"
+ 17         )
+ 18         self.disable_paging()
+ 19         self.set_base_prompt()
 
     def _enter_shell(self) -> str:
         """Already in shell."""
@@ -42,6 +56,8 @@ class LinuxSSH(CiscoSSHConnection):
         pattern: Optional[str] = None,
     ) -> str:
         """Determine base prompt."""
+        if pattern is None:
+            pattern = self.prompt_pattern
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
