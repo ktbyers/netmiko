@@ -2,7 +2,7 @@ import re
 import time
 import socket
 from os import path
-from typing import Optional
+from typing import Optional, Any
 
 from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
@@ -12,6 +12,19 @@ from netmiko.exceptions import ReadTimeout
 
 
 class HPProcurveBase(CiscoSSHConnection):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # ProCurve's seem to fail more on connection than they should?
+        # increase conn_timeout to try to improve this.
+        conn_timeout = kwargs.get("conn_timeout")
+        kwargs["conn_timeout"] = 20 if conn_timeout is None else conn_timeout
+
+        disabled_algorithms = kwargs.get("disabled_algorithms")
+        if disabled_algorithms is None:
+            disabled_algorithms = {"pubkeys": ["rsa-sha2-256", "rsa-sha2-512"]}
+            kwargs["disabled_algorithms"] = disabled_algorithms
+
+        super().__init__(*args, **kwargs)
+
     def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
@@ -43,6 +56,8 @@ class HPProcurveBase(CiscoSSHConnection):
         if len(self.base_prompt) >= 25:
             self.set_base_prompt()
 
+        # ProCurve requires elevated privileges to disable output paging :-(
+        self.enable()
         self.set_terminal_width(command="terminal width 511", pattern="terminal")
         command = self.RETURN + "no page"
         self.disable_paging(command=command)
@@ -63,12 +78,14 @@ class HPProcurveBase(CiscoSSHConnection):
         pattern: str = "password",
         enable_pattern: Optional[str] = None,
         re_flags: int = re.IGNORECASE,
-        default_username: str = "manager",
+        default_username: str = "",
     ) -> str:
         """Enter enable mode"""
 
         if self.check_enable_mode():
             return ""
+        if not default_username:
+            default_username = self.username
 
         output = ""
         username_pattern = r"(username|login|user name)"
@@ -86,7 +103,7 @@ class HPProcurveBase(CiscoSSHConnection):
         if re.search(username_pattern, new_output, flags=re_flags):
             output += new_output
             self.write_channel(default_username + self.RETURN)
-            full_pattern = rf"{pwd_pattern}|{prompt_pattern})"
+            full_pattern = rf"({pwd_pattern}|{prompt_pattern})"
             new_output = self.read_until_pattern(
                 full_pattern, read_timeout=15, re_flags=re_flags
             )
