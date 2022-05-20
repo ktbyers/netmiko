@@ -76,7 +76,7 @@ class LinuxSSH(CiscoSSHConnection):
         self, check_string: str = LINUX_PROMPT_ROOT, pattern: str = ""
     ) -> bool:
         """Verify root"""
-        return super().check_enable_mode(check_string=check_string)
+        return self.check_enable_mode(check_string=check_string)
 
     def config_mode(
         self,
