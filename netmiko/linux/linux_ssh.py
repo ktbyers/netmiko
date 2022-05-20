@@ -1,15 +1,12 @@
 from typing import Any, Optional, TYPE_CHECKING, Union, Sequence, TextIO
 import os
 import re
-import socket
-import time
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
-from netmiko.exceptions import NetmikoTimeoutException
 
 LINUX_PROMPT_PRI = os.getenv("NETMIKO_LINUX_PROMPT_PRI", "$")
 LINUX_PROMPT_ALT = os.getenv("NETMIKO_LINUX_PROMPT_ALT", "#")
@@ -24,17 +21,7 @@ class LinuxSSH(CiscoSSHConnection):
         self.ansi_escape_codes = True
         print(self.prompt_pattern)
         self._test_channel_read(pattern=self.prompt_pattern)
-
         self.set_base_prompt()
-        self.set_terminal_width()
-        self.disable_paging()
-        return super().session_preparation()
-
- 15         self.set_terminal_width(
- 16             command="terminal width 511", pattern=r"terminal width 511"
- 17         )
- 18         self.disable_paging()
- 19         self.set_base_prompt()
 
     def _enter_shell(self) -> str:
         """Already in shell."""
@@ -82,7 +69,7 @@ class LinuxSSH(CiscoSSHConnection):
         self, check_string: str = LINUX_PROMPT_ROOT, pattern: str = ""
     ) -> bool:
         """Verify root"""
-        return self.check_enable_mode(check_string=check_string)
+        return super().check_enable_mode(check_string=check_string)
 
     def config_mode(
         self,
@@ -91,6 +78,7 @@ class LinuxSSH(CiscoSSHConnection):
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Attempt to become root."""
+        import pdbr; pdbr.set_trace()
         return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
 
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = "") -> str:
@@ -102,15 +90,10 @@ class LinuxSSH(CiscoSSHConnection):
 
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
         """Exit enable mode."""
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        # You can run into a timing issue here if the time.sleep is too small
-        if delay_factor < 1:
-            delay_factor = 1
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
-            time.sleep(0.3 * delay_factor)
-            self.set_base_prompt()
+            output += self.read_until_pattern(pattern=self.prompt_pattern)
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
@@ -123,26 +106,21 @@ class LinuxSSH(CiscoSSHConnection):
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Attempt to become root."""
-        delay_factor = self.select_delay_factor(delay_factor=0)
         output = ""
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(0.3 * delay_factor)
-            try:
-                output += self.read_channel()
-                if re.search(pattern, output, flags=re_flags):
-                    self.write_channel(self.normalize_cmd(self.secret))
-                self.set_base_prompt()
-            except socket.timeout:
-                raise NetmikoTimeoutException(
-                    "Timed-out reading channel, data not available."
-                )
+            prompt_or_password = rf"({self.prompt_pattern}|{pattern})"
+            output += self.read_until_pattern(pattern=prompt_or_password)
+            if re.search(pattern, output, flags=re_flags):
+                self.write_channel(self.normalize_cmd(self.secret))
             if not self.check_enable_mode():
                 msg = (
                     "Failed to enter enable mode. Please ensure you pass "
                     "the 'secret' argument to ConnectHandler."
                 )
                 raise ValueError(msg)
+            else:
+                self.set_base_prompt()
         return output
 
     def cleanup(self, command: str = "exit") -> None:
