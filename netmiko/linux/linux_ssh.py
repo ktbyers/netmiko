@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
+from netmiko.exceptions import ReadTimeout
 
 LINUX_PROMPT_PRI = os.getenv("NETMIKO_LINUX_PROMPT_PRI", "$")
 LINUX_PROMPT_ALT = os.getenv("NETMIKO_LINUX_PROMPT_ALT", "#")
@@ -33,6 +34,13 @@ class LinuxSSH(CiscoSSHConnection):
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Linux doesn't have paging by default."""
         return ""
+
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -> str:
+        if pattern is None:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def set_base_prompt(
         self,
@@ -107,20 +115,32 @@ class LinuxSSH(CiscoSSHConnection):
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Attempt to become root."""
+        msg = """
+
+Netmiko failed to elevate privileges.
+
+Please ensure you pass the sudo password into ConnectHandler
+using the 'secret' argument and that the user has sudo
+permissions.
+
+"""
+
         output = ""
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
-            prompt_or_password = rf"({self.prompt_pattern}|{pattern})"
+            # Failed "sudo -s" will put "#" in output so have to delineate further
+            root_prompt = rf"(?m:{LINUX_PROMPT_ROOT}\s*$)"
+            prompt_or_password = rf"({root_prompt}|{pattern})"
             output += self.read_until_pattern(pattern=prompt_or_password)
             if re.search(pattern, output, flags=re_flags):
                 self.write_channel(self.normalize_cmd(self.secret))
+                try:
+                    output += self.read_until_pattern(pattern=root_prompt)
+                except ReadTimeout:
+                    raise ValueError(msg)
             # Nature of prompt might change with the privilege escalation
-            self.set_base_prompt(pattern=LINUX_PROMPT_ROOT)
+            self.set_base_prompt(pattern=root_prompt)
             if not self.check_enable_mode():
-                msg = (
-                    "Failed to enter enable mode. Please ensure you pass "
-                    "the 'secret' argument to ConnectHandler."
-                )
                 raise ValueError(msg)
         return output
 
