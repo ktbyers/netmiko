@@ -1,15 +1,13 @@
 from typing import Any, Optional, TYPE_CHECKING, Union, Sequence, TextIO
 import os
 import re
-import socket
-import time
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
-from netmiko.exceptions import NetmikoTimeoutException
+from netmiko.exceptions import ReadTimeout
 
 LINUX_PROMPT_PRI = os.getenv("NETMIKO_LINUX_PROMPT_PRI", "$")
 LINUX_PROMPT_ALT = os.getenv("NETMIKO_LINUX_PROMPT_ALT", "#")
@@ -17,10 +15,13 @@ LINUX_PROMPT_ROOT = os.getenv("NETMIKO_LINUX_PROMPT_ROOT", "#")
 
 
 class LinuxSSH(CiscoSSHConnection):
+    prompt_pattern = rf"[{re.escape(LINUX_PROMPT_PRI)}{re.escape(LINUX_PROMPT_ALT)}]"
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        return super().session_preparation()
+        self._test_channel_read(pattern=self.prompt_pattern)
+        self.set_base_prompt()
 
     def _enter_shell(self) -> str:
         """Already in shell."""
@@ -34,6 +35,13 @@ class LinuxSSH(CiscoSSHConnection):
         """Linux doesn't have paging by default."""
         return ""
 
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -> str:
+        if pattern is None:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
+
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = LINUX_PROMPT_PRI,
@@ -42,6 +50,8 @@ class LinuxSSH(CiscoSSHConnection):
         pattern: Optional[str] = None,
     ) -> str:
         """Determine base prompt."""
+        if pattern is None:
+            pattern = self.prompt_pattern
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
@@ -86,15 +96,13 @@ class LinuxSSH(CiscoSSHConnection):
 
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
         """Exit enable mode."""
-        delay_factor = self.select_delay_factor(delay_factor=0)
-        # You can run into a timing issue here if the time.sleep is too small
-        if delay_factor < 1:
-            delay_factor = 1
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
-            time.sleep(0.3 * delay_factor)
-            self.set_base_prompt()
+            output += self.read_until_pattern(pattern=exit_command)
+            output += self.read_until_pattern(pattern=self.prompt_pattern)
+            # Nature of prompt might change with the privilege deescalation
+            self.set_base_prompt(pattern=self.prompt_pattern)
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
@@ -107,25 +115,32 @@ class LinuxSSH(CiscoSSHConnection):
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Attempt to become root."""
-        delay_factor = self.select_delay_factor(delay_factor=0)
+        msg = """
+
+Netmiko failed to elevate privileges.
+
+Please ensure you pass the sudo password into ConnectHandler
+using the 'secret' argument and that the user has sudo
+permissions.
+
+"""
+
         output = ""
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(0.3 * delay_factor)
-            try:
-                output += self.read_channel()
-                if re.search(pattern, output, flags=re_flags):
-                    self.write_channel(self.normalize_cmd(self.secret))
-                self.set_base_prompt()
-            except socket.timeout:
-                raise NetmikoTimeoutException(
-                    "Timed-out reading channel, data not available."
-                )
+            # Failed "sudo -s" will put "#" in output so have to delineate further
+            root_prompt = rf"(?m:{LINUX_PROMPT_ROOT}\s*$)"
+            prompt_or_password = rf"({root_prompt}|{pattern})"
+            output += self.read_until_pattern(pattern=prompt_or_password)
+            if re.search(pattern, output, flags=re_flags):
+                self.write_channel(self.normalize_cmd(self.secret))
+                try:
+                    output += self.read_until_pattern(pattern=root_prompt)
+                except ReadTimeout:
+                    raise ValueError(msg)
+            # Nature of prompt might change with the privilege escalation
+            self.set_base_prompt(pattern=root_prompt)
             if not self.check_enable_mode():
-                msg = (
-                    "Failed to enter enable mode. Please ensure you pass "
-                    "the 'secret' argument to ConnectHandler."
-                )
                 raise ValueError(msg)
         return output
 

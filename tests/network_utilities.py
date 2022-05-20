@@ -123,6 +123,20 @@ def generate_cisco_asa_acl(
     return acl
 
 
+def generate_linux_acl(
+    acl_name="",
+    entries=100,
+    base_cmd=None,
+    base_addr="",
+):
+    """Well, not really an ACL, but you get the idea."""
+    acl = []
+    for i in range(1, entries + 1):
+        cmd = "head /var/log/messages"
+        acl.append(cmd)
+    return acl
+
+
 if __name__ == "__main__":
     # Test code
     acl = generate_ios_acl(entries=10)
@@ -211,5 +225,20 @@ if __name__ == "__main__":
         "access-list netmiko_test_large_acl extended permit ip host 192.168.0.8 any",
         "access-list netmiko_test_large_acl extended permit ip host 192.168.0.9 any",
         "access-list netmiko_test_large_acl extended permit ip host 192.168.0.10 any",
+    ]
+    assert acl == ref_acl
+
+    acl = generate_linux_acl(entries=10)
+    ref_acl = [
+        "head /var/log/messages",
+        "head /var/log/messages",
+        "head /var/log/messages",
+        "head /var/log/messages",
+        "head /var/log/messages",
+        "head /var/log/messages",
+        "head /var/log/messages",
+        "head /var/log/messages",
+        "head /var/log/messages",
+        "head /var/log/messages",
     ]
     assert acl == ref_acl

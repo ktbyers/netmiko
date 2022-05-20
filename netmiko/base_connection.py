@@ -1305,10 +1305,7 @@ A paramiko SSHException occurred during connection creation:
         self.write_channel(self.RETURN)
 
         if pattern:
-            try:
-                prompt = self.read_until_pattern(pattern=pattern)
-            except ReadTimeout:
-                pass
+            prompt = self.read_until_pattern(pattern=pattern)
         else:
             # Initial read
             time.sleep(sleep_time)

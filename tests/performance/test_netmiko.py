@@ -1,5 +1,4 @@
 import os
-from os import path
 import yaml
 import time
 import functools
@@ -7,7 +6,7 @@ from datetime import datetime
 import csv
 
 from netmiko import ConnectHandler, __version__
-from test_utils import parse_yaml
+from perf_utils import commands
 
 import network_utilities
 
@@ -17,15 +16,6 @@ import network_utilities
 # logger = logging.getLogger("netmiko")
 
 PRINT_DEBUG = False
-
-PWD = path.dirname(path.realpath(__file__))
-
-
-def commands(platform):
-    """Parse the commands.yml file to get a commands dictionary."""
-    test_platform = platform
-    commands_yml = parse_yaml(PWD + "/../etc/commands.yml")
-    return commands_yml[test_platform]
 
 
 def generate_csv_timestamp():
@@ -140,6 +130,9 @@ def cleanup(device):
         remove_acl_cmd = None
     elif "cisco_asa" in platform:
         remove_acl_cmd = "clear configure access-list netmiko_test_large_acl"
+    elif "linux" in platform:
+        # Do nothing i.e. no cleanup
+        return
     else:
         base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
         remove_acl_cmd = f"no {base_acl_cmd}"
@@ -183,6 +176,8 @@ def main():
     for dev_name, params in devices.items():
         remove_old_data(dev_name)
         dev_dict = params["device"]
+        if dev_name != "linux_srv1":
+            continue
         # if dev_name != "cisco_xr_azure":
         #    continue
         print("-" * 80)
