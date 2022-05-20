@@ -122,6 +122,7 @@ def generate_cisco_asa_acl(
         acl.append(cmd)
     return acl
 
+
 def generate_linux_acl(
     acl_name="",
     entries=100,
