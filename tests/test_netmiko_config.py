@@ -32,7 +32,6 @@ def test_config_mode(net_connect, commands, expected_responses):
     Test enter config mode
     """
     # Behavior for devices with no config mode is to return null string
-    import pdbr; pdbr.set_trace()
     if net_connect.config_mode() != "":
         assert net_connect.check_config_mode() is True
     else:
