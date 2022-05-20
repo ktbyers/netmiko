@@ -130,6 +130,9 @@ def cleanup(device):
         remove_acl_cmd = None
     elif "cisco_asa" in platform:
         remove_acl_cmd = "clear configure access-list netmiko_test_large_acl"
+    elif "linux" in platform:
+        # Do nothing i.e. no cleanup
+        return
     else:
         base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
         remove_acl_cmd = f"no {base_acl_cmd}"
@@ -193,7 +196,7 @@ def main():
             "send_command_simple",
             # "save_config",
             "send_config_simple",
-            # "send_config_large_acl",
+            "send_config_large_acl",
             "cleanup",
         ]
         results = {}

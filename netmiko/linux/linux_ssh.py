@@ -19,7 +19,6 @@ class LinuxSSH(CiscoSSHConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        print(self.prompt_pattern)
         self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
 
@@ -78,7 +77,6 @@ class LinuxSSH(CiscoSSHConnection):
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Attempt to become root."""
-        import pdbr; pdbr.set_trace()
         return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
 
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = "") -> str:
@@ -93,7 +91,10 @@ class LinuxSSH(CiscoSSHConnection):
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
+            output += self.read_until_pattern(pattern=exit_command)
             output += self.read_until_pattern(pattern=self.prompt_pattern)
+            # Nature of prompt might change with the privilege deescalation
+            self.set_base_prompt(pattern=self.prompt_pattern)
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
@@ -113,14 +114,14 @@ class LinuxSSH(CiscoSSHConnection):
             output += self.read_until_pattern(pattern=prompt_or_password)
             if re.search(pattern, output, flags=re_flags):
                 self.write_channel(self.normalize_cmd(self.secret))
+            # Nature of prompt might change with the privilege escalation
+            self.set_base_prompt(pattern=LINUX_PROMPT_ROOT)
             if not self.check_enable_mode():
                 msg = (
                     "Failed to enter enable mode. Please ensure you pass "
                     "the 'secret' argument to ConnectHandler."
                 )
                 raise ValueError(msg)
-            else:
-                self.set_base_prompt()
         return output
 
     def cleanup(self, command: str = "exit") -> None:
