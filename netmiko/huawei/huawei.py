@@ -93,6 +93,9 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
+    def cleanup(self, command: str = "quit") -> None:
+        return super().cleanup(command=command)
+
 
 class HuaweiSSH(HuaweiBase):
     """Huawei SSH driver."""
