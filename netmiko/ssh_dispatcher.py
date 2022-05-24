@@ -77,7 +77,12 @@ from netmiko.mellanox import MellanoxMlnxosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
-from netmiko.nokia import NokiaSrosSSH, NokiaSrosFileTransfer, NokiaSrosTelnet, NokiaSrlSSH
+from netmiko.nokia import (
+    NokiaSrosSSH,
+    NokiaSrosFileTransfer,
+    NokiaSrosTelnet,
+    NokiaSrlSSH,
+)
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
