@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import re
+import time
 import pytest
 from netmiko import ConfigInvalidException
 from netmiko import ReadTimeout
@@ -20,6 +21,9 @@ def test_enable_mode(net_connect, commands, expected_responses):
     Catch exception for devices that don't support enable
     """
     try:
+        if net_connect.device_type in ["nokia_srl"]:
+            assert pytest.skip()
+
         net_connect.enable()
         enable_prompt = net_connect.find_prompt()
         assert enable_prompt == expected_responses["enable_prompt"]

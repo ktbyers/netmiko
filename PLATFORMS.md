@@ -44,6 +44,7 @@
 - NetApp cDOT
 - Netgear ProSafe
 - Nokia/Alcatel SR OS
+- Nokia SR Linux
 - NVIDIA-Mellanox
 - OneAccess
 - Palo Alto PAN-OS
@@ -85,6 +86,7 @@
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
+- Nokia SR Linux
 - QuantaMesh
 - Rad ETX
 - Raisecom ROAP
@@ -188,6 +190,7 @@
 - netgear_prosafe
 - netscaler
 - nokia_sros
+- nokia_srl
 - oneaccess_oneos
 - ovs_linux
 - paloalto_panos
