@@ -8,7 +8,7 @@
 
 import re
 import time
-from typing import Optional
+from typing import Any, Optional, Sequence, TextIO, Union
 from netmiko import log
 from netmiko.no_enable import NoEnable
 from netmiko.base_connection import BaseConnection
@@ -79,11 +79,11 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         re_flags: int = 0) -> str:
 
         output = super().config_mode(config_command=config_command, pattern='', re_flags=re_flags)
-        return output;
+        return output
 
     def check_config_mode(
         #supported first line prompt configuration: {modified_flags}{mode_and_session} }}--[ {pwc} ]
-        self, check_string: str = r'\n--{( | \* | \+ )candidate', pattern: str = ' ]--'
+        self, check_string: str = r'\n--{( | \* | \+ | \+\* )candidate', pattern: str = ' ]--'
     ) -> bool:
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
@@ -128,6 +128,17 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         #Switch to 'running' mode
         output+=self._running_mode()
         return output
+
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -> str:
+        """Nokia SRL requires you not exit from configuration mode."""
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+        )
 
     def _discard(self) -> str:
         """Discard changes made in candidate private mode"""
