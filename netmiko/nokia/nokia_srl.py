@@ -138,7 +138,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         output = ""
         self.write_channel(self.RETURN)
         prompt = self.read_until_pattern(pattern="]--")
-        matches = re.search(r"\n--{( \* | \+ )candidate", prompt)
+        matches = re.search(r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate", prompt)
         if matches:
             # In config mode and changes were made"""
             # Get the subgroup in matches. Should be only one.
