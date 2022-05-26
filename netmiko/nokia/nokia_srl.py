@@ -60,6 +60,8 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         # Bottom toolbar text not required
         command = "environment cli-engine type basic"
         self.write_channel(self.normalize_cmd(command))
+        command = "environment complete-on-space false"
+        self.write_channel(self.normalize_cmd(command))
         self.set_base_prompt()
         time.sleep(10 * self.global_delay_factor)
         self.clear_buffer()
@@ -90,7 +92,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
     def check_config_mode(
         # supported first line prompt configuration: {modified_flags}{mode_and_session} }}--[ {pwc} ]
         self,
-        check_string: str = r"\n--{( | \* | \+ | \+\* )candidate",
+        check_string: str = r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate",
         pattern: str = " ]--",
     ) -> bool:
         self.write_channel(self.RETURN)

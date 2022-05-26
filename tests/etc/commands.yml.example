@@ -502,7 +502,7 @@ zyxel_os:
 
 nokia_srl:
   version: "info system banner"
-  basic: "show interface mgmt0"
+  basic: "show version"
   wide_command: "show interface myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
   extended_output: "show interface all"
   support_commit: True
