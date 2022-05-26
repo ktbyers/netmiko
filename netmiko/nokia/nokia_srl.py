@@ -90,13 +90,15 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         return output
 
     def check_config_mode(
-        # supported first line prompt configuration: {modified_flags}{mode_and_session} }}--[ {pwc} ]
         self,
         check_string: str = r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate",
         pattern: str = " ]--",
     ) -> bool:
         self.write_channel(self.RETURN)
-        # You can encounter an issue here (on router name changes) prefer delay-based solution
+        """
+        supported first line prompt configuration:
+        {modified_flags}{mode_and_session} }}--[ {pwc} ]
+        """
         if not pattern:
             output = self.read_channel_timing(read_timeout=10.0)
         else:
@@ -148,7 +150,8 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
                 # Changes were made, committed and discarding is not available.
                 # Committed changes can be saved in 'running mode'.
                 log.warning(
-                    "Exiting candidate private mode with unsaved changes! Changes can be saved in running mode."
+                    """Exiting candidate private mode with unsaved changes!
+                    Changes can be saved in running mode."""
                 )
         # Switch to 'running' mode
         output += self._running_mode()
