@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import re
-import time
 import pytest
 from netmiko import ConfigInvalidException
 from netmiko import ReadTimeout
