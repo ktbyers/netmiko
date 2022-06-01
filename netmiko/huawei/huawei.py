@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional, Any, Union, Sequence, TextIO
 import time
 import re
 import warnings
@@ -192,6 +192,17 @@ class HuaweiTelnet(HuaweiBase):
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -> str:
+        """Huawei VRPv8 requires you not exit from configuration mode."""
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+        )
+
     def commit(
         self,
         comment: str = "",
