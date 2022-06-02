@@ -222,8 +222,8 @@ class JuniperBase(NoEnable, BaseConnection):
         """
         strings_to_strip = [
             r"\[edit.*\]",
-            r"\{master:.*\}",
-            r"\{backup:.*\}",
+            r"\{master:?.*\}",
+            r"\{backup:?.*\}",
             r"\{line.*\}",
             r"\{primary.*\}",
             r"\{secondary.*\}",
@@ -231,9 +231,8 @@ class JuniperBase(NoEnable, BaseConnection):
 
         response_list = a_string.split(self.RESPONSE_RETURN)
         last_line = response_list[-1]
-
         for pattern in strings_to_strip:
-            if re.search(pattern, last_line):
+            if re.search(pattern, last_line, flags=re.I):
                 return self.RESPONSE_RETURN.join(response_list[:-1])
         return a_string
 
