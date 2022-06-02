@@ -153,15 +153,17 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
         """Check if the dest_file already exists on the file system."""
         if self.direction == "put":
             if not remote_cmd:
-                remote_cmd = (
-                    '{local f FOUND;:if ([:len [/file find name="'
-                    f'{self.file_system}/{self.dest_file}"]] > 0) '
-                    'do={{:put "YES_$f"}} else={{:put "NOT_$f"}}}'
-                )
+                remote_cmd = f'/file print detail where name="{self.file_system}/{self.dest_file}"'
             remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
-            if "YES_FOUND" in remote_out:
+            # Output will look like
+            # 0 name="flash/test9.txt" type=".txt file" size=19 creation-time=jun...
+            # fail case will be blank line (all whitespace)
+            if (
+                "size" in remote_out
+                and f"{self.file_system}/{self.dest_file}" in remote_out
+            ):
                 return True
-            elif "NOT_FOUND" in remote_out:
+            elif not remote_out.strip():
                 return False
             raise ValueError("Unexpected output from check_file_exists")
         elif self.direction == "get":
