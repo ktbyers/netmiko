@@ -102,7 +102,7 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         **kwargs: Any,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Force cmd_verify to be True due to all of the line repainting"""
-        return super()._send_command_timing_str(
+        return super().send_command_timing(
             command_string=command_string, cmd_verify=cmd_verify, **kwargs
         )
 
