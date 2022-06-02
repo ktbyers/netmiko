@@ -1,4 +1,5 @@
 from typing import Any, Union, List, Dict, Optional
+import re
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -76,6 +77,28 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         else:
             # Unexpected just return the original string
             return a_string
+
+    def strip_command(self, command_string: str, output: str) -> str:
+        """
+        Mikrotik can echo the command multiple times :-(
+
+        Example:
+        system routerboard print
+        [admin@MikroTik] > system routerboard print
+        """
+        output = super().strip_command(command_string, output)
+        cmd = command_string.strip()
+
+        output = output.lstrip()
+        # '[admin@MikroTik] > cmd' then the first newline should be matched
+        pattern = rf"^\[.*\] > {re.escape(cmd)}.*${self.RESPONSE_RETURN}"
+        if re.search(pattern, output, flags=re.M):
+            output_lines = re.split(pattern, output, flags=re.M)
+            new_output = output_lines[1:]
+            return self.RESPONSE_RETURN.join(new_output)
+        else:
+            # command_string isn't there; do nothing
+            return output
 
     def set_base_prompt(
         self,
