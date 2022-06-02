@@ -1,4 +1,5 @@
 from typing import Any, Union, List, Dict, Optional
+import re
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -76,6 +77,20 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         else:
             # Unexpected just return the original string
             return a_string
+
+    def strip_command(self, command_string: str, output: str) -> str:
+        """
+        Supercharge strip_command to remove potential additional command printed
+        """
+        output = super().strip_command(command_string, output)
+        cmd = command_string.strip()
+        if re.match(rf"^(\[\S+\] > )?{re.escape(cmd)}", output):
+            output_lines = output.split(self.RESPONSE_RETURN)
+            new_output = output_lines[1:]
+            return self.RESPONSE_RETURN.join(new_output)
+        else:
+            # command_string isn't there; do nothing
+            return output
 
     def set_base_prompt(
         self,
