@@ -80,12 +80,20 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
 
     def strip_command(self, command_string: str, output: str) -> str:
         """
-        Supercharge strip_command to remove potential additional command printed
+        Mikrotik can echo the command multiple times :-(
+
+        Example:
+        system routerboard print
+        [admin@MikroTik] > system routerboard print
         """
         output = super().strip_command(command_string, output)
         cmd = command_string.strip()
-        if re.match(rf"^(\[\S+\] > )?{re.escape(cmd)}", output):
-            output_lines = output.split(self.RESPONSE_RETURN)
+
+        output = output.lstrip()
+        # '[admin@MikroTik] > cmd' then the first newline should be matched
+        pattern = rf"^\[.*\] > {re.escape(cmd)}.*${self.RESPONSE_RETURN}"
+        if re.search(pattern, output, flags=re.M):
+            output_lines = re.split(pattern, output, flags=re.M)
             new_output = output_lines[1:]
             return self.RESPONSE_RETURN.join(new_output)
         else:
