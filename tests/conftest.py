@@ -292,6 +292,14 @@ def delete_file_extreme_exos(ssh_conn, dest_file_system, dest_file):
     return output
 
 
+def delete_file_mikrotik_routeros(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for an Extreme EXOS device."""
+    full_file_name = "{}/{}".format(dest_file_system, dest_file)
+    cmd = "/file remove {}".format(full_file_name)
+    output = ssh_conn.send_command(cmd, strip_command=False, strip_prompt=False)
+    return output
+
+
 @pytest.fixture(scope="module")
 def scp_fixture(request):
     """
@@ -564,5 +572,10 @@ def get_platform_args():
             "file_system": "/usr/local/cfg",
             "enable_scp": False,
             "delete_file": delete_file_extreme_exos,
+        },
+        "mikrotik_routeros": {
+            "file_system": "flash",
+            "enable_scp": True,
+            "delete_file": delete_file_mikrotik_routeros,
         },
     }
