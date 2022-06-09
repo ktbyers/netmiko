@@ -44,7 +44,7 @@ SKIPPED [1] test_netmiko_show.py:229: Skipped
 SKIPPED [1] test_netmiko_show.py:254: Skipped
 SKIPPED [1] test_netmiko_show.py:278: Skipped
 SKIPPED [1] test_netmiko_show.py:380: Skipped
-======================= 13 passed, 11 skipped in 38.16s ========================
+======================= 13 passed, 11 skipped in 39.03s ========================
 ============================= test session starts ==============================
 platform linux -- Python 3.8.10, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /usr/bin/python3
 cachedir: .pytest_cache
@@ -66,9 +66,9 @@ test_netmiko_config.py::test_global_cmd_verify SKIPPED (No banner de...)
 test_netmiko_config.py::test_disconnect PASSED
 
 =========================== short test summary info ============================
-SKIPPED [1] test_netmiko_config.py:25: Skipped
-SKIPPED [1] test_netmiko_config.py:119: Skipped
-SKIPPED [1] test_netmiko_config.py:131: No error_pattern defined.
-SKIPPED [1] test_netmiko_config.py:165: No banner defined.
-SKIPPED [1] test_netmiko_config.py:198: No banner defined.
-========================= 7 passed, 5 skipped in 7.82s =========================
+SKIPPED [1] test_netmiko_config.py:24: Skipped
+SKIPPED [1] test_netmiko_config.py:118: Skipped
+SKIPPED [1] test_netmiko_config.py:130: No error_pattern defined.
+SKIPPED [1] test_netmiko_config.py:164: No banner defined.
+SKIPPED [1] test_netmiko_config.py:197: No banner defined.
+========================= 7 passed, 5 skipped in 8.37s =========================
