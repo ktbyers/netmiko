@@ -1928,7 +1928,9 @@ You can also look at the Netmiko session_log or debug log for more information.
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks if the device is in configuration mode or not.
 
         :param check_string: Identification of configuration mode from the device
@@ -1943,7 +1945,15 @@ You can also look at the Netmiko session_log or debug log for more information.
             output = self.read_channel_timing(read_timeout=10.0)
         else:
             output = self.read_until_pattern(pattern=pattern)
-        return check_string in output
+
+        config_mode = False
+        if force_regex:
+            matches = re.search(check_string, output)
+            config_mode = True if matches else False
+        else:
+            config_mode = True if check_string in output else False
+
+        return config_mode
 
     def config_mode(
         self, config_command: str = "", pattern: str = "", re_flags: int = 0
@@ -1961,6 +1971,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         """
         output = ""
         if not self.check_config_mode():
+            self.write_channel(self.RETURN)
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:

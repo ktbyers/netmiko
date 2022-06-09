@@ -7,7 +7,6 @@
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
 
 import re
-import time
 from typing import Any, Optional, Sequence, TextIO, Union
 from netmiko import log
 from netmiko.no_enable import NoEnable
@@ -59,62 +58,53 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         self.ansi_escape_codes = True
         # Bottom toolbar text not required
         command = "environment cli-engine type basic"
-        self.write_channel(self.normalize_cmd(command))
+        self._send_command_str(command_string=command)
         command = "environment complete-on-space false"
-        self.write_channel(self.normalize_cmd(command))
+        self._send_command_str(command_string=command)
         self.set_base_prompt()
-        time.sleep(10 * self.global_delay_factor)
-        self.clear_buffer()
 
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
         alt_prompt_terminator: str = "",
         delay_factor: float = 1.0,
-        pattern: Optional[str] = r"(\n\-\-\{.+\}\-\-\[.*\]\-\-\n.*# )",
+        pattern: Optional[str] = r"#",
     ) -> str:
         return super().set_base_prompt(
-            pri_prompt_terminator, alt_prompt_terminator, delay_factor, pattern
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
         )
 
     def config_mode(
         self,
         config_command: str = "enter candidate private",
-        pattern: str = "]--",
+        pattern: str = r"#",
         re_flags: int = 0,
     ) -> str:
 
         output = super().config_mode(
-            config_command=config_command, pattern="", re_flags=re_flags
+            config_command=config_command, pattern=pattern, re_flags=re_flags
         )
         return output
 
     def check_config_mode(
         self,
         check_string: str = r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate",
-        pattern: str = " ]--",
+        pattern: str = r"#",
+        force_regex: bool = True,
     ) -> bool:
-        self.write_channel(self.RETURN)
-        """
-        supported first line prompt configuration:
-        {modified_flags}{mode_and_session} }}--[ {pwc} ]
-        """
-        if not pattern:
-            output = self.read_channel_timing(read_timeout=10.0)
-        else:
-            output = self.read_until_pattern(pattern=pattern)
 
-        matches = re.search(check_string, output)
-        return True if matches else False
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def commit(self) -> str:
         """Commit changes by using 'commit stay'."""
         cmd = "commit stay"
-        self.write_channel(self.normalize_cmd(cmd))
-        output = (
-            self._get_cmd_output_and_prompt(cmd)
-            if self.global_cmd_verify is not False
-            else ""
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
         )
         return output
 
@@ -125,11 +115,8 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         confirm_response: str = "",
     ) -> str:
         """Save current running configuration as initial (startup) configuration"""
-        self.write_channel(self.normalize_cmd(cmd))
-        output = (
-            self._get_cmd_output_and_prompt(cmd)
-            if self.global_cmd_verify is not False
-            else ""
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
         )
         return output
 
@@ -137,22 +124,11 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         """Exit the candidate private mode"""
         output = ""
         self.write_channel(self.RETURN)
-        prompt = self.read_until_pattern(pattern="]--")
-        matches = re.search(r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate", prompt)
-        if matches:
-            # In config mode and changes were made"""
-            # Get the subgroup in matches. Should be only one.
-            group = matches.group()
-            if "*" in group:
-                # Changes were made but not committed. Discarding changes
-                output += self._discard()
-            elif "+" in group:
-                # Changes were made, committed and discarding is not available.
-                # Committed changes can be saved in 'running mode'.
-                log.warning(
-                    """Exiting candidate private mode with unsaved changes!
-                    Changes can be saved in running mode."""
-                )
+        prompt = self.read_until_pattern(pattern="#")
+
+        if self._has_uncommitted_changes(prompt):
+            # Changes were made but not committed. Discarding changes
+            output += self._discard()
         # Switch to 'running' mode
         output += self._running_mode()
         return output
@@ -172,26 +148,31 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         """Discard changes made in candidate private mode"""
         log.warning("Uncommitted changes will be discarted!")
         cmd = "discard stay"
-        self.write_channel(self.normalize_cmd(cmd))
-        output = (
-            self._get_cmd_output_and_prompt(cmd)
-            if self.global_cmd_verify is not False
-            else ""
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
         )
         return output
 
     def _running_mode(self) -> str:
         """Enter running mode"""
         cmd = "enter running"
-        self.write_channel(self.normalize_cmd(cmd))
-        output = (
-            self._get_cmd_output_and_prompt(cmd)
-            if self.global_cmd_verify is not False
-            else ""
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
         )
         return output
 
-    def _get_cmd_output_and_prompt(self, cmd: str = "") -> str:
-        output = self.read_until_pattern(pattern=re.escape(cmd.strip()))
-        output += self.read_until_prompt(read_entire_line=True)
-        return output
+    def _has_uncommitted_changes(self, prompt: str) -> bool:
+        """
+        The asterix (*) next to the mode name indicates that the candidate configuration
+        has changes that have not yet been committed.
+
+        The plus sign (+) in the prompt indicates that the running configuration differs
+        from the startup configuration. After you enter the save startup command,
+        the running configuration is synchronized with the startup configuration,
+        and the plus sign is removed from the prompt.
+
+        The exclamation mark (!) in the prompt indicates that another user has commited
+        changes to the running datastore.
+        """
+        matches = re.search(r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate", prompt)
+        return True if matches and "*" in matches.group() else False
