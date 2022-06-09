@@ -54,7 +54,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
     """
 
     def session_preparation(self) -> None:
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"#")
         self.ansi_escape_codes = True
         # Bottom toolbar text not required
         command = "environment cli-engine type basic"
