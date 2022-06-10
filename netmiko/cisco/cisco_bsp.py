@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from logger.cafylog import CafyLog
 from netmiko.cisco_base_connection import CiscoBaseConnection
+from netmiko.ssh_exception import NetMikoAuthenticationException
 import re
 import time
 
