@@ -37,7 +37,10 @@ class DellPowerConnectBase(CiscoBaseConnection):
         return self.base_prompt
 
     def check_config_mode(
-        self, check_string: str = "(config)#", pattern: str = ""
+        self,
+        check_string: str = "(config)#",
+        pattern: str = "",
+        force_regex: bool = False,
     ) -> bool:
         """Checks if the device is in configuration mode"""
         return super().check_config_mode(check_string=check_string, pattern=pattern)

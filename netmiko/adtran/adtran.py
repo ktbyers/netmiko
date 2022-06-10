@@ -33,7 +33,9 @@ class AdtranOSBase(CiscoBaseConnection):
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(

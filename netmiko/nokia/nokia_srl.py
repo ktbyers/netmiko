@@ -57,10 +57,12 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         self._test_channel_read(pattern=r"#")
         self.ansi_escape_codes = True
         # Bottom toolbar text not required
-        command = "environment cli-engine type basic"
-        self._send_command_str(command_string=command)
-        command = "environment complete-on-space false"
-        self._send_command_str(command_string=command)
+        commands = [
+            "environment cli-engine type basic",
+            "environment complete-on-space false",
+        ]
+        for command in commands:
+            self.disable_paging(command=command, cmd_verify=False, pattern=r"#")
         self.set_base_prompt()
 
     def set_base_prompt(

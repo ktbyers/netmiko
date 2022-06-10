@@ -15,7 +15,9 @@ class BroadcomIcosSSH(CiscoSSHConnection):
         self.set_terminal_width()
         self.disable_paging()
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 

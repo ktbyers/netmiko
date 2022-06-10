@@ -62,7 +62,9 @@ Login process failed to Calix B6 device. Unable to login in {login_timeout} seco
 """
             raise NetmikoTimeoutException(msg)
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks if the device is in configuration mode"""
         return super().check_config_mode(check_string=check_string)
 
