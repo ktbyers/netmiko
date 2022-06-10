@@ -1,6 +1,7 @@
 """Netmiko support for Extreme Ethernet Routing Switch."""
-import time
+import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.exceptions import NetmikoAuthenticationException
 
 # Extreme ERS presents Enter Ctrl-Y to begin.
 CTRL_Y = "\x19"
@@ -9,8 +10,10 @@ CTRL_Y = "\x19"
 class ExtremeErsSSH(CiscoSSHConnection):
     """Netmiko support for Extreme Ethernet Routing Switch."""
 
+    prompt_pattern = r"(?m:[>#]\s*$)"  # force re.Multiline
+
     def session_preparation(self) -> None:
-        self._test_channel_read(pattern=r"[>#]")
+        # special_login_handler() will always ensure self.prompt_pattern
         self.set_base_prompt()
         self.set_terminal_width()
         self.disable_paging()
@@ -19,30 +22,43 @@ class ExtremeErsSSH(CiscoSSHConnection):
         """
         Extreme ERS presents the following as part of the login process:
 
-        Enter Ctrl-Y to begin.
-        """
-        delay_factor = self.select_delay_factor(delay_factor)
+        Enter Ctrl-Y to begin
 
-        # Handle 'Enter Ctrl-Y to begin'
+        Older devices the Ctrl-Y is before SSH-login (not 100% sure of this).
+
+        Newer devices this is after SSH-login.
+        """
+
         output = ""
-        i = 0
-        while i <= 12:
-            output = self.read_channel()
-            if output:
-                if "Ctrl-Y" in output:
-                    self.write_channel(CTRL_Y)
-                if "sername" in output:
-                    assert isinstance(self.username, str)
-                    self.write_channel(self.username + self.RETURN)
-                elif "ssword" in output:
-                    assert isinstance(self.password, str)
-                    self.write_channel(self.password + self.RETURN)
-                    break
-                time.sleep(0.5 * delay_factor)
+        uname = "sername"
+        password = "ssword"
+        cntl_y = "Ctrl-Y"
+        pattern = rf"(?:{uname}|{password}|{cntl_y}|{self.prompt_pattern})"
+        while True:
+            new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
+            output += new_data
+            if re.search(self.prompt_pattern, new_data):
+                return
+
+            if cntl_y in new_data:
+                self.write_channel(CTRL_Y)
+            elif uname in new_data:
+                assert isinstance(self.username, str)
+                self.write_channel(self.username + self.RETURN)
+            elif password in new_data:
+                assert isinstance(self.password, str)
+                self.write_channel(self.password + self.RETURN)
             else:
-                self.write_channel(self.RETURN)
-                time.sleep(1 * delay_factor)
-            i += 1
+                msg = f"""
+Failed to login to Extreme ERS Devices.
+
+Pattern not detected: {pattern}
+output:
+
+{output}
+
+"""
+                raise NetmikoAuthenticationException(msg)
 
     def save_config(
         self,
