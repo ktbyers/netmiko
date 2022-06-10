@@ -68,7 +68,10 @@ class JuniperBase(NoEnable, BaseConnection):
         return
 
     def check_config_mode(
-        self, check_string: str = "]", pattern: str = r"(?m:[>#] $)"
+        self,
+        check_string: str = "]",
+        pattern: str = r"(?m:[>#] $)",
+        force_regex: bool = False,
     ) -> bool:
         """
         Checks if the device is in configuration mode or not.

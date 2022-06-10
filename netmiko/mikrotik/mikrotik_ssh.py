@@ -45,7 +45,9 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         self._in_config_mode = True
         return ""
 
-    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
         return self._in_config_mode
 

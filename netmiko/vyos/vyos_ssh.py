@@ -20,7 +20,9 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks if the device is in configuration mode"""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 

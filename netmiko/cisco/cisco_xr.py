@@ -160,7 +160,10 @@ class CiscoXrBase(CiscoBaseConnection):
         return output
 
     def check_config_mode(
-        self, check_string: str = ")#", pattern: str = r"[#\$]"
+        self,
+        check_string: str = ")#",
+        pattern: str = r"[#\$]",
+        force_regex: bool = False,
     ) -> bool:
         """Checks if the device is in configuration mode or not.
 
