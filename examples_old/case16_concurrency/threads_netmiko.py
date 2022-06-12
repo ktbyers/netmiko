@@ -26,7 +26,7 @@ def main():
         my_thread = threading.Thread(target=show_version, args=(a_device,))
         my_thread.start()
 
-    main_thread = threading.currentThread()
+    main_thread = threading.current_thread()
     for some_thread in threading.enumerate():
         if some_thread != main_thread:
             print(some_thread)
