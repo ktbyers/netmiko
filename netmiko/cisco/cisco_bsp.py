@@ -24,13 +24,12 @@ class CiscoBsp(CiscoBaseConnection):
         '''
 
         self.TELNET_RETURN = '\n'
-        bmc_to_bsp_cmd = "sol.sh"
+        bmc_to_bsp_cmd = "/usr/local/bin/sol.sh"
         delay_factor = self.select_delay_factor(delay_factor)
 
         i = 1
+        output = self.find_prompt()
         while i <= max_loops:
-            i += 1
-            output = self.find_prompt()
             if re.search(bmc_prompt_pattern, output):
                 log.debug("On BMC Prompt")
                 log.debug("Sol.sh to enter BSP prompt")
@@ -43,6 +42,11 @@ class CiscoBsp(CiscoBaseConnection):
             if re.search(bsp_prompt_pattern, output):
                 log.debug("On BSP Prompt")
                 return
+
+            i += 1
+
+        if not re.search(bsp_prompt_pattern, output):
+            raise ValueError(f"BMC to BSP login failed. Prompt received after {max_loops} max loops is {repr(output)}")
 
     def bsp_to_bmc_prompt(self,bmc_prompt_pattern=r'\s*\#',bsp_prompt_pattern=r']\s*\#',delay_factor=1, max_loops=20):
         '''
@@ -60,9 +64,8 @@ class CiscoBsp(CiscoBaseConnection):
         delay_factor = self.select_delay_factor(delay_factor)
 
         i = 1
+        output = self.find_prompt()
         while i <= max_loops:
-            i += 1
-            output = self.find_prompt()
             if re.search(bsp_prompt_pattern, output):
                 log.debug("On BSP Prompt")
                 log.debug("Ctrl + L; press X to enter BMC prompt")
@@ -75,6 +78,11 @@ class CiscoBsp(CiscoBaseConnection):
             if re.search(bmc_prompt_pattern, output):
                 log.debug("On BMC Prompt")
                 return
+
+            i += 1
+
+        if not re.search(bmc_prompt_pattern, output):
+            raise ValueError(f"BSP to BMC login failed. Prompt received after {max_loops} max loops is {repr(output)}")
 
     def bmc_login(self,prompt_pattern=r'\s*\#',username_pattern='login',pwd_pattern=r'assword',delay_factor=1, max_loops=20):
         '''
@@ -104,7 +112,7 @@ class CiscoBsp(CiscoBaseConnection):
 
             log.debug("Check if BMC Username Prompt detected")
             if re.search(username_pattern, output):
-                log.debug("BMC Username pattern detected, sending Username={}".format(bmc_username))
+                log.debug(f"BMC Username pattern detected, sending Username={bmc_username}")
                 time.sleep(1)
                 self.write_channel(bmc_username)
                 time.sleep(1 * delay_factor)
@@ -112,7 +120,7 @@ class CiscoBsp(CiscoBaseConnection):
 
             log.debug("Check if BMC Password Prompt detected")
             if re.search(pwd_pattern, output):
-                log.debug("BMC Password pattern detected, sending Password={}".format(bmc_pass))
+                log.debug(f"BMC Password pattern detected, sending Password={bmc_pass}")
                 self.write_channel(bmc_pass)
                 time.sleep(.5 * delay_factor)
                 output = self.find_prompt()
@@ -156,8 +164,8 @@ class CiscoBsp(CiscoBaseConnection):
         :type delay_factor: int
         """
         prompt = self.find_prompt(delay_factor=delay_factor)
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError("BSP prompt not found: {0}".format(repr(prompt)))
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator) and 'bmc' not in prompt:
+            raise ValueError(f"BSP prompt not found: {repr(prompt)}")
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
         return self.base_prompt
@@ -205,12 +213,12 @@ class CiscoBspTelnet(CiscoBsp):
                 output = self.read_channel()
 
                 # self.find_prompt will return prompt after logging in
-                log.debug("Output after reading channel for first time: {}".format(output))
+                log.debug(f"Output after reading channel for first time: {output}")
                 if output == '':
                     time.sleep(2 * delay_factor)
                     log.debug("output is empty, doing find_prompt()")
                     output = self.find_prompt()
-                    log.debug("Output after doing find_prompt: {}".format(output))
+                    log.debug(f"Output after doing find_prompt: {output}")
                     return_msg += output
 
                 log.debug("Checking if Password Prompt")
@@ -232,13 +240,13 @@ class CiscoBspTelnet(CiscoBsp):
 
                 log.debug("Searching for username pattern")
                 if re.search(username_pattern, output):
-                    log.debug("Username pattern detected, sending Username={}".format(my_username))
+                    log.debug(f"Username pattern detected, sending Username={my_username}")
                     time.sleep(1)
                     self.write_channel(my_username + self.TELNET_RETURN)
                     time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    log.debug("After sending username, the output pattern is={}".format(output))
+                    log.debug(f"After sending username, the output pattern is={output}")
 
                 log.debug("Searching for password pattern")
                 if re.search(pwd_pattern, output):
@@ -258,8 +266,7 @@ class CiscoBspTelnet(CiscoBsp):
 
                 # Check for device with no password configured
                 if re.search(r"assword required, but none set", output):
-                    msg = "Telnet login failed - Password required, but none set: {}".format(self.host)
-                    raise NetMikoAuthenticationException(msg)
+                    raise NetMikoAuthenticationException(f"Telnet login failed - Password required, but none set: {self.host}")
 
                 # Check if already on BSP prompt
                 if re.findall(pri_prompt_terminator, output) or re.findall(alt_prompt_terminator, output):
@@ -269,8 +276,7 @@ class CiscoBspTelnet(CiscoBsp):
                 time.sleep(.5 * delay_factor)
                 i += 1
             except EOFError:
-                msg = "EOFError Telnet login failed: {0}".format(self.host)
-                raise NetMikoAuthenticationException(msg)
+                raise NetMikoAuthenticationException(f"EOFError Telnet login failed: {self.host}")
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -280,5 +286,4 @@ class CiscoBspTelnet(CiscoBsp):
         if (re.search(pri_prompt_terminator, output, flags=re.M) or re.search(alt_prompt_terminator, output,flags=re.M)):
             return return_msg
 
-        msg = "LAST_TRY Telnet login failed: {0}".format(self.host)
-        raise NetMikoAuthenticationException(msg)
+        raise NetMikoAuthenticationException(f"LAST_TRY Telnet login failed: {self.host}")
