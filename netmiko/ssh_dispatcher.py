@@ -24,6 +24,7 @@ from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.cisco import CiscoWlcSSH
 from netmiko.cisco import CiscoXrSSH, CiscoXrFileTransfer
 from netmiko.cisco import CiscoCloudnativeSSH
+from netmiko.cisco import CiscoBspSSH, CiscoBspTelnet
 from netmiko.cisco import CiscoXrTelnet
 from netmiko.cisco import CiscoCxrHa
 from netmiko.citrix import NetscalerSSH
@@ -85,6 +86,8 @@ CLASS_MAPPER_BASE = {
     'cisco_xe': CiscoIosSSH,
     'cisco_xr': CiscoXrSSH,
     'cisco_cloudnative': CiscoCloudnativeSSH,
+    'cisco_bsp': CiscoBspSSH,
+    'cisco_bsp_telnet': CiscoBspTelnet,
     'cisco_xr_telnet': CiscoXrTelnet,
     'cisco_cxr_ha_telnet': CiscoCxrHa,
     'cisco_xe_telnet': CiscoIosTelnet,
