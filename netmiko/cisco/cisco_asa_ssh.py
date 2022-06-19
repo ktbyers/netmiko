@@ -42,7 +42,10 @@ class CiscoAsaSSH(CiscoSSHConnection):
         self.set_base_prompt()
 
     def check_config_mode(
-        self, check_string: str = ")#", pattern: str = r"[>\#]"
+        self,
+        check_string: str = ")#",
+        pattern: str = r"[>\#]",
+        force_regex: bool = False,
     ) -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 

@@ -63,7 +63,10 @@ class HPProcurveBase(CiscoSSHConnection):
         self.disable_paging(command=command)
 
     def check_config_mode(
-        self, check_string: str = ")#", pattern: str = r"[>#]"
+        self,
+        check_string: str = ")#",
+        pattern: str = r"[>#]",
+        force_regex: bool = False,
     ) -> bool:
         """
         The pattern is needed as it is not in the parent class.

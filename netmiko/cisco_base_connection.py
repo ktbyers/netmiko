@@ -30,7 +30,9 @@ class CiscoBaseConnection(BaseConnection):
         """Exits enable (privileged exec) mode."""
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """
         Checks if the device is in configuration mode or not.
 

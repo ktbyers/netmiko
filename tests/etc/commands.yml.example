@@ -499,3 +499,14 @@ zyxel_os:
     - "cfg wlan edit --Band 2.4GHz --MainSSID 1 --SSID 'NetmikoTest'"
     - "cfg wlan edit --Band 2.4GHz --MainSSID 1 --SSID 'magic2000'"
   config_verification: "cfg intf_group get"
+
+nokia_srl:
+  version: "info system banner"
+  basic: "show version"
+  wide_command: "show interface myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
+  extended_output: "show interface all"
+  support_commit: True
+  config: 
+    - "interface ethernet-1/1 admin-state disable"
+    - "interface ethernet-1/1 admin-state enable"
+  config_verification: "show interface ethernet-1/1 brief"

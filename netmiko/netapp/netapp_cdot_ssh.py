@@ -19,7 +19,9 @@ class NetAppcDotSSH(NoEnable, BaseConnection):
             )
         return output
 
-    def check_config_mode(self, check_string: str = "*>", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "*>", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
