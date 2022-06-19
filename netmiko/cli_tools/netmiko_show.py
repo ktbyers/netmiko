@@ -171,7 +171,7 @@ def main(args):
             )
             my_thread.start()
         # Make sure all threads have finished
-        main_thread = threading.currentThread()
+        main_thread = threading.current_thread()
         for some_thread in threading.enumerate():
             if some_thread != main_thread:
                 some_thread.join()
