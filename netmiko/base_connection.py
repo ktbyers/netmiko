@@ -1967,7 +1967,6 @@ You can also look at the Netmiko session_log or debug log for more information.
         """
         output = ""
         if not self.check_config_mode():
-            self.write_channel(self.RETURN)
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
