@@ -11,6 +11,8 @@ from netmiko.base_connection import BaseConnection
 class CiscoWlcSSH(BaseConnection):
     """Netmiko Cisco WLC support."""
 
+    prompt_pattern = r"(?m:[>#]\s*$)"  # force re.Multiline
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         # WLC/AireOS has an issue where you can get "No Existing Session" with
         # the default conn_timeout (so increase conn_timeout to 10-seconds).
@@ -28,25 +30,36 @@ class CiscoWlcSSH(BaseConnection):
 
         Password:****
         """
-        delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
-        time.sleep(delay_factor * 0.5)
         output = ""
-        while i <= 12:
-            output = self.read_channel()
-            if output:
-                if "login as" in output or "User:" in output:
-                    assert isinstance(self.username, str)
-                    self.write_channel(self.username + self.RETURN)
-                elif "Password" in output:
-                    assert isinstance(self.password, str)
-                    self.write_channel(self.password + self.RETURN)
-                    break
-                time.sleep(delay_factor * 1)
+        uname = "User:"
+        login = "login as"
+        password = "ssword"
+        pattern = rf"(?:{uname}|{login}|{password}|{self.prompt_pattern})"
+
+        while True:
+            new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
+            output += new_data
+            if re.search(self.prompt_pattern, new_data):
+                return
+
+            if uname in new_data or login in new_data:
+                assert isinstance(self.username, str)
+                self.write_channel(self.username + self.RETURN)
+            elif password in new_data:
+                assert isinstance(self.password, str)
+                self.write_channel(self.password + self.RETURN)
             else:
-                # no output read, sleep and go for one more round of read channel
-                time.sleep(delay_factor * 1.5)
-            i += 1
+                msg = f"""
+Failed to login to Cisco WLC Device.
+
+Pattern not detected: {pattern}
+output:
+
+{output}
+
+"""
+                raise NetmikoAuthenticationException(msg)
+
 
     def send_command_w_enter(self, *args: Any, **kwargs: Any) -> str:
         """
