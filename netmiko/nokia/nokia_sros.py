@@ -153,7 +153,10 @@ class NokiaSros(BaseConnection):
         return output
 
     def check_config_mode(
-        self, check_string: str = r"(ex)[", pattern: str = r"@"
+        self,
+        check_string: str = r"(ex)[",
+        pattern: str = r"@",
+        force_regex: bool = False,
     ) -> bool:
         """Check config mode for Nokia SR OS"""
         if "@" not in self.base_prompt:

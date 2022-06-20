@@ -29,7 +29,10 @@ class ArubaSSH(CiscoSSHConnection):
         self.disable_paging(command="no paging")
 
     def check_config_mode(
-        self, check_string: str = "(config) #", pattern: str = r"[>#]"
+        self,
+        check_string: str = "(config) #",
+        pattern: str = r"[>#]",
+        force_regex: bool = False,
     ) -> bool:
         """
         Checks if the device is in configuration mode or not.

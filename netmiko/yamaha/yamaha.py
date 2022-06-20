@@ -46,7 +46,9 @@ class YamahaBase(BaseConnection):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks if the device is in administrator mode or not."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 

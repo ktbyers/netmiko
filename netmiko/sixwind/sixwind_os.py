@@ -87,7 +87,9 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
 
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
 
         return super().check_config_mode(check_string=check_string, pattern=pattern)

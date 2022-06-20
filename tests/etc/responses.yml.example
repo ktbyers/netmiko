@@ -352,3 +352,14 @@ zyxel:
 
 extreme_exos:
   scp_remote_space: 1000
+
+nokia_srl:
+  base_prompt: "A:srl1"
+  router_prompt: "A:srl1#"
+  enable_prompt: "A:srl1#"
+  interface_ip: "srl1"
+  version_banner: "Welcome to Nokia SR Linux"
+  multiple_line_output: "Summary"
+  cmd_response_init: "disable"
+  cmd_response_final: "enable"
+  save_config: "Saved current running configuration as initial"
