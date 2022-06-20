@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2014 - 2022 Kirk Byers
 # Copyright (c) 2014 - 2022 Twin Bridges Technology
-# Copyright (c) 2019 - 2020 NOKIA Inc.
+# Copyright (c) 2019 - 2022 NOKIA Inc.
 # MIT License - See License file at:
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
 
@@ -21,18 +21,6 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         - check_enable_mode()
         - enable()
         - exit_enable_mode()
-
-    Overriden methods to adapt Nokia SR OS behavior (changed):
-        - session_preparation()
-        - set_base_prompt()
-        - config_mode()
-        - exit_config_mode()
-        - check_config_mode()
-        - save_config()
-        - commit()
-        - strip_prompt()
-        - enable()
-        - check_enable_mode()
 
     By default, the SR Linux CLI prompt consists of two lines of text,
     indicating with an asterisk whether the configuration has been modified or
@@ -58,17 +46,17 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         self.ansi_escape_codes = True
         # Bottom toolbar text not required
         commands = [
-            "environment cli-engine type basic",
             "environment complete-on-space false",
+            "environment cli-engine type basic",
         ]
         for command in commands:
-            self.disable_paging(command=command, cmd_verify=False, pattern=r"#")
+            self.disable_paging(command=command, cmd_verify=True, pattern=r"#")
         self.set_base_prompt()
 
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
-        alt_prompt_terminator: str = "",
+        alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
         pattern: Optional[str] = r"#",
     ) -> str:
@@ -85,11 +73,9 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         pattern: str = r"#",
         re_flags: int = 0,
     ) -> str:
-
-        output = super().config_mode(
+        return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
-        return output
 
     def check_config_mode(
         self,
@@ -117,10 +103,9 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         confirm_response: str = "",
     ) -> str:
         """Save current running configuration as initial (startup) configuration"""
-        output = self._send_command_str(
+        return self._send_command_str(
             command_string=cmd, strip_prompt=False, strip_command=False
         )
-        return output
 
     def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
         """Exit the candidate private mode"""
