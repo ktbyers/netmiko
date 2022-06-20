@@ -46,8 +46,8 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         self.ansi_escape_codes = True
         # Bottom toolbar text not required
         commands = [
-            "environment cli-engine type basic",
             "environment complete-on-space false",
+            "environment cli-engine type basic",
         ]
         for command in commands:
             self.disable_paging(command=command, cmd_verify=True, pattern=r"#")
