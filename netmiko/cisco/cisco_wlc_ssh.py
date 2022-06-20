@@ -198,7 +198,7 @@ class CiscoWlcSSH(BaseConnection):
             count += 1
 
     def check_config_mode(
-        self, check_string: str = "config", pattern: str = ""
+        self, check_string: str = "config", pattern: str = "", force_regex: bool = False
     ) -> bool:
         """Checks if the device is in configuration mode or not."""
         if not pattern:

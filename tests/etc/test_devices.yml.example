@@ -263,3 +263,9 @@ extreme_exos:
   ip: 192.0.2.1
   username: admin
   password: 'admin'
+
+nokia_srl:
+  device_type: nokia_srl
+  ip: clab-srltest-srl1
+  username: admin
+  password: 'admin'

@@ -26,7 +26,10 @@ class EltexEsrSSH(CiscoSSHConnection):
         )
 
     def check_config_mode(
-        self, check_string: str = "(config", pattern: str = ""
+        self,
+        check_string: str = "(config",
+        pattern: str = "",
+        force_regex: bool = False,
     ) -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)

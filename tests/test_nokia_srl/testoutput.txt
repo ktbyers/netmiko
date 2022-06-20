@@ -1,0 +1,74 @@
+Starting tests...:
+Nokia SR Linux
+============================= test session starts ==============================
+platform linux -- Python 3.8.10, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/sguay/work/project/mygithub/netmiko, configfile: setup.cfg
+plugins: pylama-7.7.1
+collecting ... collected 24 items
+
+test_netmiko_show.py::test_disable_paging PASSED
+test_netmiko_show.py::test_terminal_width PASSED
+test_netmiko_show.py::test_ssh_connect PASSED
+test_netmiko_show.py::test_ssh_connect_cm PASSED
+test_netmiko_show.py::test_send_command_timing PASSED
+test_netmiko_show.py::test_send_command_timing_no_cmd_verify SKIPPED
+test_netmiko_show.py::test_send_command PASSED
+test_netmiko_show.py::test_send_command_no_cmd_verify SKIPPED
+test_netmiko_show.py::test_complete_on_space_disabled SKIPPED
+test_netmiko_show.py::test_send_command_textfsm SKIPPED (TextFSM/ntc...)
+test_netmiko_show.py::test_send_command_ttp SKIPPED (TTP template no...)
+test_netmiko_show.py::test_send_command_genie SKIPPED (Genie not sup...)
+test_netmiko_show.py::test_send_multiline_timing SKIPPED
+test_netmiko_show.py::test_send_multiline SKIPPED
+test_netmiko_show.py::test_send_multiline_prompt SKIPPED
+test_netmiko_show.py::test_send_multiline_simple SKIPPED
+test_netmiko_show.py::test_base_prompt PASSED
+test_netmiko_show.py::test_strip_prompt PASSED
+test_netmiko_show.py::test_strip_command PASSED
+test_netmiko_show.py::test_normalize_linefeeds PASSED
+test_netmiko_show.py::test_clear_buffer PASSED
+test_netmiko_show.py::test_enable_mode PASSED
+test_netmiko_show.py::test_disconnect PASSED
+test_netmiko_show.py::test_disconnect_no_enable SKIPPED
+
+=========================== short test summary info ============================
+SKIPPED [1] test_netmiko_show.py:70: Skipped
+SKIPPED [1] test_netmiko_show.py:88: Skipped
+SKIPPED [1] test_netmiko_show.py:110: Skipped
+SKIPPED [1] test_netmiko_show.py:131: TextFSM/ntc-templates not supported on this platform
+SKIPPED [1] test_netmiko_show.py:153: TTP template not existing for this platform
+SKIPPED [1] test_netmiko_show.py:193: Genie not supported on this platform
+SKIPPED [1] test_netmiko_show.py:213: Skipped
+SKIPPED [1] test_netmiko_show.py:229: Skipped
+SKIPPED [1] test_netmiko_show.py:254: Skipped
+SKIPPED [1] test_netmiko_show.py:278: Skipped
+SKIPPED [1] test_netmiko_show.py:380: Skipped
+======================= 13 passed, 11 skipped in 39.03s ========================
+============================= test session starts ==============================
+platform linux -- Python 3.8.10, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/sguay/work/project/mygithub/netmiko, configfile: setup.cfg
+plugins: pylama-7.7.1
+collecting ... collected 12 items
+
+test_netmiko_config.py::test_ssh_connect PASSED
+test_netmiko_config.py::test_enable_mode SKIPPED
+test_netmiko_config.py::test_config_mode PASSED
+test_netmiko_config.py::test_exit_config_mode PASSED
+test_netmiko_config.py::test_config_set PASSED
+test_netmiko_config.py::test_config_set_longcommand PASSED
+test_netmiko_config.py::test_config_hostname PASSED
+test_netmiko_config.py::test_config_from_file SKIPPED
+test_netmiko_config.py::test_config_error_pattern SKIPPED (No error_...)
+test_netmiko_config.py::test_banner SKIPPED (No banner defined.)
+test_netmiko_config.py::test_global_cmd_verify SKIPPED (No banner de...)
+test_netmiko_config.py::test_disconnect PASSED
+
+=========================== short test summary info ============================
+SKIPPED [1] test_netmiko_config.py:24: Skipped
+SKIPPED [1] test_netmiko_config.py:118: Skipped
+SKIPPED [1] test_netmiko_config.py:130: No error_pattern defined.
+SKIPPED [1] test_netmiko_config.py:164: No banner defined.
+SKIPPED [1] test_netmiko_config.py:197: No banner defined.
+========================= 7 passed, 5 skipped in 8.37s =========================
