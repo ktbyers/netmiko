@@ -50,7 +50,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
             "environment complete-on-space false",
         ]
         for command in commands:
-            self.disable_paging(command=command, cmd_verify=False, pattern=r"#")
+            self.disable_paging(command=command, cmd_verify=True, pattern=r"#")
         self.set_base_prompt()
 
     def set_base_prompt(
