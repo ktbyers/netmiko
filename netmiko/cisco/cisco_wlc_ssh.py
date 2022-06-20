@@ -13,12 +13,6 @@ class CiscoWlcSSH(BaseConnection):
 
     prompt_pattern = r"(?m:[>#]\s*$)"  # force re.Multiline
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # WLC/AireOS has an issue where you can get "No Existing Session" with
-        # the default conn_timeout (so increase conn_timeout to 10-seconds).
-        kwargs.setdefault("conn_timeout", 10)
-        return super().__init__(*args, **kwargs)
-
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """WLC presents with the following on login (in certain OS versions)
 
