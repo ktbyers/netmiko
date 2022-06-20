@@ -54,6 +54,21 @@ output:
 """
                 raise NetmikoAuthenticationException(msg)
 
+    def session_preparation(self) -> None:
+        """
+        Prepare the session after the connection has been established
+
+        Cisco WLC uses "config paging disable" to disable paging
+        """
+
+        # _test_channel_read() will happen in the special_login_handler()
+        try:
+            self.set_base_prompt()
+        except ValueError:
+            msg = f"Authentication failed: {self.host}"
+            raise NetmikoAuthenticationException(msg)
+
+        self.disable_paging(command="config paging disable")
 
     def send_command_w_enter(self, *args: Any, **kwargs: Any) -> str:
         """
@@ -151,22 +166,6 @@ output:
             output = self.strip_prompt(output)
             output = self.strip_prompt(output)
         return output
-
-    def session_preparation(self) -> None:
-        """
-        Prepare the session after the connection has been established
-
-        Cisco WLC uses "config paging disable" to disable paging
-        """
-        self._test_channel_read(pattern=r"[>#]")
-
-        try:
-            self.set_base_prompt()
-        except ValueError:
-            msg = f"Authentication failed: {self.host}"
-            raise NetmikoAuthenticationException(msg)
-
-        self.disable_paging(command="config paging disable")
 
     def cleanup(self, command: str = "logout") -> None:
         """Reset WLC back to normal paging and gracefully close session."""
