@@ -252,7 +252,10 @@ class CiscoBaseConnection(BaseConnection):
         else:
             # Some devices are slow so match on trailing-prompt if you can
             output = self._send_command_str(
-                command_string=cmd, strip_prompt=False, strip_command=False
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
             )
         return output
 
