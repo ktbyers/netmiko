@@ -79,12 +79,6 @@ echo "Starting tests...good luck:" \
 && $PYTEST test_netmiko_config.py --test_device juniper_srx \
 && $PYTEST test_netmiko_commit.py --test_device juniper_srx \
 \
-&& echo "Cisco ASA" \
-&& $PYTEST test_netmiko_show.py --test_device cisco_asa \
-&& $PYTEST test_netmiko_config.py --test_device cisco_asa \
-&& $PYTEST test_netmiko_show.py --test_device cisco_asa_login \
-&& $PYTEST test_netmiko_config.py --test_device cisco_asa_login \
-\
 && echo "Cisco IOS-XR" \
 && $PYTEST test_netmiko_scp.py --test_device cisco_xrv \
 && $PYTEST test_netmiko_show.py --test_device cisco_xrv \
@@ -128,8 +122,8 @@ exit $RETURN_CODE
 # \
 # Can't get Cisco IOS and SCP get to run reliably--IOS bug?
 # && py.test -v test_netmiko_scp.py --test_device cisco881_key \
-# && py.test -v test_netmiko_scp.py --test_device cisco881 \
 # && py.test -v test_netmiko_scp.py --test_device cisco881_fast \
+# && $PYTEST test_netmiko_scp.py --test_device cisco881_key \
 #
 #
 #&& echo "Nokia SR-OS CLI" \
@@ -142,4 +136,10 @@ exit $RETURN_CODE
 #&& py.test -x -s -v test_netmiko_config.py --test_device sros1_md \
 #&& py.test -x -s -v test_netmiko_scp.py --test_device sros1_md \
 #&& py.test -x -s -v test_netmiko_commit.py --test_device sros1_md \
+#\
+# && echo "Cisco ASA" \
+# && $PYTEST test_netmiko_show.py --test_device cisco_asa \
+# && $PYTEST test_netmiko_config.py --test_device cisco_asa \
+# && $PYTEST test_netmiko_show.py --test_device cisco_asa_login \
+# && $PYTEST test_netmiko_config.py --test_device cisco_asa_login \
 #\
