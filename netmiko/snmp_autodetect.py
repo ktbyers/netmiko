@@ -344,6 +344,7 @@ class SNMPDetect(object):
                     self._response_cache[oid] = snmp_response
 
                 # See if we had a match
+                assert isinstance(snmp_response, str)
                 if re.search(regex, snmp_response):
                     assert isinstance(device_type, str)
                     return device_type
