@@ -3,15 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.6.3" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>netmiko.mikrotik.mikrotik_ssh API documentation</title>
 <meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
 <main>
@@ -21,10 +23,17 @@
 </header>
 <section id="section-intro">
 <details class="source">
-<summary>Source code</summary>
-<pre><code class="python">from typing import Any, Union, List, Dict, Optional
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Any, Union, List, Dict, Optional, Callable
+import re
+import os
+
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.base_connection import BaseConnection
+from netmiko.scp_handler import BaseFileTransfer
 
 
 class MikrotikBase(NoEnable, CiscoSSHConnection):
@@ -69,7 +78,9 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         self._in_config_mode = True
         return &#34;&#34;
 
-    def check_config_mode(self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;) -&gt; bool:
+    def check_config_mode(
+        self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
+    ) -&gt; bool:
         &#34;&#34;&#34;Checks whether in configuration mode. Returns a boolean.&#34;&#34;&#34;
         return self._in_config_mode
 
@@ -101,6 +112,28 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
             # Unexpected just return the original string
             return a_string
 
+    def strip_command(self, command_string: str, output: str) -&gt; str:
+        &#34;&#34;&#34;
+        Mikrotik can echo the command multiple times :-(
+
+        Example:
+        system routerboard print
+        [admin@MikroTik] &gt; system routerboard print
+        &#34;&#34;&#34;
+        output = super().strip_command(command_string, output)
+        cmd = command_string.strip()
+
+        output = output.lstrip()
+        # &#39;[admin@MikroTik] &gt; cmd&#39; then the first newline should be matched
+        pattern = rf&#34;^\[.*\] &gt; {re.escape(cmd)}.*${self.RESPONSE_RETURN}&#34;
+        if re.search(pattern, output, flags=re.M):
+            output_lines = re.split(pattern, output, flags=re.M)
+            new_output = output_lines[1:]
+            return self.RESPONSE_RETURN.join(new_output)
+        else:
+            # command_string isn&#39;t there; do nothing
+            return output
+
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = &#34;&gt;&#34;,
@@ -126,7 +159,7 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         **kwargs: Any,
     ) -&gt; Union[str, List[Any], Dict[str, Any]]:
         &#34;&#34;&#34;Force cmd_verify to be True due to all of the line repainting&#34;&#34;&#34;
-        return super()._send_command_timing_str(
+        return super().send_command_timing(
             command_string=command_string, cmd_verify=cmd_verify, **kwargs
         )
 
@@ -140,7 +173,158 @@ class MikrotikRouterOsSSH(MikrotikBase):
 class MikrotikSwitchOsSSH(MikrotikBase):
     &#34;&#34;&#34;Mikrotik SwitchOS SSH driver.&#34;&#34;&#34;
 
-    pass</code></pre>
+    pass
+
+
+class MikrotikRouterOsFileTransfer(BaseFileTransfer):
+    &#34;&#34;&#34;Mikrotik Router Os File Transfer driver.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        ssh_conn: BaseConnection,
+        source_file: str,
+        dest_file: str,
+        file_system: Optional[str] = &#34;flash&#34;,
+        direction: str = &#34;put&#34;,
+        socket_timeout: float = 10.0,
+        progress: Optional[Callable[..., Any]] = None,
+        progress4: Optional[Callable[..., Any]] = None,
+        hash_supported: bool = False,
+    ) -&gt; None:
+        super().__init__(
+            ssh_conn=ssh_conn,
+            source_file=source_file,
+            dest_file=dest_file,
+            file_system=file_system,
+            direction=direction,
+            socket_timeout=socket_timeout,
+            progress=progress,
+            progress4=progress4,
+            hash_supported=hash_supported,
+        )
+
+    def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
+        &#34;&#34;&#34;Check if the dest_file already exists on the file system.&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            if not remote_cmd:
+                remote_cmd = f&#39;/file print detail where name=&#34;{self.file_system}/{self.dest_file}&#34;&#39;
+            remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
+            # Output will look like
+            # 0 name=&#34;flash/test9.txt&#34; type=&#34;.txt file&#34; size=19 creation-time=jun...
+            # fail case will be blank line (all whitespace)
+            if (
+                &#34;size&#34; in remote_out
+                and f&#34;{self.file_system}/{self.dest_file}&#34; in remote_out
+            ):
+                return True
+            elif not remote_out.strip():
+                return False
+            raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
+        elif self.direction == &#34;get&#34;:
+            return os.path.exists(self.dest_file)
+        else:
+            raise ValueError(&#34;Unexpected value for self.direction&#34;)
+
+    def remote_space_available(self, search_pattern: str = &#34;&#34;) -&gt; int:
+        &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        remote_cmd = &#34;system resource print without-paging&#34;
+        sys_res = self.ssh_ctl_chan._send_command_timing_str(remote_cmd).splitlines()
+        for res in sys_res:
+            if &#34;free-memory&#34; in res:
+                spaceMib = res.strip().replace(&#34;free-memory: &#34;, &#34;&#34;).replace(&#34;MiB&#34;, &#34;&#34;)
+                return int(float(spaceMib) * 1048576)
+        raise ValueError(&#34;Unexpected output from remote_space_available&#34;)
+
+    def remote_file_size(
+        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
+    ) -&gt; int:
+        &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+            else:
+                raise ValueError(&#34;Invalid value for file transfer direction.&#34;)
+
+        if not remote_cmd:
+            remote_cmd = (
+                f&#39;/file print detail where name=&#34;{self.file_system}/{remote_file}&#34;&#39;
+            )
+        remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
+        try:
+            size = remote_out.split(&#34;size=&#34;)[1].split(&#34; &#34;)[0]
+            return self._format_to_bytes(size)
+        except (KeyError, IndexError):
+            raise ValueError(&#34;Unable to find file on remote system&#34;)
+
+    def file_md5(self, file_name: str, add_newline: bool = False) -&gt; str:
+        raise AttributeError(
+            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
+        )
+
+    @staticmethod
+    def process_md5(md5_output: str, pattern: str = &#34;&#34;) -&gt; str:
+        raise AttributeError(
+            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
+        )
+
+    def compare_md5(self) -&gt; bool:
+        raise AttributeError(
+            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
+        )
+
+    def remote_md5(self, base_cmd: str = &#34;&#34;, remote_file: Optional[str] = None) -&gt; str:
+        raise AttributeError(
+            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
+        )
+
+    def verify_file(self) -&gt; bool:
+        &#34;&#34;&#34;
+        Verify the file has been transferred correctly based on filesize.
+        This method is very approximate as Mikrotik rounds file sizes to KiB, MiB, GiB...
+        Therefore multiple conversions from/to bytes are needed
+        &#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            local_size = self._format_bytes(os.stat(self.source_file).st_size)
+            remote_size = self._format_bytes(
+                self.remote_file_size(remote_file=self.dest_file)
+            )
+            return local_size == remote_size
+        elif self.direction == &#34;get&#34;:
+            local_size = self._format_bytes(os.stat(self.dest_file).st_size)
+            remote_size = self._format_bytes(
+                self.remote_file_size(remote_file=self.source_file)
+            )
+            return local_size == remote_size
+        else:
+            raise ValueError(&#34;Unexpected value of self.direction&#34;)
+
+    @staticmethod
+    def _format_to_bytes(size: str) -&gt; int:
+        &#34;&#34;&#34;
+        Internal function to convert Mikrotik size to bytes
+        &#34;&#34;&#34;
+        if size.endswith(&#34;KiB&#34;):
+            return round(int(float(size.replace(&#34;KiB&#34;, &#34;&#34;)) * 1024))
+        if size.endswith(&#34;MiB&#34;):
+            return round(int(float(size.replace(&#34;MiB&#34;, &#34;&#34;)) * 1048576))
+        if size.endswith(&#34;GiB&#34;):
+            return round(int(float(size.replace(&#34;GiB&#34;, &#34;&#34;)) * 1073741824))
+        return round(int(size))
+
+    @staticmethod
+    def _format_bytes(size: int) -&gt; str:
+        &#34;&#34;&#34;
+        Internal function to convert bytes to KiB, MiB or GiB
+        Extremely approximate
+        &#34;&#34;&#34;
+        n = 0
+        levels = {0: &#34;&#34;, 1: &#34;Ki&#34;, 2: &#34;Mi&#34;, 3: &#34;Gi&#34;}
+        while size &gt; 4096 and n &lt; 3:
+            size = round(size / 1024)
+            n += 1
+        return f&#34;{size}{levels[n]}B&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -154,12 +338,14 @@ class MikrotikSwitchOsSSH(MikrotikBase):
 <dl>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase"><code class="flex name class">
 <span>class <span class="ident">MikrotikBase</span></span>
-<span>(</span><span>**kwargs)</span>
+<span>(</span><span>**kwargs: Any)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Common Methods for Mikrotik RouterOS and SwitchOS</p></section>
+<div class="desc"><p>Common Methods for Mikrotik RouterOS and SwitchOS</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class MikrotikBase(NoEnable, CiscoSSHConnection):
     &#34;&#34;&#34;Common Methods for Mikrotik RouterOS and SwitchOS&#34;&#34;&#34;
 
@@ -202,7 +388,9 @@ class MikrotikSwitchOsSSH(MikrotikBase):
         self._in_config_mode = True
         return &#34;&#34;
 
-    def check_config_mode(self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;) -&gt; bool:
+    def check_config_mode(
+        self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
+    ) -&gt; bool:
         &#34;&#34;&#34;Checks whether in configuration mode. Returns a boolean.&#34;&#34;&#34;
         return self._in_config_mode
 
@@ -234,6 +422,28 @@ class MikrotikSwitchOsSSH(MikrotikBase):
             # Unexpected just return the original string
             return a_string
 
+    def strip_command(self, command_string: str, output: str) -&gt; str:
+        &#34;&#34;&#34;
+        Mikrotik can echo the command multiple times :-(
+
+        Example:
+        system routerboard print
+        [admin@MikroTik] &gt; system routerboard print
+        &#34;&#34;&#34;
+        output = super().strip_command(command_string, output)
+        cmd = command_string.strip()
+
+        output = output.lstrip()
+        # &#39;[admin@MikroTik] &gt; cmd&#39; then the first newline should be matched
+        pattern = rf&#34;^\[.*\] &gt; {re.escape(cmd)}.*${self.RESPONSE_RETURN}&#34;
+        if re.search(pattern, output, flags=re.M):
+            output_lines = re.split(pattern, output, flags=re.M)
+            new_output = output_lines[1:]
+            return self.RESPONSE_RETURN.join(new_output)
+        else:
+            # command_string isn&#39;t there; do nothing
+            return output
+
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = &#34;&gt;&#34;,
@@ -259,7 +469,7 @@ class MikrotikSwitchOsSSH(MikrotikBase):
         **kwargs: Any,
     ) -&gt; Union[str, List[Any], Dict[str, Any]]:
         &#34;&#34;&#34;Force cmd_verify to be True due to all of the line repainting&#34;&#34;&#34;
-        return super()._send_command_timing_str(
+        return super().send_command_timing(
             command_string=command_string, cmd_verify=cmd_verify, **kwargs
         )</code></pre>
 </details>
@@ -278,24 +488,30 @@ class MikrotikSwitchOsSSH(MikrotikBase):
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string='', pattern='')</span>
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = '', pattern: str = '', force_regex: bool = False) ‑> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether in configuration mode. Returns a boolean.</p></section>
+<div class="desc"><p>Checks whether in configuration mode. Returns a boolean.</p></div>
 <details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def check_config_mode(self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;) -&gt; bool:
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_config_mode(
+    self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
+) -&gt; bool:
     &#34;&#34;&#34;Checks whether in configuration mode. Returns a boolean.&#34;&#34;&#34;
     return self._in_config_mode</code></pre>
 </details>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command='', pattern='', re_flags=0)</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self, config_command: str = '', pattern: str = '', re_flags: int = 0) ‑> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>No configuration mode on Mikrotik</p></section>
+<div class="desc"><p>No configuration mode on Mikrotik</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def config_mode(
     self, config_command: str = &#34;&#34;, pattern: str = &#34;&#34;, re_flags: int = 0
 ) -&gt; str:
@@ -305,24 +521,28 @@ class MikrotikSwitchOsSSH(MikrotikBase):
 </details>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging"><code class="name flex">
-<span>def <span class="ident">disable_paging</span></span>(<span>self, *args, **kwargs)</span>
+<span>def <span class="ident">disable_paging</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Mikrotik does not have paging by default.</p></section>
+<div class="desc"><p>Mikrotik does not have paging by default.</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
     &#34;&#34;&#34;Mikrotik does not have paging by default.&#34;&#34;&#34;
     return &#34;&#34;</code></pre>
 </details>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config='>', pattern='')</span>
+<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config: str = &#x27;&gt;&#x27;, pattern: str = '') ‑> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>No configuration mode on Mikrotik</p></section>
+<div class="desc"><p>No configuration mode on Mikrotik</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def exit_config_mode(self, exit_config: str = &#34;&gt;&#34;, pattern: str = &#34;&#34;) -&gt; str:
     &#34;&#34;&#34;No configuration mode on Mikrotik&#34;&#34;&#34;
     self._in_config_mode = False
@@ -330,24 +550,28 @@ class MikrotikSwitchOsSSH(MikrotikBase):
 </details>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, *args, **kwargs)</span>
+<span>def <span class="ident">save_config</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>No save command, all configuration is atomic</p></section>
+<div class="desc"><p>No save command, all configuration is atomic</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
     &#34;&#34;&#34;No save command, all configuration is atomic&#34;&#34;&#34;
     return &#34;&#34;</code></pre>
 </details>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command_timing"><code class="name flex">
-<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string, cmd_verify=True, **kwargs)</span>
+<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string: str, cmd_verify: bool = True, **kwargs: Any) ‑> Union[str, List[Any], Dict[str, Any]]</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Force cmd_verify to be True due to all of the line repainting</p></section>
+<div class="desc"><p>Force cmd_verify to be True due to all of the line repainting</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def send_command_timing(  # type: ignore
     self,
     command_string: str,
@@ -355,18 +579,20 @@ class MikrotikSwitchOsSSH(MikrotikBase):
     **kwargs: Any,
 ) -&gt; Union[str, List[Any], Dict[str, Any]]:
     &#34;&#34;&#34;Force cmd_verify to be True due to all of the line repainting&#34;&#34;&#34;
-    return super()._send_command_timing_str(
+    return super().send_command_timing(
         command_string=command_string, cmd_verify=cmd_verify, **kwargs
     )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.session_preparation"><code class="name flex">
-<span>def <span class="ident">session_preparation</span></span>(<span>self, *args, **kwargs)</span>
+<span>def <span class="ident">session_preparation</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> None</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Prepare the session after the connection has been established.</p></section>
+<div class="desc"><p>Prepare the session after the connection has been established.</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def session_preparation(self, *args: Any, **kwargs: Any) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self.ansi_escape_codes = True
@@ -375,12 +601,14 @@ class MikrotikSwitchOsSSH(MikrotikBase):
 </details>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.set_base_prompt"><code class="name flex">
-<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator='>', alt_prompt_terminator='>', delay_factor=1.0, pattern=None)</span>
+<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator: str = &#x27;&gt;&#x27;, alt_prompt_terminator: str = &#x27;&gt;&#x27;, delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Strip the trailing space off.</p></section>
+<div class="desc"><p>Strip the trailing space off.</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def set_base_prompt(
     self,
     pri_prompt_terminator: str = &#34;&gt;&#34;,
@@ -400,17 +628,54 @@ class MikrotikSwitchOsSSH(MikrotikBase):
     return self.base_prompt</code></pre>
 </details>
 </dd>
-<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_prompt"><code class="name flex">
-<span>def <span class="ident">strip_prompt</span></span>(<span>self, a_string)</span>
+<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command"><code class="name flex">
+<span>def <span class="ident">strip_command</span></span>(<span>self, command_string: str, output: str) ‑> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Strip the trailing router prompt from the output.</p>
+<div class="desc"><p>Mikrotik can echo the command multiple times :-(</p>
+<p>Example:
+system routerboard print
+[admin@MikroTik] &gt; system routerboard print</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def strip_command(self, command_string: str, output: str) -&gt; str:
+    &#34;&#34;&#34;
+    Mikrotik can echo the command multiple times :-(
+
+    Example:
+    system routerboard print
+    [admin@MikroTik] &gt; system routerboard print
+    &#34;&#34;&#34;
+    output = super().strip_command(command_string, output)
+    cmd = command_string.strip()
+
+    output = output.lstrip()
+    # &#39;[admin@MikroTik] &gt; cmd&#39; then the first newline should be matched
+    pattern = rf&#34;^\[.*\] &gt; {re.escape(cmd)}.*${self.RESPONSE_RETURN}&#34;
+    if re.search(pattern, output, flags=re.M):
+        output_lines = re.split(pattern, output, flags=re.M)
+        new_output = output_lines[1:]
+        return self.RESPONSE_RETURN.join(new_output)
+    else:
+        # command_string isn&#39;t there; do nothing
+        return output</code></pre>
+</details>
+</dd>
+<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_prompt"><code class="name flex">
+<span>def <span class="ident">strip_prompt</span></span>(<span>self, a_string: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Strip the trailing router prompt from the output.</p>
 <p>Mikrotik just does a lot of formatting/has ansi escape codes in output so
 we need a special handler here.</p>
 <p>There can be two trailing instances of the prompt probably due to
-repainting.</p></section>
+repainting.</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def strip_prompt(self, a_string: str) -&gt; str:
     &#34;&#34;&#34;Strip the trailing router prompt from the output.
 
@@ -469,21 +734,277 @@ repainting.</p></section>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.telnet_login" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login">telnet_login</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
 </ul>
 </li>
 </ul>
 </dd>
-<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsSSH"><code class="flex name class">
-<span>class <span class="ident">MikrotikRouterOsSSH</span></span>
-<span>(</span><span>**kwargs)</span>
+<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer"><code class="flex name class">
+<span>class <span class="ident">MikrotikRouterOsFileTransfer</span></span>
+<span>(</span><span>ssh_conn: <a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a>, source_file: str, dest_file: str, file_system: Optional[str] = 'flash', direction: str = 'put', socket_timeout: float = 10.0, progress: Optional[Callable[..., Any]] = None, progress4: Optional[Callable[..., Any]] = None, hash_supported: bool = False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Mikrotik RouterOS SSH driver.</p></section>
+<div class="desc"><p>Mikrotik Router Os File Transfer driver.</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MikrotikRouterOsFileTransfer(BaseFileTransfer):
+    &#34;&#34;&#34;Mikrotik Router Os File Transfer driver.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        ssh_conn: BaseConnection,
+        source_file: str,
+        dest_file: str,
+        file_system: Optional[str] = &#34;flash&#34;,
+        direction: str = &#34;put&#34;,
+        socket_timeout: float = 10.0,
+        progress: Optional[Callable[..., Any]] = None,
+        progress4: Optional[Callable[..., Any]] = None,
+        hash_supported: bool = False,
+    ) -&gt; None:
+        super().__init__(
+            ssh_conn=ssh_conn,
+            source_file=source_file,
+            dest_file=dest_file,
+            file_system=file_system,
+            direction=direction,
+            socket_timeout=socket_timeout,
+            progress=progress,
+            progress4=progress4,
+            hash_supported=hash_supported,
+        )
+
+    def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
+        &#34;&#34;&#34;Check if the dest_file already exists on the file system.&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            if not remote_cmd:
+                remote_cmd = f&#39;/file print detail where name=&#34;{self.file_system}/{self.dest_file}&#34;&#39;
+            remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
+            # Output will look like
+            # 0 name=&#34;flash/test9.txt&#34; type=&#34;.txt file&#34; size=19 creation-time=jun...
+            # fail case will be blank line (all whitespace)
+            if (
+                &#34;size&#34; in remote_out
+                and f&#34;{self.file_system}/{self.dest_file}&#34; in remote_out
+            ):
+                return True
+            elif not remote_out.strip():
+                return False
+            raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
+        elif self.direction == &#34;get&#34;:
+            return os.path.exists(self.dest_file)
+        else:
+            raise ValueError(&#34;Unexpected value for self.direction&#34;)
+
+    def remote_space_available(self, search_pattern: str = &#34;&#34;) -&gt; int:
+        &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        remote_cmd = &#34;system resource print without-paging&#34;
+        sys_res = self.ssh_ctl_chan._send_command_timing_str(remote_cmd).splitlines()
+        for res in sys_res:
+            if &#34;free-memory&#34; in res:
+                spaceMib = res.strip().replace(&#34;free-memory: &#34;, &#34;&#34;).replace(&#34;MiB&#34;, &#34;&#34;)
+                return int(float(spaceMib) * 1048576)
+        raise ValueError(&#34;Unexpected output from remote_space_available&#34;)
+
+    def remote_file_size(
+        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
+    ) -&gt; int:
+        &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+            else:
+                raise ValueError(&#34;Invalid value for file transfer direction.&#34;)
+
+        if not remote_cmd:
+            remote_cmd = (
+                f&#39;/file print detail where name=&#34;{self.file_system}/{remote_file}&#34;&#39;
+            )
+        remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
+        try:
+            size = remote_out.split(&#34;size=&#34;)[1].split(&#34; &#34;)[0]
+            return self._format_to_bytes(size)
+        except (KeyError, IndexError):
+            raise ValueError(&#34;Unable to find file on remote system&#34;)
+
+    def file_md5(self, file_name: str, add_newline: bool = False) -&gt; str:
+        raise AttributeError(
+            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
+        )
+
+    @staticmethod
+    def process_md5(md5_output: str, pattern: str = &#34;&#34;) -&gt; str:
+        raise AttributeError(
+            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
+        )
+
+    def compare_md5(self) -&gt; bool:
+        raise AttributeError(
+            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
+        )
+
+    def remote_md5(self, base_cmd: str = &#34;&#34;, remote_file: Optional[str] = None) -&gt; str:
+        raise AttributeError(
+            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
+        )
+
+    def verify_file(self) -&gt; bool:
+        &#34;&#34;&#34;
+        Verify the file has been transferred correctly based on filesize.
+        This method is very approximate as Mikrotik rounds file sizes to KiB, MiB, GiB...
+        Therefore multiple conversions from/to bytes are needed
+        &#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            local_size = self._format_bytes(os.stat(self.source_file).st_size)
+            remote_size = self._format_bytes(
+                self.remote_file_size(remote_file=self.dest_file)
+            )
+            return local_size == remote_size
+        elif self.direction == &#34;get&#34;:
+            local_size = self._format_bytes(os.stat(self.dest_file).st_size)
+            remote_size = self._format_bytes(
+                self.remote_file_size(remote_file=self.source_file)
+            )
+            return local_size == remote_size
+        else:
+            raise ValueError(&#34;Unexpected value of self.direction&#34;)
+
+    @staticmethod
+    def _format_to_bytes(size: str) -&gt; int:
+        &#34;&#34;&#34;
+        Internal function to convert Mikrotik size to bytes
+        &#34;&#34;&#34;
+        if size.endswith(&#34;KiB&#34;):
+            return round(int(float(size.replace(&#34;KiB&#34;, &#34;&#34;)) * 1024))
+        if size.endswith(&#34;MiB&#34;):
+            return round(int(float(size.replace(&#34;MiB&#34;, &#34;&#34;)) * 1048576))
+        if size.endswith(&#34;GiB&#34;):
+            return round(int(float(size.replace(&#34;GiB&#34;, &#34;&#34;)) * 1073741824))
+        return round(int(size))
+
+    @staticmethod
+    def _format_bytes(size: int) -&gt; str:
+        &#34;&#34;&#34;
+        Internal function to convert bytes to KiB, MiB or GiB
+        Extremely approximate
+        &#34;&#34;&#34;
+        n = 0
+        levels = {0: &#34;&#34;, 1: &#34;Ki&#34;, 2: &#34;Mi&#34;, 3: &#34;Gi&#34;}
+        while size &gt; 4096 and n &lt; 3:
+            size = round(size / 1024)
+            n += 1
+        return f&#34;{size}{levels[n]}B&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer.check_file_exists"><code class="name flex">
+<span>def <span class="ident">check_file_exists</span></span>(<span>self, remote_cmd: str = '') ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the dest_file already exists on the file system.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
+    &#34;&#34;&#34;Check if the dest_file already exists on the file system.&#34;&#34;&#34;
+    if self.direction == &#34;put&#34;:
+        if not remote_cmd:
+            remote_cmd = f&#39;/file print detail where name=&#34;{self.file_system}/{self.dest_file}&#34;&#39;
+        remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
+        # Output will look like
+        # 0 name=&#34;flash/test9.txt&#34; type=&#34;.txt file&#34; size=19 creation-time=jun...
+        # fail case will be blank line (all whitespace)
+        if (
+            &#34;size&#34; in remote_out
+            and f&#34;{self.file_system}/{self.dest_file}&#34; in remote_out
+        ):
+            return True
+        elif not remote_out.strip():
+            return False
+        raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
+    elif self.direction == &#34;get&#34;:
+        return os.path.exists(self.dest_file)
+    else:
+        raise ValueError(&#34;Unexpected value for self.direction&#34;)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer.verify_file"><code class="name flex">
+<span>def <span class="ident">verify_file</span></span>(<span>self) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Verify the file has been transferred correctly based on filesize.
+This method is very approximate as Mikrotik rounds file sizes to KiB, MiB, GiB&hellip;
+Therefore multiple conversions from/to bytes are needed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def verify_file(self) -&gt; bool:
+    &#34;&#34;&#34;
+    Verify the file has been transferred correctly based on filesize.
+    This method is very approximate as Mikrotik rounds file sizes to KiB, MiB, GiB...
+    Therefore multiple conversions from/to bytes are needed
+    &#34;&#34;&#34;
+    if self.direction == &#34;put&#34;:
+        local_size = self._format_bytes(os.stat(self.source_file).st_size)
+        remote_size = self._format_bytes(
+            self.remote_file_size(remote_file=self.dest_file)
+        )
+        return local_size == remote_size
+    elif self.direction == &#34;get&#34;:
+        local_size = self._format_bytes(os.stat(self.dest_file).st_size)
+        remote_size = self._format_bytes(
+            self.remote_file_size(remote_file=self.source_file)
+        )
+        return local_size == remote_size
+    else:
+        raise ValueError(&#34;Unexpected value of self.direction&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></b></code>:
+<ul class="hlist">
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.close_scp_chan" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.close_scp_chan">close_scp_chan</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.compare_md5" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.compare_md5">compare_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.disable_scp" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.disable_scp">disable_scp</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.enable_scp" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.enable_scp">enable_scp</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.establish_scp_conn" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.establish_scp_conn">establish_scp_conn</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.file_md5" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.file_md5">file_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.get_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.get_file">get_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.local_space_available" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.local_space_available">local_space_available</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.process_md5" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.process_md5">process_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.put_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.put_file">put_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_file_size" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.remote_file_size">remote_file_size</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_md5" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.remote_md5">remote_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_space_available" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.remote_space_available">remote_space_available</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.transfer_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.transfer_file">transfer_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.verify_space_available" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.verify_space_available">verify_space_available</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsSSH"><code class="flex name class">
+<span>class <span class="ident">MikrotikRouterOsSSH</span></span>
+<span>(</span><span>**kwargs: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Mikrotik RouterOS SSH driver.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class MikrotikRouterOsSSH(MikrotikBase):
     &#34;&#34;&#34;Mikrotik RouterOS SSH driver.&#34;&#34;&#34;
 
@@ -538,7 +1059,7 @@ repainting.</p></section>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command">strip_command</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_prompt" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_prompt">strip_prompt</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.telnet_login" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login">telnet_login</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
@@ -548,12 +1069,14 @@ repainting.</p></section>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikSwitchOsSSH"><code class="flex name class">
 <span>class <span class="ident">MikrotikSwitchOsSSH</span></span>
-<span>(</span><span>**kwargs)</span>
+<span>(</span><span>**kwargs: Any)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Mikrotik SwitchOS SSH driver.</p></section>
+<div class="desc"><p>Mikrotik SwitchOS SSH driver.</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class MikrotikSwitchOsSSH(MikrotikBase):
     &#34;&#34;&#34;Mikrotik SwitchOS SSH driver.&#34;&#34;&#34;
 
@@ -608,7 +1131,7 @@ repainting.</p></section>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command">strip_command</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_prompt" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_prompt">strip_prompt</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.telnet_login" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login">telnet_login</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
@@ -643,7 +1166,15 @@ repainting.</p></section>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command_timing" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.session_preparation" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.set_base_prompt" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command">strip_command</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_prompt" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_prompt">strip_prompt</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer">MikrotikRouterOsFileTransfer</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer.check_file_exists" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer.check_file_exists">check_file_exists</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer.verify_file" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer.verify_file">verify_file</a></code></li>
 </ul>
 </li>
 <li>
@@ -658,9 +1189,7 @@ repainting.</p></section>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
 </body>
 </html>
