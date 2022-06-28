@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>netmiko.dell.dell_isilon_ssh API documentation</title>
+<title>netmiko.nokia.nokia_srl API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,37 +19,75 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>netmiko.dell.dell_isilon_ssh</code></h1>
+<h1 class="title">Module <code>netmiko.nokia.nokia_srl</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import Any, Optional
-import time
-import re
+<pre><code class="python">#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Copyright (c) 2014 - 2022 Kirk Byers
+# Copyright (c) 2014 - 2022 Twin Bridges Technology
+# Copyright (c) 2019 - 2022 NOKIA Inc.
+# MIT License - See License file at:
+#   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
 
+import re
+from typing import Any, Optional, Sequence, TextIO, Union
+from netmiko import log
+from netmiko.no_enable import NoEnable
 from netmiko.base_connection import BaseConnection
 
 
-class DellIsilonSSH(BaseConnection):
+class NokiaSrlSSH(BaseConnection, NoEnable):
+    &#34;&#34;&#34;
+    Implement methods for interacting with Nokia SRL devices for SSH.
+
+    Not applicable in Nokia SRL:
+        - check_enable_mode()
+        - enable()
+        - exit_enable_mode()
+
+    By default, the SR Linux CLI prompt consists of two lines of text,
+    indicating with an asterisk whether the configuration has been modified or
+    a plus sign whether the configuration has been saved, the current mode and
+    session type, the current CLI context, and the host name of the SR Linux device.
+
+    Examples:
+
+    --{ running }--[ interface ethernet-1/1 subinterface 1 ]--
+    A:ams01#
+
+    --{ * candidate private private-admin }--[ interface ethernet-1/1 subinterface 1 ]--
+    A:ams01#
+
+    --{ + candidate private private-admin }--[ interface ethernet-1/1 subinterface 1 ]--
+    A:ams01#
+
+    This class support the default prompt configuration.
+    &#34;&#34;&#34;
+
     def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read(pattern=r&#34;#&#34;)
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r&#34;[#\$]&#34;)
-        self._zsh_mode()
-        self.find_prompt()
+        # Bottom toolbar text not required
+        commands = [
+            &#34;environment complete-on-space false&#34;,
+            &#34;environment cli-engine type basic&#34;,
+        ]
+        for command in commands:
+            self.disable_paging(command=command, cmd_verify=True, pattern=r&#34;#&#34;)
         self.set_base_prompt()
 
     def set_base_prompt(
         self,
-        pri_prompt_terminator: str = &#34;$&#34;,
+        pri_prompt_terminator: str = &#34;#&#34;,
         alt_prompt_terminator: str = &#34;#&#34;,
         delay_factor: float = 1.0,
-        pattern: Optional[str] = None,
+        pattern: Optional[str] = r&#34;#&#34;,
     ) -&gt; str:
-        &#34;&#34;&#34;Determine base prompt.&#34;&#34;&#34;
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
@@ -57,79 +95,102 @@ class DellIsilonSSH(BaseConnection):
             pattern=pattern,
         )
 
-    def strip_ansi_escape_codes(self, string_buffer: str) -&gt; str:
-        &#34;&#34;&#34;Remove Null code&#34;&#34;&#34;
-        output = re.sub(r&#34;\x00&#34;, &#34;&#34;, string_buffer)
-        return super().strip_ansi_escape_codes(output)
-
-    def _zsh_mode(self, prompt_terminator: str = &#34;$&#34;) -&gt; None:
-        &#34;&#34;&#34;Run zsh command to unify the environment&#34;&#34;&#34;
-        if self.global_delay_factor &lt; 1:
-            delay_factor = 1.0
-        else:
-            delay_factor = self.global_delay_factor
-        command = self.RETURN + &#34;zsh&#34; + self.RETURN
-        self.write_channel(command)
-        time.sleep(0.25 * delay_factor)
-        self._set_prompt(prompt_terminator)
-        time.sleep(0.25 * delay_factor)
-        self.clear_buffer()
-
-    def _set_prompt(self, prompt_terminator: str = &#34;$&#34;) -&gt; None:
-        prompt = f&#34;PROMPT=&#39;%m{prompt_terminator}&#39;&#34;
-        command = self.RETURN + prompt + self.RETURN
-        self.write_channel(command)
-
-    def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
-        &#34;&#34;&#34;Isilon doesn&#39;t have paging by default.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
-        return super().check_enable_mode(check_string=check_string)
-
-    def enable(
-        self,
-        cmd: str = &#34;sudo su&#34;,
-        pattern: str = &#34;ssword&#34;,
-        enable_pattern: Optional[str] = None,
-        re_flags: int = re.IGNORECASE,
-    ) -&gt; str:
-        delay_factor = self.select_delay_factor(delay_factor=1)
-        output = &#34;&#34;
-        if not self.check_enable_mode():
-            output += self._send_command_timing_str(
-                cmd, strip_prompt=False, strip_command=False
-            )
-            if re.search(pattern, output, flags=re_flags):
-                self.write_channel(self.normalize_cmd(self.secret))
-            output += self.read_until_pattern(pattern=r&#34;#.*$&#34;)
-            time.sleep(1 * delay_factor)
-            self._set_prompt(prompt_terminator=&#34;#&#34;)
-            if not self.check_enable_mode():
-                raise ValueError(&#34;Failed to enter enable mode&#34;)
-        return output
-
-    def exit_enable_mode(self, exit_command: str = &#34;exit&#34;) -&gt; str:
-        return super().exit_enable_mode(exit_command=exit_command)
-
-    def check_config_mode(
-        self, check_string: str = &#34;#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-    ) -&gt; bool:
-        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-        return self.check_enable_mode(check_string=check_string)
-
     def config_mode(
         self,
-        config_command: str = &#34;sudo su&#34;,
-        pattern: str = &#34;ssword&#34;,
-        re_flags: int = re.IGNORECASE,
+        config_command: str = &#34;enter candidate private&#34;,
+        pattern: str = r&#34;#&#34;,
+        re_flags: int = 0,
     ) -&gt; str:
-        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-        return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = &#34;&#34;) -&gt; str:
-        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-        return self.exit_enable_mode(exit_command=exit_config)</code></pre>
+    def check_config_mode(
+        self,
+        check_string: str = r&#34;\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate&#34;,
+        pattern: str = r&#34;#&#34;,
+        force_regex: bool = True,
+    ) -&gt; bool:
+
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
+
+    def commit(self) -&gt; str:
+        &#34;&#34;&#34;Commit changes by using &#39;commit stay&#39;.&#34;&#34;&#34;
+        cmd = &#34;commit stay&#34;
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+        return output
+
+    def save_config(
+        self,
+        cmd: str = &#34;save startup&#34;,
+        confirm: bool = False,
+        confirm_response: str = &#34;&#34;,
+    ) -&gt; str:
+        &#34;&#34;&#34;Save current running configuration as initial (startup) configuration&#34;&#34;&#34;
+        return self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+
+    def exit_config_mode(self, exit_config: str = &#34;&#34;, pattern: str = &#34;&#34;) -&gt; str:
+        &#34;&#34;&#34;Exit the candidate private mode&#34;&#34;&#34;
+        output = &#34;&#34;
+        self.write_channel(self.RETURN)
+        prompt = self.read_until_pattern(pattern=&#34;#&#34;)
+
+        if self._has_uncommitted_changes(prompt):
+            # Changes were made but not committed. Discarding changes
+            output += self._discard()
+        # Switch to &#39;running&#39; mode
+        output += self._running_mode()
+        return output
+
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -&gt; str:
+        &#34;&#34;&#34;Nokia SRL requires you not exit from configuration mode.&#34;&#34;&#34;
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+        )
+
+    def _discard(self) -&gt; str:
+        &#34;&#34;&#34;Discard changes made in candidate private mode&#34;&#34;&#34;
+        log.warning(&#34;Uncommitted changes will be discarted!&#34;)
+        cmd = &#34;discard stay&#34;
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+        return output
+
+    def _running_mode(self) -&gt; str:
+        &#34;&#34;&#34;Enter running mode&#34;&#34;&#34;
+        cmd = &#34;enter running&#34;
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+        return output
+
+    def _has_uncommitted_changes(self, prompt: str) -&gt; bool:
+        &#34;&#34;&#34;
+        The asterix (*) next to the mode name indicates that the candidate configuration
+        has changes that have not yet been committed.
+
+        The plus sign (+) in the prompt indicates that the running configuration differs
+        from the startup configuration. After you enter the save startup command,
+        the running configuration is synchronized with the startup configuration,
+        and the plus sign is removed from the prompt.
+
+        The exclamation mark (!) in the prompt indicates that another user has commited
+        changes to the running datastore.
+        &#34;&#34;&#34;
+        matches = re.search(r&#34;\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate&#34;, prompt)
+        return True if matches and &#34;*&#34; in matches.group() else False</code></pre>
 </details>
 </section>
 <section>
@@ -141,13 +202,28 @@ class DellIsilonSSH(BaseConnection):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="netmiko.dell.dell_isilon_ssh.DellIsilonSSH"><code class="flex name class">
-<span>class <span class="ident">DellIsilonSSH</span></span>
+<dt id="netmiko.nokia.nokia_srl.NokiaSrlSSH"><code class="flex name class">
+<span>class <span class="ident">NokiaSrlSSH</span></span>
 <span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'ascii', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines vendor independent methods.</p>
-<p>Otherwise method left as a stub method.</p>
+<div class="desc"><p>Implement methods for interacting with Nokia SRL devices for SSH.</p>
+<p>Not applicable in Nokia SRL:
+- check_enable_mode()
+- enable()
+- exit_enable_mode()</p>
+<p>By default, the SR Linux CLI prompt consists of two lines of text,
+indicating with an asterisk whether the configuration has been modified or
+a plus sign whether the configuration has been saved, the current mode and
+session type, the current CLI context, and the host name of the SR Linux device.</p>
+<p>Examples:</p>
+<p>&ndash;{ running }&ndash;[ interface ethernet-1/1 subinterface 1 ]&ndash;
+A:ams01#</p>
+<p>&ndash;{ * candidate private private-admin }&ndash;[ interface ethernet-1/1 subinterface 1 ]&ndash;
+A:ams01#</p>
+<p>&ndash;{ + candidate private private-admin }&ndash;[ interface ethernet-1/1 subinterface 1 ]&ndash;
+A:ams01#</p>
+<p>This class support the default prompt configuration.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
     :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
@@ -255,23 +331,53 @@ class DellIsilonSSH(BaseConnection):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DellIsilonSSH(BaseConnection):
+<pre><code class="python">class NokiaSrlSSH(BaseConnection, NoEnable):
+    &#34;&#34;&#34;
+    Implement methods for interacting with Nokia SRL devices for SSH.
+
+    Not applicable in Nokia SRL:
+        - check_enable_mode()
+        - enable()
+        - exit_enable_mode()
+
+    By default, the SR Linux CLI prompt consists of two lines of text,
+    indicating with an asterisk whether the configuration has been modified or
+    a plus sign whether the configuration has been saved, the current mode and
+    session type, the current CLI context, and the host name of the SR Linux device.
+
+    Examples:
+
+    --{ running }--[ interface ethernet-1/1 subinterface 1 ]--
+    A:ams01#
+
+    --{ * candidate private private-admin }--[ interface ethernet-1/1 subinterface 1 ]--
+    A:ams01#
+
+    --{ + candidate private private-admin }--[ interface ethernet-1/1 subinterface 1 ]--
+    A:ams01#
+
+    This class support the default prompt configuration.
+    &#34;&#34;&#34;
+
     def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read(pattern=r&#34;#&#34;)
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r&#34;[#\$]&#34;)
-        self._zsh_mode()
-        self.find_prompt()
+        # Bottom toolbar text not required
+        commands = [
+            &#34;environment complete-on-space false&#34;,
+            &#34;environment cli-engine type basic&#34;,
+        ]
+        for command in commands:
+            self.disable_paging(command=command, cmd_verify=True, pattern=r&#34;#&#34;)
         self.set_base_prompt()
 
     def set_base_prompt(
         self,
-        pri_prompt_terminator: str = &#34;$&#34;,
+        pri_prompt_terminator: str = &#34;#&#34;,
         alt_prompt_terminator: str = &#34;#&#34;,
         delay_factor: float = 1.0,
-        pattern: Optional[str] = None,
+        pattern: Optional[str] = r&#34;#&#34;,
     ) -&gt; str:
-        &#34;&#34;&#34;Determine base prompt.&#34;&#34;&#34;
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
@@ -279,205 +385,191 @@ class DellIsilonSSH(BaseConnection):
             pattern=pattern,
         )
 
-    def strip_ansi_escape_codes(self, string_buffer: str) -&gt; str:
-        &#34;&#34;&#34;Remove Null code&#34;&#34;&#34;
-        output = re.sub(r&#34;\x00&#34;, &#34;&#34;, string_buffer)
-        return super().strip_ansi_escape_codes(output)
-
-    def _zsh_mode(self, prompt_terminator: str = &#34;$&#34;) -&gt; None:
-        &#34;&#34;&#34;Run zsh command to unify the environment&#34;&#34;&#34;
-        if self.global_delay_factor &lt; 1:
-            delay_factor = 1.0
-        else:
-            delay_factor = self.global_delay_factor
-        command = self.RETURN + &#34;zsh&#34; + self.RETURN
-        self.write_channel(command)
-        time.sleep(0.25 * delay_factor)
-        self._set_prompt(prompt_terminator)
-        time.sleep(0.25 * delay_factor)
-        self.clear_buffer()
-
-    def _set_prompt(self, prompt_terminator: str = &#34;$&#34;) -&gt; None:
-        prompt = f&#34;PROMPT=&#39;%m{prompt_terminator}&#39;&#34;
-        command = self.RETURN + prompt + self.RETURN
-        self.write_channel(command)
-
-    def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
-        &#34;&#34;&#34;Isilon doesn&#39;t have paging by default.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
-        return super().check_enable_mode(check_string=check_string)
-
-    def enable(
-        self,
-        cmd: str = &#34;sudo su&#34;,
-        pattern: str = &#34;ssword&#34;,
-        enable_pattern: Optional[str] = None,
-        re_flags: int = re.IGNORECASE,
-    ) -&gt; str:
-        delay_factor = self.select_delay_factor(delay_factor=1)
-        output = &#34;&#34;
-        if not self.check_enable_mode():
-            output += self._send_command_timing_str(
-                cmd, strip_prompt=False, strip_command=False
-            )
-            if re.search(pattern, output, flags=re_flags):
-                self.write_channel(self.normalize_cmd(self.secret))
-            output += self.read_until_pattern(pattern=r&#34;#.*$&#34;)
-            time.sleep(1 * delay_factor)
-            self._set_prompt(prompt_terminator=&#34;#&#34;)
-            if not self.check_enable_mode():
-                raise ValueError(&#34;Failed to enter enable mode&#34;)
-        return output
-
-    def exit_enable_mode(self, exit_command: str = &#34;exit&#34;) -&gt; str:
-        return super().exit_enable_mode(exit_command=exit_command)
-
-    def check_config_mode(
-        self, check_string: str = &#34;#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-    ) -&gt; bool:
-        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-        return self.check_enable_mode(check_string=check_string)
-
     def config_mode(
         self,
-        config_command: str = &#34;sudo su&#34;,
-        pattern: str = &#34;ssword&#34;,
-        re_flags: int = re.IGNORECASE,
+        config_command: str = &#34;enter candidate private&#34;,
+        pattern: str = r&#34;#&#34;,
+        re_flags: int = 0,
     ) -&gt; str:
-        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-        return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = &#34;&#34;) -&gt; str:
-        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-        return self.exit_enable_mode(exit_command=exit_config)</code></pre>
+    def check_config_mode(
+        self,
+        check_string: str = r&#34;\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate&#34;,
+        pattern: str = r&#34;#&#34;,
+        force_regex: bool = True,
+    ) -&gt; bool:
+
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
+
+    def commit(self) -&gt; str:
+        &#34;&#34;&#34;Commit changes by using &#39;commit stay&#39;.&#34;&#34;&#34;
+        cmd = &#34;commit stay&#34;
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+        return output
+
+    def save_config(
+        self,
+        cmd: str = &#34;save startup&#34;,
+        confirm: bool = False,
+        confirm_response: str = &#34;&#34;,
+    ) -&gt; str:
+        &#34;&#34;&#34;Save current running configuration as initial (startup) configuration&#34;&#34;&#34;
+        return self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+
+    def exit_config_mode(self, exit_config: str = &#34;&#34;, pattern: str = &#34;&#34;) -&gt; str:
+        &#34;&#34;&#34;Exit the candidate private mode&#34;&#34;&#34;
+        output = &#34;&#34;
+        self.write_channel(self.RETURN)
+        prompt = self.read_until_pattern(pattern=&#34;#&#34;)
+
+        if self._has_uncommitted_changes(prompt):
+            # Changes were made but not committed. Discarding changes
+            output += self._discard()
+        # Switch to &#39;running&#39; mode
+        output += self._running_mode()
+        return output
+
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
+    ) -&gt; str:
+        &#34;&#34;&#34;Nokia SRL requires you not exit from configuration mode.&#34;&#34;&#34;
+        return super().send_config_set(
+            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+        )
+
+    def _discard(self) -&gt; str:
+        &#34;&#34;&#34;Discard changes made in candidate private mode&#34;&#34;&#34;
+        log.warning(&#34;Uncommitted changes will be discarted!&#34;)
+        cmd = &#34;discard stay&#34;
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+        return output
+
+    def _running_mode(self) -&gt; str:
+        &#34;&#34;&#34;Enter running mode&#34;&#34;&#34;
+        cmd = &#34;enter running&#34;
+        output = self._send_command_str(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
+        return output
+
+    def _has_uncommitted_changes(self, prompt: str) -&gt; bool:
+        &#34;&#34;&#34;
+        The asterix (*) next to the mode name indicates that the candidate configuration
+        has changes that have not yet been committed.
+
+        The plus sign (+) in the prompt indicates that the running configuration differs
+        from the startup configuration. After you enter the save startup command,
+        the running configuration is synchronized with the startup configuration,
+        and the plus sign is removed from the prompt.
+
+        The exclamation mark (!) in the prompt indicates that another user has commited
+        changes to the running datastore.
+        &#34;&#34;&#34;
+        matches = re.search(r&#34;\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate&#34;, prompt)
+        return True if matches and &#34;*&#34; in matches.group() else False</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
+<li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = '#', pattern: str = '', force_regex: bool = False) ‑> bool</span>
+<dt id="netmiko.nokia.nokia_srl.NokiaSrlSSH.commit"><code class="name flex">
+<span>def <span class="ident">commit</span></span>(<span>self) ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Use equivalent enable method.</p></div>
+<div class="desc"><p>Commit changes by using 'commit stay'.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def check_config_mode(
-    self, check_string: str = &#34;#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-) -&gt; bool:
-    &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-    return self.check_enable_mode(check_string=check_string)</code></pre>
+<pre><code class="python">def commit(self) -&gt; str:
+    &#34;&#34;&#34;Commit changes by using &#39;commit stay&#39;.&#34;&#34;&#34;
+    cmd = &#34;commit stay&#34;
+    output = self._send_command_str(
+        command_string=cmd, strip_prompt=False, strip_command=False
+    )
+    return output</code></pre>
 </details>
 </dd>
-<dt id="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command: str = 'sudo su', pattern: str = 'ssword', re_flags: int = re.IGNORECASE) ‑> str</span>
+<dt id="netmiko.nokia.nokia_srl.NokiaSrlSSH.exit_config_mode"><code class="name flex">
+<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config: str = '', pattern: str = '') ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Use equivalent enable method.</p></div>
+<div class="desc"><p>Exit the candidate private mode</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def config_mode(
+<pre><code class="python">def exit_config_mode(self, exit_config: str = &#34;&#34;, pattern: str = &#34;&#34;) -&gt; str:
+    &#34;&#34;&#34;Exit the candidate private mode&#34;&#34;&#34;
+    output = &#34;&#34;
+    self.write_channel(self.RETURN)
+    prompt = self.read_until_pattern(pattern=&#34;#&#34;)
+
+    if self._has_uncommitted_changes(prompt):
+        # Changes were made but not committed. Discarding changes
+        output += self._discard()
+    # Switch to &#39;running&#39; mode
+    output += self._running_mode()
+    return output</code></pre>
+</details>
+</dd>
+<dt id="netmiko.nokia.nokia_srl.NokiaSrlSSH.save_config"><code class="name flex">
+<span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'save startup', confirm: bool = False, confirm_response: str = '') ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save current running configuration as initial (startup) configuration</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_config(
     self,
-    config_command: str = &#34;sudo su&#34;,
-    pattern: str = &#34;ssword&#34;,
-    re_flags: int = re.IGNORECASE,
+    cmd: str = &#34;save startup&#34;,
+    confirm: bool = False,
+    confirm_response: str = &#34;&#34;,
 ) -&gt; str:
-    &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-    return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.disable_paging"><code class="name flex">
-<span>def <span class="ident">disable_paging</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Isilon doesn't have paging by default.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
-    &#34;&#34;&#34;Isilon doesn&#39;t have paging by default.&#34;&#34;&#34;
-    return &#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config: str = 'exit', pattern: str = '') ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Use equivalent enable method.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = &#34;&#34;) -&gt; str:
-    &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-    return self.exit_enable_mode(exit_command=exit_config)</code></pre>
-</details>
-</dd>
-<dt id="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.session_preparation"><code class="name flex">
-<span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Prepare the session after the connection has been established.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def session_preparation(self) -&gt; None:
-    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    self.ansi_escape_codes = True
-    self._test_channel_read(pattern=r&#34;[#\$]&#34;)
-    self._zsh_mode()
-    self.find_prompt()
-    self.set_base_prompt()</code></pre>
-</details>
-</dd>
-<dt id="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.set_base_prompt"><code class="name flex">
-<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator: str = '$', alt_prompt_terminator: str = '#', delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Determine base prompt.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_base_prompt(
-    self,
-    pri_prompt_terminator: str = &#34;$&#34;,
-    alt_prompt_terminator: str = &#34;#&#34;,
-    delay_factor: float = 1.0,
-    pattern: Optional[str] = None,
-) -&gt; str:
-    &#34;&#34;&#34;Determine base prompt.&#34;&#34;&#34;
-    return super().set_base_prompt(
-        pri_prompt_terminator=pri_prompt_terminator,
-        alt_prompt_terminator=alt_prompt_terminator,
-        delay_factor=delay_factor,
-        pattern=pattern,
+    &#34;&#34;&#34;Save current running configuration as initial (startup) configuration&#34;&#34;&#34;
+    return self._send_command_str(
+        command_string=cmd, strip_prompt=False, strip_command=False
     )</code></pre>
 </details>
 </dd>
-<dt id="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.strip_ansi_escape_codes"><code class="name flex">
-<span>def <span class="ident">strip_ansi_escape_codes</span></span>(<span>self, string_buffer: str) ‑> str</span>
+<dt id="netmiko.nokia.nokia_srl.NokiaSrlSSH.send_config_set"><code class="name flex">
+<span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands: Union[str, Sequence[str], TextIO, ForwardRef(None)] = None, exit_config_mode: bool = False, **kwargs: Any) ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Remove Null code</p></div>
+<div class="desc"><p>Nokia SRL requires you not exit from configuration mode.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def strip_ansi_escape_codes(self, string_buffer: str) -&gt; str:
-    &#34;&#34;&#34;Remove Null code&#34;&#34;&#34;
-    output = re.sub(r&#34;\x00&#34;, &#34;&#34;, string_buffer)
-    return super().strip_ansi_escape_codes(output)</code></pre>
+<pre><code class="python">def send_config_set(
+    self,
+    config_commands: Union[str, Sequence[str], TextIO, None] = None,
+    exit_config_mode: bool = False,
+    **kwargs: Any,
+) -&gt; str:
+    &#34;&#34;&#34;Nokia SRL requires you not exit from configuration mode.&#34;&#34;&#34;
+    return super().send_config_set(
+        config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+    )</code></pre>
 </details>
 </dd>
 </dl>
@@ -485,10 +577,12 @@ class DellIsilonSSH(BaseConnection):
 <ul class="hlist">
 <li><code><b><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.base_connection.BaseConnection.check_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.check_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
@@ -504,16 +598,17 @@ class DellIsilonSSH(BaseConnection):
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.save_config" href="../base_connection.html#netmiko.base_connection.BaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
@@ -534,21 +629,18 @@ class DellIsilonSSH(BaseConnection):
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="netmiko.dell" href="index.html">netmiko.dell</a></code></li>
+<li><code><a title="netmiko.nokia" href="index.html">netmiko.nokia</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="netmiko.dell.dell_isilon_ssh.DellIsilonSSH" href="#netmiko.dell.dell_isilon_ssh.DellIsilonSSH">DellIsilonSSH</a></code></h4>
+<h4><code><a title="netmiko.nokia.nokia_srl.NokiaSrlSSH" href="#netmiko.nokia.nokia_srl.NokiaSrlSSH">NokiaSrlSSH</a></code></h4>
 <ul class="">
-<li><code><a title="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.check_config_mode" href="#netmiko.dell.dell_isilon_ssh.DellIsilonSSH.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.config_mode" href="#netmiko.dell.dell_isilon_ssh.DellIsilonSSH.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.disable_paging" href="#netmiko.dell.dell_isilon_ssh.DellIsilonSSH.disable_paging">disable_paging</a></code></li>
-<li><code><a title="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.exit_config_mode" href="#netmiko.dell.dell_isilon_ssh.DellIsilonSSH.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.session_preparation" href="#netmiko.dell.dell_isilon_ssh.DellIsilonSSH.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.set_base_prompt" href="#netmiko.dell.dell_isilon_ssh.DellIsilonSSH.set_base_prompt">set_base_prompt</a></code></li>
-<li><code><a title="netmiko.dell.dell_isilon_ssh.DellIsilonSSH.strip_ansi_escape_codes" href="#netmiko.dell.dell_isilon_ssh.DellIsilonSSH.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
+<li><code><a title="netmiko.nokia.nokia_srl.NokiaSrlSSH.commit" href="#netmiko.nokia.nokia_srl.NokiaSrlSSH.commit">commit</a></code></li>
+<li><code><a title="netmiko.nokia.nokia_srl.NokiaSrlSSH.exit_config_mode" href="#netmiko.nokia.nokia_srl.NokiaSrlSSH.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.nokia.nokia_srl.NokiaSrlSSH.save_config" href="#netmiko.nokia.nokia_srl.NokiaSrlSSH.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.nokia.nokia_srl.NokiaSrlSSH.send_config_set" href="#netmiko.nokia.nokia_srl.NokiaSrlSSH.send_config_set">send_config_set</a></code></li>
 </ul>
 </li>
 </ul>
