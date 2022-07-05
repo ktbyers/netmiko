@@ -82,7 +82,7 @@ class SSHChannel(Channel):
             outbuf = self.remote_conn.recv(MAX_BUFFER)
             if len(outbuf) == 0:
                 raise ReadException("Channel stream closed by remote device.")
-            output += outbuf.decode("utf-8", "ignore")
+            output += outbuf.decode(self.encoding, "ignore")
         return output
 
     def read_channel(self) -> str:
@@ -123,7 +123,7 @@ class TelnetChannel(Channel):
         """Read all of the available data from the channel."""
         if self.remote_conn is None:
             raise ReadException("Attempt to read, but there is no active channel.")
-        return self.remote_conn.read_very_eager().decode("utf-8", "ignore")
+        return self.remote_conn.read_very_eager().decode(self.encoding, "ignore")
 
 
 class SerialChannel(Channel):
@@ -150,7 +150,7 @@ class SerialChannel(Channel):
             raise ReadException("Attempt to read, but there is no active channel.")
         if self.remote_conn.in_waiting > 0:
             output = self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                "utf-8", "ignore"
+                self.encoding, "ignore"
             )
             assert isinstance(output, str)
             return output
