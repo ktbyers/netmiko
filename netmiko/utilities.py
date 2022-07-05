@@ -229,6 +229,8 @@ def write_bytes(out_data: AnyStr, encoding: str = "utf-8") -> bytes:
         return out_data.encode(encoding)
     elif isinstance(out_data, bytes):
         return out_data
+    msg = f"Invalid value for out_data neither unicode nor byte string: {str(out_data)}"
+    raise ValueError(msg)
 
 
 def check_serial_port(name: str) -> str:
