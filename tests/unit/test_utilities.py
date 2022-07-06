@@ -224,6 +224,9 @@ def test_ntc_templates_discovery():
     ntc_path = utilities.get_template_dir()
     for py_path in sys.path:
         if "site-packages" in py_path:
+            _, suffix = py_path.split("site-packages")
+            if len(suffix) > 1:  # Should be "" or "/"
+                continue
             packages_dir = py_path
             break
     assert ntc_path == f"{packages_dir}/ntc_templates/templates"

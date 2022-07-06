@@ -176,7 +176,7 @@ class BaseConnection:
         session_log_record_writes: bool = False,
         session_log_file_mode: str = "write",
         allow_auto_change: bool = False,
-        encoding: str = "ascii",
+        encoding: str = "utf-8",
         sock: Optional[socket.socket] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,

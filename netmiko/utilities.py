@@ -223,16 +223,12 @@ def find_netmiko_dir() -> Tuple[str, str]:
     return (netmiko_base_dir, netmiko_full_dir)
 
 
-def write_bytes(out_data: AnyStr, encoding: str = "ascii") -> bytes:
-    """Legacy for Python2 and Python3 compatible byte stream."""
-    if sys.version_info[0] >= 3:
-        if isinstance(out_data, str):
-            if encoding == "utf-8":
-                return out_data.encode("utf-8")
-            else:
-                return out_data.encode("ascii", "ignore")
-        elif isinstance(out_data, bytes):
-            return out_data
+def write_bytes(out_data: AnyStr, encoding: str = "utf-8") -> bytes:
+    """Ensure output is properly encoded bytes."""
+    if isinstance(out_data, str):
+        return out_data.encode(encoding)
+    elif isinstance(out_data, bytes):
+        return out_data
     msg = f"Invalid value for out_data neither unicode nor byte string: {str(out_data)}"
     raise ValueError(msg)
 
