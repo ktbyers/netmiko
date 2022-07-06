@@ -2308,6 +2308,11 @@ You can also look at the Netmiko session_log or debug log for more information.
         """Try to gracefully close the session."""
         try:
             self.cleanup()
+        except Exception:
+            # Keep going on cleanup process even if exceptions
+            pass
+
+        try:
             if self.protocol == "ssh":
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":
