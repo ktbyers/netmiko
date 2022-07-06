@@ -50,7 +50,7 @@ class ExtremeErsSSH(CiscoSSHConnection):
                 self.write_channel(self.password + self.RETURN)
             else:
                 msg = f"""
-Failed to login to Extreme ERS Devices.
+Failed to login to Extreme ERS Device.
 
 Pattern not detected: {pattern}
 output:
