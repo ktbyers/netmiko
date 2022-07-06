@@ -252,6 +252,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "flexvnf": {
+        "cmd": "show system package-info",
+        "search_patterns": [r"Versa FlexVNF"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 # Sort SSH_MAPPER_DICT such that the most common commands are first
