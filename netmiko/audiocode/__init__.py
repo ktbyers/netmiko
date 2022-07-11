@@ -1,9 +1,5 @@
-from __future__ import unicode_literals
-from netmiko.audiocode.audiocode_ssh import AudiocodeSSH, AudiocodeTelnet, AudiocodeOldCLI
+from netmiko.audiocode.audiocode_ssh import AudiocodeSSH  # noqa
+from netmiko.audiocode.audiocode_ssh import AudiocodeTelnet  # noqa
+from netmiko.audiocode.audiocode_ssh import AudiocodeOldCLI  # noqa
 
-__all__ = [
-	'AudiocodeSSH',
-	'AudiocodeTelnet'
-	'AudiocodeOldCLI'
-	]
-	
+__all__ = ["AudiocodeSSH", "AudiocodeTelnet" "AudiocodeOldCLI"]
