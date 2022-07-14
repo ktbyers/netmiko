@@ -12,9 +12,7 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
-from netmiko.audiocode import AudiocodeSSH
-from netmiko.audiocode import AudiocodeTelnet
-from netmiko.audiocode import AudiocodeOldCLI
+from netmiko.audiocode import AudiocodeBaseSSH, Audiocode66SSH, AudiocodeShellSSH, AudiocodeBaseTelnet, Audiocode66Telnet, AudiocodeShellTelnet           
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
@@ -102,8 +100,6 @@ from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
-from netmiko.supermicro import SmciSwitchSmisSSH
-from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
@@ -116,6 +112,8 @@ from netmiko.yamaha import YamahaSSH
 from netmiko.yamaha import YamahaTelnet
 from netmiko.zte import ZteZxrosSSH
 from netmiko.zte import ZteZxrosTelnet
+from netmiko.supermicro import SmciSwitchSmisSSH
+from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
 
 if TYPE_CHECKING:
@@ -138,7 +136,9 @@ CLASS_MAPPER_BASE = {
     "aruba_os": ArubaSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
-    "audiocode": AudiocodeSSH,
+	"audiocode_base" : AudiocodeBaseSSH,
+	"audiocode_66" : Audiocode66SSH,
+	"audiocode_shell" : AudiocodeShellSSH,                                     
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
     "broadcom_icos": BroadcomIcosSSH,
@@ -277,12 +277,13 @@ for k, v in FILE_TRANSFER_MAP.items():
 FILE_TRANSFER_MAP = new_mapper
 
 # Add telnet drivers
-CLASS_MAPPER["audiocode_telnet"] = AudiocodeTelnet
-CLASS_MAPPER["audiocode_old_cli"] = AudiocodeOldCLI
 CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
 CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
+CLASS_MAPPER["audiocode_base_telnet"] = AudiocodeBaseTelnet
+CLASS_MAPPER["audiocode_66_telnet"] = Audiocode66Telnet
+CLASS_MAPPER["audiocode_shell_telnet"] = AudiocodeShellTelnet                                                         
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
@@ -321,7 +322,7 @@ CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
 
 # Add general terminal_server driver and autodetect
-CLASS_MAPPER["terminal_server"] = TerminalServerSSH
+CLASS_MAPPER["terminal_server"] = TerminalServerSSH                                        
 CLASS_MAPPER["autodetect"] = TerminalServerSSH
 
 platforms = list(CLASS_MAPPER.keys())

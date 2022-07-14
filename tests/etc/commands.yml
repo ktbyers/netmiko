@@ -297,18 +297,44 @@ ruijie_os:
   
 audiocode_ssh:
   version: "show system version"
-  basic: "show voip interface network"
-  extended_output: "list"   # requires paging to be disabled
-  config:
-    - "welcome-msg 15"      
-    - 'text "Test Netmiko Script 1"'  # base command
+  basic: "show data interfaces gigabitethernet 0/0"
+  extended_output: "show run system"   # requires paging to be disabled
+  config:      
+    - "welcome-msg 14"                 # base command
+    - 'text "Test Netmiko Script 1"'  
     - "activate"
     - "exit"                                    
     - "welcome-msg 15"  
-    - 'text "Test Netmiko Script 2"' # something you can verify has changed
+    - 'text "Test Netmiko Script 2"' 
     - "activate"
     - "exit"  
-  config_verification: "show run | i text"
+  config_verification: "show run system"  # something you can verify has changed
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'Writing configuration...done'
+  
+audiocode_66:
+  version: "show system version"
+  basic: "show data interfaces gigabitethernet 0/0"
+  extended_output: "show system version"   # requires paging to be disabled
+  config:               
+    - "interface FastEthernet 5/4"      # base command
+    - 'speed auto'
+    - "duplex auto"  
+    - 'desc "Test Description2"' 
+    - "exit"  
+  config_verification: "show run data"  # something you can verify has changed
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'Writing configuration...done'
+  
+audiocode_shell:
+  version: "show info"
+  basic: "show ip conf"
+  extended_output: ""   # requires paging to be disabled
+  config:        
+    - "SCP SNMPSysContact TEST_Contact" # base command
+  config_verification: "cf get"  # something you can verify has changed
   save_config_cmd: 'write'
   save_config_confirm: False
   save_config_response: 'Writing configuration...done'

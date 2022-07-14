@@ -245,11 +245,30 @@ ruijie_os:
   save_config: 'OK'
   
 audiocode_ssh:
-  base_prompt: CHLTNCAC500-LAB
-  router_prompt : CHLTNCAC500-LAB>
-  enable_prompt: CHLTNCAC500-LAB#
-  interface_ip: 174.99.176.60
+  base_prompt: TA3LABM501W
+  router_prompt : TA3LABM501W>
+  enable_prompt: TA3LABM501W#
+  interface_ip: 72.17.82.234
   version_banner: "Version info:"
-  multiple_line_output: "write-and-backup to [URL]"
+  multiple_line_output: "HardwareVersion: M500--4LG-CA1SF-2U"
+  save_config: 'Writing configuration...done'
+  
+audiocode_66:
+  base_prompt: Mediant 800
+  router_prompt : Mediant 800>
+  enable_prompt: Mediant 800#
+  interface_ip: 72.17.82.233
+  version_banner: "Version info:"
+  multiple_line_output: ";      3 : FXS         : 4"
   save_config: 'Writing configuration...done'
 
+audiocode_shell:
+  base_prompt: />
+  router_prompt : />
+  enable_prompt: />
+  interface_ip: 72.17.82.237
+  version_banner: "Last reset reason:"
+  multiple_line_output: ""
+  save_config: 'Configuration has been saved'
+  cmd_response_init: "CHTR_MS_MVT"
+  cmd_response_final: "TEST_Contact"

@@ -185,9 +185,22 @@ ruijie_os:
   password: ruijie
   secret: ruijie
   
-audiocode_ssh:
-  device_type: audiocode_ssh
-  ip: 174.99.176.60
-  username: bct-admin
-  password: Adm!N!23
-  secret: Adm!N!23
+audiocode_base:
+  device_type: audiocode_base
+  ip: 72.17.82.234
+  username: TestUser
+  password: T3stU$3r!
+  secret: T3stU$3r!
+  
+audiocode_66:
+  device_type: audiocode_66
+  ip: 72.17.82.233
+  username: TestUser
+  password: T3stU$3r!
+  secret: T3stU$3r!
+  
+audiocode_shell:
+  device_type: audiocode_shell
+  ip: 72.17.82.237
+  username: TestUser
+  password: T3stU$3r!

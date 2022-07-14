@@ -1,5 +1,12 @@
-from netmiko.audiocode.audiocode_ssh import AudiocodeSSH  # noqa
-from netmiko.audiocode.audiocode_ssh import AudiocodeTelnet  # noqa
-from netmiko.audiocode.audiocode_ssh import AudiocodeOldCLI  # noqa
+from __future__ import unicode_literals
+from netmiko.audiocode.audiocode_ssh import AudiocodeBaseSSH, Audiocode66SSH, AudiocodeShellSSH, AudiocodeBaseTelnet, Audiocode66Telnet, AudiocodeShellTelnet
 
-__all__ = ["AudiocodeSSH", "AudiocodeTelnet" "AudiocodeOldCLI"]
+__all__ = [
+	'AudiocodeBaseSSH',
+	'Audiocode66SSH',
+	'AudiocodeShellSSH',
+	'AudiocodeBaseTelnet',
+	'Audiocode66Telnet',
+	'AudiocodeShellTelnet',
+	]
+	
