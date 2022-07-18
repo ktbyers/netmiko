@@ -295,46 +295,40 @@ ruijie_os:
   save_config_confirm: False
   save_config_response: 'OK'
   
-audiocode_ssh:
+audiocode_base:
   version: "show system version"
   basic: "show data interfaces gigabitethernet 0/0"
-  extended_output: "show run system"   # requires paging to be disabled
+  extended_output: "show system version"   # requires paging to be disabled
   config:      
-    - "welcome-msg 14"                 # base command
-    - 'text "Test Netmiko Script 1"'  
-    - "activate"
-    - "exit"                                    
-    - "welcome-msg 15"  
-    - 'text "Test Netmiko Script 2"' 
-    - "activate"
-    - "exit"  
-  config_verification: "show run system"  # something you can verify has changed
+    - "ip domain name house"                 # base command                                
+  config_verification: "show run data"  # something you can verify has changed
   save_config_cmd: 'write'
   save_config_confirm: False
   save_config_response: 'Writing configuration...done'
+  config_mode_command: "config data"     # only use if needed
   
 audiocode_66:
   version: "show system version"
   basic: "show data interfaces gigabitethernet 0/0"
   extended_output: "show system version"   # requires paging to be disabled
-  config:               
-    - "interface FastEthernet 5/4"      # base command
-    - 'speed auto'
-    - "duplex auto"  
-    - 'desc "Test Description2"' 
-    - "exit"  
+  config:     
+    - "no ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"      # base command       
+    - "no ip route 1.1.1.1 255.255.255.255 1.1.1.1 GigabitEthernet 0/0 1"      
+    - "ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"
   config_verification: "show run data"  # something you can verify has changed
   save_config_cmd: 'write'
   save_config_confirm: False
   save_config_response: 'Writing configuration...done'
+  config_mode_command: "config data"     # only use if needed
   
 audiocode_shell:
   version: "show info"
   basic: "show ip conf"
-  extended_output: ""   # requires paging to be disabled
+  extended_output: "show info"   # requires paging to be disabled
   config:        
     - "SCP SNMPSysContact TEST_Contact" # base command
   config_verification: "cf get"  # something you can verify has changed
-  save_config_cmd: 'write'
+  save_config_cmd: 'SaveConfiguration'
   save_config_confirm: False
-  save_config_response: 'Writing configuration...done'
+  save_config_response: 'Configuration has been saved'
+  config_mode_command: "conf"         # only use if needed

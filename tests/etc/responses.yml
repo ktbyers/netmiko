@@ -244,7 +244,7 @@ ruijie_os:
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
   
-audiocode_ssh:
+audiocode_base:
   base_prompt: TA3LABM501W
   router_prompt : TA3LABM501W>
   enable_prompt: TA3LABM501W#
@@ -252,6 +252,8 @@ audiocode_ssh:
   version_banner: "Version info:"
   multiple_line_output: "HardwareVersion: M500--4LG-CA1SF-2U"
   save_config: 'Writing configuration...done'
+  cmd_response_init: "ip domain name home"
+  cmd_response_final: "ip domain name house"
   
 audiocode_66:
   base_prompt: Mediant 800
@@ -261,6 +263,8 @@ audiocode_66:
   version_banner: "Version info:"
   multiple_line_output: ";      3 : FXS         : 4"
   save_config: 'Writing configuration...done'
+  cmd_response_init: "ip route 1.1.1.1 255.255.255.255 1.1.1.1 GigabitEthernet 0/0 1"
+  cmd_response_final: "ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"
 
 audiocode_shell:
   base_prompt: />
@@ -268,7 +272,7 @@ audiocode_shell:
   enable_prompt: />
   interface_ip: 72.17.82.237
   version_banner: "Last reset reason:"
-  multiple_line_output: ""
+  multiple_line_output: "Last reset reason:"
   save_config: 'Configuration has been saved'
   cmd_response_init: "CHTR_MS_MVT"
   cmd_response_final: "TEST_Contact"
