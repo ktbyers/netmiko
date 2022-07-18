@@ -32,7 +32,12 @@ def test_config_mode(net_connect, commands, expected_responses):
     Test enter config mode
     """
     # Behavior for devices with no config mode is to return null string
-    if net_connect.config_mode() != "":
+    config_mode_command = commands.get("config_mode_command")
+
+    if config_mode_command is not None:
+        if net_connect.config_mode(config_command=config_mode_command) != "":
+            assert net_connect.check_config_mode() is True  
+    elif net_connect.config_mode() != "":
         assert net_connect.check_config_mode() is True
     else:
         pytest.skip("Platform doesn't support config mode.")
@@ -51,6 +56,7 @@ def test_config_set(net_connect, commands, expected_responses):
     """Test sending configuration commands."""
 
     config_commands = commands["config"]
+    config_mode_command = commands.get("config_mode_command")
     support_commit = commands.get("support_commit")
     config_verify = commands["config_verification"]
 
@@ -64,7 +70,13 @@ def test_config_set(net_connect, commands, expected_responses):
         assert cmd_response in config_commands_output
     else:
         assert config_commands[0] in config_commands_output
-    net_connect.send_config_set(config_commands)
+
+    if config_mode_command is not None:
+        net_connect.send_config_set(
+            config_commands=config_commands, config_mode_command=config_mode_command,enter_config_mode=True)
+    else:
+        net_connect.send_config_set(config_commands)
+
     if support_commit:
         net_connect.commit()
     cmd_response = expected_responses.get("cmd_response_final")
