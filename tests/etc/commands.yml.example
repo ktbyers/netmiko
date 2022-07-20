@@ -510,3 +510,41 @@ nokia_srl:
     - "interface ethernet-1/1 admin-state disable"
     - "interface ethernet-1/1 admin-state enable"
   config_verification: "show interface ethernet-1/1 brief"
+
+audiocode_base:
+  version: "show system version"
+  basic: "show data interfaces gigabitethernet 0/0"
+  extended_output: "show system version"   # requires paging to be disabled
+  config:      
+    - "ip domain name house"                 # base command                                
+  config_verification: "show run data"  # something you can verify has changed
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'Writing configuration...done'
+  config_mode_command: "config data"     # only use if needed
+  
+audiocode_66:
+  version: "show system version"
+  basic: "show data interfaces gigabitethernet 0/0"
+  extended_output: "show system version"   # requires paging to be disabled
+  config:     
+    - "no ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"      # base command       
+    - "no ip route 1.1.1.1 255.255.255.255 1.1.1.1 GigabitEthernet 0/0 1"      
+    - "ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"
+  config_verification: "show run data"  # something you can verify has changed
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'Writing configuration...done'
+  config_mode_command: "config data"     # only use if needed
+  
+audiocode_shell:
+  version: "show info"
+  basic: "show ip conf"
+  extended_output: "show info"   # requires paging to be disabled
+  config:        
+    - "SCP SNMPSysContact Test_String2" # base command
+  config_verification: "cf get"  # something you can verify has changed
+  save_config_cmd: 'SaveConfiguration'
+  save_config_confirm: False
+  save_config_response: 'Configuration has been saved'
+  config_mode_command: "conf"         # only use if needed
