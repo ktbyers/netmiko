@@ -467,50 +467,21 @@ class AudiocodeShellSSH(AudiocodeBaseSSH):
         max_loops: int = 150,
         strip_prompt: bool = False,
         strip_command: bool = False,
-        config_mode_command: str = None,
+        config_mode_command: Optional[str] = None,
         cmd_verify: bool = True,
-        enter_config_mode: bool = False,
+        enter_config_mode: bool = True,
         error_pattern: str = "",
         terminator: str = r"/.*>",
         bypass_commands: str = None,
     ) -> str:
-        """
-        Send configuration commands down the SSH channel.
 
-        config_commands is an iterable containing all of the configuration commands.
-        The commands will be executed one after the other.
-
-        Automatically exits/enters configuration mode.
-
-        :param config_commands: Multiple configuration commands to be sent to the device
-
-        :param exit_config_mode: Determines whether or not to exit config mode after complete
-
-        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param strip_prompt: Determines whether or not to strip the prompt
-
-        :param strip_command: Determines whether or not to strip the command
-
-        :param read_timeout: Absolute timer to send to read_channel_timing. Should be rarely needed.
-
-        :param config_mode_command: The command to enter into config mode
-
-        :param cmd_verify: Whether or not to verify command echo for each command in config_set
-
-        :param enter_config_mode: Do you enter config mode before sending config commands
-
-        :param error_pattern: Regular expression pattern to detect config errors in the
-        output.
-
-        :param terminator: Regular expression pattern to use as an alternate terminator in certain
-        situations.
-
-        :param bypass_commands: Regular expression pattern indicating configuration commands
-        where cmd_verify is automatically disabled.
-        """
+        if config_mode_command is None:
+            msg = """
+send_config_set() for the audiocode driver requires that you specify the
+config_mode_command. For example, config_mode_command="configure system" 
+(or "configure voip" or "configure network" etc.)
+            """
+            raise ValueError(msg)
         return super().send_config_set(
             config_commands=config_commands,
             exit_config_mode=exit_config_mode,
