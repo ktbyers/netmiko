@@ -106,11 +106,18 @@ class AudiocodeBase(BaseConnection):
         strip_command: bool = False,
         config_mode_command: Optional[str] = None,
         cmd_verify: bool = True,
-        enter_config_mode: bool = False,
+        enter_config_mode: bool = True,
         error_pattern: str = "",
         terminator: str = r"\*?#",
         bypass_commands: Optional[str] = None,
     ) -> str:
+        if config_mode_command is None:
+            msg = """
+send_config_set() for the Audiocode drivers require that you specify the
+config_mode_command. For example, config_mode_command="configure system"
+(or "configure voip" or "configure network" etc.)
+            """
+            raise ValueError(msg)
         return super().send_config_set(
             config_commands=config_commands,
             exit_config_mode=exit_config_mode,
@@ -342,13 +349,6 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
         bypass_commands: str = None,
     ) -> str:
 
-        if config_mode_command is None:
-            msg = """
-send_config_set() for the audiocode driver requires that you specify the
-config_mode_command. For example, config_mode_command="configure system"
-(or "configure voip" or "configure network" etc.)
-            """
-            raise ValueError(msg)
         return super().send_config_set(
             config_commands=config_commands,
             exit_config_mode=exit_config_mode,
