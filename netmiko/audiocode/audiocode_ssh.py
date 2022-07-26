@@ -1,4 +1,4 @@
-from typing import Any, Optional, Sequence, TextIO, Union
+from typing import Any, Optional, Sequence, TextIO, Union, List
 from netmiko.base_connection import BaseConnection
 import time
 import re
@@ -42,6 +42,37 @@ class AudiocodeBaseSSH(BaseConnection):
         return super().find_prompt(
             delay_factor=delay_factor,
             pattern=pattern,
+        )
+
+    def disable_paging(
+        self,
+        command: str = "",
+        delay_factor: Optional[float] = 0.5,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -> str:
+
+        if command:
+            return super().disable_paging(
+                command=command,
+                delay_factor=delay_factor,
+                cmd_verify=cmd_verify,
+                pattern=pattern,
+            )
+        else:
+            command_list: List[str] = [
+                "cli-settings",
+                "window-height 0",
+            ]
+
+        self.enable()
+        assert isinstance(delay_factor, float)
+        delay_factor = self.select_delay_factor(delay_factor)
+        time.sleep(delay_factor * 0.1)
+        self.clear_buffer()
+        return self.send_config_set(
+            config_commands=command_list,
+            config_mode_command="config system",
         )
 
     def check_config_mode(
@@ -142,63 +173,25 @@ class AudiocodeBaseSSH(BaseConnection):
             bypass_commands=bypass_commands,
         )
 
-    def disable_paging(
+    def _enable_paging(
         self,
-        command: str = "",
         delay_factor: Optional[float] = 0.5,
-        cmd_verify: bool = True,
-        pattern: Optional[str] = None,
     ) -> str:
+        """This is designed to re-enable window paging."""
 
-        if not command:
-            command = (
-                [
-                    "cli-settings",
-                    "window-height 0",
-                ],
-            )
-
+        command_list: List[str] = [
+            "cli-settings",
+            "window-height automatic",
+        ]
         self.enable()
+        assert isinstance(delay_factor, float)
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
 
         return self.send_config_set(
-            config_commands=command,
+            config_commands=command_list,
             config_mode_command="config system",
-        )
-
-    def _enable_paging(
-        self,
-        enable_window_config=[
-            "config system",
-            "cli-settings",
-            "window-height automatic",
-            "exit",
-        ],
-        delay_factor=0.5,
-    ):
-        """This is designed to reenable window paging.
-
-        :param enable_window_config: Command, or list of commands, to execute.
-        :type enable_window_config: str
-
-        :param delay_factor: See __init__: global_delay_factor
-        :type delay_factor: int
-
-        """
-        self.enable()
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
-        enable_window_config = enable_window_config
-        self.send_config_set(
-            config_commands=enable_window_config,
-            exit_config_mode=True,
-            read_timeout=None,
-            delay_factor=1.0,
-            max_loops=150,
-            enter_config_mode=False,
         )
 
     def save_config(self, cmd="write", confirm=False, confirm_response=""):
