@@ -5,8 +5,8 @@ from netmiko.base_connection import BaseConnection
 from netmiko.no_enable import NoEnable
 
 
-class AudiocodeBaseSSH(BaseConnection):
-    """Common Methods for AudioCodes running 7.2 CLI for SSH."""
+class AudiocodeBase(BaseConnection):
+    """Common Methods for AudioCode Drivers."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
@@ -45,36 +45,11 @@ class AudiocodeBaseSSH(BaseConnection):
             pattern=pattern,
         )
 
-    def disable_paging(
+    def _enable_paging(
         self,
-        command: str = "",
         delay_factor: Optional[float] = 0.5,
-        cmd_verify: bool = True,
-        pattern: Optional[str] = None,
     ) -> str:
-
-        if command:
-            return super().disable_paging(
-                command=command,
-                delay_factor=delay_factor,
-                cmd_verify=cmd_verify,
-                pattern=pattern,
-            )
-        else:
-            command_list: List[str] = [
-                "cli-settings",
-                "window-height 0",
-            ]
-
-        self.enable()
-        assert isinstance(delay_factor, float)
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
-        return self.send_config_set(
-            config_commands=command_list,
-            config_mode_command="config system",
-        )
+        return ""
 
     def check_config_mode(
         self,
@@ -108,37 +83,15 @@ class AudiocodeBaseSSH(BaseConnection):
         enable_pattern: Optional[str] = "#",
         re_flags: int = re.IGNORECASE,
     ) -> str:
-        """Enter enable mode.
-
-        :param cmd: Device command to enter enable mode
-
-        :param pattern: pattern to search for indicating device is waiting for password
-
-        :param enable_pattern: pattern indicating you have entered enable mode
-
-        :param re_flags: Regular expression flags used in conjunction with pattern
-        """
         return super().enable(
             cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
         )
 
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#") -> str:
-        """Exit from configuration mode.
-
-        :param exit_config: Command to exit configuration mode
-        :type exit_config: str
-
-        :param pattern: Pattern to terminate reading of channel
-        :type pattern: str
-        """
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
-        """Exit enable mode.
-
-        :param exit_command: Command that exits the session from privileged mode
-        :type exit_command: str
-        """
+        """Exit enable mode."""
         return super().exit_enable_mode(exit_command=exit_command)
 
     def send_config_set(
@@ -174,27 +127,6 @@ class AudiocodeBaseSSH(BaseConnection):
             bypass_commands=bypass_commands,
         )
 
-    def _enable_paging(
-        self,
-        delay_factor: Optional[float] = 0.5,
-    ) -> str:
-        """This is designed to re-enable window paging."""
-
-        command_list: List[str] = [
-            "cli-settings",
-            "window-height automatic",
-        ]
-        self.enable()
-        assert isinstance(delay_factor, float)
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
-
-        return self.send_config_set(
-            config_commands=command_list,
-            config_mode_command="config system",
-        )
-
     def save_config(
         self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
@@ -226,13 +158,71 @@ class AudiocodeBaseSSH(BaseConnection):
         return self._send_command_timing_str(command_string=cmd)
 
 
-class AudiocodeBaseTelnet(AudiocodeBaseSSH):
-    """Audiocode Telnet driver."""
+class Audiocode72Base(AudiocodeBase):
+    """Common Methods for AudioCodes running 7.2 CLI."""
 
+    def disable_paging(
+        self,
+        command: str = "",
+        delay_factor: Optional[float] = 0.5,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -> str:
+
+        if command:
+            return super().disable_paging(
+                command=command,
+                delay_factor=delay_factor,
+                cmd_verify=cmd_verify,
+                pattern=pattern,
+            )
+        else:
+            command_list: List[str] = [
+                "cli-settings",
+                "window-height 0",
+            ]
+
+        self.enable()
+        assert isinstance(delay_factor, float)
+        delay_factor = self.select_delay_factor(delay_factor)
+        time.sleep(delay_factor * 0.1)
+        self.clear_buffer()
+        return self.send_config_set(
+            config_commands=command_list,
+            config_mode_command="config system",
+        )
+
+    def _enable_paging(
+        self,
+        delay_factor: Optional[float] = 0.5,
+    ) -> str:
+        """This is designed to re-enable window paging."""
+
+        command_list: List[str] = [
+            "cli-settings",
+            "window-height automatic",
+        ]
+        self.enable()
+        assert isinstance(delay_factor, float)
+        delay_factor = self.select_delay_factor(delay_factor)
+        time.sleep(delay_factor * 0.1)
+        self.clear_buffer()
+
+        return self.send_config_set(
+            config_commands=command_list,
+            config_mode_command="config system",
+        )
+
+
+class Audiocode72Telnet(Audiocode72Base):
     pass
 
 
-class Audiocode66SSH(AudiocodeBaseSSH):
+class Audiocode72SSH(Audiocode72Base):
+    pass
+
+
+class AudiocodeBase66(AudiocodeBase):
     """Audiocode this applies to 6.6 Audiocode Firmware versions."""
 
     def disable_paging(
@@ -287,13 +277,15 @@ class Audiocode66SSH(AudiocodeBaseSSH):
         )
 
 
-class Audiocode66Telnet(Audiocode66SSH):
-    """Audiocode Telnet driver."""
-
+class Audiocode66SSH(AudiocodeBase66):
     pass
 
 
-class AudiocodeShellSSH(NoEnable, AudiocodeBaseSSH):
+class Audiocode66Telnet(AudiocodeBase66):
+    pass
+
+
+class AudiocodeShellBase(NoEnable, AudiocodeBase):
     """Audiocode this applies to 6.6 Audiocode Firmware versions that only use the Shell."""
 
     def session_preparation(self) -> None:
@@ -461,7 +453,9 @@ config_mode_command. For example, config_mode_command="configure system"
         )
 
 
-class AudiocodeShellTelnet(AudiocodeShellSSH):
-    """Audiocode this applies to 6.6 Audiocode Firmware versions that only use the Shell."""
+class AudiocodeShellSSH(AudiocodeShellBase):
+    pass
 
+
+class AudiocodeShellTelnet(AudiocodeShellBase):
     pass

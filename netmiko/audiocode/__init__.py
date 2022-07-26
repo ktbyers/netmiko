@@ -1,18 +1,17 @@
-from __future__ import unicode_literals
 from netmiko.audiocode.audiocode_ssh import (
-    AudiocodeBaseSSH,
+    Audiocode72SSH,
     Audiocode66SSH,
     AudiocodeShellSSH,
-    AudiocodeBaseTelnet,
+    Audiocode72Telnet,
     Audiocode66Telnet,
     AudiocodeShellTelnet,
 )
 
 __all__ = [
-    "AudiocodeBaseSSH",
+    "Audiocode72SSH",
     "Audiocode66SSH",
     "AudiocodeShellSSH",
-    "AudiocodeBaseTelnet",
+    "Audiocode72Telnet",
     "Audiocode66Telnet",
     "AudiocodeShellTelnet",
 ]

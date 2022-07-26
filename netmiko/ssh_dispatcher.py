@@ -13,10 +13,10 @@ from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
 from netmiko.audiocode import (
-    AudiocodeBaseSSH,
+    Audiocode72SSH,
     Audiocode66SSH,
     AudiocodeShellSSH,
-    AudiocodeBaseTelnet,
+    Audiocode72Telnet,
     Audiocode66Telnet,
     AudiocodeShellTelnet,
 )
@@ -143,7 +143,7 @@ CLASS_MAPPER_BASE = {
     "aruba_os": ArubaSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
-    "audiocode_base": AudiocodeBaseSSH,
+    "audiocode_72": Audiocode72SSH,
     "audiocode_66": Audiocode66SSH,
     "audiocode_shell": AudiocodeShellSSH,
     "avaya_ers": ExtremeErsSSH,
@@ -288,7 +288,7 @@ CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
 CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
-CLASS_MAPPER["audiocode_base_telnet"] = AudiocodeBaseTelnet
+CLASS_MAPPER["audiocode_72_telnet"] = Audiocode72Telnet
 CLASS_MAPPER["audiocode_66_telnet"] = Audiocode66Telnet
 CLASS_MAPPER["audiocode_shell_telnet"] = AudiocodeShellTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
