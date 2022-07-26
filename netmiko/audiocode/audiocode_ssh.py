@@ -194,80 +194,35 @@ class AudiocodeBaseSSH(BaseConnection):
             config_mode_command="config system",
         )
 
-    def save_config(self, cmd="write", confirm=False, confirm_response=""):
-        """Saves the running configuration.
+    def save_config(
+        self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
+        """Saves the running configuration."""
 
-        :param cmd: Command to save configuration
-        :type cmd: str
-
-        :param confirm: Command if confirmation prompt is required
-        :type confirm: bool
-
-        :param confirm_response: Command if confirm response required to further script
-        :type confirm response: str
-
-        """
         self.enable()
         if confirm:
-            output = self.send_command_timing(command_string=cmd)
+            output = self._send_command_timing_str(command_string=cmd)
             if confirm_response:
-                output += self.send_command_timing(confirm_response)
+                output += self._send_command_timing_str(confirm_response)
             else:
                 # Send enter by default
-                output += self.send_command_timing(self.RETURN)
+                output += self._send_command_timing_str(self.RETURN)
         else:
             # Some devices are slow so match on trailing-prompt if you can
-            output = self.send_command(command_string=cmd)
+            output = self._send_command_str(command_string=cmd)
         return output
 
     def _reload_device(
         self,
-        reload_device=True,
-        reload_save=True,
-        cmd_save="reload now",
-        cmd_no_save="reload without-saving",
-    ):
-        """Reloads the device.
-
-        :param reload_device: Boolean to determine if reload should occur.
-        :type reload_device: bool
-
-        :param reload_device: Boolean to determine if reload with saving first should occur.
-        :type reload_device: bool
-
-        :param cmd_save: Command to reload device with save.  Options are "reload now" and "reload if-needed".
-        :type cmd_save: str
-
-        :param cmd_no_save: Command to reload device.  Options are "reload without-saving", "reload without-saving in [minutes]".
-        :type cmd_no_save: str
-
-        """
-        self.enable()
-        if reload_device == True and reload_save == True:
-            self._enable_paging()
-            output = self.send_command_timing(command_string=cmd_save)
-            try:
-                self.cleanup()
-            except:
-                pass
-        elif reload_device == True and reload_save == False:
-            output = self.send_command_timing(command_string=cmd_no_save)
-            try:
-                self.cleanup()
-            except:
-                pass
-        else:
-            output = "***Reload not performed***"
-        return output
-
-    def _device_terminal_exit(self, command="exit"):
-        """This is for accessing devices via terminal. It first reenables window paging for
-        future use and exits the device before you send the disconnect method"""
-
-        self.enable()
+        cmd: str = "reload now",
+        reload_save: bool = True,
+    ) -> str:
+        """Reloads the device."""
+        if reload_save is not True:
+            cmd = "reload without-saving"
         self._enable_paging()
-        output = self.send_command_timing(command)
-        return output
+        self.enable()
+        return self._send_command_timing_str(command_string=cmd)
 
 
 class AudiocodeBaseTelnet(AudiocodeBaseSSH):
