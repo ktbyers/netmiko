@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Sequence, TextIO, Union
 from netmiko.base_connection import BaseConnection
 import time
 import re
@@ -73,7 +73,7 @@ class AudiocodeBaseSSH(BaseConnection):
         self,
         cmd: str = "enable",
         pattern: str = "ssword",
-        enable_pattern: str = "#",
+        enable_pattern: Optional[str] = "#",
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode.
@@ -90,7 +90,7 @@ class AudiocodeBaseSSH(BaseConnection):
             cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(self, exit_config="exit", pattern="#"):
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#") -> str:
         """Exit from configuration mode.
 
         :param exit_config: Command to exit configuration mode
@@ -101,7 +101,7 @@ class AudiocodeBaseSSH(BaseConnection):
         """
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def exit_enable_mode(self, exit_command="disable"):
+    def exit_enable_mode(self, exit_command: str = "disable") -> str:
         """Exit enable mode.
 
         :param exit_command: Command that exits the session from privileged mode
@@ -111,57 +111,21 @@ class AudiocodeBaseSSH(BaseConnection):
 
     def send_config_set(
         self,
-        config_commands=None,
+        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        *,
         exit_config_mode: bool = True,
-        read_timeout: float = None,
-        delay_factor: float = 1.0,
-        max_loops: int = 150,
+        read_timeout: Optional[float] = None,
+        delay_factor: Optional[float] = 1.0,
+        max_loops: Optional[int] = 150,
         strip_prompt: bool = False,
         strip_command: bool = False,
-        config_mode_command: str = None,
+        config_mode_command: Optional[str] = None,
         cmd_verify: bool = True,
         enter_config_mode: bool = False,
         error_pattern: str = "",
         terminator: str = r"\*?#",
-        bypass_commands: str = None,
+        bypass_commands: Optional[str] = None,
     ) -> str:
-        """
-        Send configuration commands down the SSH channel.
-
-        config_commands is an iterable containing all of the configuration commands.
-        The commands will be executed one after the other.
-
-        Automatically exits/enters configuration mode.
-
-        :param config_commands: Multiple configuration commands to be sent to the device
-
-        :param exit_config_mode: Determines whether or not to exit config mode after complete
-
-        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param strip_prompt: Determines whether or not to strip the prompt
-
-        :param strip_command: Determines whether or not to strip the command
-
-        :param read_timeout: Absolute timer to send to read_channel_timing. Should be rarely needed.
-
-        :param config_mode_command: The command to enter into config mode
-
-        :param cmd_verify: Whether or not to verify command echo for each command in config_set
-
-        :param enter_config_mode: Do you enter config mode before sending config commands
-
-        :param error_pattern: Regular expression pattern to detect config errors in the
-        output.
-
-        :param terminator: Regular expression pattern to use as an alternate terminator in certain
-        situations.
-
-        :param bypass_commands: Regular expression pattern indicating configuration commands
-        where cmd_verify is automatically disabled.
-        """
         return super().send_config_set(
             config_commands=config_commands,
             exit_config_mode=exit_config_mode,
@@ -534,7 +498,7 @@ config_mode_command. For example, config_mode_command="configure system"
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
 
-    def exit_config_mode(self, exit_config="..", pattern=r"/>"):
+    def exit_config_mode(self, exit_config: str = "..", pattern: str = r"/>") -> str:
         """Exit from configuration mode.
 
         :param exit_config: Command to exit configuration mode
