@@ -868,7 +868,7 @@ You can look at the Netmiko session_log or debug log for more information.
         self.remote_conn.close()
         raise NetmikoAuthenticationException(msg)
 
-    def _try_session_preparation(self) -> None:
+    def _try_session_preparation(self, force_data: bool = True) -> None:
         """
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
@@ -876,6 +876,10 @@ You can look at the Netmiko session_log or debug log for more information.
         to threads used in Paramiko.
         """
         try:
+            # Netmiko needs there to be data for session_preparation to work.
+            if force_data:
+                self.write_channel(self.RETURN)
+                time.sleep(0.1)
             self.session_preparation()
         except Exception:
             self.disconnect()
