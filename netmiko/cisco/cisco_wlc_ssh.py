@@ -197,6 +197,8 @@ output:
                 self._session_log_fin = True
                 self.write_channel("n" + self.RETURN)
 
+            time.sleep(0.5)
+
             try:
                 self.write_channel(self.RETURN)
             except socket.error:
