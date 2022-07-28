@@ -47,7 +47,8 @@ class JuniperBase(NoEnable, BaseConnection):
             self.write_channel(self.RETURN)
             data = self.read_until_pattern(pattern=pattern, read_timeout=10)
 
-        if "%" in data or "$" in data:
+        shell_pattern = r"(?:root@|%|\$)"
+        if re.search(shell_pattern, data):
             return "shell"
         elif ">" in data or "#" in data:
             return "cli"
@@ -58,7 +59,7 @@ class JuniperBase(NoEnable, BaseConnection):
         """Check if at shell prompt root@ and go into CLI."""
         mode = self._determine_mode()
         if mode == "shell":
-            shell_pattern = r"[%$]"
+            shell_pattern = r"(?:root@|%|\$)"
             self.write_channel(self.RETURN)
             cur_prompt = self.read_until_pattern(pattern=shell_pattern, read_timeout=10)
             if re.search(r"root@", cur_prompt) or re.search(r"^%$", cur_prompt.strip()):
