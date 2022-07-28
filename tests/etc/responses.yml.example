@@ -363,3 +363,46 @@ nokia_srl:
   cmd_response_init: "disable"
   cmd_response_final: "enable"
   save_config: "Saved current running configuration as initial"
+
+audiocode_base:
+  base_prompt: TESTROUTER
+  router_prompt : TESTROUTER>
+  enable_prompt: TESTROUTER#
+  interface_ip: 192.168.1.1
+  version_banner: "Version info:"
+  multiple_line_output: "HardwareVersion: M500--4LG-CA1SF-2U"
+  save_config: 'Writing configuration...done'
+  cmd_response_init: "ip domain name home"
+  cmd_response_final: "ip domain name house"
+  
+audiocode_66:
+  base_prompt: Mediant 800
+  router_prompt : Mediant 800>
+  enable_prompt: Mediant 800#
+  interface_ip: 192.168.1.2
+  version_banner: "Version info:"
+  multiple_line_output: ";      3 : FXS         : 4"
+  save_config: 'Writing configuration...done'
+  cmd_response_init: "ip route 1.1.1.1 255.255.255.255 1.1.1.1 GigabitEthernet 0/0 1"
+  cmd_response_final: "ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"
+
+audiocode_shell:
+  base_prompt: />
+  router_prompt : />
+  enable_prompt: />
+  interface_ip: 192.168.1.3
+  version_banner: "Last reset reason:"
+  multiple_line_output: "Last reset reason:"
+  save_config: 'Configuration has been saved'
+  cmd_response_init: "Test_String1"
+  cmd_response_final: "Test_String2"
+
+fortinet:
+  base_prompt: "TESTROUTER "
+  router_prompt : "TESTROUTER #"
+  enable_prompt: "TESTROUTER #"
+  interface_ip: 192.168.1.1
+  version_banner: "Version: FortiGate-61E"
+  multiple_line_output: 'edit "WAN_DIA"'
+  cmd_response_init: "Test-String-1"
+  cmd_response_final: "Test-String-2"

@@ -270,20 +270,28 @@ nokia_srl:
   username: admin
   password: 'admin'
   
-audiocode_ssh:
+audiocode_base:
   device_type: audiocode_base
-  ip: 72.17.82.234
+  ip: 192.168.1.1
   username: TestUser
-  password: T3stU$3r!
+  password: TestPass
+  secret: TestPass
   
 audiocode_66:
   device_type: audiocode_66
-  ip: 72.17.82.233
+  ip: 192.168.1.2
   username: TestUser
-  password: T3stU$3r!
+  password: TestPass
+  secret: TestPass
   
 audiocode_shell:
   device_type: audiocode_shell
-  ip: 72.17.82.237
+  ip: 192.168.1.3
   username: TestUser
-  password: T3stU$3r!
+  password: TestPass
+
+fortinet:
+  device_type: fortinet
+  ip: 192.168.1.1
+  username: TestUser
+  password: TestPass

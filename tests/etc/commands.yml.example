@@ -161,17 +161,6 @@ juniper_screenos:
     - 'set alias test "test"'
   config_verification: "get config | inc alias"
 
-fortinet:
-  version: "get system status"
-  basic: "get system interface physical"
-  extended_output: "get system status"
-  config:
-    - 'config firewall service category'
-    - 'edit Database'
-    - 'set comment "Generated comment"'
-    - 'end'
-  config_verification: "show firewall service category Database | grep comment"
-
 paloalto_panos:
   version: "show system info | match version"
   basic: "show system info"
@@ -510,3 +499,56 @@ nokia_srl:
     - "interface ethernet-1/1 admin-state disable"
     - "interface ethernet-1/1 admin-state enable"
   config_verification: "show interface ethernet-1/1 brief"
+
+audiocode_base:
+  version: "show system version"
+  basic: "show data interfaces gigabitethernet 0/0"
+  extended_output: "show system version"   # requires paging to be disabled
+  config:      
+    - "ip domain name house"                 # base command                                
+  config_verification: "show run data"  # something you can verify has changed
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'Writing configuration...done'
+  config_mode_command: "config data"     # only use if needed
+  
+audiocode_66:
+  version: "show system version"
+  basic: "show data interfaces gigabitethernet 0/0"
+  extended_output: "show system version"   # requires paging to be disabled
+  config:     
+    - "no ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"      # base command       
+    - "no ip route 1.1.1.1 255.255.255.255 1.1.1.1 GigabitEthernet 0/0 1"      
+    - "ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"
+  config_verification: "show run data"  # something you can verify has changed
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'Writing configuration...done'
+  config_mode_command: "config data"     # only use if needed
+  
+audiocode_shell:
+  version: "show info"
+  basic: "show ip conf"
+  extended_output: "show info"   # requires paging to be disabled
+  config:        
+    - "SCP SNMPSysContact Test_String2" # base command
+  config_verification: "cf get"  # something you can verify has changed
+  save_config_cmd: 'SaveConfiguration'
+  save_config_confirm: False
+  save_config_response: 'Configuration has been saved'
+  config_mode_command: "conf"         # only use if needed
+
+fortinet:
+  version: "get system status"
+  basic: "show system interface"
+  extended_output: "show system interface"     # requires paging to be disabled
+  config:
+  #  - 'edit root'                                   # Multivdom mode dependent
+  #  - 'config router static'                        # Multivdom mode dependent
+    - 'edit 1'
+    - 'set comment "Test-String-2"'
+    - 'end'
+  config_verification: "show router static"         # something you can verify has changed
+  root_mode: False                                   # Multivdom mode dependent
+  global_mode: False                                 # Multivdom mode dependent
+  config_mode_command: "config router static"         # only use if needed

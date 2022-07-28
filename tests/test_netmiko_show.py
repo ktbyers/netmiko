@@ -34,9 +34,21 @@ def test_disable_paging(net_connect, commands, expected_responses):
         # Not supported.
         assert pytest.skip("Disable Paging not supported on this platform")
     else:
+        if net_connect.device_type == "fortinet":
+            global_mode = commands.get("global_mode")
+            if global_mode:
+                net_connect._enter_global_or_vdom(mode_name="global")
+
         multiple_line_output = net_connect.send_command(
             commands["extended_output"], read_timeout=60
         )
+
+        # Fortinet multivdom support.
+        if net_connect.device_type == "fortinet":
+            root_mode = commands.get("global_mode")
+            if root_mode:
+                net_connect._exit_global_or_vdom()
+
         assert expected_responses["multiple_line_output"] in multiple_line_output
 
 
@@ -66,8 +78,22 @@ def test_send_command_timing(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully."""
     time.sleep(1)
     net_connect.clear_buffer()
+
+    # Fortinet Multivdom Support.
+    if net_connect.device_type == "fortinet":
+        global_mode = commands.get("global_mode")
+        if global_mode:
+            net_connect._enter_global_or_vdom(mode_name="global")
+
     # Force verification of command echo
     show_ip = net_connect.send_command_timing(commands["basic"], cmd_verify=True)
+
+    # Fortinet multivdom support.
+    if net_connect.device_type == "fortinet":
+        root_mode = commands.get("global_mode")
+        if root_mode:
+            net_connect._exit_global_or_vdom()
+
     assert expected_responses["interface_ip"] in show_ip
 
 
@@ -77,24 +103,65 @@ def test_send_command_timing_no_cmd_verify(net_connect, commands, expected_respo
         assert pytest.skip()
     time.sleep(1)
     net_connect.clear_buffer()
+
+    # Fortinet Multivdom Support.
+    if net_connect.device_type == "fortinet":
+        global_mode = commands.get("global_mode")
+        if global_mode:
+            net_connect._enter_global_or_vdom(mode_name="global")
+
     # cmd_verify=False is the default
     show_ip = net_connect.send_command_timing(commands["basic"], cmd_verify=False)
+
+    # Fortinet multivdom support.
+    if net_connect.device_type == "fortinet":
+        root_mode = commands.get("global_mode")
+        if root_mode:
+            net_connect._exit_global_or_vdom()
+
     assert expected_responses["interface_ip"] in show_ip
 
 
 def test_send_command(net_connect, commands, expected_responses):
     """Verify a command can be sent down the channel successfully using send_command method."""
     net_connect.clear_buffer()
-    show_ip_alt = net_connect.send_command(commands["basic"])
-    assert expected_responses["interface_ip"] in show_ip_alt
 
+    # Fortinet Multivdom Support.
+    if net_connect.device_type == "fortinet":
+        global_mode = commands.get("global_mode")
+        if global_mode:
+            net_connect._enter_global_or_vdom(mode_name="global")
+
+    show_ip_alt = net_connect.send_command(commands["basic"])
+
+    # Fortinet multivdom support.
+    if net_connect.device_type == "fortinet":
+        root_mode = commands.get("global_mode")
+        if root_mode:
+            net_connect._exit_global_or_vdom()
+
+    assert expected_responses["interface_ip"] in show_ip_alt
 
 def test_send_command_no_cmd_verify(net_connect, commands, expected_responses):
     # Skip devices that are performance optimized (i.e. cmd_verify is required there)
     if net_connect.fast_cli is True:
         assert pytest.skip()
     net_connect.clear_buffer()
+
+    # Fortinet Multivdom Support.
+    if net_connect.device_type == "fortinet":
+        global_mode = commands.get("global_mode")
+        if global_mode:
+            net_connect._enter_global_or_vdom(mode_name="global")
+
     show_ip_alt = net_connect.send_command(commands["basic"], cmd_verify=False)
+
+    # Fortinet multivdom support.
+    if net_connect.device_type == "fortinet":
+        root_mode = commands.get("global_mode")
+        if root_mode:
+            net_connect._exit_global_or_vdom()
+
     assert expected_responses["interface_ip"] in show_ip_alt
 
 

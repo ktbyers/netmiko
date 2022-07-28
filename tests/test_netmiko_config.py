@@ -59,13 +59,28 @@ def test_config_set(net_connect, commands, expected_responses):
     config_mode_command = commands.get("config_mode_command")
     support_commit = commands.get("support_commit")
     config_verify = commands["config_verification"]
+    
 
     # Set to initial value and testing sending command as a string
     net_connect.send_config_set(config_commands[0])
     if support_commit:
         net_connect.commit()
     cmd_response = expected_responses.get("cmd_response_init")
+
+    # Fortinet multivdom support.
+    if net_connect.device_type == "fortinet":
+        root_mode = commands.get("root_mode")
+        if root_mode:
+            net_connect._enter_global_or_vdom(mode_name="root")
+
     config_commands_output = net_connect.send_command(config_verify)
+
+    # Fortinet multivdom support.
+    if net_connect.device_type == "fortinet":
+        root_mode = commands.get("root_mode")
+        if root_mode:
+            net_connect._exit_global_or_vdom()
+
     if cmd_response:
         assert cmd_response in config_commands_output
     else:
@@ -80,7 +95,21 @@ def test_config_set(net_connect, commands, expected_responses):
     if support_commit:
         net_connect.commit()
     cmd_response = expected_responses.get("cmd_response_final")
+
+    # Fortinet multivdom support.
+    if net_connect.device_type == "fortinet":
+        root_mode = commands.get("root_mode")
+        if root_mode:
+            net_connect._enter_global_or_vdom(mode_name="root")
+
     config_commands_output = net_connect.send_command_expect(config_verify)
+
+    # Fortinet multivdom support.
+    if net_connect.device_type == "fortinet":
+        root_mode = commands.get("root_mode")
+        if root_mode:
+            net_connect._exit_global_or_vdom()
+            
     if cmd_response:
         assert cmd_response in config_commands_output
     else:

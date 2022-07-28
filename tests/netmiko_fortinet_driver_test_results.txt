@@ -1,0 +1,256 @@
+########################################### Multi-Vdom Mode #############################################
+
+#commands.yml#
+fortinet:
+  version: "get system status"
+  basic: "show system interface"
+  extended_output: "show system interface"     # requires paging to be disabled
+  config:
+    - 'edit root'                                   # base command
+    - 'config router static'
+    - 'edit 1'
+    - 'set comment "Test-String-2"'
+    - 'end'
+  config_verification: "show router static"         # something you can verify has changed
+  root_mode: True
+  global_mode: True
+  config_mode_command: "config vdom"         # only use if needed
+  
+  
+(venv) PS C:\Users\p2149451\Documents\Python Projects\venv\netmiko\tests> py.test -v test_netmiko_show.py --test_device fortinet
+=================================================== test session starts ====================================================
+platform win32 -- Python 3.9.5, pytest-7.1.2, pluggy-1.0.0 -- c:\users\p2149451\documents\python projects\venv\scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\p2149451\Documents\Python Projects\venv\netmiko, configfile: setup.cfg
+plugins: pylama-8.3.8, print-0.3.1, vscodedebug-0.1.0
+collected 24 items
+
+test_netmiko_show.py::test_disable_paging PASSED                                                                      [  4%]
+test_netmiko_show.py::test_terminal_width PASSED                                                                      [  8%] 
+test_netmiko_show.py::test_ssh_connect PASSED                                                                         [ 12%]
+test_netmiko_show.py::test_ssh_connect_cm PASSED                                                                      [ 16%]
+test_netmiko_show.py::test_send_command_timing PASSED                                                                 [ 20%]
+test_netmiko_show.py::test_send_command_timing_no_cmd_verify SKIPPED                                                  [ 25%]
+test_netmiko_show.py::test_send_command PASSED                                                                        [ 29%]
+test_netmiko_show.py::test_send_command_no_cmd_verify SKIPPED                                                         [ 33%] 
+test_netmiko_show.py::test_complete_on_space_disabled SKIPPED                                                         [ 37%]
+test_netmiko_show.py::test_send_command_textfsm SKIPPED (TextFSM/ntc-templates not supported on this platform)        [ 41%] 
+test_netmiko_show.py::test_send_command_ttp SKIPPED (TTP template not existing for this platform)                     [ 45%] 
+test_netmiko_show.py::test_send_command_genie SKIPPED (Genie not supported on this platform)                          [ 50%]
+test_netmiko_show.py::test_send_multiline_timing SKIPPED                                                              [ 54%] 
+test_netmiko_show.py::test_send_multiline SKIPPED                                                                     [ 58%] 
+test_netmiko_show.py::test_send_multiline_prompt SKIPPED                                                              [ 62%]
+test_netmiko_show.py::test_send_multiline_simple SKIPPED                                                              [ 66%] 
+test_netmiko_show.py::test_base_prompt PASSED                                                                         [ 70%] 
+test_netmiko_show.py::test_strip_prompt PASSED                                                                        [ 75%]
+test_netmiko_show.py::test_strip_command PASSED                                                                       [ 79%]
+test_netmiko_show.py::test_normalize_linefeeds PASSED                                                                 [ 83%]
+test_netmiko_show.py::test_clear_buffer PASSED                                                                        [ 87%]
+test_netmiko_show.py::test_enable_mode PASSED                                                                         [ 91%]
+test_netmiko_show.py::test_disconnect PASSED                                                                          [ 95%]
+test_netmiko_show.py::test_disconnect_no_enable SKIPPED                                                               [100%]
+
+===================================================== warnings summary ===================================================== 
+tests/test_netmiko_show.py::test_disable_paging
+tests/test_netmiko_show.py::test_ssh_connect_cm
+tests/test_netmiko_show.py::test_ssh_connect_cm
+tests/test_netmiko_show.py::test_disconnect
+tests/test_netmiko_show.py::test_disconnect_no_enable
+  c:\users\p2149451\documents\python projects\venv\netmiko\netmiko\base_connection.py:2088: DeprecationWarning:
+
+  Netmiko 4.x and later has deprecated the use of delay_factor and/or
+  max_loops in this context. You should remove any use of delay_factor=x
+  from this method call.
+
+    warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================================= short test summary info ================================================== 
+SKIPPED [1] test_netmiko_show.py:103: Skipped
+SKIPPED [1] test_netmiko_show.py:148: Skipped
+SKIPPED [1] test_netmiko_show.py:184: Skipped
+SKIPPED [1] test_netmiko_show.py:205: TextFSM/ntc-templates not supported on this platform
+SKIPPED [1] test_netmiko_show.py:227: TTP template not existing for this platform
+SKIPPED [1] test_netmiko_show.py:267: Genie not supported on this platform
+SKIPPED [1] test_netmiko_show.py:287: Skipped
+SKIPPED [1] test_netmiko_show.py:303: Skipped
+SKIPPED [1] test_netmiko_show.py:328: Skipped
+SKIPPED [1] test_netmiko_show.py:352: Skipped
+SKIPPED [1] test_netmiko_show.py:454: Skipped
+======================================= 13 passed, 11 skipped, 5 warnings in 59.83s ========================================
+
+
+(venv) PS C:\Users\p2149451\Documents\Python Projects\venv\netmiko\tests> py.test -v test_netmiko_config.py --test_device fortinet
+=================================================== test session starts ====================================================
+platform win32 -- Python 3.9.5, pytest-7.1.2, pluggy-1.0.0 -- c:\users\p2149451\documents\python projects\venv\scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\p2149451\Documents\Python Projects\venv\netmiko, configfile: setup.cfg
+plugins: pylama-8.3.8, print-0.3.1, vscodedebug-0.1.0
+collected 12 items                                                                                                           
+
+test_netmiko_config.py::test_ssh_connect PASSED                                                                       [  8%]
+test_netmiko_config.py::test_enable_mode PASSED                                                                       [ 16%]
+test_netmiko_config.py::test_config_mode PASSED                                                                       [ 25%]
+test_netmiko_config.py::test_exit_config_mode PASSED                                                                  [ 33%]
+test_netmiko_config.py::test_config_set PASSED                                                                        [ 41%]
+test_netmiko_config.py::test_config_set_longcommand PASSED                                                            [ 50%] 
+test_netmiko_config.py::test_config_hostname PASSED                                                                   [ 58%] 
+test_netmiko_config.py::test_config_from_file SKIPPED                                                                 [ 66%]
+test_netmiko_config.py::test_config_error_pattern SKIPPED (No error_pattern defined.)                                 [ 75%] 
+test_netmiko_config.py::test_banner SKIPPED (No banner defined.)                                                      [ 83%] 
+test_netmiko_config.py::test_global_cmd_verify SKIPPED (No banner defined.)                                           [ 91%] 
+test_netmiko_config.py::test_disconnect PASSED                                                                        [100%]
+
+===================================================== warnings summary ===================================================== 
+tests/test_netmiko_config.py::test_ssh_connect
+tests/test_netmiko_config.py::test_config_set
+tests/test_netmiko_config.py::test_config_set
+tests/test_netmiko_config.py::test_disconnect
+  c:\users\p2149451\documents\python projects\venv\netmiko\netmiko\base_connection.py:2088: DeprecationWarning:
+
+  Netmiko 4.x and later has deprecated the use of delay_factor and/or
+  max_loops in this context. You should remove any use of delay_factor=x
+  from this method call.
+
+    warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================================= short test summary info ================================================== 
+SKIPPED [1] test_netmiko_config.py:156: Skipped
+SKIPPED [1] test_netmiko_config.py:168: No error_pattern defined.
+SKIPPED [1] test_netmiko_config.py:202: No banner defined.
+SKIPPED [1] test_netmiko_config.py:235: No banner defined.
+======================================== 8 passed, 4 skipped, 4 warnings in 45.33s ========================================= 
+
+
+
+
+
+
+
+
+##################################### Single Vdom mode ################################################
+
+#commands.yml#
+fortinet:
+  version: "get system status"
+  basic: "show system interface"
+  extended_output: "show system interface"     # requires paging to be disabled
+  config:
+  #  - 'edit root'                                   # base command
+  #  - 'config router static'
+    - 'edit 1'
+    - 'set comment "Test-String-2"'
+    - 'end'
+  config_verification: "show router static"         # something you can verify has changed
+  root_mode: False
+  global_mode: False
+  config_mode_command: "config router static"         # only use if needed
+  
+  
+(venv) PS C:\Users\p2149451\Documents\Python Projects\venv\netmiko\tests> py.test -v test_netmiko_show.py --test_device fortinet
+=========================================== test session starts ===========================================
+platform win32 -- Python 3.9.5, pytest-7.1.2, pluggy-1.0.0 -- c:\users\p2149451\documents\python projects\venv\scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\p2149451\Documents\Python Projects\venv\netmiko, configfile: setup.cfg
+plugins: pylama-8.3.8, print-0.3.1, vscodedebug-0.1.0
+collected 24 items
+
+test_netmiko_show.py::test_disable_paging PASSED                                                     [  4%]
+test_netmiko_show.py::test_terminal_width PASSED                                                     [  8%] 
+test_netmiko_show.py::test_ssh_connect PASSED                                                        [ 12%]
+test_netmiko_show.py::test_ssh_connect_cm PASSED                                                     [ 16%]
+test_netmiko_show.py::test_send_command_timing PASSED                                                [ 20%]
+test_netmiko_show.py::test_send_command_timing_no_cmd_verify SKIPPED                                 [ 25%] 
+test_netmiko_show.py::test_send_command PASSED                                                       [ 29%]
+test_netmiko_show.py::test_send_command_no_cmd_verify SKIPPED                                        [ 33%] 
+test_netmiko_show.py::test_complete_on_space_disabled SKIPPED                                        [ 37%] 
+test_netmiko_show.py::test_send_command_textfsm SKIPPED (TextFSM/ntc-templates not supported on ...) [ 41%] 
+test_netmiko_show.py::test_send_command_ttp SKIPPED (TTP template not existing for this platform)    [ 45%]
+test_netmiko_show.py::test_send_command_genie SKIPPED (Genie not supported on this platform)         [ 50%] 
+test_netmiko_show.py::test_send_multiline_timing SKIPPED                                             [ 54%]
+test_netmiko_show.py::test_send_multiline SKIPPED                                                    [ 58%] 
+test_netmiko_show.py::test_send_multiline_prompt SKIPPED                                             [ 62%] 
+test_netmiko_show.py::test_send_multiline_simple SKIPPED                                             [ 66%]
+test_netmiko_show.py::test_base_prompt PASSED                                                        [ 70%] 
+test_netmiko_show.py::test_strip_prompt PASSED                                                       [ 75%]
+test_netmiko_show.py::test_strip_command PASSED                                                      [ 79%]
+test_netmiko_show.py::test_normalize_linefeeds PASSED                                                [ 83%]
+test_netmiko_show.py::test_clear_buffer PASSED                                                       [ 87%]
+test_netmiko_show.py::test_enable_mode PASSED                                                        [ 91%]
+test_netmiko_show.py::test_disconnect PASSED                                                         [ 95%]
+test_netmiko_show.py::test_disconnect_no_enable SKIPPED                                              [100%]
+
+============================================ warnings summary ============================================= 
+tests/test_netmiko_show.py::test_disable_paging
+tests/test_netmiko_show.py::test_ssh_connect_cm
+tests/test_netmiko_show.py::test_ssh_connect_cm
+tests/test_netmiko_show.py::test_disconnect
+tests/test_netmiko_show.py::test_disconnect_no_enable
+  c:\users\p2149451\documents\python projects\venv\netmiko\netmiko\base_connection.py:2088: DeprecationWarning:
+
+  Netmiko 4.x and later has deprecated the use of delay_factor and/or
+  max_loops in this context. You should remove any use of delay_factor=x
+  from this method call.
+
+    warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+========================================= short test summary info ========================================= 
+SKIPPED [1] test_netmiko_show.py:103: Skipped
+SKIPPED [1] test_netmiko_show.py:148: Skipped
+SKIPPED [1] test_netmiko_show.py:184: Skipped
+SKIPPED [1] test_netmiko_show.py:205: TextFSM/ntc-templates not supported on this platform
+SKIPPED [1] test_netmiko_show.py:227: TTP template not existing for this platform
+SKIPPED [1] test_netmiko_show.py:267: Genie not supported on this platform
+SKIPPED [1] test_netmiko_show.py:287: Skipped
+SKIPPED [1] test_netmiko_show.py:303: Skipped
+SKIPPED [1] test_netmiko_show.py:328: Skipped
+SKIPPED [1] test_netmiko_show.py:352: Skipped
+SKIPPED [1] test_netmiko_show.py:454: Skipped
+=============================== 13 passed, 11 skipped, 5 warnings in 42.74s =============================== 
+
+
+
+(venv) PS C:\Users\p2149451\Documents\Python Projects\venv\netmiko\tests> py.test -v test_netmiko_config.py 
+--test_device fortinet
+=========================================== test session starts ===========================================
+platform win32 -- Python 3.9.5, pytest-7.1.2, pluggy-1.0.0 -- c:\users\p2149451\documents\python projects\venv\scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\p2149451\Documents\Python Projects\venv\netmiko, configfile: setup.cfg
+plugins: pylama-8.3.8, print-0.3.1, vscodedebug-0.1.0
+collected 12 items
+
+test_netmiko_config.py::test_ssh_connect PASSED                                                      [  8%]
+test_netmiko_config.py::test_enable_mode PASSED                                                      [ 16%]
+test_netmiko_config.py::test_config_mode PASSED                                                      [ 25%]
+test_netmiko_config.py::test_exit_config_mode PASSED                                                 [ 33%]
+test_netmiko_config.py::test_config_set PASSED                                                       [ 41%]
+test_netmiko_config.py::test_config_set_longcommand PASSED                                           [ 50%] 
+test_netmiko_config.py::test_config_hostname PASSED                                                  [ 58%] 
+test_netmiko_config.py::test_config_from_file SKIPPED                                                [ 66%] 
+test_netmiko_config.py::test_config_error_pattern SKIPPED (No error_pattern defined.)                [ 75%] 
+test_netmiko_config.py::test_banner SKIPPED (No banner defined.)                                     [ 83%] 
+test_netmiko_config.py::test_global_cmd_verify SKIPPED (No banner defined.)                          [ 91%] 
+test_netmiko_config.py::test_disconnect PASSED                                                       [100%]
+
+============================================ warnings summary ============================================= 
+tests/test_netmiko_config.py::test_ssh_connect
+tests/test_netmiko_config.py::test_config_set
+tests/test_netmiko_config.py::test_config_set
+tests/test_netmiko_config.py::test_disconnect
+  c:\users\p2149451\documents\python projects\venv\netmiko\netmiko\base_connection.py:2088: DeprecationWarning:
+
+  Netmiko 4.x and later has deprecated the use of delay_factor and/or
+  max_loops in this context. You should remove any use of delay_factor=x
+  from this method call.
+
+    warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+========================================= short test summary info ========================================= 
+SKIPPED [1] test_netmiko_config.py:156: Skipped
+SKIPPED [1] test_netmiko_config.py:168: No error_pattern defined.
+SKIPPED [1] test_netmiko_config.py:202: No banner defined.
+SKIPPED [1] test_netmiko_config.py:235: No banner defined.
+================================ 8 passed, 4 skipped, 4 warnings in 34.34s ================================ 
