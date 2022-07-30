@@ -33,6 +33,7 @@ from os import path
 from threading import Lock
 import functools
 import logging
+import itertools
 
 import paramiko
 import serial
@@ -2129,8 +2130,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         # Set bypass_commands="" to force no-bypass (usually for testing)
         bypass_detected = False
         if bypass_commands:
+            # Make a copy of the iterator
+            config_commands, config_commands_tmp = itertools.tee(config_commands, 2)
             bypass_detected = any(
-                [True for cmd in config_commands if re.search(bypass_commands, cmd)]
+                [True for cmd in config_commands_tmp if re.search(bypass_commands, cmd)]
             )
         if bypass_detected:
             cmd_verify = False
