@@ -176,12 +176,15 @@ config_mode_command. For example, config_mode_command="configure system"
 
     def _reload_device(
         self,
-        cmd: str = "reload now",
+        cmd_save: str = "reload now",
+        cmd_no_save: str = "reload without-saving",
         reload_save: bool = True,
     ) -> str:
         """Reloads the device."""
-        if reload_save is not True:
-            cmd = "reload without-saving"
+        if reload_save:
+            cmd = cmd_save
+        else:
+            cmd = cmd_no_save
         self._enable_paging()
         self.enable()
         return self._send_command_timing_str(command_string=cmd)
@@ -427,28 +430,16 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
-    # FIX
-    #    def _reload_device(
-    #        self,
-    #        reload_device=True,
-    #        reload_save=True,
-    #        cmd_save="SaveAndReset",
-    #        cmd_no_save="ReSetDevice",
-    #        reload_message="Resetting the board",
-    #    ):
-    #        """Reloads the device.
-    #
-    #        :param reload_message: This is the pattern by which the reload is detected.
-    #        :type reload_message: str
-    #
-    #        """
-    #        return super()._reload_device(
-    #            reload_device=reload_device,
-    #            reload_save=reload_save,
-    #            cmd_save=cmd_save,
-    #            cmd_no_save=cmd_no_save,
-    #            reload_message=reload_message,
-    #        )
+    def _reload_device(
+        self,
+        cmd_save: str = "SaveAndReset",
+        cmd_no_save: str = "ReSetDevice",
+        reload_save: bool = True,
+    ) -> str:
+        """Reloads the device."""
+        return super()._reload_device(
+            cmd_save=cmd_save, cmd_no_save=cmd_no_save, reload_save=reload_save
+        )
 
     def _enable_paging(
         self,
