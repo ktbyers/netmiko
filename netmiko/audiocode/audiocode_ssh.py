@@ -88,7 +88,29 @@ class AudiocodeBase(BaseConnection):
         )
 
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#") -> str:
-        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
+        output = ""
+        max_exit_depth = 10
+        if self.check_config_mode():
+            # Keep "exitting" until out of config mode
+            for _ in range(max_exit_depth):
+                self.write_channel(self.normalize_cmd(exit_config))
+
+                # Make sure you read until you detect the command echo (avoid getting out of sync)
+                if self.global_cmd_verify is not False:
+                    output += self.read_until_pattern(
+                        pattern=re.escape(exit_config.strip())
+                    )
+                if pattern:
+                    output += self.read_until_pattern(pattern=pattern)
+                else:
+                    output += self.read_until_prompt(read_entire_line=True)
+
+                if not self.check_config_mode():
+                    # No longer in config mode
+                    break
+            else:  # no-break
+                raise ValueError("Failed to exit configuration mode")
+        return output
 
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
         """Exit enable mode."""
