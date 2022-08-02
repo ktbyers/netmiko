@@ -111,7 +111,7 @@ class AudiocodeBase(BaseConnection):
         terminator: str = r"\*?#",
         bypass_commands: Optional[str] = None,
     ) -> str:
-        if config_mode_command is None:
+        if enter_config_mode and config_mode_command is None:
             msg = """
 send_config_set() for the Audiocode drivers require that you specify the
 config_mode_command. For example, config_mode_command="configure system"
