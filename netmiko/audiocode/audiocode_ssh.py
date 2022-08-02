@@ -68,6 +68,7 @@ class AudiocodeBase(BaseConnection):
     def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
+            self._enable_paging()
             if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
