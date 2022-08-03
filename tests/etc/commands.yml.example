@@ -511,7 +511,7 @@ nokia_srl:
     - "interface ethernet-1/1 admin-state enable"
   config_verification: "show interface ethernet-1/1 brief"
 
-audiocode_base:
+audiocode_72:
   version: "show system version"
   basic: "show data interfaces gigabitethernet 0/0"
   extended_output: "show system version"   # requires paging to be disabled
