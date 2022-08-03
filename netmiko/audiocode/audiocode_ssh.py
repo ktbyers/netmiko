@@ -54,7 +54,7 @@ class AudiocodeBase(BaseConnection):
     def check_config_mode(
         self,
         check_string: str = r"(\)#|\)\*#)",
-        pattern: str = "#",
+        pattern: str = r"..#",
         force_regex: bool = True,
     ) -> bool:
 
