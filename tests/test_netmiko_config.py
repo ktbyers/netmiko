@@ -61,7 +61,11 @@ def test_config_set(net_connect, commands, expected_responses):
     config_verify = commands["config_verification"]
 
     # Set to initial value and testing sending command as a string
-    net_connect.send_config_set(config_commands[0])
+    net_connect.send_config_set(
+        config_mode_command=config_mode_command,
+        config_commands=config_commands[0],
+    )
+
     if support_commit:
         net_connect.commit()
     cmd_response = expected_responses.get("cmd_response_init")
@@ -71,14 +75,11 @@ def test_config_set(net_connect, commands, expected_responses):
     else:
         assert config_commands[0] in config_commands_output
 
-    if config_mode_command is not None:
-        net_connect.send_config_set(
-            config_commands=config_commands,
-            config_mode_command=config_mode_command,
-            enter_config_mode=True,
-        )
-    else:
-        net_connect.send_config_set(config_commands)
+     # Test that something has changed.
+    net_connect.send_config_set(
+        config_commands=config_commands,
+        config_mode_command=config_mode_command,
+    )
 
     if support_commit:
         net_connect.commit()

@@ -515,14 +515,15 @@ audiocode_72:
   version: "show system version"
   basic: "show data interfaces gigabitethernet 0/0"
   extended_output: "show system version"   # requires paging to be disabled
-  config:      
-    - "ip domain name house"                 # base command                                
-  config_verification: "show run data"  # something you can verify has changed
+  config:
+    - "ip domain name home"                 # base command
+    - "ip domain name house"                # something you can verify has changed
+  config_verification: "show run data"
   save_config_cmd: 'write'
   save_config_confirm: False
   save_config_response: 'Writing configuration...done'
-  config_mode_command: "config data"     # only use if needed
-  
+  config_mode_command: "config data"
+
 audiocode_66:
   version: "show system version"
   basic: "show data interfaces gigabitethernet 0/0"
