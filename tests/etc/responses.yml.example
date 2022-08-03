@@ -364,7 +364,7 @@ nokia_srl:
   cmd_response_final: "enable"
   save_config: "Saved current running configuration as initial"
 
-audiocode_base:
+audiocode_72:
   base_prompt: TESTROUTER
   router_prompt : TESTROUTER>
   enable_prompt: TESTROUTER#
@@ -396,3 +396,13 @@ audiocode_shell:
   save_config: 'Configuration has been saved'
   cmd_response_init: "Test_String1"
   cmd_response_final: "Test_String2"
+
+fortinet:
+  base_prompt: "TESTROUTER"
+  router_prompt : "TESTROUTER #"
+  enable_prompt: "TESTROUTER #"
+  interface_ip: 192.168.1.1
+  version_banner: "Version: FortiGate-61E"
+  multiple_line_output: 'edit "WAN_DIA"'
+  cmd_response_init: "Test-String-1"
+  cmd_response_final: "Test-String-2"
