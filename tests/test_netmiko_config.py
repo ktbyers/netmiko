@@ -75,7 +75,7 @@ def test_config_set(net_connect, commands, expected_responses):
     else:
         assert config_commands[0] in config_commands_output
 
-     # Test that something has changed.
+    # Test that something has changed.
     net_connect.send_config_set(
         config_commands=config_commands,
         config_mode_command=config_mode_command,
