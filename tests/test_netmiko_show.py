@@ -29,10 +29,15 @@ def test_disable_paging(net_connect, commands, expected_responses):
         # NX-OS logging buffer gets enormous (NX-OS fails when testing very high-latency +
         # packet loss)
         net_connect.send_command("clear logging logfile")
-    multiple_line_output = net_connect.send_command(
-        commands["extended_output"], read_timeout=60
-    )
-    assert expected_responses["multiple_line_output"] in multiple_line_output
+
+    if net_connect.device_type == "audiocode_shell":
+        # Not supported.
+        assert pytest.skip("Disable Paging not supported on this platform")
+    else:
+        multiple_line_output = net_connect.send_command(
+            commands["extended_output"], read_timeout=60
+        )
+        assert expected_responses["multiple_line_output"] in multiple_line_output
 
 
 def test_terminal_width(net_connect, commands, expected_responses):
@@ -49,8 +54,10 @@ def test_ssh_connect(net_connect, commands, expected_responses):
     assert expected_responses["version_banner"] in show_version
 
 
-def test_ssh_connect_cm(net_connect_cm, commands, expected_responses):
+def test_ssh_connect_cm(net_connect_cm, net_connect, commands, expected_responses):
     """Test the context manager."""
+    if net_connect.device_type == "audiocode_shell":
+        assert pytest.skip("Disable Paging not supported on this platform")
     prompt_str = net_connect_cm
     assert expected_responses["base_prompt"] in prompt_str
 
