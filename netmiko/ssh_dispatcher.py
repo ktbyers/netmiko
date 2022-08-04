@@ -6,20 +6,13 @@ from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationExc
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.adtran import AdtranOSSSH, AdtranOSTelnet
+from netmiko.adva import AdvaAosFsp150f3SSH, AdvaAosFsp150f2SSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.allied_telesis import AlliedTelesisAwplusSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
-from netmiko.audiocode import (
-    Audiocode72SSH,
-    Audiocode66SSH,
-    AudiocodeShellSSH,
-    Audiocode72Telnet,
-    Audiocode66Telnet,
-    AudiocodeShellTelnet,
-)
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
@@ -79,18 +72,13 @@ from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
-from netmiko.mikrotik import MikrotikRouterOsSSH, MikrotikRouterOsFileTransfer
+from netmiko.mikrotik import MikrotikRouterOsSSH
 from netmiko.mikrotik import MikrotikSwitchOsSSH
 from netmiko.mellanox import MellanoxMlnxosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
-from netmiko.nokia import (
-    NokiaSrosSSH,
-    NokiaSrosFileTransfer,
-    NokiaSrosTelnet,
-    NokiaSrlSSH,
-)
+from netmiko.nokia import NokiaSrosSSH, NokiaSrosFileTransfer, NokiaSrosTelnet
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
@@ -135,6 +123,8 @@ CLASS_MAPPER_BASE = {
     "a10": A10SSH,
     "accedian": AccedianSSH,
     "adtran_os": AdtranOSSSH,
+    "adva_aos_fsp150_f3": AdvaAosFsp150f3SSH,
+    "adva_aos_fsp150_f2": AdvaAosFsp150f2SSH,
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "allied_telesis_awplus": AlliedTelesisAwplusSSH,
@@ -143,9 +133,6 @@ CLASS_MAPPER_BASE = {
     "aruba_os": ArubaSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
-    "audiocode_72": Audiocode72SSH,
-    "audiocode_66": Audiocode66SSH,
-    "audiocode_shell": AudiocodeShellSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
     "broadcom_icos": BroadcomIcosSSH,
@@ -226,7 +213,6 @@ CLASS_MAPPER_BASE = {
     "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
     "nokia_sros": NokiaSrosSSH,
-    "nokia_srl": NokiaSrlSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
@@ -265,7 +251,6 @@ FILE_TRANSFER_MAP = {
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
     "nokia_sros": NokiaSrosFileTransfer,
-    "mikrotik_routeros": MikrotikRouterOsFileTransfer,
 }
 
 # Also support keys that end in _ssh
@@ -288,9 +273,6 @@ CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
 CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
-CLASS_MAPPER["audiocode_72_telnet"] = Audiocode72Telnet
-CLASS_MAPPER["audiocode_66_telnet"] = Audiocode66Telnet
-CLASS_MAPPER["audiocode_shell_telnet"] = AudiocodeShellTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
