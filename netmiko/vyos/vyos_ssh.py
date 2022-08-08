@@ -1,4 +1,4 @@
-from typing import Optional, Union, Sequence, TextIO, Any
+from typing import Optional, Union, Sequence, Iterator, TextIO, Any
 import time
 import warnings
 import re
@@ -123,7 +123,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
     ) -> str:

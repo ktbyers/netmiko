@@ -16,6 +16,7 @@ from typing import (
     cast,
     Type,
     Sequence,
+    Iterator,
     TextIO,
     Union,
     Tuple,
@@ -2033,7 +2034,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         *,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = None,
