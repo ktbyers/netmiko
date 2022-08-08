@@ -1,4 +1,4 @@
-from typing import Optional, Any, Union, Sequence, TextIO
+from typing import Optional, Any, Union, Sequence, Iterator, TextIO
 import time
 import re
 import warnings
@@ -196,7 +196,7 @@ class HuaweiTelnet(HuaweiBase):
 class HuaweiVrpv8SSH(HuaweiSSH):
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
     ) -> str:

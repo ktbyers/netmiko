@@ -1,4 +1,4 @@
-from typing import Any, Optional, Sequence, TextIO, Union, List
+from typing import Any, Optional, Sequence, Iterator, TextIO, Union, List
 import time
 import re
 from netmiko.base_connection import BaseConnection
@@ -119,7 +119,7 @@ class AudiocodeBase(BaseConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         *,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = None,
@@ -359,7 +359,7 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         *,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = None,
