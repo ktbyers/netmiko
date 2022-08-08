@@ -67,10 +67,12 @@ read_channel:
 [find_prompt()]: prompt is cisco1>
 write_channel: b'terminal width 511\n'
 read_channel: 
-read_channel: cisco1>terminal widt
-read_channel: h 511
+read_channel: 
+cisco1>terminal width
+read_channel:  511
 cisco1>
-Pattern found: (terminal width 511) cisco1>terminal width 511
+Pattern found: (terminal width 511) 
+cisco1>terminal width 511
 In disable_paging
 Command: terminal length 0
 
@@ -104,8 +106,8 @@ read_channel:
 [find_prompt()]: prompt is cisco1>
 write_channel: b'show ip interface brief\n'
 read_channel: 
-read_channel: show ip interf
-read_channel: ace brief
+read_channel: show ip interfa
+read_channel: ce brief
 Interface                  IP-Address      OK? Method Status                Protocol
 FastEthernet0              unassigned      YES unset  down                  down    
 FastEthernet1              unassigned      YES unset  down                  down    
