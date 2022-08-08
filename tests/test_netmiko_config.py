@@ -96,7 +96,7 @@ def test_config_set_generator(net_connect, commands, expected_responses):
 
     config_commands = commands["config"]
     # Make a generator out of the config commands (to verify no issues with generators)
-    config_commands = (cmd for cmd in config_commands)
+    config_commands_gen = (cmd for cmd in config_commands)
     support_commit = commands.get("support_commit")
     config_verify = commands["config_verification"]
 
@@ -110,7 +110,9 @@ def test_config_set_generator(net_connect, commands, expected_responses):
         assert cmd_response in config_commands_output
     else:
         assert config_commands[0] in config_commands_output
-    net_connect.send_config_set(config_commands)
+
+    # Send the config commands as a generator
+    net_connect.send_config_set(config_commands_gen)
     if support_commit:
         net_connect.commit()
     cmd_response = expected_responses.get("cmd_response_final")
