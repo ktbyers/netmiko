@@ -1291,8 +1291,13 @@ A paramiko SSHException occurred during connection creation:
 
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
-        # Strip off trailing terminator
-        self.base_prompt = prompt[:-1]
+
+        # If all we have is the 'terminator' just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Strip off trailing terminator
+            self.base_prompt = prompt[:-1]
         return self.base_prompt
 
     def find_prompt(
