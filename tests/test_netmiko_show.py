@@ -354,6 +354,9 @@ def test_enable_mode(net_connect, commands, expected_responses):
 
     Catch exception for devices that don't support enable
     """
+    # testuser on pynetqa does not have root access
+    if net_connect.username == "testuser" and net_connect.host == "3.15.148.177":
+        assert pytest.skip()
     try:
         net_connect.enable()
         enable_prompt = net_connect.find_prompt()
