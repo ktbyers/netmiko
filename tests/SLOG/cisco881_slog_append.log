@@ -1,5 +1,6 @@
 Initial file contents
 
+cisco1>
 cisco1>terminal width 511
 cisco1>terminal length 0
 cisco1>
@@ -14,6 +15,7 @@ FastEthernet4              10.220.88.20    YES NVRAM  up                    up
 Vlan1                      unassigned      YES unset  down                  down    
 cisco1>
 cisco1>exit
+cisco1>
 cisco1>terminal width 511
 cisco1>terminal length 0
 cisco1>
@@ -22,6 +24,7 @@ Testing password and secret replacement
 This is my password ********
 This is my secret ********
 
+cisco1>
 cisco1>terminal width 511
 cisco1>terminal length 0
 cisco1>
