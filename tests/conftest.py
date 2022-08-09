@@ -132,6 +132,17 @@ def device_slog(request):
 
 
 @pytest.fixture(scope="module")
+def device_failed_key(request):
+    """
+    Return the netmiko device (not connected).
+    """
+    device_under_test = request.config.getoption("test_device")
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    return device
+
+
+@pytest.fixture(scope="module")
 def expected_responses(request):
     """
     Parse the responses.yml file to get a responses dictionary

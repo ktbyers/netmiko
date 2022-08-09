@@ -17,6 +17,17 @@ test_disconnect: cleanly disconnect the SSH session
 import pytest
 import time
 from datetime import datetime
+from netmiko import ConnectHandler
+
+
+def test_failed_key(device_failed_key, commands, expected_responses):
+    if device_failed_key.get("use_keys") is not True:
+        assert pytest.skip("Not using SSH-keys")
+
+    device_failed_key["key_file"] = "bogus_key_file_name"
+
+    with pytest.raises(ValueError):
+        ConnectHandler(**device_failed_key)
 
 
 def test_disable_paging(net_connect, commands, expected_responses):
