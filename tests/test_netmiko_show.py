@@ -19,6 +19,7 @@ import time
 from datetime import datetime
 from netmiko import ConnectHandler
 
+
 def test_failed_key(device_failed_key, commands, expected_responses):
     if device_failed_key.get("use_keys") is not True:
         assert pytest.skip("Not using SSH-keys")
