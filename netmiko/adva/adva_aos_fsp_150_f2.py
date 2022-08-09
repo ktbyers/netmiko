@@ -7,6 +7,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import re
 import time
+from typing import Any
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -36,7 +37,7 @@ class AdvaAosFsp150f2SSH(NoEnable, NoConfig, CiscoSSHConnection):
         NoConfig (class): Netmiko NoConfig Class
     """
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         """
         Adva F2 Device Instantiation
         \n for default enter causes some issues with the Adva
@@ -47,7 +48,7 @@ class AdvaAosFsp150f2SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
         super().__init__(**kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
         Handles devices with security prompt enabled
@@ -68,7 +69,7 @@ class AdvaAosFsp150f2SSH(NoEnable, NoConfig, CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def set_base_prompt(self):
+    def set_base_prompt(self) -> str:
         """
         Remove :--> for regular mode, and all instances of :config:txt:--> when config being applied
         Used as delimiter for stripping of trailing prompt in output
