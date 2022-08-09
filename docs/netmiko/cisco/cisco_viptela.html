@@ -28,7 +28,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Subclass specific to Cisco Viptela.&#34;&#34;&#34;
-from typing import Union, Sequence, TextIO, Any
+from typing import Union, Sequence, Iterator, TextIO, Any
 import re
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -67,7 +67,7 @@ class CiscoViptelaSSH(CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
     ) -&gt; str:
@@ -122,7 +122,7 @@ class CiscoViptelaSSH(CiscoSSHConnection):
 <dl>
 <dt id="netmiko.cisco.cisco_viptela.CiscoViptelaSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoViptelaSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'ascii', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Subclass specific to Cisco Viptela.</p>
@@ -266,7 +266,7 @@ class CiscoViptelaSSH(CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
     ) -&gt; str:
