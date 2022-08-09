@@ -252,16 +252,12 @@ def find_netmiko_dir() -&gt; Tuple[str, str]:
     return (netmiko_base_dir, netmiko_full_dir)
 
 
-def write_bytes(out_data: AnyStr, encoding: str = &#34;ascii&#34;) -&gt; bytes:
-    &#34;&#34;&#34;Legacy for Python2 and Python3 compatible byte stream.&#34;&#34;&#34;
-    if sys.version_info[0] &gt;= 3:
-        if isinstance(out_data, str):
-            if encoding == &#34;utf-8&#34;:
-                return out_data.encode(&#34;utf-8&#34;)
-            else:
-                return out_data.encode(&#34;ascii&#34;, &#34;ignore&#34;)
-        elif isinstance(out_data, bytes):
-            return out_data
+def write_bytes(out_data: AnyStr, encoding: str = &#34;utf-8&#34;) -&gt; bytes:
+    &#34;&#34;&#34;Ensure output is properly encoded bytes.&#34;&#34;&#34;
+    if isinstance(out_data, str):
+        return out_data.encode(encoding)
+    elif isinstance(out_data, bytes):
+        return out_data
     msg = f&#34;Invalid value for out_data neither unicode nor byte string: {str(out_data)}&#34;
     raise ValueError(msg)
 
@@ -1494,24 +1490,20 @@ The argument &#39;ttp_template=/path/to/template.ttp&#39; must be set when use_t
 </details>
 </dd>
 <dt id="netmiko.utilities.write_bytes"><code class="name flex">
-<span>def <span class="ident">write_bytes</span></span>(<span>out_data: ~AnyStr, encoding: str = 'ascii') ‑> bytes</span>
+<span>def <span class="ident">write_bytes</span></span>(<span>out_data: ~AnyStr, encoding: str = 'utf-8') ‑> bytes</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Legacy for Python2 and Python3 compatible byte stream.</p></div>
+<div class="desc"><p>Ensure output is properly encoded bytes.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def write_bytes(out_data: AnyStr, encoding: str = &#34;ascii&#34;) -&gt; bytes:
-    &#34;&#34;&#34;Legacy for Python2 and Python3 compatible byte stream.&#34;&#34;&#34;
-    if sys.version_info[0] &gt;= 3:
-        if isinstance(out_data, str):
-            if encoding == &#34;utf-8&#34;:
-                return out_data.encode(&#34;utf-8&#34;)
-            else:
-                return out_data.encode(&#34;ascii&#34;, &#34;ignore&#34;)
-        elif isinstance(out_data, bytes):
-            return out_data
+<pre><code class="python">def write_bytes(out_data: AnyStr, encoding: str = &#34;utf-8&#34;) -&gt; bytes:
+    &#34;&#34;&#34;Ensure output is properly encoded bytes.&#34;&#34;&#34;
+    if isinstance(out_data, str):
+        return out_data.encode(encoding)
+    elif isinstance(out_data, bytes):
+        return out_data
     msg = f&#34;Invalid value for out_data neither unicode nor byte string: {str(out_data)}&#34;
     raise ValueError(msg)</code></pre>
 </details>

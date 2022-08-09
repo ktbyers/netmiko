@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">import sys
 
-__version__ = &#34;4.1.1&#34;
+__version__ = &#34;4.1.2&#34;
 PY_MAJ_VER = 3
 PY_MIN_VER = 7
 MIN_PYTHON_VER = &#34;3.7&#34;
@@ -154,6 +154,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="netmiko.aruba" href="aruba/index.html">netmiko.aruba</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="netmiko.audiocode" href="audiocode/index.html">netmiko.audiocode</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -817,7 +821,7 @@ with terminal server.</p></div>
 <dl>
 <dt id="netmiko.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'ascii', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Defines vendor independent methods.</p>
@@ -982,7 +986,7 @@ with terminal server.</p></div>
         session_log_record_writes: bool = False,
         session_log_file_mode: str = &#34;write&#34;,
         allow_auto_change: bool = False,
-        encoding: str = &#34;ascii&#34;,
+        encoding: str = &#34;utf-8&#34;,
         sock: Optional[socket.socket] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
@@ -1224,6 +1228,8 @@ with terminal server.</p></div>
             self.key_file = (
                 path.abspath(path.expanduser(key_file)) if key_file else None
             )
+            if self.use_keys is True:
+                self._key_check()
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
@@ -1310,6 +1316,22 @@ with terminal server.</p></div>
 
     def _return_cli(self) -&gt; str:
         raise NotImplementedError
+
+    def _key_check(self) -&gt; bool:
+        &#34;&#34;&#34;Verify key_file exists.&#34;&#34;&#34;
+        msg = f&#34;&#34;&#34;
+use_keys has been set to True, but specified key_file does not exist:
+
+use_keys: {self.use_keys}
+key_file: {self.key_file}
+&#34;&#34;&#34;
+        if self.key_file is None:
+            raise ValueError(msg)
+
+        my_key_file = Path(self.key_file)
+        if not my_key_file.is_file():
+            raise ValueError(msg)
+        return True
 
     @lock_channel
     @log_writes
@@ -1674,7 +1696,7 @@ You can look at the Netmiko session_log or debug log for more information.
         self.remote_conn.close()
         raise NetmikoAuthenticationException(msg)
 
-    def _try_session_preparation(self) -&gt; None:
+    def _try_session_preparation(self, force_data: bool = True) -&gt; None:
         &#34;&#34;&#34;
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
@@ -1682,6 +1704,10 @@ You can look at the Netmiko session_log or debug log for more information.
         to threads used in Paramiko.
         &#34;&#34;&#34;
         try:
+            # Netmiko needs there to be data for session_preparation to work.
+            if force_data:
+                self.write_channel(self.RETURN)
+                time.sleep(0.1)
             self.session_preparation()
         except Exception:
             self.disconnect()
@@ -2091,8 +2117,13 @@ A paramiko SSHException occurred during connection creation:
 
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
-        # Strip off trailing terminator
-        self.base_prompt = prompt[:-1]
+
+        # If all we have is the &#39;terminator&#39; just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Strip off trailing terminator
+            self.base_prompt = prompt[:-1]
         return self.base_prompt
 
     def find_prompt(
@@ -2834,7 +2865,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         *,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = None,
@@ -2931,8 +2962,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         # Set bypass_commands=&#34;&#34; to force no-bypass (usually for testing)
         bypass_detected = False
         if bypass_commands:
+            # Make a copy of the iterator
+            config_commands, config_commands_tmp = itertools.tee(config_commands, 2)
             bypass_detected = any(
-                [True for cmd in config_commands if re.search(bypass_commands, cmd)]
+                [True for cmd in config_commands_tmp if re.search(bypass_commands, cmd)]
             )
         if bypass_detected:
             cmd_verify = False
@@ -3114,6 +3147,11 @@ You can also look at the Netmiko session_log or debug log for more information.
         &#34;&#34;&#34;Try to gracefully close the session.&#34;&#34;&#34;
         try:
             self.cleanup()
+        except Exception:
+            # Keep going on cleanup process even if exceptions
+            pass
+
+        try:
             if self.protocol == &#34;ssh&#34;:
                 self.paramiko_cleanup()
             elif self.protocol == &#34;telnet&#34;:
@@ -3179,6 +3217,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase" href="audiocode/audiocode_ssh.html#netmiko.audiocode.audiocode_ssh.AudiocodeBase">AudiocodeBase</a></li>
 <li><a title="netmiko.base_connection.TelnetConnection" href="base_connection.html#netmiko.base_connection.TelnetConnection">TelnetConnection</a></li>
 <li><a title="netmiko.checkpoint.checkpoint_gaia_ssh.CheckPointGaiaSSH" href="checkpoint/checkpoint_gaia_ssh.html#netmiko.checkpoint.checkpoint_gaia_ssh.CheckPointGaiaSSH">CheckPointGaiaSSH</a></li>
 <li><a title="netmiko.ciena.ciena_saos.CienaSaosBase" href="ciena/ciena_saos.html#netmiko.ciena.ciena_saos.CienaSaosBase">CienaSaosBase</a></li>
@@ -3484,6 +3523,11 @@ def strip_backspaces(output: str) -&gt; str:
     &#34;&#34;&#34;Try to gracefully close the session.&#34;&#34;&#34;
     try:
         self.cleanup()
+    except Exception:
+        # Keep going on cleanup process even if exceptions
+        pass
+
+    try:
         if self.protocol == &#34;ssh&#34;:
             self.paramiko_cleanup()
         elif self.protocol == &#34;telnet&#34;:
@@ -4696,7 +4740,7 @@ SSH channel.</p>
 </details>
 </dd>
 <dt id="netmiko.BaseConnection.send_config_set"><code class="name flex">
-<span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands: Union[str, Sequence[str], TextIO, ForwardRef(None)] = None, *, exit_config_mode: bool = True, read_timeout: Optional[float] = None, delay_factor: Optional[float] = None, max_loops: Optional[int] = None, strip_prompt: bool = False, strip_command: bool = False, config_mode_command: Optional[str] = None, cmd_verify: bool = True, enter_config_mode: bool = True, error_pattern: str = '', terminator: str = '#', bypass_commands: Optional[str] = None) ‑> str</span>
+<span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands: Union[str, Sequence[str], Iterator[str], TextIO, ForwardRef(None)] = None, *, exit_config_mode: bool = True, read_timeout: Optional[float] = None, delay_factor: Optional[float] = None, max_loops: Optional[int] = None, strip_prompt: bool = False, strip_command: bool = False, config_mode_command: Optional[str] = None, cmd_verify: bool = True, enter_config_mode: bool = True, error_pattern: str = '', terminator: str = '#', bypass_commands: Optional[str] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send configuration commands down the SSH channel.</p>
@@ -4725,7 +4769,7 @@ where cmd_verify is automatically disabled.</p></div>
 </summary>
 <pre><code class="python">def send_config_set(
     self,
-    config_commands: Union[str, Sequence[str], TextIO, None] = None,
+    config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
     *,
     exit_config_mode: bool = True,
     read_timeout: Optional[float] = None,
@@ -4822,8 +4866,10 @@ where cmd_verify is automatically disabled.</p></div>
     # Set bypass_commands=&#34;&#34; to force no-bypass (usually for testing)
     bypass_detected = False
     if bypass_commands:
+        # Make a copy of the iterator
+        config_commands, config_commands_tmp = itertools.tee(config_commands, 2)
         bypass_detected = any(
-            [True for cmd in config_commands if re.search(bypass_commands, cmd)]
+            [True for cmd in config_commands_tmp if re.search(bypass_commands, cmd)]
         )
     if bypass_detected:
         cmd_verify = False
@@ -5095,8 +5141,13 @@ def set_base_prompt(
 
     if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
         raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
-    # Strip off trailing terminator
-    self.base_prompt = prompt[:-1]
+
+    # If all we have is the &#39;terminator&#39; just use that :-(
+    if len(prompt) == 1:
+        self.base_prompt = prompt
+    else:
+        # Strip off trailing terminator
+        self.base_prompt = prompt[:-1]
     return self.base_prompt</code></pre>
 </details>
 </dd>
@@ -6474,6 +6525,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.apresia" href="apresia/index.html">netmiko.apresia</a></code></li>
 <li><code><a title="netmiko.arista" href="arista/index.html">netmiko.arista</a></code></li>
 <li><code><a title="netmiko.aruba" href="aruba/index.html">netmiko.aruba</a></code></li>
+<li><code><a title="netmiko.audiocode" href="audiocode/index.html">netmiko.audiocode</a></code></li>
 <li><code><a title="netmiko.base_connection" href="base_connection.html">netmiko.base_connection</a></code></li>
 <li><code><a title="netmiko.broadcom" href="broadcom/index.html">netmiko.broadcom</a></code></li>
 <li><code><a title="netmiko.brocade" href="brocade/index.html">netmiko.brocade</a></code></li>
