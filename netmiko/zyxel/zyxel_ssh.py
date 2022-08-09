@@ -1,4 +1,4 @@
-from typing import Any, Sequence, TextIO, Union
+from typing import Any, Sequence, Iterator, TextIO, Union
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
@@ -11,7 +11,7 @@ class ZyxelSSH(NoEnable, NoConfig, CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         enter_config_mode: bool = False,
         **kwargs: Any

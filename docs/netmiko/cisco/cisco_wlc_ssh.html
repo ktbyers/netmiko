@@ -28,7 +28,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Netmiko Cisco WLC support.&#34;&#34;&#34;
-from typing import Any, Union, Sequence, TextIO
+from typing import Any, Union, Sequence, Iterator, TextIO
 import time
 import re
 import socket
@@ -40,11 +40,7 @@ from netmiko.base_connection import BaseConnection
 class CiscoWlcSSH(BaseConnection):
     &#34;&#34;&#34;Netmiko Cisco WLC support.&#34;&#34;&#34;
 
-    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
-        # WLC/AireOS has an issue where you can get &#34;No Existing Session&#34; with
-        # the default conn_timeout (so increase conn_timeout to 10-seconds).
-        kwargs.setdefault(&#34;conn_timeout&#34;, 10)
-        return super().__init__(*args, **kwargs)
+    prompt_pattern = r&#34;(?m:[&gt;#]\s*$)&#34;  # force re.Multiline
 
     def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
         &#34;&#34;&#34;WLC presents with the following on login (in certain OS versions)
@@ -57,25 +53,51 @@ class CiscoWlcSSH(BaseConnection):
 
         Password:****
         &#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
-        time.sleep(delay_factor * 0.5)
         output = &#34;&#34;
-        while i &lt;= 12:
-            output = self.read_channel()
-            if output:
-                if &#34;login as&#34; in output or &#34;User:&#34; in output:
-                    assert isinstance(self.username, str)
-                    self.write_channel(self.username + self.RETURN)
-                elif &#34;Password&#34; in output:
-                    assert isinstance(self.password, str)
-                    self.write_channel(self.password + self.RETURN)
-                    break
-                time.sleep(delay_factor * 1)
+        uname = &#34;User:&#34;
+        login = &#34;login as&#34;
+        password = &#34;ssword&#34;
+        pattern = rf&#34;(?:{uname}|{login}|{password}|{self.prompt_pattern})&#34;
+
+        while True:
+            new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
+            output += new_data
+            if re.search(self.prompt_pattern, new_data):
+                return
+
+            if uname in new_data or login in new_data:
+                assert isinstance(self.username, str)
+                self.write_channel(self.username + self.RETURN)
+            elif password in new_data:
+                assert isinstance(self.password, str)
+                self.write_channel(self.password + self.RETURN)
             else:
-                # no output read, sleep and go for one more round of read channel
-                time.sleep(delay_factor * 1.5)
-            i += 1
+                msg = f&#34;&#34;&#34;
+Failed to login to Cisco WLC Device.
+
+Pattern not detected: {pattern}
+output:
+
+{output}
+
+&#34;&#34;&#34;
+                raise NetmikoAuthenticationException(msg)
+
+    def session_preparation(self) -&gt; None:
+        &#34;&#34;&#34;
+        Prepare the session after the connection has been established
+
+        Cisco WLC uses &#34;config paging disable&#34; to disable paging
+        &#34;&#34;&#34;
+
+        # _test_channel_read() will happen in the special_login_handler()
+        try:
+            self.set_base_prompt()
+        except ValueError:
+            msg = f&#34;Authentication failed: {self.host}&#34;
+            raise NetmikoAuthenticationException(msg)
+
+        self.disable_paging(command=&#34;config paging disable&#34;)
 
     def send_command_w_enter(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;
@@ -174,22 +196,6 @@ class CiscoWlcSSH(BaseConnection):
             output = self.strip_prompt(output)
         return output
 
-    def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;
-        Prepare the session after the connection has been established
-
-        Cisco WLC uses &#34;config paging disable&#34; to disable paging
-        &#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-
-        try:
-            self.set_base_prompt()
-        except ValueError:
-            msg = f&#34;Authentication failed: {self.host}&#34;
-            raise NetmikoAuthenticationException(msg)
-
-        self.disable_paging(command=&#34;config paging disable&#34;)
-
     def cleanup(self, command: str = &#34;logout&#34;) -&gt; None:
         &#34;&#34;&#34;Reset WLC back to normal paging and gracefully close session.&#34;&#34;&#34;
         self.send_command_timing(&#34;config paging enable&#34;)
@@ -248,7 +254,7 @@ class CiscoWlcSSH(BaseConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         enter_config_mode: bool = False,
         **kwargs: Any,
@@ -292,7 +298,7 @@ class CiscoWlcSSH(BaseConnection):
 <dl>
 <dt id="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoWlcSSH</span></span>
-<span>(</span><span>*args: Any, **kwargs: Any)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Netmiko Cisco WLC support.</p>
@@ -406,11 +412,7 @@ class CiscoWlcSSH(BaseConnection):
 <pre><code class="python">class CiscoWlcSSH(BaseConnection):
     &#34;&#34;&#34;Netmiko Cisco WLC support.&#34;&#34;&#34;
 
-    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
-        # WLC/AireOS has an issue where you can get &#34;No Existing Session&#34; with
-        # the default conn_timeout (so increase conn_timeout to 10-seconds).
-        kwargs.setdefault(&#34;conn_timeout&#34;, 10)
-        return super().__init__(*args, **kwargs)
+    prompt_pattern = r&#34;(?m:[&gt;#]\s*$)&#34;  # force re.Multiline
 
     def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
         &#34;&#34;&#34;WLC presents with the following on login (in certain OS versions)
@@ -423,25 +425,51 @@ class CiscoWlcSSH(BaseConnection):
 
         Password:****
         &#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
-        time.sleep(delay_factor * 0.5)
         output = &#34;&#34;
-        while i &lt;= 12:
-            output = self.read_channel()
-            if output:
-                if &#34;login as&#34; in output or &#34;User:&#34; in output:
-                    assert isinstance(self.username, str)
-                    self.write_channel(self.username + self.RETURN)
-                elif &#34;Password&#34; in output:
-                    assert isinstance(self.password, str)
-                    self.write_channel(self.password + self.RETURN)
-                    break
-                time.sleep(delay_factor * 1)
+        uname = &#34;User:&#34;
+        login = &#34;login as&#34;
+        password = &#34;ssword&#34;
+        pattern = rf&#34;(?:{uname}|{login}|{password}|{self.prompt_pattern})&#34;
+
+        while True:
+            new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
+            output += new_data
+            if re.search(self.prompt_pattern, new_data):
+                return
+
+            if uname in new_data or login in new_data:
+                assert isinstance(self.username, str)
+                self.write_channel(self.username + self.RETURN)
+            elif password in new_data:
+                assert isinstance(self.password, str)
+                self.write_channel(self.password + self.RETURN)
             else:
-                # no output read, sleep and go for one more round of read channel
-                time.sleep(delay_factor * 1.5)
-            i += 1
+                msg = f&#34;&#34;&#34;
+Failed to login to Cisco WLC Device.
+
+Pattern not detected: {pattern}
+output:
+
+{output}
+
+&#34;&#34;&#34;
+                raise NetmikoAuthenticationException(msg)
+
+    def session_preparation(self) -&gt; None:
+        &#34;&#34;&#34;
+        Prepare the session after the connection has been established
+
+        Cisco WLC uses &#34;config paging disable&#34; to disable paging
+        &#34;&#34;&#34;
+
+        # _test_channel_read() will happen in the special_login_handler()
+        try:
+            self.set_base_prompt()
+        except ValueError:
+            msg = f&#34;Authentication failed: {self.host}&#34;
+            raise NetmikoAuthenticationException(msg)
+
+        self.disable_paging(command=&#34;config paging disable&#34;)
 
     def send_command_w_enter(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;
@@ -540,22 +568,6 @@ class CiscoWlcSSH(BaseConnection):
             output = self.strip_prompt(output)
         return output
 
-    def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;
-        Prepare the session after the connection has been established
-
-        Cisco WLC uses &#34;config paging disable&#34; to disable paging
-        &#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-
-        try:
-            self.set_base_prompt()
-        except ValueError:
-            msg = f&#34;Authentication failed: {self.host}&#34;
-            raise NetmikoAuthenticationException(msg)
-
-        self.disable_paging(command=&#34;config paging disable&#34;)
-
     def cleanup(self, command: str = &#34;logout&#34;) -&gt; None:
         &#34;&#34;&#34;Reset WLC back to normal paging and gracefully close session.&#34;&#34;&#34;
         self.send_command_timing(&#34;config paging enable&#34;)
@@ -614,7 +626,7 @@ class CiscoWlcSSH(BaseConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         enter_config_mode: bool = False,
         **kwargs: Any,
@@ -650,6 +662,13 @@ class CiscoWlcSSH(BaseConnection):
 <ul class="hlist">
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.check_config_mode"><code class="name flex">
@@ -863,8 +882,8 @@ handling.</p>
 
     Cisco WLC uses &#34;config paging disable&#34; to disable paging
     &#34;&#34;&#34;
-    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
 
+    # _test_channel_read() will happen in the special_login_handler()
     try:
         self.set_base_prompt()
     except ValueError:
@@ -887,36 +906,46 @@ handling.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
-    &#34;&#34;&#34;WLC presents with the following on login (in certain OS versions)
+<pre><code class="python">    def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
+        &#34;&#34;&#34;WLC presents with the following on login (in certain OS versions)
 
-    login as: user
+        login as: user
 
-    (Cisco Controller)
+        (Cisco Controller)
 
-    User: user
+        User: user
 
-    Password:****
-    &#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor)
-    i = 0
-    time.sleep(delay_factor * 0.5)
-    output = &#34;&#34;
-    while i &lt;= 12:
-        output = self.read_channel()
-        if output:
-            if &#34;login as&#34; in output or &#34;User:&#34; in output:
+        Password:****
+        &#34;&#34;&#34;
+        output = &#34;&#34;
+        uname = &#34;User:&#34;
+        login = &#34;login as&#34;
+        password = &#34;ssword&#34;
+        pattern = rf&#34;(?:{uname}|{login}|{password}|{self.prompt_pattern})&#34;
+
+        while True:
+            new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
+            output += new_data
+            if re.search(self.prompt_pattern, new_data):
+                return
+
+            if uname in new_data or login in new_data:
                 assert isinstance(self.username, str)
                 self.write_channel(self.username + self.RETURN)
-            elif &#34;Password&#34; in output:
+            elif password in new_data:
                 assert isinstance(self.password, str)
                 self.write_channel(self.password + self.RETURN)
-                break
-            time.sleep(delay_factor * 1)
-        else:
-            # no output read, sleep and go for one more round of read channel
-            time.sleep(delay_factor * 1.5)
-        i += 1</code></pre>
+            else:
+                msg = f&#34;&#34;&#34;
+Failed to login to Cisco WLC Device.
+
+Pattern not detected: {pattern}
+output:
+
+{output}
+
+&#34;&#34;&#34;
+                raise NetmikoAuthenticationException(msg)</code></pre>
 </details>
 </dd>
 </dl>
@@ -985,6 +1014,7 @@ handling.</p>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.cleanup" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.config_mode" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.exit_config_mode" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.prompt_pattern" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.save_config" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.send_command_w_enter" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.send_command_w_enter">send_command_w_enter</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.session_preparation" href="#netmiko.cisco.cisco_wlc_ssh.CiscoWlcSSH.session_preparation">session_preparation</a></code></li>

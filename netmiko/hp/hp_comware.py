@@ -1,5 +1,5 @@
 import re
-from typing import Union, Sequence, TextIO, Any, Optional
+from typing import Union, Sequence, Iterator, TextIO, Any, Optional
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -44,7 +44,7 @@ class HPComwareBase(CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = None,
         delay_factor: Optional[float] = None,

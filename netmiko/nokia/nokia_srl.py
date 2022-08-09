@@ -7,7 +7,7 @@
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
 
 import re
-from typing import Any, Optional, Sequence, TextIO, Union
+from typing import Any, Optional, Sequence, Iterator, TextIO, Union
 from netmiko import log
 from netmiko.no_enable import NoEnable
 from netmiko.base_connection import BaseConnection
@@ -122,7 +122,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
     ) -> str:

@@ -224,6 +224,9 @@ def test_ntc_templates_discovery():
     ntc_path = utilities.get_template_dir()
     for py_path in sys.path:
         if "site-packages" in py_path:
+            _, suffix = py_path.split("site-packages")
+            if len(suffix) > 1:  # Should be "" or "/"
+                continue
             packages_dir = py_path
             break
     assert ntc_path == f"{packages_dir}/ntc_templates/templates"
@@ -292,7 +295,6 @@ def test_textfsm_missing_template():
     assert result == raw_output
 
 
-@pytest.mark.skip(reason="pyats/genie lacks PY3.10 support")
 def test_get_structured_data_genie():
     """Convert raw CLI output to structured data using Genie"""
 

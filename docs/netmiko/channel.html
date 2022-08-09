@@ -110,7 +110,7 @@ class SSHChannel(Channel):
             outbuf = self.remote_conn.recv(MAX_BUFFER)
             if len(outbuf) == 0:
                 raise ReadException(&#34;Channel stream closed by remote device.&#34;)
-            output += outbuf.decode(&#34;utf-8&#34;, &#34;ignore&#34;)
+            output += outbuf.decode(self.encoding, &#34;ignore&#34;)
         return output
 
     def read_channel(self) -&gt; str:
@@ -151,7 +151,7 @@ class TelnetChannel(Channel):
         &#34;&#34;&#34;Read all of the available data from the channel.&#34;&#34;&#34;
         if self.remote_conn is None:
             raise ReadException(&#34;Attempt to read, but there is no active channel.&#34;)
-        return self.remote_conn.read_very_eager().decode(&#34;utf-8&#34;, &#34;ignore&#34;)
+        return self.remote_conn.read_very_eager().decode(self.encoding, &#34;ignore&#34;)
 
 
 class SerialChannel(Channel):
@@ -178,7 +178,7 @@ class SerialChannel(Channel):
             raise ReadException(&#34;Attempt to read, but there is no active channel.&#34;)
         if self.remote_conn.in_waiting &gt; 0:
             output = self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                &#34;utf-8&#34;, &#34;ignore&#34;
+                self.encoding, &#34;ignore&#34;
             )
             assert isinstance(output, str)
             return output
@@ -360,7 +360,7 @@ channel class.</p></div>
             outbuf = self.remote_conn.recv(MAX_BUFFER)
             if len(outbuf) == 0:
                 raise ReadException(&#34;Channel stream closed by remote device.&#34;)
-            output += outbuf.decode(&#34;utf-8&#34;, &#34;ignore&#34;)
+            output += outbuf.decode(self.encoding, &#34;ignore&#34;)
         return output
 
     def read_channel(self) -&gt; str:
@@ -428,7 +428,7 @@ channel class.</p></div>
             raise ReadException(&#34;Attempt to read, but there is no active channel.&#34;)
         if self.remote_conn.in_waiting &gt; 0:
             output = self.remote_conn.read(self.remote_conn.in_waiting).decode(
-                &#34;utf-8&#34;, &#34;ignore&#34;
+                self.encoding, &#34;ignore&#34;
             )
             assert isinstance(output, str)
             return output
@@ -498,7 +498,7 @@ channel class.</p></div>
         &#34;&#34;&#34;Read all of the available data from the channel.&#34;&#34;&#34;
         if self.remote_conn is None:
             raise ReadException(&#34;Attempt to read, but there is no active channel.&#34;)
-        return self.remote_conn.read_very_eager().decode(&#34;utf-8&#34;, &#34;ignore&#34;)</code></pre>
+        return self.remote_conn.read_very_eager().decode(self.encoding, &#34;ignore&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
