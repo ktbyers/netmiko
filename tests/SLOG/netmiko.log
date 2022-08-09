@@ -35,19 +35,17 @@ cisco1#
 write_channel: b'exit\n'
 write_channel: b'terminal width 511\n'
 read_channel: 
-read_channel: 
-cisco1>terminal width
+read_channel: cisco1>terminal width
 read_channel:  511
 cisco1>
-Pattern found: (terminal width 511) 
-cisco1>terminal width 511
+Pattern found: (terminal width 511) cisco1>terminal width 511
 In disable_paging
 Command: terminal length 0
 
 write_channel: b'terminal length 0\n'
 read_channel: 
-read_channel: terminal lengt
-read_channel: h 0
+read_channel: terminal length
+read_channel:  0
 cisco1>
 Pattern found: (terminal\ length\ 0) 
 cisco1>terminal length 0
