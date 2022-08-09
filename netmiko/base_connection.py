@@ -31,6 +31,7 @@ import telnetlib
 import time
 from collections import deque
 from os import path
+from pathlib import Path
 from threading import Lock
 import functools
 import logging
@@ -420,6 +421,8 @@ class BaseConnection:
             self.key_file = (
                 path.abspath(path.expanduser(key_file)) if key_file else None
             )
+            if self.use_keys is True:
+                self._key_check()
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
@@ -506,6 +509,22 @@ class BaseConnection:
 
     def _return_cli(self) -> str:
         raise NotImplementedError
+
+    def _key_check(self) -> bool:
+        """Verify key_file exists."""
+        msg = f"""
+use_keys has been set to True, but specified key_file does not exist:
+
+use_keys: {self.use_keys}
+key_file: {self.key_file}
+"""
+        if self.key_file is None:
+            raise ValueError(msg)
+
+        my_key_file = Path(self.key_file)
+        if not my_key_file.is_file():
+            raise ValueError(msg)
+        return True
 
     @lock_channel
     @log_writes

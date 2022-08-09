@@ -295,7 +295,6 @@ def test_textfsm_missing_template():
     assert result == raw_output
 
 
-@pytest.mark.skip(reason="pyats/genie lacks PY3.10 support")
 def test_get_structured_data_genie():
     """Convert raw CLI output to structured data using Genie"""
 
