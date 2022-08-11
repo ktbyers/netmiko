@@ -1271,7 +1271,7 @@ A paramiko SSHException occurred during connection creation:
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
-        alt_prompt_terminator: str = ">",
+        alt_prompt_terminators: list = [">", "$"],
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
@@ -1287,7 +1287,7 @@ A paramiko SSHException occurred during connection creation:
 
         :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
 
-        :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
+        :param alt_prompt_terminators: List of alternate trailing delimiter for identifying a device prompt
 
         :param delay_factor: See __init__: global_delay_factor
 
@@ -1295,20 +1295,24 @@ A paramiko SSHException occurred during connection creation:
         """
         if pattern is None:
             if pri_prompt_terminator and alt_prompt_terminator:
-                pri_term = re.escape(pri_prompt_terminator)
-                alt_term = re.escape(alt_prompt_terminator)
-                pattern = rf"({pri_term}|{alt_term})"
+                pattern = re.escape(pri_prompt_terminator)
+                for alt_char in alt_prompt_terminators:
+                    pattern = '|'.join((pattern, re.escape(alt_char)))
+                pattern = rf"({pattern})"
             elif pri_prompt_terminator:
                 pattern = re.escape(pri_prompt_terminator)
             elif alt_prompt_terminator:
-                pattern = re.escape(alt_prompt_terminator)
+                pattern = ""
+                for alt_char in alt_prompt_terminators:
+                    pattern = '|'.join((pattern, re.escape(alt_char)))
+                pattern = rf"({pattern})"
 
         if pattern:
             prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
         else:
             prompt = self.find_prompt(delay_factor=delay_factor)
 
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+        if not prompt[-1] in pri_prompt_terminator and not prompt[-1] in alt_prompt_terminator:
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
 
         # If all we have is the 'terminator' just use that :-(
