@@ -27,7 +27,7 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
             self.write_channel("a\r")
             self._test_channel_read(pattern=r"[#$]")
 
-        self.set_base_prompt(alt_prompt_terminator="$")
+        self.set_base_prompt(alt_prompt_terminator="$", alt_prompt_terminator2=">")
         self.disable_paging()
 
     def disable_paging(
