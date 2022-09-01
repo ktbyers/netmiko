@@ -4,6 +4,8 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class AdtranOSBase(CiscoBaseConnection):
+    prompt_pattern = r"[>#]"
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         if kwargs.get("global_cmd_verify") is None:
             kwargs["global_cmd_verify"] = False
@@ -12,9 +14,11 @@ class AdtranOSBase(CiscoBaseConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read()
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.disable_paging(command="terminal length 0")
+        cmd = "terminal width 132"
+        self.set_terminal_width(command=cmd, pattern=cmd)
 
     def check_enable_mode(self, check_string: str = "#") -> bool:
         return super().check_enable_mode(check_string=check_string)
