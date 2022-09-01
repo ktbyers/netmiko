@@ -146,6 +146,7 @@ class CiscoXrBase(CiscoBaseConnection):
                 strip_prompt=False,
                 strip_command=False,
                 read_timeout=read_timeout,
+                cmd_verify=False,
             )
         output += new_data
         if error_marker in output:
@@ -153,7 +154,7 @@ class CiscoXrBase(CiscoBaseConnection):
         if alt_error_marker in output:
             # Other commits occurred, don't proceed with commit
             output += self._send_command_timing_str(
-                "no", strip_prompt=False, strip_command=False
+                "no", strip_prompt=False, strip_command=False, cmd_verify=False
             )
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
