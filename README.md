@@ -52,7 +52,7 @@ $ pip install netmiko
 
 ## API-Documentation
 
-[API-Documentation](https://ktbyers.github.io/netmiko/#api-documentation)
+[API-Documentation](https://ktbyers.github.io/netmiko/docs/netmiko/index.html)
 
 <br />
 
