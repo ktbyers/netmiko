@@ -1,4 +1,5 @@
 import re
+from os import path
 
 from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
@@ -82,7 +83,7 @@ output:
         self.set_base_prompt()
         # Command not support in SG220
         # self.set_terminal_width(command="terminal width 511", pattern="terminal")
-        # self.disable_paging(command="terminal datadump")
+        self.disable_paging(command="terminal length 0")
 
     def save_config(
         self,
