@@ -1,4 +1,4 @@
-from typing import Any, Union, Sequence, TextIO, Optional
+from typing import Any, Union, Sequence, Iterator, TextIO, Optional
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -37,7 +37,7 @@ class CloudGenixIonSSH(NoConfig, CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any
     ) -> str:

@@ -16,6 +16,7 @@ from typing import (
     cast,
     Type,
     Sequence,
+    Iterator,
     TextIO,
     Union,
     Tuple,
@@ -30,9 +31,11 @@ import telnetlib
 import time
 from collections import deque
 from os import path
+from pathlib import Path
 from threading import Lock
 import functools
 import logging
+import itertools
 
 import paramiko
 import serial
@@ -418,6 +421,8 @@ class BaseConnection:
             self.key_file = (
                 path.abspath(path.expanduser(key_file)) if key_file else None
             )
+            if self.use_keys is True:
+                self._key_check()
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
@@ -504,6 +509,22 @@ class BaseConnection:
 
     def _return_cli(self) -> str:
         raise NotImplementedError
+
+    def _key_check(self) -> bool:
+        """Verify key_file exists."""
+        msg = f"""
+use_keys has been set to True, but specified key_file does not exist:
+
+use_keys: {self.use_keys}
+key_file: {self.key_file}
+"""
+        if self.key_file is None:
+            raise ValueError(msg)
+
+        my_key_file = Path(self.key_file)
+        if not my_key_file.is_file():
+            raise ValueError(msg)
+        return True
 
     @lock_channel
     @log_writes
@@ -1289,8 +1310,13 @@ A paramiko SSHException occurred during connection creation:
 
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
-        # Strip off trailing terminator
-        self.base_prompt = prompt[:-1]
+
+        # If all we have is the 'terminator' just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Strip off trailing terminator
+            self.base_prompt = prompt[:-1]
         return self.base_prompt
 
     def find_prompt(
@@ -2032,7 +2058,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         *,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = None,
@@ -2129,8 +2155,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         # Set bypass_commands="" to force no-bypass (usually for testing)
         bypass_detected = False
         if bypass_commands:
+            # Make a copy of the iterator
+            config_commands, config_commands_tmp = itertools.tee(config_commands, 2)
             bypass_detected = any(
-                [True for cmd in config_commands if re.search(bypass_commands, cmd)]
+                [True for cmd in config_commands_tmp if re.search(bypass_commands, cmd)]
             )
         if bypass_detected:
             cmd_verify = False

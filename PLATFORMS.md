@@ -19,6 +19,7 @@
 - Adtran OS
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
+- AudioCodes Gateways & Controllers
 - Broadcom ICOS
 - Calix B6
 - Centec Networks

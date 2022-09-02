@@ -1,5 +1,5 @@
 """Netmiko Cisco WLC support."""
-from typing import Any, Union, Sequence, TextIO
+from typing import Any, Union, Sequence, Iterator, TextIO
 import time
 import re
 import socket
@@ -197,6 +197,8 @@ output:
                 self._session_log_fin = True
                 self.write_channel("n" + self.RETURN)
 
+            time.sleep(0.5)
+
             try:
                 self.write_channel(self.RETURN)
             except socket.error:
@@ -225,7 +227,7 @@ output:
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         enter_config_mode: bool = False,
         **kwargs: Any,

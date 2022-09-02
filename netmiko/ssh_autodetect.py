@@ -97,6 +97,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cisco_xe": {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco IOS XE Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_nxos": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS"],
@@ -177,6 +183,12 @@ SSH_MAPPER_DICT = {
     "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "ericsson_ipos": {
+        "cmd": "show version",
+        "search_patterns": [r"Ericsson IPOS Version"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },

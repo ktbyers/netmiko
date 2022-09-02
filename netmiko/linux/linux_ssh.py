@@ -1,4 +1,4 @@
-from typing import Any, Optional, TYPE_CHECKING, Union, Sequence, TextIO
+from typing import Any, Optional, TYPE_CHECKING, Union, Sequence, Iterator, TextIO
 import os
 import re
 
@@ -61,7 +61,7 @@ class LinuxSSH(CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = True,
         **kwargs: Any,
     ) -> str:

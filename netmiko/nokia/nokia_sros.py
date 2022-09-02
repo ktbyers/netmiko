@@ -9,7 +9,7 @@
 import re
 import os
 import time
-from typing import Any, Optional, Union, Sequence, TextIO, Callable
+from typing import Any, Optional, Union, Sequence, Iterator, TextIO, Callable
 
 from netmiko import log
 from netmiko.base_connection import BaseConnection
@@ -172,7 +172,7 @@ class NokiaSros(BaseConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = None,
         **kwargs: Any,
     ) -> str:

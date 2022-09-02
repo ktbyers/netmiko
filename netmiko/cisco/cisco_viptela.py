@@ -1,5 +1,5 @@
 """Subclass specific to Cisco Viptela."""
-from typing import Union, Sequence, TextIO, Any
+from typing import Union, Sequence, Iterator, TextIO, Any
 import re
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -38,7 +38,7 @@ class CiscoViptelaSSH(CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
     ) -> str:
