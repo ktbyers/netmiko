@@ -243,7 +243,7 @@ class BaseFileTransfer(object):
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             self.ssh_ctl_chan._enter_shell()
-            remote_cmd = f"/bin/ls {self.file_system}"
+            remote_cmd = f"/bin/ls {self.file_system}/{self.dest_file} 2> /dev/null"
             remote_out = self.ssh_ctl_chan._send_command_str(
                 remote_cmd, expect_string=r"[\$#]"
             )
