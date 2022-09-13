@@ -9,6 +9,8 @@ if TYPE_CHECKING:
 
 
 class AristaBase(CiscoSSHConnection):
+    prompt_pattern = r"[$>#]"
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         cmd = "terminal width 511"
@@ -16,6 +18,23 @@ class AristaBase(CiscoSSHConnection):
         self.set_terminal_width(command=cmd, pattern=r"Width set to")
         self.disable_paging(cmd_verify=False, pattern=r"Pagination disabled")
         self.set_base_prompt()
+
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -> str:
+        """
+        Arista's sometimes duplicate the command echo if they fall behind.
+
+        arista9-napalm#
+        show version | json
+        arista9-napalm#show version | json
+
+        Using the terminating pattern tries to ensure that it is less likely they
+        fall behind.
+        """
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def enable(
         self,
