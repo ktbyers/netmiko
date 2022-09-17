@@ -16,14 +16,22 @@ class OneaccessOneOSBase(CiscoBaseConnection):
         """Prepare connection - disable paging"""
         self._test_channel_read()
         self.set_base_prompt()
-        self.set_terminal_width(command="stty columns 255", pattern="stty")
         self.disable_paging(command="term len 0")
-        # Clear the read buffer
+
+        # try ONEOS6 command first, differs from ONEOS5
+        self.set_terminal_width(command="screen-width 512")
+        output = self._test_channel_read()
+        if "error" in output.lower():
+            self.set_terminal_width(command="stty columns 255")
+
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def save_config(
-        self, cmd: str = "write mem", confirm: bool = False, confirm_response: str = ""
+        self,
+        cmd: str = "write mem",
+        confirm: bool = False,
+        confirm_response: str = "",
     ) -> str:
         """Save config: write mem"""
         return super().save_config(
