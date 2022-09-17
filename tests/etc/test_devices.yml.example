@@ -289,3 +289,10 @@ audiocode_shell:
   ip: 192.168.1.3
   username: TestUser
   password: TestPass
+
+maipu:
+  device_type: maipu
+  ip: 129.255.27.1
+  username: hxl
+  password: test123
+  secret: a

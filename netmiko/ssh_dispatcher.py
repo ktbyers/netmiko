@@ -122,6 +122,8 @@ from netmiko.zte import ZteZxrosTelnet
 from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
+from netmiko.maipu import MaipuSSH
+from netmiko.maipu import MaipuTelnet
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -250,6 +252,7 @@ CLASS_MAPPER_BASE = {
     "zte_zxros": ZteZxrosSSH,
     "yamaha": YamahaSSH,
     "zyxel_os": ZyxelSSH,
+    "maipu": MaipuSSH,
 }
 
 FILE_TRANSFER_MAP = {
@@ -325,6 +328,7 @@ CLASS_MAPPER["supermicro_smis_telnet"] = SmciSwitchSmisTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
+CLASS_MAPPER["maipu_telnet"] = MaipuTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
