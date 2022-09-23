@@ -1,9 +1,10 @@
 import paramiko
 import re
 import time
-from typing import Optional
+from typing import Any, Optional, Sequence, Iterator, TextIO, Union, List
 
 from netmiko.base_connection import BaseConnection
+from netmiko.no_enable import NoEnable
 from netmiko import log
 from netmiko.exceptions import (
 	NetmikoTimeoutException,
@@ -12,7 +13,9 @@ from netmiko.exceptions import (
 )
 
 
-class FortinetSSH(BaseConnection):
+class FortinetSSH(NoEnable, BaseConnection):
+	prompt_pattern = r"[#$]"
+
 	def _modify_connection_params(self) -> None:
 		"""Modify connection parameters prior to SSH connection."""
 		paramiko_transport = getattr(paramiko, "Transport")
@@ -23,45 +26,33 @@ class FortinetSSH(BaseConnection):
 			"diffie-hellman-group1-sha1",
 		)
 
+	def _try_session_preparation(self, force_data: bool = False) -> None:
+		super()._try_session_preparation(force_data=force_data)
+
 	def session_preparation(self) -> None:
 		"""Prepare the session after the connection has been established."""
 
-		data = self._test_channel_read(pattern="to accept|[#$]")
+		data = self._test_channel_read(pattern=f"to accept|{self.prompt_pattern}")
+
 		# If "set post-login-banner enable" is set it will require you to press 'a'
 		# to accept the banner before you login. This will accept if it occurs
 		if "to accept" in data:
 			self.write_channel("a\r")
 			self._test_channel_read(pattern=r"[#$]")
 
-		self.set_base_prompt(alt_prompt_terminator="$")
+		self.set_base_prompt()
 		self.disable_paging()
-		self.clear_buffer()
 
 	def set_base_prompt(self, 
 		pri_prompt_terminator="#", 
 		alt_prompt_terminator="$", 
 		delay_factor=1.0,
-		pattern = r"(#|\$)"
+		pattern = ""
 		):
-		"""Sets self.base_prompt
-
-		Used as delimiter for stripping of trailing prompt in output.
-
-		Should be set to something that is general and applies in multiple contexts. For Cisco
-		devices this will be set to router hostname (i.e. prompt without > or #).
-
-		This will be set on entering user exec or privileged exec on Cisco, but not when
-		entering/exiting config mode.
-
-		:param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
-
-		:param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
-
-		:param delay_factor: See __init__: global_delay_factor
-
-		:param pattern: Regular expression pattern to search for in find_prompt() call
-		"""
 		
+		if not pattern:
+			pattern = self.prompt_pattern
+
 		return super().set_base_prompt(
 			pri_prompt_terminator=pri_prompt_terminator, 
 			alt_prompt_terminator=alt_prompt_terminator,
@@ -72,17 +63,12 @@ class FortinetSSH(BaseConnection):
 	def find_prompt(
 		self, 
 		delay_factor: float = 1.0, 
-		pattern: str = r"(#|\$)", 
+		pattern: str = "", 
 		) -> str:
-		"""Finds the current network device prompt, last line only.
 
-		:param delay_factor: See __init__: global_delay_factor
-		:type delay_factor: int
+		if not pattern:
+			pattern = self.prompt_pattern
 
-		:param pattern: Regular expression pattern to determine whether prompt is valid
-
-		:param confirm_pattern: Regular expression pattern to confirm prompt was found by auto discovery.
-		"""
 		return super().find_prompt(
 			delay_factor=delay_factor, 
 			pattern=pattern,
@@ -90,57 +76,32 @@ class FortinetSSH(BaseConnection):
 
 	def send_config_set(
 		self,
-		config_commands = None,
+		config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
+		*,
 		exit_config_mode: bool = True,
-		read_timeout: float = None,
-		delay_factor: float = 1.0,
-		max_loops: int = 150,
+		read_timeout: Optional[float] = None,
+		delay_factor: Optional[float] = None,
+		max_loops: Optional[int] = None,
 		strip_prompt: bool = False,
 		strip_command: bool = False,
-		config_mode_command: str = None,
+		config_mode_command: Optional[str] = None,
 		cmd_verify: bool = True,
-		enter_config_mode: bool = False,
+		enter_config_mode: bool = True,
 		error_pattern: str = "",
 		terminator: str = r"",
-		bypass_commands: str = None,
-		) -> str:
-		"""
-		Send configuration commands down the SSH channel.
+		bypass_commands: Optional[str] = None,
+	) -> str:
+	
+		if not terminator:
+			terminator = self.prompt_pattern
 
-		config_commands is an iterable containing all of the configuration commands.
-		The commands will be executed one after the other.
+		if enter_config_mode and config_mode_command is None:
+			msg = """
+send_config_set() for the Fortinet drivers require that you specify the
+config_mode_command. For example, config_mode_command="config system global".
+			"""
+			raise ValueError(msg)
 
-		Automatically exits/enters configuration mode.
-
-		:param config_commands: Multiple configuration commands to be sent to the device
-
-		:param exit_config_mode: Determines whether or not to exit config mode after complete
-
-		:param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-		:param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-		:param strip_prompt: Determines whether or not to strip the prompt
-
-		:param strip_command: Determines whether or not to strip the command
-
-		:param read_timeout: Absolute timer to send to read_channel_timing. Should be rarely needed.
-
-		:param config_mode_command: The command to enter into config mode
-
-		:param cmd_verify: Whether or not to verify command echo for each command in config_set
-
-		:param enter_config_mode: Do you enter config mode before sending config commands
-
-		:param error_pattern: Regular expression pattern to detect config errors in the
-		output.
-
-		:param terminator: Regular expression pattern to use as an alternate terminator in certain
-		situations.
-
-		:param bypass_commands: Regular expression pattern indicating configuration commands
-		where cmd_verify is automatically disabled.
-		"""
 		return super().send_config_set(
 			config_commands=config_commands,
 			exit_config_mode=exit_config_mode,
@@ -154,16 +115,8 @@ class FortinetSSH(BaseConnection):
 			enter_config_mode=enter_config_mode,
 			error_pattern=error_pattern,
 			terminator=terminator,
-			bypass_commands=bypass_commands
+			bypass_commands=bypass_commands,
 		)
-
-	def enable(self, cmd="", pattern="", re_flags=re.IGNORECASE):
-		"""Not Supported for this platform"""
-		pass
-
-	def exit_enable_mode(self, exit_command: str = "") -> str:
-		"""Not Supported for this platform"""
-		pass
 
 	def set_terminal_width(self):
 		"""Not Supported for this platform"""
@@ -175,27 +128,13 @@ class FortinetSSH(BaseConnection):
 		pattern: str = r"", 
 		force_regex: bool = True
 		) -> bool:
-		"""Checks if the device is in configuration mode or not.
 
-		:param check_string: Identification of configuration mode from the device
-		:type check_string: str
-
-		:param pattern: Pattern to terminate reading of channel
-		:type pattern: str
-		"""
 		return super().check_config_mode(
 			check_string=check_string, pattern=pattern, force_regex=force_regex
 		)
 
 	def exit_config_mode(self, exit_config="end", pattern=r"(#|\$)"):
-		"""Exit from configuration mode.
 
-		:param exit_config: Command to exit configuration mode
-		:type exit_config: str
-
-		:param pattern: Pattern to terminate reading of channel
-		:type pattern: str
-		"""
 		return super().exit_config_mode(
 			exit_config=exit_config, pattern=pattern
 		)
@@ -207,12 +146,6 @@ class FortinetSSH(BaseConnection):
 		cmd_verify: bool = True,
 		pattern: Optional[str] = None,
 		) -> str:
-		"""Disable paging is only available with specific roles so it may fail.
-
-		:param command: Device command to disable pagination of output
-
-		:param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-		"""
 
 		disable_paging_commands = [
 			"config global",
