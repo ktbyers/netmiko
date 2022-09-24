@@ -38,6 +38,28 @@ class CasaCMTSBase(NoEnable, CiscoSSHConnection):
             re_flags=re_flags,
         )
 
+    def exit_config_mode(
+        self, exit_config: str = chr(26), pattern: str = r"#.*"
+    ) -> str:
+        """
+        Exits configuration mode.
+
+        Must use CTRL-Z (ASCII 26) to reliably exit from any
+        tier in the configuration hierarchy.
+
+        Since CTRL-Z is a non-printable character, we must temporarily disable
+        global_cmd_verify to prevent an exception trying to read the
+        echoed input.
+        """
+        if self.global_cmd_verify is not False and exit_config == chr(26):
+            global_cmd_verify_tmp = self.global_cmd_verify
+            self.global_cmd_verify = False
+            output = super().exit_config_mode(exit_config, pattern)
+            self.global_cmd_verify = global_cmd_verify_tmp
+        else:
+            output = super().exit_config_mode(exit_config, pattern)
+        return output
+
 
 class CasaCMTSSSH(CasaCMTSBase):
     """Casa CMTS SSH Driver."""
