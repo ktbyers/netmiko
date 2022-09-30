@@ -65,8 +65,10 @@
 - Accedian
 - Allied Telesis AlliedWare Plus
 - Aruba
+- Arris CER
 - Brocade Fabric OS
 - C-DOT CROS
+- Casa CMTS
 - Ciena SAOS
 - Citrix Netscaler
 - Cisco Telepresence
@@ -108,6 +110,7 @@
 - allied_telesis_awplus
 - apresia_aeos
 - arista_eos
+- arris_cer
 - aruba_os
 - aruba_osswitch
 - aruba_procurve
@@ -121,6 +124,7 @@
 - brocade_vdx
 - brocade_vyos
 - calix_b6
+- casa_cmts
 - cdot_cros
 - centec_os
 - checkpoint_gaia
