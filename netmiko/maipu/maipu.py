@@ -1,13 +1,9 @@
 import time
-from socket import socket
-from typing import Any
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
-from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
 
 
 class MaipuBase(CiscoBaseConnection):
-
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
@@ -19,10 +15,10 @@ class MaipuBase(CiscoBaseConnection):
         self.clear_buffer()
 
     def config_mode(
-            self,
-            config_command: str = "configure terminal",
-            pattern: str = "",
-            re_flags: int = 0,
+        self,
+        config_command: str = "configure terminal",
+        pattern: str = "",
+        re_flags: int = 0,
     ) -> str:
         """Enter configuration mode."""
         return super().config_mode(
@@ -51,4 +47,4 @@ class MaipuSSH(MaipuBase):
 
 
 class MaipuTelnet(MaipuBase):
-	pass
+    pass
