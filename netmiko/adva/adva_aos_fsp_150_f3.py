@@ -8,7 +8,6 @@ from __future__ import unicode_literals
 import re
 import time
 from typing import (
-    Any,
     Optional,
     Sequence,
     TextIO,
@@ -47,7 +46,7 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         NoConfig (class): Netmiko NoConfig Class
     """
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs) -> None:
         """
         Adva F3 Device Instantiation
         \n for default enter causes some issues with the Adva
@@ -64,20 +63,17 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         Handles devices with security prompt enabled
         """
         delay_factor = self.select_delay_factor(delay_factor=0)
-        output = ""
-        while True:
-            output += self.read_channel()
-            if "Do you wish to continue" in output:
-                self.write_channel(f"y{self.RETURN}")
-                break
-            if "-->" in output:
-                break
-            time.sleep(0.33 * delay_factor)
+        data = self._test_channel_read(
+            pattern=r"Do you wish to continue \[Y\|N\]-->|-->"
+        )
+        if "continue" in data:
+            self.write_channel(f"y{self.RETURN}")
+        else:
+            self.write_channel(f"home{self.RETURN}")
+        time.sleep(0.33 * delay_factor)
         self._test_channel_read(pattern=r"-->")
         self.set_base_prompt()
-        # CMD Verify False used to allow multline paging command
         self.disable_paging(cmd_verify=False)
-        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
     def disable_paging(
@@ -117,7 +113,7 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
             pattern=pattern,
         )
 
-    def set_base_prompt(self) -> str:
+    def set_base_prompt(self):
         """
         Remove --> for regular mode, and all instances of :config:txt:--> when config being applied
         Used as delimiter for stripping of trailing prompt in output
@@ -131,7 +127,6 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         prompt = self.find_prompt()
         if not (match := re.search(r"(^.+?)-->$", prompt)):
             raise ValueError("Router prompt not found: {0}".format(repr(prompt)))
-            # Strip everything before '-->' from prompt
         self.base_prompt = match[1]
         return self.base_prompt
 
@@ -162,23 +157,34 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
         Automatically exits/enters configuration mode.
 
-        Args:
-            config_commands (Union[str, Sequence[str], TextIO, None], optional): Multiple configuration commands to be sent to the device Defaults to None.
-            exit_config_mode (bool, optional): Determines whether or not to exit config mode after complete Defaults to True.
-            read_timeout (Optional[float], optional): Absolute timer to send to read_channel_timing. Should be rarely needed. Defaults to 2.0.
-            delay_factor (Optional[float], optional): Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5. Defaults to None.
-            max_loops (Optional[int], optional): Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5. Defaults to None.
-            strip_prompt (bool, optional): Determines whether or not to strip the prompt Defaults to False.
-            strip_command (bool, optional): Determines whether or not to strip the command Defaults to False.
-            config_mode_command (Optional[str], optional): The command to enter into config mode Defaults to None.
-            cmd_verify (bool, optional): Whether or not to verify command echo for each command in config_set Defaults to True.
-            enter_config_mode (bool, optional): Do you enter config mode before sending config commands Defaults to True.
-            error_pattern (str, optional): egular expression pattern to detect config errors in the output. Defaults to "".
-            terminator (str, optional): Regular expression pattern to use as an alternate terminator in certain situations. Defaults to r"#".
-            bypass_commands (Optional[str], optional): _description_. Defaults to r"(add.*|secret.*)".
+        :param config_commands: Multiple configuration commands to be sent to the device
 
-        Returns:
-            str: SSH Channel Output
+        :param exit_config_mode: Determines whether or not to exit config mode after complete
+
+        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
+        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
+        :param strip_prompt: Determines whether or not to strip the prompt
+
+        :param strip_command: Determines whether or not to strip the command
+
+        :param read_timeout: Absolute timer to send to read_channel_timing. Should be rarely needed.
+
+        :param config_mode_command: The command to enter into config mode
+
+        :param cmd_verify: Whether or not to verify command echo for each command in config_set
+
+        :param enter_config_mode: Do you enter config mode before sending config commands
+
+        :param error_pattern: Regular expression pattern to detect config errors in the
+        output.
+
+        :param terminator: Regular expression pattern to use as an alternate terminator in certain
+        situations.
+
+        :param bypass_commands: Regular expression pattern indicating configuration commands
+        where cmd_verify is automatically disabled.
         """
         return super().send_config_set(
             config_commands=config_commands,

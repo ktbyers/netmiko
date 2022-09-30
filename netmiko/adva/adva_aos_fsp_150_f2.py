@@ -7,7 +7,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import re
 import time
-from typing import Any
+from typing import Any, Optional
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -54,31 +54,42 @@ class AdvaAosFsp150f2SSH(NoEnable, NoConfig, CiscoSSHConnection):
         Handles devices with security prompt enabled
         """
         delay_factor = self.select_delay_factor(delay_factor=0)
-        output = ""
-        while True:
-            output += self.read_channel()
-            if "Do you wish to continue" in output:
-                self.write_channel(f"y{self.RETURN}")
-                break
-            if "-->" in output:
-                break
-            time.sleep(0.33 * delay_factor)
+        data = self._test_channel_read(
+            pattern=r"Do you wish to continue \[Y\|N\]-->|-->"
+        )
+        if "continue" in data:
+            self.write_channel(f"y{self.RETURN}")
+        else:
+            self.write_channel(f"help?{self.RETURN}")
+        time.sleep(0.33 * delay_factor)
         self._test_channel_read(pattern=r"-->")
         self.set_base_prompt()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def set_base_prompt(self) -> str:
-        """
-        Remove :--> for regular mode, and all instances of :config:txt:--> when config being applied
-        Used as delimiter for stripping of trailing prompt in output
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
+        """Sets self.base_prompt
 
-        Raises:
-            ValueError: Raises Value Error Router Prompt Not Found
+        Used as delimiter for stripping of trailing prompt in output.
 
-        Returns:
-            str: Device Prompt
+        Should be set to something that is general and applies in multiple contexts. For Cisco
+        devices this will be set to router hostname (i.e. prompt without > or #).
+
+        This will be set on entering user exec or privileged exec on Cisco, but not when
+        entering/exiting config mode.
+
+        :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
+
+        :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
+
+        :param delay_factor: See __init__: global_delay_factor
+
+        :param pattern: Regular expression pattern to search for in find_prompt() call
         """
         prompt = self.find_prompt()
         if not (match := re.search(r"(^.+?)([:].*)-->$", prompt)):
