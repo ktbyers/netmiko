@@ -300,9 +300,7 @@ for k, v in SSH_MAPPER_DICT.items():
     assert isinstance(my_cmd, str)
     count = cmd_count.setdefault(my_cmd, 0)
     cmd_count[my_cmd] = count + 1
-cmd_count = {
-    k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])
-}
+cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])}
 
 # SSH_MAPPER_BASE is a list
 SSH_MAPPER_BASE = sorted(
