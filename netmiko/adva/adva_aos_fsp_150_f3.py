@@ -12,6 +12,7 @@ from typing import (
     Sequence,
     TextIO,
     Union,
+    Any,
 )
 
 from netmiko.no_enable import NoEnable
@@ -46,7 +47,7 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         NoConfig (class): Netmiko NoConfig Class
     """
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         """
         Adva F3 Device Instantiation
         \n for default enter causes some issues with the Adva
@@ -113,19 +114,34 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
             pattern=pattern,
         )
 
-    def set_base_prompt(self):
-        """
-        Remove --> for regular mode, and all instances of :config:txt:--> when config being applied
-        Used as delimiter for stripping of trailing prompt in output
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
+        """Sets self.base_prompt
 
-        Raises:
-            ValueError: Raises Value Error Router Prompt Not Found
+        Used as delimiter for stripping of trailing prompt in output.
 
-        Returns:
-            str: Device Prompt
+        Should be set to something that is general and applies in multiple contexts. For Cisco
+        devices this will be set to router hostname (i.e. prompt without > or #).
+
+        This will be set on entering user exec or privileged exec on Cisco, but not when
+        entering/exiting config mode.
+
+        :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
+
+        :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
+
+        :param delay_factor: See __init__: global_delay_factor
+
+        :param pattern: Regular expression pattern to search for in find_prompt() call
         """
         prompt = self.find_prompt()
-        if not (match := re.search(r"(^.+?)-->$", prompt)):
+        match = re.search(r"(^.+?)-->$", prompt)
+        if not match:
             raise ValueError("Router prompt not found: {0}".format(repr(prompt)))
         self.base_prompt = match[1]
         return self.base_prompt
@@ -133,7 +149,6 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], TextIO, None] = None,
-        *,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = 2.0,
         delay_factor: Optional[float] = None,
@@ -157,34 +172,23 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
         Automatically exits/enters configuration mode.
 
-        :param config_commands: Multiple configuration commands to be sent to the device
+        Args:
+            config_commands (Union[str, Sequence[str], TextIO, None], optional): _description_. Defaults to None.
+            exit_config_mode (bool, optional): _description_. Defaults to True.
+            read_timeout (Optional[float], optional): _description_. Defaults to 2.0.
+            delay_factor (Optional[float], optional): _description_. Defaults to None.
+            max_loops (Optional[int], optional): _description_. Defaults to None.
+            strip_prompt (bool, optional): _description_. Defaults to False.
+            strip_command (bool, optional): _description_. Defaults to False.
+            config_mode_command (Optional[str], optional): _description_. Defaults to None.
+            cmd_verify (bool, optional): _description_. Defaults to True.
+            enter_config_mode (bool, optional): _description_. Defaults to True.
+            error_pattern (str, optional): _description_. Defaults to "".
+            terminator (str, optional): _description_. Defaults to r"#".
+            bypass_commands (Optional[str], optional): _description_. Defaults to r"(add.*|secret.*)".
 
-        :param exit_config_mode: Determines whether or not to exit config mode after complete
-
-        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param strip_prompt: Determines whether or not to strip the prompt
-
-        :param strip_command: Determines whether or not to strip the command
-
-        :param read_timeout: Absolute timer to send to read_channel_timing. Should be rarely needed.
-
-        :param config_mode_command: The command to enter into config mode
-
-        :param cmd_verify: Whether or not to verify command echo for each command in config_set
-
-        :param enter_config_mode: Do you enter config mode before sending config commands
-
-        :param error_pattern: Regular expression pattern to detect config errors in the
-        output.
-
-        :param terminator: Regular expression pattern to use as an alternate terminator in certain
-        situations.
-
-        :param bypass_commands: Regular expression pattern indicating configuration commands
-        where cmd_verify is automatically disabled.
+        Returns:
+            str: SSH Channel Output
         """
         return super().send_config_set(
             config_commands=config_commands,

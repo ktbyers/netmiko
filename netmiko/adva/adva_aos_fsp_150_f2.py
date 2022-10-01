@@ -92,8 +92,8 @@ class AdvaAosFsp150f2SSH(NoEnable, NoConfig, CiscoSSHConnection):
         :param pattern: Regular expression pattern to search for in find_prompt() call
         """
         prompt = self.find_prompt()
-        if not (match := re.search(r"(^.+?)([:].*)-->$", prompt)):
+        match = re.search(r"(^.+?)([:].*)-->$", prompt)
+        if not match:
             raise ValueError("Router prompt not found: {0}".format(repr(prompt)))
-            # Strip everything after first ':' from prompt
         self.base_prompt = match[1]
         return self.base_prompt
