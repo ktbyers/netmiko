@@ -76,6 +76,18 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "arris_cer": {
+        "cmd": "show version",
+        "search_patterns": [r"CER"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "casa_cmts": {
+        "cmd": "show version",
+        "search_patterns": [r"Casa"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "ciena_saos": {
         "cmd": "software show",
         "search_patterns": [r"saos"],
