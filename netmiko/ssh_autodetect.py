@@ -84,7 +84,10 @@ SSH_MAPPER_DICT = {
     },
     "cisco_asa": {
         "cmd": "show version",
-        "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
+        "search_patterns": [
+            r"Cisco Adaptive Security Appliance",
+            r"Cisco ASA",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -270,6 +273,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "oneaccess_oneos": {
+        "cmd": "show version",
+        "search_patterns": ["ONEOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 # Sort SSH_MAPPER_DICT such that the most common commands are first
@@ -279,11 +288,14 @@ for k, v in SSH_MAPPER_DICT.items():
     assert isinstance(my_cmd, str)
     count = cmd_count.setdefault(my_cmd, 0)
     cmd_count[my_cmd] = count + 1
-cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])}
+cmd_count = {
+    k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])
+}
 
 # SSH_MAPPER_BASE is a list
 SSH_MAPPER_BASE = sorted(
-    SSH_MAPPER_DICT.items(), key=lambda item: int(cmd_count[str(item[1]["cmd"])])
+    SSH_MAPPER_DICT.items(),
+    key=lambda item: int(cmd_count[str(item[1]["cmd"])]),
 )
 SSH_MAPPER_BASE.reverse()
 
@@ -349,7 +361,9 @@ class SSHDetect(object):
                 self.potential_matches[device_type] = accuracy
                 if accuracy >= 99:  # Stop the loop as we are sure of our match
                     best_match = sorted(
-                        self.potential_matches.items(), key=lambda t: t[1], reverse=True
+                        self.potential_matches.items(),
+                        key=lambda t: t[1],
+                        reverse=True,
                     )
                     # WLC needs two different auto-dectect solutions
                     if "cisco_wlc_85" in best_match[0]:

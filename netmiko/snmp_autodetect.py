@@ -27,7 +27,9 @@ import re
 try:
     from pysnmp.entity.rfc3413.oneliner import cmdgen
 except ImportError:
-    raise ImportError("pysnmp not installed; please install it: 'pip install pysnmp'")
+    raise ImportError(
+        "pysnmp not installed; please install it: 'pip install pysnmp'"
+    )
 
 from netmiko.ssh_dispatcher import CLASS_MAPPER
 
@@ -71,7 +73,9 @@ SNMP_MAPPER_BASE = {
     },
     "cisco_asa": {
         "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Cisco Adaptive Security Appliance.*", re.IGNORECASE),
+        "expr": re.compile(
+            r".*Cisco Adaptive Security Appliance.*", re.IGNORECASE
+        ),
         "priority": 99,
     },
     "cisco_nxos": {
@@ -113,6 +117,11 @@ SNMP_MAPPER_BASE = {
         "oid": ".1.3.6.1.2.1.1.1.0",
         "expr": re.compile(r"PowerConnect.*", re.IGNORECASE),
         "priority": 50,
+    },
+    "oneaccess_oneos": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*oneos.*", re.IGNORECASE),
+        "priority": 99,
     },
 }
 
@@ -198,7 +207,9 @@ class SNMPDetect(object):
                 raise ValueError("SNMP version v1/v2c community must be set.")
         elif snmp_version == "v3":
             if not user:
-                raise ValueError("SNMP version v3 user and password must be set")
+                raise ValueError(
+                    "SNMP version v3 user and password must be set"
+                )
         else:
             raise ValueError("SNMP version must be set to 'v1', 'v2c' or 'v3'")
 
@@ -255,7 +266,12 @@ class SNMPDetect(object):
         snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
-        (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
+        (
+            error_detected,
+            error_status,
+            error_index,
+            snmp_data,
+        ) = cmd_gen.getCmd(
             cmdgen.UsmUserData(
                 self.user,
                 self.auth_key,
@@ -290,7 +306,12 @@ class SNMPDetect(object):
         snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
-        (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
+        (
+            error_detected,
+            error_status,
+            error_index,
+            snmp_data,
+        ) = cmd_gen.getCmd(
             cmdgen.CommunityData(self.community),
             cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
             oid,
