@@ -243,7 +243,7 @@ SSH_MAPPER_DICT = {
     "cisco_wlc_85": {
         "cmd": "show inventory",
         "dispatch": "_autodetect_std",
-        "search_patterns": [r"Cisco Wireless Controller"],
+        "search_patterns": [r"Cisco.*Wireless Controller"],
         "priority": 99,
     },
     "mellanox_mlnxos": {
