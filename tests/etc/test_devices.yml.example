@@ -296,3 +296,10 @@ maipu:
   username: hxl
   password: test123
   secret: a
+  
+maipu_telnet:
+  device_type: maipu_telnet
+  ip: 129.255.27.1
+  username: hxl
+  password: test123
+  secret: a
