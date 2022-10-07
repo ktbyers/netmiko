@@ -1,7 +1,6 @@
 import time
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
-from telnetlib import DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
 
 
 class MaipuBase(CiscoBaseConnection):
