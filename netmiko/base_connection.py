@@ -150,6 +150,7 @@ class BaseConnection:
         pkey: Optional[paramiko.PKey] = None,
         passphrase: Optional[str] = None,
         disabled_algorithms: Optional[Dict[str, Any]] = None,
+        disable_sha2_fix: bool = False,
         allow_agent: bool = False,
         ssh_strict: bool = False,
         system_host_keys: bool = False,
@@ -221,6 +222,9 @@ class BaseConnection:
 
         :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
                 documentation for a description of the expected format.
+
+        :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+            https://github.com/paramiko/paramiko/issues/1961 (default: False)
 
         :param allow_agent: Enable use of SSH key-agent.
 
@@ -429,7 +433,15 @@ class BaseConnection:
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
             self.alt_key_file = alt_key_file
-            self.disabled_algorithms = disabled_algorithms or {}
+
+            if disabled_algorithms:
+                self.disabled_algorithms = disabled_algorithms
+            else:
+                self.disabled_algorithms = (
+                    {"pubkeys": ["rsa-sha2-256", "rsa-sha2-512"]}
+                    if disable_sha2_fix
+                    else {}
+                )
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
