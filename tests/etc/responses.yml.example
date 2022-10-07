@@ -402,6 +402,15 @@ maipu:
   router_prompt : maipu_sw>
   enable_prompt: maipu_sw#
   interface_ip: 11.11.11.11
-  version_banner: "MyPower (R) Operating System Software"
+  version_banner: "Version Information"
+  multiple_line_output: ""
+  save_config: 'OK'
+  
+maipu_telnet:
+  base_prompt: maipu_sw
+  router_prompt : maipu_sw>
+  enable_prompt: maipu_sw#
+  interface_ip: 11.11.11.11
+  version_banner: "Version Information"
   multiple_line_output: ""
   save_config: 'OK'
