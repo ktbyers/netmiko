@@ -7,7 +7,6 @@ from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
 
 
 class MaipuBase(CiscoBaseConnection):
-
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
@@ -28,8 +27,12 @@ class MaipuBase(CiscoBaseConnection):
 
 
 class MaipuSSH(MaipuBase):
+    """MAIPU SSH driver"""
+
     pass
 
 
 class MaipuTelnet(MaipuBase):
-	pass
+    """MAIPU telnet driver"""
+
+    pass
