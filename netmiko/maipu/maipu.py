@@ -14,25 +14,6 @@ class MaipuBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def config_mode(
-        self,
-        config_command: str = "configure terminal",
-        pattern: str = "",
-        re_flags: int = 0,
-    ) -> str:
-        """Enter configuration mode."""
-        return super().config_mode(
-            config_command=config_command, pattern=pattern, re_flags=re_flags
-        )
-
-    def check_config_mode(
-        self, check_string: str = ")#", pattern: str = "#", force_regex: bool = False
-    ) -> bool:
-        """
-        Checks if the device is in configuration mode or not.
-        """
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
-
     def save_config(
         self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
