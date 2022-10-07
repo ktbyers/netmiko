@@ -36,7 +36,6 @@ from threading import Lock
 import functools
 import logging
 import itertools
-from xmlrpc.client import Boolean
 
 import paramiko
 import serial
