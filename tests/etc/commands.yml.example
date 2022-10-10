@@ -549,3 +549,8 @@ audiocode_shell:
   save_config_confirm: False
   save_config_response: 'Configuration has been saved'
   config_mode_command: "conf"         # only use if needed
+
+digi_os:
+  version: "type version"
+  basic: "type config.da0"
+  extended_output: "type version all"
