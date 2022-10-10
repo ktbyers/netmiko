@@ -19,6 +19,13 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
 
         return super().__init__(**kwargs)
 
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
+        # Mikrotik prompts to read software licenses before displaying the initial base prompt.
+        data = self.read_until_pattern(pattern=r"(\].*>|[[Yy]\/[nN]\])")
+        if re.search(r"software\s+license\?\s+\[[Yy]\/[nN]\]", data):
+            self.write_channel("n")
+            self.read_until_pattern(pattern=r"\].*>")
+
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
