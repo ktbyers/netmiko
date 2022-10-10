@@ -28,6 +28,7 @@
 - Dell OS9 (Force10)
 - Dell OS10
 - Dell PowerConnect
+- Digi OS
 - Ericsson IPOS
 - Extreme ERS (Avaya)
 - Extreme MLX/NetIron (Brocade/Foundry)
@@ -150,6 +151,7 @@
 - dell_powerconnect
 - dell_sonic
 - dlink_ds
+- digi_os
 - eltex
 - eltex_esr
 - endace
