@@ -145,6 +145,25 @@ class CiscoBaseConnection(BaseConnection):
                             time.sleep(2 * delay_factor)
                             count += 1
 
+                    # Support setting up secret from terminal server (Qwerty12345 is not saved)
+                    if re.search(r"Enter enable secret: ", output):
+                        self.write_channel("Qwerty12345" + self.TELNET_RETURN)
+                        time.sleep(0.5 * delay_factor)
+                        count = 0
+                        while count < 45:
+                            output = self.read_channel()
+                            return_msg += output
+                            if re.search(r"Confirm enable secret:", output):
+                                self.write_channel("Qwerty12345" + self.TELNET_RETURN)
+                            if re.search(r"Enter your selection", output):
+                                self.write_channel("0" + self.TELNET_RETURN)
+                                continue
+                            if re.search(r"ress RETURN to get started", output):
+                                output = ""
+                                break
+                            time.sleep(2 * delay_factor)
+                            count += 1
+
                     # Check for device with no password configured
                     if re.search(r"assword required, but none set", output):
                         assert self.remote_conn is not None
@@ -162,6 +181,8 @@ class CiscoBaseConnection(BaseConnection):
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
+                    self.write_channel(self.TELNET_RETURN)
+                    time.sleep(0.5 * delay_factor)
                     i += 1
 
                 except EOFError:
