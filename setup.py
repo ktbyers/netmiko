@@ -52,7 +52,7 @@ setup(
         "scp>=0.13.3",
         "tenacity",
         "pyyaml>=5.3",
-        "textfsm==1.1.2",
+        "textfsm",
         "ntc-templates>=2.0.0",
         "pyserial",
     ],
