@@ -21,7 +21,7 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         return super().__init__(**kwargs)
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
-        # Mikrotik prompts to read software licenses before displaying the initial base prompt.
+        # Mikrotik might prompt to read software licenses before displaying the initial prompt.
         license_prompt = "Do you want to see the software license"
         combined_pattern = rf"(?:{self.prompt_pattern}|{license_prompt})"
         data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
@@ -32,7 +32,6 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
 
     def _modify_connection_params(self) -> None:
