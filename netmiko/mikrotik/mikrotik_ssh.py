@@ -12,6 +12,8 @@ from netmiko.scp_handler import BaseFileTransfer
 class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
     """Common Methods for Mikrotik RouterOS and SwitchOS"""
 
+    prompt_pattern = r"\].*>"
+
     def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r\n"
@@ -20,15 +22,17 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         # Mikrotik prompts to read software licenses before displaying the initial base prompt.
-        data = self.read_until_pattern(pattern=r"(\].*>|[[Yy]\/[nN]\])")
-        if re.search(r"software\s+license\?\s+\[[Yy]\/[nN]\]", data):
+        license_prompt = "Do you want to see the software license"
+        combined_pattern = rf"(?:{self.prompt_pattern}|{license_prompt})"
+        data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
+        if license_prompt in data:
             self.write_channel("n")
-            self.read_until_pattern(pattern=r"\].*>")
+            self.read_until_pattern(pattern=self.prompt_pattern)
 
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r"\].*>")
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
 
     def _modify_connection_params(self) -> None:
