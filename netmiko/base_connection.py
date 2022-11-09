@@ -935,6 +935,15 @@ class BaseConnection(object):
                 if self.ansi_escape_codes:
                     prompt = self.strip_ansi_escape_codes(prompt).strip()
             else:
+                t = 0
+                while t <= 60:
+                    t = t +15
+                    time.sleep(15)
+                    prompt = self.read_channel().strip()
+                    if prompt:
+                        if self.ansi_escape_codes:
+                            prompt = self.strip_ansi_escape_codes(prompt).strip()
+                            break
                 self.write_channel(self.RETURN)
                 time.sleep(delay_factor * .1)
             count += 1
@@ -1060,6 +1069,7 @@ class BaseConnection(object):
                 try:
                     prompt = self.find_prompt(delay_factor=delay_factor)
                 except ValueError:
+                    log.info("From send_command: ValueError encountered from find_prompt() is not re-raised")
                     prompt = self.base_prompt
             else:
                 prompt = self.base_prompt
