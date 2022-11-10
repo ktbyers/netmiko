@@ -28,6 +28,23 @@ from datetime import datetime
 import serial
 
 
+#paramiko.util.log_to_file("test_paramiko.log", level = "DEBUG")
+work_dir = os.getenv('CAFYKIT_WORK_DIR')
+print(f"#######work_dir = {work_dir}")
+if work_dir:
+    paramiko_log_folder = os.path.join(work_dir, 'test_paramiko.log')
+    paramiko.util.log_to_file(paramiko_log_folder, level = "DEBUG")
+    fh = logging.FileHandler(paramiko_log_folder)
+    log = logging.getLogger("netmiko")
+    log.addHandler(fh)
+    log.setLevel(logging.DEBUG)
+    log.addHandler(fh)
+else:
+    from netmiko import log
+
+#print("All loggers in this process: ------ ", logging.root.manager.loggerDict)
+
+
 class BaseConnection(object):
     """
     Defines vendor independent methods.
@@ -1062,7 +1079,7 @@ class BaseConnection(object):
         if delay_factor == 1 and max_loops == 500:
             # Default arguments are being used; use self.timeout instead
             max_loops = int(self.timeout / loop_delay)
-
+        log.info("In send_command, delay_factor:{}, max_loops:{}".format(delay_factor, max_loops))
         # Find the current router prompt
         if expect_string is None:
             if auto_find_prompt:
