@@ -1079,7 +1079,8 @@ class BaseConnection(object):
         if delay_factor == 1 and max_loops == 500:
             # Default arguments are being used; use self.timeout instead
             max_loops = int(self.timeout / loop_delay)
-        log.info("In send_command, delay_factor:{}, max_loops:{}".format(delay_factor, max_loops))
+        log.info("In send_command, global_delay:{}, delay_factor:{}, max_loops:{}".format(
+            self.global_delay_factor, delay_factor, max_loops))
         # Find the current router prompt
         if expect_string is None:
             if auto_find_prompt:
