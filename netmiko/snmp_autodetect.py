@@ -241,9 +241,13 @@ class SNMPDetect(object):
         self.snmp_target = (self.hostname, self.snmp_port)
 
         if ipaddress.ip_address(self.hostname).version == 6:
-            self.udp_transport_target=cmdgen.Udp6TransportTarget(self.snmp_target, timeout=1.5, retries=2)
+            self.udp_transport_target = cmdgen.Udp6TransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
         else:
-            self.udp_transport_target=cmdgen.UdpTransportTarget(self.snmp_target, timeout=1.5, retries=2)
+            self.udp_transport_target = cmdgen.UdpTransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
 
     def _get_snmpv3(self, oid: str) -> str:
         """
