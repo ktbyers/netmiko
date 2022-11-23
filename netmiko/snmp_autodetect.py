@@ -56,7 +56,7 @@ SNMP_MAPPER_BASE = {
     },
     "cisco_ios": {
         "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
+        "expr": re.compile(r".*Cisco IOS Software.*,.*", re.IGNORECASE),
         "priority": 60,
     },
     "cisco_xe": {
