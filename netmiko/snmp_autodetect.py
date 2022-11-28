@@ -116,7 +116,7 @@ SNMP_MAPPER_BASE = {
     },
     "mikrotik_routeros": {
         "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r"^RouterOS.*", re.IGNORECASE),
+        "expr": re.compile(r".*RouterOS.*", re.IGNORECASE),
         "priority": 60,
     },
 }
