@@ -171,7 +171,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
             command_string,
             strip_prompt=False,
             strip_command=False,
-            expect_string="100%",
+            expect_string=r"validation error|server error|commit failed|100%",
             read_timeout=read_timeout,
         )
         output += self.exit_config_mode()

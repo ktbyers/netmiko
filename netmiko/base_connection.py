@@ -1703,17 +1703,19 @@ before timing out.\n"""
                         output, search_pattern
                     )
                     # Check if we have already found our pattern
-                    if re.search(search_pattern, output):
+                    if re.search(search_pattern, output, re.IGNORECASE):
                         break
 
                 else:
                     if len(output) <= MAX_CHARS:
-                        if re.search(search_pattern, output):
+                        if re.search(search_pattern, output, re.IGNORECASE):
                             break
                     else:
                         # Switch to deque mode if output is greater than MAX_CHARS
                         # Check if pattern is in the past n reads
-                        if re.search(search_pattern, "".join(past_n_reads)):
+                        if re.search(
+                            search_pattern, "".join(past_n_reads), re.IGNORECASE
+                        ):
                             break
 
             time.sleep(loop_delay)
