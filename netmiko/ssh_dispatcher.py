@@ -417,6 +417,8 @@ def ConnLogOnly(
         elif "TCP connection to device failed" in str(e):
             msg = f"Netmiko was unable to reach the provided host and port: {hostname}:{port}"
             msg += f"\n\n{str(e)}"
+        else:
+            msg = f"An unknown NetmikoTimeoutException occurred:\n\n{str(e)}"
         logger.error(msg)
         return None
     except Exception as e:
