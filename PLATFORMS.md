@@ -66,6 +66,7 @@
 - Allied Telesis AlliedWare Plus
 - Aruba
 - Arris CER
+- Bintec BOSS (Bintec/Funkwerk)
 - Brocade Fabric OS
 - C-DOT CROS
 - Casa CMTS
@@ -116,6 +117,7 @@
 - aruba_procurve
 - avaya_ers
 - avaya_vsp
+- bintec_boss
 - broadcom_icos
 - brocade_fastiron
 - brocade_fos
@@ -226,6 +228,7 @@
 - apresia_aeos_telnet
 - arista_eos_telnet
 - aruba_procurve_telnet
+- bintec_boss_telnet
 - brocade_fastiron_telnet
 - brocade_netiron_telnet
 - calix_b6_telnet

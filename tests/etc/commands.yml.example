@@ -549,3 +549,10 @@ audiocode_shell:
   save_config_confirm: False
   save_config_response: 'Configuration has been saved'
   config_mode_command: "conf"         # only use if needed
+
+bintec_boss_telnet:
+  version: "show rev"
+  basic: "ifconfig 1000"
+  extended_output: "show rev"
+
+
