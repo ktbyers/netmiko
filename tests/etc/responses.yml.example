@@ -396,3 +396,11 @@ audiocode_shell:
   save_config: 'Configuration has been saved'
   cmd_response_init: "Test_String1"
   cmd_response_final: "Test_String2"
+hillstone:
+  base_prompt: SG-6000
+  router_prompt : SG-6000#
+  enable_prompt: SG-6000#
+  interface_ip: 192.168.100.234
+  version_banner: "Hillstone Networks StoneOS software"
+  multiple_line_output: ""
+  save_config: 'Saving configuration is finished'
