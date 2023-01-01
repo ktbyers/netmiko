@@ -549,3 +549,13 @@ audiocode_shell:
   save_config_confirm: False
   save_config_response: 'Configuration has been saved'
   config_mode_command: "conf"         # only use if needed
+hillstone:
+  version: "show version"
+  basic: "show interface"
+  extended_output: "show configuration"
+  config:
+    - "clock zone china"
+  config_verification: "show configuration | inc clock"
+  save_config_cmd: 'save all'
+  save_config_confirm: True
+  save_config_response: 'Saving configuration is finished'
