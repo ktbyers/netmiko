@@ -7,7 +7,7 @@ class DellForce10SSH(CiscoSSHConnection):
 
     def save_config(
         self,
-        cmd: str = "copy running-configuration startup-configuration",
+        cmd: str = "write memory",
         confirm: bool = False,
         confirm_response: str = "",
     ) -> str:
