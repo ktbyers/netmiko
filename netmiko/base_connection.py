@@ -228,8 +228,9 @@ class BaseConnection:
 
         :param allow_agent: Enable use of SSH key-agent.
 
-        :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
-                means unknown SSH host keys will be accepted).
+        :param ssh_strict: If True, automatically reject unknown SSH host keys (default: False, which
+                means unknown SSH host keys will be accepted). Can be a paramiko.client.MissingHostKeyPolicy
+                instance, in which case, that specific policy instance is used directly.
 
         :param system_host_keys: Load host keys from the users known_hosts file.
 
@@ -415,7 +416,9 @@ class BaseConnection:
             self.protocol = "ssh"
 
             self.key_policy: paramiko.client.MissingHostKeyPolicy
-            if not ssh_strict:
+            if isinstance(ssh_strict, paramiko.client.MissingHostKeyPolicy):
+                self.key_policy = ssh_strict
+            elif not ssh_strict:
                 self.key_policy = paramiko.AutoAddPolicy()
             else:
                 self.key_policy = paramiko.RejectPolicy()
