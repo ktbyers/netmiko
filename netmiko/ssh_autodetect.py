@@ -342,6 +342,10 @@ class SSHDetect(object):
         # Always set cmd_verify to False for autodetect
         kwargs["global_cmd_verify"] = False
         self.connection = ConnectHandler(*args, **kwargs)
+
+        # Add additional sleep to let the login complete.
+        time.sleep(3)
+
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
         self.initial_buffer = output
