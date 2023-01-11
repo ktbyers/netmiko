@@ -18,11 +18,14 @@ class OneaccessOneOSBase(CiscoBaseConnection):
         self.set_base_prompt()
         self.disable_paging(command="term len 0")
 
-        # try ONEOS6 command first, differs from ONEOS5
+        # try ONEOS6 command first - fallback to ONEOS5 if it fails
         self.set_terminal_width(command="screen-width 512")
         output = self._test_channel_read()
         if "error" in output.lower():
             self.set_terminal_width(command="stty columns 255")
+        else:
+            # ONEOS6 uses different enter
+            self.RETURN = "\n"
 
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
