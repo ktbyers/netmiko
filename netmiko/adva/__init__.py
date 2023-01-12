@@ -1,10 +1,8 @@
-"""Adva Device Drivers
-"""
-from __future__ import unicode_literals
-from netmiko.adva.adva_aos_fsp_150_f2 import AdvaAosFsp150f2SSH
-from netmiko.adva.adva_aos_fsp_150_f3 import AdvaAosFsp150f3SSH
+"""Adva Device Drivers"""
+from netmiko.adva.adva_aos_fsp_150_f2 import AdvaAosFsp150F2SSH
+from netmiko.adva.adva_aos_fsp_150_f3 import AdvaAosFsp150F3SSH
 
 __all__ = [
-    "AdvaAosFsp150f2SSH",
-    "AdvaAosFsp150f3SSH",
+    "AdvaAosFsp150F2SSH",
+    "AdvaAosFsp150F3SSH",
 ]
