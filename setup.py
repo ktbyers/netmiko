@@ -28,9 +28,9 @@ def find_version(*file_paths):
 
 
 setup(
-    name="netmiko-bti-4-1-1",
+    name="netmiko",
     version=find_version("netmiko", "__init__.py"),
-    description="Multi-vendor library to simplify legacy CLI connections to network devices (BT Ireland Customised)",
+    description="Multi-vendor library to simplify legacy CLI connections to network devices",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ktbyers/netmiko",
