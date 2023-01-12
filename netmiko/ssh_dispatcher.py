@@ -6,6 +6,7 @@ from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationExc
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.adtran import AdtranOSSSH, AdtranOSTelnet
+from netmiko.adva import AdvaAosFsp150f3SSH, AdvaAosFsp150f2SSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.allied_telesis import AlliedTelesisAwplusSSH
 from netmiko.arista import AristaSSH, AristaTelnet
@@ -137,6 +138,10 @@ CLASS_MAPPER_BASE = {
     "a10": A10SSH,
     "accedian": AccedianSSH,
     "adtran_os": AdtranOSSSH,
+    "adva_aos_fsp150_f3": AdvaAosFsp150f3SSH,
+    "adva_aos_fsp150_f2": AdvaAosFsp150f2SSH,
+    "adva": AdvaAosFsp150f2SSH,
+    "adva_ge114": AdvaAosFsp150f3SSH, 
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "allied_telesis_awplus": AlliedTelesisAwplusSSH,
