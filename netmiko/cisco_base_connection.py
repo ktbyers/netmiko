@@ -33,11 +33,7 @@ class CiscoBaseConnection(BaseConnection):
     def check_config_mode(
         self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
     ) -> bool:
-        """
-        Checks if the device is in configuration mode or not.
-
-        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-        """
+        """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )

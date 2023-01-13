@@ -1,3 +1,3 @@
-from netmiko.hillstone.hillstone import hillstoneSSH
+from netmiko.hillstone.hillstone import HillstoneStoneosSSH
 
-__all__ = ["hillstoneSSH"]
+__all__ = ["HillstoneStoneosSSH"]
