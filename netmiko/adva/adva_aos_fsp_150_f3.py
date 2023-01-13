@@ -76,14 +76,18 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         """Method to disable paging on the Adva, multi-line configuration command required."""
 
         if command:
-            raise ValueError(f"Unexpected value for command in disable_paging() method: {command}")
+            raise ValueError(
+                f"Unexpected value for command in disable_paging() method: {command}"
+            )
 
         commands = [
             "configure user-security",
             "config-user {self.username} cli-paging disabled",
-            "home"
+            "home",
+        ]
+        return self.send_config_set(
+            commands, delay_factor=delay_factor, cmd_verify=cmd_verify
         )
-        return self.send_config_set(commands, delay_factor=delay_factor, cmd_verify=cmd_verify)
 
     def set_base_prompt(
         self,
