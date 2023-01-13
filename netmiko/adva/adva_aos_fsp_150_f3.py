@@ -162,7 +162,7 @@ class AdvaAosFsp150f3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         terminator: str = r"#",
         bypass_commands: Optional[
             str
-        ] = r"(add\s+\w+\s+[A-Za-z0-9#\?!@\$%\^&\*-]*\s+[A-Za-z0-9#\?!@\$%\^&\*-]*\s+(superuser|crypto|maintenance|provisioning|retrieve|test-user)|secret.*)",
+        ] = r"?:add\s+\S+\s+\S+\s+\S+\s+(?:superuser|crypto|maintenance|provisioning|retrieve|test-user)|secret.*)",
     ) -> str:
         """
         Send configuration commands down the SSH channel.
