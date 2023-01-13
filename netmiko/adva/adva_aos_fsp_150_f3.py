@@ -4,6 +4,7 @@ from typing import (
     Optional,
     Sequence,
     TextIO,
+    Iterator,
     Union,
     Any,
 )
@@ -109,7 +110,8 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
+        *,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = 2.0,
         delay_factor: Optional[float] = None,
@@ -123,7 +125,7 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         terminator: str = r"#",
         bypass_commands: Optional[
             str
-        ] = r"(add\s+\w+\s+[A-Za-z0-9#\?!@\$%\^&\*-]*\s+[A-Za-z0-9#\?!@\$%\^&\*-]*\s+(superuser|crypto|maintenance|provisioning|retrieve|test-user)|secret.*)",
+        ] = r"(?:add\s+\S+\s+\S+\s+\S+\s+(?:superuser|crypto|maintenance|provisioning|retrieve|test-user)|secret.*)",
     ) -> str:
 
         return super().send_config_set(
