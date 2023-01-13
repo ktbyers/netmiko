@@ -68,43 +68,35 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
     def disable_paging(
         self,
-        command: str = "terminal length 0",
+        command: str = "",
         delay_factor: Optional[float] = None,
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:
         """Method to disable paging on the Adva, multi-line configuration command required."""
 
-        # Multiline Command Below is used for paging
-        command = (
-            "configure user-security"
-            + self.TELNET_RETURN
-            + "config-user "
-            + self.username
-            + " cli-paging disabled"
-            + self.TELNET_RETURN
-            + "home"
-            + self.TELNET_RETURN
+        if command:
+            raise ValueError(f"Unexpected value for command in disable_paging() method: {command}")
+
+        commands = [
+            "configure user-security",
+            "config-user {self.username} cli-paging disabled",
+            "home"
         )
-        return super().disable_paging(
-            command=command,
-            delay_factor=delay_factor,
-            cmd_verify=cmd_verify,
-            pattern=pattern,
-        )
+        return self.send_config_set(commands, delay_factor=delay_factor, cmd_verify=cmd_verify)
 
     def set_base_prompt(
         self,
-        pri_prompt_terminator: str = "#",
-        alt_prompt_terminator: str = ">",
+        pri_prompt_terminator: str = r"(^.+?)-->$",
+        alt_prompt_terminator: str = "",
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
 
         prompt = self.find_prompt()
-        match = re.search(r"(^.+?)-->$", prompt)
+        match = re.search(pri_prompt_terminator, prompt)
         if not match:
-            raise ValueError("Router prompt not found: {0}".format(repr(prompt)))
+            raise ValueError(f"Router prompt not found: {repr(prompt)}")
         self.base_prompt = match[1]
         return self.base_prompt
 
