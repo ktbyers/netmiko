@@ -38,7 +38,9 @@ class CiscoBaseConnection(BaseConnection):
 
         Cisco IOS devices abbreviate the prompt at 20 chars in config mode
         """
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
         self,

@@ -21,7 +21,9 @@ class DellForce10SSH(CiscoSSHConnection):
         """
         Checks if the device is in configuration mode or not.
         """
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def save_config(
         self,
