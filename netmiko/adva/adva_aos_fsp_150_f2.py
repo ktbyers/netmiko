@@ -55,15 +55,15 @@ class AdvaAosFsp150F2SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
     def set_base_prompt(
         self,
-        pri_prompt_terminator: str = "#",
-        alt_prompt_terminator: str = ">",
+        pri_prompt_terminator: str = r"(^.+?)-->$",
+        alt_prompt_terminator: str = "",
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
 
         prompt = self.find_prompt()
-        match = re.search(r"(^.+?)([:].*)-->$", prompt)
+        match = re.search(pri_prompt_terminator, prompt)
         if not match:
-            raise ValueError("Router prompt not found: {0}".format(repr(prompt)))
+            raise ValueError(f"Router prompt not found: {repr(prompt)}"
         self.base_prompt = match[1]
         return self.base_prompt
