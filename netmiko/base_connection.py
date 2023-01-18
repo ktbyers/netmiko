@@ -592,7 +592,8 @@ key_file: {self.key_file}
         new_data = self.normalize_linefeeds(new_data)
         if self.ansi_escape_codes:
             new_data = self.strip_ansi_escape_codes(new_data)
-        log.debug(f"read_channel: {new_data}")
+        if len(new_data) > 0:
+            log.debug(f"read_channel: {new_data}")
         if self.session_log:
             self.session_log.write(new_data)
 
