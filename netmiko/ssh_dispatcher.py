@@ -125,6 +125,7 @@ from netmiko.zte import ZteZxrosTelnet
 from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
+from netmiko.hillstone import HillstoneStoneosSSH
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -210,6 +211,7 @@ CLASS_MAPPER_BASE = {
     "fortinet": FortinetSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
+    "hillstone_stoneos": HillstoneStoneosSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
