@@ -211,6 +211,7 @@ CLASS_MAPPER_BASE = {
     "fortinet": FortinetSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
+    "hillstone_stoneos": HillstoneStoneosSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
@@ -259,7 +260,6 @@ CLASS_MAPPER_BASE = {
     "zte_zxros": ZteZxrosSSH,
     "yamaha": YamahaSSH,
     "zyxel_os": ZyxelSSH,
-    "hillstone_stoneos": HillstoneStoneosSSH,
 }
 
 FILE_TRANSFER_MAP = {
