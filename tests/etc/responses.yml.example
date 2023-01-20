@@ -396,6 +396,7 @@ audiocode_shell:
   save_config: 'Configuration has been saved'
   cmd_response_init: "Test_String1"
   cmd_response_final: "Test_String2"
+
 hillstone:
   base_prompt: SG-6000
   router_prompt : SG-6000#

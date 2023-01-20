@@ -549,7 +549,8 @@ audiocode_shell:
   save_config_confirm: False
   save_config_response: 'Configuration has been saved'
   config_mode_command: "conf"         # only use if needed
-hillstone:
+
+hillstone_stoneos:
   version: "show version"
   basic: "show interface"
   extended_output: "show configuration"
