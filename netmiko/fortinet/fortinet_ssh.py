@@ -7,6 +7,8 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class FortinetSSH(NoConfig, CiscoSSHConnection):
+    prompt_pattern = r"[#$]"
+
     def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
         paramiko_transport = getattr(paramiko, "Transport")
@@ -20,15 +22,28 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
 
-        data = self._test_channel_read(pattern="to accept|[#$]")
+        data = self._test_channel_read(pattern=f"to accept|{self.prompt_pattern}")
         # If "set post-login-banner enable" is set it will require you to press 'a'
         # to accept the banner before you login. This will accept if it occurs
         if "to accept" in data:
             self.write_channel("a\r")
-            self._test_channel_read(pattern=r"[#$]")
+            self._test_channel_read(pattern=self.prompt_pattern)
 
         self.set_base_prompt(alt_prompt_terminator="$")
         self.disable_paging()
+
+        self._vdoms = self._vdoms_enabled()
+        self._output_mode = "unknown"
+
+    def _vdoms_enabled(self) -> bool:
+        """Determine whether virtual domains are enabled or not."""
+        check_command = "get system status | grep Virtual"
+        output = self._send_command_str(
+            check_command, expect_string=self.prompt_pattern
+        )
+        return bool(
+            re.search(r"Virtual domain configuration: (multiple|enable)", output)
+        )
 
     def disable_paging(
         self,
@@ -38,63 +53,71 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
         pattern: Optional[str] = None,
     ) -> str:
         """Disable paging is only available with specific roles so it may fail."""
-        check_command = "get system status | grep Virtual"
-        output = self._send_command_timing_str(check_command)
-        self.allow_disable_global = True
-        self.vdoms = False
-        self._output_mode = "more"
 
-        if re.search(r"Virtual domain configuration: (multiple|enable)", output):
-            self.vdoms = True
-            vdom_additional_command = "config global"
-            output = self._send_command_timing_str(vdom_additional_command, last_read=3)
-            if "Command fail" in output:
-                self.allow_disable_global = False
-                if self.remote_conn is not None:
-                    self.remote_conn.close()
-                self.establish_connection(width=100, height=1000)
-
-        new_output = ""
-        if self.allow_disable_global:
+        if self._output_mode == "unknown":
+            # Save the state of output paging
             self._retrieve_output_mode()
-            disable_paging_commands = [
-                "config system console",
-                "set output standard",
-                "end",
-            ]
-            # There is an extra 'end' required if in multi-vdoms are enabled
-            if self.vdoms:
-                disable_paging_commands.append("end")
-            outputlist = [
-                self._send_command_timing_str(command, last_read=3)
-                for command in disable_paging_commands
-            ]
-            # Should test output is valid
-            new_output = self.RETURN.join(outputlist)
 
-        return output + new_output
+        if self._output_mode == "standard":
+            # Do nothing - already correct.
+            return ""
+
+        if self._vdoms:
+            vdom_additional_command = "config global"
+            try:
+                output = self._send_command_str(
+                    vdom_additional_command, expect_string=self.prompt_pattern
+                )
+            except Exception:
+                msg = """
+Netmiko requires 'config global' access to properly disable output paging
+(when VDOMs are enabled). Alternatively you can configure 'set output standard'
+and Netmiko should detect this.
+"""
+                raise ValueError(msg)
+
+        disable_paging_commands = [
+            "config system console",
+            "set output standard",
+            "end",
+        ]
+        # There is an extra 'end' required if in multi-vdoms are enabled
+        if self._vdoms:
+            disable_paging_commands.append("end")
+        output += self.send_multiline(
+            disable_paging_commands, expect_string=self.prompt_pattern
+        )
+        return output
 
     def _retrieve_output_mode(self) -> None:
         """Save the state of the output mode so it can be reset at the end of the session."""
-        reg_mode = re.compile(r"output\s+:\s+(?P<mode>.*)\s+\n")
-        output = self._send_command_str("get system console")
-        result_mode_re = reg_mode.search(output)
+        pattern = r"output\s+:\s+(?P<mode>.*)\s+\n"
+        output = self._send_command_str(
+            "get system console", expect_string=self.prompt_pattern
+        )
+        result_mode_re = re.search(pattern, output)
         if result_mode_re:
             result_mode = result_mode_re.group("mode").strip()
             if result_mode in ["more", "standard"]:
                 self._output_mode = result_mode
+            else:
+                raise ValueError(
+                    "Unable to determine the output mode on the Fortinet device."
+                )
 
     def cleanup(self, command: str = "exit") -> None:
         """Re-enable paging globally."""
-        if self.allow_disable_global:
-            # Return paging state
-            output_mode_cmd = f"set output {self._output_mode}"
-            enable_paging_commands = ["config system console", output_mode_cmd, "end"]
-            if self.vdoms:
-                enable_paging_commands.insert(0, "config global")
-            # Should test output is valid
-            for command in enable_paging_commands:
-                self.send_command_timing(command)
+        output = ""
+        if self._output_mode == "more":
+            commands = []
+            if self._vdoms:
+                commands = ["config global"]
+            commands += [
+                "config system console",
+                "set output more",
+                "end",
+            ]
+            output += self.send_multiline(commands, expect_string=self.prompt_pattern)
         return super().cleanup(command=command)
 
     def save_config(
