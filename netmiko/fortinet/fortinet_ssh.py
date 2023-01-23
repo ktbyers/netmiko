@@ -19,6 +19,9 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
             "diffie-hellman-group1-sha1",
         )
 
+	def _try_session_preparation(self, force_data: bool = False) -> None:
+		super()._try_session_preparation(force_data=force_data)
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
 
