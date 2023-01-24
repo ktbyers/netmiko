@@ -35,10 +35,10 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
 
         self.set_base_prompt()
         self._vdoms = self._vdoms_enabled()
+        self._os_version = self._determine_os_version()
         # Retain how the 'output mode' was original configured.
         self._original_output_mode = self._get_output_mode()
         self._output_mode = self._original_output_mode
-        self._os_version = self._determine_os_version()
         self.disable_paging()
 
     def set_base_prompt(
