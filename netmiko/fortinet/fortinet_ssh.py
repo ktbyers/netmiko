@@ -133,9 +133,9 @@ Alternatively you can try configuring 'configure system console -> set output st
         output = self._send_command_str(
             check_command, expect_string=self.prompt_pattern
         )
-        if re.search("^Version: .* (v[78]\.).$", output, flags=re.M):
+        if re.search("^Version: .* (v[78]\.).*$", output, flags=re.M):
             return "v7_or_later"
-        elif re.search("^Version: .* (v[654]\.).$", output, flags=re.M):
+        elif re.search("^Version: .* (v[654]\.).*$", output, flags=re.M):
             return "v6_or_earlier"
         else:
             raise ValueError("Unexpected FortiOS Version encountered.")
