@@ -3,10 +3,11 @@ import re
 from typing import Optional
 
 from netmiko.no_config import NoConfig
+from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class FortinetSSH(NoConfig, CiscoSSHConnection):
+class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
     prompt_pattern = r"[#$]"
 
     def _modify_connection_params(self) -> None:
