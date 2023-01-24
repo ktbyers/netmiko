@@ -93,7 +93,7 @@ Alternatively you can try configuring 'configure system console -> set output st
     def _exit_config_global(self) -> str:
         """Exit 'config global' mode."""
         try:
-            return self._send_command_str("exit", expect_string=self.prompt_pattern)
+            return self._send_command_str("end", expect_string=self.prompt_pattern)
         except Exception:
             msg = "Unable to properly exit 'config global' mode."
             raise ValueError(msg)
