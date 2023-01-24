@@ -82,7 +82,7 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
         commands = [
             "configure user-security",
-            "config-user {self.username} cli-paging disabled",
+            f"config-user {self.username} cli-paging disabled",
             "home",
         ]
         return self.send_config_set(
