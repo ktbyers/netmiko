@@ -158,37 +158,44 @@ Alternatively you can try configuring 'configure system console -> set output st
 
         if self._vdoms:
             self._exit_config_global()
-        return output
 
-    def _get_output_mode_v7(self) -> str:
-        """
-        FortiOS V7 and later.
-        Retrieve the current output mode.
-        """
-        return self._send_command_str(
-            "get system console", expect_string=self.prompt_pattern
-        )
-
-    def _get_output_mode(self) -> str:
-        """Save the state of the output mode so it can be reset at the end of the session."""
-        output = ""
-        # Fortios Version6 does not support 'get system console'
-        if "v6" in self._os_version:
-            output = self._get_output_mode_v6()
-        elif "v7" in self._os_version:
-            output = self._get_output_mode_v7()
-        else:
-            raise ValueError("Unexpected FortiOS Version encountered.")
-
-        # Search for 'output' pattern in results
-        pattern = r"output\s+:\s+(?P<mode>.*)\s+\n"
-        result_mode_re = re.search(pattern, output)
+        pattern = r"^\s+set output (?P<mode>\S+)\s*$"
+        result_mode_re = re.search(pattern, output, flags=re.M)
         if result_mode_re:
             result_mode = result_mode_re.group("mode").strip()
             if result_mode in ["more", "standard"]:
                 return result_mode
 
         raise ValueError("Unable to determine the output mode on the Fortinet device.")
+
+    def _get_output_mode_v7(self) -> str:
+        """
+        FortiOS V7 and later.
+        Retrieve the current output mode.
+        """
+        output = self._send_command_str(
+            "get system console", expect_string=self.prompt_pattern
+        )
+
+        pattern = r"output\s+:\s+(?P<mode>\S+)\s*$"
+        result_mode_re = re.search(pattern, output, flags=re.M)
+        if result_mode_re:
+            result_mode = result_mode_re.group("mode").strip()
+            if result_mode in ["more", "standard"]:
+                return result_mode
+
+        raise ValueError("Unable to determine the output mode on the Fortinet device.")
+
+    def _get_output_mode(self) -> str:
+        """Save the state of the output mode so it can be reset at the end of the session."""
+
+        # Fortios Version6 does not support 'get system console'
+        if "v6" in self._os_version:
+            return self._get_output_mode_v6()
+        elif "v7" in self._os_version:
+            return self._get_output_mode_v7()
+        else:
+            raise ValueError("Unexpected FortiOS Version encountered.")
 
     def cleanup(self, command: str = "exit") -> None:
         """Re-enable paging globally."""
