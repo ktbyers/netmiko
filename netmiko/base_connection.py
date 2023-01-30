@@ -240,13 +240,15 @@ class BaseConnection:
 
         :param ssh_config_file: File name of OpenSSH configuration file.
 
-        :param timeout: Connection timeout.
+        :param conn_timeout: Connection timeout.
 
         :param session_timeout: Set a timeout for parallel requests.
 
         :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
         :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+        :param read_timeout_override: Float to override read_timeout parameter.
 
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -256,6 +258,8 @@ class BaseConnection:
 
         :param response_return: Character(s) to use in normalized return data to represent
                 enter key (default: \n)
+
+        :param serial_settings: Dictionary of settings for pySerial.
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
                 to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -696,12 +700,15 @@ You can also look at the Netmiko session_log or debug log for more information.\
         Once no new data is read wait `last_read` amount of time (one last read).
         As long as no new data, then return data.
 
-        `read_timeout` is an absolute timer for how long to keep reading (which presupposes
-        we are still getting new data).
-
         Setting `read_timeout` to zero will cause read_channel_timing to never expire based
         on an absolute timeout. It will only complete based on timeout based on their being
         no new data.
+
+        :param last_read: Time waited after end of data
+
+        :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
+            A read_timeout value of 0 will cause the loop to never timeout (i.e. it will keep
+            reading indefinitely until pattern is detected.
 
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
@@ -828,6 +835,8 @@ You can look at the Netmiko session_log or debug log for more information.
         :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
 
         :param username_pattern: Pattern used to identify the username prompt
+
+        :param pwd_pattern: Pattern used to identify the pwd prompt
 
         :param delay_factor: See __init__: global_delay_factor
 
@@ -1220,6 +1229,10 @@ A paramiko SSHException occurred during connection creation:
         :param command: Device command to disable pagination of output
 
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+
+        :param pattern: Pattern to terminate reading of channel
         """
         if delay_factor is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
@@ -1443,6 +1456,12 @@ A paramiko SSHException occurred during connection creation:
 
         :param command_string: The command to be executed on the remote device.
 
+        :param last_read: Time waited after end of data
+
+        :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
+            A read_timeout value of 0 will cause the loop to never timeout (i.e. it will keep
+            reading indefinitely until pattern is detected.
+
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
@@ -1589,9 +1608,15 @@ A paramiko SSHException occurred during connection creation:
         :param expect_string: Regular expression pattern to use for determining end of output.
             If left blank will default to being based on router prompt.
 
+        :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
+            A read_timeout value of 0 will cause the loop to never timeout (i.e. it will keep
+            reading indefinitely until pattern is detected.
+
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
+        :param auto_find_prompt: Use find_prompt() to override base prompt
 
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
 
@@ -1980,6 +2005,10 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
+
+        :param force_regex: Use regex to find check_string in output
+        :type force_regex: bool
+
         """
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
