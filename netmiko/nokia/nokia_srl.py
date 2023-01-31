@@ -79,7 +79,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
 
     def check_config_mode(
         self,
-        check_string: str = r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* | \+\!\* )candidate",
+        check_string: str = r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* | \+\!\* | \+\! )candidate",
         pattern: str = r"#",
         force_regex: bool = True,
     ) -> bool:
@@ -162,6 +162,6 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         changes to the running datastore.
         """
         matches = re.search(
-            r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* | \+\!\* )candidate", prompt
+            r"\n--{( | \* | \+ | \+\* | \!\+ | \!\* | \+\!\* | \+\! )candidate", prompt
         )
         return True if matches and "*" in matches.group() else False
