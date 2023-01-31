@@ -240,7 +240,7 @@ class BaseConnection:
 
         :param ssh_config_file: File name of OpenSSH configuration file.
 
-        :param conn_timeout: Connection timeout.
+        :param conn_timeout: TCP connection timeout.
 
         :param session_timeout: Set a timeout for parallel requests.
 
@@ -248,7 +248,9 @@ class BaseConnection:
 
         :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
 
-        :param read_timeout_override: Float to override read_timeout parameter.
+        :param read_timeout_override: Set a timeout that will override the default read_timeout
+                of both send_command and send_command_timing. This is useful for 3rd party
+                libraries where directly accessing method arguments might be impractical.
 
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -259,7 +261,7 @@ class BaseConnection:
         :param response_return: Character(s) to use in normalized return data to represent
                 enter key (default: \n)
 
-        :param serial_settings: Dictionary of settings for pySerial.
+        :param serial_settings: Dictionary of settings for use with serial port (pySerial).
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
                 to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -697,18 +699,23 @@ You can also look at the Netmiko session_log or debug log for more information.\
         """Read data on the channel based on timing delays.
 
         General pattern is keep reading until no new data is read.
+
         Once no new data is read wait `last_read` amount of time (one last read).
         As long as no new data, then return data.
 
         Setting `read_timeout` to zero will cause read_channel_timing to never expire based
-        on an absolute timeout. It will only complete based on timeout based on their being
+        on an absolute timeout. It will only complete based on timeout based on there being
         no new data.
 
-        :param last_read: Time waited after end of data
+        :param last_read: Amount of time to wait before performing one last read (under the
+            idea that we should be done reading at this point and there should be no new
+            data).
 
-        :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
-            A read_timeout value of 0 will cause the loop to never timeout (i.e. it will keep
-            reading indefinitely until pattern is detected.
+        :param read_timeout: Absolute timer for how long Netmiko should keep reading data on
+            the channel (waiting for there to be no new data). Will raise ReadTimeout if this
+            timeout expires. A read_timeout value of 0 will cause the read-loop to never timeout
+            (i.e. Netmiko will keep reading indefinitely until there is no new data and last_read
+            passes).
 
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
@@ -1458,9 +1465,11 @@ A paramiko SSHException occurred during connection creation:
 
         :param last_read: Time waited after end of data
 
-        :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
-            A read_timeout value of 0 will cause the loop to never timeout (i.e. it will keep
-            reading indefinitely until pattern is detected.
+        :param read_timeout: Absolute timer for how long Netmiko should keep reading data on
+            the channel (waiting for there to be no new data). Will raise ReadTimeout if this
+            timeout expires. A read_timeout value of 0 will cause the read-loop to never timeout
+            (i.e. Netmiko will keep reading indefinitely until there is no new data and last_read
+            passes).
 
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
@@ -1608,9 +1617,8 @@ A paramiko SSHException occurred during connection creation:
         :param expect_string: Regular expression pattern to use for determining end of output.
             If left blank will default to being based on router prompt.
 
-        :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
-            A read_timeout value of 0 will cause the loop to never timeout (i.e. it will keep
-            reading indefinitely until pattern is detected.
+        :param read_timeout: Maximum time to wait looking for pattern. Will raise ReadTimeout
+            if timeout is exceeded.
 
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
@@ -2006,7 +2014,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
 
-        :param force_regex: Use regex to find check_string in output
+        :param force_regex: Use regular expression pattern to find check_string in output
         :type force_regex: bool
 
         """
