@@ -262,6 +262,19 @@ def delete_file_dellos10(ssh_conn, dest_file_system, dest_file):
 
     raise ValueError("An error happened deleting file on Dell OS10")
 
+def delete_file_dellsonic(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for a Dell SONiC device."""
+    if not dest_file:
+        raise ValueError("Invalid dest file specified")
+
+    cmd = "delete home:/{}".format(dest_file)
+    output = ssh_conn.send_command_timing(cmd)
+    if "Proceed to delete" in output:
+        output = ssh_conn.send_command_timing("y")
+        return output
+
+    raise ValueError("An error happened deleting file on Dell OS10")
+
 
 def delete_file_generic(ssh_conn, dest_file_system, dest_file):
     """Delete a remote file for a Junos device."""
@@ -568,6 +581,11 @@ def get_platform_args():
             "file_system": "/home/admin",
             "enable_scp": False,
             "delete_file": delete_file_dellos10,
+        },
+        "dell_sonic": {
+            "file_system": "/home/admin",
+            "enable_scp": False,
+            "delete_file": delete_file_dellsonic,
         },
         "ciena_saos": {
             "file_system": "/tmp/users/ciena",

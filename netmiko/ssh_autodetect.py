@@ -148,6 +148,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "dell_sonic": {
+        "cmd": "show version",
+        "search_patterns": [r"Enterprise SONiC Distribution by Dell Technologies"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "dell_powerconnect": {
         "cmd": "show system",
         "search_patterns": [r"PowerConnect"],
