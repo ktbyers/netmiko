@@ -7,7 +7,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
 
 
-class DellSONiCSSH(NoEnable, CiscoSSHConnection):
+class DellSonicSSH(NoEnable, CiscoSSHConnection):
     """
     Dell platforms running Enterprise SONiC Distribution
     by Dell Technologies Driver - supports dellenterprisesonic.
@@ -39,7 +39,7 @@ class DellSONiCSSH(NoEnable, CiscoSSHConnection):
         """Return to the CLI."""
         return self._send_command_str("exit", expect_string=r"\$")
 
-class DellSONiCFileTransfer(BaseFileTransfer):
+class DellSonicFileTransfer(BaseFileTransfer):
     """Dell SONiC Networking SCP File Transfer driver."""
 
     def __init__(
@@ -95,7 +95,7 @@ class DellSONiCFileTransfer(BaseFileTransfer):
 
     @staticmethod
     def process_md5(md5_output: str, pattern: str = r"(.*) (.*)") -> str:
-        return super(DellSONiCFileTransfer, DellSONiCFileTransfer).process_md5(
+        return super(DellSonicFileTransfer, DellSonicFileTransfer).process_md5(
             md5_output, pattern=pattern
         )
 
