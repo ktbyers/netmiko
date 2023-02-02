@@ -59,7 +59,7 @@ class DellSonicFileTransfer(BaseFileTransfer):
             direction=direction,
             **kwargs,
         )
-        self.folder_name = "/etc/sonic"
+        self.folder_name = "/home/admin"
 
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None
