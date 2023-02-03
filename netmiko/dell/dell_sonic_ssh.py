@@ -59,7 +59,7 @@ class DellSonicFileTransfer(BaseFileTransfer):
             direction=direction,
             **kwargs,
         )
-        self.folder_name = "/etc/sonic"
+        self.folder_name = "/home/admin"
 
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None
@@ -110,7 +110,7 @@ class DellSonicFileTransfer(BaseFileTransfer):
                 remote_file = self.source_file
             else:
                 raise ValueError("self.direction is set to an invalid value")
-        remote_md5_cmd = f "md5sum {self.file_system}/{remote_file}"
+        remote_md5_cmd = f"md5sum {self.file_system}/{remote_file}"
         dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5.strip()
