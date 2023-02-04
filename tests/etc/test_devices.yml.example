@@ -103,9 +103,9 @@ dellos10:
 
 dell_sonic:
   device_type: dell_sonic
-  ip: 192.168.23.130
+  ip: 100.104.63.169
   username: admin
-  password: admin
+  password: force10
 
 pluribus:
   device_type: pluribus_ssh

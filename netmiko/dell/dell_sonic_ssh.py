@@ -4,17 +4,17 @@ Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution by Dell Tec
 """
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from typing import Any, Optional
+from netmiko import log
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
-from netmiko import log
+from typing import Any, Optional
 import os
 import re
 
 
 class DellSonicSSH(NoEnable, CiscoSSHConnection):
     """
-    Dell platforms running Enterprise SONiC Distribution
+    Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution
     by Dell Technologies Driver - supports dellenterprisesonic.
     """
 
@@ -42,10 +42,10 @@ class DellSonicSSH(NoEnable, CiscoSSHConnection):
 
     def _return_cli(self) -> str:
         """Return to the CLI."""
-        return self._send_command_str("exit", expect_string=r"\$")
+        return self._send_command_str("exit", expect_string=r"\#")
 
-class DellSonicFileTransfer(BaseFileTransfer):
-    """Dell SONiC Networking SCP File Transfer driver."""
+class DellSonicFileTransfer(BaseFileTransfer, BaseConnection):
+    """Dell EMC Networking SONiC SCP File Transfer driver."""
 
     def __init__(
         self,
@@ -66,6 +66,23 @@ class DellSonicFileTransfer(BaseFileTransfer):
         )
         self.folder_name = "/home/admin"
 
+    def session_preparation(self) -> None:
+        """Prepare the session after the connection has been established."""
+        self._test_channel_read(pattern=r"[>$#]")
+        self._return_to_admin()
+        self.disable_paging()
+        self.set_base_prompt(alt_prompt_terminator="$")
+
+    def _enter_shell(self) -> str:
+        """Enter the sonic-cli Shell."""
+        log.debug("Enter sonic-cli Shell.")
+        return self.ssh_ctl_chan._send_command_str("sonic-cli", expect_string=r"\#")
+
+    def _return_to_admin(self) -> str:
+        """Return to the CLI."""
+        return self.ssh_ctl_chan._send_command_str("exit", expect_string=r"\$")
+
+
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None
     ) -> int:
@@ -77,25 +94,29 @@ class DellSonicFileTransfer(BaseFileTransfer):
                 remote_file = self.source_file
             else:
                 raise ValueError("self.direction is set to an invalid value")
+        self._return_to_admin()
         remote_cmd = f"ls -l {self.file_system}/{remote_file}"
         remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
         for line in remote_out.splitlines():
             if remote_file in line:
                 file_size = line.split()[4]
                 break
-        if "Error opening" in remote_out or "No such file or directory" in remote_out:
+        self._enter_shell()
+        if "No such file or directory" in remote_out:
             raise IOError("Unable to find file on remote system")
         else:
             return int(file_size)
 
-    def remote_space_available(self, search_pattern: str = r"(\d+) bytes free") -> int:
+    def remote_space_available(self, search_pattern: str = r"Available") -> int:
         """Return space available on remote device."""
+        self._return_to_admin()
         remote_cmd = f"df {self.folder_name}"
         remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
         for line in remote_output.splitlines():
-            if self.folder_name in line:
-                space_available = line.split()[-3]
+            if "root-overlay" in line:
+                space_available = line.split()[3]
                 break
+        self._enter_shell()
         return int(space_available)
 
     @staticmethod
@@ -115,16 +136,18 @@ class DellSonicFileTransfer(BaseFileTransfer):
                 remote_file = self.source_file
             else:
                 raise ValueError("self.direction is set to an invalid value")
+        self._return_to_admin()
         remote_md5_cmd = f"md5sum {self.file_system}/{remote_file}"
         dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
         dest_md5 = self.process_md5(dest_md5)
+        self._enter_shell()
         return dest_md5.strip()
 
-    def check_file_exists(self, remote_cmd: str = "dir home") -> bool:
+    def check_file_exists(self, remote_cmd: str = "dir home:/") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
-            search_string = r"Directory contents .*{}".format(self.dest_file)
+            search_string = r"{}".format(self.dest_file)
             return bool(re.search(search_string, remote_out, flags=re.DOTALL))
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
