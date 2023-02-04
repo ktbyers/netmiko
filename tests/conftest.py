@@ -273,7 +273,7 @@ def delete_file_dellsonic(ssh_conn, dest_file_system, dest_file):
         output = ssh_conn.send_command_timing("y")
         return output
 
-    raise ValueError("An error happened deleting file on Dell OS10")
+    raise ValueError("An error happened deleting file on Dell SONiC")
 
 
 def delete_file_generic(ssh_conn, dest_file_system, dest_file):

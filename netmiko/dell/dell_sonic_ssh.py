@@ -4,7 +4,12 @@ Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution by Dell Tec
 """
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from typing import Any, Optional
+from netmiko.base_connection import BaseConnection
+from netmiko.scp_handler import BaseFileTransfer
 from netmiko import log
+import os
+import re
 
 
 class DellSonicSSH(NoEnable, CiscoSSHConnection):
