@@ -341,7 +341,8 @@ class SNMPDetect(object):
         for k, v in SNMP_MAPPER.items():
             snmp_mapper_orig.append({k: v})
         snmp_mapper_list = sorted(
-            snmp_mapper_orig, key=lambda x: list(x.values())[0]["priority"]  # type: ignore
+            snmp_mapper_orig,
+            key=lambda x: list(x.values())[0]["priority"],  # type: ignore
         )
         snmp_mapper_list.reverse()
 

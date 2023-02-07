@@ -46,10 +46,7 @@ from netmiko.ssh_dispatcher import platforms  # noqa
 from netmiko.ssh_dispatcher import FileTransfer  # noqa
 from netmiko.scp_handler import SCPConn  # noqa
 from netmiko.cisco.cisco_ios import InLineTransfer  # noqa
-from netmiko.exceptions import (  # noqa
-    NetmikoTimeoutException,
-    NetMikoTimeoutException,
-)
+from netmiko.exceptions import NetmikoTimeoutException, NetMikoTimeoutException  # noqa
 from netmiko.exceptions import (  # noqa
     NetmikoAuthenticationException,
     NetMikoAuthenticationException,

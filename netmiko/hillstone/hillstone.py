@@ -10,10 +10,7 @@ class HillstoneStoneosBase(NoEnable, CiscoBaseConnection):
         self.disable_paging(command="terminal length 0")
 
     def config_mode(
-        self,
-        config_command: str = "configure",
-        pattern: str = "",
-        re_flags: int = 0,
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
     ) -> str:
         """Enter configuration mode."""
         return super().config_mode(

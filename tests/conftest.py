@@ -262,6 +262,7 @@ def delete_file_dellos10(ssh_conn, dest_file_system, dest_file):
 
     raise ValueError("An error happened deleting file on Dell OS10")
 
+
 def delete_file_dellsonic(ssh_conn, dest_file_system, dest_file):
     """Delete a remote file for a Dell SONiC device."""
     if not dest_file:

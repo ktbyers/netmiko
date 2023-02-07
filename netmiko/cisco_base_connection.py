@@ -147,10 +147,8 @@ class CiscoBaseConnection(BaseConnection):
                     if re.search(r"assword required, but none set", output):
                         assert self.remote_conn is not None
                         self.remote_conn.close()
-                        msg = (
-                            "Login failed - Password required, but none set: {}".format(
-                                self.host
-                            )
+                        msg = "Login failed - Password required, but none set: {}".format(
+                            self.host
                         )
                         raise NetmikoAuthenticationException(msg)
 

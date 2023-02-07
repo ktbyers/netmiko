@@ -103,7 +103,7 @@ dellos10:
 
 dell_sonic:
   device_type: dell_sonic
-  ip: 192.168.23.170
+  ip: 192.168.23.130
   username: admin
   password: admin
 

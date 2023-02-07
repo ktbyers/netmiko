@@ -26,16 +26,11 @@ class CasaCMTSBase(NoEnable, CiscoSSHConnection):
         )
 
     def config_mode(
-        self,
-        config_command: str = "config",
-        pattern: str = "",
-        re_flags: int = 0,
+        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
     ) -> str:
         """Enters configuration mode."""
         return super().config_mode(
-            config_command=config_command,
-            pattern=pattern,
-            re_flags=re_flags,
+            config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
     def exit_config_mode(

@@ -44,6 +44,7 @@ class DellSonicSSH(NoEnable, CiscoSSHConnection):
         """Return to the CLI."""
         return self._send_command_str("exit", expect_string=r"\#")
 
+
 class DellSonicFileTransfer(BaseFileTransfer, BaseConnection):
     """Dell EMC Networking SONiC SCP File Transfer driver."""
 
@@ -81,7 +82,6 @@ class DellSonicFileTransfer(BaseFileTransfer, BaseConnection):
     def _return_to_admin(self) -> str:
         """Return to the CLI."""
         return self.ssh_ctl_chan._send_command_str("exit", expect_string=r"\$")
-
 
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None

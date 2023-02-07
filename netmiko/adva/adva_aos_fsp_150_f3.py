@@ -1,13 +1,6 @@
 """Adva F3 Device Support"""
 import re
-from typing import (
-    Optional,
-    Sequence,
-    TextIO,
-    Iterator,
-    Union,
-    Any,
-)
+from typing import Optional, Sequence, TextIO, Iterator, Union, Any
 
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig

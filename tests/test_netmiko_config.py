@@ -62,8 +62,7 @@ def test_config_set(net_connect, commands, expected_responses):
 
     # Set to initial value and testing sending command as a string
     net_connect.send_config_set(
-        config_mode_command=config_mode_command,
-        config_commands=config_commands[0],
+        config_mode_command=config_mode_command, config_commands=config_commands[0]
     )
 
     if support_commit:
@@ -77,8 +76,7 @@ def test_config_set(net_connect, commands, expected_responses):
 
     # Test that something has changed.
     net_connect.send_config_set(
-        config_commands=config_commands,
-        config_mode_command=config_mode_command,
+        config_commands=config_commands, config_mode_command=config_mode_command
     )
 
     if support_commit:

@@ -36,19 +36,11 @@ class AudiocodeBase(BaseConnection):
         )
 
     def find_prompt(
-        self,
-        delay_factor: float = 1.0,
-        pattern: Optional[str] = r"\*?(#|>)",
+        self, delay_factor: float = 1.0, pattern: Optional[str] = r"\*?(#|>)"
     ) -> str:
-        return super().find_prompt(
-            delay_factor=delay_factor,
-            pattern=pattern,
-        )
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
-    def _enable_paging(
-        self,
-        delay_factor: Optional[float] = 0.5,
-    ) -> str:
+    def _enable_paging(self, delay_factor: Optional[float] = 0.5) -> str:
         return ""
 
     def check_config_mode(
@@ -210,10 +202,7 @@ class Audiocode72Base(AudiocodeBase):
                 pattern=pattern,
             )
         else:
-            command_list: List[str] = [
-                "cli-settings",
-                "window-height 0",
-            ]
+            command_list: List[str] = ["cli-settings", "window-height 0"]
 
         self.enable()
         assert isinstance(delay_factor, float)
@@ -221,20 +210,13 @@ class Audiocode72Base(AudiocodeBase):
         time.sleep(delay_factor * 0.1)
         self.clear_buffer()
         return self.send_config_set(
-            config_commands=command_list,
-            config_mode_command="config system",
+            config_commands=command_list, config_mode_command="config system"
         )
 
-    def _enable_paging(
-        self,
-        delay_factor: Optional[float] = 0.5,
-    ) -> str:
+    def _enable_paging(self, delay_factor: Optional[float] = 0.5) -> str:
         """This is designed to re-enable window paging."""
 
-        command_list: List[str] = [
-            "cli-settings",
-            "window-height automatic",
-        ]
+        command_list: List[str] = ["cli-settings", "window-height automatic"]
         self.enable()
         assert isinstance(delay_factor, float)
         delay_factor = self.select_delay_factor(delay_factor)
@@ -242,8 +224,7 @@ class Audiocode72Base(AudiocodeBase):
         self.clear_buffer()
 
         return self.send_config_set(
-            config_commands=command_list,
-            config_mode_command="config system",
+            config_commands=command_list, config_mode_command="config system"
         )
 
 
@@ -274,10 +255,7 @@ class AudiocodeBase66(AudiocodeBase):
                 pattern=pattern,
             )
         else:
-            command_list: List[str] = [
-                "cli-terminal",
-                "set window-height 0",
-            ]
+            command_list: List[str] = ["cli-terminal", "set window-height 0"]
 
             self.enable()
             assert isinstance(delay_factor, float)
@@ -285,19 +263,12 @@ class AudiocodeBase66(AudiocodeBase):
             time.sleep(delay_factor * 0.1)
             self.clear_buffer()
             return self.send_config_set(
-                config_commands=command_list,
-                config_mode_command="config system",
+                config_commands=command_list, config_mode_command="config system"
             )
 
-    def _enable_paging(
-        self,
-        delay_factor: Optional[float] = 0.5,
-    ) -> str:
+    def _enable_paging(self, delay_factor: Optional[float] = 0.5) -> str:
 
-        command_list: List[str] = [
-            "cli-terminal",
-            "set window-height 100",
-        ]
+        command_list: List[str] = ["cli-terminal", "set window-height 100"]
         self.enable()
         assert isinstance(delay_factor, float)
         delay_factor = self.select_delay_factor(delay_factor)
@@ -305,8 +276,7 @@ class AudiocodeBase66(AudiocodeBase):
         self.clear_buffer()
 
         return self.send_config_set(
-            config_commands=command_list,
-            config_mode_command="config system",
+            config_commands=command_list, config_mode_command="config system"
         )
 
 
@@ -348,14 +318,9 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
             return self.base_prompt
 
     def find_prompt(
-        self,
-        delay_factor: float = 1.0,
-        pattern: Optional[str] = r"/>",
+        self, delay_factor: float = 1.0, pattern: Optional[str] = r"/>"
     ) -> str:
-        return super().find_prompt(
-            delay_factor=delay_factor,
-            pattern=pattern,
-        )
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def send_config_set(
         self,
@@ -442,10 +407,7 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
             cmd_save=cmd_save, cmd_no_save=cmd_no_save, reload_save=reload_save
         )
 
-    def _enable_paging(
-        self,
-        delay_factor: Optional[float] = 0.5,
-    ) -> str:
+    def _enable_paging(self, delay_factor: Optional[float] = 0.5) -> str:
         """Not supported"""
         pass
 
@@ -462,9 +424,7 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
     def strip_prompt(self, a_string: str) -> str:
         pattern = r"^/>?"
         a_string = re.sub(pattern, "", a_string, flags=re.M)
-        return super().strip_prompt(
-            a_string=a_string,
-        )
+        return super().strip_prompt(a_string=a_string)
 
 
 class AudiocodeShellSSH(AudiocodeShellBase):

@@ -433,9 +433,7 @@ def ConnLogOnly(
         return None
 
 
-def ConnUnify(
-    **kwargs: Any,
-) -> "BaseConnection":
+def ConnUnify(**kwargs: Any,) -> "BaseConnection":
 
     try:
         kwargs["auto_connect"] = False

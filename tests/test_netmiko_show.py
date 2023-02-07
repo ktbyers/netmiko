@@ -294,11 +294,7 @@ def test_send_multiline_simple(net_connect):
         and "cisco_xe" not in net_connect.device_type
     ):
         assert pytest.skip()
-    commands = [
-        "show ip int brief",
-        "show interfaces",
-        "show version",
-    ]
+    commands = ["show ip int brief", "show interfaces", "show version"]
     output = net_connect.send_multiline(commands)
     if debug:
         print(output)

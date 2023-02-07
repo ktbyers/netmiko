@@ -28,10 +28,7 @@ def generate_hp_procurve_acl(
     Just remove and add NTP server so 100 lines of cfg changes.
     """
 
-    base_acl = [
-        "no sntp server 128.118.25.3",
-        "sntp server 128.118.25.3",
-    ]
+    base_acl = ["no sntp server 128.118.25.3", "sntp server 128.118.25.3"]
     acl = []
     for _ in range(50):
         acl += base_acl
@@ -123,12 +120,7 @@ def generate_cisco_asa_acl(
     return acl
 
 
-def generate_linux_acl(
-    acl_name="",
-    entries=100,
-    base_cmd=None,
-    base_addr="",
-):
+def generate_linux_acl(acl_name="", entries=100, base_cmd=None, base_addr=""):
     """Well, not really an ACL, but you get the idea."""
     acl = []
     for i in range(1, entries + 1):

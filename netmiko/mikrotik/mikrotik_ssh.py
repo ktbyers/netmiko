@@ -112,10 +112,7 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         return self.base_prompt
 
     def send_command_timing(  # type: ignore
-        self,
-        command_string: str,
-        cmd_verify: bool = True,
-        **kwargs: Any,
+        self, command_string: str, cmd_verify: bool = True, **kwargs: Any
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Force cmd_verify to be True due to all of the line repainting"""
         return super().send_command_timing(

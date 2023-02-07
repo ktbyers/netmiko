@@ -51,10 +51,7 @@ def test_read_ping_no_response(net_connect_newconn):
 
     # Nothing exists at that IP
     cmd = "ping 10.220.88.209 repeat 20\n"
-    output, exec_time = execute_cmd(
-        net_connect_newconn,
-        cmd=cmd,
-    )
+    output, exec_time = execute_cmd(net_connect_newconn, cmd=cmd)
     assert "Success rate is" in output
     assert "cisco3#" in output
     assert exec_time.total_seconds() > 10
@@ -96,11 +93,7 @@ def test_read_traceroute_no_response_full(net_connect_newconn):
 def test_read_traceroute(net_connect_newconn):
 
     cmd = "traceroute 10.220.88.37"
-    output, exec_time = execute_cmd(
-        net_connect_newconn,
-        cmd=cmd,
-        last_read=4.0,
-    )
+    output, exec_time = execute_cmd(net_connect_newconn, cmd=cmd, last_read=4.0)
     assert "cisco3#" in output
     assert exec_time.total_seconds() > 5
     net_connect_newconn.disconnect()

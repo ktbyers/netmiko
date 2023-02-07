@@ -62,10 +62,7 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
     ) -> str:
         if not pattern:
             pattern = self.prompt_pattern
-        return super().find_prompt(
-            delay_factor=delay_factor,
-            pattern=pattern,
-        )
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def _vdoms_enabled(self) -> bool:
         """Determine whether virtual domains are enabled or not."""
@@ -203,11 +200,7 @@ Alternatively you can try configuring 'configure system console -> set output st
         if self._original_output_mode == "more":
             if self._vdoms:
                 output += self._config_global()
-            commands = [
-                "config system console",
-                "set output more",
-                "end",
-            ]
+            commands = ["config system console", "set output more", "end"]
             output += self.send_multiline(commands, expect_string=self.prompt_pattern)
             if self._vdoms:
                 self._exit_config_global()
