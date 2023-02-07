@@ -45,7 +45,7 @@ class DellSonicSSH(NoEnable, CiscoSSHConnection):
         return self._send_command_str("exit", expect_string=r"\#")
 
 
-class DellSonicFileTransfer(BaseFileTransfer, BaseConnection):
+class DellSonicFileTransfer(BaseFileTransfer):
     """Dell EMC Networking SONiC SCP File Transfer driver."""
 
     def __init__(
