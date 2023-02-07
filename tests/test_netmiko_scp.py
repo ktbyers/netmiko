@@ -204,7 +204,7 @@ def test_file_transfer(scp_file_transfer):
         disable_md5=False,
         file_system=file_system,
         direction=direction,
-        overwrite_file=False,
+        overwrite_file=True,
     )
     # File get should occur here
     assert (
@@ -239,7 +239,7 @@ def test_file_transfer(scp_file_transfer):
             dest_file=dest_file,
             file_system=file_system,
             direction=direction,
-            overwrite_file=True,
+            overwrite_file=False,
         )
 
     # Don't allow MD5 and file overwrite not allowed
