@@ -9,10 +9,18 @@ from netmiko import log
 class HuaweiSmartAXSSH(CiscoBaseConnection):
     """Supports Huawei SmartAX and OLT."""
 
+    prompt_pattern = r"[>$]"
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r"[>#]")
+
+        data = self._test_channel_read(pattern=f"YES.NO|{self.prompt_pattern}")
+        # Huawei OLT might put a post-login banner that requires 'yes' to be sent.
+        if re.search(r"YES.NO", data):
+            self.write_channel(f"yes{self.RETURN}")
+            self._test_channel_read(pattern=self.prompt_pattern)
+
         self.set_base_prompt()
         self._disable_smart_interaction()
         self.disable_paging()
