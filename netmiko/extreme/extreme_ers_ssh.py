@@ -33,7 +33,8 @@ class ExtremeErsSSH(CiscoSSHConnection):
         uname = "sername"
         password = "ssword"
         cntl_y = "Ctrl-Y"
-        pattern = rf"(?:{uname}|{password}|{cntl_y}|{self.prompt_pattern})"
+        enter_msg = "Press ENTER to continue"
+        pattern = rf"(?:{uname}|{password}|{cntl_y}|{enter_msg}|{self.prompt_pattern})"
         while True:
             new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
             output += new_data
@@ -42,6 +43,8 @@ class ExtremeErsSSH(CiscoSSHConnection):
 
             if cntl_y in new_data:
                 self.write_channel(CTRL_Y)
+            elif "Press ENTER" in new_data:
+                self.write_channel(self.RETURN)
             elif uname in new_data:
                 assert isinstance(self.username, str)
                 self.write_channel(self.username + self.RETURN)
