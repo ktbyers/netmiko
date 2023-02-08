@@ -49,7 +49,6 @@ class AudiocodeBase(BaseConnection):
         pattern: str = r"..#",
         force_regex: bool = True,
     ) -> bool:
-
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
@@ -193,7 +192,6 @@ class Audiocode72Base(AudiocodeBase):
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:
-
         if command:
             return super().disable_paging(
                 command=command,
@@ -246,7 +244,6 @@ class AudiocodeBase66(AudiocodeBase):
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:
-
         if command:
             return super().disable_paging(
                 command=command,
@@ -267,7 +264,6 @@ class AudiocodeBase66(AudiocodeBase):
             )
 
     def _enable_paging(self, delay_factor: Optional[float] = 0.5) -> str:
-
         command_list: List[str] = ["cli-terminal", "set window-height 100"]
         self.enable()
         assert isinstance(delay_factor, float)
@@ -339,7 +335,6 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
         terminator: str = r"/.*>",
         bypass_commands: str = None,
     ) -> str:
-
         return super().send_config_set(
             config_commands=config_commands,
             exit_config_mode=exit_config_mode,

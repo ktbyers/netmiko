@@ -230,7 +230,6 @@ def test_commit_check(net_connect, commands, expected_responses):
     if net_connect.device_type in ["cisco_xr", "nokia_sros"]:
         assert pytest.skip()
     else:
-
         # Setup the initial config state
         config_commands, support_commit, config_verify = setup_initial_state(
             net_connect, commands, expected_responses
@@ -289,7 +288,6 @@ def test_commit_andquit(net_connect, commands, expected_responses):
     if net_connect.device_type in ["cisco_xr", "nokia_sros"]:
         assert pytest.skip()
     else:
-
         # Setup the initial config state
         config_commands, support_commit, config_verify = setup_initial_state(
             net_connect, commands, expected_responses

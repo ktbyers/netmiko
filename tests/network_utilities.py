@@ -81,7 +81,6 @@ def generate_cisco_xr_acl(
     base_cmd="ipv4 access-list",
     base_addr="192.168.0.0",
 ):
-
     # Add base ACL command
     cmd = f"{base_cmd} {acl_name}"
     acl = [cmd]

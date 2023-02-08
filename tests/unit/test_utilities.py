@@ -388,7 +388,6 @@ Configuration register is 0xF
     ],
 )
 def test_delay_factor_compat(max_loops, delay_factor, timeout, result):
-
     read_timeout = utilities.calc_old_timeout(
         max_loops=max_loops,
         delay_factor=delay_factor,

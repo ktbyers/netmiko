@@ -28,7 +28,6 @@ class RuijieOSBase(CiscoBaseConnection):
 
 
 class RuijieOSSSH(RuijieOSBase):
-
     pass
 
 

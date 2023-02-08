@@ -51,7 +51,6 @@ def show_long_running_notimeout(conn, read_timeout):
 
 
 def test_read_longrunning_cmd(net_connect_newconn):
-
     read_timeout = 300
     output, exec_time = show_long_running_notimeout(
         net_connect_newconn, read_timeout=read_timeout
@@ -65,7 +64,6 @@ def test_read_longrunning_cmd(net_connect_newconn):
     [(0.4, 5.0), (1, 2.0), (5, 1.0), (10, 0.5), (60, 0.2)],
 )
 def test_read_timeout(net_connect_newconn, test_timeout, allowed_percentage):
-
     # Explicitly send expect_string so timing is more accurate
     my_prompt = net_connect_newconn.find_prompt()
     pattern = re.escape(my_prompt)
@@ -89,7 +87,6 @@ def test_read_timeout(net_connect_newconn, test_timeout, allowed_percentage):
     "test_timeout,allowed_percentage", [(1, 2.0), (5, 1.0), (10, 0.5), (60, 0.2)]
 )
 def test_read_timeout_override(net_connect_newconn, test_timeout, allowed_percentage):
-
     net_connect_newconn.read_timeout_override = 12
     ssh_conn = net_connect_newconn
 
@@ -118,7 +115,6 @@ def test_read_timeout_override(net_connect_newconn, test_timeout, allowed_percen
 
 
 def test_deprecation_delay_factor(net_connect_newconn):
-
     ssh_conn = net_connect_newconn
     cmd = "show ip int brief"
     with pytest.deprecated_call():
@@ -126,7 +122,6 @@ def test_deprecation_delay_factor(net_connect_newconn):
 
 
 def test_deprecation_max_loops(net_connect_newconn):
-
     ssh_conn = net_connect_newconn
     cmd = "show ip int brief"
     with pytest.deprecated_call():

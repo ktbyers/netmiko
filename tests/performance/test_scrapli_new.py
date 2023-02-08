@@ -143,7 +143,6 @@ def send_config_large_acl(driver, device):
 
 @f_exec_time
 def cleanup(driver, device):
-
     # Results will be marginally distorted by generating the ACL here.
     platform = netmiko_scrapli_platform[str(driver)]
     if "juniper_junos" in platform:
@@ -159,7 +158,6 @@ def cleanup(driver, device):
 
 
 def cleanup_generic(driver, device, command):
-
     ScrapliClass = globals()[driver]
 
     if command is None:

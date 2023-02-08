@@ -107,7 +107,6 @@ def send_config_simple(device):
 
 @f_exec_time
 def send_config_large_acl(device):
-
     # Results will be marginally distorted by generating the ACL here.
     device_type = device["device_type"]
     func_name = f"generate_{device_type}_acl"
@@ -121,7 +120,6 @@ def send_config_large_acl(device):
 
 @f_exec_time
 def cleanup(device):
-
     # Results will be marginally distorted by generating the ACL here.
     platform = device["device_type"]
     if "juniper_junos" in platform:

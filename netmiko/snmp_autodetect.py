@@ -197,7 +197,6 @@ class SNMPDetect(object):
         auth_proto: str = "sha",
         encrypt_proto: str = "aes128",
     ) -> None:
-
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == "v1" or snmp_version == "v2c":
             if not community:
