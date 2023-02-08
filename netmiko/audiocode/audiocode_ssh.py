@@ -41,6 +41,8 @@ class AudiocodeBase(BaseConnection):
             pattern=pattern,
         )
 
+        assert isinstance(base_prompt, str)
+
         # Audiocode will return a prompt with * in it in certain
         # situations: 'MYDEVICE*#', strip this off.
         if re.search(r"\*\s*$", base_prompt, flags=re.M):
