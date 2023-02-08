@@ -39,7 +39,6 @@ import itertools
 
 import paramiko
 import serial
-from tenacity import retry, stop_after_attempt, wait_exponential
 import warnings
 
 from netmiko import log
@@ -1294,12 +1293,6 @@ A paramiko SSHException occurred during connection creation:
             output = self.read_until_prompt()
         return output
 
-    # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
-    @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5),
-        stop=stop_after_attempt(5),
-        reraise=True,
-    )
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",

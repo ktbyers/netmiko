@@ -50,7 +50,6 @@ setup(
         "setuptools>=38.4.0",
         "paramiko>=2.7.2",
         "scp>=0.13.3",
-        "tenacity",
         "pyyaml>=5.3",
         "textfsm",
         "ntc-templates>=2.0.0",
