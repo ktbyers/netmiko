@@ -6,7 +6,7 @@ env:
   FORCE_COLOR: 1
 jobs:
   std_tests:
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-20.04"
     strategy:
       max-parallel: 4
       matrix:
@@ -39,7 +39,6 @@ jobs:
       - name: Run mypy
         run: |
           mypy --version
-          mypy ./netmiko/
           mypy ./netmiko/
 
       - name: Run Tests
