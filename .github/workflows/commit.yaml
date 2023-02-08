@@ -38,6 +38,7 @@ jobs:
 
       - name: Run mypy
         run: |
+          mypy --version
           mypy ./netmiko/
 
       - name: Run Tests
