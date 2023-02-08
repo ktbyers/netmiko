@@ -23,37 +23,37 @@ class AudiocodeBase(BaseConnection):
         # Clear the read buffer
         self.clear_buffer()
 
-    #    def set_base_prompt(
-    #        self,
-    #        pri_prompt_terminator: str = "#",
-    #        alt_prompt_terminator: str = ">",
-    #        delay_factor: float = 1.0,
-    #        pattern: Optional[str] = None,
-    #    ) -> str:
-    #
-    #        if pattern is None:
-    #            pattern = rf"\*?{self.prompt_pattern}"
-    #
-    #        if pattern:
-    #            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
-    #        else:
-    #            prompt = self.find_prompt(delay_factor=delay_factor)
-    #
-    #        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-    #            raise ValueError(f"Router prompt not found: {repr(prompt)}")
-    #
-    #        # If all we have is the 'terminator' just use that :-(
-    #        if len(prompt) == 1:
-    #            self.base_prompt = prompt
-    #        else:
-    #            # Audiocode will return a prompt with * in it in certain
-    #            # situations: 'MYDEVICE*#', strip this off.
-    #            if "*#" in prompt or "*>" in prompt:
-    #                self.base_prompt = prompt[:-2]
-    #            else:
-    #                # Strip off trailing terminator
-    #                self.base_prompt = prompt[:-1]
-    #        return self.base_prompt
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
+
+        if pattern is None:
+            pattern = rf"\*?{self.prompt_pattern}"
+
+        if pattern:
+            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
+        else:
+            prompt = self.find_prompt(delay_factor=delay_factor)
+
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError(f"Router prompt not found: {repr(prompt)}")
+
+        # If all we have is the 'terminator' just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Audiocode will return a prompt with * in it in certain
+            # situations: 'MYDEVICE*#', strip this off.
+            if "*#" in prompt or "*>" in prompt:
+                self.base_prompt = prompt[:-2]
+            else:
+                # Strip off trailing terminator
+                self.base_prompt = prompt[:-1]
+        return self.base_prompt
 
     def find_prompt(
         self,
