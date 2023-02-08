@@ -26,14 +26,16 @@ DEVICE2 = {
     "port": 8022,
 }
 
+
 @skip_if_not_linux
 def test_connecthandler_auth_failure():
     with pytest.raises(NetmikoAuthenticationException):
-        net_connect = ConnectHandler(**DEVICE1)
+        net_connect = ConnectHandler(**DEVICE1)  # noqa
+
 
 def test_connecthandler_timeout():
     with pytest.raises(NetmikoTimeoutException):
-        net_connect = ConnectHandler(**DEVICE2)
+        net_connect = ConnectHandler(**DEVICE2)  # noqa
 
 
 def test_connlogonly(caplog):
