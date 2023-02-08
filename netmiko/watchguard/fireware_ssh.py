@@ -41,4 +41,4 @@ class WatchguardFirewareSSH(BaseConnection):
 
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """No save config on Watchguard."""
-        pass
+        return ""

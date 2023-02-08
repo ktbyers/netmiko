@@ -372,7 +372,7 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
         enter_config_mode: bool = True,
         error_pattern: str = "",
         terminator: str = r"/.*>",
-        bypass_commands: str = None,
+        bypass_commands: Optional[str] = None,
     ) -> str:
 
         return super().send_config_set(
@@ -447,7 +447,7 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
         delay_factor: Optional[float] = 0.5,
     ) -> str:
         """Not supported"""
-        pass
+        return ""
 
     def strip_command(self, command_string: str, output: str) -> str:
         # Support for Audiocode_Shell.
