@@ -8,6 +8,8 @@ from netmiko.no_enable import NoEnable
 class AudiocodeBase(BaseConnection):
     """Common Methods for AudioCode Drivers."""
 
+    prompt_pattern = r"[>#]"
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r" if default_enter is None else default_enter
@@ -15,7 +17,7 @@ class AudiocodeBase(BaseConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.disable_paging()
         # Clear the read buffer
@@ -26,20 +28,41 @@ class AudiocodeBase(BaseConnection):
         pri_prompt_terminator: str = "#",
         alt_prompt_terminator: str = ">",
         delay_factor: float = 1.0,
-        pattern: Optional[str] = r"\*?(#|>)",
+        pattern: Optional[str] = None,
     ) -> str:
-        return super().set_base_prompt(
-            pri_prompt_terminator=pri_prompt_terminator,
-            alt_prompt_terminator=alt_prompt_terminator,
-            delay_factor=delay_factor,
-            pattern=pattern,
-        )
+
+        if pattern is None:
+            pattern = rf"\*?{self.prompt_pattern}"
+
+        if pattern:
+            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
+        else:
+            prompt = self.find_prompt(delay_factor=delay_factor)
+
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError(f"Router prompt not found: {repr(prompt)}")
+
+        # If all we have is the 'terminator' just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Audiocode will return a prompt with * in it in certain
+            # situations: 'MYDEVICE*#', strip this off.
+            if "*#" in prompt or "*>" in prompt:
+                self.base_prompt = prompt[:-2]
+            else:
+                # Strip off trailing terminator
+                self.base_prompt = prompt[:-1]
+        return self.base_prompt
 
     def find_prompt(
         self,
         delay_factor: float = 1.0,
-        pattern: Optional[str] = r"\*?(#|>)",
+        pattern: Optional[str] = None,
     ) -> str:
+
+        if pattern is None:
+            pattern = rf"\*?{self.prompt_pattern}"
         return super().find_prompt(
             delay_factor=delay_factor,
             pattern=pattern,
@@ -53,11 +76,10 @@ class AudiocodeBase(BaseConnection):
 
     def check_config_mode(
         self,
-        check_string: str = r"(\)#|\)\*#)",
+        check_string: str = r"(?:\)#|\)\*#)",
         pattern: str = r"..#",
         force_regex: bool = True,
     ) -> bool:
-
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
