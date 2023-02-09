@@ -39,7 +39,6 @@ import itertools
 
 import paramiko
 import serial
-from tenacity import retry, stop_after_attempt, wait_exponential
 import warnings
 
 from netmiko import log
@@ -649,8 +648,21 @@ where x is the total number of seconds to wait before timing out.\n"""
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time < read_timeout) or (not read_timeout):
+
             output += self.read_channel()
+
             if re.search(pattern, output, flags=re_flags):
+                if "(" in pattern and not "(?:" in pattern:
+                    msg = f"""
+Parenthesis found in pattern.
+
+pattern: {pattern}\n
+
+This can be problemtic when used in read_until_pattern().
+
+You should ensure that you use either non-capture groups i.e. '(?:' or that the
+parenthesis completely wrap the pattern '(pattern)'"""
+                    log.debug(msg)
                 results = re.split(pattern, output, maxsplit=1, flags=re_flags)
 
                 # The string matched by pattern must be retained in the output string.
@@ -1294,12 +1306,6 @@ A paramiko SSHException occurred during connection creation:
             output = self.read_until_prompt()
         return output
 
-    # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
-    @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5),
-        stop=stop_after_attempt(5),
-        reraise=True,
-    )
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",

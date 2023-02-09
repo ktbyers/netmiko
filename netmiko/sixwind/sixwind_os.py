@@ -18,7 +18,7 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
 
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """6WIND requires no-pager at the end of command, not implemented at this time."""
-        pass
+        return ""
 
     def set_base_prompt(
         self,
