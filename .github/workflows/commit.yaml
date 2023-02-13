@@ -43,12 +43,12 @@ jobs:
 
       - name: Run black
         run: |
-          black --check .
+          poetry run black --check .
 
       - name: Run mypy
         run: |
-          mypy --version
-          mypy ./netmiko/
+          poetry run mypy --version
+          poetry run mypy ./netmiko/
  
   pytest:
     name: Testing on Python ${{ matrix.python-version }} (${{ matrix.platform}})
