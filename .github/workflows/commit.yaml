@@ -90,8 +90,8 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest -v -s tests/test_import_netmiko.py
-          pytest -v -s tests/unit/test_base_connection.py
-          pytest -v -s tests/unit/test_utilities.py
-          pytest -v -s tests/unit/test_ssh_autodetect.py
-          pytest -v -s tests/unit/test_connection.py
+          poetry run pytest -v -s tests/test_import_netmiko.py
+          poetry run pytest -v -s tests/unit/test_base_connection.py
+          poetry run pytest -v -s tests/unit/test_utilities.py
+          poetry run pytest -v -s tests/unit/test_ssh_autodetect.py
+          poetry run pytest -v -s tests/unit/test_connection.py
