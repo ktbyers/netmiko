@@ -39,7 +39,7 @@ jobs:
 
       - name: Run pylama
         run: |
-          pylama .
+          poetry run pylama .
 
       - name: Run black
         run: |
