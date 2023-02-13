@@ -1,6 +1,9 @@
 ---
 name: Netmiko
 on: [push,pull_request]
+env:
+  environment: gh_actions
+  FORCE_COLOR: 1
 
 jobs:
   linters:
