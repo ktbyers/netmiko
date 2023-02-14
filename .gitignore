@@ -37,6 +37,7 @@ docs/build/doctrees/
 .tox/*
 
 .pytest_cache/*
+.python-version
 
 # Mac stuff
 .DS_Store

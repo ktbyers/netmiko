@@ -126,6 +126,7 @@ from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
 from netmiko.hillstone import HillstoneStoneosSSH
+from netmiko.dnos import DnosSSH
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -189,6 +190,7 @@ CLASS_MAPPER_BASE = {
     "dell_powerconnect": DellPowerConnectSSH,
     "dell_isilon": DellIsilonSSH,
     "dlink_ds": DlinkDSSSH,
+    "dnos": DnosSSH,
     "endace": EndaceSSH,
     "eltex": EltexSSH,
     "eltex_esr": EltexEsrSSH,
