@@ -173,9 +173,15 @@ Alternatively you can try configuring 'configure system console -> set output st
         FortiOS V7 and later.
         Retrieve the current output mode.
         """
+        if self._vdoms:
+            self._config_global()
+
         output = self._send_command_str(
             "get system console", expect_string=self.prompt_pattern
         )
+
+        if self._vdoms:
+            self._exit_config_global()
 
         pattern = r"output\s+:\s+(?P<mode>\S+)\s*$"
         result_mode_re = re.search(pattern, output, flags=re.M)
