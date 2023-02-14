@@ -174,7 +174,7 @@ Alternatively you can try configuring 'configure system console -> set output st
         Retrieve the current output mode.
         """
         if self._vdoms:
-           self._config_global()
+            self._config_global()
 
         output = self._send_command_str(
             "get system console", expect_string=self.prompt_pattern
