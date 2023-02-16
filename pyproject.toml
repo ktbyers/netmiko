@@ -44,6 +44,6 @@ types-paramiko = "3.0.0.2"
 types-PyYAML = "6.0.12.4"
 
 [tool.poetry.group.parsers.dependencies]
-pyats = "22.7.1"
-genie = "22.7"
+pyats = ">=23.1"
+genie = ">=23.1"
 ttp = ">=0.9.0"
