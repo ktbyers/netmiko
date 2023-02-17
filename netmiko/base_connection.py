@@ -652,7 +652,7 @@ where x is the total number of seconds to wait before timing out.\n"""
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
-                if "(" in pattern and not "(?:" in pattern:
+                if "(" in pattern and "(?:" not in pattern:
                     msg = f"""
 Parenthesis found in pattern.
 

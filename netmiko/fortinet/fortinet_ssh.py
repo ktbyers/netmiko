@@ -130,9 +130,9 @@ Alternatively you can try configuring 'configure system console -> set output st
         output = self._send_command_str(
             check_command, expect_string=self.prompt_pattern
         )
-        if re.search("^Version: .* (v[78]\.).*$", output, flags=re.M):
+        if re.search(r"^Version: .* (v[78]\.).*$", output, flags=re.M):
             return "v7_or_later"
-        elif re.search("^Version: .* (v[654]\.).*$", output, flags=re.M):
+        elif re.search(r"^Version: .* (v[654]\.).*$", output, flags=re.M):
             return "v6_or_earlier"
         else:
             raise ValueError("Unexpected FortiOS Version encountered.")
@@ -170,9 +170,15 @@ Alternatively you can try configuring 'configure system console -> set output st
         FortiOS V7 and later.
         Retrieve the current output mode.
         """
+        if self._vdoms:
+            self._config_global()
+
         output = self._send_command_str(
             "get system console", expect_string=self.prompt_pattern
         )
+
+        if self._vdoms:
+            self._exit_config_global()
 
         pattern = r"output\s+:\s+(?P<mode>\S+)\s*$"
         result_mode_re = re.search(pattern, output, flags=re.M)
