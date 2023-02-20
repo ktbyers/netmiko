@@ -2037,7 +2037,11 @@ You can also look at the Netmiko session_log or debug log for more information.
             return check_string in output
 
     def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
+        self,
+        config_command: str = "",
+        pattern: str = "",
+        re_flags: int = 0,
+        check_string: str = "",
     ) -> str:
         """Enter into config_mode.
 
@@ -2051,7 +2055,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         :type re_flags: RegexFlag
         """
         output = ""
-        if not self.check_config_mode():
+        check_config_mode_kwargs = {}
+        if check_string:
+            check_config_mode_kwargs = {"check_string": check_string}
+        if not self.check_config_mode(check_config_mode_kwargs):
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
@@ -2062,7 +2069,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
             else:
                 output += self.read_until_prompt(read_entire_line=True)
-            if not self.check_config_mode():
+            if not self.check_config_mode(check_config_mode_kwargs):
                 raise ValueError("Failed to enter configuration mode.")
         return output
 
