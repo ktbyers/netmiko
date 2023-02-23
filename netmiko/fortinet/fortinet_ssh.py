@@ -1,6 +1,6 @@
 import paramiko
 import re
-from typing import Optional
+from typing import Optional, Any
 
 from netmiko.no_config import NoConfig
 from netmiko.no_enable import NoEnable
@@ -9,6 +9,12 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
     prompt_pattern = r"[#$]"
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self._output_mode = kwargs.pop("output_mode", None)
+        if self._output_mode and self._output_mode not in ["more", "standard"]:
+            raise ValueError("Provided output mode on the Fortinet device is not correct. Please use 'more' or 'standard'.")
+        super().__init__(args, **kwargs)
 
     def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
@@ -36,9 +42,10 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
         self.set_base_prompt()
         self._vdoms = self._vdoms_enabled()
         self._os_version = self._determine_os_version()
-        # Retain how the 'output mode' was original configured.
-        self._original_output_mode = self._get_output_mode()
-        self._output_mode = self._original_output_mode
+        if not self._output_mode:
+            # Retain how the 'output mode' was original configured.
+            self._original_output_mode = self._get_output_mode()
+            self._output_mode = self._original_output_mode
         self.disable_paging()
 
     def set_base_prompt(
