@@ -43,9 +43,9 @@ class FsosV2SSH(CiscoBaseConnection):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(
-        self, cmd: str = "copy running-config startup-config", confirm: bool = True, confirm_response: str = "startup.cfg"
+        self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
-        """Saves Config Using copy run start"""
+        """Saves Config Using write"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
