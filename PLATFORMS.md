@@ -87,6 +87,8 @@
 - Extreme SLX (Brocade)
 - F5 TMSH
 - F5 Linux
+- Fiberstore fsosv1
+- Fiberstore fsosv2
 - Fortinet
 - MRV Communications OptiSwitch
 - MRV LX
@@ -172,6 +174,8 @@
 - f5_linux
 - f5_ltm
 - f5_tmsh
+- fsos_v1
+- fsos_v2
 - flexvnf
 - fortinet
 - generic
