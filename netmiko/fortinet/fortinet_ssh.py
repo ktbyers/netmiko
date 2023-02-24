@@ -5,16 +5,14 @@ from typing import Optional, Any
 from netmiko.no_config import NoConfig
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.exceptions import (
+    ReadTimeout,
+    WriteException,
+)
 
 
 class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
     prompt_pattern = r"[#$]"
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self._output_mode = kwargs.pop("output_mode", None)
-        if self._output_mode and self._output_mode not in ["more", "standard"]:
-            raise ValueError("Provided output mode on the Fortinet device is not correct. Please use 'more' or 'standard'.")
-        super().__init__(args, **kwargs)
 
     def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
@@ -42,10 +40,9 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
         self.set_base_prompt()
         self._vdoms = self._vdoms_enabled()
         self._os_version = self._determine_os_version()
-        if not self._output_mode:
-            # Retain how the 'output mode' was original configured.
-            self._original_output_mode = self._get_output_mode()
-            self._output_mode = self._original_output_mode
+        # Retain how the 'output mode' was original configured.
+        self._original_output_mode = self._get_output_mode()
+        self._output_mode = self._original_output_mode
         self.disable_paging()
 
     def set_base_prompt(
@@ -129,7 +126,10 @@ Alternatively you can try configuring 'configure system console -> set output st
         output += self.send_multiline(
             disable_paging_commands, expect_string=self.prompt_pattern
         )
-        self._output_mode = "standard"
+        if not "Unknown action" in output:
+            self._output_mode = "standard"
+        else:
+            raise WriteException("Cannot disable paging mode.")
 
         if self._vdoms:
             output += self._exit_config_global()
@@ -152,19 +152,34 @@ Alternatively you can try configuring 'configure system console -> set output st
         FortiOS V6 and earlier.
         Retrieve the current output mode.
         """
+        result_mode = None
+
         if self._vdoms:
             self._config_global()
 
         self._send_command_str(
             "config system console", expect_string=self.prompt_pattern
         )
-        output = self._send_command_str(
-            "show full-configuration", expect_string=self.prompt_pattern
-        )
+
+        try:
+            output = self._send_command_str(
+                "show full-configuration", expect_string=self.prompt_pattern
+            )
+        # We are stuck with pagination
+        except ReadTimeout as e:
+            output = self._send_command_str(
+                "q", cmd_verify=False, expect_string=self.prompt_pattern
+            )
+            result_mode = "more"
+
         self._send_command_str("end", expect_string=self.prompt_pattern)
 
         if self._vdoms:
             self._exit_config_global()
+
+        # No need to go further if result_mode is already found
+        if result_mode:
+            return result_mode
 
         pattern = r"^\s+set output (?P<mode>\S+)\s*$"
         result_mode_re = re.search(pattern, output, flags=re.M)
@@ -173,7 +188,20 @@ Alternatively you can try configuring 'configure system console -> set output st
             if result_mode in ["more", "standard"]:
                 return result_mode
 
-        raise ValueError("Unable to determine the output mode on the Fortinet device.")
+        # If we are here, there is something wrong before
+        # maybe bad privilege for typing 'config system console' command
+        # Let's try to find out if the pagination mode is 'more'
+        try:
+            output = self._send_command_str(
+                "show full-configuration"
+            )
+        # We are stuck in pagnation mode
+        except ReadTimeout as e:
+            output = self._send_command_str(
+                "q", cmd_verify=False, expect_string=self.prompt_pattern
+            )
+            return "more"
+        return "standard"
 
     def _get_output_mode_v7(self) -> str:
         """
