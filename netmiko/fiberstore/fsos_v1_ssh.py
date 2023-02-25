@@ -1,14 +1,16 @@
+from typing import Optional
+
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class FsosV1SSH(CiscoBaseConnection):
     """
     Implements methods for communicating with Fsos v1.
-    
+
     Mostly conforms to Cisco IOS style syntax with a few minor changes.
     """
-    
-   def session_preparation(self) -> None:
+
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.disable_paging()
         self.set_base_prompt()
@@ -41,7 +43,8 @@ class FsosV1SSH(CiscoBaseConnection):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(
-        self, cmd: str = "copy running-config startup-config", confirm: bool = True, confirm_response: str = "startup.cfg"
+        self, cmd: str = "copy running-config startup-config",
+        confirm: bool = True, confirm_response: str = "startup.cfg"
     ) -> str:
         """Saves Config Using copy run start"""
         return super().save_config(

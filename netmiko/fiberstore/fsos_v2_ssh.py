@@ -1,14 +1,16 @@
+from typing import Optional
+
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class FsosV2SSH(CiscoBaseConnection):
     """
     Implements methods for communicating with Fsos v2.
-    
+
     Mostly conforms to Cisco IOS style syntax with a few minor changes.
     """
-    
-   def session_preparation(self) -> None:
+
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         cmd = "terminal width 256"
         self.set_terminal_width(command=cmd, pattern=cmd)
