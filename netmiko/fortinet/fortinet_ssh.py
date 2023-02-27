@@ -1,6 +1,6 @@
 import paramiko
 import re
-from typing import Optional, Any
+from typing import Optional
 
 from netmiko.no_config import NoConfig
 from netmiko.no_enable import NoEnable
@@ -126,7 +126,7 @@ Alternatively you can try configuring 'configure system console -> set output st
         output += self.send_multiline(
             disable_paging_commands, expect_string=self.prompt_pattern
         )
-        if not "Unknown action" in output:
+        if "Unknown action" not in output:
             self._output_mode = "standard"
         else:
             raise WriteException("Cannot disable paging mode.")
@@ -166,7 +166,7 @@ Alternatively you can try configuring 'configure system console -> set output st
                 "show full-configuration", expect_string=self.prompt_pattern
             )
         # We are stuck with pagination
-        except ReadTimeout as e:
+        except ReadTimeout:
             output = self._send_command_str(
                 "q", cmd_verify=False, expect_string=self.prompt_pattern
             )
@@ -196,7 +196,7 @@ Alternatively you can try configuring 'configure system console -> set output st
                 "show full-configuration"
             )
         # We are stuck in pagnation mode
-        except ReadTimeout as e:
+        except ReadTimeout:
             output = self._send_command_str(
                 "q", cmd_verify=False, expect_string=self.prompt_pattern
             )
