@@ -150,6 +150,7 @@ CLASS_MAPPER_BASE = {
     "aruba_os": ArubaSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
+    "arubaos_cx": HPProcurveSSH,
     "audiocode_72": Audiocode72SSH,
     "audiocode_66": Audiocode66SSH,
     "audiocode_shell": AudiocodeShellSSH,
