@@ -172,6 +172,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "hp_procurve": {
+        "cmd": "show version",
+        "search_patterns": [r"Image stamp.*/code/build"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "huawei": {
         "cmd": "display version",
         "search_patterns": [
