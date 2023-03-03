@@ -82,6 +82,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "arubaos_cx": {
+        "cmd": "show version",
+        "search_patterns": [r"ArubaOS-CX"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "casa_cmts": {
         "cmd": "show version",
         "search_patterns": [r"Casa"],
