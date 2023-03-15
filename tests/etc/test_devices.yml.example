@@ -32,6 +32,12 @@ hp_procurve:
   password: '{more%comple9' # for passwords with special chars use quotes
   secret: ''
 
+arubaos_cx:
+  device_type: arubaos_cx
+  ip: 1.2.3.4
+  username: admin
+  password: password
+
 juniper:
   device_type: juniper
   ip: 10.10.10.14
