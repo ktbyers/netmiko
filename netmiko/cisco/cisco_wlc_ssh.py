@@ -196,13 +196,13 @@ output:
 
         while True:
             output += new_output
-            if "--More-- or (q)uit" in new_output.lower():
+            if "--more-- or (q)uit" in new_output.lower():
                 new_output = self._send_command_timing_str(*second_args, **kwargs)
             else:
                 break
 
-        # Remove from output 'Would you like to display the next 15 entries? (y/n)'
-        pattern = r"^.*--More-- or (q)uit.*\n$"
+        # Remove from output '--More-- or (q)uit'
+        pattern = r"^--More-- or \(q\)uit"
         output = re.sub(pattern, "", output, flags=re.M)
 
         if strip_prompt:
