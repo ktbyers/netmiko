@@ -166,6 +166,20 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "fsos_v1": {
+        "searchs": [
+            {"cmd": "show version", "patterns": [r"Operation Code Version : 1.[0-9].[0-9]"]},
+            {"cmd": "show system", "patterns": [r"\s*System OID String\s*: 1.3.6.1.4.1.52642"]}
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_cmds",
+    },
+    "fsos_v2": {
+        "cmd": "show version",
+        "search_patterns": [r"Fiberstore[\s\S]*Version 2.[0-9]*.[0-9]*[\s\S]*"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "hp_comware": {
         "cmd": "display version",
         "search_patterns": ["HPE Comware", "HP Comware"],
@@ -299,15 +313,33 @@ SSH_MAPPER_DICT = {
 # Sort SSH_MAPPER_DICT such that the most common commands are first
 cmd_count: Dict[str, int] = {}
 for k, v in SSH_MAPPER_DICT.items():
-    my_cmd = v["cmd"]
-    assert isinstance(my_cmd, str)
-    count = cmd_count.setdefault(my_cmd, 0)
-    cmd_count[my_cmd] = count + 1
+    # handle _autodetect_cmds
+    if "searchs" in v:
+        for search in v["searchs"]:
+            my_cmd = search["cmd"]
+            assert isinstance(my_cmd, str)
+            count = cmd_count.setdefault(my_cmd, 0)
+            cmd_count[my_cmd] = count + 1
+    else:
+        my_cmd = v["cmd"]
+        assert isinstance(my_cmd, str)
+        count = cmd_count.setdefault(my_cmd, 0)
+        cmd_count[my_cmd] = count + 1
 cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])}
+
+
+def get_cmd_count(v):
+    cmd = ""
+    if "searchs" in v[1]:
+        cmd = v[1]["searchs"][0]["cmd"]
+    else:
+        cmd = v[1]["cmd"]
+    return int(cmd_count[cmd])
+
 
 # SSH_MAPPER_BASE is a list
 SSH_MAPPER_BASE = sorted(
-    SSH_MAPPER_DICT.items(), key=lambda item: int(cmd_count[str(item[1]["cmd"])])
+    SSH_MAPPER_DICT.items(), key=get_cmd_count
 )
 SSH_MAPPER_BASE.reverse()
 
@@ -529,6 +561,56 @@ class SSHDetect(object):
                 match = re.search(pattern, response, flags=re_flags)
                 if match:
                     return priority
+        except Exception:
+            return 0
+        return 0
+
+    def _autodetect_cmds(
+        self,
+        searchs: List[Dict[str, Union[str, List[str]]]] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+    ) -> int:
+        """
+        Method to try to auto-detect the device type when more than one command is needed.
+        This method will be called for each device_type present in SSH_MAPPER_BASE dict
+        ('dispatch' key). It will attempt to send a list of commands and match some regular
+        expression from the ouput for each entry in SSH_MAPPER_BASE ('searchs' key).
+
+        Parameters
+        ----------
+        searchs : list
+            A list of dict with a key "cmd" (command to use) and a key "patterns"
+            regulars expression to look for in the command's output (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression (default: re.I).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        """
+        invalid_responses = [
+            r"% Invalid input detected",
+            r"syntax error, expecting",
+            r"Error: Unrecognized command",
+            r"%Error",
+            r"command not found",
+            r"Syntax Error: unexpected argument",
+            r"% Unrecognized command found at",
+        ]
+        if not searchs:
+            return 0
+        try:
+            for search in searchs:
+                # _send_command_wrapper will use already cached results if available
+                response = self._send_command_wrapper(search["cmd"])
+                # Look for error conditions in output
+                for pattern in invalid_responses:
+                    match = re.search(pattern, response, flags=re.I)
+                    if match:
+                        return 0
+                for pattern in search["patterns"]:
+                    match = re.search(pattern, response, flags=re_flags)
+                    if match:
+                        return priority
         except Exception:
             return 0
         return 0

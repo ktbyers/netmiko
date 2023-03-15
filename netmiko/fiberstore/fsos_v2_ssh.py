@@ -13,9 +13,11 @@ class FsosV2SSH(CiscoBaseConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         cmd = "terminal width 256"
+        self.set_base_prompt()
+        """Fsos v2 requires enable mode to set terminal width"""
+        self.enable()
         self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
-        self.set_base_prompt()
 
     def set_base_prompt(
         self,
