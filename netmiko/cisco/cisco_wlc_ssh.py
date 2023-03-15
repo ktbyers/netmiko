@@ -167,6 +167,50 @@ output:
             output = self.strip_prompt(output)
         return output
 
+    def send_command_w_paging(self, *args: Any, **kwargs: Any) -> str:
+        """
+        For using a read-only user, 'config paging disable'will fail (config requires write)
+        For results longer than a page Cisco WLC adds a '--More-- or (q)uit' message
+        because pagination is still enabled.
+
+        this function sends a "space" if '--More-- or (q)uit' is identified
+
+        Arguments are the same as send_command_timing() method.
+        """
+        if len(args) > 1:
+            raise ValueError("Must pass in delay_factor as keyword argument")
+
+        # If no delay_factor use 1 for default value
+        delay_factor = kwargs.get("delay_factor", 1)
+        kwargs["delay_factor"] = self.select_delay_factor(delay_factor)
+
+        output = ""
+        new_output = self._send_command_timing_str(*args, **kwargs)
+
+        second_args = list(args)
+        if len(args) == 1:
+            second_args[0] = " "
+        else:
+            kwargs["command_string"] = " "
+        strip_prompt = kwargs.get("strip_prompt", True)
+
+        while True:
+            output += new_output
+            if "--More-- or (q)uit" in new_output.lower():
+                new_output = self._send_command_timing_str(*second_args, **kwargs)
+            else:
+                break
+
+        # Remove from output 'Would you like to display the next 15 entries? (y/n)'
+        pattern = r"^.*--More-- or (q)uit.*\n$"
+        output = re.sub(pattern, "", output, flags=re.M)
+
+        if strip_prompt:
+            # Had to strip trailing prompt twice.
+            output = self.strip_prompt(output)
+            output = self.strip_prompt(output)
+        return output
+    
     def cleanup(self, command: str = "logout") -> None:
         """Reset WLC back to normal paging and gracefully close session."""
         self.send_command_timing("config paging enable")
