@@ -197,12 +197,13 @@ output:
         while True:
             output += new_output
             if "--more-- or (q)uit" in new_output.lower():
-                new_output = self._send_command_timing_str(*second_args, **kwargs)
+                #new_output = self._send_command_timing_str(*second_args, **kwargs)
+                new_output = self._send_command_timing_str(*second_args,last_read=0,**kwargs)
             else:
                 break
 
         # Remove from output '--More-- or (q)uit'
-        pattern = r"^--More-- or \(q\)uit"
+        pattern = r"--More-- or \(q\)uit"
         output = re.sub(pattern, "", output, flags=re.M)
 
         if strip_prompt:
