@@ -127,6 +127,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cisco_xr_2": {
+        "cmd": "show version brief",
+        "search_patterns": [r"Cisco IOS XR"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "dell_force10": {
         "cmd": "show version",
         "search_patterns": [r"Real Time Operating System Software"],
@@ -169,6 +175,12 @@ SSH_MAPPER_DICT = {
     "hp_comware": {
         "cmd": "display version",
         "search_patterns": ["HPE Comware", "HP Comware"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "hp_procurve": {
+        "cmd": "show version",
+        "search_patterns": [r"Image stamp.*/code/build"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -382,7 +394,9 @@ class SSHDetect(object):
                     # WLC needs two different auto-dectect solutions
                     if "cisco_wlc_85" in best_match[0]:
                         best_match[0] = ("cisco_wlc", 99)
-
+                    # IOS XR needs two different auto-dectect solutions
+                    if "cisco_xr_2" in best_match[0]:
+                        best_match[0] = ("cisco_xr", 99)
                     self.connection.disconnect()
                     return best_match[0][0]
 
