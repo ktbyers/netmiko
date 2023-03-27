@@ -405,3 +405,12 @@ hillstone:
   version_banner: "Hillstone Networks StoneOS software"
   multiple_line_output: ""
   save_config: 'Saving configuration is finished'
+
+dnos:
+  base_prompt: FOO
+  router_prompt: FOO#
+  enable_prompt: FOO#
+  interface_ip: 10.220.88.39
+  version_banner: ""
+  commit_comment: 'Unit test on commit with comment'
+  multiple_line_output: ""

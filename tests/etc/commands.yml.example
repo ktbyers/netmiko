@@ -560,3 +560,12 @@ hillstone_stoneos:
   save_config_cmd: 'save all'
   save_config_confirm: True
   save_config_response: 'Saving configuration is finished'
+
+dnos:
+  version: "show system version"
+  basic: "show interfaces"
+  extended_output: "show config"
+  support_commit: True
+  config:
+    - "interfaces ge100-0/0/37 admin-state disabled"      # something you can verify has changed
+  config_verification: "show config interfaces ge100-0/0/37 | inc disabled"

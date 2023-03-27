@@ -2319,7 +2319,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_erase_display = chr(27) + r"\[2J"
         code_erase_display_0 = chr(27) + r"\[J"
         code_graphics_mode = chr(27) + r"\[\dm"
-        code_graphics_mode1 = chr(27) + r"\[\d\d;\d\dm"
+        code_graphics_mode1 = chr(27) + r"\[\d+;\d\dm"
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
         code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
         code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
