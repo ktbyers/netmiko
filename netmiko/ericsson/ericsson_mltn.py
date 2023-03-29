@@ -14,32 +14,32 @@ class EricssonMinilinkBase(BaseConnection):
         self,
         default_ssh_username: str = "cli",
         login_timeout: int = 20,
-        login_sleep_time: int = 0.1,
+        login_sleep_time: float = 0.1,
         login_sleep_multiplier: int = 5,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         self.login_timeout = login_timeout
         self.login_sleep_time = login_sleep_time
         self.login_sleep_multiplier = login_sleep_multiplier
 
         # Remove username from kwargs to avoid duplicates
-        self.real_username = None
+        self._real_username = ""
         if "username" in kwargs:
-            self.real_username = kwargs["username"]
-            kwargs.pop("username")
+            self._real_username = kwargs["username"]
+            kwargs["username"] = default_ssh_username
 
-        super().__init__(username=default_ssh_username, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Add back the username
-        if self.real_username:
-            kwargs["username"] = self.real_username
+        if self._real_username:
+            kwargs["username"] = self._real_username
 
     def _build_ssh_client(self) -> SSHClient:
         if not self.use_keys:
-            remote_conn_pre: SSHClient = SSHClient_noauth()
+            remote_conn_pre = SSHClient_noauth()
         else:
-            remote_conn_pre: SSHClient()
+            remote_conn_pre = SSHClient()
 
         if self.system_host_keys:
             remote_conn_pre.load_system_host_keys()
@@ -54,7 +54,7 @@ class EricssonMinilinkBase(BaseConnection):
             pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
         )
 
-    def special_login_handler(self) -> None:
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Handle Ericcsons Special MINI-LINK CLI login
         ------------------------------------------
         MINI-LINK <model>  Command Line Interface
@@ -80,7 +80,7 @@ class EricssonMinilinkBase(BaseConnection):
 
             # Special login handle
             if "login:" in output or "User:" in output:
-                self.write_channel(self.real_username + self.RETURN)
+                self.write_channel(self._real_username + self.RETURN)
             elif "password:" in output or "Password:" in output:
                 assert isinstance(self.password, str)
                 self.write_channel(self.password + self.RETURN)
@@ -93,10 +93,11 @@ class EricssonMinilinkBase(BaseConnection):
             time.sleep(self.login_sleep_time)
 
         else:  # no-break
-            msg = f"""Login process failed to device. Unable to login in {self.login_timeout} seconds"""
+            msg = f"""Login process failed to device:
+Timeout reached ({self.login_timeout} seconds)"""
             raise NetmikoTimeoutException(msg)
 
-    def commit():
+    def commit(self) -> str:
         pass
 
     def cleanup(self, command: str = "exit") -> None:
@@ -109,16 +110,15 @@ class EricssonMinilink63SSH(EricssonMinilinkBase):
     """Common Methods for Ericsson Minilink 63XX (SSH)"""
 
     def check_config_mode(
-        self,
-        check_string: str = ")#",
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
     ) -> bool:
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
-        self,
-        config_command: str = "config",
-        pattern: str = r"[)#]",
-    ) -> None:
+        self, config_command: str = "config", pattern: str = r"[)#]", re_flags: int = 0
+    ) -> str:
         """
         Enter Configuration Mode
 
@@ -128,8 +128,8 @@ class EricssonMinilink63SSH(EricssonMinilinkBase):
         if self.check_config_mode():
             return
 
-        self.write_channel(self.normalize_cmd(config_command))
-        self.read_until_pattern(pattern)
+        self.write_channel(self.normalize_cmd(command=config_command))
+        self.read_until_pattern(pattern=pattern, re_flags=re_flags)
 
         if not self.check_config_mode():
             raise ValueError("Failed to enter configuration mode.")
@@ -138,14 +138,14 @@ class EricssonMinilink63SSH(EricssonMinilinkBase):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(
-        self, cmd: str = "write", confirm: bool = False, confirm_response=""
+        self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Save Config for Ericsson Minilink"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
-    def commit(self):
+    def commit(self) -> str:
         if self.check_config_mode():
             self.exit_config_mode()
 
@@ -158,16 +158,18 @@ class EricssonMinilink66SSH(EricssonMinilinkBase):
     """Common Methods for Ericsson Minilink 66XX (SSH)"""
 
     def check_config_mode(
-        self,
-        check_string: str = ")#",
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
     ) -> bool:
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
         self,
         config_command: str = "configure",
         pattern: str = r"[)#]",
-    ) -> None:
+        re_flags: int = 0,
+    ) -> str:
         """
         Enter Configuration Mode
 
@@ -177,8 +179,8 @@ class EricssonMinilink66SSH(EricssonMinilinkBase):
         if self.check_config_mode():
             return
 
-        self.write_channel(self.normalize_cmd(config_command))
-        self.read_until_pattern(pattern)
+        self.write_channel(self.normalize_cmd(command=config_command))
+        self.read_until_pattern(pattern=pattern, re_flags=re_flags)
 
         if not self.check_config_mode():
             raise ValueError("Failed to enter configuration mode.")
@@ -187,14 +189,14 @@ class EricssonMinilink66SSH(EricssonMinilinkBase):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(
-        self, cmd: str = "write", confirm: bool = False, confirm_response=""
+        self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Save Config for Ericsson Minilink"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
-    def commit(self):
+    def commit(self) -> str:
         if self.check_config_mode():
             self.exit_config_mode()
 
