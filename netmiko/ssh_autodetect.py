@@ -100,6 +100,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cisco_ap": {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco AP Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_ios": {
         "cmd": "show version",
         "search_patterns": [
