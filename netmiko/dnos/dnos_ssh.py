@@ -187,11 +187,13 @@ class DnosSSH(BaseConnection):
         else:
             return prompt
 
-    def _enter_shell(self) -> str:
+    def _enter_shell(self,ncc=None) -> str:
         """Enter the Bourne Shell of the routing-engine container on the
-        active NCC"""
+        active NCC by default. If you need to Enter to a specific NCC please provide NCC id(0 or 1)"""
 
         cmd: str = "run start shell ncc active"
+        if ncc:
+            cmd: str = f"run start shell ncc {ncc}"
         output: str = ""
         pattern: str = "ssword"
         msg = "Failed to enter the shell mode"
