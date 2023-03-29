@@ -17,6 +17,13 @@ cisco_asa_21:               # the device_name does not have to match the device 
   password: cisco123
   secret: cisco123
 
+cisco_ap:
+  device_type: cisco_ap
+  ip: 10.10.10.100
+  username: admin
+  password: cisco123
+  secret: cisco123
+
 arista_eos:
   device_type: arista_eos
   ip: 10.10.10.12
