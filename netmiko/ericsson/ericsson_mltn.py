@@ -1,6 +1,7 @@
 """Ericsson MiniLink driver."""
 import time
 from os import path
+from typing import Any
 from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
 from netmiko.base_connection import BaseConnection
@@ -16,8 +17,8 @@ class EricssonMinilinkBase(BaseConnection):
         login_timeout: int = 20,
         login_sleep_time: float = 0.1,
         login_sleep_multiplier: int = 5,
-        *args,
-        **kwargs,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         self.login_timeout = login_timeout
         self.login_sleep_time = login_sleep_time
@@ -36,6 +37,7 @@ class EricssonMinilinkBase(BaseConnection):
             kwargs["username"] = self._real_username
 
     def _build_ssh_client(self) -> SSHClient:
+        remote_conn_pre: SSHClient
         if not self.use_keys:
             remote_conn_pre = SSHClient_noauth()
         else:
@@ -97,9 +99,6 @@ class EricssonMinilinkBase(BaseConnection):
 Timeout reached ({self.login_timeout} seconds)"""
             raise NetmikoTimeoutException(msg)
 
-    def commit(self) -> str:
-        pass
-
     def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         self._session_log_fin = True
@@ -125,14 +124,17 @@ class EricssonMinilink63SSH(EricssonMinilinkBase):
         This is intended for the ML6600 series traffic node. This driver should work
         with the ML6300 series aswell, but they do not implement a config mode.
         """
+        output = ""
         if self.check_config_mode():
-            return
+            return output
 
         self.write_channel(self.normalize_cmd(command=config_command))
-        self.read_until_pattern(pattern=pattern, re_flags=re_flags)
+        output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
 
         if not self.check_config_mode():
             raise ValueError("Failed to enter configuration mode.")
+
+        return output
 
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = "#") -> str:
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
@@ -176,14 +178,17 @@ class EricssonMinilink66SSH(EricssonMinilinkBase):
         This is intended for the ML6600 series traffic node. This driver should work
         with the ML6300 series aswell, but they do not implement a config mode.
         """
+        output = ""
         if self.check_config_mode():
-            return
+            return output
 
         self.write_channel(self.normalize_cmd(command=config_command))
-        self.read_until_pattern(pattern=pattern, re_flags=re_flags)
+        output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
 
         if not self.check_config_mode():
             raise ValueError("Failed to enter configuration mode.")
+
+        return output
 
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = "#") -> str:
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
