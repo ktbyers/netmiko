@@ -72,6 +72,7 @@ from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5TmshSSH
 from netmiko.f5 import F5LinuxSSH
+from netmiko.fiberstore import FiberStoreConnectSSH
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
@@ -207,6 +208,7 @@ CLASS_MAPPER_BASE = {
     "f5_ltm": F5TmshSSH,
     "f5_tmsh": F5TmshSSH,
     "f5_linux": F5LinuxSSH,
+    "fiberstore": FiberStoreConnectSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
     "generic": GenericSSH,
