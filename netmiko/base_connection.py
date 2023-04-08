@@ -141,6 +141,7 @@ class BaseConnection:
         secret: str = "",
         port: Optional[int] = None,
         device_type: str = "",
+        try_alternative: Optional[bool] = False,
         verbose: bool = False,
         global_delay_factor: float = 1.0,
         global_cmd_verify: Optional[bool] = None,
@@ -205,6 +206,9 @@ class BaseConnection:
                 device.
 
         :param device_type: Class selection based on device type.
+
+        :param try_alternative: If True, when an SSH connection fails,
+                try connecting using Telnet and vice versa.
 
         :param verbose: Enable additional messages to standard output.
 
@@ -332,6 +336,7 @@ class BaseConnection:
         self.password = password
         self.secret = secret
         self.device_type = device_type
+        self.try_alternative = try_alternative
         self.ansi_escape_codes = False
         self.verbose = verbose
         self.auth_timeout = auth_timeout
@@ -648,7 +653,6 @@ where x is the total number of seconds to wait before timing out.\n"""
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time < read_timeout) or (not read_timeout):
-
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
@@ -1429,7 +1433,6 @@ A paramiko SSHException occurred during connection creation:
         return output
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
-
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
             pattern=re.escape(cmd), read_timeout=read_timeout

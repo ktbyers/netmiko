@@ -373,7 +373,23 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
             "currently supported platforms are: {}".format(msg_str)
         )
     ConnectionClass = ssh_dispatcher(device_type)
-    return ConnectionClass(*args, **kwargs)
+    try:
+        return ConnectionClass(*args, **kwargs)
+    except (NetmikoTimeoutException, ConnectionRefusedError):
+        if kwargs.get("try_alternative"):
+            if device_type in platforms_str:
+                telnet_device = device_type + "_telnet"
+                if telnet_device in telnet_platforms_str:
+                    kwargs["device_type"] = telnet_device
+                    ConnectionClass = ssh_dispatcher(telnet_device)
+            elif device_type in telnet_platforms_str:
+                ssh_device = device_type.replace("_telnet", "")
+                if ssh_device in platforms_str:
+                    kwargs["device_type"] = ssh_device
+                    ConnectionClass = ssh_dispatcher(ssh_device)
+            return ConnectionClass(*args, **kwargs)
+        else:
+            raise
 
 
 def ConnLogOnly(
@@ -435,7 +451,6 @@ def ConnLogOnly(
 def ConnUnify(
     **kwargs: Any,
 ) -> "BaseConnection":
-
     try:
         kwargs["auto_connect"] = False
         net_connect = ConnectHandler(**kwargs)
