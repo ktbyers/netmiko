@@ -11,6 +11,8 @@ from netmiko import log
 
 
 class HuaweiBase(NoEnable, CiscoBaseConnection):
+    prompt_pattern = r"[\]>]"
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -90,10 +92,48 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
     def save_config(
         self, cmd: str = "save", confirm: bool = True, confirm_response: str = "y"
     ) -> str:
-        """Save Config for HuaweiSSH"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        """Save Config for HuaweiSSH
+
+        Expected behavior:
+
+        ######################################################################
+        Warning: The current configuration will be written to the device.
+        Are you sure to continue?[Y/N]:y
+         It will take several minutes to save configuration file, please wait.....................
+         Configuration file had been saved successfully
+         Note: The configuration file will take effect after being activated
+        ######################################################################
+        """
+
+        # Huawei devices might break if you try to use send_command_timing() so use send_command()
+        # instead.
+        if confirm:
+            pattern = rf"(?:Are you sure|{self.prompt_pattern})"
+            output = self._send_command_str(
+                command_string=cmd,
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+            if confirm_response and "Are you sure" in output:
+                output += self._send_command_str(
+                    command_string=confirm_response,
+                    expect_string=self.prompt_pattern,
+                    strip_prompt=False,
+                    strip_command=False,
+                    read_timeout=100.0,
+                )
+        # no confirm.
+        else:
+            # Some devices are slow so match on trailing-prompt if you can
+            output = self._send_command_str(
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+        return output
 
     def cleanup(self, command: str = "quit") -> None:
         return super().cleanup(command=command)
@@ -106,11 +146,13 @@ class HuaweiSSH(HuaweiBase):
         # Huawei prompts for password change before displaying the initial base prompt.
         # Search for that password change prompt or for base prompt.
         password_change_prompt = r"(Change now|Please choose)"
-        prompt_or_password_change = r"(?:Change now|Please choose|[>\]])"
+        prompt_or_password_change = (
+            rf"(?:Change now|Please choose|{self.prompt_pattern})"
+        )
         data = self.read_until_pattern(pattern=prompt_or_password_change)
         if re.search(password_change_prompt, data):
             self.write_channel("N" + self.RETURN)
-            self.read_until_pattern(pattern=r"[>\]]")
+            self.read_until_pattern(pattern=self.prompt_pattern)
 
 
 class HuaweiTelnet(HuaweiBase):
