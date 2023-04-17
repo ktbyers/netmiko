@@ -1,11 +1,13 @@
+from typing import Optional
 from netmiko.base_connection import BaseConnection
+from netmiko.no_enable import NoEnable
 import time
 import re
 from netmiko import log
 
 
-class TeldatBase(BaseConnection):
-    def session_preparation(self):
+class TeldatBase(NoEnable, BaseConnection):
+    def session_preparation(self) -> None:
         # Prompt is "*"
         self._test_channel_read(pattern=r"\*")
         self.set_base_prompt()
@@ -13,13 +15,23 @@ class TeldatBase(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def disable_paging(self):
+    def disable_paging(
+        self,
+        command: str = "",
+        delay_factor: Optional[float] = None,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -> str:
         """Teldat doesn't have pagging"""
-        pass
+        return ""
 
     def set_base_prompt(
-        self, pri_prompt_terminator="*", alt_prompt_terminator="*", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = "*",
+        alt_prompt_terminator: str = "*",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
         """
         Teldat base prompt is "hostname *"
         """
@@ -29,28 +41,21 @@ class TeldatBase(BaseConnection):
             delay_factor=delay_factor,
         )
 
-    def cleanup(self, command="logout"):
+    def cleanup(self, command: str = "logout") -> None:
         """Gracefully exit the SSH session."""
-        self.base_mode()
+        self._base_mode()
         # Always try to send final 'logout'.
         self._session_log_fin = True
         self.write_channel(command + self.RETURN)
         self.write_channel("yes" + self.RETURN)
 
-    def enable(self, *args, **kwargs):
-        raise AttributeError("Teldat does not have enable mode")
-
-    def check_enable_mode(self, *args, **kwargs):
-        raise AttributeError("Teldat does not have enable mode")
-
-    def exit_enable_mode(self, *args, **kwargs):
-        raise AttributeError("Teldat does not have enable mode")
-
-    def check_monitor_mode(self, check_string="+", pattern=None):
+    def _check_monitor_mode(self, check_string: str="+", pattern: str = "") -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def check_config_mode(self, check_string=">", pattern=None):
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+    def check_config_mode(
+        self, check_string: str = ">", pattern: str = "", force_regex: bool = False
+    ) -> bool:
+        return super().check_config_mode(check_string=check_string, pattern=pattern, force_regex=force_regex)
 
     def check_running_config_mode(self, check_string="$", pattern=None):
         return super().check_config_mode(check_string=check_string, pattern=pattern)
@@ -62,7 +67,7 @@ class TeldatBase(BaseConnection):
         Cannot reuse super.config_mode() because config mode check is called only with
         defaults in BaseConnection
         """
-        self.base_mode()  # Teldat does not allow mode switching, go to base mode first
+        self._base_mode()  # Teldat does not allow mode switching, go to base mode first
 
         output = ""
         self.write_channel(self.normalize_cmd(monitor_command))
@@ -73,13 +78,13 @@ class TeldatBase(BaseConnection):
             )
         if not re.search(pattern, output, flags=re_flags):
             output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
-        if not self.check_monitor_mode():
+        if not self._check_monitor_mode():
             raise ValueError("Failed to enter monitor mode.")
         return output
 
     def config_mode(self, config_command="p 4", pattern="onfig>", re_flags=0):
         # TODO: consider reusing monitor_mode
-        self.base_mode()
+        self._base_mode()
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
@@ -88,7 +93,7 @@ class TeldatBase(BaseConnection):
         """
         Enter running config mode
         """
-        self.base_mode()
+        self._base_mode()
 
         output = ""
         self.write_channel(self.normalize_cmd(config_command))
@@ -130,9 +135,9 @@ class TeldatBase(BaseConnection):
         return output
 
     def exit_config_mode(self):
-        return self.base_mode()
+        return self._base_mode()
 
-    def base_mode(self, exit_cmd="\x10", pattern=r"\*"):
+    def _base_mode(self, exit_cmd: str ="\x10", pattern: str =r"\*") -> str:
         """
         Exit from other modes (monitor, config, running config).
         Send CTRL+P to the device
@@ -141,7 +146,7 @@ class TeldatBase(BaseConnection):
         self.write_channel(self.normalize_cmd(exit_cmd))
         # Teldat - exit_cmd not printable
         output += self.read_until_pattern(pattern=pattern)
-        log.debug(f"base_mode: {output}")
+        log.debug(f"_base_mode: {output}")
         return output
 
 
