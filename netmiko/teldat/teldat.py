@@ -4,7 +4,7 @@ import re
 from netmiko import log
 
 
-class TeldatSSH(BaseConnection):
+class TeldatBase(BaseConnection):
     def session_preparation(self):
         # Prompt is "*"
         self._test_channel_read(pattern=r"\*")
@@ -132,3 +132,11 @@ class TeldatSSH(BaseConnection):
         output += self.read_until_pattern(pattern=pattern)
         log.debug(f"base_mode: {output}")
         return output
+
+
+class TeldatSSH(TeldatBase):
+    pass
+
+
+class TeldatTelnet(TeldatBase):
+    pass
