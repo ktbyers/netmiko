@@ -38,8 +38,12 @@ Examples
 >>> remote_device['device_type'] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
+from typing import Any, List, Optional, Union, Dict
 import re
 import time
+
+import paramiko
+
 from netmiko.ssh_dispatcher import ConnectHandler
 from netmiko.base_connection import BaseConnection
 
@@ -47,7 +51,7 @@ from netmiko.base_connection import BaseConnection
 # 'dispatch' key is the SSHDetect method to call. dispatch key will be popped off dictionary
 # remaining keys indicate kwargs that will be passed to dispatch method.
 # Note, the 'cmd' needs to avoid output paging.
-SSH_MAPPER_BASE = {
+SSH_MAPPER_DICT = {
     "alcatel_aos": {
         "cmd": "show system",
         "search_patterns": [r"Alcatel-Lucent"],
@@ -72,6 +76,24 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "arris_cer": {
+        "cmd": "show version",
+        "search_patterns": [r"CER"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "casa_cmts": {
+        "cmd": "show version",
+        "search_patterns": [r"Casa"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "ciena_saos": {
+        "cmd": "software show",
+        "search_patterns": [r"saos"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_asa": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
@@ -87,6 +109,12 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cisco_xe": {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco IOS XE Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_nxos": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS"],
@@ -95,6 +123,12 @@ SSH_MAPPER_BASE = {
     },
     "cisco_xr": {
         "cmd": "show version",
+        "search_patterns": [r"Cisco IOS XR"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "cisco_xr_2": {
+        "cmd": "show version brief",
         "search_patterns": [r"Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -140,7 +174,13 @@ SSH_MAPPER_BASE = {
     },
     "hp_comware": {
         "cmd": "display version",
-        "search_patterns": ["HPE Comware"],
+        "search_patterns": ["HPE Comware", "HP Comware"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "hp_procurve": {
+        "cmd": "show version",
+        "search_patterns": [r"Image stamp.*/code/build"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -170,15 +210,33 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "brocade_netiron": {
+    "ericsson_ipos": {
         "cmd": "show version",
-        "search_patterns": [r"NetIron"],
+        "search_patterns": [r"Ericsson IPOS Version"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_exos": {
+        "cmd": "show version",
+        "search_patterns": [r"ExtremeXOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_netiron": {
+        "cmd": "show version",
+        "search_patterns": [r"(NetIron|MLX)"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     "extreme_slx": {
         "cmd": "show version",
         "search_patterns": [r"SLX-OS Operating System Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_tierra": {
+        "cmd": "show version",
+        "search_patterns": [r"TierraOS Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -192,6 +250,12 @@ SSH_MAPPER_BASE = {
         "cmd": "",
         "dispatch": "_autodetect_remote_version",
         "search_patterns": [r"CISCO_WLC"],
+        "priority": 99,
+    },
+    "cisco_wlc_85": {
+        "cmd": "show inventory",
+        "dispatch": "_autodetect_std",
+        "search_patterns": [r"Cisco.*Wireless.*Controller"],
         "priority": 99,
     },
     "mellanox_mlnxos": {
@@ -208,7 +272,7 @@ SSH_MAPPER_BASE = {
     },
     "fortinet": {
         "cmd": "get system status",
-        "search_patterns": [r"FortiOS"],
+        "search_patterns": [r"FortiOS", r"FortiGate"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -218,18 +282,44 @@ SSH_MAPPER_BASE = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "supermicro_smis": {
+        "cmd": "show system info",
+        "search_patterns": [r"Super Micro Computer"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "flexvnf": {
+        "cmd": "show system package-info",
+        "search_patterns": [r"Versa FlexVNF"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "cisco_viptela": {
+        "cmd": "show system status",
+        "search_patterns": [r"Viptela, Inc"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "oneaccess_oneos": {
+        "cmd": "show version",
+        "search_patterns": [r"OneOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
-# Sort SSH_MAPPER_BASE such that the most common commands are first
-cmd_count = {}
-for k, v in SSH_MAPPER_BASE.items():
-    count = cmd_count.setdefault(v["cmd"], 0)
-    cmd_count[v["cmd"]] = count + 1
+# Sort SSH_MAPPER_DICT such that the most common commands are first
+cmd_count: Dict[str, int] = {}
+for k, v in SSH_MAPPER_DICT.items():
+    my_cmd = v["cmd"]
+    assert isinstance(my_cmd, str)
+    count = cmd_count.setdefault(my_cmd, 0)
+    cmd_count[my_cmd] = count + 1
 cmd_count = {k: v for k, v in sorted(cmd_count.items(), key=lambda item: item[1])}
 
-# SSH_MAPPER_BASE will be a list after this
+# SSH_MAPPER_BASE is a list
 SSH_MAPPER_BASE = sorted(
-    SSH_MAPPER_BASE.items(), key=lambda item: int(cmd_count[item[1]["cmd"]])
+    SSH_MAPPER_DICT.items(), key=lambda item: int(cmd_count[str(item[1]["cmd"])])
 )
 SSH_MAPPER_BASE.reverse()
 
@@ -261,7 +351,7 @@ class SSHDetect(object):
         Try to determine the device type.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Constructor of the SSHDetect class
         """
@@ -270,13 +360,17 @@ class SSHDetect(object):
         # Always set cmd_verify to False for autodetect
         kwargs["global_cmd_verify"] = False
         self.connection = ConnectHandler(*args, **kwargs)
+
+        # Add additional sleep to let the login complete.
+        time.sleep(3)
+
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
         self.initial_buffer = output
-        self.potential_matches = {}
-        self._results_cache = {}
+        self.potential_matches: Dict[str, int] = {}
+        self._results_cache: Dict[str, str] = {}
 
-    def autodetect(self):
+    def autodetect(self) -> Union[str, None]:
         """
         Try to guess the best 'device_type' based on patterns defined in SSH_MAPPER_BASE
 
@@ -288,6 +382,7 @@ class SSHDetect(object):
         for device_type, autodetect_dict in SSH_MAPPER_BASE:
             tmp_dict = autodetect_dict.copy()
             call_method = tmp_dict.pop("dispatch")
+            assert isinstance(call_method, str)
             autodetect_method = getattr(self, call_method)
             accuracy = autodetect_method(**tmp_dict)
             if accuracy:
@@ -296,6 +391,12 @@ class SSHDetect(object):
                     best_match = sorted(
                         self.potential_matches.items(), key=lambda t: t[1], reverse=True
                     )
+                    # WLC needs two different auto-dectect solutions
+                    if "cisco_wlc_85" in best_match[0]:
+                        best_match[0] = ("cisco_wlc", 99)
+                    # IOS XR needs two different auto-dectect solutions
+                    if "cisco_xr_2" in best_match[0]:
+                        best_match[0] = ("cisco_xr", 99)
                     self.connection.disconnect()
                     return best_match[0][0]
 
@@ -309,7 +410,7 @@ class SSHDetect(object):
         self.connection.disconnect()
         return best_match[0][0]
 
-    def _send_command(self, cmd=""):
+    def _send_command(self, cmd: str = "") -> str:
         """
         Handle reading/writing channel directly. It is also sanitizing the output received.
 
@@ -325,11 +426,11 @@ class SSHDetect(object):
         """
         self.connection.write_channel(cmd + "\n")
         time.sleep(1)
-        output = self.connection._read_channel_timing()
+        output = self.connection.read_channel_timing(last_read=6.0)
         output = self.connection.strip_backspaces(output)
         return output
 
-    def _send_command_wrapper(self, cmd):
+    def _send_command_wrapper(self, cmd: str) -> str:
         """
         Send command to the remote device with a caching feature to avoid sending the same command
         twice based on the SSH_MAPPER_BASE dict cmd key.
@@ -353,8 +454,12 @@ class SSHDetect(object):
             return cached_results
 
     def _autodetect_remote_version(
-        self, search_patterns=None, re_flags=re.IGNORECASE, priority=99, **kwargs
-    ):
+        self,
+        search_patterns: Optional[List[str]] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+        **kwargs: Any
+    ) -> int:
         """
         Method to try auto-detect the device type, by matching a regular expression on the reported
         remote version of the SSH server.
@@ -375,7 +480,10 @@ class SSHDetect(object):
             return 0
 
         try:
-            remote_version = self.connection.remote_conn.transport.remote_version
+            remote_conn = self.connection.remote_conn
+            assert isinstance(remote_conn, paramiko.Channel)
+            assert remote_conn.transport is not None
+            remote_version = remote_conn.transport.remote_version
             for pattern in invalid_responses:
                 match = re.search(pattern, remote_version, flags=re.I)
                 if match:
@@ -389,8 +497,12 @@ class SSHDetect(object):
         return 0
 
     def _autodetect_std(
-        self, cmd="", search_patterns=None, re_flags=re.IGNORECASE, priority=99
-    ):
+        self,
+        cmd: str = "",
+        search_patterns: Optional[List[str]] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+    ) -> int:
         """
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
@@ -415,6 +527,7 @@ class SSHDetect(object):
             r"%Error",
             r"command not found",
             r"Syntax Error: unexpected argument",
+            r"% Unrecognized command found at",
         ]
         if not cmd or not search_patterns:
             return 0

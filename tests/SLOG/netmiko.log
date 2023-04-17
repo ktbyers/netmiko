@@ -1,0 +1,131 @@
+write_channel: b'\n'
+read_channel: 
+read_channel: 
+cisco1>
+Pattern found: (cisco1.*) 
+cisco1>
+write_channel: b'enable\n'
+read_channel: 
+read_channel: enable
+Password: 
+Pattern found: (enable) enable
+read_channel: 
+Pattern found: ((?:cisco1|ssword)) 
+Password
+write_channel: b'********\n'
+read_channel: 
+read_channel: 
+read_channel: 
+cisco1#
+Pattern found: (cisco1) : 
+cisco1
+write_channel: b'\n'
+read_channel: 
+read_channel: 
+cisco1#
+Pattern found: (cisco1.*) #
+cisco1#
+read_channel: 
+write_channel: b'\n'
+read_channel: 
+read_channel: 
+cisco1#
+Pattern found: ([>#]) 
+cisco1#
+write_channel: b'exit\n'
+write_channel: b'\n'
+write_channel: b'terminal width 511\n'
+read_channel: 
+cisco1>
+cisco1>
+read_channel: terminal widt
+read_channel: h 511
+cisco1>
+Pattern found: (terminal width 511) 
+cisco1>
+cisco1>terminal width 511
+In disable_paging
+Command: terminal length 0
+
+write_channel: b'terminal length 0\n'
+read_channel: 
+read_channel: terminal lengt
+read_channel: h 0
+cisco1>
+Pattern found: (terminal\ length\ 0) 
+cisco1>terminal length 0
+
+cisco1>terminal length 0
+Exiting disable_paging
+read_channel: 
+Clear buffer detects data in the channel
+read_channel: 
+write_channel: b'\n'
+read_channel: 
+read_channel: 
+cisco1>
+Pattern found: (\#|>) 
+cisco1>
+read_channel: 
+[find_prompt()]: prompt is cisco1>
+write_channel: b'\n'
+write_channel: b'terminal width 511\n'
+read_channel: cisco1>
+cisco1>
+read_channel: terminal wid
+read_channel: th 511
+cisco1>
+Pattern found: (terminal width 511) cisco1>
+cisco1>terminal width 511
+In disable_paging
+Command: terminal length 0
+
+write_channel: b'terminal length 0\n'
+read_channel: 
+read_channel: terminal lengt
+read_channel: h 0
+cisco1>
+Pattern found: (terminal\ length\ 0) 
+cisco1>terminal length 0
+
+cisco1>terminal length 0
+Exiting disable_paging
+read_channel: 
+Clear buffer detects data in the channel
+read_channel: 
+write_channel: b'\n'
+read_channel: 
+read_channel: 
+cisco1>
+Pattern found: (\#|>) 
+cisco1>
+read_channel: 
+[find_prompt()]: prompt is cisco1>
+read_channel: 
+read_channel: 
+write_channel: b'\n'
+read_channel: 
+cisco1>
+read_channel: 
+[find_prompt()]: prompt is cisco1>
+write_channel: b'show ip interface brief\n'
+read_channel: 
+read_channel: show ip inter
+read_channel: face brief
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0              unassigned      YES unset  down                  down    
+FastEthernet1              unassigned      YES unset  down                  down    
+FastEthernet2              unassigned      YES unset  down                  down    
+FastEthernet3              unassigned      YES unset  down                  down    
+FastEthernet4              10.220.88.20    YES NVRAM  up                    up      
+Vlan1                      unassigned      YES unset  down                  down    
+cisco1>
+Pattern found: (show\ ip\ interface\ brief) show ip interface brief
+read_channel: 
+write_channel: b'\n'
+read_channel: 
+read_channel: 
+cisco1>
+Pattern found: ([>#]) 
+cisco1>
+write_channel: b'exit\n'

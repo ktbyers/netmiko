@@ -6,11 +6,14 @@ from os.path import dirname, join, relpath
 import pytest
 
 from netmiko import utilities
-from netmiko._textfsm import _clitable as clitable
+from textfsm import clitable
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
 RELATIVE_RESOURCE_FOLDER = join(dirname(dirname(relpath(__file__))), "etc")
 CONFIG_FILENAME = join(RESOURCE_FOLDER, ".netmiko.yml")
+
+is_linux = sys.platform == "linux" or sys.platform == "linux2"
+skip_if_not_linux = pytest.mark.skipif(not is_linux, reason="Test Requires Linux")
 
 
 def test_load_yaml_file():
@@ -196,8 +199,13 @@ def test_textfsm_w_index():
         raw_output, platform="cisco_ios", command="show version"
     )
     assert result == [{"model": "4500"}]
+    result = utilities.get_structured_data_textfsm(
+        raw_output, platform="cisco_ios", command="show version"
+    )
+    assert result == [{"model": "4500"}]
 
 
+@skip_if_not_linux
 def test_ntc_templates_discovery():
     """
     Verify Netmiko uses proper ntc-templates:
@@ -220,16 +228,20 @@ def test_ntc_templates_discovery():
     ntc_path = utilities.get_template_dir()
     for py_path in sys.path:
         if "site-packages" in py_path:
+            _, suffix = py_path.split("site-packages")
+            if len(suffix) > 1:  # Should be "" or "/"
+                continue
             packages_dir = py_path
             break
     assert ntc_path == f"{packages_dir}/ntc_templates/templates"
 
     # Next should use local index file in ~
-    home_dir = os.path.expanduser("~")
     # Will not work for CI-CD without pain so just test locally
-    if "kbyers" in home_dir:
+    environment = os.getenv("environment", "local")
+    if environment != "gh_actions":
+        home_dir = os.path.expanduser("~")
         ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
-        assert ntc_path == f"{home_dir}/ntc-templates/templates"
+        assert ntc_path == f"{home_dir}/ntc-templates/ntc_templates/templates"
     else:
         with pytest.raises(ValueError):
             ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
@@ -239,7 +251,7 @@ def test_textfsm_index_relative_path():
     """Test relative path for textfsm ntc directory"""
     os.environ["NET_TEXTFSM"] = RELATIVE_RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
-    result = utilities.get_structured_data(
+    result = utilities.get_structured_data_textfsm(
         raw_output, platform="cisco_ios", command="show version"
     )
     assert result == [{"model": "4500"}]
@@ -248,7 +260,7 @@ def test_textfsm_index_relative_path():
 def test_textfsm_direct_template():
     """Convert raw CLI output to structured data using TextFSM template (no index)."""
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
-    result = utilities.get_structured_data(
+    result = utilities.get_structured_data_textfsm(
         raw_output,
         platform="cisco_ios",
         command="show version",
@@ -257,7 +269,7 @@ def test_textfsm_direct_template():
     assert result == [{"model": "4500"}]
 
     # Should also work with no-platform or command
-    result = utilities.get_structured_data(
+    result = utilities.get_structured_data_textfsm(
         raw_output, template=f"{RESOURCE_FOLDER}/cisco_ios_show_version.template"
     )
     assert result == [{"model": "4500"}]
@@ -266,7 +278,7 @@ def test_textfsm_direct_template():
 def test_textfsm_failed_parsing():
     """Verify raw_output is returned if TextFSM template parsing fails."""
     raw_output = "This is not 'show version' output"
-    result = utilities.get_structured_data(
+    result = utilities.get_structured_data_textfsm(
         raw_output,
         platform="cisco_ios",
         command="show version",
@@ -278,7 +290,7 @@ def test_textfsm_failed_parsing():
 def test_textfsm_missing_template():
     """Verify raw_output is returned if TextFSM template is missing."""
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
-    result = utilities.get_structured_data(
+    result = utilities.get_structured_data_textfsm(
         raw_output,
         platform="cisco_ios",
         command="show version",
@@ -365,3 +377,55 @@ Configuration register is 0xF
         raw_output, platform="cisco_xe", command="show version"
     )
     assert result["version"]["chassis"] == "WS-C3560CX-8PC-S"
+
+
+@pytest.mark.parametrize(
+    "max_loops,delay_factor,timeout,result",
+    [
+        (500, 1.0, 100, 100.0),  # Defaults, should be 100 seconds
+        (500, 1.0, 90, 90.0),  # Defaults except NAPALM overrode timeout
+        (500, 0.1, 100, 10.0),  # Defaults, fast_cli should be 10 seconds
+        (500, 5, 100, 500.0),  # delay_factor=5 (5x the total sleep)
+        (1500, 5, 100, 1500.0),  # delay_factor=5, max_loops=1500 (15x the total sleep)
+        (500, 2, 100, 200.0),  # delay_factor=2
+        (500, 10, 100, 1000.0),  # delay_factor=10
+    ],
+)
+def test_delay_factor_compat(max_loops, delay_factor, timeout, result):
+
+    read_timeout = utilities.calc_old_timeout(
+        max_loops=max_loops,
+        delay_factor=delay_factor,
+        loop_delay=0.2,
+        old_timeout=timeout,
+    )
+    print(read_timeout)
+    assert read_timeout == result
+
+
+def test_nokia_context_filter():
+    data = [
+        "(ex)[configure aaa]",
+        "*(ex)[configure aaa]",
+        "!(ex)[configure aaa]",
+        "[]",
+        '(ex)[configure router "Base" bgp]',
+        "(ro)[]",
+        "(ex)[]",
+        '[show router "Base" bgp]',
+        '!*[pr:configure router "Base" bgp]',
+    ]
+
+    results = []
+
+    for test_case in data:
+        out = utilities.nokia_context_filter(test_case)
+        results.append(out)
+
+    # All strings in results should be null-string
+    assert any(results) is False
+
+    # Create a case that won't be stripped
+    test_case = 'foo[show router "Base" bgp]'
+    out = utilities.nokia_context_filter(test_case)
+    assert out != ""

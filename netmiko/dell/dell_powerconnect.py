@@ -1,50 +1,56 @@
 """Dell PowerConnect Driver."""
+from typing import Optional
 from paramiko import SSHClient
 import time
 from os import path
+from netmiko.ssh_auth import SSHClient_noauth
 from netmiko.cisco_base_connection import CiscoBaseConnection
-
-
-class SSHClient_noauth(SSHClient):
-    def _auth(self, username, *args):
-        self._transport.auth_none(username)
-        return
 
 
 class DellPowerConnectBase(CiscoBaseConnection):
     """Dell PowerConnect Driver."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read()
+        self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="terminal datadump")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
     def set_base_prompt(
-        self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = ">",
+        alt_prompt_terminator: str = "#",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
         prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
         prompt = prompt.strip()
         self.base_prompt = prompt
         return self.base_prompt
 
-    def check_config_mode(self, check_string="(config)#"):
+    def check_config_mode(
+        self,
+        check_string: str = "(config)#",
+        pattern: str = "",
+        force_regex: bool = False,
+    ) -> bool:
         """Checks if the device is in configuration mode"""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="config"):
-        """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+    def config_mode(
+        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
 
 class DellPowerConnectSSH(DellPowerConnectBase):
@@ -54,13 +60,14 @@ class DellPowerConnectSSH(DellPowerConnectBase):
     If we use login/password, the ssh server use the (none) auth mechanism.
     """
 
-    def _build_ssh_client(self):
+    def _build_ssh_client(self) -> SSHClient:
         """Prepare for Paramiko SSH connection.
 
         See base_connection.py file for any updates.
         """
         # Create instance of SSHClient object
         # If user does not provide SSH key, we use noauth
+        remote_conn_pre: SSHClient
         if not self.use_keys:
             remote_conn_pre = SSHClient_noauth()
         else:
@@ -76,7 +83,7 @@ class DellPowerConnectSSH(DellPowerConnectBase):
         remote_conn_pre.set_missing_host_key_policy(self.key_policy)
         return remote_conn_pre
 
-    def special_login_handler(self, delay_factor=1):
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """
         Powerconnect presents with the following on login
 
@@ -92,8 +99,10 @@ class DellPowerConnectSSH(DellPowerConnectBase):
             output = self.read_channel()
             if output:
                 if "User Name:" in output:
+                    assert isinstance(self.username, str)
                     self.write_channel(self.username + self.RETURN)
                 elif "Password:" in output:
+                    assert isinstance(self.password, str)
                     self.write_channel(self.password + self.RETURN)
                     break
                 time.sleep(delay_factor * 1)

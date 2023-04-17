@@ -101,6 +101,12 @@ dellos10:
   username: admin
   password: admin
 
+dell_sonic:
+  device_type: dell_sonic
+  ip: 192.168.23.130
+  username: admin
+  password: admin
+
 pluribus:
   device_type: pluribus_ssh
   ip: 172.17.19.1
@@ -204,6 +210,12 @@ centec_os:
   password: centec
   secret: centec
 
+supermicro_nos:
+  device_type: supermicro_nos
+  ip: 192.168.10.15
+  username: ADMIN
+  password: ADMIN
+
 sophos_sfos:
   device_type: sophos_sfos
   ip: 172.16.16.16
@@ -239,3 +251,47 @@ ubiquiti_edgerouter:
   ip: 192.168.1.1
   username: ubnt
   password: ubnt
+
+zyxel:
+  device_type: zyxel_os
+  ip: 192.168.1.1
+  username: admin
+  password: 'pass'
+
+extreme_exos:
+  device_type: extreme_exos
+  ip: 192.0.2.1
+  username: admin
+  password: 'admin'
+
+nokia_srl:
+  device_type: nokia_srl
+  ip: clab-srltest-srl1
+  username: admin
+  password: 'admin'
+  
+audiocode_72:
+  device_type: audiocode_72
+  ip: 192.168.1.1
+  username: TestUser
+  password: TestPass
+  secret: TestPass
+  
+audiocode_66:
+  device_type: audiocode_66
+  ip: 192.168.1.2
+  username: TestUser
+  password: TestPass
+  secret: TestPass
+  
+audiocode_shell:
+  device_type: audiocode_shell
+  ip: 192.168.1.3
+  username: TestUser
+  password: TestPass
+
+hillstone:
+  device_type: hillstone_stoneos
+  ip: 192.168.100.234
+  username: hillstone
+  password: Hillstone

@@ -1,0 +1,84 @@
+---
+cisco1:
+  device:
+    device_type: cisco_ios
+    host: cisco1.lasthop.io
+    username: pyclass
+  graph:
+    title: "Netmiko: Cisco IOS Performance (Cisco 881)"
+
+cisco3:
+  device:
+    device_type: cisco_xe
+    host: cisco3.lasthop.io
+    username: pyclass
+  graph:
+    title: "Netmiko: Cisco IOS-XE Performance (Cisco C1111-4P)"
+
+cisco5:
+  device:
+    device_type: cisco_xe
+    host: cisco5.lasthop.io
+    username: pyclass
+
+nxos1:
+  device:
+    device_type: cisco_nxos
+    host: nxos1.lasthop.io
+    username: pyclass
+  graph:
+    title: "Netmiko: Cisco NX-OS Performance (nx9k virtual)"
+
+cisco_xr_azure:
+  device:
+    device_type: cisco_xr
+    host: iosxr3.lasthop.io
+    username: pyclass
+    secret: ''
+  graph:
+    title: "Netmiko: Cisco IOS-XR Performance (cisco IOS-XRv 9000)"
+
+arista1:
+  device:
+    device_type: arista_eos
+    host: arista1.lasthop.io
+    username: pyclass
+  graph:
+    title: "Netmiko: Arista EOS Performance (vEOS)"
+
+juniper_vmx:
+  device:
+    device_type: juniper_junos
+    host: vmx1.lasthop.io
+    username: pyclass
+    session_log: vmx1.out
+  graph:
+    title: "Netmiko: Juniper Junos Performance"
+
+#cisco_asa:
+#  device:
+#    device_type: cisco_asa
+#    ip: 184.105.247.88
+#    username: pyclass
+#    allow_auto_change: True
+#    session_log: asa1.out
+#  graph:
+#    title: "Netmiko: Cisco ASA Performance"
+
+hp_procurve:
+  device:
+      device_type: hp_procurve
+      ip: 184.105.247.68
+      username: admin
+      secret: ""
+      session_log: hpe.out
+  graph:
+    title: "Netmiko: HPE ProCurve Performance"
+
+linux_srv1:
+  device:
+    device_type: linux
+    host: 3.15.148.177
+    username: gituser
+    use_keys: True
+    key_file: ~/.ssh/test_rsa

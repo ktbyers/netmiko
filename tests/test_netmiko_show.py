@@ -16,20 +16,23 @@ test_disconnect: cleanly disconnect the SSH session
 """
 import pytest
 import time
-import os
 from datetime import datetime
-from netmiko.utilities import select_cmd_verify
+from netmiko import ConnectHandler
 
 
-@select_cmd_verify
-def bogus_func(obj, *args, **kwargs):
-    """Function that just returns the arguments modified by the decorator."""
-    return (obj, args, kwargs)
+def test_failed_key(device_failed_key, commands, expected_responses):
+    if device_failed_key.get("use_keys") is not True:
+        assert pytest.skip("Not using SSH-keys")
+
+    device_failed_key["key_file"] = "bogus_key_file_name"
+
+    with pytest.raises(ValueError):
+        ConnectHandler(**device_failed_key)
 
 
 def test_disable_paging(net_connect, commands, expected_responses):
     """Verify paging is disabled by looking for string after when paging would normally occur."""
-    # FIX: these really shouldn't be necessary.
+
     if net_connect.device_type == "arista_eos":
         # Arista logging buffer gets enormous
         net_connect.send_command("clear logging")
@@ -37,8 +40,15 @@ def test_disable_paging(net_connect, commands, expected_responses):
         # NX-OS logging buffer gets enormous (NX-OS fails when testing very high-latency +
         # packet loss)
         net_connect.send_command("clear logging logfile")
-    multiple_line_output = net_connect.send_command(commands["extended_output"])
-    assert expected_responses["multiple_line_output"] in multiple_line_output
+
+    if net_connect.device_type == "audiocode_shell":
+        # Not supported.
+        assert pytest.skip("Disable Paging not supported on this platform")
+    else:
+        multiple_line_output = net_connect.send_command(
+            commands["extended_output"], read_timeout=60
+        )
+        assert expected_responses["multiple_line_output"] in multiple_line_output
 
 
 def test_terminal_width(net_connect, commands, expected_responses):
@@ -55,8 +65,10 @@ def test_ssh_connect(net_connect, commands, expected_responses):
     assert expected_responses["version_banner"] in show_version
 
 
-def test_ssh_connect_cm(net_connect_cm, commands, expected_responses):
+def test_ssh_connect_cm(net_connect_cm, net_connect, commands, expected_responses):
     """Test the context manager."""
+    if net_connect.device_type == "audiocode_shell":
+        assert pytest.skip("Disable Paging not supported on this platform")
     prompt_str = net_connect_cm
     assert expected_responses["base_prompt"] in prompt_str
 
@@ -94,53 +106,6 @@ def test_send_command_no_cmd_verify(net_connect, commands, expected_responses):
         assert pytest.skip()
     net_connect.clear_buffer()
     show_ip_alt = net_connect.send_command(commands["basic"], cmd_verify=False)
-    assert expected_responses["interface_ip"] in show_ip_alt
-
-
-def test_cmd_verify_decorator(net_connect_cmd_verify):
-    obj = net_connect_cmd_verify
-    # Global False should have precedence
-    assert obj.global_cmd_verify is False
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=True)
-    assert kwargs["cmd_verify"] is False
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
-    assert kwargs["cmd_verify"] is False
-
-    # Global True should have precedence
-    obj.global_cmd_verify = True
-    assert obj.global_cmd_verify is True
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=True)
-    assert kwargs["cmd_verify"] is True
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
-    assert kwargs["cmd_verify"] is True
-
-    # None should track the local argument
-    obj.global_cmd_verify = None
-    assert obj.global_cmd_verify is None
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=True)
-    assert kwargs["cmd_verify"] is True
-    (obj, args, kwargs) = bogus_func(net_connect_cmd_verify, cmd_verify=False)
-    assert kwargs["cmd_verify"] is False
-
-    # Set it back to proper False value (so later tests aren't messed up).
-    obj.global_cmd_verify = False
-
-
-def test_send_command_global_cmd_verify(
-    net_connect_cmd_verify, commands, expected_responses
-):
-    """
-    Verify a command can be sent down the channel successfully using send_command method.
-
-    Disable cmd_verify globally.
-    """
-    net_connect = net_connect_cmd_verify
-    if net_connect.fast_cli is True:
-        assert pytest.skip()
-    net_connect.clear_buffer()
-    # cmd_verify should be disabled globally at this point
-    assert net_connect.global_cmd_verify is False
-    show_ip_alt = net_connect.send_command(commands["basic"])
     assert expected_responses["interface_ip"] in show_ip_alt
 
 
@@ -209,20 +174,23 @@ def test_send_command_ttp(net_connect):
         net_connect.clear_buffer()
 
         # write a simple template to file
-        ttp_raw_template = """
-        interface {{ interface }}
-         description {{ description }}
-        """
-        ttp_temp_filename = "show_run_interfaces.ttp"
-        with open(ttp_temp_filename, "w") as writer:
+        ttp_raw_template = (
+            "interface {{ intf_name }}\n description {{ description | ORPHRASE}}"
+        )
+
+        with open("show_run_interfaces.ttp", "w") as writer:
             writer.write(ttp_raw_template)
 
-        command = "show run"
+        command = "show run | s interface"
         show_ip_alt = net_connect.send_command(
-            command, use_ttp=True, ttp_template=ttp_temp_filename
+            command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
         )
-        os.remove(ttp_temp_filename)
         assert isinstance(show_ip_alt, list)
+        # Unwrap outer lists
+        show_ip_alt = show_ip_alt[0][0]
+        assert isinstance(show_ip_alt, list)
+        assert isinstance(show_ip_alt[0], dict)
+        assert isinstance(show_ip_alt[0]["intf_name"], str)
 
 
 def test_send_command_genie(net_connect, commands, expected_responses):
@@ -245,9 +213,97 @@ def test_send_command_genie(net_connect, commands, expected_responses):
         time.sleep(1)
         net_connect.clear_buffer()
         fallback_cmd = commands.get("basic")
-        command = commands.get("basic_textfsm", fallback_cmd)
+        command = commands.get("basic_genie")
+        if not command:
+            command = commands.get("basic_textfsm", fallback_cmd)
         show_ip_alt = net_connect.send_command(command, use_genie=True)
         assert isinstance(show_ip_alt, dict)
+
+
+def test_send_multiline_timing(net_connect):
+
+    debug = False
+
+    if (
+        "cisco_ios" not in net_connect.device_type
+        and "cisco_xe" not in net_connect.device_type
+    ):
+        assert pytest.skip()
+    count = 100
+    cmd_list = ["ping", "", "8.8.8.8", str(count), "", "", "", ""]
+    output = net_connect.send_multiline_timing(cmd_list)
+    if debug:
+        print(output)
+    assert output.count("!") >= 95
+
+
+def test_send_multiline(net_connect):
+
+    debug = False
+    if (
+        "cisco_ios" not in net_connect.device_type
+        and "cisco_xe" not in net_connect.device_type
+    ):
+        assert pytest.skip()
+    commands = (
+        ("ping", r"ip"),
+        ("", r"Target IP address"),
+        ("8.8.8.8", "Repeat count"),
+        ("100", "Datagram size"),
+        ("", "Timeout in seconds"),
+        ("", "Extended"),
+        ("", "Sweep"),
+        ("", ""),
+    )
+    output = net_connect.send_multiline(commands)
+    if debug:
+        print(output)
+    assert output.count("!") >= 95
+
+
+def test_send_multiline_prompt(net_connect):
+    """Use send_multiline, but use device's prompt as expect_string"""
+
+    debug = False
+    if (
+        "cisco_ios" not in net_connect.device_type
+        and "cisco_xe" not in net_connect.device_type
+    ):
+        assert pytest.skip()
+    commands = (
+        ("show ip int brief", ""),
+        ("show interfaces", ""),
+        ("show version", ""),
+    )
+    output = net_connect.send_multiline(commands)
+    if debug:
+        print(output)
+    assert "is down" in output
+    assert "Configuration register" in output
+
+
+def test_send_multiline_simple(net_connect):
+    """
+    Use send_multiline with commands in a list. Device's prompt will be the
+    expect_string between each command.
+    """
+
+    debug = False
+    if (
+        "cisco_ios" not in net_connect.device_type
+        and "cisco_xe" not in net_connect.device_type
+    ):
+        assert pytest.skip()
+    commands = [
+        "show ip int brief",
+        "show interfaces",
+        "show version",
+    ]
+    output = net_connect.send_multiline(commands)
+    if debug:
+        print(output)
+    assert "is down" in output
+    assert "Configuration register" in output
 
 
 def test_base_prompt(net_connect, commands, expected_responses):
@@ -289,14 +345,18 @@ def test_normalize_linefeeds(net_connect, commands, expected_responses):
 
 def test_clear_buffer(net_connect, commands, expected_responses):
     """Test that clearing the buffer works."""
+
+    # x!@#!# Mikrotik
+    enter = net_connect.RETURN
     # Manually send a command down the channel so that data needs read.
-    net_connect.write_channel(commands["basic"] + "\n")
+    net_connect.write_channel(f"{commands['basic']}{enter}")
     time.sleep(4)
     net_connect.clear_buffer()
+    time.sleep(2)
 
     # Should not be anything there on the second pass
     clear_buffer_check = net_connect.clear_buffer()
-    assert clear_buffer_check is None
+    assert clear_buffer_check == ""
 
 
 def test_enable_mode(net_connect, commands, expected_responses):
@@ -305,6 +365,9 @@ def test_enable_mode(net_connect, commands, expected_responses):
 
     Catch exception for devices that don't support enable
     """
+    # testuser on pynetqa does not have root access
+    if net_connect.username == "testuser" and net_connect.host == "3.15.148.177":
+        assert pytest.skip()
     try:
         net_connect.enable()
         enable_prompt = net_connect.find_prompt()
@@ -335,4 +398,4 @@ def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses)
         assert net_connect.remote_conn is None
         assert time_delta.total_seconds() < 5
     else:
-        assert True
+        assert pytest.skip()

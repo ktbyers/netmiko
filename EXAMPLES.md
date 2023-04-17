@@ -1,4 +1,4 @@
-<img src="https://github.com/ktbyers/netmiko/blob/improved_examples/images/netmiko_logo_gh.png" width="320">
+<img src="https://ktbyers.github.io/netmiko/images/netmiko_logo_gh.png" width="320">
 
 Netmiko Examples
 =======

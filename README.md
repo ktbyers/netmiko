@@ -1,7 +1,7 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/netmiko.svg)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/netmiko.svg)](https://img.shields.io/pypi/pyversions/netmiko)
 [![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
 [![Downloads](https://pepy.tech/badge/netmiko)](https://pepy.tech/project/netmiko)
-![GitHub contributors](https://img.shields.io/github/contributors/ktbyers/netmiko.svg)
+[![GitHub contributors](https://img.shields.io/github/contributors/ktbyers/netmiko.svg)](https://GitHub.com/ktbyers/netmiko/graphs/contributors/)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 <img src="https://ktbyers.github.io/netmiko/images/netmiko_logo_gh.png" width="320">
@@ -9,34 +9,35 @@
 Netmiko
 =======
 
-Multi-vendor library to simplify Paramiko SSH connections to network devices
+Multi-vendor library to simplify CLI connections to network devices
 
-## Quick Links
+<br />
 
-- [Supported Platforms](https://ktbyers.github.io/netmiko/#supported-platforms)
-- [Installation](https://ktbyers.github.io/netmiko/#installation)
-- [Tutorials/Examples/Getting Started](https://ktbyers.github.io/netmiko/#tutorialsexamplesgetting-started)
-- [Common Issues/FAQ](https://ktbyers.github.io/netmiko/#common-issuesfaq)
-- [API-Documentation](https://ktbyers.github.io/netmiko/#api-documentation)
-- [TextFSM Integration](https://ktbyers.github.io/netmiko/#textfsm-integration)
-- [Contributing](https://ktbyers.github.io/netmiko/#contributing)
-- [Questions/Discussion](https://ktbyers.github.io/netmiko/#questionsdiscussion)
+## Why Netmiko?
+Network automation to screen-scraping devices is primarily concerned with gathering output from show commands and with making configuration changes.
+
+Netmiko aims to accomplish both of these operations and to do it across a very broad set of platforms. It seeks to do this while abstracting away low-level state control (i.e. eliminate low-level regex pattern matching to the extent practical).
+
+<br />
+
+## Getting Started
+- [Getting Started](#getting-started-1)
+
+<br />
+
+## Examples
+*You really should look here.*
+
+- [Netmiko Examples](https://github.com/ktbyers/netmiko/blob/develop/EXAMPLES.md)
+
+<br />
 
 
 ## Supported Platforms
 
-Netmiko supports a wide range of devices. These devices fall into three categories:
-- Regularly Tested
-- Limited Testing
-- Experimental
+[PLATFORMS](PLATFORMS.md)
 
-Regularly tested means we try to run our full test suite against that set of devices prior to each Netmiko release.
-
-Limited testing means the config and show operation system tests passed against a test on that platform at one point in time so we are reasonably comfortable the driver should generally work.
-
-Experimental means that we reviewed the PR and the driver seems reasonable, but we don't have good data on whether the driver fully passes the unit tests or how reliably it works.
-
-Click [PLATFORMS](PLATFORMS.md) for a list of all supported platforms.
+<br />
 
 
 ## Installation
@@ -47,28 +48,29 @@ To install netmiko, simply us pip:
 $ pip install netmiko
 ```
 
-Netmiko has the following requirements (which pip will install for you)
-- Paramiko >= 2.4.3
-- scp >= 0.13.2
-- pyserial
-- textfsm
+<br />
 
+## API-Documentation
 
-## Tutorials/Examples/Getting Started
+[API-Documentation](https://ktbyers.github.io/netmiko/docs/netmiko/index.html)
 
-### Tutorials:
+<br />
 
-- [Getting Started](https://pynet.twb-tech.com/blog/automation/netmiko.html)
+## Common Issues/FAQ
+
+Answers to some [common questions](COMMON_ISSUES.md)
+
+<br />
+
+### Tutorials
+
+- [Netmiko Overview](https://pynet.twb-tech.com/blog/automation/netmiko.html)
 - [Secure Copy](https://pynet.twb-tech.com/blog/automation/netmiko-scp.html)
 - [Netmiko through SSH Proxy](https://pynet.twb-tech.com/blog/automation/netmiko-proxy.html)
 - [Netmiko and TextFSM](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html)
 - [Netmiko and what constitutes done](https://pynet.twb-tech.com/blog/automation/netmiko-what-is-done.html)
 
-
-### Examples:
-
-A whole bunch of [examples](https://github.com/ktbyers/netmiko/blob/develop/EXAMPLES.md)
-
+<br />
 
 ### Getting Started:
 
@@ -130,16 +132,7 @@ pynet-rtr1(config)#end
 pynet-rtr1#
 ```
 
-
-## Common Issues/FAQ
-
-Answers to some [common questions](COMMON_ISSUES.md)
-
-Topics covered in above document:
-- Handling commands that prompt for additional input
-- Enabling logging of all reads/writes of the communication channel
-- Redispatch -- or connecting through a terminal server
-
+<br />
 
 ## API-Documentation
 
@@ -151,26 +144,19 @@ Below are some of the particularly handy Classes/functions for easy reference:
 - [SSH Dispatcher](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.ssh_dispatcher)
 - [Redispatch](https://ktbyers.github.io/netmiko/docs/netmiko/index.html#netmiko.redispatch)
 
-
-## TextFSM Integration
-
-Netmiko has been configured to automatically look in `~/ntc-template/templates/index` for the ntc-templates index file. Alternatively, you can explicitly tell Netmiko where to look for the TextFSM template directory by setting the `NET_TEXTFSM` environment variable (note, there must be an index file in this directory):
-
-```
-export NET_TEXTFSM=/path/to/ntc-templates/templates/
-```
-
-[More info on TextFSM and Netmiko](https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html).
-
+<br />
 
 ## Contributing
 
-Contributors are always welcome! You can contribute to Netmiko in a variety of ways: spreading the word about Netmiko, answering questions on Slack (see below in Quests/Discussions), responding to issues, adding to the common issues, reporting/fixing bugs, or even adding your own device type.
+Contributors are welcome.
 
-Before contributing a new vendor/platform device type, remember that any code added needs to be supported in some fashion (much more so for the "regularly tested" devices and the core of Netmiko)! To add a vendor/platform you can follow the outline [here](VENDOR.md). Once you've worked on your first pass of your driver and have it functional, you'll need to include test data in order for it to be merged into develop, you can see the general flow of how to do that [here](TESTING.md).
+You can contribute to Netmiko in a variety of ways: answering questions on Slack (see below in Questions/Discussions), responding to issues, adding to the common issues, reporting/fixing bugs, or even adding your own device type.
+
+Before contributing a new vendor/platform device type, remember that any code added needs to be supported in some fashion. To add a vendor/platform you can follow the outline [here](VENDOR.md). Once you've worked on your first pass of your driver and have it functional, you'll need to include test data in order for it to be merged into develop, you can see the general flow of how to do that [here](TESTING.md).
 
 For all code contributions, please ensure that you have ran `black` against the code or your code will fail the Travis CI build.
 
+<br />
 
 ## Questions/Discussion
 
