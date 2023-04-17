@@ -3,15 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.6.3" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>netmiko.cisco.cisco_ios API documentation</title>
 <meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
 <main>
@@ -21,33 +23,58 @@
 </header>
 <section id="section-intro">
 <details class="source">
-<summary>Source code</summary>
-<pre><code class="python">import time
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Any, Optional, Callable, Type
+from types import TracebackType
+import time
 import re
 import os
 import hashlib
 import io
 
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
+from netmiko.base_connection import BaseConnection
 
 
 class CiscoIosBase(CiscoBaseConnection):
     &#34;&#34;&#34;Common Methods for IOS (both SSH and telnet).&#34;&#34;&#34;
 
-    def __init__(self, *args, **kwargs):
-        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
-        kwargs.setdefault(&#34;fast_cli&#34;, True)
-        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
-        return super().__init__(*args, **kwargs)
-
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         cmd = &#34;terminal width 511&#34;
         self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
         self.set_base_prompt()
 
-    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;#&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        Cisco IOS/IOS-XE abbreviates the prompt at 20-chars in config mode.
+
+        Consequently, abbreviate the base_prompt
+        &#34;&#34;&#34;
+        base_prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+        self.base_prompt = base_prompt[:16]
+        return self.base_prompt
+
+    def check_config_mode(
+        self,
+        check_string: str = &#34;)#&#34;,
+        pattern: str = r&#34;[&gt;#]&#34;,
+        force_regex: bool = False,
+    ) -&gt; bool:
         &#34;&#34;&#34;
         Checks if the device is in configuration mode or not.
 
@@ -55,7 +82,9 @@ class CiscoIosBase(CiscoBaseConnection):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
+    def save_config(
+        self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+    ) -&gt; str:
         &#34;&#34;&#34;Saves Config Using Copy Run Start&#34;&#34;&#34;
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -91,16 +120,24 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     def __init__(
         self,
-        ssh_conn,
-        source_file=None,
-        dest_file=None,
-        file_system=None,
-        direction=&#34;put&#34;,
-        source_config=None,
-        socket_timeout=10.0,
-        progress=None,
-        progress4=None,
-    ):
+        ssh_conn: BaseConnection,
+        source_file: str = &#34;&#34;,
+        dest_file: str = &#34;&#34;,
+        file_system: Optional[str] = None,
+        direction: str = &#34;put&#34;,
+        source_config: Optional[str] = None,
+        socket_timeout: float = 10.0,
+        progress: Optional[Callable[..., Any]] = None,
+        progress4: Optional[Callable[..., Any]] = None,
+        hash_supported: bool = True,
+    ) -&gt; None:
+
+        if not dest_file:
+            raise ValueError(
+                &#34;Destination file must be specified for InlineTransfer operations.&#34;
+            )
+        if hash_supported is False:
+            raise ValueError(&#34;hash_supported=False is not supported for InLineTransfer&#34;)
 
         if source_file and source_config:
             msg = &#34;Invalid call to InLineTransfer both source_file and source_config specified.&#34;
@@ -117,13 +154,12 @@ class InLineTransfer(CiscoIosFileTransfer):
             self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
+        self.source_file = source_file
         if source_file:
-            self.source_file = source_file
             self.source_config = None
             self.source_md5 = self.file_md5(source_file)
             self.file_size = os.stat(source_file).st_size
         elif source_config:
-            self.source_file = None
             self.source_config = source_config
             self.source_md5 = self.config_md5(source_config)
             self.file_size = len(source_config.encode(&#34;UTF-8&#34;))
@@ -138,12 +174,12 @@ class InLineTransfer(CiscoIosFileTransfer):
         self.socket_timeout = socket_timeout
 
     @staticmethod
-    def _read_file(file_name):
+    def _read_file(file_name: str) -&gt; str:
         with io.open(file_name, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as f:
             return f.read()
 
     @staticmethod
-    def _tcl_newline_rationalize(tcl_string):
+    def _tcl_newline_rationalize(tcl_string: str) -&gt; str:
         r&#34;&#34;&#34;
         When using put inside a TCL {} section the newline is considered a new TCL
         statement and causes a missing curly-brace message. Convert &#34;\n&#34; to &#34;\r&#34;. TCL
@@ -158,17 +194,22 @@ class InLineTransfer(CiscoIosFileTransfer):
             raise ValueError(msg)
         return tmp_string
 
-    def __enter__(self):
+    def __enter__(self) -&gt; &#34;InLineTransfer&#34;:
         self._enter_tcl_mode()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        _ = self._exit_tcl_mode()  # noqa
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -&gt; None:
+        self._exit_tcl_mode()
 
-    def _enter_tcl_mode(self):
+    def _enter_tcl_mode(self) -&gt; str:
         TCL_ENTER = &#34;tclsh&#34;
         cmd_failed = [&#39;Translating &#34;tclsh&#34;&#39;, &#34;% Unknown command&#34;, &#34;% Bad IP address&#34;]
-        output = self.ssh_ctl_chan.send_command(
+        output = self.ssh_ctl_chan._send_command_str(
             TCL_ENTER,
             expect_string=r&#34;\(tcl\)#&#34;,
             strip_prompt=False,
@@ -179,7 +220,7 @@ class InLineTransfer(CiscoIosFileTransfer):
                 raise ValueError(f&#34;Failed to enter tclsh mode on router: {output}&#34;)
         return output
 
-    def _exit_tcl_mode(self):
+    def _exit_tcl_mode(self) -&gt; str:
         TCL_EXIT = &#34;tclquit&#34;
         self.ssh_ctl_chan.write_channel(&#34;\r&#34;)
         time.sleep(1)
@@ -190,29 +231,33 @@ class InLineTransfer(CiscoIosFileTransfer):
         output += self.ssh_ctl_chan.read_channel()
         return output
 
-    def establish_scp_conn(self):
+    def establish_scp_conn(self) -&gt; None:
         raise NotImplementedError
 
-    def close_scp_chan(self):
+    def close_scp_chan(self) -&gt; None:
         raise NotImplementedError
 
-    def local_space_available(self):
+    def local_space_available(self) -&gt; bool:
         raise NotImplementedError
 
-    def file_md5(self, file_name):
+    def file_md5(self, file_name: str, add_newline: bool = False) -&gt; str:
         &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
+        if add_newline is True:
+            raise ValueError(
+                &#34;add_newline argument is not supported for inline transfers.&#34;
+            )
         file_contents = self._read_file(file_name)
         file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
-        file_contents = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents).hexdigest()
+        file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
+        return hashlib.md5(file_contents_bytes).hexdigest()
 
-    def config_md5(self, source_config):
+    def config_md5(self, source_config: str) -&gt; str:
         &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
         file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
-        file_contents = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents).hexdigest()
+        file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
+        return hashlib.md5(file_contents_bytes).hexdigest()
 
-    def put_file(self):
+    def put_file(self) -&gt; None:
         curlybrace = r&#34;{&#34;
         TCL_FILECMD_ENTER = &#39;puts [open &#34;{}{}&#34; w+] {}&#39;.format(
             self.file_system, self.dest_file, curlybrace
@@ -234,21 +279,21 @@ class InLineTransfer(CiscoIosFileTransfer):
         self.ssh_ctl_chan.write_channel(TCL_FILECMD_EXIT + &#34;\r&#34;)
 
         # This operation can be slow (depends on the size of the file)
-        max_loops = 400
+        read_timeout = 100
         sleep_time = 4
         if self.file_size &gt;= 2500:
-            max_loops = 1500
+            read_timeout = 300
             sleep_time = 12
         elif self.file_size &gt;= 7500:
-            max_loops = 3000
+            read_timeout = 600
             sleep_time = 25
 
         # Initial delay
         time.sleep(sleep_time)
 
         # File paste and TCL_FILECMD_exit should be indicated by &#34;router(tcl)#&#34;
-        output = self.ssh_ctl_chan._read_channel_expect(
-            pattern=r&#34;\(tcl\)&#34;, max_loops=max_loops
+        output = self.ssh_ctl_chan.read_until_pattern(
+            pattern=r&#34;\(tcl\).*$&#34;, re_flags=re.M, read_timeout=read_timeout
         )
 
         # The file doesn&#39;t write until tclquit
@@ -257,16 +302,20 @@ class InLineTransfer(CiscoIosFileTransfer):
 
         time.sleep(1)
         # Read all data remaining from the TCLSH session
-        output += self.ssh_ctl_chan._read_channel_expect(max_loops=max_loops)
-        return output
+        pattern = rf&#34;tclquit.*{self.ssh_ctl_chan.base_prompt}.*$&#34;
+        re_flags = re.DOTALL | re.M
+        output += self.ssh_ctl_chan.read_until_pattern(
+            pattern=pattern, re_flags=re_flags, read_timeout=read_timeout
+        )
+        return None
 
-    def get_file(self):
+    def get_file(self) -&gt; None:
         raise NotImplementedError
 
-    def enable_scp(self, cmd=None):
+    def enable_scp(self, cmd: str = &#34;&#34;) -&gt; None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: str = &#34;&#34;) -&gt; None:
         raise NotImplementedError</code></pre>
 </details>
 </section>
@@ -281,159 +330,154 @@ class InLineTransfer(CiscoIosFileTransfer):
 <dl>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosBase"><code class="flex name class">
 <span>class <span class="ident">CiscoIosBase</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Common Methods for IOS (both SSH and telnet).</p>
+<div class="desc"><p>Common Methods for IOS (both SSH and telnet).</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
-    :param ip: IP address of target device. Not required if `host` is
+    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
         provided.
-    :type ip: str
 
-    :param host: Hostname of target device. Not required if `ip` is
+    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
-    :param alt_host_keys: If `True` host keys will be loaded from the file specified in
+
+    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
-    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
-            (default: None). Global attribute takes precedence over function `cmd_verify`
-            argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
+            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
+            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
-</code></pre></section>
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
+</code></pre></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class CiscoIosBase(CiscoBaseConnection):
     &#34;&#34;&#34;Common Methods for IOS (both SSH and telnet).&#34;&#34;&#34;
 
-    def __init__(self, *args, **kwargs):
-        # Cisco-IOS defaults to fast_cli=True and legacy_mode=False
-        kwargs.setdefault(&#34;fast_cli&#34;, True)
-        kwargs.setdefault(&#34;_legacy_mode&#34;, False)
-        return super().__init__(*args, **kwargs)
-
-    def session_preparation(self):
+    def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         cmd = &#34;terminal width 511&#34;
         self.set_terminal_width(command=cmd, pattern=cmd)
         self.disable_paging()
         self.set_base_prompt()
 
-    def check_config_mode(self, check_string=&#34;)#&#34;, pattern=&#34;#&#34;):
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;#&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        Cisco IOS/IOS-XE abbreviates the prompt at 20-chars in config mode.
+
+        Consequently, abbreviate the base_prompt
+        &#34;&#34;&#34;
+        base_prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+        self.base_prompt = base_prompt[:16]
+        return self.base_prompt
+
+    def check_config_mode(
+        self,
+        check_string: str = &#34;)#&#34;,
+        pattern: str = r&#34;[&gt;#]&#34;,
+        force_regex: bool = False,
+    ) -&gt; bool:
         &#34;&#34;&#34;
         Checks if the device is in configuration mode or not.
 
@@ -441,7 +485,9 @@ class InLineTransfer(CiscoIosFileTransfer):
         &#34;&#34;&#34;
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
+    def save_config(
+        self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+    ) -&gt; str:
         &#34;&#34;&#34;Saves Config Using Copy Run Start&#34;&#34;&#34;
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -455,21 +501,25 @@ class InLineTransfer(CiscoIosFileTransfer):
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco.cisco_ios.CiscoIosSSH" href="#netmiko.cisco.cisco_ios.CiscoIosSSH">CiscoIosSSH</a></li>
-<li><a title="netmiko.cisco.cisco_ios.CiscoIosTelnet" href="#netmiko.cisco.cisco_ios.CiscoIosTelnet">CiscoIosTelnet</a></li>
 <li><a title="netmiko.cisco.cisco_ios.CiscoIosSerial" href="#netmiko.cisco.cisco_ios.CiscoIosSerial">CiscoIosSerial</a></li>
-<li><a title="netmiko.keymile.keymile_ssh.KeymileSSH" href="../keymile/keymile_ssh.html#netmiko.keymile.keymile_ssh.KeymileSSH">KeymileSSH</a></li>
+<li><a title="netmiko.cisco.cisco_ios.CiscoIosTelnet" href="#netmiko.cisco.cisco_ios.CiscoIosTelnet">CiscoIosTelnet</a></li>
 <li><a title="netmiko.keymile.keymile_nos_ssh.KeymileNOSSSH" href="../keymile/keymile_nos_ssh.html#netmiko.keymile.keymile_nos_ssh.KeymileNOSSSH">KeymileNOSSSH</a></li>
+<li><a title="netmiko.keymile.keymile_ssh.KeymileSSH" href="../keymile/keymile_ssh.html#netmiko.keymile.keymile_ssh.KeymileSSH">KeymileSSH</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosBase.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, cmd='write mem', confirm=False, confirm_response='')</span>
+<span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'write mem', confirm: bool = False, confirm_response: str = '') ‑> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Saves Config Using Copy Run Start</p></section>
+<div class="desc"><p>Saves Config Using Copy Run Start</p></div>
 <details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def save_config(self, cmd=&#34;write mem&#34;, confirm=False, confirm_response=&#34;&#34;):
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_config(
+    self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+) -&gt; str:
     &#34;&#34;&#34;Saves Config Using Copy Run Start&#34;&#34;&#34;
     return super().save_config(
         cmd=cmd, confirm=confirm, confirm_response=confirm_response
@@ -477,18 +527,52 @@ class InLineTransfer(CiscoIosFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation"><code class="name flex">
-<span>def <span class="ident">session_preparation</span></span>(<span>self)</span>
+<span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Prepare the session after the connection has been established.</p></section>
+<div class="desc"><p>Prepare the session after the connection has been established.</p></div>
 <details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def session_preparation(self):
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     cmd = &#34;terminal width 511&#34;
     self.set_terminal_width(command=cmd, pattern=cmd)
     self.disable_paging()
     self.set_base_prompt()</code></pre>
+</details>
+</dd>
+<dt id="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt"><code class="name flex">
+<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator: str = '#', alt_prompt_terminator: str = &#x27;&gt;&#x27;, delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Cisco IOS/IOS-XE abbreviates the prompt at 20-chars in config mode.</p>
+<p>Consequently, abbreviate the base_prompt</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_base_prompt(
+    self,
+    pri_prompt_terminator: str = &#34;#&#34;,
+    alt_prompt_terminator: str = &#34;&gt;&#34;,
+    delay_factor: float = 1.0,
+    pattern: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;
+    Cisco IOS/IOS-XE abbreviates the prompt at 20-chars in config mode.
+
+    Consequently, abbreviate the base_prompt
+    &#34;&#34;&#34;
+    base_prompt = super().set_base_prompt(
+        pri_prompt_terminator=pri_prompt_terminator,
+        alt_prompt_terminator=alt_prompt_terminator,
+        delay_factor=delay_factor,
+        pattern=pattern,
+    )
+    self.base_prompt = base_prompt[:16]
+    return self.base_prompt</code></pre>
 </details>
 </dd>
 </dl>
@@ -500,9 +584,8 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -513,19 +596,20 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -540,12 +624,14 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoIosFileTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file, dest_file, file_system=None, direction='put', socket_timeout=10.0, progress=None, progress4=None, hash_supported=True)</span>
+<span>(</span><span>ssh_conn: BaseConnection, source_file: str, dest_file: str, file_system: Optional[str] = None, direction: str = 'put', socket_timeout: float = 10.0, progress: Optional[Callable[..., Any]] = None, progress4: Optional[Callable[..., Any]] = None, hash_supported: bool = True)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Cisco IOS SCP File Transfer driver.</p></section>
+<div class="desc"><p>Cisco IOS SCP File Transfer driver.</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class CiscoIosFileTransfer(CiscoFileTransfer):
     &#34;&#34;&#34;Cisco IOS SCP File Transfer driver.&#34;&#34;&#34;
 
@@ -587,142 +673,117 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSSH</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Cisco IOS SSH driver.</p>
+<div class="desc"><p>Cisco IOS SSH driver.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
-    :param ip: IP address of target device. Not required if `host` is
+    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
         provided.
-    :type ip: str
 
-    :param host: Hostname of target device. Not required if `ip` is
+    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
-    :param alt_host_keys: If `True` host keys will be loaded from the file specified in
+
+    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
-    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
-            (default: None). Global attribute takes precedence over function `cmd_verify`
-            argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
+            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
+            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
-</code></pre></section>
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
+</code></pre></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class CiscoIosSSH(CiscoIosBase):
     &#34;&#34;&#34;Cisco IOS SSH driver.&#34;&#34;&#34;
 
@@ -742,9 +803,8 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -755,12 +815,13 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.save_config" href="#netmiko.cisco.cisco_ios.CiscoIosBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -768,8 +829,9 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -784,142 +846,117 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosSerial"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSerial</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Cisco IOS Serial driver.</p>
+<div class="desc"><p>Cisco IOS Serial driver.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
-    :param ip: IP address of target device. Not required if `host` is
+    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
         provided.
-    :type ip: str
 
-    :param host: Hostname of target device. Not required if `ip` is
+    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
-    :param alt_host_keys: If `True` host keys will be loaded from the file specified in
+
+    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
-    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
-            (default: None). Global attribute takes precedence over function `cmd_verify`
-            argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
+            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
+            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
-</code></pre></section>
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
+</code></pre></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class CiscoIosSerial(CiscoIosBase):
     &#34;&#34;&#34;Cisco IOS Serial driver.&#34;&#34;&#34;
 
@@ -939,9 +976,8 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -952,12 +988,13 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.save_config" href="#netmiko.cisco.cisco_ios.CiscoIosBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -965,8 +1002,9 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -981,142 +1019,117 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoIosTelnet</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Cisco IOS Telnet driver.</p>
+<div class="desc"><p>Cisco IOS Telnet driver.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
-    :param ip: IP address of target device. Not required if `host` is
+    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
         provided.
-    :type ip: str
 
-    :param host: Hostname of target device. Not required if `ip` is
+    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
             provided.
-    :type host: str
 
     :param username: Username to authenticate against target device if
             required.
-    :type username: str
 
     :param password: Password to authenticate against target device if
             required.
-    :type password: str
 
     :param secret: The enable password if target device requires one.
-    :type secret: str
 
     :param port: The destination port used to connect to the target
             device.
-    :type port: int or None
 
     :param device_type: Class selection based on device type.
-    :type device_type: str
 
     :param verbose: Enable additional messages to standard output.
-    :type verbose: bool
 
     :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-    :type global_delay_factor: int
 
     :param use_keys: Connect to target device using SSH keys.
-    :type use_keys: bool
 
     :param key_file: Filename path of the SSH key file to use.
-    :type key_file: str
 
     :param pkey: SSH key object to use.
-    :type pkey: paramiko.PKey
 
     :param passphrase: Passphrase to use for encrypted key; password will be used for key
             decryption if not specified.
-    :type passphrase: str
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
 
     :param allow_agent: Enable use of SSH key-agent.
-    :type allow_agent: bool
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
             means unknown SSH host keys will be accepted).
-    :type ssh_strict: bool
 
     :param system_host_keys: Load host keys from the users known_hosts file.
-    :type system_host_keys: bool
-    :param alt_host_keys: If `True` host keys will be loaded from the file specified in
+
+    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
             alt_key_file.
-    :type alt_host_keys: bool
 
     :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-    :type alt_key_file: str
 
     :param ssh_config_file: File name of OpenSSH configuration file.
-    :type ssh_config_file: str
 
     :param timeout: Connection timeout.
-    :type timeout: float
 
     :param session_timeout: Set a timeout for parallel requests.
-    :type session_timeout: float
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-    :type auth_timeout: float
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-    :type banner_timeout: float
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
             to keep the connection alive).
-    :type keepalive: int
 
     :param default_enter: Character(s) to send to correspond to enter key (default:
 </code></pre>
-<p>).
-:type default_enter: str</p>
+<p>).</p>
 <pre><code>    :param response_return: Character(s) to use in normalized return data to represent
             enter key (default:
 </code></pre>
-<p>)
-:type response_return: str</p>
+<p>)</p>
 <pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: False)
-    :type fast_cli: boolean
+            (default: True)
 
     :param session_log: File path or BufferedIOBase subclass object to write the session log to.
-    :type session_log: str
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
             want to record both channel reads and channel writes in the log (default: False).
-    :type session_log_record_writes: boolean
 
     :param session_log_file_mode: "write" or "append" for session_log file mode
             (default: "write")
-    :type session_log_file_mode: str
 
     :param allow_auto_change: Allow automatic configuration changes for terminal settings.
             (default: False)
-    :type allow_auto_change: bool
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
             (default: ascii)
-    :type encoding: str
 
-    :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
+    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
-    :type sock: socket
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
-            (default: None). Global attribute takes precedence over function `cmd_verify`
-            argument. Value of `None` indicates to use function `cmd_verify` argument.
-    :type global_cmd_verify: bool|None
+            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
+            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
 
     :param auto_connect: Control whether Netmiko automatically establishes the connection as
             part of the object creation (default: True).
-    :type auto_connect: bool
-</code></pre></section>
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
+</code></pre></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class CiscoIosTelnet(CiscoIosBase):
     &#34;&#34;&#34;Cisco IOS Telnet driver.&#34;&#34;&#34;
 
@@ -1136,9 +1149,8 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.close_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.close_session_log">close_session_log</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
@@ -1149,12 +1161,13 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.open_session_log" href="../base_connection.html#netmiko.base_connection.BaseConnection.open_session_log">open_session_log</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.save_config" href="#netmiko.cisco.cisco_ios.CiscoIosBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
@@ -1162,8 +1175,9 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -1178,27 +1192,37 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.InLineTransfer"><code class="flex name class">
 <span>class <span class="ident">InLineTransfer</span></span>
-<span>(</span><span>ssh_conn, source_file=None, dest_file=None, file_system=None, direction='put', source_config=None, socket_timeout=10.0, progress=None, progress4=None)</span>
+<span>(</span><span>ssh_conn: <a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a>, source_file: str = '', dest_file: str = '', file_system: Optional[str] = None, direction: str = 'put', source_config: Optional[str] = None, socket_timeout: float = 10.0, progress: Optional[Callable[..., Any]] = None, progress4: Optional[Callable[..., Any]] = None, hash_supported: bool = True)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Use TCL on Cisco IOS to directly transfer file.</p></section>
+<div class="desc"><p>Use TCL on Cisco IOS to directly transfer file.</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class InLineTransfer(CiscoIosFileTransfer):
     &#34;&#34;&#34;Use TCL on Cisco IOS to directly transfer file.&#34;&#34;&#34;
 
     def __init__(
         self,
-        ssh_conn,
-        source_file=None,
-        dest_file=None,
-        file_system=None,
-        direction=&#34;put&#34;,
-        source_config=None,
-        socket_timeout=10.0,
-        progress=None,
-        progress4=None,
-    ):
+        ssh_conn: BaseConnection,
+        source_file: str = &#34;&#34;,
+        dest_file: str = &#34;&#34;,
+        file_system: Optional[str] = None,
+        direction: str = &#34;put&#34;,
+        source_config: Optional[str] = None,
+        socket_timeout: float = 10.0,
+        progress: Optional[Callable[..., Any]] = None,
+        progress4: Optional[Callable[..., Any]] = None,
+        hash_supported: bool = True,
+    ) -&gt; None:
+
+        if not dest_file:
+            raise ValueError(
+                &#34;Destination file must be specified for InlineTransfer operations.&#34;
+            )
+        if hash_supported is False:
+            raise ValueError(&#34;hash_supported=False is not supported for InLineTransfer&#34;)
 
         if source_file and source_config:
             msg = &#34;Invalid call to InLineTransfer both source_file and source_config specified.&#34;
@@ -1215,13 +1239,12 @@ class InLineTransfer(CiscoIosFileTransfer):
             self.progress4 = progress4
 
         self.ssh_ctl_chan = ssh_conn
+        self.source_file = source_file
         if source_file:
-            self.source_file = source_file
             self.source_config = None
             self.source_md5 = self.file_md5(source_file)
             self.file_size = os.stat(source_file).st_size
         elif source_config:
-            self.source_file = None
             self.source_config = source_config
             self.source_md5 = self.config_md5(source_config)
             self.file_size = len(source_config.encode(&#34;UTF-8&#34;))
@@ -1236,12 +1259,12 @@ class InLineTransfer(CiscoIosFileTransfer):
         self.socket_timeout = socket_timeout
 
     @staticmethod
-    def _read_file(file_name):
+    def _read_file(file_name: str) -&gt; str:
         with io.open(file_name, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as f:
             return f.read()
 
     @staticmethod
-    def _tcl_newline_rationalize(tcl_string):
+    def _tcl_newline_rationalize(tcl_string: str) -&gt; str:
         r&#34;&#34;&#34;
         When using put inside a TCL {} section the newline is considered a new TCL
         statement and causes a missing curly-brace message. Convert &#34;\n&#34; to &#34;\r&#34;. TCL
@@ -1256,17 +1279,22 @@ class InLineTransfer(CiscoIosFileTransfer):
             raise ValueError(msg)
         return tmp_string
 
-    def __enter__(self):
+    def __enter__(self) -&gt; &#34;InLineTransfer&#34;:
         self._enter_tcl_mode()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        _ = self._exit_tcl_mode()  # noqa
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -&gt; None:
+        self._exit_tcl_mode()
 
-    def _enter_tcl_mode(self):
+    def _enter_tcl_mode(self) -&gt; str:
         TCL_ENTER = &#34;tclsh&#34;
         cmd_failed = [&#39;Translating &#34;tclsh&#34;&#39;, &#34;% Unknown command&#34;, &#34;% Bad IP address&#34;]
-        output = self.ssh_ctl_chan.send_command(
+        output = self.ssh_ctl_chan._send_command_str(
             TCL_ENTER,
             expect_string=r&#34;\(tcl\)#&#34;,
             strip_prompt=False,
@@ -1277,7 +1305,7 @@ class InLineTransfer(CiscoIosFileTransfer):
                 raise ValueError(f&#34;Failed to enter tclsh mode on router: {output}&#34;)
         return output
 
-    def _exit_tcl_mode(self):
+    def _exit_tcl_mode(self) -&gt; str:
         TCL_EXIT = &#34;tclquit&#34;
         self.ssh_ctl_chan.write_channel(&#34;\r&#34;)
         time.sleep(1)
@@ -1288,29 +1316,33 @@ class InLineTransfer(CiscoIosFileTransfer):
         output += self.ssh_ctl_chan.read_channel()
         return output
 
-    def establish_scp_conn(self):
+    def establish_scp_conn(self) -&gt; None:
         raise NotImplementedError
 
-    def close_scp_chan(self):
+    def close_scp_chan(self) -&gt; None:
         raise NotImplementedError
 
-    def local_space_available(self):
+    def local_space_available(self) -&gt; bool:
         raise NotImplementedError
 
-    def file_md5(self, file_name):
+    def file_md5(self, file_name: str, add_newline: bool = False) -&gt; str:
         &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
+        if add_newline is True:
+            raise ValueError(
+                &#34;add_newline argument is not supported for inline transfers.&#34;
+            )
         file_contents = self._read_file(file_name)
         file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
-        file_contents = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents).hexdigest()
+        file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
+        return hashlib.md5(file_contents_bytes).hexdigest()
 
-    def config_md5(self, source_config):
+    def config_md5(self, source_config: str) -&gt; str:
         &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
         file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
-        file_contents = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents).hexdigest()
+        file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
+        return hashlib.md5(file_contents_bytes).hexdigest()
 
-    def put_file(self):
+    def put_file(self) -&gt; None:
         curlybrace = r&#34;{&#34;
         TCL_FILECMD_ENTER = &#39;puts [open &#34;{}{}&#34; w+] {}&#39;.format(
             self.file_system, self.dest_file, curlybrace
@@ -1332,21 +1364,21 @@ class InLineTransfer(CiscoIosFileTransfer):
         self.ssh_ctl_chan.write_channel(TCL_FILECMD_EXIT + &#34;\r&#34;)
 
         # This operation can be slow (depends on the size of the file)
-        max_loops = 400
+        read_timeout = 100
         sleep_time = 4
         if self.file_size &gt;= 2500:
-            max_loops = 1500
+            read_timeout = 300
             sleep_time = 12
         elif self.file_size &gt;= 7500:
-            max_loops = 3000
+            read_timeout = 600
             sleep_time = 25
 
         # Initial delay
         time.sleep(sleep_time)
 
         # File paste and TCL_FILECMD_exit should be indicated by &#34;router(tcl)#&#34;
-        output = self.ssh_ctl_chan._read_channel_expect(
-            pattern=r&#34;\(tcl\)&#34;, max_loops=max_loops
+        output = self.ssh_ctl_chan.read_until_pattern(
+            pattern=r&#34;\(tcl\).*$&#34;, re_flags=re.M, read_timeout=read_timeout
         )
 
         # The file doesn&#39;t write until tclquit
@@ -1355,16 +1387,20 @@ class InLineTransfer(CiscoIosFileTransfer):
 
         time.sleep(1)
         # Read all data remaining from the TCLSH session
-        output += self.ssh_ctl_chan._read_channel_expect(max_loops=max_loops)
-        return output
+        pattern = rf&#34;tclquit.*{self.ssh_ctl_chan.base_prompt}.*$&#34;
+        re_flags = re.DOTALL | re.M
+        output += self.ssh_ctl_chan.read_until_pattern(
+            pattern=pattern, re_flags=re_flags, read_timeout=read_timeout
+        )
+        return None
 
-    def get_file(self):
+    def get_file(self) -&gt; None:
         raise NotImplementedError
 
-    def enable_scp(self, cmd=None):
+    def enable_scp(self, cmd: str = &#34;&#34;) -&gt; None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: str = &#34;&#34;) -&gt; None:
         raise NotImplementedError</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -1376,32 +1412,40 @@ class InLineTransfer(CiscoIosFileTransfer):
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.cisco.cisco_ios.InLineTransfer.config_md5"><code class="name flex">
-<span>def <span class="ident">config_md5</span></span>(<span>self, source_config)</span>
+<span>def <span class="ident">config_md5</span></span>(<span>self, source_config: str) ‑> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Compute MD5 hash of text.</p></section>
+<div class="desc"><p>Compute MD5 hash of text.</p></div>
 <details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def config_md5(self, source_config):
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def config_md5(self, source_config: str) -&gt; str:
     &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
     file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
-    file_contents = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents).hexdigest()</code></pre>
+    file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
+    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco.cisco_ios.InLineTransfer.file_md5"><code class="name flex">
-<span>def <span class="ident">file_md5</span></span>(<span>self, file_name)</span>
+<span>def <span class="ident">file_md5</span></span>(<span>self, file_name: str, add_newline: bool = False) ‑> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Compute MD5 hash of file.</p></section>
+<div class="desc"><p>Compute MD5 hash of file.</p></div>
 <details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def file_md5(self, file_name):
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def file_md5(self, file_name: str, add_newline: bool = False) -&gt; str:
     &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
+    if add_newline is True:
+        raise ValueError(
+            &#34;add_newline argument is not supported for inline transfers.&#34;
+        )
     file_contents = self._read_file(file_name)
     file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
-    file_contents = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents).hexdigest()</code></pre>
+    file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
+    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
 </details>
 </dd>
 </dl>
@@ -1450,6 +1494,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <ul class="">
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.save_config" href="#netmiko.cisco.cisco_ios.CiscoIosBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>
 </ul>
 </li>
 <li>
@@ -1477,9 +1522,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
 </body>
 </html>

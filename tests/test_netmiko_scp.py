@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import re
 import pytest
 from netmiko import file_transfer
 
@@ -21,14 +22,14 @@ def test_remote_space_available(scp_fixture, expected_responses):
 def test_local_space_available(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
     local_space = scp_transfer.local_space_available()
-    assert local_space >= 1000000000
+    assert local_space >= 1_000_000_000
 
 
 def test_verify_space_available_put(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
     assert scp_transfer.verify_space_available() is True
     # intentional make there not be enough space available
-    scp_transfer.file_size = 100000000000
+    scp_transfer.file_size = 100_000_000_000
     assert scp_transfer.verify_space_available() is False
 
 
@@ -42,7 +43,9 @@ def test_remote_file_size(scp_fixture):
 
 def test_md5_methods(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
-    if "nokia_sros" in ssh_conn.device_type:
+
+    pattern = r"(?:nokia_sros|extreme_exos|mikrotik_routeros)"
+    if re.search(pattern, ssh_conn.device_type):
         pytest.skip("MD5 not supported on this platform")
     md5_value = "d8df36973ff832b564ad84642d07a261"
 
@@ -61,7 +64,7 @@ def test_verify_space_available_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
     assert scp_transfer.verify_space_available() is True
     # intentional make there not be enough space available
-    scp_transfer.file_size = 100000000000000000
+    scp_transfer.file_size = 100_000_000_000_000_000
     assert scp_transfer.verify_space_available() is False
 
 
@@ -81,10 +84,12 @@ def test_scp_get(scp_fixture_get):
 
 def test_md5_methods_get(scp_fixture_get):
     ssh_conn, scp_transfer = scp_fixture_get
-    if "nokia_sros" in ssh_conn.device_type:
+    platform = ssh_conn.device_type
+    pattern = r"(?:nokia_sros|extreme_exos|mikrotik_routeros)"
+    if re.search(pattern, platform):
         pytest.skip("MD5 not supported on this platform")
     md5_value = "d8df36973ff832b564ad84642d07a261"
-    local_md5 = scp_transfer.file_md5("test9.txt")
+    local_md5 = scp_transfer.file_md5(f"test_{platform}/test9.txt")
     assert local_md5 == md5_value
     assert scp_transfer.compare_md5() is True
 
@@ -98,7 +103,8 @@ def test_disconnect_get(scp_fixture_get):
 def test_file_transfer(scp_file_transfer):
     """Test Netmiko file_transfer function."""
     ssh_conn, file_system = scp_file_transfer
-    source_file = "test9.txt"
+    platform = ssh_conn.device_type
+    source_file = f"test_{platform}/test9.txt"
     dest_file = "test9.txt"
     direction = "put"
 
@@ -134,7 +140,7 @@ def test_file_transfer(scp_file_transfer):
     )
 
     # Don't allow a file overwrite (switch the source file, but same dest file name)
-    source_file = "test2_src.txt"
+    source_file = f"test_{platform}/test2_src.txt"
     with pytest.raises(Exception):
         transfer_dict = file_transfer(
             ssh_conn,
@@ -146,7 +152,7 @@ def test_file_transfer(scp_file_transfer):
         )
 
     # Don't allow MD5 and file overwrite not allowed
-    source_file = "test9.txt"
+    source_file = f"test_{platform}/test9.txt"
     with pytest.raises(Exception):
         transfer_dict = file_transfer(
             ssh_conn,
@@ -190,7 +196,7 @@ def test_file_transfer(scp_file_transfer):
     # GET Operations
     direction = "get"
     source_file = "test9.txt"
-    dest_file = "testx.txt"
+    dest_file = f"test_{platform}/testx.txt"
     transfer_dict = file_transfer(
         ssh_conn,
         source_file=source_file,
@@ -224,8 +230,8 @@ def test_file_transfer(scp_file_transfer):
     )
 
     # Don't allow a file overwrite (switch the file, but same dest file name)
-    source_file = "test2.txt"
-    dest_file = "testx.txt"
+    source_file = f"test_{platform}/test2.txt"
+    dest_file = f"test_{platform}/testx.txt"
     with pytest.raises(Exception):
         transfer_dict = file_transfer(
             ssh_conn,
@@ -238,7 +244,7 @@ def test_file_transfer(scp_file_transfer):
 
     # Don't allow MD5 and file overwrite not allowed
     source_file = "test9.txt"
-    dest_file = "testx.txt"
+    dest_file = f"test_{platform}/testx.txt"
     with pytest.raises(Exception):
         transfer_dict = file_transfer(
             ssh_conn,

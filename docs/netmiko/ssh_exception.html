@@ -38,6 +38,12 @@ class NetmikoAuthenticationException(AuthenticationException):
     pass
 
 
+class ConfigInvalidException(Exception):
+    &#34;&#34;&#34;Exception raised for invalid configuration error.&#34;&#34;&#34;
+
+    pass
+
+
 NetMikoTimeoutException = NetmikoTimeoutException
 NetMikoAuthenticationException = NetmikoAuthenticationException</code></pre>
 </details>
@@ -51,6 +57,25 @@ NetMikoAuthenticationException = NetmikoAuthenticationException</code></pre>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="netmiko.ssh_exception.ConfigInvalidException"><code class="flex name class">
+<span>class <span class="ident">ConfigInvalidException</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Exception raised for invalid configuration error.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class ConfigInvalidException(Exception):
+    &#34;&#34;&#34;Exception raised for invalid configuration error.&#34;&#34;&#34;
+
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
 <dt id="netmiko.ssh_exception.NetmikoAuthenticationException"><code class="flex name class">
 <span>class <span class="ident">NetMikoAuthenticationException</span></span>
 <span>(</span><span>*args, **kwargs)</span>
@@ -149,6 +174,9 @@ NetMikoAuthenticationException = NetmikoAuthenticationException</code></pre>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="netmiko.ssh_exception.ConfigInvalidException" href="#netmiko.ssh_exception.ConfigInvalidException">ConfigInvalidException</a></code></h4>
+</li>
 <li>
 <h4><code><a title="netmiko.ssh_exception.NetmikoAuthenticationException" href="#netmiko.ssh_exception.NetmikoAuthenticationException">NetmikoAuthenticationException</a></code></h4>
 </li>

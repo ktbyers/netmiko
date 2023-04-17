@@ -1,5 +1,7 @@
 """Mellanox MLNX-OS Switch support."""
 import re
+from typing import Optional
+
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
 
@@ -7,28 +9,57 @@ from netmiko import log
 class MellanoxMlnxosSSH(CiscoSSHConnection):
     """Mellanox MLNX-OS Switch support."""
 
-    def enable(self, cmd="enable", pattern="#", re_flags=re.IGNORECASE):
+    def enable(
+        self,
+        cmd: str = "enable",
+        pattern: str = "#",
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """Enter into enable mode."""
         output = ""
         if not self.check_enable_mode():
             self.write_channel(self.normalize_cmd(cmd))
             output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
+                pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
             if not self.check_enable_mode():
                 raise ValueError("Failed to enter enable mode.")
         return output
 
-    def config_mode(self, config_command="config term", pattern="#"):
-        return super().config_mode(config_command=config_command, pattern=pattern)
+    def config_mode(
+        self,
+        config_command: str = "config term",
+        pattern: str = r"\#",
+        re_flags: int = 0,
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def check_config_mode(self, check_string="(config", pattern=r"#"):
+    def check_config_mode(
+        self,
+        check_string: str = "(config",
+        pattern: str = r"#",
+        force_regex: bool = False,
+    ) -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def disable_paging(self, command="no cli session paging enable", delay_factor=1):
-        return super().disable_paging(command=command, delay_factor=delay_factor)
+    def disable_paging(
+        self,
+        command: str = "no cli session paging enable",
+        delay_factor: Optional[float] = None,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -> str:
+        return super().disable_paging(
+            command=command,
+            delay_factor=delay_factor,
+            cmd_verify=cmd_verify,
+            pattern=pattern,
+        )
 
-    def exit_config_mode(self, exit_config="exit", pattern="#"):
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "#") -> str:
         """Mellanox does not support a single command to completely exit configuration mode.
 
         Consequently, need to keep checking and sending "exit".
@@ -51,11 +82,14 @@ class MellanoxMlnxosSSH(CiscoSSHConnection):
         return output
 
     def save_config(
-        self, cmd="configuration write", confirm=False, confirm_response=""
-    ):
+        self,
+        cmd: str = "configuration write",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Save Config on Mellanox devices Enters and Leaves Config Mode"""
         output = self.enable()
         output += self.config_mode()
-        output += self.send_command(cmd)
+        output += self._send_command_str(cmd)
         output += self.exit_config_mode()
         return output

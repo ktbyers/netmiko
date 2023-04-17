@@ -1,17 +1,13 @@
+from typing import Any, Optional, Callable
 import re
 import os
+from netmiko.base_connection import BaseConnection
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
 
 class CiscoNxosSSH(CiscoSSHConnection):
-    def __init__(self, *args, **kwargs):
-        # Cisco NX-OS defaults to fast_cli=True and legacy_mode=False
-        kwargs.setdefault("fast_cli", True)
-        kwargs.setdefault("_legacy_mode", False)
-        return super().__init__(*args, **kwargs)
-
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         # NX-OS has an issue where it echoes the command even though it hasn't returned the prompt
@@ -22,46 +18,50 @@ class CiscoNxosSSH(CiscoSSHConnection):
         self.disable_paging()
         self.set_base_prompt()
 
-    def normalize_linefeeds(self, a_string):
+    def normalize_linefeeds(self, a_string: str) -> str:
         """Convert '\r\n' or '\r\r\n' to '\n, and remove extra '\r's in the text."""
         newline = re.compile(r"(\r\r\n\r|\r\r\n|\r\n)")
         # NX-OS fix for incorrect MD5 on 9K (due to strange <enter> patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace("\r", "\n")
 
-    def check_config_mode(self, check_string=")#", pattern="#"):
+    def check_config_mode(
+        self,
+        check_string: str = ")#",
+        pattern: str = r"[>#]",
+        force_regex: bool = False,
+    ) -> bool:
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def save_config(
         self,
-        cmd="copy running-config startup-config",
-        confirm=False,
-        confirm_response="",
-    ):
+        cmd: str = "copy running-config startup-config",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         self.enable()
 
+        output = ""
         if confirm:
-            output = self.send_command_timing(
+            output += self._send_command_timing_str(
                 command_string=cmd, strip_prompt=False, strip_command=False
             )
             if confirm_response:
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     confirm_response, strip_prompt=False, strip_command=False
                 )
             else:
                 # Send enter by default
-                output += self.send_command_timing(
+                output += self._send_command_timing_str(
                     self.RETURN, strip_prompt=False, strip_command=False
                 )
         else:
             # NX-OS is very slow on save_config ensure it waits long enough.
-            # FIX: this is a hack as delay_factor will be set to .1 via fast_cli=True in
-            # send_command so increase max_loops.
-            output = self.send_command(
+            output += self._send_command_str(
                 command_string=cmd,
                 strip_prompt=False,
                 strip_command=False,
-                max_loops=5000,
+                read_timeout=100,
             )
         return output
 
@@ -71,19 +71,23 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
 
     def __init__(
         self,
-        ssh_conn,
-        source_file,
-        dest_file,
-        file_system="bootflash:",
-        direction="put",
-        socket_timeout=10.0,
-        progress=None,
-        progress4=None,
-    ):
+        ssh_conn: BaseConnection,
+        source_file: str,
+        dest_file: str,
+        file_system: str = "bootflash:",
+        direction: str = "put",
+        socket_timeout: float = 10.0,
+        progress: Optional[Callable[..., Any]] = None,
+        progress4: Optional[Callable[..., Any]] = None,
+        hash_supported: bool = True,
+    ) -> None:
         self.ssh_ctl_chan = ssh_conn
         self.source_file = source_file
         self.dest_file = dest_file
         self.direction = direction
+
+        if hash_supported is False:
+            raise ValueError("hash_supported=False is not supported for NX-OS")
 
         if file_system:
             self.file_system = file_system
@@ -103,12 +107,12 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         self.progress = progress
         self.progress4 = progress4
 
-    def check_file_exists(self, remote_cmd=""):
+    def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
             if not remote_cmd:
                 remote_cmd = f"dir {self.file_system}{self.dest_file}"
-            remote_out = self.ssh_ctl_chan.send_command_expect(remote_cmd)
+            remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
             search_string = r"{}.*Usage for".format(self.dest_file)
             if "No such file or directory" in remote_out:
                 return False
@@ -118,19 +122,25 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
                 raise ValueError("Unexpected output from check_file_exists")
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
+        else:
+            raise ValueError("Invalid value for file transfer direction.")
 
-    def remote_file_size(self, remote_cmd="", remote_file=None):
+    def remote_file_size(
+        self, remote_cmd: str = "", remote_file: Optional[str] = None
+    ) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
+            else:
+                raise ValueError("Invalid value for file transfer direction.")
 
         if not remote_cmd:
             remote_cmd = f"dir {self.file_system}/{remote_file}"
 
-        remote_out = self.ssh_ctl_chan.send_command(remote_cmd)
+        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
         if re.search("no such file or directory", remote_out, flags=re.I):
             raise IOError("Unable to find file on remote system")
         # Match line containing file name
@@ -145,21 +155,25 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         raise IOError("Unable to find file on remote system")
 
     @staticmethod
-    def process_md5(md5_output, pattern=r"= (.*)"):
+    def process_md5(md5_output: str, pattern: str = r"= (.*)") -> str:
         """Not needed on NX-OS."""
         raise NotImplementedError
 
-    def remote_md5(self, base_cmd="show file", remote_file=None):
+    def remote_md5(
+        self, base_cmd: str = "show file", remote_file: Optional[str] = None
+    ) -> str:
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = f"{base_cmd} {self.file_system}{remote_file} md5sum"
-        return self.ssh_ctl_chan.send_command(remote_md5_cmd, max_loops=1500).strip()
+        output = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
+        output = output.strip()
+        return output
 
-    def enable_scp(self, cmd=None):
+    def enable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError
