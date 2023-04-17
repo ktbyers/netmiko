@@ -110,6 +110,7 @@ from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
+from netmiko.teldat import TeldatSSH
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
@@ -249,6 +250,7 @@ CLASS_MAPPER_BASE = {
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
     "supermicro_smis": SmciSwitchSmisSSH,
+    "teldat_cit": TeldatSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
