@@ -16,8 +16,12 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
     """
 
     def set_base_prompt(
-        self, pri_prompt_terminator="$", alt_prompt_terminator=">", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = "$",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
         prompt = self.find_prompt(delay_factor=delay_factor)
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
