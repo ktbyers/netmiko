@@ -175,13 +175,13 @@ class NokiaSros(BaseConnection):
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
-        exit_config_mode: bool = None,
+        exit_config_mode: bool = True,
         **kwargs: Any,
     ) -> str:
         """Model driven CLI requires you not exit from configuration mode."""
-        if exit_config_mode is None:
-            # Set to False if model-driven CLI
-            exit_config_mode = False if "@" in self.base_prompt else True
+        # Set to False if model-driven CLI
+        if "@" in self.base_prompt:
+            exit_config_mode = False
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
