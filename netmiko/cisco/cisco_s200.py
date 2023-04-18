@@ -11,12 +11,14 @@ class CiscoS200Base(CiscoSSHConnection):
     """
     Support for Cisco SG200 series of devices.
 
-    This connection class writes for low cost switches SG200 series, in which there is no command
-    ip ssh password-auth
-    and username promted twice
+    This connection class writes for low cost switches SG200 series, in which there is no command:
 
-    The switch does not support any SSH authentication methods.
+    ip ssh password-auth
+
+    Consequently, Netmiko must handle the SSH authentication itself.
     """
+
+    prompt_pattern = r"(?m:[>#]\s*$)"  # force re.Multiline
 
     def _build_ssh_client(self) -> SSHClient:
         """Allow passwordless authentication for Cisco SG200 devices being provisioned."""
@@ -33,8 +35,6 @@ class CiscoS200Base(CiscoSSHConnection):
         # Default is to automatically add untrusted hosts (make sure appropriate for your env)
         remote_conn_pre.set_missing_host_key_policy(self.key_policy)
         return remote_conn_pre
-
-    prompt_pattern = r"(?m:[>#]\s*$)"  # force re.Multiline
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Cisco SG2xx presents with the following on login
@@ -55,6 +55,8 @@ class CiscoS200Base(CiscoSSHConnection):
         while True:
             new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
             output += new_data
+
+            # Fully logged-in, switch prompt detected.
             if re.search(self.prompt_pattern, new_data):
                 return
 
@@ -81,8 +83,6 @@ output:
         self.ansi_escape_codes = True
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
-        # Command not support in SG220
-        # self.set_terminal_width(command="terminal width 511", pattern="terminal")
         self.disable_paging(command="terminal length 0")
 
     def save_config(
@@ -101,8 +101,4 @@ class CiscoS200SSH(CiscoS200Base):
 
 
 class CiscoS200Telnet(CiscoS200Base):
-    """
-    Support for Cisco SG200 series of devices, with telnet.
-    """
-
     pass
