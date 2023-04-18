@@ -13,22 +13,16 @@ class EricssonMinilinkBase(BaseConnection):
 
     def __init__(
         self,
-        default_ssh_username: str = "cli",
-        login_timeout: int = 20,
-        login_sleep_time: float = 0.1,
-        login_sleep_multiplier: int = 5,
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        self.login_timeout = login_timeout
-        self.login_sleep_time = login_sleep_time
-        self.login_sleep_multiplier = login_sleep_multiplier
-
         # Remove username from kwargs to avoid duplicates
         self._real_username = ""
         if "username" in kwargs:
+            # Saving the username for the acutal login prompt
             self._real_username = kwargs["username"]
-            kwargs["username"] = default_ssh_username
+            # Setting CLI as the default ssh username
+            kwargs["username"] = "cli"
 
         super().__init__(*args, **kwargs)
 
@@ -56,7 +50,7 @@ class EricssonMinilinkBase(BaseConnection):
             pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
         )
 
-    def special_login_handler(self, delay_factor: float = 1.0) -> None:
+    def special_login_handler(self) -> None:
         """Handle Ericcsons Special MINI-LINK CLI login
         ------------------------------------------
         MINI-LINK <model>  Command Line Interface
@@ -66,15 +60,19 @@ class EricssonMinilinkBase(BaseConnection):
         User:
         Password:
         """
+        if not self.auth_timeout:
+            self.auth_timeout = 20
+        # We are using sleep here due to Ericsson MLTN being slow on login
         start = time.time()
-        while time.time() - start < self.login_timeout:
-            output = self.read_channel()
+        output = ""
+        while time.time() - start < self.auth_timeout:
+            output += self.read_channel()
 
             # Check if there is any data returned yet
             if not output:
                 # Sleep before checking again
-                time.sleep(self.login_sleep_time * self.login_sleep_multiplier)
-                output = self.read_channel()
+                time.sleep(0.5)
+                output += self.read_channel()
                 # If still no output, send an <enter> and try again in next loop
                 if not output:
                     self.write_channel(self.RETURN)
@@ -83,6 +81,8 @@ class EricssonMinilinkBase(BaseConnection):
             # Special login handle
             if "login:" in output or "User:" in output:
                 self.write_channel(self._real_username + self.RETURN)
+                # Resetting output since the next will be password
+                output = ""
             elif "password:" in output or "Password:" in output:
                 assert isinstance(self.password, str)
                 self.write_channel(self.password + self.RETURN)
@@ -92,28 +92,33 @@ class EricssonMinilinkBase(BaseConnection):
                 raise ValueError("CLI is currently busy")
 
             # If none of the checks above is a success, sleep and try again
-            time.sleep(self.login_sleep_time)
+            time.sleep(1)
 
         else:  # no-break
             msg = f"""Login process failed to device:
-Timeout reached ({self.login_timeout} seconds)"""
+Timeout reached (auth_timeout={self.auth_timeout} seconds)"""
             raise NetmikoTimeoutException(msg)
 
-    def cleanup(self, command: str = "exit") -> None:
-        """Gracefully exit the SSH session."""
-        self._session_log_fin = True
-        self.write_channel(command + self.RETURN)
+    def save_config(
+        self,
+        cmd: str = "write",
+    ) -> str:
+        """Saves Config."""
+        if super().check_config_mode(check_string=")#"):
+            super().exit_config_mode(exit_config="exit", pattern="#")
+
+        return self.send_command_timing(
+            command_string=cmd, strip_prompt=False, strip_command=False
+        )
 
 
 class EricssonMinilink63SSH(EricssonMinilinkBase):
     """Common Methods for Ericsson Minilink 63XX (SSH)"""
 
-    def check_config_mode(
-        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
-    ) -> bool:
-        return super().check_config_mode(
-            check_string=check_string, pattern=pattern, force_regex=force_regex
-        )
+    def cleanup(self) -> None:
+        """Gracefully exit the SSH session."""
+        self._session_log_fin = True
+        self.write_channel("quit" + self.RETURN)
 
     def config_mode(
         self, config_command: str = "config", pattern: str = r"[)#]", re_flags: int = 0
@@ -125,46 +130,25 @@ class EricssonMinilink63SSH(EricssonMinilinkBase):
         with the ML6300 series aswell, but they do not implement a config mode.
         """
         output = ""
-        if self.check_config_mode():
+        if super().check_config_mode(check_string=")#"):
             return output
 
         self.write_channel(self.normalize_cmd(command=config_command))
         output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
 
-        if not self.check_config_mode():
+        if not super().check_config_mode(check_string=")#"):
             raise ValueError("Failed to enter configuration mode.")
 
-        return output
-
-    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "#") -> str:
-        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
-
-    def save_config(
-        self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
-        """Save Config for Ericsson Minilink"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
-
-    def commit(self) -> str:
-        if self.check_config_mode():
-            self.exit_config_mode()
-
-        output = self.save_config()
-        self.exit_config_mode()
         return output
 
 
 class EricssonMinilink66SSH(EricssonMinilinkBase):
     """Common Methods for Ericsson Minilink 66XX (SSH)"""
 
-    def check_config_mode(
-        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
-    ) -> bool:
-        return super().check_config_mode(
-            check_string=check_string, pattern=pattern, force_regex=force_regex
-        )
+    def cleanup(self) -> None:
+        """Gracefully exit the SSH session."""
+        self._session_log_fin = True
+        self.write_channel("exit" + self.RETURN)
 
     def config_mode(
         self,
@@ -179,32 +163,13 @@ class EricssonMinilink66SSH(EricssonMinilinkBase):
         with the ML6300 series aswell, but they do not implement a config mode.
         """
         output = ""
-        if self.check_config_mode():
+        if super().check_config_mode(check_string=")#"):
             return output
 
         self.write_channel(self.normalize_cmd(command=config_command))
         output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
 
-        if not self.check_config_mode():
+        if not super().check_config_mode(check_string=")#"):
             raise ValueError("Failed to enter configuration mode.")
 
-        return output
-
-    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "#") -> str:
-        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
-
-    def save_config(
-        self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
-        """Save Config for Ericsson Minilink"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
-
-    def commit(self) -> str:
-        if self.check_config_mode():
-            self.exit_config_mode()
-
-        output = self.save_config()
-        self.exit_config_mode()
         return output
