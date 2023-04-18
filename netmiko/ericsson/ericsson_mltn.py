@@ -50,7 +50,7 @@ class EricssonMinilinkBase(BaseConnection):
             pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
         )
 
-    def special_login_handler(self) -> None:
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Handle Ericcsons Special MINI-LINK CLI login
         ------------------------------------------
         MINI-LINK <model>  Command Line Interface
@@ -100,31 +100,29 @@ Timeout reached (auth_timeout={self.auth_timeout} seconds)"""
             raise NetmikoTimeoutException(msg)
 
     def save_config(
-        self,
-        cmd: str = "write",
+        self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Saves Config."""
         if super().check_config_mode(check_string=")#"):
             super().exit_config_mode(exit_config="exit", pattern="#")
 
-        return self.send_command_timing(
-            command_string=cmd, strip_prompt=False, strip_command=False
-        )
+        self.send_command(command_string=cmd, strip_prompt=False, strip_command=False)
+        return "success"
 
 
 class EricssonMinilink63SSH(EricssonMinilinkBase):
     """Common Methods for Ericsson Minilink 63XX (SSH)"""
 
-    def cleanup(self) -> None:
+    def cleanup(self, command: str = "quit") -> None:
         """Gracefully exit the SSH session."""
         self._session_log_fin = True
-        self.write_channel("quit" + self.RETURN)
+        self.write_channel(command + self.RETURN)
 
 
 class EricssonMinilink66SSH(EricssonMinilinkBase):
     """Common Methods for Ericsson Minilink 66XX (SSH)"""
 
-    def cleanup(self) -> None:
+    def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         self._session_log_fin = True
-        self.write_channel("exit" + self.RETURN)
+        self.write_channel(command + self.RETURN)
