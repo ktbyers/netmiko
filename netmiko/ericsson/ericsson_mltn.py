@@ -120,27 +120,6 @@ class EricssonMinilink63SSH(EricssonMinilinkBase):
         self._session_log_fin = True
         self.write_channel("quit" + self.RETURN)
 
-    def config_mode(
-        self, config_command: str = "config", pattern: str = r"[)#]", re_flags: int = 0
-    ) -> str:
-        """
-        Enter Configuration Mode
-
-        This is intended for the ML6600 series traffic node. This driver should work
-        with the ML6300 series aswell, but they do not implement a config mode.
-        """
-        output = ""
-        if super().check_config_mode(check_string=")#"):
-            return output
-
-        self.write_channel(self.normalize_cmd(command=config_command))
-        output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
-
-        if not super().check_config_mode(check_string=")#"):
-            raise ValueError("Failed to enter configuration mode.")
-
-        return output
-
 
 class EricssonMinilink66SSH(EricssonMinilinkBase):
     """Common Methods for Ericsson Minilink 66XX (SSH)"""
@@ -149,27 +128,3 @@ class EricssonMinilink66SSH(EricssonMinilinkBase):
         """Gracefully exit the SSH session."""
         self._session_log_fin = True
         self.write_channel("exit" + self.RETURN)
-
-    def config_mode(
-        self,
-        config_command: str = "configure",
-        pattern: str = r"[)#]",
-        re_flags: int = 0,
-    ) -> str:
-        """
-        Enter Configuration Mode
-
-        This is intended for the ML6600 series traffic node. This driver should work
-        with the ML6300 series aswell, but they do not implement a config mode.
-        """
-        output = ""
-        if super().check_config_mode(check_string=")#"):
-            return output
-
-        self.write_channel(self.normalize_cmd(command=config_command))
-        output = self.read_until_pattern(pattern=pattern, re_flags=re_flags)
-
-        if not super().check_config_mode(check_string=")#"):
-            raise ValueError("Failed to enter configuration mode.")
-
-        return output
