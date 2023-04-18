@@ -53,7 +53,7 @@ class TeldatCITBase(NoEnable, BaseConnection):
         self.write_channel(command + self.RETURN)
         output = ""
         for _ in range(30):
-            time.sleep(.1)
+            time.sleep(0.1)
             output += self.read_channel()
             if "Do you wish to end" in output:
                 self.write_channel("yes" + self.RETURN)
