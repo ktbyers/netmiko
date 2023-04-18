@@ -45,10 +45,19 @@ class TeldatCITBase(NoEnable, BaseConnection):
     def cleanup(self, command: str = "logout") -> None:
         """Gracefully exit the SSH session."""
         self._base_mode()
-        # Always try to send final 'logout'.
-        self._session_log_fin = True
+
+        if self.session_log:
+            self.session_log.fin = True
+
+        # Always try to send final 'logout'
         self.write_channel(command + self.RETURN)
-        self.write_channel("yes" + self.RETURN)
+        output = ""
+        for _ in range(30):
+            time.sleep(.1)
+            output += self.read_channel()
+            if "Do you wish to end" in output:
+                self.write_channel("yes" + self.RETURN)
+                break
 
     def _check_monitor_mode(self, check_string: str = "+", pattern: str = "") -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
