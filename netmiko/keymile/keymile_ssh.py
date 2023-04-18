@@ -1,5 +1,5 @@
+from typing import Any, Optional
 import time
-from typing import Any
 
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
@@ -32,10 +32,12 @@ class KeymileSSH(NoEnable, NoConfig, CiscoIosBase):
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = ">",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
-        """set prompt termination  to >"""
+        """set prompt termination to >"""
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )

@@ -12,6 +12,7 @@ from typing import (
     Tuple,
 )
 from typing import TYPE_CHECKING
+import re
 from glob import glob
 import sys
 import io
@@ -19,6 +20,7 @@ import os
 from pathlib import Path
 import functools
 from datetime import datetime
+import importlib.resources as pkg_resources
 from textfsm import clitable
 from textfsm.clitable import CliTableError
 from netmiko import log
@@ -47,12 +49,6 @@ try:
     GENIE_INSTALLED = True
 except ImportError:
     GENIE_INSTALLED = False
-
-# If we are on python < 3.7, we need to force the import of importlib.resources backport
-if sys.version_info[:2] >= (3, 7):
-    import importlib.resources as pkg_resources
-else:
-    import importlib_resources as pkg_resources
 
 try:
     import serial.tools.list_ports
@@ -227,16 +223,12 @@ def find_netmiko_dir() -> Tuple[str, str]:
     return (netmiko_base_dir, netmiko_full_dir)
 
 
-def write_bytes(out_data: AnyStr, encoding: str = "ascii") -> bytes:
-    """Legacy for Python2 and Python3 compatible byte stream."""
-    if sys.version_info[0] >= 3:
-        if isinstance(out_data, str):
-            if encoding == "utf-8":
-                return out_data.encode("utf-8")
-            else:
-                return out_data.encode("ascii", "ignore")
-        elif isinstance(out_data, bytes):
-            return out_data
+def write_bytes(out_data: AnyStr, encoding: str = "utf-8") -> bytes:
+    """Ensure output is properly encoded bytes."""
+    if isinstance(out_data, str):
+        return out_data.encode(encoding)
+    elif isinstance(out_data, bytes):
+        return out_data
     msg = f"Invalid value for out_data neither unicode nor byte string: {str(out_data)}"
     raise ValueError(msg)
 
@@ -655,3 +647,17 @@ def calc_old_timeout(
         max_loops = int(old_timeout / loop_delay)
 
     return max_loops * loop_delay * delay_factor
+
+
+def nokia_context_filter(data: str, re_flags: int = re.M) -> str:
+    """
+    Nokia context from string. Examples:
+
+    (ro)[]
+
+    (ex)[configure router "Base" bgp]
+
+    Converted over to a standalone function for easier unit testing.
+    """
+    context_pattern = r"^\!?\*?(\((ex|gl|pr|ro)\))?\[.*\]"
+    return re.sub(context_pattern, "", data, flags=re_flags)

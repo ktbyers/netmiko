@@ -6,15 +6,26 @@ from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationExc
 from netmiko.a10 import A10SSH
 from netmiko.accedian import AccedianSSH
 from netmiko.adtran import AdtranOSSSH, AdtranOSTelnet
+from netmiko.adva import AdvaAosFsp150F3SSH, AdvaAosFsp150F2SSH
 from netmiko.alcatel import AlcatelAosSSH
 from netmiko.allied_telesis import AlliedTelesisAwplusSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
+from netmiko.arris import ArrisCERSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaSSH
+from netmiko.audiocode import (
+    Audiocode72SSH,
+    Audiocode66SSH,
+    AudiocodeShellSSH,
+    Audiocode72Telnet,
+    Audiocode66Telnet,
+    AudiocodeShellTelnet,
+)
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
+from netmiko.casa import CasaCMTSSSH
 from netmiko.cdot import CdotCrosSSH
 from netmiko.centec import CentecOSSSH, CentecOSTelnet
 from netmiko.checkpoint import CheckPointGaiaSSH
@@ -50,12 +61,13 @@ from netmiko.endace import EndaceSSH
 from netmiko.enterasys import EnterasysSSH
 from netmiko.ericsson import EricssonIposSSH
 from netmiko.extreme import ExtremeErsSSH
-from netmiko.extreme import ExtremeExosSSH
+from netmiko.extreme import ExtremeExosSSH, ExtremeExosFileTransfer
 from netmiko.extreme import ExtremeExosTelnet
 from netmiko.extreme import ExtremeNetironSSH
 from netmiko.extreme import ExtremeNetironTelnet
 from netmiko.extreme import ExtremeNosSSH
 from netmiko.extreme import ExtremeSlxSSH
+from netmiko.extreme import ExtremeTierraSSH
 from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5TmshSSH
@@ -70,13 +82,18 @@ from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
-from netmiko.mikrotik import MikrotikRouterOsSSH
+from netmiko.mikrotik import MikrotikRouterOsSSH, MikrotikRouterOsFileTransfer
 from netmiko.mikrotik import MikrotikSwitchOsSSH
 from netmiko.mellanox import MellanoxMlnxosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
-from netmiko.nokia import NokiaSrosSSH, NokiaSrosFileTransfer, NokiaSrosTelnet
+from netmiko.nokia import (
+    NokiaSrosSSH,
+    NokiaSrosFileTransfer,
+    NokiaSrosTelnet,
+    NokiaSrlSSH,
+)
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
@@ -93,10 +110,11 @@ from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
+from netmiko.teldat import TeldatCITSSH, TeldatCITTelnet
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
-from netmiko.ubiquiti import UbiquitiEdgeRouterSSH
+from netmiko.ubiquiti import UbiquitiEdgeRouterSSH, UbiquitiEdgeRouterFileTransfer
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ubiquiti import UbiquitiUnifiSwitchSSH
 from netmiko.vyos import VyOSSSH
@@ -107,6 +125,8 @@ from netmiko.zte import ZteZxrosSSH
 from netmiko.zte import ZteZxrosTelnet
 from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
+from netmiko.zyxel import ZyxelSSH
+from netmiko.hillstone import HillstoneStoneosSSH
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -120,14 +140,20 @@ CLASS_MAPPER_BASE = {
     "a10": A10SSH,
     "accedian": AccedianSSH,
     "adtran_os": AdtranOSSSH,
+    "adva_fsp150f2": AdvaAosFsp150F2SSH,
+    "adva_fsp150f3": AdvaAosFsp150F3SSH,
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "allied_telesis_awplus": AlliedTelesisAwplusSSH,
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
+    "arris_cer": ArrisCERSSH,
     "aruba_os": ArubaSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
+    "audiocode_72": Audiocode72SSH,
+    "audiocode_66": Audiocode66SSH,
+    "audiocode_shell": AudiocodeShellSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
     "broadcom_icos": BroadcomIcosSSH,
@@ -139,6 +165,7 @@ CLASS_MAPPER_BASE = {
     "brocade_vyos": VyOSSSH,
     "checkpoint_gaia": CheckPointGaiaSSH,
     "calix_b6": CalixB6SSH,
+    "casa_cmts": CasaCMTSSSH,
     "cdot_cros": CdotCrosSSH,
     "centec_os": CentecOSSSH,
     "ciena_saos": CienaSaosSSH,
@@ -174,6 +201,7 @@ CLASS_MAPPER_BASE = {
     "extreme_netiron": ExtremeNetironSSH,
     "extreme_nos": ExtremeNosSSH,
     "extreme_slx": ExtremeSlxSSH,
+    "extreme_tierra": ExtremeTierraSSH,
     "extreme_vdx": ExtremeNosSSH,
     "extreme_vsp": ExtremeVspSSH,
     "extreme_wing": ExtremeWingSSH,
@@ -184,11 +212,13 @@ CLASS_MAPPER_BASE = {
     "fortinet": FortinetSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
+    "hillstone_stoneos": HillstoneStoneosSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
     "huawei_smartax": HuaweiSmartAXSSH,
     "huawei_olt": HuaweiSmartAXSSH,
+    "huawei_vrp": HuaweiSSH,
     "huawei_vrpv8": HuaweiVrpv8SSH,
     "ipinfusion_ocnos": IpInfusionOcNOSSSH,
     "juniper": JuniperSSH,
@@ -207,6 +237,7 @@ CLASS_MAPPER_BASE = {
     "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
     "nokia_sros": NokiaSrosSSH,
+    "nokia_srl": NokiaSrlSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
@@ -219,6 +250,7 @@ CLASS_MAPPER_BASE = {
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
     "supermicro_smis": SmciSwitchSmisSSH,
+    "teldat_cit": TeldatCITSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
@@ -229,6 +261,7 @@ CLASS_MAPPER_BASE = {
     "watchguard_fireware": WatchguardFirewareSSH,
     "zte_zxros": ZteZxrosSSH,
     "yamaha": YamahaSSH,
+    "zyxel_os": ZyxelSSH,
 }
 
 FILE_TRANSFER_MAP = {
@@ -240,9 +273,12 @@ FILE_TRANSFER_MAP = {
     "cisco_xe": CiscoIosFileTransfer,
     "cisco_xr": CiscoXrFileTransfer,
     "dell_os10": DellOS10FileTransfer,
+    "extreme_exos": ExtremeExosFileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
     "nokia_sros": NokiaSrosFileTransfer,
+    "mikrotik_routeros": MikrotikRouterOsFileTransfer,
+    "ubiquiti_edgerouter": UbiquitiEdgeRouterFileTransfer,
 }
 
 # Also support keys that end in _ssh
@@ -265,6 +301,9 @@ CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet
 CLASS_MAPPER["apresia_aeos_telnet"] = ApresiaAeosTelnet
 CLASS_MAPPER["arista_eos_telnet"] = AristaTelnet
 CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
+CLASS_MAPPER["audiocode_72_telnet"] = Audiocode72Telnet
+CLASS_MAPPER["audiocode_66_telnet"] = Audiocode66Telnet
+CLASS_MAPPER["audiocode_shell_telnet"] = AudiocodeShellTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
@@ -295,6 +334,7 @@ CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
 CLASS_MAPPER["supermicro_smis_telnet"] = SmciSwitchSmisTelnet
+CLASS_MAPPER["teldat_cit_telnet"] = TeldatCITTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
@@ -385,6 +425,8 @@ def ConnLogOnly(
         elif "TCP connection to device failed" in str(e):
             msg = f"Netmiko was unable to reach the provided host and port: {hostname}:{port}"
             msg += f"\n\n{str(e)}"
+        else:
+            msg = f"An unknown NetmikoTimeoutException occurred:\n\n{str(e)}"
         logger.error(msg)
         return None
     except Exception as e:

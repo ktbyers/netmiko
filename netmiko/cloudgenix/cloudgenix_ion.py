@@ -1,4 +1,4 @@
-from typing import Any, Union, Sequence, TextIO
+from typing import Any, Union, Sequence, Iterator, TextIO, Optional
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -18,8 +18,10 @@ class CloudGenixIonSSH(NoConfig, CiscoSSHConnection):
         """Cloud Genix ION sets terminal height in establish_connection"""
         return ""
 
-    def find_prompt(self, delay_factor: float = 1.0) -> str:
-        prompt = super().find_prompt(delay_factor=delay_factor)
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -> str:
+        prompt = super().find_prompt(delay_factor=delay_factor, pattern=pattern)
         prompt = self.strip_backspaces(prompt).strip()
         return prompt
 
@@ -35,7 +37,7 @@ class CloudGenixIonSSH(NoConfig, CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any
     ) -> str:

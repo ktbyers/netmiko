@@ -7,7 +7,7 @@
 #
 # Purpose: Provide basic SSH connection to CROS based router products
 
-from typing import Optional, Union, Sequence, TextIO, Any
+from typing import Optional, Union, Sequence, Iterator, TextIO, Any
 import time
 import warnings
 from netmiko.no_enable import NoEnable
@@ -29,7 +29,7 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
     ) -> str:
@@ -39,7 +39,10 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
         )
 
     def check_config_mode(
-        self, check_string: str = ")#", pattern: str = r"[#\$]"
+        self,
+        check_string: str = ")#",
+        pattern: str = r"[#\$]",
+        force_regex: bool = False,
     ) -> bool:
         """Checks if device is in configuration mode"""
         return super().check_config_mode(check_string=check_string, pattern=pattern)

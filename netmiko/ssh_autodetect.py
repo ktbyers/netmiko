@@ -76,6 +76,18 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "arris_cer": {
+        "cmd": "show version",
+        "search_patterns": [r"CER"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "casa_cmts": {
+        "cmd": "show version",
+        "search_patterns": [r"Casa"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "ciena_saos": {
         "cmd": "software show",
         "search_patterns": [r"saos"],
@@ -97,6 +109,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cisco_xe": {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco IOS XE Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_nxos": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Nexus Operating System", r"NX-OS"],
@@ -105,6 +123,12 @@ SSH_MAPPER_DICT = {
     },
     "cisco_xr": {
         "cmd": "show version",
+        "search_patterns": [r"Cisco IOS XR"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "cisco_xr_2": {
+        "cmd": "show version brief",
         "search_patterns": [r"Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -154,6 +178,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "hp_procurve": {
+        "cmd": "show version",
+        "search_patterns": [r"Image stamp.*/code/build"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "huawei": {
         "cmd": "display version",
         "search_patterns": [
@@ -180,6 +210,18 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "ericsson_ipos": {
+        "cmd": "show version",
+        "search_patterns": [r"Ericsson IPOS Version"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_exos": {
+        "cmd": "show version",
+        "search_patterns": [r"ExtremeXOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "extreme_netiron": {
         "cmd": "show version",
         "search_patterns": [r"(NetIron|MLX)"],
@@ -189,6 +231,12 @@ SSH_MAPPER_DICT = {
     "extreme_slx": {
         "cmd": "show version",
         "search_patterns": [r"SLX-OS Operating System Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "extreme_tierra": {
+        "cmd": "show version",
+        "search_patterns": [r"TierraOS Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -207,7 +255,7 @@ SSH_MAPPER_DICT = {
     "cisco_wlc_85": {
         "cmd": "show inventory",
         "dispatch": "_autodetect_std",
-        "search_patterns": [r"Cisco Wireless Controller"],
+        "search_patterns": [r"Cisco.*Wireless.*Controller"],
         "priority": 99,
     },
     "mellanox_mlnxos": {
@@ -224,7 +272,7 @@ SSH_MAPPER_DICT = {
     },
     "fortinet": {
         "cmd": "get system status",
-        "search_patterns": [r"FortiOS"],
+        "search_patterns": [r"FortiOS", r"FortiGate"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -237,6 +285,24 @@ SSH_MAPPER_DICT = {
     "supermicro_smis": {
         "cmd": "show system info",
         "search_patterns": [r"Super Micro Computer"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "flexvnf": {
+        "cmd": "show system package-info",
+        "search_patterns": [r"Versa FlexVNF"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "cisco_viptela": {
+        "cmd": "show system status",
+        "search_patterns": [r"Viptela, Inc"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "oneaccess_oneos": {
+        "cmd": "show version",
+        "search_patterns": [r"OneOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -294,6 +360,10 @@ class SSHDetect(object):
         # Always set cmd_verify to False for autodetect
         kwargs["global_cmd_verify"] = False
         self.connection = ConnectHandler(*args, **kwargs)
+
+        # Add additional sleep to let the login complete.
+        time.sleep(3)
+
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
         self.initial_buffer = output
@@ -324,7 +394,9 @@ class SSHDetect(object):
                     # WLC needs two different auto-dectect solutions
                     if "cisco_wlc_85" in best_match[0]:
                         best_match[0] = ("cisco_wlc", 99)
-
+                    # IOS XR needs two different auto-dectect solutions
+                    if "cisco_xr_2" in best_match[0]:
+                        best_match[0] = ("cisco_xr", 99)
                     self.connection.disconnect()
                     return best_match[0][0]
 
@@ -354,7 +426,7 @@ class SSHDetect(object):
         """
         self.connection.write_channel(cmd + "\n")
         time.sleep(1)
-        output = self.connection.read_channel_timing()
+        output = self.connection.read_channel_timing(last_read=6.0)
         output = self.connection.strip_backspaces(output)
         return output
 

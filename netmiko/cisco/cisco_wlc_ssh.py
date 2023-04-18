@@ -1,5 +1,5 @@
 """Netmiko Cisco WLC support."""
-from typing import Any, Union, Sequence, TextIO
+from typing import Any, Union, Sequence, Iterator, TextIO
 import time
 import re
 import socket
@@ -11,11 +11,7 @@ from netmiko.base_connection import BaseConnection
 class CiscoWlcSSH(BaseConnection):
     """Netmiko Cisco WLC support."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # WLC/AireOS has an issue where you can get "No Existing Session" with
-        # the default conn_timeout (so increase conn_timeout to 10-seconds).
-        kwargs.setdefault("conn_timeout", 10)
-        return super().__init__(*args, **kwargs)
+    prompt_pattern = r"(?m:[>#]\s*$)"  # force re.Multiline
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """WLC presents with the following on login (in certain OS versions)
@@ -28,33 +24,61 @@ class CiscoWlcSSH(BaseConnection):
 
         Password:****
         """
-        delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
-        time.sleep(delay_factor * 0.5)
         output = ""
-        while i <= 12:
-            output = self.read_channel()
-            if output:
-                if "login as" in output or "User:" in output:
-                    assert isinstance(self.username, str)
-                    self.write_channel(self.username + self.RETURN)
-                elif "Password" in output:
-                    assert isinstance(self.password, str)
-                    self.write_channel(self.password + self.RETURN)
-                    break
-                time.sleep(delay_factor * 1)
+        uname = "User:"
+        login = "login as"
+        password = "ssword"
+        pattern = rf"(?:{uname}|{login}|{password}|{self.prompt_pattern})"
+
+        while True:
+            new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
+            output += new_data
+            if re.search(self.prompt_pattern, new_data):
+                return
+
+            if uname in new_data or login in new_data:
+                assert isinstance(self.username, str)
+                self.write_channel(self.username + self.RETURN)
+            elif password in new_data:
+                assert isinstance(self.password, str)
+                self.write_channel(self.password + self.RETURN)
             else:
-                # no output read, sleep and go for one more round of read channel
-                time.sleep(delay_factor * 1.5)
-            i += 1
+                msg = f"""
+Failed to login to Cisco WLC Device.
+
+Pattern not detected: {pattern}
+output:
+
+{output}
+
+"""
+                raise NetmikoAuthenticationException(msg)
+
+    def session_preparation(self) -> None:
+        """
+        Prepare the session after the connection has been established
+
+        Cisco WLC uses "config paging disable" to disable paging
+        """
+
+        # _test_channel_read() will happen in the special_login_handler()
+        try:
+            self.set_base_prompt()
+        except ValueError:
+            msg = f"Authentication failed: {self.host}"
+            raise NetmikoAuthenticationException(msg)
+
+        self.disable_paging(command="config paging disable")
 
     def send_command_w_enter(self, *args: Any, **kwargs: Any) -> str:
         """
         For 'show run-config' Cisco WLC adds a 'Press Enter to continue...' message
-        Even though pagination is disabled
+        Even though pagination is disabled.
+
         show run-config also has excessive delays in the output which requires special
         handling.
-        Arguments are the same as send_command_timing() method
+
+        Arguments are the same as send_command_timing() method.
         """
         if len(args) > 1:
             raise ValueError("Must pass in delay_factor as keyword argument")
@@ -64,17 +88,18 @@ class CiscoWlcSSH(BaseConnection):
         kwargs["delay_factor"] = self.select_delay_factor(delay_factor)
         output = self._send_command_timing_str(*args, **kwargs)
 
+        second_args = list(args)
+        if len(args) == 1:
+            second_args[0] = self.RETURN
+        else:
+            kwargs["command_string"] = self.RETURN
+        if not kwargs.get("max_loops"):
+            kwargs["max_loops"] = 150
+
         if "Press any key" in output or "Press Enter to" in output:
-            new_args = list(args)
-            if len(args) == 1:
-                new_args[0] = self.RETURN
-            else:
-                kwargs["command_string"] = self.RETURN
-            if not kwargs.get("max_loops"):
-                kwargs["max_loops"] = 150
 
             # Send an 'enter'
-            output += self._send_command_timing_str(*new_args, **kwargs)
+            output += self._send_command_timing_str(*second_args, **kwargs)
 
             # WLC has excessive delay after this appears on screen
             if "802.11b Advanced Configuration" in output:
@@ -100,38 +125,47 @@ class CiscoWlcSSH(BaseConnection):
             output = self.strip_prompt(output)
         return output
 
-    def send_command_w_yes(self, *args: Any, **kwargs: Any) -> str:
+    def _send_command_w_yes(self, *args: Any, **kwargs: Any) -> str:
         """
         For 'show interface summary' Cisco WLC adds a
-        'Would you like to display the next 15 entries?' message
+        'Would you like to display the next 15 entries?' message.
+
         Even though pagination is disabled
-        Arguments are the same as send_command_timing() method
+        Arguments are the same as send_command_timing() method.
         """
-        output = self._send_command_timing_str(*args, **kwargs)
-        if "(y/n)" in output:
-            output += self._send_command_timing_str("y")
+        if len(args) > 1:
+            raise ValueError("Must pass in delay_factor as keyword argument")
+
+        # If no delay_factor use 1 for default value
+        delay_factor = kwargs.get("delay_factor", 1)
+        kwargs["delay_factor"] = self.select_delay_factor(delay_factor)
+
+        output = ""
+        new_output = self._send_command_timing_str(*args, **kwargs)
+
+        second_args = list(args)
+        if len(args) == 1:
+            second_args[0] = "y"
+        else:
+            kwargs["command_string"] = "y"
         strip_prompt = kwargs.get("strip_prompt", True)
+
+        while True:
+            output += new_output
+            if "display the next" in new_output.lower():
+                new_output = self._send_command_timing_str(*second_args, **kwargs)
+            else:
+                break
+
+        # Remove from output 'Would you like to display the next 15 entries? (y/n)'
+        pattern = r"^.*display the next.*\n$"
+        output = re.sub(pattern, "", output, flags=re.M)
+
         if strip_prompt:
             # Had to strip trailing prompt twice.
             output = self.strip_prompt(output)
             output = self.strip_prompt(output)
         return output
-
-    def session_preparation(self) -> None:
-        """
-        Prepare the session after the connection has been established
-
-        Cisco WLC uses "config paging disable" to disable paging
-        """
-        self._test_channel_read(pattern=r"[>#]")
-
-        try:
-            self.set_base_prompt()
-        except ValueError:
-            msg = f"Authentication failed: {self.host}"
-            raise NetmikoAuthenticationException(msg)
-
-        self.disable_paging(command="config paging disable")
 
     def cleanup(self, command: str = "logout") -> None:
         """Reset WLC back to normal paging and gracefully close session."""
@@ -163,6 +197,8 @@ class CiscoWlcSSH(BaseConnection):
                 self._session_log_fin = True
                 self.write_channel("n" + self.RETURN)
 
+            time.sleep(0.5)
+
             try:
                 self.write_channel(self.RETURN)
             except socket.error:
@@ -170,7 +206,7 @@ class CiscoWlcSSH(BaseConnection):
             count += 1
 
     def check_config_mode(
-        self, check_string: str = "config", pattern: str = ""
+        self, check_string: str = "config", pattern: str = "", force_regex: bool = False
     ) -> bool:
         """Checks if the device is in configuration mode or not."""
         if not pattern:
@@ -191,7 +227,7 @@ class CiscoWlcSSH(BaseConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         enter_config_mode: bool = False,
         **kwargs: Any,

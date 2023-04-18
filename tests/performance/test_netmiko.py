@@ -1,5 +1,4 @@
 import os
-from os import path
 import yaml
 import time
 import functools
@@ -7,7 +6,7 @@ from datetime import datetime
 import csv
 
 from netmiko import ConnectHandler, __version__
-from test_utils import parse_yaml
+from perf_utils import commands
 
 import network_utilities
 
@@ -17,15 +16,6 @@ import network_utilities
 # logger = logging.getLogger("netmiko")
 
 PRINT_DEBUG = False
-
-PWD = path.dirname(path.realpath(__file__))
-
-
-def commands(platform):
-    """Parse the commands.yml file to get a commands dictionary."""
-    test_platform = platform
-    commands_yml = parse_yaml(PWD + "/../etc/commands.yml")
-    return commands_yml[test_platform]
 
 
 def generate_csv_timestamp():
@@ -76,7 +66,7 @@ def f_exec_time(func):
 def read_devices():
     f_name = os.environ.get("TEST_DEVICES", "test_devices.yml")
     with open(f_name) as f:
-        return yaml.load(f)
+        return yaml.safe_load(f)
 
 
 @f_exec_time
@@ -92,6 +82,17 @@ def send_command_simple(device):
         platform = device["device_type"]
         cmd = commands(platform)["basic"]
         output = conn.send_command(cmd)
+        PRINT_DEBUG and print(output)
+
+
+@f_exec_time
+def save_config(device):
+    platform = device["device_type"]
+    if "cisco_xr" in platform or "juniper" in platform:
+        return
+    with ConnectHandler(**device) as conn:
+        platform = device["device_type"]
+        output = conn.save_config()
         PRINT_DEBUG and print(output)
 
 
@@ -129,6 +130,9 @@ def cleanup(device):
         remove_acl_cmd = None
     elif "cisco_asa" in platform:
         remove_acl_cmd = "clear configure access-list netmiko_test_large_acl"
+    elif "linux" in platform:
+        # Do nothing i.e. no cleanup
+        return
     else:
         base_acl_cmd = commands(platform)["config_long_acl"]["base_cmd"]
         remove_acl_cmd = f"no {base_acl_cmd}"
@@ -164,14 +168,16 @@ def remove_old_data(device_name):
 
 
 def main():
-    # PASSWORD = os.environ["HPE_PASSWORD"]
-    PASSWORD = os.environ["NORNIR_PASSWORD"]
+    PASSWORD = os.environ["NETMIKO_PASSWORD"]
+    HP_PASSWORD = os.environ["HPE_PASSWORD"]
 
     devices = read_devices()
     print("\n\n")
     for dev_name, params in devices.items():
         remove_old_data(dev_name)
         dev_dict = params["device"]
+        if dev_name != "linux_srv1":
+            continue
         # if dev_name != "cisco_xr_azure":
         #    continue
         print("-" * 80)
@@ -181,11 +187,14 @@ def main():
         dev_dict["password"] = PASSWORD
         if dev_name == "cisco_asa":
             dev_dict["secret"] = PASSWORD
+        elif dev_name == "hp_procurve":
+            dev_dict["password"] = HP_PASSWORD
 
         # Run tests
         operations = [
             "connect",
             "send_command_simple",
+            # "save_config",
             "send_config_simple",
             "send_config_large_acl",
             "cleanup",
@@ -200,7 +209,9 @@ def main():
             # Some platforms have an issue where the last test affects the
             # next test?
             if "procurve" in platform:
+                print("Sleeping 30 seconds...")
                 time.sleep(30)
+                print("Done")
         print("-" * 80)
         print()
 

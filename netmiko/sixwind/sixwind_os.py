@@ -18,13 +18,14 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
 
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """6WIND requires no-pager at the end of command, not implemented at this time."""
-        pass
+        return ""
 
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
 
@@ -32,6 +33,7 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
         prompt = prompt.strip()
         self.base_prompt = prompt
@@ -85,7 +87,9 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
 
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks whether in configuration mode. Returns a boolean."""
 
         return super().check_config_mode(check_string=check_string, pattern=pattern)

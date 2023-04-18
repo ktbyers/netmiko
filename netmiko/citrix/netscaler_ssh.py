@@ -1,3 +1,4 @@
+from typing import Optional
 from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
 
@@ -15,24 +16,24 @@ class NetscalerSSH(NoConfig, BaseConnection):
 
     def set_base_prompt(
         self,
-        pri_prompt_terminator: str = "#",
-        alt_prompt_terminator: str = ">",
+        pri_prompt_terminator: str = ">",
+        alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """Sets self.base_prompt.
 
-        Netscaler has '>' for the prompt.
+        Netscaler has only '>' for the prompt.
         """
-        prompt = self.find_prompt(delay_factor=delay_factor)
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError(f"Router prompt not found: {repr(prompt)}")
-
-        prompt = prompt.strip()
-        if len(prompt) == 1:
-            self.base_prompt = prompt
-        else:
-            # Strip off trailing terminator
-            self.base_prompt = prompt[:-1]
+        base_prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+        # If null-string, set base_prompt to just ">"
+        if not base_prompt:
+            self.base_prompt = pri_prompt_terminator
         return self.base_prompt
 
     def strip_prompt(self, a_string: str) -> str:

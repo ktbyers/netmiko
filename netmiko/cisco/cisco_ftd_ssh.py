@@ -17,6 +17,8 @@ class CiscoFtdSSH(NoEnable, NoConfig, CiscoSSHConnection):
         """Canot change config on FTD via ssh"""
         raise NotImplementedError
 
-    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Canot change config on FTD via ssh"""
         return False

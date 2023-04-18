@@ -58,7 +58,7 @@ def test_large_acl(net_connect, commands, expected_responses, acl_entries=100):
     assert len(result_list) == len(cfg_lines) + offset
 
     # Check that length of lines in show of the acl matches lines configured
-    verify = net_connect.send_command(verify_cmd, delay_factor=10)
+    verify = net_connect.send_command(verify_cmd, read_timeout=90)
     verify_list = re.split(r"\n+", verify.strip())
 
     # IOS-XR potentially has a timestamp on the show command

@@ -30,13 +30,13 @@ class CiscoBaseConnection(BaseConnection):
         """Exits enable (privileged exec) mode."""
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
-        """
-        Checks if the device is in configuration mode or not.
-
-        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-        """
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
+        """Checks if the device is in configuration mode or not."""
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
         self,
@@ -191,8 +191,7 @@ class CiscoBaseConnection(BaseConnection):
     def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
-            # The pattern="" forces use of send_command_timing
-            if self.check_config_mode(pattern=""):
+            if self.check_config_mode():
                 self.exit_config_mode()
         except Exception:
             pass
@@ -251,7 +250,10 @@ class CiscoBaseConnection(BaseConnection):
         else:
             # Some devices are slow so match on trailing-prompt if you can
             output = self._send_command_str(
-                command_string=cmd, strip_prompt=False, strip_command=False
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
             )
         return output
 

@@ -109,7 +109,10 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         return output
 
     def check_config_mode(
-        self, check_string: str = "(config", pattern: str = r"#"
+        self,
+        check_string: str = "(config",
+        pattern: str = r"#",
+        force_regex: bool = False,
     ) -> bool:
         """Check whether device is in configuration mode. Return a boolean."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
@@ -119,6 +122,7 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """
         Sets self.base_prompt
@@ -135,6 +139,7 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
 
 

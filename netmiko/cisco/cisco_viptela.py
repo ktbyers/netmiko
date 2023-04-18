@@ -1,5 +1,5 @@
 """Subclass specific to Cisco Viptela."""
-from typing import Union, Sequence, TextIO, Any
+from typing import Union, Sequence, Iterator, TextIO, Any
 import re
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -14,7 +14,9 @@ class CiscoViptelaSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.disable_paging(command="paginate false")
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "#") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "#", force_regex: bool = False
+    ) -> bool:
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
@@ -36,7 +38,7 @@ class CiscoViptelaSSH(CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
     ) -> str:

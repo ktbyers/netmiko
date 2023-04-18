@@ -12,6 +12,9 @@ RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
 RELATIVE_RESOURCE_FOLDER = join(dirname(dirname(relpath(__file__))), "etc")
 CONFIG_FILENAME = join(RESOURCE_FOLDER, ".netmiko.yml")
 
+is_linux = sys.platform == "linux" or sys.platform == "linux2"
+skip_if_not_linux = pytest.mark.skipif(not is_linux, reason="Test Requires Linux")
+
 
 def test_load_yaml_file():
     """Read a YAML file successfully"""
@@ -202,6 +205,7 @@ def test_textfsm_w_index():
     assert result == [{"model": "4500"}]
 
 
+@skip_if_not_linux
 def test_ntc_templates_discovery():
     """
     Verify Netmiko uses proper ntc-templates:
@@ -224,14 +228,18 @@ def test_ntc_templates_discovery():
     ntc_path = utilities.get_template_dir()
     for py_path in sys.path:
         if "site-packages" in py_path:
+            _, suffix = py_path.split("site-packages")
+            if len(suffix) > 1:  # Should be "" or "/"
+                continue
             packages_dir = py_path
             break
     assert ntc_path == f"{packages_dir}/ntc_templates/templates"
 
     # Next should use local index file in ~
-    home_dir = os.path.expanduser("~")
     # Will not work for CI-CD without pain so just test locally
-    if "kbyers" in home_dir:
+    environment = os.getenv("environment", "local")
+    if environment != "gh_actions":
+        home_dir = os.path.expanduser("~")
         ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
         assert ntc_path == f"{home_dir}/ntc-templates/ntc_templates/templates"
     else:
@@ -291,7 +299,6 @@ def test_textfsm_missing_template():
     assert result == raw_output
 
 
-@pytest.mark.skip(reason="pyats/genie lacks PY3.10 support")
 def test_get_structured_data_genie():
     """Convert raw CLI output to structured data using Genie"""
 
@@ -394,3 +401,31 @@ def test_delay_factor_compat(max_loops, delay_factor, timeout, result):
     )
     print(read_timeout)
     assert read_timeout == result
+
+
+def test_nokia_context_filter():
+    data = [
+        "(ex)[configure aaa]",
+        "*(ex)[configure aaa]",
+        "!(ex)[configure aaa]",
+        "[]",
+        '(ex)[configure router "Base" bgp]',
+        "(ro)[]",
+        "(ex)[]",
+        '[show router "Base" bgp]',
+        '!*[pr:configure router "Base" bgp]',
+    ]
+
+    results = []
+
+    for test_case in data:
+        out = utilities.nokia_context_filter(test_case)
+        results.append(out)
+
+    # All strings in results should be null-string
+    assert any(results) is False
+
+    # Create a case that won't be stripped
+    test_case = 'foo[show router "Base" bgp]'
+    out = utilities.nokia_context_filter(test_case)
+    assert out != ""

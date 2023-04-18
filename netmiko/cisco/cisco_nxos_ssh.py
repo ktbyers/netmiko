@@ -24,7 +24,12 @@ class CiscoNxosSSH(CiscoSSHConnection):
         # NX-OS fix for incorrect MD5 on 9K (due to strange <enter> patterns on NX-OS)
         return newline.sub(self.RESPONSE_RETURN, a_string).replace("\r", "\n")
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "#") -> bool:
+    def check_config_mode(
+        self,
+        check_string: str = ")#",
+        pattern: str = r"[>#]",
+        force_regex: bool = False,
+    ) -> bool:
         """Checks if the device is in configuration mode or not."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 

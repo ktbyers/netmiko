@@ -1,5 +1,5 @@
 import re
-from typing import Union, Sequence, TextIO, Any, Optional
+from typing import Union, Sequence, Iterator, TextIO, Any, Optional
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -36,13 +36,15 @@ class HPComwareBase(CiscoSSHConnection):
         """Exit config mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def check_config_mode(self, check_string: str = "]", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "]", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Check whether device is in configuration mode. Return a boolean."""
         return super().check_config_mode(check_string=check_string)
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = None,
         delay_factor: Optional[float] = None,
@@ -77,6 +79,7 @@ class HPComwareBase(CiscoSSHConnection):
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = "]",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """
         Sets self.base_prompt
@@ -92,6 +95,7 @@ class HPComwareBase(CiscoSSHConnection):
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
 
         # Strip off leading character
@@ -117,6 +121,9 @@ class HPComwareBase(CiscoSSHConnection):
     def check_enable_mode(self, check_string: str = "]") -> bool:
         """enable mode on Comware is system-view."""
         return self.check_config_mode(check_string=check_string)
+
+    def cleanup(self, command: str = "quit") -> None:
+        return super().cleanup(command=command)
 
     def save_config(
         self, cmd: str = "save force", confirm: bool = False, confirm_response: str = ""

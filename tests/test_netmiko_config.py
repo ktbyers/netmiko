@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import re
 import pytest
 from netmiko import ConfigInvalidException
 from netmiko import ReadTimeout
@@ -31,7 +32,12 @@ def test_config_mode(net_connect, commands, expected_responses):
     Test enter config mode
     """
     # Behavior for devices with no config mode is to return null string
-    if net_connect.config_mode() != "":
+    config_mode_command = commands.get("config_mode_command")
+
+    if config_mode_command is not None:
+        if net_connect.config_mode(config_command=config_mode_command) != "":
+            assert net_connect.check_config_mode() is True
+    elif net_connect.config_mode() != "":
         assert net_connect.check_config_mode() is True
     else:
         pytest.skip("Platform doesn't support config mode.")
@@ -50,6 +56,47 @@ def test_config_set(net_connect, commands, expected_responses):
     """Test sending configuration commands."""
 
     config_commands = commands["config"]
+    config_mode_command = commands.get("config_mode_command")
+    support_commit = commands.get("support_commit")
+    config_verify = commands["config_verification"]
+
+    # Set to initial value and testing sending command as a string
+    net_connect.send_config_set(
+        config_mode_command=config_mode_command,
+        config_commands=config_commands[0],
+    )
+
+    if support_commit:
+        net_connect.commit()
+    cmd_response = expected_responses.get("cmd_response_init")
+    config_commands_output = net_connect.send_command(config_verify)
+    if cmd_response:
+        assert cmd_response in config_commands_output
+    else:
+        assert config_commands[0] in config_commands_output
+
+    # Test that something has changed.
+    net_connect.send_config_set(
+        config_commands=config_commands,
+        config_mode_command=config_mode_command,
+    )
+
+    if support_commit:
+        net_connect.commit()
+    cmd_response = expected_responses.get("cmd_response_final")
+    config_commands_output = net_connect.send_command_expect(config_verify)
+    if cmd_response:
+        assert cmd_response in config_commands_output
+    else:
+        assert config_commands[-1] in config_commands_output
+
+
+def test_config_set_generator(net_connect, commands, expected_responses):
+    """Test sending configuration commands as a generator."""
+
+    config_commands = commands["config"]
+    # Make a generator out of the config commands (to verify no issues with generators)
+    config_commands_gen = (cmd for cmd in config_commands)
     support_commit = commands.get("support_commit")
     config_verify = commands["config_verification"]
 
@@ -63,7 +110,9 @@ def test_config_set(net_connect, commands, expected_responses):
         assert cmd_response in config_commands_output
     else:
         assert config_commands[0] in config_commands_output
-    net_connect.send_config_set(config_commands)
+
+    # Send the config commands as a generator
+    net_connect.send_config_set(config_commands_gen)
     if support_commit:
         net_connect.commit()
     cmd_response = expected_responses.get("cmd_response_final")
@@ -220,4 +269,12 @@ def test_disconnect(net_connect, commands, expected_responses):
     """
     Terminate the SSH session
     """
+    if net_connect.host in ["cisco3.lasthop.io", "iosxr3.lasthop.io"]:
+        hostname = net_connect.send_command("show run | inc hostname")
+        if re.search("cisco3.*long", hostname):
+            net_connect.send_config_set("hostname cisco3")
+        elif re.search("iosxr3.*long", hostname):
+            net_connect.send_config_set("hostname iosxr3")
+            net_connect.commit()
+            net_connect.exit_config_mode()
     net_connect.disconnect()

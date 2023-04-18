@@ -19,12 +19,14 @@ class DellIsilonSSH(BaseConnection):
         pri_prompt_terminator: str = "$",
         alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """Determine base prompt."""
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
 
     def strip_ansi_escape_codes(self, string_buffer: str) -> str:
@@ -82,7 +84,9 @@ class DellIsilonSSH(BaseConnection):
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string: str = "#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Use equivalent enable method."""
         return self.check_enable_mode(check_string=check_string)
 

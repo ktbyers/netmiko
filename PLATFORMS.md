@@ -17,8 +17,10 @@
 
 - 6Wind
 - Adtran OS
+- Adva AOS FSP150
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
+- AudioCodes Gateways & Controllers
 - Broadcom ICOS
 - Calix B6
 - Centec Networks
@@ -29,21 +31,24 @@
 - Dell PowerConnect
 - Ericsson IPOS
 - Extreme ERS (Avaya)
-- Extreme VSP (Avaya)
-- Extreme VDX (Brocade)
 - Extreme MLX/NetIron (Brocade/Foundry)
+- Extreme TierraOS
+- Extreme VDX (Brocade)
+- Extreme VSP (Avaya)
+- Hillstone StoneOS
 - HPE Comware7
 - Huawei
 - Huawei OLT
 - Huawei SmartAX
 - IP Infusion OcNOS
 - Juniper ScreenOS
-- Mellanox
 - MikroTik RouterOS
 - MikroTik SwitchOS
 - NetApp cDOT
 - Netgear ProSafe
 - Nokia/Alcatel SR OS
+- Nokia SR Linux
+- NVIDIA-Mellanox
 - OneAccess
 - Palo Alto PAN-OS
 - Pluribus
@@ -62,8 +67,10 @@
 - Accedian
 - Allied Telesis AlliedWare Plus
 - Aruba
+- Arris CER
 - Brocade Fabric OS
 - C-DOT CROS
+- Casa CMTS
 - Ciena SAOS
 - Citrix Netscaler
 - Cisco Telepresence
@@ -84,6 +91,7 @@
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
+- Nokia SR Linux
 - QuantaMesh
 - Rad ETX
 - Raisecom ROAP
@@ -91,6 +99,7 @@
 - Ubiquiti Unifi Switch
 - Versa Networks FlexVNF
 - Watchguard Firebox
+- Zyxel NOS
 - 6WIND TurboRouter
 
 ###### Supported SSH device_type values
@@ -98,11 +107,14 @@
 - a10
 - accedian
 - adtran_os
+- adva_fsp150f2
+- adva_fsp150f3
 - alcatel_aos
 - alcatel_sros
 - allied_telesis_awplus
 - apresia_aeos
 - arista_eos
+- arris_cer
 - aruba_os
 - aruba_osswitch
 - aruba_procurve
@@ -116,6 +128,7 @@
 - brocade_vdx
 - brocade_vyos
 - calix_b6
+- casa_cmts
 - cdot_cros
 - centec_os
 - checkpoint_gaia
@@ -152,6 +165,7 @@
 - extreme_netiron
 - extreme_nos
 - extreme_slx
+- extreme_tierra
 - extreme_vdx
 - extreme_vsp
 - extreme_wing
@@ -162,6 +176,7 @@
 - fortinet
 - generic
 - generic_termserver
+- hillstone_stoneos
 - hp_comware
 - hp_procurve
 - huawei
@@ -185,6 +200,7 @@
 - netgear_prosafe
 - netscaler
 - nokia_sros
+- nokia_srl
 - oneaccess_oneos
 - ovs_linux
 - paloalto_panos
@@ -207,9 +223,10 @@
 - watchguard_fireware
 - yamaha
 - zte_zxros
+- zyxel_os
  
 ###### Supported Telnet device_type values
- 
+
 - adtran_os_telnet
 - apresia_aeos_telnet
 - arista_eos_telnet
@@ -220,20 +237,20 @@
 - centec_os_telnet
 - ciena_saos_telnet
 - cisco_ios_telnet
-- cisco_s300_telnet
 - cisco_xr_telnet
+- cisco_s300_telnet
 - dell_dnos6_telnet
 - dell_powerconnect_telnet
 - dlink_ds_telnet
+- extreme_telnet
 - extreme_exos_telnet
 - extreme_netiron_telnet
-- extreme_telnet
 - generic_telnet
 - generic_termserver_telnet
-- hp_comware_telnet
 - hp_procurve_telnet
-- huawei_olt_telnet
+- hp_comware_telnet
 - huawei_telnet
+- huawei_olt_telnet
 - ipinfusion_ocnos_telnet
 - juniper_junos_telnet
 - nokia_sros_telnet
@@ -258,6 +275,8 @@
 - cisco_xe
 - cisco_xr
 - dell_os10
+- extreme_exos
 - juniper_junos
 - linux
 - nokia_sros
+

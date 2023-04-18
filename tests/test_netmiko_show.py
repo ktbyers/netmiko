@@ -17,6 +17,17 @@ test_disconnect: cleanly disconnect the SSH session
 import pytest
 import time
 from datetime import datetime
+from netmiko import ConnectHandler
+
+
+def test_failed_key(device_failed_key, commands, expected_responses):
+    if device_failed_key.get("use_keys") is not True:
+        assert pytest.skip("Not using SSH-keys")
+
+    device_failed_key["key_file"] = "bogus_key_file_name"
+
+    with pytest.raises(ValueError):
+        ConnectHandler(**device_failed_key)
 
 
 def test_disable_paging(net_connect, commands, expected_responses):
@@ -29,10 +40,15 @@ def test_disable_paging(net_connect, commands, expected_responses):
         # NX-OS logging buffer gets enormous (NX-OS fails when testing very high-latency +
         # packet loss)
         net_connect.send_command("clear logging logfile")
-    multiple_line_output = net_connect.send_command(
-        commands["extended_output"], read_timeout=60
-    )
-    assert expected_responses["multiple_line_output"] in multiple_line_output
+
+    if net_connect.device_type == "audiocode_shell":
+        # Not supported.
+        assert pytest.skip("Disable Paging not supported on this platform")
+    else:
+        multiple_line_output = net_connect.send_command(
+            commands["extended_output"], read_timeout=60
+        )
+        assert expected_responses["multiple_line_output"] in multiple_line_output
 
 
 def test_terminal_width(net_connect, commands, expected_responses):
@@ -49,8 +65,10 @@ def test_ssh_connect(net_connect, commands, expected_responses):
     assert expected_responses["version_banner"] in show_version
 
 
-def test_ssh_connect_cm(net_connect_cm, commands, expected_responses):
+def test_ssh_connect_cm(net_connect_cm, net_connect, commands, expected_responses):
     """Test the context manager."""
+    if net_connect.device_type == "audiocode_shell":
+        assert pytest.skip("Disable Paging not supported on this platform")
     prompt_str = net_connect_cm
     assert expected_responses["base_prompt"] in prompt_str
 
@@ -332,7 +350,7 @@ def test_clear_buffer(net_connect, commands, expected_responses):
     enter = net_connect.RETURN
     # Manually send a command down the channel so that data needs read.
     net_connect.write_channel(f"{commands['basic']}{enter}")
-    time.sleep(1)
+    time.sleep(4)
     net_connect.clear_buffer()
     time.sleep(2)
 
@@ -347,6 +365,9 @@ def test_enable_mode(net_connect, commands, expected_responses):
 
     Catch exception for devices that don't support enable
     """
+    # testuser on pynetqa does not have root access
+    if net_connect.username == "testuser" and net_connect.host == "3.15.148.177":
+        assert pytest.skip()
     try:
         net_connect.enable()
         enable_prompt = net_connect.find_prompt()
@@ -377,4 +398,4 @@ def test_disconnect_no_enable(net_connect_newconn, commands, expected_responses)
         assert net_connect.remote_conn is None
         assert time_delta.total_seconds() < 5
     else:
-        assert True
+        assert pytest.skip()

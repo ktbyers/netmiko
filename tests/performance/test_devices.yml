@@ -55,15 +55,15 @@ juniper_vmx:
   graph:
     title: "Netmiko: Juniper Junos Performance"
 
-cisco_asa:
-  device:
-    device_type: cisco_asa
-    ip: 184.105.247.88
-    username: pyclass
-    allow_auto_change: True
-    session_log: asa1.out
-  graph:
-    title: "Netmiko: Cisco ASA Performance"
+#cisco_asa:
+#  device:
+#    device_type: cisco_asa
+#    ip: 184.105.247.88
+#    username: pyclass
+#    allow_auto_change: True
+#    session_log: asa1.out
+#  graph:
+#    title: "Netmiko: Cisco ASA Performance"
 
 hp_procurve:
   device:
@@ -74,3 +74,11 @@ hp_procurve:
       session_log: hpe.out
   graph:
     title: "Netmiko: HPE ProCurve Performance"
+
+linux_srv1:
+  device:
+    device_type: linux
+    host: 3.15.148.177
+    username: gituser
+    use_keys: True
+    key_file: ~/.ssh/test_rsa

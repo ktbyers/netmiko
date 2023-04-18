@@ -10,7 +10,9 @@ class NoConfig:
     overwrite check_config_mode in the platform specific driver and return False.
     """
 
-    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         return True
 
     def config_mode(

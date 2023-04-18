@@ -9,10 +9,18 @@ from netmiko import log
 class HuaweiSmartAXSSH(CiscoBaseConnection):
     """Supports Huawei SmartAX and OLT."""
 
+    prompt_pattern = r"[>$]"
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r"[>#]")
+
+        data = self._test_channel_read(pattern=f"YES.NO|{self.prompt_pattern}")
+        # Huawei OLT might put a post-login banner that requires 'yes' to be sent.
+        if re.search(r"YES.NO", data):
+            self.write_channel(f"yes{self.RETURN}")
+            self._test_channel_read(pattern=self.prompt_pattern)
+
         self.set_base_prompt()
         self._disable_smart_interaction()
         self.disable_paging()
@@ -73,7 +81,9 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         return super().check_config_mode(check_string=check_string)
 
     def exit_config_mode(
@@ -100,10 +110,13 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
         )
 
     def save_config(

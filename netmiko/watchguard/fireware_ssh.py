@@ -21,7 +21,9 @@ class WatchguardFirewareSSH(BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "#") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "#", force_regex: bool = False
+    ) -> bool:
         """
         Checks if the device is in configuration mode or not.
         """
@@ -39,4 +41,4 @@ class WatchguardFirewareSSH(BaseConnection):
 
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """No save config on Watchguard."""
-        pass
+        return ""

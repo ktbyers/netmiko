@@ -1,6 +1,6 @@
 
-# Use pydev1 machine
-# Use virtual environment = py3_netmiko
+# Use pydev2 machine
+# Use virtual environment = .venv
 
 # Run the following command to update docs: 
 $ pdoc3 --html --output-dir docs netmiko --force
@@ -15,12 +15,15 @@ $ pdoc3 --html --output-dir docs netmiko --force
 
 # python setup.py sdist bdist_wheel
 
-# Check FIX issues in _release.sh
-
 # Run ./_release.sh
 
 # Create a tag for the version
-git tag -a v3.3.3 -m "Version 3.3.3 Release"
-git push origin_ssh v3.3.3
+git tag -a v4.1.0 -m "Version 4.1.0 Release"
+git push origin_ssh v4.1.0
 
 # Make sure to run the performance tests for the new release and to update the graphs!
+
+# Update license dependencies (then edit the file)
+pip-licenses -o license >> license-dependencies.txt 
+
+# Regenerate device types for PLATFORMS.md document

@@ -16,6 +16,7 @@ from typing import (
     cast,
     Type,
     Sequence,
+    Iterator,
     TextIO,
     Union,
     Tuple,
@@ -30,12 +31,14 @@ import telnetlib
 import time
 from collections import deque
 from os import path
+from pathlib import Path
 from threading import Lock
 import functools
+import logging
+import itertools
 
 import paramiko
 import serial
-from tenacity import retry, stop_after_attempt, wait_exponential
 import warnings
 
 from netmiko import log
@@ -67,8 +70,22 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 DELAY_FACTOR_DEPR_SIMPLE_MSG = """\n
-Netmiko 4.x and later has deprecated the use of delay_factor and/or max_loops in
-this context. You should remove any use of delay_factor=x from this method call.\n"""
+Netmiko 4.x and later has deprecated the use of delay_factor and/or
+max_loops in this context. You should remove any use of delay_factor=x
+from this method call.\n"""
+
+
+# Logging filter for #2597
+class SecretsFilter(logging.Filter):
+    def __init__(self, no_log: Optional[Dict[Any, str]] = None) -> None:
+        self.no_log = no_log
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """Removes secrets (no_log) from messages"""
+        if self.no_log:
+            for hidden_data in self.no_log.values():
+                record.msg = record.msg.replace(hidden_data, "********")
+        return True
 
 
 def lock_channel(func: F) -> F:
@@ -131,6 +148,8 @@ class BaseConnection:
         key_file: Optional[str] = None,
         pkey: Optional[paramiko.PKey] = None,
         passphrase: Optional[str] = None,
+        disabled_algorithms: Optional[Dict[str, Any]] = None,
+        disable_sha2_fix: bool = False,
         allow_agent: bool = False,
         ssh_strict: bool = False,
         system_host_keys: bool = False,
@@ -141,7 +160,7 @@ class BaseConnection:
         # Connect timeouts
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
-        conn_timeout: int = 5,
+        conn_timeout: int = 10,
         # Timeout to wait for authentication response
         auth_timeout: Optional[int] = None,
         banner_timeout: int = 15,  # Timeout to wait for the banner to be presented
@@ -160,7 +179,7 @@ class BaseConnection:
         session_log_record_writes: bool = False,
         session_log_file_mode: str = "write",
         allow_auto_change: bool = False,
-        encoding: str = "ascii",
+        encoding: str = "utf-8",
         sock: Optional[socket.socket] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
@@ -200,6 +219,12 @@ class BaseConnection:
         :param passphrase: Passphrase to use for encrypted key; password will be used for key
                 decryption if not specified.
 
+        :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+                documentation for a description of the expected format.
+
+        :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+            https://github.com/paramiko/paramiko/issues/1961 (default: False)
+
         :param allow_agent: Enable use of SSH key-agent.
 
         :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -214,13 +239,17 @@ class BaseConnection:
 
         :param ssh_config_file: File name of OpenSSH configuration file.
 
-        :param timeout: Connection timeout.
+        :param conn_timeout: TCP connection timeout.
 
         :param session_timeout: Set a timeout for parallel requests.
 
         :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
         :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+        :param read_timeout_override: Set a timeout that will override the default read_timeout
+                of both send_command and send_command_timing. This is useful for 3rd party
+                libraries where directly accessing method arguments might be impractical.
 
         :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
                 Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -230,6 +259,8 @@ class BaseConnection:
 
         :param response_return: Character(s) to use in normalized return data to represent
                 enter key (default: \n)
+
+        :param serial_settings: Dictionary of settings for use with serial port (pySerial).
 
         :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
                 to select smallest of global and specific. Sets default global_delay_factor to .1
@@ -314,17 +345,25 @@ class BaseConnection:
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
         self.sock = sock
-
-        # Netmiko will close the session_log if we open the file
+        self.fast_cli = fast_cli
+        self._legacy_mode = _legacy_mode
+        self.global_delay_factor = global_delay_factor
+        self.global_cmd_verify = global_cmd_verify
+        if self.fast_cli and self.global_delay_factor == 1:
+            self.global_delay_factor = 0.1
         self.session_log = None
         self._session_log_close = False
-        if session_log is not None:
-            no_log = {}
-            if self.password:
-                no_log["password"] = self.password
-            if self.secret:
-                no_log["secret"] = self.secret
 
+        # prevent logging secret data
+        no_log = {}
+        if self.password:
+            no_log["password"] = self.password
+        if self.secret:
+            no_log["secret"] = self.secret
+        log.addFilter(SecretsFilter(no_log=no_log))
+
+        # Netmiko will close the session_log if we open the file
+        if session_log is not None:
             if isinstance(session_log, str):
                 # If session_log is a string, open a file corresponding to string name.
                 self.session_log = SessionLog(
@@ -366,13 +405,6 @@ class BaseConnection:
             comm_port = check_serial_port(comm_port)
             self.serial_settings.update({"port": comm_port})
 
-        self.fast_cli = fast_cli
-        self._legacy_mode = _legacy_mode
-        self.global_delay_factor = global_delay_factor
-        self.global_cmd_verify = global_cmd_verify
-        if self.fast_cli and self.global_delay_factor == 1:
-            self.global_delay_factor = 0.1
-
         # set in set_base_prompt method
         self.base_prompt = ""
         self._session_locker = Lock()
@@ -398,12 +430,23 @@ class BaseConnection:
             self.key_file = (
                 path.abspath(path.expanduser(key_file)) if key_file else None
             )
+            if self.use_keys is True:
+                self._key_check()
             self.pkey = pkey
             self.passphrase = passphrase
             self.allow_agent = allow_agent
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
             self.alt_key_file = alt_key_file
+
+            if disabled_algorithms:
+                self.disabled_algorithms = disabled_algorithms
+            else:
+                self.disabled_algorithms = (
+                    {"pubkeys": ["rsa-sha2-256", "rsa-sha2-512"]}
+                    if disable_sha2_fix
+                    else {}
+                )
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
@@ -483,6 +526,22 @@ class BaseConnection:
 
     def _return_cli(self) -> str:
         raise NotImplementedError
+
+    def _key_check(self) -> bool:
+        """Verify key_file exists."""
+        msg = f"""
+use_keys has been set to True, but specified key_file does not exist:
+
+use_keys: {self.use_keys}
+key_file: {self.key_file}
+"""
+        if self.key_file is None:
+            raise ValueError(msg)
+
+        my_key_file = Path(self.key_file)
+        if not my_key_file.is_file():
+            raise ValueError(msg)
+        return True
 
     @lock_channel
     @log_writes
@@ -589,12 +648,25 @@ where x is the total number of seconds to wait before timing out.\n"""
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time < read_timeout) or (not read_timeout):
+
             output += self.read_channel()
+
             if re.search(pattern, output, flags=re_flags):
+                if "(" in pattern and "(?:" not in pattern:
+                    msg = f"""
+Parenthesis found in pattern.
+
+pattern: {pattern}\n
+
+This can be problemtic when used in read_until_pattern().
+
+You should ensure that you use either non-capture groups i.e. '(?:' or that the
+parenthesis completely wrap the pattern '(pattern)'"""
+                    log.debug(msg)
                 results = re.split(pattern, output, maxsplit=1, flags=re_flags)
 
                 # The string matched by pattern must be retained in the output string.
-                # re.split will do this if capturing parentesis are used.
+                # re.split will do this if capturing parenthesis are used.
                 if len(results) == 2:
                     # no capturing parenthesis, convert and try again.
                     pattern = f"({pattern})"
@@ -633,21 +705,29 @@ You can also look at the Netmiko session_log or debug log for more information.\
         self,
         last_read: float = 2.0,
         read_timeout: float = 120.0,
-        delay_factor: float = 1.0,
-        max_loops: int = 150,
+        delay_factor: Optional[float] = None,
+        max_loops: Optional[int] = None,
     ) -> str:
         """Read data on the channel based on timing delays.
 
         General pattern is keep reading until no new data is read.
+
         Once no new data is read wait `last_read` amount of time (one last read).
         As long as no new data, then return data.
 
-        `read_timeout` is an absolute timer for how long to keep reading (which presupposes
-        we are still getting new data).
-
         Setting `read_timeout` to zero will cause read_channel_timing to never expire based
-        on an absolute timeout. It will only complete based on timeout based on their being
+        on an absolute timeout. It will only complete based on timeout based on there being
         no new data.
+
+        :param last_read: Amount of time to wait before performing one last read (under the
+            idea that we should be done reading at this point and there should be no new
+            data).
+
+        :param read_timeout: Absolute timer for how long Netmiko should keep reading data on
+            the channel (waiting for there to be no new data). Will raise ReadTimeout if this
+            timeout expires. A read_timeout value of 0 will cause the read-loop to never timeout
+            (i.e. Netmiko will keep reading indefinitely until there is no new data and last_read
+            passes).
 
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
@@ -775,6 +855,8 @@ You can look at the Netmiko session_log or debug log for more information.
 
         :param username_pattern: Pattern used to identify the username prompt
 
+        :param pwd_pattern: Pattern used to identify the pwd prompt
+
         :param delay_factor: See __init__: global_delay_factor
 
         :param max_loops: Controls the wait time in conjunction with the delay_factor
@@ -847,7 +929,7 @@ You can look at the Netmiko session_log or debug log for more information.
         self.remote_conn.close()
         raise NetmikoAuthenticationException(msg)
 
-    def _try_session_preparation(self) -> None:
+    def _try_session_preparation(self, force_data: bool = True) -> None:
         """
         In case of an exception happening during `session_preparation()` Netmiko should
         gracefully clean-up after itself. This might be challenging for library users
@@ -855,6 +937,10 @@ You can look at the Netmiko session_log or debug log for more information.
         to threads used in Paramiko.
         """
         try:
+            # Netmiko needs there to be data for session_preparation to work.
+            if force_data:
+                self.write_channel(self.RETURN)
+                time.sleep(0.1)
             self.session_preparation()
         except Exception:
             self.disconnect()
@@ -939,6 +1025,7 @@ You can look at the Netmiko session_log or debug log for more information.
             "key_filename": self.key_file,
             "pkey": self.pkey,
             "passphrase": self.passphrase,
+            "disabled_algorithms": self.disabled_algorithms,
             "timeout": self.conn_timeout,
             "auth_timeout": self.auth_timeout,
             "banner_timeout": self.banner_timeout,
@@ -1039,11 +1126,16 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 if "No existing session" in str(e):
                     msg = (
                         "Paramiko: 'No existing session' error: "
-                        "try increasing 'conn_timeout' to 10 seconds or larger."
+                        "try increasing 'conn_timeout' to 15 seconds or larger."
                     )
                     raise NetmikoTimeoutException(msg)
                 else:
-                    msg = "A paramiko SSHException occurred during connection creation:\n\nstr(e)"
+                    msg = f"""
+A paramiko SSHException occurred during connection creation:
+
+{str(e)}
+
+"""
                     raise NetmikoTimeoutException(msg)
 
             if self.verbose:
@@ -1089,31 +1181,22 @@ Device settings: {self.device_type} {self.host}:{self.port}
         delay_factor = self.select_delay_factor(delay_factor=0)
 
         if pattern:
-            new_data = self.read_until_pattern(pattern=pattern, read_timeout=20)
-            return new_data
+            return self.read_until_pattern(pattern=pattern, read_timeout=20)
 
         main_delay = delay_factor * 0.1
         time.sleep(main_delay * 10)
         new_data = ""
         while i <= count:
-            new_data += self.read_channel_timing()
-            if new_data and pattern:
-                if re.search(pattern, new_data):
-                    break
-            elif new_data:
-                break
-            else:
-                self.write_channel(self.RETURN)
+            new_data += self.read_channel_timing(read_timeout=20)
+            if new_data:
+                return new_data
 
+            self.write_channel(self.RETURN)
             main_delay = _increment_delay(main_delay)
             time.sleep(main_delay)
             i += 1
 
-        # check if data was ever present
-        if new_data:
-            return new_data
-        else:
-            raise NetmikoTimeoutException("Timed out waiting for data")
+        raise NetmikoTimeoutException("Timed out waiting for data")
 
     def _build_ssh_client(self) -> paramiko.SSHClient:
         """Prepare for Paramiko SSH connection."""
@@ -1165,6 +1248,10 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param command: Device command to disable pagination of output
 
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
+        :param cmd_verify: Verify command echo before proceeding (default: True).
+
+        :param pattern: Pattern to terminate reading of channel
         """
         if delay_factor is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
@@ -1219,17 +1306,12 @@ Device settings: {self.device_type} {self.host}:{self.port}
             output = self.read_until_prompt()
         return output
 
-    # Retry by sleeping .33 and then double sleep until 5 attempts (.33, .66, 1.32, etc)
-    @retry(
-        wait=wait_exponential(multiplier=0.33, min=0, max=5),
-        stop=stop_after_attempt(5),
-        reraise=True,
-    )
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
         alt_prompt_terminator: str = ">",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         """Sets self.base_prompt
 
@@ -1246,50 +1328,76 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
 
         :param delay_factor: See __init__: global_delay_factor
+
+        :param pattern: Regular expression pattern to search for in find_prompt() call
         """
-        prompt = self.find_prompt(delay_factor=delay_factor)
+        if pattern is None:
+            if pri_prompt_terminator and alt_prompt_terminator:
+                pri_term = re.escape(pri_prompt_terminator)
+                alt_term = re.escape(alt_prompt_terminator)
+                pattern = rf"({pri_term}|{alt_term})"
+            elif pri_prompt_terminator:
+                pattern = re.escape(pri_prompt_terminator)
+            elif alt_prompt_terminator:
+                pattern = re.escape(alt_prompt_terminator)
+
+        if pattern:
+            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
+        else:
+            prompt = self.find_prompt(delay_factor=delay_factor)
+
         if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
-        # Strip off trailing terminator
-        self.base_prompt = prompt[:-1]
+
+        # If all we have is the 'terminator' just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Strip off trailing terminator
+            self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(self, delay_factor: float = 1.0) -> str:
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -> str:
         """Finds the current network device prompt, last line only.
 
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
+
+        :param pattern: Regular expression pattern to determine whether prompt is valid
         """
         delay_factor = self.select_delay_factor(delay_factor)
+        sleep_time = delay_factor * 0.25
         self.clear_buffer()
         self.write_channel(self.RETURN)
-        sleep_time = delay_factor * 0.1
-        time.sleep(sleep_time)
 
-        # Initial attempt to get prompt
-        prompt = self.read_channel().strip()
-
-        # Check if the only thing you received was a newline
-        count = 0
-        while count <= 12 and not prompt:
+        if pattern:
+            prompt = self.read_until_pattern(pattern=pattern)
+        else:
+            # Initial read
+            time.sleep(sleep_time)
             prompt = self.read_channel().strip()
-            if not prompt:
-                self.write_channel(self.RETURN)
-                time.sleep(sleep_time)
-                if sleep_time <= 3:
-                    # Double the sleep_time when it is small
-                    sleep_time *= 2
-                else:
-                    sleep_time += 1
-            count += 1
+
+            count = 0
+            while count <= 12 and not prompt:
+                if not prompt:
+                    self.write_channel(self.RETURN)
+                    time.sleep(sleep_time)
+                    prompt = self.read_channel().strip()
+                    if sleep_time <= 3:
+                        # Double the sleep_time when it is small
+                        sleep_time *= 2
+                    else:
+                        sleep_time += 1
+                count += 1
 
         # If multiple lines in the output take the last line
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
+        self.clear_buffer()
         if not prompt:
             raise ValueError(f"Unable to find prompt: {prompt}")
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
         log.debug(f"[find_prompt()]: prompt is {prompt}")
         return prompt
 
@@ -1360,6 +1468,14 @@ Device settings: {self.device_type} {self.host}:{self.port}
         used for show commands.
 
         :param command_string: The command to be executed on the remote device.
+
+        :param last_read: Time waited after end of data
+
+        :param read_timeout: Absolute timer for how long Netmiko should keep reading data on
+            the channel (waiting for there to be no new data). Will raise ReadTimeout if this
+            timeout expires. A read_timeout value of 0 will cause the read-loop to never timeout
+            (i.e. Netmiko will keep reading indefinitely until there is no new data and last_read
+            passes).
 
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
@@ -1507,9 +1623,14 @@ Device settings: {self.device_type} {self.host}:{self.port}
         :param expect_string: Regular expression pattern to use for determining end of output.
             If left blank will default to being based on router prompt.
 
+        :param read_timeout: Maximum time to wait looking for pattern. Will raise ReadTimeout
+            if timeout is exceeded.
+
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
         :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
+        :param auto_find_prompt: Use find_prompt() to override base prompt
 
         :param strip_prompt: Remove the trailing router prompt from the output (default: True).
 
@@ -1533,7 +1654,7 @@ Device settings: {self.device_type} {self.host}:{self.port}
         """
 
         # Time to delay in each read loop
-        loop_delay = 0.01
+        loop_delay = 0.025
 
         if self.read_timeout_override:
             read_timeout = self.read_timeout_override
@@ -1551,12 +1672,14 @@ Device settings: {self.device_type} {self.host}:{self.port}
                 loop_delay=0.2,
                 old_timeout=self.timeout,
             )
-            msg = """\n
-You have chosen to use Netmiko's delay_factor compatibility mode for send_command.
-This will revert Netmiko to behave similarly to how it did in Netmiko 3.x (i.e.
-to use delay_factor/global_delay_factor and max_loops. Using these parameters
-Netmiko has calculated an effective read_timeout of {compat_timeout} and will set
-the read_timeout to this value.
+            msg = f"""\n
+You have chosen to use Netmiko's delay_factor compatibility mode for
+send_command. This will revert Netmiko to behave similarly to how it
+did in Netmiko 3.x (i.e. to use delay_factor/global_delay_factor and
+max_loops).
+
+Using these parameters Netmiko has calculated an effective read_timeout
+of {compat_timeout} and will set the read_timeout to this value.
 
 Please convert your code to that new format i.e.:
 
@@ -1575,9 +1698,10 @@ delay_factor_compat will be removed in Netmiko 5.x.\n"""
             # delay_factor_compat
             if delay_factor is not None or max_loops is not None:
                 msg = """\n
-Netmiko 4.x has deprecated the use of delay_factor/max_loops with send_command.
-You should convert all uses of delay_factor and max_loops over to read_timeout=x
-where x is the total number of seconds to wait before timing out.\n"""
+Netmiko 4.x has deprecated the use of delay_factor/max_loops with
+send_command. You should convert all uses of delay_factor and max_loops
+over to read_timeout=x where x is the total number of seconds to wait
+before timing out.\n"""
                 warnings.warn(msg, DeprecationWarning)
 
         if expect_string is not None:
@@ -1597,15 +1721,19 @@ where x is the total number of seconds to wait before timing out.\n"""
         if cmd and cmd_verify:
             new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
 
+        MAX_CHARS = 2_000_000
+        DEQUE_SIZE = 20
         output = ""
-        past_three_reads: Deque[str] = deque(maxlen=3)
+        # Check only the past N-reads. This is for the case where the output is
+        # very large (i.e. searching a very large string for a pattern a whole bunch of times)
+        past_n_reads: Deque[str] = deque(maxlen=DEQUE_SIZE)
         first_line_processed = False
 
         # Keep reading data until search_pattern is found or until read_timeout
         while time.time() - start_time < read_timeout:
             if new_data:
                 output += new_data
-                past_three_reads.append(new_data)
+                past_n_reads.append(new_data)
 
                 # Case where we haven't processed the first_line yet (there is a potential issue
                 # in the first line (in cases where the line is repainted).
@@ -1618,9 +1746,14 @@ where x is the total number of seconds to wait before timing out.\n"""
                         break
 
                 else:
-                    # Check if pattern is in the past three reads
-                    if re.search(search_pattern, "".join(past_three_reads)):
-                        break
+                    if len(output) <= MAX_CHARS:
+                        if re.search(search_pattern, output):
+                            break
+                    else:
+                        # Switch to deque mode if output is greater than MAX_CHARS
+                        # Check if pattern is in the past n reads
+                        if re.search(search_pattern, "".join(past_n_reads)):
+                            break
 
             time.sleep(loop_delay)
             new_data = self.read_channel()
@@ -1876,7 +2009,9 @@ You can also look at the Netmiko session_log or debug log for more information.
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def check_config_mode(self, check_string: str = "", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = "", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks if the device is in configuration mode or not.
 
         :param check_string: Identification of configuration mode from the device
@@ -1884,14 +2019,22 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param pattern: Pattern to terminate reading of channel
         :type pattern: str
+
+        :param force_regex: Use regular expression pattern to find check_string in output
+        :type force_regex: bool
+
         """
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
         if not pattern:
-            output = self.read_channel_timing()
+            output = self.read_channel_timing(read_timeout=10.0)
         else:
             output = self.read_until_pattern(pattern=pattern)
-        return check_string in output
+
+        if force_regex:
+            return bool(re.search(check_string, output))
+        else:
+            return check_string in output
 
     def config_mode(
         self, config_command: str = "", pattern: str = "", re_flags: int = 0
@@ -1970,7 +2113,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         *,
         exit_config_mode: bool = True,
         read_timeout: Optional[float] = None,
@@ -2067,8 +2210,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         # Set bypass_commands="" to force no-bypass (usually for testing)
         bypass_detected = False
         if bypass_commands:
+            # Make a copy of the iterator
+            config_commands, config_commands_tmp = itertools.tee(config_commands, 2)
             bypass_detected = any(
-                [True for cmd in config_commands if re.search(bypass_commands, cmd)]
+                [True for cmd in config_commands_tmp if re.search(bypass_commands, cmd)]
             )
         if bypass_detected:
             cmd_verify = False
@@ -2147,8 +2292,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
         ESC[?7l      Disable line wrapping
         ESC[2J       Code erase display
-        ESC[00;32m   Color Green (30 to 37 are different colors) more general pattern is
-                     ESC[\d\d;\d\dm and ESC[\d\d;\d\d;\d\dm
+        ESC[00;32m   Color Green (30 to 37 are different colors)
         ESC[6n       Get cursor position
         ESC[1D       Move cursor position leftward by x characters (1 in this case)
         ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
@@ -2251,6 +2395,11 @@ You can also look at the Netmiko session_log or debug log for more information.
         """Try to gracefully close the session."""
         try:
             self.cleanup()
+        except Exception:
+            # Keep going on cleanup process even if exceptions
+            pass
+
+        try:
             if self.protocol == "ssh":
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":

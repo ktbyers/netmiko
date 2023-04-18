@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export PYTHONPATH=/home/kbyers/netmiko/tests
+export PYTHONPATH=~/netmiko/tests
 
 pip show pyaml pygal jinja2
 if [ $? -eq 0 ]; then

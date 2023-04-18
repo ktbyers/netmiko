@@ -35,6 +35,13 @@ def net_connect(request):
     device = test_devices[device_under_test]
     device["verbose"] = False
     conn = ConnectHandler(**device)
+    # Temporarily set the hostname
+    if device_under_test == "cisco3_long_name":
+        conn.send_config_set("hostname cisco3-with-a-very-long-hostname")
+    elif device_under_test == "cisco_xr_long_name":
+        conn.send_config_set("hostname iosxr3-with-very-long-hostname-plus")
+        conn.commit()
+        conn.exit_config_mode()
     return conn
 
 
@@ -89,7 +96,7 @@ def net_connect_cm(request):
     return my_prompt
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def net_connect_slog_wr(request):
     """
     Create the SSH connection to the remote device. Modify session_log init arguments.
@@ -121,6 +128,17 @@ def device_slog(request):
     device["secret"] = "invalid"
     device["verbose"] = False
     device["session_log_file_mode"] = "append"
+    return device
+
+
+@pytest.fixture(scope="module")
+def device_failed_key(request):
+    """
+    Return the netmiko device (not connected).
+    """
+    device_under_test = request.config.getoption("test_device")
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
     return device
 
 
@@ -274,6 +292,22 @@ def delete_file_nokia_sros(ssh_conn, dest_file_system, dest_file):
     output = ssh_conn.send_command_timing(
         cmd_prefix + cmd, strip_command=False, strip_prompt=False
     )
+    return output
+
+
+def delete_file_extreme_exos(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for an Extreme EXOS device."""
+    full_file_name = "{}/{}".format(dest_file_system, dest_file)
+    cmd = "rm {}".format(full_file_name)
+    output = ssh_conn.send_command_timing(cmd, strip_command=False, strip_prompt=False)
+    return output
+
+
+def delete_file_mikrotik_routeros(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for an Extreme EXOS device."""
+    full_file_name = "{}/{}".format(dest_file_system, dest_file)
+    cmd = "/file remove {}".format(full_file_name)
+    output = ssh_conn.send_command(cmd, strip_command=False, strip_prompt=False)
     return output
 
 
@@ -483,6 +517,8 @@ def scp_file_transfer(request):
     if os.path.exists(alt_file):
         os.remove(alt_file)
 
+    scp_transfer.close_scp_chan()
+
     return (ssh_conn, file_system)
 
 
@@ -542,5 +578,20 @@ def get_platform_args():
             "file_system": "cf3:",
             "enable_scp": False,
             "delete_file": delete_file_nokia_sros,
+        },
+        "extreme_exos": {
+            "file_system": "/usr/local/cfg",
+            "enable_scp": False,
+            "delete_file": delete_file_extreme_exos,
+        },
+        "mikrotik_routeros": {
+            "file_system": "flash",
+            "enable_scp": True,
+            "delete_file": delete_file_mikrotik_routeros,
+        },
+        "ubiquiti_edgerouter": {
+            "file_system": "/home/admin",
+            "enable_scp": True,
+            "delete_file": delete_file_generic,
         },
     }

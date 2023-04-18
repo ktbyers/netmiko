@@ -1,7 +1,7 @@
 """
 Ericsson Ipos looks like it was RedBack equipment.
 """
-from typing import Optional, Any, Union, Sequence, TextIO
+from typing import Optional, Any, Union, Sequence, Iterator, TextIO
 import re
 import warnings
 
@@ -32,7 +32,9 @@ class EricssonIposSSH(BaseConnection):
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
@@ -52,7 +54,7 @@ class EricssonIposSSH(BaseConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         **kwargs: Any,
     ) -> str:

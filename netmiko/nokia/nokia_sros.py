@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014 - 2020 Kirk Byers
-# Copyright (c) 2014 - 2020 Twin Bridges Technology
+# Copyright (c) 2014 - 2022 Kirk Byers
+# Copyright (c) 2014 - 2022 Twin Bridges Technology
 # Copyright (c) 2019 - 2020 NOKIA Inc.
 # MIT License - See License file at:
 #   https://github.com/ktbyers/netmiko/blob/develop/LICENSE
@@ -9,11 +9,12 @@
 import re
 import os
 import time
-from typing import Any, Optional, Union, Sequence, TextIO, Callable
+from typing import Any, Optional, Union, Sequence, Iterator, TextIO, Callable
 
 from netmiko import log
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
+from netmiko.utilities import nokia_context_filter
 
 
 class NokiaSros(BaseConnection):
@@ -52,7 +53,9 @@ class NokiaSros(BaseConnection):
         else:
             # Classical CLI has no method to set the terminal width nor to disable command
             # complete on space; consequently, cmd_verify needs disabled.
-            self.global_cmd_verify = False
+            # Only disabled if not set under the ConnectHandler.
+            if self.global_cmd_verify is None:
+                self.global_cmd_verify = False
             self.disable_paging(command="environment no more", pattern="environment")
 
         # Clear the read buffer
@@ -152,7 +155,10 @@ class NokiaSros(BaseConnection):
         return output
 
     def check_config_mode(
-        self, check_string: str = r"(ex)[", pattern: str = r"@"
+        self,
+        check_string: str = r"(ex)[",
+        pattern: str = r"@",
+        force_regex: bool = False,
     ) -> bool:
         """Check config mode for Nokia SR OS"""
         if "@" not in self.base_prompt:
@@ -168,14 +174,14 @@ class NokiaSros(BaseConnection):
 
     def send_config_set(
         self,
-        config_commands: Union[str, Sequence[str], TextIO, None] = None,
-        exit_config_mode: bool = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
+        exit_config_mode: bool = True,
         **kwargs: Any,
     ) -> str:
         """Model driven CLI requires you not exit from configuration mode."""
-        if exit_config_mode is None:
-            # Set to False if model-driven CLI
-            exit_config_mode = False if "@" in self.base_prompt else True
+        # Set to False if model-driven CLI
+        if "@" in self.base_prompt:
+            exit_config_mode = False
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
@@ -226,9 +232,13 @@ class NokiaSros(BaseConnection):
         """Strip prompt from the output."""
         output = super().strip_prompt(*args, **kwargs)
         if "@" in self.base_prompt:
-            # Remove context prompt too
-            strips = r"[\r\n]*\!?\*?(\((ex|gl|pr|ro)\))?\[\S*\][\r\n]*"
-            return re.sub(strips, "", output)
+            # Remove Nokia context prompt too
+            output_list = output.rstrip().splitlines()
+            last_line = output_list[-1]
+            other_lines = output_list[:-1]
+            last_line = nokia_context_filter(last_line)
+            output_list = other_lines + [last_line]
+            return "\n".join(output_list).rstrip()
         else:
             return output
 

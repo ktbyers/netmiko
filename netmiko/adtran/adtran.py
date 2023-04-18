@@ -4,6 +4,8 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class AdtranOSBase(CiscoBaseConnection):
+    prompt_pattern = r"[>#]"
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         if kwargs.get("global_cmd_verify") is None:
             kwargs["global_cmd_verify"] = False
@@ -12,9 +14,11 @@ class AdtranOSBase(CiscoBaseConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read()
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.disable_paging(command="terminal length 0")
+        cmd = "terminal width 132"
+        self.set_terminal_width(command=cmd, pattern=cmd)
 
     def check_enable_mode(self, check_string: str = "#") -> bool:
         return super().check_enable_mode(check_string=check_string)
@@ -33,7 +37,9 @@ class AdtranOSBase(CiscoBaseConnection):
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
         return super().exit_enable_mode(exit_command=exit_command)
 
-    def check_config_mode(self, check_string: str = ")#", pattern: str = "") -> bool:
+    def check_config_mode(
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
@@ -52,11 +58,13 @@ class AdtranOSBase(CiscoBaseConnection):
         pri_prompt_terminator: str = ">",
         alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
     ) -> str:
         return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
 
 
