@@ -5,6 +5,7 @@ from netmiko.exceptions import NetmikoAuthenticationException
 
 # Extreme ERS presents Enter Ctrl-Y to begin.
 CTRL_Y = "\x19"
+CTRL_C = "\x63"  # Microbuse
 
 
 class ExtremeErsSSH(CiscoSSHConnection):
