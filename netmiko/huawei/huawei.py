@@ -12,6 +12,8 @@ from netmiko import log
 
 class HuaweiBase(NoEnable, CiscoBaseConnection):
     prompt_pattern = r"[\]>]"
+    password_change_prompt = r"(?:Change now|Please choose)"
+    prompt_or_password_change = rf"(?:Change now|Please choose|{prompt_pattern})"
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -145,12 +147,8 @@ class HuaweiSSH(HuaweiBase):
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         # Huawei prompts for password change before displaying the initial base prompt.
         # Search for that password change prompt or for base prompt.
-        password_change_prompt = r"(Change now|Please choose)"
-        prompt_or_password_change = (
-            rf"(?:Change now|Please choose|{self.prompt_pattern})"
-        )
-        data = self.read_until_pattern(pattern=prompt_or_password_change)
-        if re.search(password_change_prompt, data):
+        data = self.read_until_pattern(pattern=self.prompt_or_password_change)
+        if re.search(self.password_change_prompt, data):
             self.write_channel("N" + self.RETURN)
             self.read_until_pattern(pattern=self.prompt_pattern)
 
@@ -160,21 +158,15 @@ class HuaweiTelnet(HuaweiBase):
 
     def telnet_login(
         self,
-        pri_prompt_terminator: str = r"]\s*$",
-        alt_prompt_terminator: str = r">\s*$",
+        pri_prompt_terminator: str = r"",
+        alt_prompt_terminator: str = r"",
         username_pattern: str = r"(?:user:|username|login|user name)",
         pwd_pattern: str = r"assword",
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
         """Telnet login for Huawei Devices"""
-
         delay_factor = self.select_delay_factor(delay_factor)
-        password_change_prompt = r"(?:Change now|Please choose 'YES' or 'NO').+"
-        combined_pattern = r"({}|{}|{})".format(
-            pri_prompt_terminator, alt_prompt_terminator, password_change_prompt
-        )
-
         output = ""
         return_msg = ""
         i = 1
@@ -194,19 +186,14 @@ class HuaweiTelnet(HuaweiBase):
                 self.write_channel(self.password + self.TELNET_RETURN)
 
                 # Waiting for combined output
-                output = self.read_until_pattern(pattern=combined_pattern)
+                output = self.read_until_pattern(pattern=self.prompt_or_password_change)
                 return_msg += output
 
                 # Search for password change prompt, send "N"
-                if re.search(password_change_prompt, output):
+                if re.search(self.password_change_prompt, output):
                     self.write_channel("N" + self.TELNET_RETURN)
-                    output = self.read_until_pattern(pattern=combined_pattern)
+                    output = self.read_until_pattern(pattern=self.prompt_pattern)
                     return_msg += output
-
-                # Check if proper data received
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
                     return return_msg
 
                 self.write_channel(self.TELNET_RETURN)
