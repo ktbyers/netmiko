@@ -39,6 +39,7 @@ class TeldatCITBase(NoEnable, BaseConnection):
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
 
     def cleanup(self, command: str = "logout") -> None:
