@@ -35,7 +35,9 @@ class ExtremeErsSSH(CiscoSSHConnection):
         password = "ssword"
         cntl_y = "Ctrl-Y"
         enter_msg = "Press ENTER to continue"
-        pattern = rf"(?:{uname}|{password}|{cntl_y}|{enter_msg}|{self.prompt_pattern}|Menu)"
+        pattern = (
+            rf"(?:{uname}|{password}|{cntl_y}|{enter_msg}|{self.prompt_pattern}|Menu)"
+        )
         while True:
             new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
             output += new_data
