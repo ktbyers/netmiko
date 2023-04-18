@@ -17,8 +17,10 @@
 
 - 6Wind
 - Adtran OS
+- Adva AOS FSP150
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
+- AudioCodes Gateways & Controllers
 - Broadcom ICOS
 - Calix B6
 - Centec Networks
@@ -29,21 +31,24 @@
 - Dell PowerConnect
 - Ericsson IPOS
 - Extreme ERS (Avaya)
-- Extreme VSP (Avaya)
-- Extreme VDX (Brocade)
 - Extreme MLX/NetIron (Brocade/Foundry)
+- Extreme TierraOS
+- Extreme VDX (Brocade)
+- Extreme VSP (Avaya)
+- Hillstone StoneOS
 - HPE Comware7
 - Huawei
 - Huawei OLT
 - Huawei SmartAX
 - IP Infusion OcNOS
 - Juniper ScreenOS
-- Mellanox
 - MikroTik RouterOS
 - MikroTik SwitchOS
 - NetApp cDOT
 - Netgear ProSafe
 - Nokia/Alcatel SR OS
+- Nokia SR Linux
+- NVIDIA-Mellanox
 - OneAccess
 - Palo Alto PAN-OS
 - Pluribus
@@ -62,8 +67,10 @@
 - Accedian
 - Allied Telesis AlliedWare Plus
 - Aruba
+- Arris CER
 - Brocade Fabric OS
 - C-DOT CROS
+- Casa CMTS
 - Ciena SAOS
 - Citrix Netscaler
 - Cisco Telepresence
@@ -84,6 +91,7 @@
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
+- Nokia SR Linux
 - QuantaMesh
 - Rad ETX
 - Raisecom ROAP
@@ -91,4 +99,184 @@
 - Ubiquiti Unifi Switch
 - Versa Networks FlexVNF
 - Watchguard Firebox
+- Zyxel NOS
 - 6WIND TurboRouter
+
+###### Supported SSH device_type values
+
+- a10
+- accedian
+- adtran_os
+- adva_fsp150f2
+- adva_fsp150f3
+- alcatel_aos
+- alcatel_sros
+- allied_telesis_awplus
+- apresia_aeos
+- arista_eos
+- arris_cer
+- aruba_os
+- aruba_osswitch
+- aruba_procurve
+- avaya_ers
+- avaya_vsp
+- broadcom_icos
+- brocade_fastiron
+- brocade_fos
+- brocade_netiron
+- brocade_nos
+- brocade_vdx
+- brocade_vyos
+- calix_b6
+- casa_cmts
+- cdot_cros
+- centec_os
+- checkpoint_gaia
+- ciena_saos
+- cisco_asa
+- cisco_ftd
+- cisco_ios
+- cisco_nxos
+- cisco_s300
+- cisco_tp
+- cisco_viptela
+- cisco_wlc
+- cisco_xe
+- cisco_xr
+- cloudgenix_ion
+- coriant
+- dell_dnos9
+- dell_force10
+- dell_isilon
+- dell_os10
+- dell_os6
+- dell_os9
+- dell_powerconnect
+- dell_sonic
+- dlink_ds
+- eltex
+- eltex_esr
+- endace
+- enterasys
+- ericsson_ipos
+- extreme
+- extreme_ers
+- extreme_exos
+- extreme_netiron
+- extreme_nos
+- extreme_slx
+- extreme_tierra
+- extreme_vdx
+- extreme_vsp
+- extreme_wing
+- f5_linux
+- f5_ltm
+- f5_tmsh
+- flexvnf
+- fortinet
+- generic
+- generic_termserver
+- hillstone_stoneos
+- hp_comware
+- hp_procurve
+- huawei
+- huawei_olt
+- huawei_smartax
+- huawei_vrpv8
+- ipinfusion_ocnos
+- juniper
+- juniper_junos
+- juniper_screenos
+- keymile
+- keymile_nos
+- linux
+- mellanox
+- mellanox_mlnxos
+- mikrotik_routeros
+- mikrotik_switchos
+- mrv_lx
+- mrv_optiswitch
+- netapp_cdot
+- netgear_prosafe
+- netscaler
+- nokia_sros
+- nokia_srl
+- oneaccess_oneos
+- ovs_linux
+- paloalto_panos
+- pluribus
+- quanta_mesh
+- rad_etx
+- raisecom_roap
+- ruckus_fastiron
+- ruijie_os
+- sixwind_os
+- sophos_sfos
+- supermicro_smis
+- tplink_jetstream
+- ubiquiti_edge
+- ubiquiti_edgerouter
+- ubiquiti_edgeswitch
+- ubiquiti_unifiswitch
+- vyatta_vyos
+- vyos
+- watchguard_fireware
+- yamaha
+- zte_zxros
+- zyxel_os
+ 
+###### Supported Telnet device_type values
+
+- adtran_os_telnet
+- apresia_aeos_telnet
+- arista_eos_telnet
+- aruba_procurve_telnet
+- brocade_fastiron_telnet
+- brocade_netiron_telnet
+- calix_b6_telnet
+- centec_os_telnet
+- ciena_saos_telnet
+- cisco_ios_telnet
+- cisco_xr_telnet
+- cisco_s300_telnet
+- dell_dnos6_telnet
+- dell_powerconnect_telnet
+- dlink_ds_telnet
+- extreme_telnet
+- extreme_exos_telnet
+- extreme_netiron_telnet
+- generic_telnet
+- generic_termserver_telnet
+- hp_procurve_telnet
+- hp_comware_telnet
+- huawei_telnet
+- huawei_olt_telnet
+- ipinfusion_ocnos_telnet
+- juniper_junos_telnet
+- nokia_sros_telnet
+- oneaccess_oneos_telnet
+- paloalto_panos_telnet
+- rad_etx_telnet
+- raisecom_telnet
+- ruckus_fastiron_telnet
+- ruijie_os_telnet
+- supermicro_smis_telnet
+- tplink_jetstream_telnet
+- yamaha_telnet
+- zte_zxros_telnet
+
+###### Supported Secure Copy device_type values
+
+- arista_eos
+- ciena_saos
+- cisco_asa
+- cisco_ios
+- cisco_nxos
+- cisco_xe
+- cisco_xr
+- dell_os10
+- extreme_exos
+- juniper_junos
+- linux
+- nokia_sros
+

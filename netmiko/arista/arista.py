@@ -1,34 +1,58 @@
+from typing import Any, Optional, Union, Sequence
+from typing import TYPE_CHECKING
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
+if TYPE_CHECKING:
+    from netmiko.base_connection import BaseConnection
+
 
 class AristaBase(CiscoSSHConnection):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("fast_cli", True)
-        kwargs.setdefault("_legacy_mode", False)
-        return super().__init__(*args, **kwargs)
+    prompt_pattern = r"[$>#]"
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
+        self._test_channel_read(pattern=self.prompt_pattern)
         cmd = "terminal width 511"
-        # Arista will echo immediately and then when the device really responds (like NX-OS)
         self.set_terminal_width(command=cmd, pattern=r"Width set to")
         self.disable_paging(cmd_verify=False, pattern=r"Pagination disabled")
         self.set_base_prompt()
 
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -> str:
+        """
+        Arista's sometimes duplicate the command echo if they fall behind.
+
+        arista9-napalm#
+        show version | json
+        arista9-napalm#show version | json
+
+        Using the terminating pattern tries to ensure that it is less likely they
+        fall behind.
+        """
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
+
     def enable(
         self,
-        cmd="enable",
-        pattern="ssword",
-        enable_pattern=r"\#",
-        re_flags=re.IGNORECASE,
-    ):
+        cmd: str = "enable",
+        pattern: str = "ssword",
+        enable_pattern: Optional[str] = r"\#",
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         return super().enable(
             cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
         )
 
-    def check_config_mode(self, check_string=")#", pattern=r"[>\#]"):
+    def check_config_mode(
+        self,
+        check_string: str = ")#",
+        pattern: str = r"[>\#]",
+        force_regex: bool = False,
+    ) -> bool:
         """
         Checks if the device is in configuration mode or not.
 
@@ -43,7 +67,12 @@ class AristaBase(CiscoSSHConnection):
         output = output.replace("(s2)", "")
         return check_string in output
 
-    def config_mode(self, config_command="configure terminal", pattern="", re_flags=0):
+    def config_mode(
+        self,
+        config_command: str = "configure terminal",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
         """Force arista to read pattern all the way to prompt on the next line."""
 
         if not re_flags:
@@ -57,13 +86,15 @@ class AristaBase(CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def _enter_shell(self):
+    def _enter_shell(self) -> str:
         """Enter the Bourne Shell."""
-        return self.send_command("bash", expect_string=r"[\$#]")
+        output = self._send_command_str("bash", expect_string=r"[\$#]")
+        return output
 
-    def _return_cli(self):
+    def _return_cli(self) -> str:
         """Return to the CLI."""
-        return self.send_command("exit", expect_string=r"[#>]")
+        output = self._send_command_str("exit", expect_string=r"[#>]")
+        return output
 
 
 class AristaSSH(AristaBase):
@@ -71,7 +102,7 @@ class AristaSSH(AristaBase):
 
 
 class AristaTelnet(AristaBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
@@ -82,13 +113,13 @@ class AristaFileTransfer(CiscoFileTransfer):
 
     def __init__(
         self,
-        ssh_conn,
-        source_file,
-        dest_file,
-        file_system="/mnt/flash",
-        direction="put",
-        **kwargs,
-    ):
+        ssh_conn: "BaseConnection",
+        source_file: str,
+        dest_file: str,
+        file_system: Optional[str] = "/mnt/flash",
+        direction: str = "put",
+        **kwargs: Any,
+    ) -> None:
         return super().__init__(
             ssh_conn=ssh_conn,
             source_file=source_file,
@@ -98,35 +129,37 @@ class AristaFileTransfer(CiscoFileTransfer):
             **kwargs,
         )
 
-    def remote_space_available(self, search_pattern=""):
+    def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
-    def check_file_exists(self, remote_cmd=""):
+    def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         return self._check_file_exists_unix(remote_cmd=remote_cmd)
 
-    def remote_file_size(self, remote_cmd="", remote_file=None):
+    def remote_file_size(
+        self, remote_cmd: str = "", remote_file: Optional[str] = None
+    ) -> int:
         """Get the file size of the remote file."""
         return self._remote_file_size_unix(
             remote_cmd=remote_cmd, remote_file=remote_file
         )
 
-    def remote_md5(self, base_cmd="verify /md5", remote_file=None):
+    def remote_md5(
+        self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None
+    ) -> str:
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
             elif self.direction == "get":
                 remote_file = self.source_file
         remote_md5_cmd = f"{base_cmd} file:{self.file_system}/{remote_file}"
-        dest_md5 = self.ssh_ctl_chan.send_command(
-            remote_md5_cmd, max_loops=750, delay_factor=4
-        )
+        dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=600)
         dest_md5 = self.process_md5(dest_md5)
         return dest_md5
 
-    def enable_scp(self, cmd=None):
+    def enable_scp(self, cmd: Union[str, Sequence[str], None] = None) -> None:
         raise NotImplementedError
 
-    def disable_scp(self, cmd=None):
+    def disable_scp(self, cmd: Union[str, Sequence[str], None] = None) -> None:
         raise NotImplementedError

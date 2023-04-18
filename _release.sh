@@ -1,9 +1,9 @@
 #!/bin/sh
 
-cd /home/kbyers/netmiko/
+cd /home/ktbyers/netmiko/
 echo
 
-VERSION=`cat netmiko/__init__.py | grep version | sed "s/^__version__ = \"//"`
+VERSION=`cat netmiko/__init__.py | grep '^__version_' | sed "s/^__version__ = \"//"`
 VERSION=`echo $VERSION | sed "s/\"$//"`
 PACKAGE=`echo 'netmiko-'$VERSION'.tar.gz'`
 WHL_PACKAGE=`echo 'netmiko-'$VERSION'-py3-none-any.whl'`
@@ -58,8 +58,8 @@ sleep 1
 
 echo
 echo "Testing in new virtual environment"
-if [ -d "/home/kbyers/VENV" ]; then
-    cd /home/kbyers/VENV
+if [ -d "/home/ktbyers/VENV" ]; then
+    cd /home/ktbyers/VENV
     if [ -d "netmiko_packaging" ]; then
         rm -r netmiko_packaging
     fi
@@ -69,11 +69,11 @@ if [ -d "netmiko_packaging" ]; then
     exit 1
 else
     echo "Create virtualenv"
-    /usr/bin/virtualenv-3.6 -p /usr/bin/python3.6 --no-site-packages netmiko_packaging
+    /usr/local/bin/python3.9 -m venv netmiko_packaging
     echo "Source virtualenv"
-    source /home/kbyers/VENV/netmiko_packaging/bin/activate
+    source /home/ktbyers/VENV/netmiko_packaging/bin/activate
     which python
-    cd /home/kbyers/netmiko
+    cd /home/ktbyers/netmiko
     pip install --upgrade pip
     pip install --upgrade setuptools
     pip install dist/$WHL_PACKAGE
@@ -102,9 +102,9 @@ while true; do
     esac
 done
 deactivate
-source /home/kbyers/VENV/py3_netmiko/bin/activate
+source /home/ktbyers/netmiko/.venv/bin/activate
 echo `which python`
-cd /home/kbyers/netmiko
+cd /home/ktbyers/netmiko
 ### FIX: Uncomment
 twine upload -r pypitest $DIR_PACKAGE $DIR_WHL_PACKAGE
 
@@ -128,8 +128,8 @@ twine upload $DIR_PACKAGE $DIR_WHL_PACKAGE
 sleep 90
 echo
 echo "Test clean install from pypi"
-if [ -d "/home/kbyers/VENV" ]; then
-    cd /home/kbyers/VENV
+if [ -d "/home/ktbyers/VENV" ]; then
+    cd /home/ktbyers/VENV
     if [ -d "netmiko_packaging" ]; then
         rm -r netmiko_packaging
     fi
@@ -141,12 +141,12 @@ if [ -d "netmiko_packaging" ]; then
     exit 1
 else
     echo "Create virtualenv"
-    /usr/bin/virtualenv-3.6 -p /usr/bin/python3.6 --no-site-packages netmiko_packaging
+    /usr/local/bin/python3.9 -m venv netmiko_packaging
     echo "Source virtualenv"
     deactivate
-    source /home/kbyers/VENV/netmiko_packaging/bin/activate
+    source /home/ktbyers/VENV/netmiko_packaging/bin/activate
     which python
-    cd /home/kbyers
+    cd /home/ktbyers
     pip install --upgrade pip
     pip install --upgrade setuptools
     pip install netmiko

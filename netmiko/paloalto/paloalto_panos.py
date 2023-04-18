@@ -1,9 +1,55 @@
-import time
+from typing import Optional, List, Any, Tuple
 import re
-from netmiko.base_connection import BaseConnection
+import warnings
+from os import path
+from paramiko import SSHClient, Transport
+
+from netmiko.no_enable import NoEnable
+from netmiko.base_connection import BaseConnection, DELAY_FACTOR_DEPR_SIMPLE_MSG
 
 
-class PaloAltoPanosBase(BaseConnection):
+class SSHClient_interactive(SSHClient):
+    """Set noauth when manually handling SSH authentication."""
+
+    def pa_banner_handler(
+        self, title: str, instructions: str, prompt_list: List[Tuple[str, bool]]
+    ) -> List[str]:
+
+        resp = []
+        for prompt, echo in prompt_list:
+            if "Do you accept" in prompt:
+                resp.append("yes")
+            elif "ssword" in prompt:
+                assert isinstance(self.password, str)
+                resp.append(self.password)
+        return resp
+
+    def _auth(self, username: str, password: str, *args: Any) -> None:
+        """
+        _auth: args as of aug-2021
+        self,
+        username,
+        password,
+        pkey,
+        key_filenames,
+        allow_agent,
+        look_for_keys,
+        gss_auth,
+        gss_kex,
+        gss_deleg_creds,
+        gss_host,
+        passphrase,
+        """
+
+        # Just gets the password up to the pa_banner_handler
+        self.password = password
+        transport = self.get_transport()
+        assert isinstance(transport, Transport)
+        transport.auth_interactive(username, handler=self.pa_banner_handler)
+        return
+
+
+class PaloAltoPanosBase(NoEnable, BaseConnection):
     """
     Implement methods for interacting with PaloAlto devices.
 
@@ -11,7 +57,7 @@ class PaloAltoPanosBase(BaseConnection):
     methods.  Overrides several methods for PaloAlto-specific compatibility.
     """
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
 
@@ -19,49 +65,59 @@ class PaloAltoPanosBase(BaseConnection):
         Set the base prompt for interaction ('>').
         """
         self.ansi_escape_codes = True
-        self._test_channel_read()
-        self.set_base_prompt(delay_factor=20)
+        self._test_channel_read(pattern=r"[>#]")
+        self.disable_paging(
+            command="set cli scripting-mode on",
+            cmd_verify=False,
+            pattern=r"[>#].*mode on",
+        )
+        self.set_terminal_width(
+            command="set cli terminal width 500", pattern=r"set cli terminal width 500"
+        )
         self.disable_paging(command="set cli pager off")
-        self.disable_paging(command="set cli scripting-mode on")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+        self.set_base_prompt()
 
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on PaloAlto."""
-        pass
+        # PA devices can be really slow--try to make sure we are caught up
+        self.write_channel("show admins\n")
+        self._test_channel_read(pattern=r"Client")
+        self._test_channel_read(pattern=r"[>#]")
 
-    def enable(self, *args, **kwargs):
-        """No enable mode on PaloAlto."""
-        pass
+    def find_prompt(
+        self, delay_factor: float = 5.0, pattern: Optional[str] = None
+    ) -> str:
+        """PA devices can be very slow to respond (in certain situations)"""
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on PaloAlto."""
-        pass
-
-    def check_config_mode(self, check_string="]"):
+    def check_config_mode(
+        self, check_string: str = "]", pattern: str = "", force_regex: bool = False
+    ) -> bool:
         """Checks if the device is in configuration mode or not."""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def config_mode(self, config_command="configure"):
+    def config_mode(
+        self, config_command: str = "configure", pattern: str = r"#", re_flags: int = 0
+    ) -> str:
         """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config="exit", pattern=r">"):
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r">") -> str:
         """Exit configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def commit(
         self,
-        comment=None,
-        force=False,
-        partial=False,
-        device_and_network=False,
-        policy_and_objects=False,
-        vsys="",
-        no_vsys=False,
-        delay_factor=0.1,
-    ):
+        comment: str = "",
+        force: bool = False,
+        partial: bool = False,
+        device_and_network: bool = False,
+        policy_and_objects: bool = False,
+        vsys: str = "",
+        no_vsys: bool = False,
+        read_timeout: float = 120.0,
+        delay_factor: Optional[float] = None,
+    ) -> str:
         """
         Commit the candidate configuration.
 
@@ -75,8 +131,13 @@ class PaloAltoPanosBase(BaseConnection):
         (device_and_network or policy_and_objects or vsys or
                 no_vsys) and not partial:
             Exception
+
+        delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
         """
-        delay_factor = self.select_delay_factor(delay_factor)
+
+        if delay_factor is not None:
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
 
         if (
             device_and_network or policy_and_objects or vsys or no_vsys
@@ -108,24 +169,25 @@ class PaloAltoPanosBase(BaseConnection):
 
         # Enter config mode (if necessary)
         output = self.config_mode()
-        output += self.send_command_expect(
+        output += self._send_command_str(
             command_string,
             strip_prompt=False,
             strip_command=False,
             expect_string="100%",
-            delay_factor=delay_factor,
+            read_timeout=read_timeout,
         )
+        output += self.exit_config_mode()
 
         if commit_marker not in output.lower():
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         return output
 
-    def strip_command(self, command_string, output):
+    def strip_command(self, command_string: str, output: str) -> str:
         """Strip command_string from output string."""
         output_list = output.split(command_string)
         return self.RESPONSE_RETURN.join(output_list)
 
-    def strip_prompt(self, a_string):
+    def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output."""
         response_list = a_string.split(self.RESPONSE_RETURN)
         new_response_list = []
@@ -136,7 +198,7 @@ class PaloAltoPanosBase(BaseConnection):
         output = self.RESPONSE_RETURN.join(new_response_list)
         return self.strip_context_items(output)
 
-    def strip_context_items(self, a_string):
+    def strip_context_items(self, a_string: str) -> str:
         """Strip PaloAlto-specific output.
 
         PaloAlto will also put a configuration context:
@@ -155,16 +217,7 @@ class PaloAltoPanosBase(BaseConnection):
 
         return a_string
 
-    def send_command_expect(self, *args, **kwargs):
-        """Palo Alto requires an extra delay"""
-        return self.send_command(*args, **kwargs)
-
-    def send_command(self, *args, **kwargs):
-        """Palo Alto requires an extra delay"""
-        kwargs["delay_factor"] = kwargs.get("delay_factor", 2.5)
-        return super().send_command(*args, **kwargs)
-
-    def cleanup(self, command="exit"):
+    def cleanup(self, command: str = "exit") -> None:
         """Gracefully exit the SSH session."""
         try:
             # The pattern="" forces use of send_command_timing
@@ -178,7 +231,25 @@ class PaloAltoPanosBase(BaseConnection):
 
 
 class PaloAltoPanosSSH(PaloAltoPanosBase):
-    pass
+    def _build_ssh_client(self) -> SSHClient:
+        """Prepare for Paramiko SSH connection."""
+        # Create instance of SSHClient object
+        # If not using SSH keys, we use noauth
+
+        if not self.use_keys:
+            remote_conn_pre: SSHClient = SSHClient_interactive()
+        else:
+            remote_conn_pre = SSHClient()
+
+        # Load host_keys for better SSH security
+        if self.system_host_keys:
+            remote_conn_pre.load_system_host_keys()
+        if self.alt_host_keys and path.isfile(self.alt_key_file):
+            remote_conn_pre.load_host_keys(self.alt_key_file)
+
+        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
+        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
+        return remote_conn_pre
 
 
 class PaloAltoPanosTelnet(PaloAltoPanosBase):

@@ -251,3 +251,47 @@ ubiquiti_edgerouter:
   ip: 192.168.1.1
   username: ubnt
   password: ubnt
+
+zyxel:
+  device_type: zyxel_os
+  ip: 192.168.1.1
+  username: admin
+  password: 'pass'
+
+extreme_exos:
+  device_type: extreme_exos
+  ip: 192.0.2.1
+  username: admin
+  password: 'admin'
+
+nokia_srl:
+  device_type: nokia_srl
+  ip: clab-srltest-srl1
+  username: admin
+  password: 'admin'
+  
+audiocode_72:
+  device_type: audiocode_72
+  ip: 192.168.1.1
+  username: TestUser
+  password: TestPass
+  secret: TestPass
+  
+audiocode_66:
+  device_type: audiocode_66
+  ip: 192.168.1.2
+  username: TestUser
+  password: TestPass
+  secret: TestPass
+  
+audiocode_shell:
+  device_type: audiocode_shell
+  ip: 192.168.1.3
+  username: TestUser
+  password: TestPass
+
+hillstone:
+  device_type: hillstone_stoneos
+  ip: 192.168.100.234
+  username: hillstone
+  password: Hillstone

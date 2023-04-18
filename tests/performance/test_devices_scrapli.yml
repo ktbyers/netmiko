@@ -1,0 +1,59 @@
+---
+cisco1:
+  device:
+    driver: IOSXEDriver
+    host: cisco1.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+  graph:
+    title: "Cisco IOS Performance (Cisco 881)"
+
+cisco3:
+  device:
+    driver: IOSXEDriver
+    host: cisco3.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+  graph:
+    title: "Cisco IOS-XE Performance (Cisco C1111-4P)"
+
+cisco5:
+  device:
+    driver: IOSXEDriver
+    host: cisco5.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+
+nxos1:
+  device:
+    driver: NXOSDriver
+    host: nxos1.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+  graph:
+    title: "Cisco NX-OS Performance (nx9k virtual)"
+
+iosxr3:
+  device:
+    driver: IOSXRDriver
+    host: iosxr3.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+
+arista1:
+  device:
+    driver: EOSDriver
+    host: arista1.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+  graph:
+    title: "Arista EOS Performance (vEOS)"
+
+juniper_vmx:
+  device:
+    driver: JunosDriver
+    host: vmx1.lasthop.io
+    auth_username: pyclass
+    auth_strict_key: False
+  graph:
+    title: "Juniper Junos Performance"

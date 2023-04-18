@@ -1,15 +1,17 @@
 import re
 import time
+from typing import Any, Optional
 
 from cryptography.hazmat.primitives.asymmetric import dsa
+from cryptography.hazmat.primitives.asymmetric.dsa import DSAParameterNumbers
 
 from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.ssh_exception import NetmikoTimeoutException
+from netmiko.exceptions import NetmikoTimeoutException
 
 
 class TPLinkJetStreamBase(CiscoSSHConnection):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         # TP-Link doesn't have a way to set terminal width which breaks cmd_verify
         if kwargs.get("global_cmd_verify") is None:
             kwargs["global_cmd_verify"] = False
@@ -18,7 +20,7 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
             kwargs["default_enter"] = "\r\n"
         return super().__init__(**kwargs)
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
         """
@@ -33,7 +35,13 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def enable(self, cmd="", pattern="ssword", re_flags=re.IGNORECASE):
+    def enable(
+        self,
+        cmd: str = "",
+        pattern: str = "ssword",
+        enable_pattern: Optional[str] = None,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
         """
         TPLink JetStream requires you to first execute "enable" and then execute "enable-admin".
         This is necessary as "configure" is generally only available at "enable-admin" level
@@ -58,21 +66,24 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
                 self.write_channel(self.normalize_cmd(cmd))
                 try:
                     output += self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
+                        pattern=pattern, re_flags=re_flags, read_entire_line=True
                     )
                     self.write_channel(self.normalize_cmd(self.secret))
-                    output += self.read_until_prompt()
+                    output += self.read_until_prompt(read_entire_line=True)
                 except NetmikoTimeoutException:
                     raise ValueError(msg)
                 if not self.check_enable_mode():
                     raise ValueError(msg)
         return output
 
-    def config_mode(self, config_command="configure"):
-        """Enter configuration mode."""
-        return super().config_mode(config_command=config_command)
+    def config_mode(
+        self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config="exit", pattern=r"#"):
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#") -> str:
         """
         Exit config mode.
 
@@ -97,13 +108,22 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
 
         return output
 
-    def check_config_mode(self, check_string="(config", pattern=r"#"):
+    def check_config_mode(
+        self,
+        check_string: str = "(config",
+        pattern: str = r"#",
+        force_regex: bool = False,
+    ) -> bool:
         """Check whether device is in configuration mode. Return a boolean."""
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def set_base_prompt(
-        self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1
-    ):
+        self,
+        pri_prompt_terminator: str = ">",
+        alt_prompt_terminator: str = "#",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
         """
         Sets self.base_prompt
 
@@ -119,16 +139,16 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern,
         )
 
 
 class TPLinkJetStreamSSH(TPLinkJetStreamBase):
-    def __init__(self, **kwargs):
-        dsa._check_dsa_parameters = self._override_check_dsa_parameters
-
+    def __init__(self, **kwargs: Any) -> None:
+        setattr(dsa, "_check_dsa_parameters", self._override_check_dsa_parameters)
         return super().__init__(**kwargs)
 
-    def _override_check_dsa_parameters(self, parameters):
+    def _override_check_dsa_parameters(self, parameters: DSAParameterNumbers) -> None:
         """
         Override check_dsa_parameters from cryptography's dsa.py
 
@@ -156,15 +176,15 @@ class TPLinkJetStreamSSH(TPLinkJetStreamBase):
 class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
     def telnet_login(
         self,
-        pri_prompt_terminator="#",
-        alt_prompt_terminator=">",
-        username_pattern=r"User:",
-        pwd_pattern=r"Password:",
-        delay_factor=1,
-        max_loops=60,
-    ):
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        username_pattern: str = r"User:",
+        pwd_pattern: str = r"Password:",
+        delay_factor: float = 1.0,
+        max_loops: int = 60,
+    ) -> str:
         """Telnet login: can be username/password or just password."""
-        super().telnet_login(
+        return super().telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             username_pattern=username_pattern,

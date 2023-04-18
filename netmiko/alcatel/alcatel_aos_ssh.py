@@ -1,46 +1,23 @@
 """Alcatel-Lucent Enterprise AOS support (AOS6 and AOS8)."""
-import time
+from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class AlcatelAosSSH(CiscoSSHConnection):
+class AlcatelAosSSH(NoEnable, NoConfig, CiscoSSHConnection):
     """Alcatel-Lucent Enterprise AOS support (AOS6 and AOS8)."""
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         # Prompt can be anything, but best practice is to end with > or #
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
-
-    def check_enable_mode(self, *args, **kwargs):
-        """No enable mode on AOS"""
-        pass
-
-    def enable(self, *args, **kwargs):
-        """No enable mode on AOS"""
-        pass
-
-    def exit_enable_mode(self, *args, **kwargs):
-        """No enable mode on AOS"""
-        pass
-
-    def check_config_mode(self, *args, **kwargs):
-        """No config mode on AOS"""
-        pass
-
-    def config_mode(self, *args, **kwargs):
-        """No config mode on AOS"""
-        return ""
-
-    def exit_config_mode(self, *args, **kwargs):
-        """No config mode on AOS"""
-        return ""
 
     def save_config(
-        self, cmd="write memory flash-synchro", confirm=False, confirm_response=""
-    ):
+        self,
+        cmd: str = "write memory flash-synchro",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
         """Save Config"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response

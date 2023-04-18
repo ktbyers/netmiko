@@ -452,7 +452,7 @@ sophos_sfos:
   basic: "system diagnostics utilities route lookup 172.16.16.16"
   extended_output: "system diagnostics show version-info"
 
-adtran_os
+adtran_os:
   version: "show version"
   basic: "show system-management-evc"
   extended_output: "show version"
@@ -490,3 +490,73 @@ ubiquiti_edgerouter:
     - "set system coredump enabled false"
   support_commit: True
   config_verification: "show system coredump enabled"
+
+zyxel_os:
+  version: "sys atsh"
+  basic: "cfg lan get"
+  extended_output: "cfg wlan get"
+  config:
+    - "cfg wlan edit --Band 2.4GHz --MainSSID 1 --SSID 'NetmikoTest'"
+    - "cfg wlan edit --Band 2.4GHz --MainSSID 1 --SSID 'magic2000'"
+  config_verification: "cfg intf_group get"
+
+nokia_srl:
+  version: "info system banner"
+  basic: "show version"
+  wide_command: "show interface myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
+  extended_output: "show interface all"
+  support_commit: True
+  config: 
+    - "interface ethernet-1/1 admin-state disable"
+    - "interface ethernet-1/1 admin-state enable"
+  config_verification: "show interface ethernet-1/1 brief"
+
+audiocode_72:
+  version: "show system version"
+  basic: "show data interfaces gigabitethernet 0/0"
+  extended_output: "show system version"   # requires paging to be disabled
+  config:
+    - "ip domain name home"                 # base command
+    - "ip domain name house"                # something you can verify has changed
+  config_verification: "show run data"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'Writing configuration...done'
+  config_mode_command: "config data"
+
+audiocode_66:
+  version: "show system version"
+  basic: "show data interfaces gigabitethernet 0/0"
+  extended_output: "show system version"   # requires paging to be disabled
+  config:     
+    - "no ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"      # base command       
+    - "no ip route 1.1.1.1 255.255.255.255 1.1.1.1 GigabitEthernet 0/0 1"      
+    - "ip route 1.1.1.1 255.255.255.255 2.2.2.2 GigabitEthernet 0/0 1"
+  config_verification: "show run data"  # something you can verify has changed
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'Writing configuration...done'
+  config_mode_command: "config data"     # only use if needed
+  
+audiocode_shell:
+  version: "show info"
+  basic: "show ip conf"
+  extended_output: "show info"   # requires paging to be disabled
+  config:        
+    - "SCP SNMPSysContact Test_String2" # base command
+  config_verification: "cf get"  # something you can verify has changed
+  save_config_cmd: 'SaveConfiguration'
+  save_config_confirm: False
+  save_config_response: 'Configuration has been saved'
+  config_mode_command: "conf"         # only use if needed
+
+hillstone_stoneos:
+  version: "show version"
+  basic: "show interface"
+  extended_output: "show configuration"
+  config:
+    - "clock zone china"
+  config_verification: "show configuration | inc clock"
+  save_config_cmd: 'save all'
+  save_config_confirm: True
+  save_config_response: 'Saving configuration is finished'
