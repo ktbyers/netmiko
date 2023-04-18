@@ -6,7 +6,7 @@ import re
 from netmiko import log
 
 
-class TeldatBase(NoEnable, BaseConnection):
+class TeldatCITBase(NoEnable, BaseConnection):
     def session_preparation(self) -> None:
         # Prompt is "*"
         self._test_channel_read(pattern=r"\*")
@@ -156,11 +156,11 @@ class TeldatBase(NoEnable, BaseConnection):
         return output
 
 
-class TeldatSSH(TeldatBase):
+class TeldatCITSSH(TeldatCITBase):
     pass
 
 
-class TeldatTelnet(TeldatBase):
+class TeldatCITTelnet(TeldatCITBase):
     def telnet_login(
         self,
         pri_prompt_terminator: str = r"\*",

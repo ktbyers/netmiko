@@ -1,3 +1,3 @@
-from netmiko.teldat.teldat import TeldatSSH, TeldatTelnet
+from netmiko.teldat.teldat_cit import TeldatCITSSH, TeldatCITTelnet
 
-__all__ = ["TeldatSSH", "TeldatTelnet"]
+__all__ = ["TeldatCITSSH", "TeldatCITTelnet"]
