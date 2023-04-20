@@ -113,17 +113,17 @@ Timeout reached (auth_timeout={self.auth_timeout} seconds)"""
         self,
         config_command: str = "config",
         pattern: str = r"\(config\)#",
-        *args,
-        **kwargs,
+        *args: Any,
+        **kwargs: Any,
     ) -> str:
         return super().config_mode(config_command, pattern, *args, **kwargs)
 
     def check_config_mode(
-        self, check_string: str = "(config)#", *args, **kwargs
+        self, check_string: str = "(config)#", *args: Any, **kwargs: Any
     ) -> bool:
         return super().check_config_mode(check_string, *args, **kwargs)
 
-    def exit_config_mode(self, exit_config: str = "exit", *args, **kwargs) -> str:
+    def exit_config_mode(self, exit_config: str = "exit", *args: Any, **kwargs: Any) -> str:
         return super().exit_config_mode(exit_config, *args, **kwargs)
 
 
