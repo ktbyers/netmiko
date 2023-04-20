@@ -99,15 +99,32 @@ class EricssonMinilinkBase(BaseConnection):
 Timeout reached (auth_timeout={self.auth_timeout} seconds)"""
             raise NetmikoTimeoutException(msg)
 
-    def save_config(
-        self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
+    def save_config(self, cmd: str = "write", *args, **kwargs) -> str:
         """Saves Config."""
-        if super().check_config_mode(check_string=")#"):
-            super().exit_config_mode(exit_config="exit", pattern="#")
+        if self.check_config_mode():
+            self.exit_config_mode()
 
-        self.send_command(command_string=cmd, strip_prompt=False, strip_command=False)
+        self.send_command(
+            command_string=cmd, strip_prompt=False, strip_command=False, *args, **kwargs
+        )
         return "success"
+
+    def config_mode(
+        self,
+        config_command: str = "config",
+        pattern: str = "\(config\)#",
+        *args,
+        **kwargs,
+    ) -> str:
+        return super().config_mode(config_command, pattern, *args, **kwargs)
+
+    def check_config_mode(
+        self, check_string: str = "(config)#", *args, **kwargs
+    ) -> bool:
+        return super().check_config_mode(check_string, *args, **kwargs)
+
+    def exit_config_mode(self, exit_config: str = "exit", *args, **kwargs) -> str:
+        return super().exit_config_mode(exit_config, *args, **kwargs)
 
 
 class EricssonMinilink63SSH(EricssonMinilinkBase):
