@@ -123,7 +123,9 @@ Timeout reached (auth_timeout={self.auth_timeout} seconds)"""
     ) -> bool:
         return super().check_config_mode(check_string, *args, **kwargs)
 
-    def exit_config_mode(self, exit_config: str = "exit", *args: Any, **kwargs: Any) -> str:
+    def exit_config_mode(
+        self, exit_config: str = "exit", *args: Any, **kwargs: Any
+    ) -> str:
         return super().exit_config_mode(exit_config, *args, **kwargs)
 
 
