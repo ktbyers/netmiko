@@ -17,8 +17,10 @@
 
 - 6Wind
 - Adtran OS
+- Adva AOS FSP150
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
+- AudioCodes Gateways & Controllers
 - Broadcom ICOS
 - Calix B6
 - Centec Networks
@@ -33,6 +35,7 @@
 - Extreme TierraOS
 - Extreme VDX (Brocade)
 - Extreme VSP (Avaya)
+- Hillstone StoneOS
 - HPE Comware7
 - Huawei
 - Huawei OLT
@@ -64,8 +67,10 @@
 - Accedian
 - Allied Telesis AlliedWare Plus
 - Aruba
+- Arris CER
 - Brocade Fabric OS
 - C-DOT CROS
+- Casa CMTS
 - Ciena SAOS
 - Citrix Netscaler
 - Cisco Telepresence
@@ -102,11 +107,14 @@
 - a10
 - accedian
 - adtran_os
+- adva_fsp150f2
+- adva_fsp150f3
 - alcatel_aos
 - alcatel_sros
 - allied_telesis_awplus
 - apresia_aeos
 - arista_eos
+- arris_cer
 - aruba_os
 - aruba_osswitch
 - aruba_procurve
@@ -120,6 +128,7 @@
 - brocade_vdx
 - brocade_vyos
 - calix_b6
+- casa_cmts
 - cdot_cros
 - centec_os
 - checkpoint_gaia
@@ -167,6 +176,7 @@
 - fortinet
 - generic
 - generic_termserver
+- hillstone_stoneos
 - hp_comware
 - hp_procurve
 - huawei
@@ -269,3 +279,4 @@
 - juniper_junos
 - linux
 - nokia_sros
+

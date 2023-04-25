@@ -12,6 +12,9 @@ RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
 RELATIVE_RESOURCE_FOLDER = join(dirname(dirname(relpath(__file__))), "etc")
 CONFIG_FILENAME = join(RESOURCE_FOLDER, ".netmiko.yml")
 
+is_linux = sys.platform == "linux" or sys.platform == "linux2"
+skip_if_not_linux = pytest.mark.skipif(not is_linux, reason="Test Requires Linux")
+
 
 def test_load_yaml_file():
     """Read a YAML file successfully"""
@@ -202,6 +205,7 @@ def test_textfsm_w_index():
     assert result == [{"model": "4500"}]
 
 
+@skip_if_not_linux
 def test_ntc_templates_discovery():
     """
     Verify Netmiko uses proper ntc-templates:

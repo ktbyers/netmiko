@@ -589,4 +589,9 @@ def get_platform_args():
             "enable_scp": True,
             "delete_file": delete_file_mikrotik_routeros,
         },
+        "ubiquiti_edgerouter": {
+            "file_system": "/home/admin",
+            "enable_scp": True,
+            "delete_file": delete_file_generic,
+        },
     }

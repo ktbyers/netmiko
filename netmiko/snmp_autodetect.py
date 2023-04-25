@@ -20,6 +20,7 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 """
+import ipaddress
 from typing import Optional, Dict
 from typing.re import Pattern
 import re
@@ -56,7 +57,7 @@ SNMP_MAPPER_BASE = {
     },
     "cisco_ios": {
         "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
+        "expr": re.compile(r".*Cisco IOS Software.*,.*", re.IGNORECASE),
         "priority": 60,
     },
     "cisco_xe": {
@@ -113,6 +114,11 @@ SNMP_MAPPER_BASE = {
         "oid": ".1.3.6.1.2.1.1.1.0",
         "expr": re.compile(r"PowerConnect.*", re.IGNORECASE),
         "priority": 50,
+    },
+    "mikrotik_routeros": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*RouterOS.*", re.IGNORECASE),
+        "priority": 60,
     },
 }
 
@@ -237,6 +243,16 @@ class SNMPDetect(object):
         self.auth_proto = self._snmp_v3_authentication[auth_proto]
         self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
         self._response_cache: Dict[str, str] = {}
+        self.snmp_target = (self.hostname, self.snmp_port)
+
+        if ipaddress.ip_address(self.hostname).version == 6:
+            self.udp_transport_target = cmdgen.Udp6TransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
+        else:
+            self.udp_transport_target = cmdgen.UdpTransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
 
     def _get_snmpv3(self, oid: str) -> str:
         """
@@ -252,7 +268,6 @@ class SNMPDetect(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         """
-        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
@@ -263,7 +278,7 @@ class SNMPDetect(object):
                 authProtocol=self.auth_proto,
                 privProtocol=self.encryp_proto,
             ),
-            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            self.udp_transport_target,
             oid,
             lookupNames=True,
             lookupValues=True,
@@ -287,12 +302,11 @@ class SNMPDetect(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         """
-        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
             cmdgen.CommunityData(self.community),
-            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            self.udp_transport_target,
             oid,
             lookupNames=True,
             lookupValues=True,
