@@ -388,6 +388,25 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
     return ConnectionClass(*args, **kwargs)
 
 
+def AgnosticHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
+    """Alternative entrypoint that is agnostic to connection method.
+    If an SSH connection fails it tries to use Telnet, if available
+    and vice versa."""
+    try:
+        return ConnectHandler(*args, **kwargs)
+    except (NetmikoTimeoutException, ConnectionRefusedError):
+        device_type = kwargs["device_type"]
+        if device_type in platforms_str:
+            alternative_device = device_type + "_telnet"
+        elif device_type in telnet_platforms_str:
+            alternative_device = device_type.replace("_telnet", "")
+
+        if alternative_device in platforms:
+            kwargs["device_type"] = alternative_device
+            return ConnectHandler(*args, **kwargs)
+        raise
+
+
 def ConnLogOnly(
     log_file: str = "netmiko.log",
     log_level: Optional[int] = None,
