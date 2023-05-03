@@ -128,20 +128,28 @@ Timeout reached (auth_timeout={self.auth_timeout} seconds)"""
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = "") -> str:
         return super().exit_config_mode(exit_config, pattern)
 
+    def cleanup(self, command: str = "exit") -> None:
+        """Gracefully exit the SSH session."""
+        try:
+            if self.check_config_mode():
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final 'exit' (command)
+        if self.session_log:
+            self.session_log.fin = True
+        self.write_channel(command + self.RETURN)
+
 
 class EricssonMinilink63SSH(EricssonMinilinkBase):
     """Common Methods for Ericsson Minilink 63XX (SSH)"""
 
     def cleanup(self, command: str = "quit") -> None:
         """Gracefully exit the SSH session."""
-        self._session_log_fin = True
-        self.write_channel(command + self.RETURN)
+        return super().cleanup(command)
 
 
 class EricssonMinilink66SSH(EricssonMinilinkBase):
     """Common Methods for Ericsson Minilink 66XX (SSH)"""
 
-    def cleanup(self, command: str = "exit") -> None:
-        """Gracefully exit the SSH session."""
-        self._session_log_fin = True
-        self.write_channel(command + self.RETURN)
+    pass
