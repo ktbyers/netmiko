@@ -1,5 +1,6 @@
 """Ericsson MiniLink driver."""
 import time
+import re
 from os import path
 from typing import Any
 from paramiko import SSHClient
@@ -11,11 +12,18 @@ from netmiko.exceptions import NetmikoTimeoutException
 class EricssonMinilinkBase(BaseConnection):
     """Ericsson MiniLink Base class"""
 
+    prompt_pattern = r"[>#]"
+
     def __init__(
         self,
         *args: Any,
         **kwargs: Any,
     ) -> None:
+
+        # Set default auth_timeout
+        if kwargs.get("auth_timeout") is None:
+            kwargs["auth_timeout"] = 20
+
         # Remove username from kwargs to avoid duplicates
         self._real_username = ""
         if "username" in kwargs:
@@ -60,40 +68,30 @@ class EricssonMinilinkBase(BaseConnection):
         User:
         Password:
         """
-        if not self.auth_timeout:
-            self.auth_timeout = 20
-        # We are using sleep here due to Ericsson MLTN being slow on login
+
         start = time.time()
         output = ""
+        assert self.auth_timeout is not None
         while time.time() - start < self.auth_timeout:
-            output += self.read_channel()
+            username_pattern = r"(?:login:|User:)"
+            password_pattern = "ssword"
+            busy = "busy"
+            combined_pattern = rf"(?:{username_pattern}|{password_pattern}|{busy})"
 
-            # Check if there is any data returned yet
-            if not output:
-                # Sleep before checking again
-                time.sleep(0.5)
-                output += self.read_channel()
-                # If still no output, send an <enter> and try again in next loop
-                if not output:
-                    self.write_channel(self.RETURN)
-                    continue
-
-            # Special login handle
-            if "login:" in output or "User:" in output:
+            new_output = self.read_until_pattern(
+                pattern=combined_pattern, read_timeout=self.auth_timeout
+            )
+            output += new_output
+            if re.search(username_pattern, new_output):
                 self.write_channel(self._real_username + self.RETURN)
-                # Resetting output since the next will be password
-                output = ""
-            elif "password:" in output or "Password:" in output:
+                continue
+            elif re.search(password_pattern, new_output):
                 assert isinstance(self.password, str)
                 self.write_channel(self.password + self.RETURN)
                 break
-            elif "busy" in output:
+            elif re.search(busy, new_output):
                 self.disconnect()
                 raise ValueError("CLI is currently busy")
-
-            # If none of the checks above is a success, sleep and try again
-            time.sleep(1)
-
         else:  # no-break
             msg = f"""Login process failed to device:
 Timeout reached (auth_timeout={self.auth_timeout} seconds)"""
