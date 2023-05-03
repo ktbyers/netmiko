@@ -7,9 +7,10 @@ from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
 from netmiko.base_connection import BaseConnection
 from netmiko.exceptions import NetmikoTimeoutException
+from netmiko.no_enable import NoEnable
 
 
-class EricssonMinilinkBase(BaseConnection):
+class EricssonMinilinkBase(NoEnable, BaseConnection):
     """Ericsson MiniLink Base class"""
 
     prompt_pattern = r"[>#]"
@@ -54,6 +55,7 @@ class EricssonMinilinkBase(BaseConnection):
         return remote_conn_pre
 
     def session_preparation(self) -> None:
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt(
             pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
         )
