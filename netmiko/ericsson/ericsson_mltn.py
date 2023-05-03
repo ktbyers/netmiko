@@ -111,20 +111,20 @@ Timeout reached (auth_timeout={self.auth_timeout} seconds)"""
         self,
         config_command: str = "config",
         pattern: str = r"\(config\)#",
-        *args: Any,
-        **kwargs: Any,
+        re_flags: int = 0,
     ) -> str:
-        return super().config_mode(config_command, pattern, *args, **kwargs)
+        return super().config_mode(config_command, pattern, re_flags=re_flags)
 
     def check_config_mode(
-        self, check_string: str = "(config)#", *args: Any, **kwargs: Any
+        self,
+        check_string: str = "(config)#",
+        pattern: str = "",
+        force_regex: bool = False,
     ) -> bool:
-        return super().check_config_mode(check_string, *args, **kwargs)
+        return super().check_config_mode(check_string, pattern, force_regex=force_regex)
 
-    def exit_config_mode(
-        self, exit_config: str = "exit", *args: Any, **kwargs: Any
-    ) -> str:
-        return super().exit_config_mode(exit_config, *args, **kwargs)
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "") -> str:
+        return super().exit_config_mode(exit_config, pattern)
 
 
 class EricssonMinilink63SSH(EricssonMinilinkBase):
