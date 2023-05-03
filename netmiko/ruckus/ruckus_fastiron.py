@@ -23,12 +23,12 @@ class RuckusFastironBase(CiscoSSHConnection):
     def enable(
         self,
         cmd: str = "enable",
-        pattern: str = r"(ssword|User Name)",
+        pattern: str = r"(ssword|User Name|Login)",
         enable_pattern: Optional[str] = None,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode.
-        With RADIUS can prompt for User Name
+        With RADIUS can prompt for User Name or Login
         SSH@Lab-ICX7250>en
         User Name:service_netmiko
         Password:
@@ -44,7 +44,7 @@ class RuckusFastironBase(CiscoSSHConnection):
                     pattern=pattern, re_flags=re_flags, read_entire_line=True
                 )
                 output += new_data
-                if "User Name" in new_data:
+                if "User Name" in new_data or "Login" in new_data:
                     self.write_channel(self.normalize_cmd(self.username))
                     new_data = self.read_until_prompt_or_pattern(
                         pattern=pattern, re_flags=re_flags, read_entire_line=True
