@@ -60,7 +60,11 @@ from netmiko.dlink import DlinkDSTelnet, DlinkDSSSH
 from netmiko.eltex import EltexSSH, EltexEsrSSH
 from netmiko.endace import EndaceSSH
 from netmiko.enterasys import EnterasysSSH
-from netmiko.ericsson import EricssonIposSSH
+from netmiko.ericsson import (
+    EricssonIposSSH,
+    EricssonMinilink63SSH,
+    EricssonMinilink66SSH,
+)
 from netmiko.extreme import ExtremeErsSSH
 from netmiko.extreme import ExtremeExosSSH, ExtremeExosFileTransfer
 from netmiko.extreme import ExtremeExosTelnet
@@ -197,6 +201,8 @@ CLASS_MAPPER_BASE = {
     "eltex_esr": EltexEsrSSH,
     "enterasys": EnterasysSSH,
     "ericsson_ipos": EricssonIposSSH,
+    "ericsson_mltn63": EricssonMinilink63SSH,
+    "ericsson_mltn66": EricssonMinilink66SSH,
     "extreme": ExtremeExosSSH,
     "extreme_ers": ExtremeErsSSH,
     "extreme_exos": ExtremeExosSSH,
@@ -441,7 +447,6 @@ def ConnLogOnly(
 def ConnUnify(
     **kwargs: Any,
 ) -> "BaseConnection":
-
     try:
         kwargs["auto_connect"] = False
         net_connect = ConnectHandler(**kwargs)
