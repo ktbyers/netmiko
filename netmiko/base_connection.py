@@ -2148,7 +2148,8 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param strip_command: Determines whether or not to strip the command
 
-        :param read_timeout: Absolute timer to send to read_channel_timing. Should be rarely needed.
+        :param read_timeout: Absolute timer to send to read_channel_timing. Also adjusts
+        read_timeout in read_until_pattern calls.
 
         :param config_mode_command: The command to enter into config mode
 
@@ -2254,11 +2255,15 @@ You can also look at the Netmiko session_log or debug log for more information.
                 self.write_channel(self.normalize_cmd(cmd))
 
                 # Make sure command is echoed
-                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                output += self.read_until_pattern(
+                    pattern=re.escape(cmd.strip()), read_timeout=read_timeout
+                )
 
                 # Read until next prompt or terminator (#); the .*$ forces read of entire line
                 pattern = f"(?:{re.escape(self.base_prompt)}.*$|{terminator}.*$)"
-                output += self.read_until_pattern(pattern=pattern, re_flags=re.M)
+                output += self.read_until_pattern(
+                    pattern=pattern, read_timeout=read_timeout, re_flags=re.M
+                )
 
                 if error_pattern:
                     if re.search(error_pattern, output, flags=re.M):
