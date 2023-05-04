@@ -91,12 +91,19 @@ class NokiaSros(BaseConnection):
         cmd: str = "enable",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enable SR OS administrative mode"""
         if "@" not in self.base_prompt:
             cmd = "enable-admin"
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        return super().enable(
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
+        )
 
     def check_enable_mode(self, check_string: str = "in admin mode") -> bool:
         """Check if in enable mode."""
