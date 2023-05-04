@@ -98,3 +98,4 @@ jobs:
           poetry run pytest -v -s tests/unit/test_utilities.py
           poetry run pytest -v -s tests/unit/test_ssh_autodetect.py
           poetry run pytest -v -s tests/unit/test_connection.py
+          poetry run pytest -v -s tests/unit/test_entry_points.py
