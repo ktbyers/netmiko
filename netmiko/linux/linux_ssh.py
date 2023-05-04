@@ -115,6 +115,7 @@ class LinuxSSH(CiscoSSHConnection):
         cmd: str = "sudo -s",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Attempt to become root."""
@@ -129,22 +130,25 @@ permissions.
 """
 
         output = ""
-        if not self.check_enable_mode():
-            self.write_channel(self.normalize_cmd(cmd))
-            # Failed "sudo -s" will put "#" in output so have to delineate further
-            root_prompt = rf"(?m:{LINUX_PROMPT_ROOT}\s*$)"
-            prompt_or_password = rf"({root_prompt}|{pattern})"
-            output += self.read_until_pattern(pattern=prompt_or_password)
-            if re.search(pattern, output, flags=re_flags):
-                self.write_channel(self.normalize_cmd(self.secret))
-                try:
-                    output += self.read_until_pattern(pattern=root_prompt)
-                except ReadTimeout:
-                    raise ValueError(msg)
-            # Nature of prompt might change with the privilege escalation
-            self.set_base_prompt(pattern=root_prompt)
-            if not self.check_enable_mode():
+        if check_state and self.check_enable_mode():
+            return output
+
+        self.write_channel(self.normalize_cmd(cmd))
+
+        # Failed "sudo -s" will put "#" in output so have to delineate further
+        root_prompt = rf"(?m:{LINUX_PROMPT_ROOT}\s*$)"
+        prompt_or_password = rf"({root_prompt}|{pattern})"
+        output += self.read_until_pattern(pattern=prompt_or_password)
+        if re.search(pattern, output, flags=re_flags):
+            self.write_channel(self.normalize_cmd(self.secret))
+            try:
+                output += self.read_until_pattern(pattern=root_prompt)
+            except ReadTimeout:
                 raise ValueError(msg)
+        # Nature of prompt might change with the privilege escalation
+        self.set_base_prompt(pattern=root_prompt)
+        if not self.check_enable_mode():
+            raise ValueError(msg)
         return output
 
     def cleanup(self, command: str = "exit") -> None:

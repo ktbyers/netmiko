@@ -28,10 +28,17 @@ class MrvLxSSH(CiscoSSHConnection):
         cmd: str = "enable",
         pattern: str = "assword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode."""
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        return super().enable(
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
+        )
 
     def save_config(
         self,

@@ -80,13 +80,15 @@ class HPProcurveBase(CiscoSSHConnection):
         cmd: str = "enable",
         pattern: str = "password",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
         default_username: str = "",
     ) -> str:
         """Enter enable mode"""
 
-        if self.check_enable_mode():
+        if check_state and self.check_enable_mode():
             return ""
+
         if not default_username:
             default_username = self.username
 

@@ -109,6 +109,7 @@ class HPComwareBase(CiscoSSHConnection):
         cmd: str = "system-view",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """enable mode on Comware is system-view."""
