@@ -116,7 +116,7 @@ class HPComwareBase(CiscoSSHConnection):
         return self.config_mode(config_command=cmd)
 
     def exit_enable_mode(self, exit_command: str = "return") -> str:
-        """enable mode on Comware is system-view.:"""
+        """enable mode on Comware is system-view."""
         return self.exit_config_mode(exit_config=exit_command)
 
     def check_enable_mode(self, check_string: str = "]") -> bool:
