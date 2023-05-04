@@ -1964,6 +1964,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         cmd: str = "",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_current_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode.
@@ -1974,6 +1975,9 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param enable_pattern: pattern indicating you have entered enable mode
 
+        :param check_current_state: Determine whether we are already in enable_mode using
+                check_enable_mode() before trying to elevate privileges (default: True)
+
         :param re_flags: Regular expression flags used in conjunction with pattern
         """
         output = ""
@@ -1982,35 +1986,37 @@ You can also look at the Netmiko session_log or debug log for more information.
             "the 'secret' argument to ConnectHandler."
         )
 
-        # Check if in enable mode
-        if not self.check_enable_mode():
-            # Send "enable" mode command
-            self.write_channel(self.normalize_cmd(cmd))
-            try:
-                # Read the command echo
-                end_data = ""
-                if self.global_cmd_verify is not False:
-                    output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
-                    end_data = output.split(cmd.strip())[-1]
+        # Check if in enable mode already.
+        if check_current_state and self.check_enable_mode():
+            return output
 
-                # Search for trailing prompt or password pattern
-                if pattern not in output and self.base_prompt not in end_data:
-                    output += self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
-                    )
-                # Send the "secret" in response to password pattern
-                if re.search(pattern, output):
-                    self.write_channel(self.normalize_cmd(self.secret))
-                    output += self.read_until_prompt()
+        # Send "enable" mode command
+        self.write_channel(self.normalize_cmd(cmd))
+        try:
+            # Read the command echo
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
 
-                # Search for terminating pattern if defined
-                if enable_pattern and not re.search(enable_pattern, output):
-                    output += self.read_until_pattern(pattern=enable_pattern)
-                else:
-                    if not self.check_enable_mode():
-                        raise ValueError(msg)
-            except NetmikoTimeoutException:
-                raise ValueError(msg)
+            # Search for trailing prompt or password pattern
+            output += self.read_until_prompt_or_pattern(
+                pattern=pattern, re_flags=re_flags
+            )
+
+            # Send the "secret" in response to password pattern
+            if re.search(pattern, output):
+                self.write_channel(self.normalize_cmd(self.secret))
+                output += self.read_until_prompt()
+
+            # Search for terminating pattern if defined
+            if enable_pattern and not re.search(enable_pattern, output):
+                output += self.read_until_pattern(pattern=enable_pattern)
+            else:
+                if not self.check_enable_mode():
+                    raise ValueError(msg)
+
+        except NetmikoTimeoutException:
+            raise ValueError(msg)
+
         return output
 
     def exit_enable_mode(self, exit_command: str = "") -> str:
