@@ -25,6 +25,7 @@ class RuckusFastironBase(CiscoSSHConnection):
         cmd: str = "enable",
         pattern: str = r"(ssword|User Name|Login)",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode.
@@ -35,32 +36,32 @@ class RuckusFastironBase(CiscoSSHConnection):
         SSH@Lab-ICX7250#
         """
         output = ""
-        if not self.check_enable_mode():
-            count = 4
-            i = 1
-            while i < count:
-                self.write_channel(self.normalize_cmd(cmd))
+        if check_state and self.check_enable_mode():
+            return output
+
+        count = 4
+        i = 1
+        while i < count:
+            self.write_channel(self.normalize_cmd(cmd))
+            new_data = self.read_until_prompt_or_pattern(
+                pattern=pattern, re_flags=re_flags, read_entire_line=True
+            )
+            output += new_data
+            if "User Name" in new_data or "Login" in new_data:
+                self.write_channel(self.normalize_cmd(self.username))
                 new_data = self.read_until_prompt_or_pattern(
                     pattern=pattern, re_flags=re_flags, read_entire_line=True
                 )
                 output += new_data
-                if "User Name" in new_data or "Login" in new_data:
-                    self.write_channel(self.normalize_cmd(self.username))
-                    new_data = self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags, read_entire_line=True
-                    )
-                    output += new_data
-                if "ssword" in new_data:
-                    self.write_channel(self.normalize_cmd(self.secret))
-                    new_data = self.read_until_prompt(read_entire_line=True)
-                    output += new_data
-                    if not re.search(
-                        r"error.*incorrect.*password", new_data, flags=re.I
-                    ):
-                        break
+            if "ssword" in new_data:
+                self.write_channel(self.normalize_cmd(self.secret))
+                new_data = self.read_until_prompt(read_entire_line=True)
+                output += new_data
+                if not re.search(r"error.*incorrect.*password", new_data, flags=re.I):
+                    break
 
-                time.sleep(1)
-                i += 1
+            time.sleep(1)
+            i += 1
 
         if not self.check_enable_mode():
             msg = (
