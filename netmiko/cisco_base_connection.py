@@ -19,7 +19,7 @@ class CiscoBaseConnection(BaseConnection):
         cmd: str = "enable",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
-        check_current_state: bool = True,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode."""
@@ -27,7 +27,7 @@ class CiscoBaseConnection(BaseConnection):
             cmd=cmd,
             pattern=pattern,
             enable_pattern=enable_pattern,
-            check_current_state=check_current_state,
+            check_state=check_state,
             re_flags=re_flags,
         )
 

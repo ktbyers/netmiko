@@ -1964,7 +1964,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         cmd: str = "",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
-        check_current_state: bool = True,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode.
@@ -1975,7 +1975,7 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param enable_pattern: pattern indicating you have entered enable mode
 
-        :param check_current_state: Determine whether we are already in enable_mode using
+        :param check_state: Determine whether we are already in enable_mode using
                 check_enable_mode() before trying to elevate privileges (default: True)
 
         :param re_flags: Regular expression flags used in conjunction with pattern
@@ -1987,7 +1987,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         )
 
         # Check if in enable mode already.
-        if check_current_state and self.check_enable_mode():
+        if check_state and self.check_enable_mode():
             return output
 
         # Send "enable" mode command
