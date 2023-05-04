@@ -183,6 +183,7 @@ class BaseConnection:
         sock: Optional[socket.socket] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
+        disable_lf_normalization: bool = False,
     ) -> None:
         """
         Initialize attributes for establishing connection to target device.
@@ -294,6 +295,9 @@ class BaseConnection:
         :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
                 3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
                 eliminated in Netmiko 5.x (default: False).
+
+        :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+                (default: False)
         """
 
         self.remote_conn: Union[
@@ -315,6 +319,8 @@ class BaseConnection:
 
         # Line Separator in response lines
         self.RESPONSE_RETURN = "\n" if response_return is None else response_return
+        self.disable_lf_normalization = True if disable_lf_normalization else False
+
         if ip:
             self.host = ip.strip()
         elif host:
@@ -594,7 +600,20 @@ key_file: {self.key_file}
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
         new_data = self.channel.read_channel()
-        new_data = self.normalize_linefeeds(new_data)
+
+        if self.disable_lf_normalization is False:
+            start = time.time()
+            # Data blocks shouldn't end in '\r' (can cause problems with normalize_linefeeds)
+            # Only do the extra read if '\n' exists in the output
+            # this avoids devices that only use \r.
+            while ("\n" in new_data) and (time.time() - start < 1.0):
+                if new_data[-1] == "\r":
+                    time.sleep(0.01)
+                    new_data += self.channel.read_channel()
+                else:
+                    break
+            new_data = self.normalize_linefeeds(new_data)
+
         if self.ansi_escape_codes:
             new_data = self.strip_ansi_escape_codes(new_data)
         log.debug(f"read_channel: {new_data}")
@@ -1046,7 +1065,6 @@ You can look at the Netmiko session_log or debug log for more information.
     ) -> str:
         """Strip out command echo and trailing router prompt."""
         if strip_command and command_string:
-            command_string = self.normalize_linefeeds(command_string)
             output = self.strip_command(command_string, output)
         if strip_prompt:
             output = self.strip_prompt(output)

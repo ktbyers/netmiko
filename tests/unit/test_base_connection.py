@@ -359,6 +359,10 @@ show interfaces
     connection = FakeBaseConnection(RESPONSE_RETURN="\n")
     result = connection.normalize_linefeeds(text)
     assert result == expected
+    text = "show version\r"
+    expected = "show version"
+    result = connection.normalize_linefeeds(text)
+    assert result == expected
 
 
 def test_normalize_cmd():
