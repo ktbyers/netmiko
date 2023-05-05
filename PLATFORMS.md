@@ -3,7 +3,6 @@
 ###### Regularly tested
 
 - Arista vEOS
-- Cisco ASA
 - Cisco IOS
 - Cisco IOS-XE
 - Cisco IOS-XR
@@ -17,7 +16,7 @@
 
 - 6Wind
 - Adtran OS
-- Adva AOS FSP150
+- Adva AOS FSP150 F2 & F3
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
 - AudioCodes Gateways & Controllers
@@ -25,11 +24,14 @@
 - Calix B6
 - Centec Networks
 - Cisco AireOS (Wireless LAN Controllers)
+- Cisco ASA
+- Cisco S200
 - CloudGenix ION
 - Dell OS9 (Force10)
 - Dell OS10
 - Dell PowerConnect
 - Ericsson IPOS
+- Ericsson MINI-LINK 66XX & 63XX
 - Extreme ERS (Avaya)
 - Extreme MLX/NetIron (Brocade/Foundry)
 - Extreme TierraOS
@@ -55,6 +57,7 @@
 - Ruckus ICX/FastIron
 - Ruijie Networks
 - Supermicro SMIS
+- Teldat CIT
 - TPLink JetStream
 - Ubiquiti EdgeSwitch
 - Vyatta VyOS
