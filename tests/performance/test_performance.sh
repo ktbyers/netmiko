@@ -2,7 +2,7 @@
 
 export PYTHONPATH=~/netmiko/tests
 
-pip show pyaml pygal jinja2
+pip show pygal jinja2
 if [ $? -eq 0 ]; then
     echo
     echo "Checking dependencies ... [OK]"
