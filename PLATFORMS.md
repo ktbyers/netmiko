@@ -121,6 +121,9 @@
 - aruba_os
 - aruba_osswitch
 - aruba_procurve
+- audiocode_66
+- audiocode_72
+- audiocode_shell
 - avaya_ers
 - avaya_vsp
 - broadcom_icos
@@ -140,6 +143,7 @@
 - cisco_ftd
 - cisco_ios
 - cisco_nxos
+- cisco_s200
 - cisco_s300
 - cisco_tp
 - cisco_viptela
@@ -162,6 +166,8 @@
 - endace
 - enterasys
 - ericsson_ipos
+- ericsson_mltn63
+- ericsson_mltn66
 - extreme
 - extreme_ers
 - extreme_exos
@@ -185,6 +191,7 @@
 - huawei
 - huawei_olt
 - huawei_smartax
+- huawei_vrp
 - huawei_vrpv8
 - ipinfusion_ocnos
 - juniper
@@ -202,8 +209,8 @@
 - netapp_cdot
 - netgear_prosafe
 - netscaler
-- nokia_sros
 - nokia_srl
+- nokia_sros
 - oneaccess_oneos
 - ovs_linux
 - paloalto_panos
@@ -216,6 +223,7 @@
 - sixwind_os
 - sophos_sfos
 - supermicro_smis
+- teldat_cit
 - tplink_jetstream
 - ubiquiti_edge
 - ubiquiti_edgerouter
@@ -234,6 +242,9 @@
 - apresia_aeos_telnet
 - arista_eos_telnet
 - aruba_procurve_telnet
+- audiocode_72_telnet
+- audiocode_66_telnet
+- audiocode_shell_telnet
 - brocade_fastiron_telnet
 - brocade_netiron_telnet
 - calix_b6_telnet
@@ -241,6 +252,7 @@
 - ciena_saos_telnet
 - cisco_ios_telnet
 - cisco_xr_telnet
+- cisco_s200_telnet
 - cisco_s300_telnet
 - dell_dnos6_telnet
 - dell_powerconnect_telnet
@@ -264,6 +276,7 @@
 - ruckus_fastiron_telnet
 - ruijie_os_telnet
 - supermicro_smis_telnet
+- teldat_cit_telnet
 - tplink_jetstream_telnet
 - yamaha_telnet
 - zte_zxros_telnet
@@ -282,4 +295,4 @@
 - juniper_junos
 - linux
 - nokia_sros
-
+- ubiquiti_edgerouter
