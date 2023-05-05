@@ -79,6 +79,14 @@ aruba_os:
   cmd_response_init: "location1"
   cmd_response_final: "location2"
 
+arubaos_cx:
+  base_prompt: "6405"
+  router_prompt: "6405>"
+  enable_prompt: "6405#"
+  interface_ip: 1.2.3.4
+  version_banner: "Hewlett Packard Enterprise"
+  multiple_line_output: "Current configuration:"
+
 ubiquiti_edge:
   base_prompt: "(UBNT EdgeSwitch) "
   router_prompt: "(UBNT EdgeSwitch) >"
