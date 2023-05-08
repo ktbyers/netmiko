@@ -6,13 +6,13 @@ from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log
 from netmiko.base_connection import BaseConnection
-from netmiko.scp_handler import BaseFileTransfer
+from netmiko.scp_handler import BaseFileTransfer, SCPConn
 from typing import Any, Optional
 import os
 import re
 
 
-class DellSonicSSH(NoEnable, CiscoSSHConnection):
+class DellSonicSSH(NoEnable, CiscoSSHConnection, SCPConn):
     """
     Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution
     by Dell Technologies Driver - supports dellenterprisesonic.
@@ -70,13 +70,6 @@ class DellSonicFileTransfer(BaseFileTransfer):
             **kwargs,
         )
         self.folder_name = "/home/admin"
-
-    def session_preparation(self) -> None:
-        """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>$#]")
-        self._return_to_admin()
-        self.disable_paging()
-        self.set_base_prompt(alt_prompt_terminator="$")
 
     def _enter_shell(self) -> str:
         """Enter the sonic-cli Shell."""
