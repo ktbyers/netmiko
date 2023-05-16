@@ -27,6 +27,7 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(0.3 * delay_factor)
         self.clear_buffer()
+        self.write_channel(self.RETURN)
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.enable()
