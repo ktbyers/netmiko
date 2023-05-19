@@ -28,7 +28,7 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
         prompt = self.find_prompt(delay_factor=delay_factor)
 
         pattern = rf"^.+{self.prompt_pattern}$"
-        if re.search(pattern, prompt):
+        if not re.search(pattern, prompt):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
         # Strip off trailing terminator
         self.base_prompt = prompt[:-1]
