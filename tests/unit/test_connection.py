@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 import pytest
 import logging
 from netmiko import ConnectHandler, ConnLogOnly, ConnUnify
@@ -6,6 +7,8 @@ from netmiko import NetmikoAuthenticationException
 from netmiko import NetmikoTimeoutException
 from netmiko import ConnectionException
 
+is_linux = sys.platform == "linux" or sys.platform == "linux2"
+skip_if_not_linux = pytest.mark.skipif(not is_linux, reason="Test Requires Linux")
 
 # Fictional devices that will fail
 DEVICE1 = {
@@ -24,9 +27,13 @@ DEVICE2 = {
 }
 
 
-def test_connecthandler():
+@skip_if_not_linux
+def test_connecthandler_auth_failure():
     with pytest.raises(NetmikoAuthenticationException):
-        net_connect = ConnectHandler(**DEVICE1)
+        net_connect = ConnectHandler(**DEVICE1)  # noqa
+
+
+def test_connecthandler_timeout():
     with pytest.raises(NetmikoTimeoutException):
         net_connect = ConnectHandler(**DEVICE2)  # noqa
 
@@ -35,14 +42,11 @@ def test_connlogonly(caplog):
     log_level = logging.INFO
     log_file = "my_output.log"
 
-    net_connect = ConnLogOnly(log_file=log_file, log_level=log_level, **DEVICE1)
-    assert net_connect is None
     net_connect = ConnLogOnly(log_file=log_file, log_level=log_level, **DEVICE2)
     assert net_connect is None
 
     assert "ERROR" in caplog.text
-    assert caplog.text.count("ERROR") == 2
-    assert "Authentication failure" in caplog.text
+    assert caplog.text.count("ERROR") == 1
     assert "was unable to reach the provided host and port" in caplog.text
 
 

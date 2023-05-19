@@ -289,3 +289,9 @@ audiocode_shell:
   ip: 192.168.1.3
   username: TestUser
   password: TestPass
+
+hillstone:
+  device_type: hillstone_stoneos
+  ip: 192.168.100.234
+  username: hillstone
+  password: Hillstone

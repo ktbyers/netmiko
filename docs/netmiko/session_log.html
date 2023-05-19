@@ -38,7 +38,7 @@ class SessionLog:
         buffered_io: Optional[io.BufferedIOBase] = None,
         file_mode: str = &#34;write&#34;,
         file_encoding: str = &#34;utf-8&#34;,
-        no_log: Dict[str, Any] = None,
+        no_log: Optional[Dict[str, Any]] = None,
         record_writes: bool = False,
     ) -&gt; None:
         if no_log is None:
@@ -109,7 +109,7 @@ class SessionLog:
 <dl>
 <dt id="netmiko.session_log.SessionLog"><code class="flex name class">
 <span>class <span class="ident">SessionLog</span></span>
-<span>(</span><span>file_name: Optional[str] = None, buffered_io: Optional[io.BufferedIOBase] = None, file_mode: str = 'write', file_encoding: str = 'utf-8', no_log: Dict[str, Any] = None, record_writes: bool = False)</span>
+<span>(</span><span>file_name: Optional[str] = None, buffered_io: Optional[io.BufferedIOBase] = None, file_mode: str = 'write', file_encoding: str = 'utf-8', no_log: Optional[Dict[str, Any]] = None, record_writes: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -124,7 +124,7 @@ class SessionLog:
         buffered_io: Optional[io.BufferedIOBase] = None,
         file_mode: str = &#34;write&#34;,
         file_encoding: str = &#34;utf-8&#34;,
-        no_log: Dict[str, Any] = None,
+        no_log: Optional[Dict[str, Any]] = None,
         record_writes: bool = False,
     ) -&gt; None:
         if no_log is None:

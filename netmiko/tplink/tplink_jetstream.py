@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives.asymmetric.dsa import DSAParameterNumbers
 
 from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.exceptions import NetmikoTimeoutException
+from netmiko.exceptions import ReadTimeout
 
 
 class TPLinkJetStreamBase(CiscoSSHConnection):
@@ -40,6 +40,7 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         cmd: str = "",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """
@@ -50,30 +51,40 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         enable all functions.
         """
 
+        msg = """
+Failed to enter enable mode. Please ensure you pass
+the 'secret' argument to ConnectHandler.
+"""
+
         # If end-user passes in "cmd" execute that using normal process.
         if cmd:
-            return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+            return super().enable(
+                cmd=cmd,
+                pattern=pattern,
+                enable_pattern=enable_pattern,
+                check_state=check_state,
+                re_flags=re_flags,
+            )
 
         output = ""
-        msg = (
-            "Failed to enter enable mode. Please ensure you pass "
-            "the 'secret' argument to ConnectHandler."
-        )
+        if check_state and self.check_enable_mode():
+            return output
 
-        cmds = ["enable", "enable-admin"]
-        if not self.check_enable_mode():
-            for cmd in cmds:
-                self.write_channel(self.normalize_cmd(cmd))
-                try:
-                    output += self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags, read_entire_line=True
-                    )
+        for cmd in ("enable", "enable-admin"):
+            self.write_channel(self.normalize_cmd(cmd))
+            try:
+                new_data = self.read_until_prompt_or_pattern(
+                    pattern=pattern, re_flags=re_flags, read_entire_line=True
+                )
+                output += new_data
+                if re.search(pattern, new_data):
                     self.write_channel(self.normalize_cmd(self.secret))
                     output += self.read_until_prompt(read_entire_line=True)
-                except NetmikoTimeoutException:
-                    raise ValueError(msg)
-                if not self.check_enable_mode():
-                    raise ValueError(msg)
+            except ReadTimeout:
+                raise ValueError(msg)
+
+        if not self.check_enable_mode():
+            raise ValueError(msg)
         return output
 
     def config_mode(
