@@ -62,6 +62,7 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 &#34;&#34;&#34;
+import ipaddress
 from typing import Optional, Dict
 from typing.re import Pattern
 import re
@@ -98,7 +99,7 @@ SNMP_MAPPER_BASE = {
     },
     &#34;cisco_ios&#34;: {
         &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
-        &#34;expr&#34;: re.compile(r&#34;.*Cisco IOS Software,.*&#34;, re.IGNORECASE),
+        &#34;expr&#34;: re.compile(r&#34;.*Cisco IOS Software.*,.*&#34;, re.IGNORECASE),
         &#34;priority&#34;: 60,
     },
     &#34;cisco_xe&#34;: {
@@ -155,6 +156,11 @@ SNMP_MAPPER_BASE = {
         &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
         &#34;expr&#34;: re.compile(r&#34;PowerConnect.*&#34;, re.IGNORECASE),
         &#34;priority&#34;: 50,
+    },
+    &#34;mikrotik_routeros&#34;: {
+        &#34;oid&#34;: &#34;.1.3.6.1.2.1.1.1.0&#34;,
+        &#34;expr&#34;: re.compile(r&#34;.*RouterOS.*&#34;, re.IGNORECASE),
+        &#34;priority&#34;: 60,
     },
 }
 
@@ -279,6 +285,16 @@ class SNMPDetect(object):
         self.auth_proto = self._snmp_v3_authentication[auth_proto]
         self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
         self._response_cache: Dict[str, str] = {}
+        self.snmp_target = (self.hostname, self.snmp_port)
+
+        if ipaddress.ip_address(self.hostname).version == 6:
+            self.udp_transport_target = cmdgen.Udp6TransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
+        else:
+            self.udp_transport_target = cmdgen.UdpTransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
 
     def _get_snmpv3(self, oid: str) -&gt; str:
         &#34;&#34;&#34;
@@ -294,7 +310,6 @@ class SNMPDetect(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         &#34;&#34;&#34;
-        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
@@ -305,7 +320,7 @@ class SNMPDetect(object):
                 authProtocol=self.auth_proto,
                 privProtocol=self.encryp_proto,
             ),
-            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            self.udp_transport_target,
             oid,
             lookupNames=True,
             lookupValues=True,
@@ -329,12 +344,11 @@ class SNMPDetect(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         &#34;&#34;&#34;
-        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
             cmdgen.CommunityData(self.community),
-            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            self.udp_transport_target,
             oid,
             lookupNames=True,
             lookupValues=True,
@@ -572,6 +586,16 @@ Try to determine the device type.</p></div>
         self.auth_proto = self._snmp_v3_authentication[auth_proto]
         self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
         self._response_cache: Dict[str, str] = {}
+        self.snmp_target = (self.hostname, self.snmp_port)
+
+        if ipaddress.ip_address(self.hostname).version == 6:
+            self.udp_transport_target = cmdgen.Udp6TransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
+        else:
+            self.udp_transport_target = cmdgen.UdpTransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
 
     def _get_snmpv3(self, oid: str) -&gt; str:
         &#34;&#34;&#34;
@@ -587,7 +611,6 @@ Try to determine the device type.</p></div>
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         &#34;&#34;&#34;
-        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
@@ -598,7 +621,7 @@ Try to determine the device type.</p></div>
                 authProtocol=self.auth_proto,
                 privProtocol=self.encryp_proto,
             ),
-            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            self.udp_transport_target,
             oid,
             lookupNames=True,
             lookupValues=True,
@@ -622,12 +645,11 @@ Try to determine the device type.</p></div>
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         &#34;&#34;&#34;
-        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
             cmdgen.CommunityData(self.community),
-            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            self.udp_transport_target,
             oid,
             lookupNames=True,
             lookupValues=True,

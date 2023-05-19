@@ -1,5 +1,4 @@
 """Netmiko driver for OneAccess ONEOS"""
-import time
 from typing import Any
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
@@ -14,13 +13,21 @@ class OneaccessOneOSBase(CiscoBaseConnection):
 
     def session_preparation(self) -> None:
         """Prepare connection - disable paging"""
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.set_terminal_width(command="stty columns 255", pattern="stty")
+
+        self._test_channel_read(pattern=r"[>#]")
         self.disable_paging(command="term len 0")
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+
+        # try ONEOS6 command first - fallback to ONEOS5 if it fails
+        self.set_terminal_width(command="screen-width 512", cmd_verify=True)
+        output = self._test_channel_read(pattern=r"[>#]")
+        if "error" in output.lower():
+            self.set_terminal_width(command="stty columns 255", cmd_verify=True)
+        else:
+            # ONEOS6 uses different enter
+            self.RETURN = "\n"
+
+        self._test_channel_read(pattern=r"[>#]")
+        self.set_base_prompt()
 
     def save_config(
         self, cmd: str = "write mem", confirm: bool = False, confirm_response: str = ""
