@@ -64,21 +64,27 @@ class DellIsilonSSH(BaseConnection):
         cmd: str = "sudo su",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
+
         delay_factor = self.select_delay_factor(delay_factor=1)
         output = ""
+
+        if check_state and self.check_enable_mode():
+            return output
+
+        output += self._send_command_timing_str(
+            cmd, strip_prompt=False, strip_command=False
+        )
+        if re.search(pattern, output, flags=re_flags):
+            self.write_channel(self.normalize_cmd(self.secret))
+        output += self.read_until_pattern(pattern=r"#.*$")
+        time.sleep(1 * delay_factor)
+        self._set_prompt(prompt_terminator="#")
         if not self.check_enable_mode():
-            output += self._send_command_timing_str(
-                cmd, strip_prompt=False, strip_command=False
-            )
-            if re.search(pattern, output, flags=re_flags):
-                self.write_channel(self.normalize_cmd(self.secret))
-            output += self.read_until_pattern(pattern=r"#.*$")
-            time.sleep(1 * delay_factor)
-            self._set_prompt(prompt_terminator="#")
-            if not self.check_enable_mode():
-                raise ValueError("Failed to enter enable mode")
+            raise ValueError("Failed to enter enable mode")
+
         return output
 
     def exit_enable_mode(self, exit_command: str = "exit") -> str:

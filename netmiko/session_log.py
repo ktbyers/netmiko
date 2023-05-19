@@ -10,7 +10,7 @@ class SessionLog:
         buffered_io: Optional[io.BufferedIOBase] = None,
         file_mode: str = "write",
         file_encoding: str = "utf-8",
-        no_log: Dict[str, Any] = None,
+        no_log: Optional[Dict[str, Any]] = None,
         record_writes: bool = False,
     ) -> None:
         if no_log is None:
