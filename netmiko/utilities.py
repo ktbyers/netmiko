@@ -499,7 +499,7 @@ def get_structured_data_genie(
         )
         raise ValueError(msg)
 
-    if not platform in ["cisco", "linux"]:
+    if "cisco" not in platform and "linux" not in platform:
         return raw_output
 
     genie_device_mapper = {
@@ -509,6 +509,8 @@ def get_structured_data_genie(
         "cisco_nxos": "nxos",
         "cisco_asa": "asa",
         "linux": "linux",
+        "f5_linux": "linux",
+        "ovs_linux": "linux",
     }
 
     os = None
