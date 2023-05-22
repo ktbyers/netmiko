@@ -21,15 +21,12 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         return super().__init__(**kwargs)
 
     def session_preparation(self) -> None:
-        """
-        Prepare the session after the connection has been established.
-        """
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(0.3 * delay_factor)
-        self.clear_buffer()
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
         self.enable()
+        self.set_base_prompt()
         self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
