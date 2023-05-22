@@ -141,7 +141,7 @@ def identify_address_type(entry) -> list:
     Returns
     -------
     list of string: list
-        A list of string "IPv4" or "IPv6" which indicates if entry has a valid ipv4 and/or ipv6 entry.
+        A list of string 'IPv4' | 'IPv6' which indicates if entry is a valid ipv4 and/or ipv6.
     """
     try:
         socket.inet_pton(socket.AF_INET, entry)
