@@ -4,6 +4,7 @@ from paramiko import SSHClient
 import time
 from os import path
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.exceptions import NetmikoAuthenticationException
 
 
 class SSHClient_noauth(SSHClient):
@@ -20,7 +21,12 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read()
+        output = self._test_channel_read()
+        if "% Authentication Failed" in output:
+            self.remote_conn.close()
+            msg = f"Login failed: {self.host}"
+            raise NetmikoAuthenticationException(msg)
+
         self.set_base_prompt()
         self.disable_paging(command="terminal length 0")
         # Clear the read buffer
@@ -92,9 +98,6 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
                     self.write_channel(self.username + self.RETURN)
                 elif 'Password:' in output:
                     self.write_channel(self.password + self.RETURN)
-                    break
-                time.sleep(delay_factor * 1)
-            else:
-                self.write_channel(self.RETURN)
-                time.sleep(delay_factor * 1.5)
+                    return
+            time.sleep(delay_factor)
             i += 1
