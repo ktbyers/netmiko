@@ -130,7 +130,19 @@ for device_type in std_device_types:
         SNMP_MAPPER[device_type] = SNMP_MAPPER_BASE[device_type]
 
 
-def identify_address_type(entry):
+def identify_address_type(entry) -> list:
+    """
+    Return a list containing all ip types found. An empty list means no valid ip were found
+    Parameters
+    ----------
+    entry: str
+        Can be an ipv4, an ipv6 or an FQDN.
+
+    Returns
+    -------
+    list of string: list
+        A list of string "IPv4" or "IPv6" which indicates if entry has a valid ipv4 and/or ipv6 entry.
+    """
     try:
         socket.inet_pton(socket.AF_INET, entry)
         return ["IPv4"]
@@ -159,7 +171,7 @@ def identify_address_type(entry):
             except socket.error:
                 pass
     except socket.gaierror:
-        return "Invalid entry"
+        pass
     return ip_types
 
 
