@@ -37,16 +37,17 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
                         delay_factor=1):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
         prompt = super(FiberStoreConnectSSH, self).set_base_prompt(
-                                                      pri_prompt_terminator=pri_prompt_terminator,
-                                                      alt_prompt_terminator=alt_prompt_terminator,
-                                                      delay_factor=delay_factor)
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor)
         prompt = prompt.strip()
         self.base_prompt = prompt
         return self.base_prompt
 
     def enable(self):
-         """there is no enable mode"""
-         return 
+        """there is no enable mode"""
+        return
+
     def check_config_mode(self, check_string='(config)#'):
         """Checks if the device is in configuration mode"""
         return super(FiberStoreConnectSSH, self).check_config_mode(check_string=check_string)
@@ -58,7 +59,6 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
     def save_config(self):
         """Save Config on Fiberstore S3200"""
         return self.send_command('copy running-config startup-config')
-
 
     def _build_ssh_client(self):
         """Prepare for Paramiko SSH connection.
@@ -73,9 +73,9 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
 
         # Load host_keys for better SSH security
         if self.system_host_keys:
-                        remote_conn_pre.load_system_host_keys()
+            remote_conn_pre.load_system_host_keys()
         if self.alt_host_keys and path.isfile(self.alt_key_file):
-                        remote_conn_pre.load_host_keys(self.alt_key_file)
+            remote_conn_pre.load_host_keys(self.alt_key_file)
 
         # Default is to automatically add untrusted hosts (make sure appropriate for your env)
         remote_conn_pre.set_missing_host_key_policy(self.key_policy)
