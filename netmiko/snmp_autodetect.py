@@ -145,25 +145,22 @@ def identify_address_type(entry):
 
     try:
         addrinfo = socket.getaddrinfo(entry, None)
-        ip_types = set()
+        ip_types = []
         for info in addrinfo:
             ip = info[4][0]
             try:
                 socket.inet_pton(socket.AF_INET, ip)
-                ip_types.add("IPv4")
+                ip_types.append("IPv4")
             except socket.error:
                 pass
 
             try:
                 socket.inet_pton(socket.AF_INET6, ip)
-                ip_types.add("IPv6")
+                ip_types.append("IPv6")
             except socket.error:
                 pass
 
-        if ip_types:
-            return ", ".join(ip_types)
-        else:
-            return "Hostname with no valid IP"
+        return ip_types
 
     except socket.gaierror:
         return "Invalid entry"
@@ -283,7 +280,7 @@ class SNMPDetect(object):
         self._response_cache: Dict[str, str] = {}
         self.snmp_target = (self.hostname, self.snmp_port)
 
-        if identify_address_type(self.hostname) == "IPv6":
+        if "IPv6" in identify_address_type(self.hostname):
             self.udp_transport_target = cmdgen.Udp6TransportTarget(
                 self.snmp_target, timeout=1.5, retries=2
             )
