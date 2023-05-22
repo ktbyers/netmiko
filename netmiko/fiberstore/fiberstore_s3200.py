@@ -89,9 +89,10 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
         """
         delay_factor = self.select_delay_factor(delay_factor)
         i = 0
-        time.sleep(delay_factor * .5)
         output = ""
         while i <= 12:
+            i += 1
+            time.sleep(delay_factor)
             output = self.read_channel()
             if output:
                 if 'Username:' in output:
@@ -99,5 +100,3 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
                 elif 'Password:' in output:
                     self.write_channel(self.password + self.RETURN)
                     return
-            time.sleep(delay_factor)
-            i += 1
