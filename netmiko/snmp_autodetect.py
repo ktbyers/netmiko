@@ -133,19 +133,19 @@ for device_type in std_device_types:
 def identify_address_type(entry):
     try:
         socket.inet_pton(socket.AF_INET, entry)
-        return "IPv4"
+        return ["IPv4"]
     except socket.error:
         pass
 
     try:
         socket.inet_pton(socket.AF_INET6, entry)
-        return "IPv6"
+        return ["IPv6"]
     except socket.error:
         pass
 
+    ip_types = []
     try:
         addrinfo = socket.getaddrinfo(entry, None)
-        ip_types = []
         for info in addrinfo:
             ip = info[4][0]
             try:
@@ -153,17 +153,14 @@ def identify_address_type(entry):
                 ip_types.append("IPv4")
             except socket.error:
                 pass
-
             try:
                 socket.inet_pton(socket.AF_INET6, ip)
                 ip_types.append("IPv6")
             except socket.error:
                 pass
-
-        return ip_types
-
     except socket.gaierror:
         return "Invalid entry"
+    return ip_types
 
 
 class SNMPDetect(object):
