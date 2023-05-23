@@ -1,3 +1,2 @@
-pyaml
 pygal
 jinja2

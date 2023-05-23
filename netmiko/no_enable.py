@@ -25,6 +25,7 @@ class NoEnable:
         cmd: str = "",
         pattern: str = "",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         return ""

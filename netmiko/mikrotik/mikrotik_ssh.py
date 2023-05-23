@@ -3,26 +3,35 @@ import re
 import os
 
 from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class MikrotikBase(NoEnable, CiscoSSHConnection):
+class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
     """Common Methods for Mikrotik RouterOS and SwitchOS"""
+
+    prompt_pattern = r"\].*>"
 
     def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r\n"
 
-        self._in_config_mode = False
-
         return super().__init__(**kwargs)
+
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
+        # Mikrotik might prompt to read software licenses before displaying the initial prompt.
+        license_prompt = "Do you want to see the software license"
+        combined_pattern = rf"(?:{self.prompt_pattern}|{license_prompt})"
+        data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
+        if license_prompt in data:
+            self.write_channel("n")
+            self.read_until_pattern(pattern=self.prompt_pattern)
 
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r"\].*>")
         self.set_base_prompt()
 
     def _modify_connection_params(self) -> None:
@@ -37,28 +46,6 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
 
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Mikrotik does not have paging by default."""
-        return ""
-
-    def save_config(self, *args: Any, **kwargs: Any) -> str:
-        """No save command, all configuration is atomic"""
-        return ""
-
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
-        """No configuration mode on Mikrotik"""
-        self._in_config_mode = True
-        return ""
-
-    def check_config_mode(
-        self, check_string: str = "", pattern: str = "", force_regex: bool = False
-    ) -> bool:
-        """Checks whether in configuration mode. Returns a boolean."""
-        return self._in_config_mode
-
-    def exit_config_mode(self, exit_config: str = ">", pattern: str = "") -> str:
-        """No configuration mode on Mikrotik"""
-        self._in_config_mode = False
         return ""
 
     def strip_prompt(self, a_string: str) -> str:

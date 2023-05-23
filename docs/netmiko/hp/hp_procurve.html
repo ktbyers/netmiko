@@ -108,13 +108,15 @@ class HPProcurveBase(CiscoSSHConnection):
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;password&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
         default_username: str = &#34;&#34;,
     ) -&gt; str:
         &#34;&#34;&#34;Enter enable mode&#34;&#34;&#34;
 
-        if self.check_enable_mode():
+        if check_state and self.check_enable_mode():
             return &#34;&#34;
+
         if not default_username:
             default_username = self.username
 
@@ -307,6 +309,9 @@ class HPProcurveTelnet(HPProcurveBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -321,13 +326,17 @@ class HPProcurveTelnet(HPProcurveBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -340,7 +349,9 @@ class HPProcurveTelnet(HPProcurveBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
@@ -372,6 +383,9 @@ class HPProcurveTelnet(HPProcurveBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -446,13 +460,15 @@ class HPProcurveTelnet(HPProcurveBase):
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;password&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
         default_username: str = &#34;&#34;,
     ) -&gt; str:
         &#34;&#34;&#34;Enter enable mode&#34;&#34;&#34;
 
-        if self.check_enable_mode():
+        if check_state and self.check_enable_mode():
             return &#34;&#34;
+
         if not default_username:
             default_username = self.username
 
@@ -587,7 +603,7 @@ class HPProcurveTelnet(HPProcurveBase):
 </details>
 </dd>
 <dt id="netmiko.hp.hp_procurve.HPProcurveBase.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'enable', pattern: str = 'password', enable_pattern: Optional[str] = None, re_flags: int = re.IGNORECASE, default_username: str = '') ‑> str</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'enable', pattern: str = 'password', enable_pattern: Optional[str] = None, check_state: bool = True, re_flags: int = re.IGNORECASE, default_username: str = '') ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Enter enable mode</p></div>
@@ -600,13 +616,15 @@ class HPProcurveTelnet(HPProcurveBase):
     cmd: str = &#34;enable&#34;,
     pattern: str = &#34;password&#34;,
     enable_pattern: Optional[str] = None,
+    check_state: bool = True,
     re_flags: int = re.IGNORECASE,
     default_username: str = &#34;&#34;,
 ) -&gt; str:
     &#34;&#34;&#34;Enter enable mode&#34;&#34;&#34;
 
-    if self.check_enable_mode():
+    if check_state and self.check_enable_mode():
         return &#34;&#34;
+
     if not default_username:
         default_username = self.username
 
@@ -808,6 +826,9 @@ class HPProcurveTelnet(HPProcurveBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -822,13 +843,17 @@ class HPProcurveTelnet(HPProcurveBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -841,7 +866,9 @@ class HPProcurveTelnet(HPProcurveBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
@@ -873,6 +900,9 @@ class HPProcurveTelnet(HPProcurveBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -998,6 +1028,9 @@ class HPProcurveTelnet(HPProcurveBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1012,13 +1045,17 @@ class HPProcurveTelnet(HPProcurveBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1031,7 +1068,9 @@ class HPProcurveTelnet(HPProcurveBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
@@ -1063,6 +1102,9 @@ class HPProcurveTelnet(HPProcurveBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
