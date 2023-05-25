@@ -48,7 +48,6 @@ class NokiaSros(BaseConnection):
                 command="environment console width 512", pattern="environment"
             )
             self.disable_paging(command="environment more false")
-            # To perform file operations we need to disable paging in classical-CLI also
             self.disable_paging(command="//environment no more")
         else:
             # Classical CLI has no method to set the terminal width nor to disable command
@@ -56,6 +55,8 @@ class NokiaSros(BaseConnection):
             # Only disabled if not set under the ConnectHandler.
             if self.global_cmd_verify is None:
                 self.global_cmd_verify = False
+            # Disable paging in both modes, file operations require no paging in classic
+            self.disable_paging(command="//environment more false")
             self.disable_paging(command="environment no more", pattern="environment")
 
         # Clear the read buffer
@@ -91,12 +92,19 @@ class NokiaSros(BaseConnection):
         cmd: str = "enable",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enable SR OS administrative mode"""
         if "@" not in self.base_prompt:
             cmd = "enable-admin"
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        return super().enable(
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
+        )
 
     def check_enable_mode(self, check_string: str = "in admin mode") -> bool:
         """Check if in enable mode."""

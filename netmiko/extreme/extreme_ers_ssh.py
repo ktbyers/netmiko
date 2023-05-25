@@ -5,6 +5,7 @@ from netmiko.exceptions import NetmikoAuthenticationException
 
 # Extreme ERS presents Enter Ctrl-Y to begin.
 CTRL_Y = "\x19"
+CTRL_C = "\x63"
 
 
 class ExtremeErsSSH(CiscoSSHConnection):
@@ -34,7 +35,9 @@ class ExtremeErsSSH(CiscoSSHConnection):
         password = "ssword"
         cntl_y = "Ctrl-Y"
         enter_msg = "Press ENTER to continue"
-        pattern = rf"(?:{uname}|{password}|{cntl_y}|{enter_msg}|{self.prompt_pattern})"
+        pattern = (
+            rf"(?:{uname}|{password}|{cntl_y}|{enter_msg}|{self.prompt_pattern}|Menu)"
+        )
         while True:
             new_data = self.read_until_pattern(pattern=pattern, read_timeout=25.0)
             output += new_data
@@ -51,6 +54,8 @@ class ExtremeErsSSH(CiscoSSHConnection):
             elif password in new_data:
                 assert isinstance(self.password, str)
                 self.write_channel(self.password + self.RETURN)
+            elif "Menu" in new_data:
+                self.write_channel(CTRL_C)
             else:
                 msg = f"""
 
