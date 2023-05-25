@@ -176,10 +176,8 @@ def main():
     for dev_name, params in devices.items():
         remove_old_data(dev_name)
         dev_dict = params["device"]
-        if dev_name != "linux_srv1":
+        if dev_name == "linux_srv1":
             continue
-        # if dev_name != "cisco_xr_azure":
-        #    continue
         print("-" * 80)
         print(f"Device name: {dev_name}")
         print("-" * 12)
