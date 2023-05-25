@@ -18,6 +18,7 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
     To make it work, we have to override the SSHClient _auth method.
     If we use login/password, the ssh server use the (none) auth mechanism.
     """
+
     def session_preparation(self):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -30,16 +31,18 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
         self.set_base_prompt()
         self.disable_paging(command="terminal length 0")
         # Clear the read buffer
-        time.sleep(.3 * self.global_delay_factor)
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def set_base_prompt(self, pri_prompt_terminator='>', alt_prompt_terminator='#',
-                        delay_factor=1):
+    def set_base_prompt(
+        self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1
+    ):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
         prompt = super(FiberStoreConnectSSH, self).set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
-            delay_factor=delay_factor)
+            delay_factor=delay_factor,
+        )
         prompt = prompt.strip()
         self.base_prompt = prompt
         return self.base_prompt
@@ -48,17 +51,21 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
         """there is no enable mode"""
         return
 
-    def check_config_mode(self, check_string='(config)#'):
+    def check_config_mode(self, check_string="(config)#"):
         """Checks if the device is in configuration mode"""
-        return super(FiberStoreConnectSSH, self).check_config_mode(check_string=check_string)
+        return super(FiberStoreConnectSSH, self).check_config_mode(
+            check_string=check_string
+        )
 
-    def config_mode(self, config_command='config'):
+    def config_mode(self, config_command="config"):
         """Enter configuration mode."""
-        return super(FiberStoreConnectSSH, self).config_mode(config_command=config_command)
+        return super(FiberStoreConnectSSH, self).config_mode(
+            config_command=config_command
+        )
 
     def save_config(self):
         """Save Config on Fiberstore S3200"""
-        return self.send_command('copy running-config startup-config')
+        return self.send_command("copy running-config startup-config")
 
     def _build_ssh_client(self):
         """Prepare for Paramiko SSH connection.
@@ -95,8 +102,8 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
             time.sleep(delay_factor)
             output = self.read_channel()
             if output:
-                if 'Username:' in output:
+                if "Username:" in output:
                     self.write_channel(self.username + self.RETURN)
-                elif 'Password:' in output:
+                elif "Password:" in output:
                     self.write_channel(self.password + self.RETURN)
                     return
