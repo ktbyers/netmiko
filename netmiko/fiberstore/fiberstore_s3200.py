@@ -13,7 +13,7 @@ class SSHClient_noauth(SSHClient):
         return
 
 
-class FiberStoreConnectSSH(CiscoSSHConnection):
+class FiberStoreS3200ConnectSSH(CiscoSSHConnection):
     """Fiberstore S3200 Driver.
     To make it work, we have to override the SSHClient _auth method.
     If we use login/password, the ssh server use the (none) auth mechanism.
@@ -38,7 +38,7 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
         self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1
     ):
         """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        prompt = super(FiberStoreConnectSSH, self).set_base_prompt(
+        prompt = super(FiberStoreS3200ConnectSSH, self).set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
@@ -53,13 +53,13 @@ class FiberStoreConnectSSH(CiscoSSHConnection):
 
     def check_config_mode(self, check_string="(config)#"):
         """Checks if the device is in configuration mode"""
-        return super(FiberStoreConnectSSH, self).check_config_mode(
+        return super(FiberStoreS3200ConnectSSH, self).check_config_mode(
             check_string=check_string
         )
 
     def config_mode(self, config_command="config"):
         """Enter configuration mode."""
-        return super(FiberStoreConnectSSH, self).config_mode(
+        return super(FiberStoreS3200ConnectSSH, self).config_mode(
             config_command=config_command
         )
 
