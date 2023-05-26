@@ -378,6 +378,20 @@ Configuration register is 0xF
     )
     assert result["version"]["chassis"] == "WS-C3560CX-8PC-S"
 
+    netstat_output = """
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+0.0.0.0         172.16.0.1      0.0.0.0         UG        0 0          0 eth0
+169.254.169.254 0.0.0.0         255.255.255.255 UH        0 0          0 eth0
+172.16.0.0      0.0.0.0         255.255.255.0   U         0 0          0 eth0
+"""
+    netstat_output = netstat_output.strip()
+    routes = utilities.get_structured_data_genie(
+        netstat_output, platform="linux", command="netstat -rn"
+    )
+    nexthop_gw = routes["routes"]["0.0.0.0"]["mask"]["0.0.0.0"]["nexthop"][1]["gateway"]
+    assert nexthop_gw == "172.16.0.1"
+
 
 @pytest.mark.parametrize(
     "max_loops,delay_factor,timeout,result",
