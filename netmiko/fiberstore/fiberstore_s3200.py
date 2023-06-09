@@ -1,29 +1,28 @@
 """Fiberstore S3200 Driver."""
-from __future__ import unicode_literals
+from typing import Optional
 from paramiko import SSHClient
+from netmiko.ssh_auth import SSHClient_noauth
+from netmiko.no_enable import NoEnable
 import time
 from os import path
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.exceptions import NetmikoAuthenticationException
 
 
-class SSHClient_noauth(SSHClient):
-    def _auth(self, username, *args):
-        self._transport.auth_none(username)
-        return
+class FiberStoreS3200ConnectSSH(NoEnable, CiscoSSHConnection):
+    """
+    Fiberstore S3200 Driver.
 
-
-class FiberStoreS3200ConnectSSH(CiscoSSHConnection):
-    """Fiberstore S3200 Driver.
     To make it work, we have to override the SSHClient _auth method.
     If we use login/password, the ssh server use the (none) auth mechanism.
     """
 
-    def session_preparation(self):
+    def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         output = self._test_channel_read()
         if "% Authentication Failed" in output:
+            assert self.remote_conn is not None
             self.remote_conn.close()
             msg = f"Login failed: {self.host}"
             raise NetmikoAuthenticationException(msg)
@@ -35,44 +34,45 @@ class FiberStoreS3200ConnectSSH(CiscoSSHConnection):
         self.clear_buffer()
 
     def set_base_prompt(
-        self, pri_prompt_terminator=">", alt_prompt_terminator="#", delay_factor=1
-    ):
-        """Sets self.base_prompt: used as delimiter for stripping of trailing prompt in output."""
-        prompt = super(FiberStoreS3200ConnectSSH, self).set_base_prompt(
+        self,
+        pri_prompt_terminator: str = ">",
+        alt_prompt_terminator: str = "#",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
+        prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
+            pattern=pattern
         )
         prompt = prompt.strip()
         self.base_prompt = prompt
         return self.base_prompt
 
-    def enable(self):
-        """there is no enable mode"""
-        return
-
-    def check_config_mode(self, check_string="(config)#"):
-        """Checks if the device is in configuration mode"""
-        return super(FiberStoreS3200ConnectSSH, self).check_config_mode(
-            check_string=check_string
+    def check_config_mode(
+        self, check_string: str = "(config)#", pattern: str = "", force_regex: bool = False
+    ) -> bool:
+        return super().check_config_mode(
+            check_string=check_string,
+            pattern=pattern,
+            force_regex=force_regex
         )
 
-    def config_mode(self, config_command="config"):
-        """Enter configuration mode."""
-        return super(FiberStoreS3200ConnectSSH, self).config_mode(
-            config_command=config_command
+    def config_mode(
+        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command,
+            pattern=pattern,
+            re_flags=re_flags
         )
 
-    def save_config(self):
-        """Save Config on Fiberstore S3200"""
-        return self.send_command("copy running-config startup-config")
+    def _build_ssh_client(self) -> SSHClient:
+        """Allows you to bypass standard SSH auth while still supporting SSH keys."""
 
-    def _build_ssh_client(self):
-        """Prepare for Paramiko SSH connection.
-        See base_connection.py file for any updates.
-        """
-        # Create instance of SSHClient object
         # If user does not provide SSH key, we use noauth
+        remote_conn_pre: SSHClient
         if not self.use_keys:
             remote_conn_pre = SSHClient_noauth()
         else:
@@ -88,7 +88,7 @@ class FiberStoreS3200ConnectSSH(CiscoSSHConnection):
         remote_conn_pre.set_missing_host_key_policy(self.key_policy)
         return remote_conn_pre
 
-    def special_login_handler(self, delay_factor=1):
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """
         Fiberstore S3200 presents with the following on login
         Username:
@@ -103,7 +103,9 @@ class FiberStoreS3200ConnectSSH(CiscoSSHConnection):
             output = self.read_channel()
             if output:
                 if "Username:" in output:
+                    assert self.username is not None
                     self.write_channel(self.username + self.RETURN)
                 elif "Password:" in output:
+                    assert self.password is not None
                     self.write_channel(self.password + self.RETURN)
                     return
