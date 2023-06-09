@@ -1,4 +1,4 @@
-"""Fiberstore S3200 Driver."""
+"""Fiberstore FSOS Driver."""
 from typing import Optional
 from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
@@ -9,12 +9,10 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.exceptions import NetmikoAuthenticationException
 
 
-class FiberStoreS3200ConnectSSH(NoEnable, CiscoSSHConnection):
+class FiberstoreFsosSSH(NoEnable, CiscoSSHConnection):
     """
-    Fiberstore S3200 Driver.
-
-    To make it work, we have to override the SSHClient _auth method.
-    If we use login/password, the ssh server use the (none) auth mechanism.
+    Fiberstore FSOS uses a non-standard SSH login mechanism. Consequently,
+    to make the login work, we have to override the SSHClient _auth method.
     """
 
     def session_preparation(self) -> None:

@@ -1,3 +1,3 @@
-from netmiko.fiberstore.fiberstore_s3200 import FiberStoreS3200ConnectSSH
+from netmiko.fiberstore.fiberstore_fsos import FiberstoreFsosSSH
 
-__all__ = ["FiberStoreS3200ConnectSSH"]
+__all__ = ["FiberstoreFsosSSH"]
