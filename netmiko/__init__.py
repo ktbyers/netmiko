@@ -38,7 +38,7 @@ log.addHandler(logging.NullHandler())
 
 
 from netmiko.ssh_dispatcher import ConnectHandler  # noqa
-from netmiko.ssh_dispatcher import TelnetFallback # noqa
+from netmiko.ssh_dispatcher import TelnetFallback  # noqa
 from netmiko.ssh_dispatcher import ConnLogOnly  # noqa
 from netmiko.ssh_dispatcher import ConnUnify  # noqa
 from netmiko.ssh_dispatcher import ssh_dispatcher  # noqa

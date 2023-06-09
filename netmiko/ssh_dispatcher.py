@@ -1,6 +1,7 @@
 """Controls selection of proper class based on the device type."""
 from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
+import re
 from netmiko.exceptions import ConnectionException
 from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
 from netmiko.a10 import A10SSH
