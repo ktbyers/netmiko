@@ -20,7 +20,7 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 """
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from typing.re import Pattern
 import re
 import socket
@@ -130,7 +130,7 @@ for device_type in std_device_types:
         SNMP_MAPPER[device_type] = SNMP_MAPPER_BASE[device_type]
 
 
-def identify_address_type(entry) -> list:
+def identify_address_type(entry: str) -> List[str]:
     """
     Return a list containing all ip types found. An empty list means no valid ip were found
     Parameters
