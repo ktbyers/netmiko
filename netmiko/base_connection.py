@@ -183,6 +183,7 @@ class BaseConnection:
         sock: Optional[socket.socket] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
+        disable_lf_normalization: bool = False,
     ) -> None:
         """
         Initialize attributes for establishing connection to target device.
@@ -294,6 +295,9 @@ class BaseConnection:
         :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
                 3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
                 eliminated in Netmiko 5.x (default: False).
+
+        :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+                (default: False)
         """
 
         self.remote_conn: Union[
@@ -315,6 +319,8 @@ class BaseConnection:
 
         # Line Separator in response lines
         self.RESPONSE_RETURN = "\n" if response_return is None else response_return
+        self.disable_lf_normalization = True if disable_lf_normalization else False
+
         if ip:
             self.host = ip.strip()
         elif host:
@@ -594,7 +600,20 @@ key_file: {self.key_file}
     def read_channel(self) -> str:
         """Generic handler that will read all the data from given channel."""
         new_data = self.channel.read_channel()
-        new_data = self.normalize_linefeeds(new_data)
+
+        if self.disable_lf_normalization is False:
+            start = time.time()
+            # Data blocks shouldn't end in '\r' (can cause problems with normalize_linefeeds)
+            # Only do the extra read if '\n' exists in the output
+            # this avoids devices that only use \r.
+            while ("\n" in new_data) and (time.time() - start < 1.0):
+                if new_data[-1] == "\r":
+                    time.sleep(0.01)
+                    new_data += self.channel.read_channel()
+                else:
+                    break
+            new_data = self.normalize_linefeeds(new_data)
+
         if self.ansi_escape_codes:
             new_data = self.strip_ansi_escape_codes(new_data)
         log.debug(f"read_channel: {new_data}")
@@ -1046,7 +1065,6 @@ You can look at the Netmiko session_log or debug log for more information.
     ) -> str:
         """Strip out command echo and trailing router prompt."""
         if strip_command and command_string:
-            command_string = self.normalize_linefeeds(command_string)
             output = self.strip_command(command_string, output)
         if strip_prompt:
             output = self.strip_prompt(output)
@@ -1946,6 +1964,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         cmd: str = "",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode.
@@ -1956,6 +1975,9 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param enable_pattern: pattern indicating you have entered enable mode
 
+        :param check_state: Determine whether we are already in enable_mode using
+                check_enable_mode() before trying to elevate privileges (default: True)
+
         :param re_flags: Regular expression flags used in conjunction with pattern
         """
         output = ""
@@ -1964,35 +1986,37 @@ You can also look at the Netmiko session_log or debug log for more information.
             "the 'secret' argument to ConnectHandler."
         )
 
-        # Check if in enable mode
-        if not self.check_enable_mode():
-            # Send "enable" mode command
-            self.write_channel(self.normalize_cmd(cmd))
-            try:
-                # Read the command echo
-                end_data = ""
-                if self.global_cmd_verify is not False:
-                    output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
-                    end_data = output.split(cmd.strip())[-1]
+        # Check if in enable mode already.
+        if check_state and self.check_enable_mode():
+            return output
 
-                # Search for trailing prompt or password pattern
-                if pattern not in output and self.base_prompt not in end_data:
-                    output += self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags
-                    )
-                # Send the "secret" in response to password pattern
-                if re.search(pattern, output):
-                    self.write_channel(self.normalize_cmd(self.secret))
-                    output += self.read_until_prompt()
+        # Send "enable" mode command
+        self.write_channel(self.normalize_cmd(cmd))
+        try:
+            # Read the command echo
+            if self.global_cmd_verify is not False:
+                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
 
-                # Search for terminating pattern if defined
-                if enable_pattern and not re.search(enable_pattern, output):
-                    output += self.read_until_pattern(pattern=enable_pattern)
-                else:
-                    if not self.check_enable_mode():
-                        raise ValueError(msg)
-            except NetmikoTimeoutException:
-                raise ValueError(msg)
+            # Search for trailing prompt or password pattern
+            output += self.read_until_prompt_or_pattern(
+                pattern=pattern, re_flags=re_flags
+            )
+
+            # Send the "secret" in response to password pattern
+            if re.search(pattern, output):
+                self.write_channel(self.normalize_cmd(self.secret))
+                output += self.read_until_prompt()
+
+            # Search for terminating pattern if defined
+            if enable_pattern and not re.search(enable_pattern, output):
+                output += self.read_until_pattern(pattern=enable_pattern)
+            else:
+                if not self.check_enable_mode():
+                    raise ValueError(msg)
+
+        except NetmikoTimeoutException:
+            raise ValueError(msg)
+
         return output
 
     def exit_enable_mode(self, exit_command: str = "") -> str:
@@ -2148,7 +2172,8 @@ You can also look at the Netmiko session_log or debug log for more information.
 
         :param strip_command: Determines whether or not to strip the command
 
-        :param read_timeout: Absolute timer to send to read_channel_timing. Should be rarely needed.
+        :param read_timeout: Absolute timer to send to read_channel_timing. Also adjusts
+        read_timeout in read_until_pattern calls.
 
         :param config_mode_command: The command to enter into config mode
 
@@ -2254,11 +2279,15 @@ You can also look at the Netmiko session_log or debug log for more information.
                 self.write_channel(self.normalize_cmd(cmd))
 
                 # Make sure command is echoed
-                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+                output += self.read_until_pattern(
+                    pattern=re.escape(cmd.strip()), read_timeout=read_timeout
+                )
 
                 # Read until next prompt or terminator (#); the .*$ forces read of entire line
                 pattern = f"(?:{re.escape(self.base_prompt)}.*$|{terminator}.*$)"
-                output += self.read_until_pattern(pattern=pattern, re_flags=re.M)
+                output += self.read_until_pattern(
+                    pattern=pattern, read_timeout=read_timeout, re_flags=re.M
+                )
 
                 if error_pattern:
                     if re.search(error_pattern, output, flags=re.M):
