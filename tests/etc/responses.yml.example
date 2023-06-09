@@ -406,7 +406,7 @@ hillstone:
   multiple_line_output: ""
   save_config: 'Saving configuration is finished'
 
-fiberstore_s3200:
+fiberstore_fsos:
   base_prompt: Switch
   router_prompt : Switch>
   enable_prompt: Switch#

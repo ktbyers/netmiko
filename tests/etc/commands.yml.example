@@ -561,7 +561,7 @@ hillstone_stoneos:
   save_config_confirm: True
   save_config_response: 'Saving configuration is finished'
 
-fiberstore_s3200:
+fiberstore_fsos:
   version: "show version"
   basic: "show ip interface"
   wide_command: "show ip access-lists myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
