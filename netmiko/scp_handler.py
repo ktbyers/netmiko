@@ -271,7 +271,8 @@ class BaseFileTransfer(object):
         remote_out = "".join(remote_out_lines)
         # Match line containing file name
         assert isinstance(remote_file, str)
-        escape_file_name = re.escape(remote_file)
+        remote_file_base = os.path.basename(remote_file)
+        escape_file_name = re.escape(remote_file_base)
         pattern = r".*({}).*".format(escape_file_name)
         match = re.search(pattern, remote_out)
         if match:

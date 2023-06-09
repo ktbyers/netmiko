@@ -1,6 +1,7 @@
 """Controls selection of proper class based on the device type."""
 from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
+import re
 from netmiko.exceptions import ConnectionException
 from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
 from netmiko.a10 import A10SSH
@@ -77,6 +78,7 @@ from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5TmshSSH
 from netmiko.f5 import F5LinuxSSH
+from netmiko.fiberstore import FiberstoreFsosSSH
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
@@ -216,6 +218,7 @@ CLASS_MAPPER_BASE = {
     "f5_ltm": F5TmshSSH,
     "f5_tmsh": F5TmshSSH,
     "f5_linux": F5LinuxSSH,
+    "fiberstore_fsos": FiberstoreFsosSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
     "generic": GenericSSH,
@@ -386,6 +389,24 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
         )
     ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)
+
+
+def TelnetFallback(*args: Any, **kwargs: Any) -> "BaseConnection":
+    """If an SSH connection fails, try to fallback to Telnet."""
+    try:
+        return ConnectHandler(*args, **kwargs)
+    except (NetmikoTimeoutException, ConnectionRefusedError):
+        device_type = kwargs["device_type"]
+        # platforms_str is the base form (i.e. does not have the '_ssh' suffix)
+        if device_type in platforms_str:
+            alternative_device = f"{device_type}_telnet"
+        elif "_ssh" in device_type:
+            alternative_device = re.sub("_ssh", "_telnet", device_type)
+
+        if alternative_device in platforms:
+            kwargs["device_type"] = alternative_device
+            return ConnectHandler(*args, **kwargs)
+        raise
 
 
 def ConnLogOnly(

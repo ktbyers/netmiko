@@ -72,7 +72,7 @@ SSH_MAPPER_DICT = {
     },
     "arista_eos": {
         "cmd": "show version",
-        "search_patterns": [r"Arista"],
+        "search_patterns": [r"Arista", r"vEOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -218,7 +218,9 @@ SSH_MAPPER_DICT = {
     },
     "extreme_slx": {
         "cmd": "show version",
-        "search_patterns": [r"SLX-OS Operating System Software"],
+        "search_patterns": [
+            r"SLX-OS Operating System",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
