@@ -72,7 +72,7 @@ SSH_MAPPER_DICT = {
     },
     "arista_eos": {
         "cmd": "show version",
-        "search_patterns": [r"Arista"],
+        "search_patterns": [r"Arista", r"vEOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
