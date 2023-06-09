@@ -390,18 +390,17 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
     return ConnectionClass(*args, **kwargs)
 
 
-def AgnosticHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
-    """Alternative entrypoint that is agnostic to connection method.
-    If an SSH connection fails it tries to use Telnet, if available
-    and vice versa."""
+def TelnetFallback(*args: Any, **kwargs: Any) -> "BaseConnection":
+    """If an SSH connection fails, try to fallback to Telnet."""
     try:
         return ConnectHandler(*args, **kwargs)
     except (NetmikoTimeoutException, ConnectionRefusedError):
         device_type = kwargs["device_type"]
+        # platforms_str is the base form (i.e. does not have the '_ssh' suffix)
         if device_type in platforms_str:
-            alternative_device = device_type + "_telnet"
-        elif device_type in telnet_platforms_str:
-            alternative_device = device_type.replace("_telnet", "")
+            alternative_device = f"{device_type}_telnet"
+        elif "_ssh" in device_type:
+            alternative_device = re.sub("_ssh", "_telnet", device_type)
 
         if alternative_device in platforms:
             kwargs["device_type"] = alternative_device
