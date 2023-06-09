@@ -39,10 +39,10 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         c: disable console colors
         e: enable dumb terminal mode
         t: disable auto detect terminal capabilities
-        w511: set term width
-        h4098: set term height
+        511w: set term width
+        4098h: set term height
         """
-        self.username += "+ctw511h4098"
+        self.username += "+ct511w4098h"
 
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Mikrotik does not have paging by default."""
