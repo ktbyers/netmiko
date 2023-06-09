@@ -219,7 +219,6 @@ SSH_MAPPER_DICT = {
     "extreme_slx": {
         "cmd": "show version",
         "search_patterns": [
-            r"SLX-OS Operating System Software",
             r"SLX-OS Operating System",
         ],
         "priority": 99,
