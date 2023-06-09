@@ -44,28 +44,27 @@ class FiberStoreS3200ConnectSSH(NoEnable, CiscoSSHConnection):
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
-            pattern=pattern
+            pattern=pattern,
         )
         prompt = prompt.strip()
         self.base_prompt = prompt
         return self.base_prompt
 
     def check_config_mode(
-        self, check_string: str = "(config)#", pattern: str = "", force_regex: bool = False
+        self,
+        check_string: str = "(config)#",
+        pattern: str = "",
+        force_regex: bool = False,
     ) -> bool:
         return super().check_config_mode(
-            check_string=check_string,
-            pattern=pattern,
-            force_regex=force_regex
+            check_string=check_string, pattern=pattern, force_regex=force_regex
         )
 
     def config_mode(
         self, config_command: str = "config", pattern: str = "", re_flags: int = 0
     ) -> str:
         return super().config_mode(
-            config_command=config_command,
-            pattern=pattern,
-            re_flags=re_flags
+            config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
     def _build_ssh_client(self) -> SSHClient:
