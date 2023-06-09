@@ -405,3 +405,12 @@ hillstone:
   version_banner: "Hillstone Networks StoneOS software"
   multiple_line_output: ""
   save_config: 'Saving configuration is finished'
+
+fiberstore_fsos:
+  base_prompt: Switch
+  router_prompt : Switch>
+  enable_prompt: Switch#
+  interface_ip: 192.168.1.1
+  version_banner: "Loader Version   :"
+  multiple_line_output: "! System Description: "
+  save_config: 'Success'
