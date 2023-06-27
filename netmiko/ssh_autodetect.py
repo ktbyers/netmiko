@@ -72,19 +72,7 @@ SSH_MAPPER_DICT = {
     },
     "arista_eos": {
         "cmd": "show version",
-        "search_patterns": [r"Arista"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "arris_cer": {
-        "cmd": "show version",
-        "search_patterns": [r"CER"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "casa_cmts": {
-        "cmd": "show version",
-        "search_patterns": [r"Casa"],
+        "search_patterns": [r"Arista", r"vEOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -123,6 +111,12 @@ SSH_MAPPER_DICT = {
     },
     "cisco_xr": {
         "cmd": "show version",
+        "search_patterns": [r"Cisco IOS XR"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "cisco_xr_2": {
+        "cmd": "show version brief",
         "search_patterns": [r"Cisco IOS XR"],
         "priority": 99,
         "dispatch": "_autodetect_std",
@@ -172,6 +166,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "hp_procurve": {
+        "cmd": "show version",
+        "search_patterns": [r"Image stamp.*/code/build"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "huawei": {
         "cmd": "display version",
         "search_patterns": [
@@ -218,7 +218,9 @@ SSH_MAPPER_DICT = {
     },
     "extreme_slx": {
         "cmd": "show version",
-        "search_patterns": [r"SLX-OS Operating System Software"],
+        "search_patterns": [
+            r"SLX-OS Operating System",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -285,6 +287,12 @@ SSH_MAPPER_DICT = {
     "cisco_viptela": {
         "cmd": "show system status",
         "search_patterns": [r"Viptela, Inc"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "oneaccess_oneos": {
+        "cmd": "show version",
+        "search_patterns": [r"OneOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -376,7 +384,9 @@ class SSHDetect(object):
                     # WLC needs two different auto-dectect solutions
                     if "cisco_wlc_85" in best_match[0]:
                         best_match[0] = ("cisco_wlc", 99)
-
+                    # IOS XR needs two different auto-dectect solutions
+                    if "cisco_xr_2" in best_match[0]:
+                        best_match[0] = ("cisco_xr", 99)
                     self.connection.disconnect()
                     return best_match[0][0]
 

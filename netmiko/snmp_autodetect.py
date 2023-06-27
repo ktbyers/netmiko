@@ -20,10 +20,10 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 """
-import ipaddress
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from typing.re import Pattern
 import re
+import socket
 
 try:
     from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -130,6 +130,51 @@ for device_type in std_device_types:
         SNMP_MAPPER[device_type] = SNMP_MAPPER_BASE[device_type]
 
 
+def identify_address_type(entry: str) -> List[str]:
+    """
+    Return a list containing all ip types found. An empty list means no valid ip were found
+    Parameters
+    ----------
+    entry: str
+        Can be an ipv4, an ipv6 or an FQDN.
+
+    Returns
+    -------
+    list of string: list
+        A list of string 'IPv4' | 'IPv6' which indicates if entry is a valid ipv4 and/or ipv6.
+    """
+    try:
+        socket.inet_pton(socket.AF_INET, entry)
+        return ["IPv4"]
+    except socket.error:
+        pass
+
+    try:
+        socket.inet_pton(socket.AF_INET6, entry)
+        return ["IPv6"]
+    except socket.error:
+        pass
+
+    ip_types = []
+    try:
+        addrinfo = socket.getaddrinfo(entry, None)
+        for info in addrinfo:
+            ip = info[4][0]
+            try:
+                socket.inet_pton(socket.AF_INET, ip)
+                ip_types.append("IPv4")
+            except socket.error:
+                pass
+            try:
+                socket.inet_pton(socket.AF_INET6, ip)
+                ip_types.append("IPv6")
+            except socket.error:
+                pass
+    except socket.gaierror:
+        pass
+    return ip_types
+
+
 class SNMPDetect(object):
     """
     The SNMPDetect class tries to automatically determine the device type.
@@ -197,7 +242,6 @@ class SNMPDetect(object):
         auth_proto: str = "sha",
         encrypt_proto: str = "aes128",
     ) -> None:
-
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == "v1" or snmp_version == "v2c":
             if not community:
@@ -245,7 +289,7 @@ class SNMPDetect(object):
         self._response_cache: Dict[str, str] = {}
         self.snmp_target = (self.hostname, self.snmp_port)
 
-        if ipaddress.ip_address(self.hostname).version == 6:
+        if "IPv6" in identify_address_type(self.hostname):
             self.udp_transport_target = cmdgen.Udp6TransportTarget(
                 self.snmp_target, timeout=1.5, retries=2
             )

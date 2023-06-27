@@ -10,7 +10,6 @@ Name           Version  License
 -------------  -------  -------
 paramiko       2.10.4   GNU Library or Lesser General Public License (LGPL) 
 scp            0.14.4   GNU Library or Lesser General Public License (LGPL) 
-tenacity       8.0.1    Apache Software License                             
 ntc-templates  3.0.0    Apache Software License                             
 pyserial       3.5      BSD License
 PyYAML         6.0      MIT License                                         

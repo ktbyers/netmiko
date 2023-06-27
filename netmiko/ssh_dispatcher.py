@@ -1,6 +1,7 @@
 """Controls selection of proper class based on the device type."""
 from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
+import re
 from netmiko.exceptions import ConnectionException
 from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
 from netmiko.a10 import A10SSH
@@ -39,6 +40,7 @@ from netmiko.cisco import (
     CiscoIosSerial,
 )
 from netmiko.cisco import CiscoNxosSSH, CiscoNxosFileTransfer
+from netmiko.cisco import CiscoS200SSH, CiscoS200Telnet
 from netmiko.cisco import CiscoS300SSH, CiscoS300Telnet
 from netmiko.cisco import CiscoTpTcCeSSH
 from netmiko.cisco import CiscoViptelaSSH
@@ -59,7 +61,11 @@ from netmiko.dlink import DlinkDSTelnet, DlinkDSSSH
 from netmiko.eltex import EltexSSH, EltexEsrSSH
 from netmiko.endace import EndaceSSH
 from netmiko.enterasys import EnterasysSSH
-from netmiko.ericsson import EricssonIposSSH
+from netmiko.ericsson import (
+    EricssonIposSSH,
+    EricssonMinilink63SSH,
+    EricssonMinilink66SSH,
+)
 from netmiko.extreme import ExtremeErsSSH
 from netmiko.extreme import ExtremeExosSSH, ExtremeExosFileTransfer
 from netmiko.extreme import ExtremeExosTelnet
@@ -72,6 +78,7 @@ from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5TmshSSH
 from netmiko.f5 import F5LinuxSSH
+from netmiko.fiberstore import FiberstoreFsosSSH
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
@@ -110,6 +117,7 @@ from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
+from netmiko.teldat import TeldatCITSSH, TeldatCITTelnet
 from netmiko.terminal_server import TerminalServerSSH
 from netmiko.terminal_server import TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
@@ -172,6 +180,7 @@ CLASS_MAPPER_BASE = {
     "cisco_ftd": CiscoFtdSSH,
     "cisco_ios": CiscoIosSSH,
     "cisco_nxos": CiscoNxosSSH,
+    "cisco_s200": CiscoS200SSH,
     "cisco_s300": CiscoS300SSH,
     "cisco_tp": CiscoTpTcCeSSH,
     "cisco_viptela": CiscoViptelaSSH,
@@ -194,6 +203,8 @@ CLASS_MAPPER_BASE = {
     "eltex_esr": EltexEsrSSH,
     "enterasys": EnterasysSSH,
     "ericsson_ipos": EricssonIposSSH,
+    "ericsson_mltn63": EricssonMinilink63SSH,
+    "ericsson_mltn66": EricssonMinilink66SSH,
     "extreme": ExtremeExosSSH,
     "extreme_ers": ExtremeErsSSH,
     "extreme_exos": ExtremeExosSSH,
@@ -207,6 +218,7 @@ CLASS_MAPPER_BASE = {
     "f5_ltm": F5TmshSSH,
     "f5_tmsh": F5TmshSSH,
     "f5_linux": F5LinuxSSH,
+    "fiberstore_fsos": FiberstoreFsosSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
     "generic": GenericSSH,
@@ -249,6 +261,7 @@ CLASS_MAPPER_BASE = {
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
     "supermicro_smis": SmciSwitchSmisSSH,
+    "teldat_cit": TeldatCITSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
@@ -309,6 +322,7 @@ CLASS_MAPPER["centec_os_telnet"] = CentecOSTelnet
 CLASS_MAPPER["ciena_saos_telnet"] = CienaSaosTelnet
 CLASS_MAPPER["cisco_ios_telnet"] = CiscoIosTelnet
 CLASS_MAPPER["cisco_xr_telnet"] = CiscoXrTelnet
+CLASS_MAPPER["cisco_s200_telnet"] = CiscoS200Telnet
 CLASS_MAPPER["cisco_s300_telnet"] = CiscoS300Telnet
 CLASS_MAPPER["dell_dnos6_telnet"] = DellDNOS6Telnet
 CLASS_MAPPER["dell_powerconnect_telnet"] = DellPowerConnectTelnet
@@ -332,6 +346,7 @@ CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
 CLASS_MAPPER["supermicro_smis_telnet"] = SmciSwitchSmisTelnet
+CLASS_MAPPER["teldat_cit_telnet"] = TeldatCITTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
@@ -374,6 +389,24 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
         )
     ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)
+
+
+def TelnetFallback(*args: Any, **kwargs: Any) -> "BaseConnection":
+    """If an SSH connection fails, try to fallback to Telnet."""
+    try:
+        return ConnectHandler(*args, **kwargs)
+    except (NetmikoTimeoutException, ConnectionRefusedError):
+        device_type = kwargs["device_type"]
+        # platforms_str is the base form (i.e. does not have the '_ssh' suffix)
+        if device_type in platforms_str:
+            alternative_device = f"{device_type}_telnet"
+        elif "_ssh" in device_type:
+            alternative_device = re.sub("_ssh", "_telnet", device_type)
+
+        if alternative_device in platforms:
+            kwargs["device_type"] = alternative_device
+            return ConnectHandler(*args, **kwargs)
+        raise
 
 
 def ConnLogOnly(
@@ -435,7 +468,6 @@ def ConnLogOnly(
 def ConnUnify(
     **kwargs: Any,
 ) -> "BaseConnection":
-
     try:
         kwargs["auto_connect"] = False
         net_connect = ConnectHandler(**kwargs)

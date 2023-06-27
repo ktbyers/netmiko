@@ -119,10 +119,14 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         enter_config_mode: bool = True,
         error_pattern: str = "",
         terminator: str = r"#",
-        bypass_commands: Optional[
-            str
-        ] = r"(?:add\s+\S+\s+\S+\s+\S+\s+(?:superuser|crypto|maintenance|provisioning|retrieve|test-user)|secret.*)",
+        bypass_commands: Optional[str] = None,
     ) -> str:
+
+        if bypass_commands is None:
+            categories = (
+                r"(?:superuser|crypto|maintenance|provisioning|retrieve|test-user)"
+            )
+            bypass_commands = rf"(?:add\s+\S+\s+\S+\s+\S+\s+{categories}|secret.*)"
 
         return super().send_config_set(
             config_commands=config_commands,
