@@ -295,3 +295,9 @@ hillstone:
   ip: 192.168.100.234
   username: hillstone
   password: Hillstone
+
+dnos:
+  device_type: dnos
+  ip: 10.1.1.1
+  username: foo
+  password: bar

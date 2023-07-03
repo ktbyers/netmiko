@@ -414,3 +414,12 @@ fiberstore_fsos:
   version_banner: "Loader Version   :"
   multiple_line_output: "! System Description: "
   save_config: 'Success'
+
+dnos:
+  base_prompt: FOO
+  router_prompt: FOO#
+  enable_prompt: FOO#
+  interface_ip: 10.220.88.39
+  version_banner: ""
+  commit_comment: 'Unit test on commit with comment'
+  multiple_line_output: ""
