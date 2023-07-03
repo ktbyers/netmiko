@@ -318,6 +318,9 @@ def test_strip_prompt(net_connect, commands, expected_responses):
         return
     show_ip = net_connect.send_command_timing(commands["basic"])
     show_ip_alt = net_connect.send_command(commands["basic"])
+    # dnos has an echo(only sometimes) of the command in the command output
+    if "dnos" in net_connect.device_type:
+        show_ip = "\n".join(show_ip.split("\n")[2:])
     assert expected_responses["base_prompt"] not in show_ip
     assert expected_responses["base_prompt"] not in show_ip_alt
 
@@ -331,6 +334,9 @@ def test_strip_command(net_connect, commands, expected_responses):
     if "dlink_ds" in net_connect.device_type:
         show_ip = "\n".join(show_ip.split("\n")[2:])
         show_ip_alt = "\n".join(show_ip_alt.split("\n")[2:])
+    # dnos has an echo(only sometimes) of the command in the command output
+    if "dnos" in net_connect.device_type:
+        show_ip = "\n".join(show_ip.split("\n")[2:])
     assert commands["basic"] not in show_ip
     assert commands["basic"] not in show_ip_alt
 
