@@ -18,18 +18,14 @@ if TYPE_CHECKING:
 def progress_bar(
     filename: AnyStr, size: int, sent: int, peername: Optional[str] = None
 ) -> None:
-    max_width = 50
     if isinstance(filename, bytes):
         filename_str = filename.decode()
     else:
         filename_str = filename
-    clear_screen = chr(27) + "[2J"
-    terminating_char = "|"
 
     # Percentage done
     percent_complete = sent / size
     percent_str = f"{percent_complete*100:.2f}%"
-
 
     if peername is None:
         header_msg = f"Transferring file: {filename_str}"
