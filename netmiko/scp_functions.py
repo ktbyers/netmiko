@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from netmiko.scp_handler import BaseFileTransfer
 from netmiko.ssh_dispatcher import FileTransfer
 from netmiko.cisco.cisco_ios import InLineTransfer
-
+import sys
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
 
@@ -29,19 +29,15 @@ def progress_bar(
     # Percentage done
     percent_complete = sent / size
     percent_str = f"{percent_complete*100:.2f}%"
-    hash_count = int(percent_complete * max_width)
-    progress = hash_count * ">"
+
 
     if peername is None:
-        header_msg = f"Transferring file: {filename_str}\n"
+        header_msg = f"Transferring file: {filename_str}"
     else:
-        header_msg = f"Transferring file to {peername}: {filename_str}\n"
+        header_msg = f"Transferring file to {peername}: {filename_str}"
 
-    msg = f"{progress:<50}{terminating_char:1} ({percent_str})"
-    print(clear_screen)
-    print(header_msg)
-    print(msg)
-
+    msg = f"({percent_str})"
+    sys.stdout.writelines(f"%s %s\r" % (header_msg, msg))
 
 def verifyspace_and_transferfile(scp_transfer: BaseFileTransfer) -> None:
     """Verify space and transfer file."""
