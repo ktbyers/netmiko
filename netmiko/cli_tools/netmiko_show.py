@@ -5,8 +5,6 @@ from __future__ import unicode_literals
 
 import argparse
 import sys
-import os
-import subprocess
 import threading
 
 try:
@@ -15,43 +13,38 @@ except ImportError:
     from queue import Queue
 from datetime import datetime
 from getpass import getpass
+from typing import Dict
 
 from netmiko import ConnectHandler
-from netmiko.utilities import load_devices, display_inventory
-from netmiko.utilities import obtain_all_devices
-from netmiko.utilities import obtain_netmiko_filename, write_tmp_file, ensure_dir_exists
-from netmiko.utilities import find_netmiko_dir
-from netmiko.utilities import SHOW_RUN_MAPPER
+from netmiko.utilities import (
+    load_devices,
+    display_inventory,
+    obtain_all_devices,
+    obtain_netmiko_filename,
+    write_tmp_file,
+    ensure_dir_exists,
+    find_netmiko_dir,
+    SHOW_RUN_MAPPER,
+)
 
-GREP = "/bin/grep"
-if not os.path.exists(GREP):
-    GREP = "/usr/bin/grep"
+
 NETMIKO_BASE_DIR = "~/.netmiko"
 ERROR_PATTERN = "%%%failed%%%"
 __version__ = "0.1.0"
 
 
-def grepx(files, pattern, grep_options, use_colors=True):
-    """Call system grep"""
-    if not isinstance(files, (list, tuple)):
-        files = [files]
-    if use_colors:
-        grep_options += ["--color=auto"]
-
-    # Make grep output look nicer by 'cd netmiko_full_dir'
-    _, netmiko_full_dir = find_netmiko_dir()
-    os.chdir(netmiko_full_dir)
-    # Convert files to strip off the directory
-    retrieve_file = lambda x: x.split("/")[-1]  # noqa
-    files = [retrieve_file(a_file) for a_file in files]
-    files.sort()
-    grep_list = [GREP] + grep_options + [pattern] + files
-    proc = subprocess.Popen(grep_list, shell=False)
-    proc.communicate()
-    return ""
+def print_output(device_name: str, output: str) -> None:
+    """Print device output to stdout."""
+    sys.stdout.write("{0}:\n--------------------\n{1}\n\n".format(device_name, output))
 
 
-def ssh_conn(device_name, a_device, cli_command, output_q):
+def ssh_conn(
+    device_name: str,
+    a_device: Dict[str, str],
+    cli_command: str,
+    output_q: Queue,
+) -> None:
+    """SSH connection thread entry point."""
     try:
         net_connect = ConnectHandler(**a_device)
         net_connect.enable()
@@ -62,7 +55,7 @@ def ssh_conn(device_name, a_device, cli_command, output_q):
     output_q.put({device_name: output})
 
 
-def parse_arguments(args):
+def parse_arguments() -> "argparse.Namespace":
     """Parse command-line arguments."""
     description = (
         "Return output from single show cmd using Netmiko (defaults to running-config)"
@@ -95,21 +88,23 @@ def parse_arguments(args):
     parser.add_argument(
         "--hide-failed", help="Hide failed devices", action="store_true"
     )
+    parser.add_argument(
+        "--write-output",
+        help="Write output to files instead of displaying on console",
+        action="store_true",
+    )
     parser.add_argument("--version", help="Display version", action="store_true")
-    cli_args = parser.parse_args(args)
+    cli_args = parser.parse_args()
     if not cli_args.list_devices and not cli_args.version:
         if not cli_args.devices:
             parser.error("Devices not specified.")
     return cli_args
 
 
-def main_ep():
-    sys.exit(main(sys.argv[1:]))
-
-
-def main(args):
+def main() -> int:
+    """Primary execution thread."""
     start_time = datetime.now()
-    cli_args = parse_arguments(args)
+    cli_args = parse_arguments()
 
     cli_username = cli_args.username if cli_args.username else None
     cli_password = getpass() if cli_args.password else None
@@ -121,7 +116,11 @@ def main(args):
         return 0
     list_devices = cli_args.list_devices
     if list_devices:
-        my_devices = load_devices()
+        try:
+            my_devices = load_devices()
+        except OSError as e:
+            sys.stderr.write("ERROR: Could not load device inventory: {0}\n".format(e))
+            return 1
         display_inventory(my_devices)
         return 0
 
@@ -130,12 +129,15 @@ def main(args):
     if cli_command:
         cmd_arg = True
     device_or_group = cli_args.devices.strip()
-    pattern = r"."
     use_cached_files = cli_args.use_cache
     hide_failed = cli_args.hide_failed
 
     output_q = Queue()
-    my_devices = load_devices()
+    try:
+        my_devices = load_devices()
+    except OSError as e:
+        sys.stderr.write("ERROR: Could not load device inventory: {0}\n".format(e))
+        return 1
     if device_or_group == "all":
         device_group = obtain_all_devices(my_devices)
     else:
@@ -148,13 +150,13 @@ def main(args):
             else:
                 device_group[device_or_group] = devicedict_or_group
         except KeyError:
-            return (
+            sys.stderr.write(
                 "Error reading from netmiko devices file."
-                " Device or group not found: {0}".format(device_or_group)
+                " Device or group not found: {0}\n".format(device_or_group)
             )
+            return 1
 
     # Retrieve output from devices
-    my_files = []
     failed_devices = []
     if not use_cached_files:
         for device_name, a_device in device_group.items():
@@ -184,7 +186,11 @@ def main(args):
             for device_name, output in my_dict.items():
                 file_name = write_tmp_file(device_name, output)
                 if ERROR_PATTERN not in output:
-                    my_files.append(file_name)
+                    if cli_args.write_output:
+                        with open("{0}.txt".format(device_name), "w") as f:
+                            f.write(output)
+                    else:
+                        print_output(device_name, output)
                 else:
                     failed_devices.append(device_name)
     else:
@@ -194,14 +200,19 @@ def main(args):
                 with open(file_name) as f:
                     output = f.read()
             except IOError:
-                return "Some cache files are missing: unable to use --use-cache option."
+                sys.stderr.write(
+                    "Some cache files are missing: unable to use --use-cache option.\n"
+                )
+                return 1
             if ERROR_PATTERN not in output:
-                my_files.append(file_name)
+                if cli_args.write_output:
+                    with open("{0}.txt".format(device_name), "w") as f:
+                        f.write(output)
+                else:
+                    print_output(device_name, output)
             else:
                 failed_devices.append(device_name)
 
-    grep_options = []
-    grepx(my_files, pattern, grep_options)
     if cli_args.display_runtime:
         print("Total time: {0}".format(datetime.now() - start_time))
 
@@ -217,5 +228,10 @@ def main(args):
     return 0
 
 
+def main_ep() -> None:
+    """Primary execution entry point."""
+    sys.exit(main())
+
+
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    main_ep()
