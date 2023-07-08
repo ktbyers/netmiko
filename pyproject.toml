@@ -52,3 +52,6 @@ ttp = ">=0.9.0"
 "netmiko-grep" = "netmiko.cli_tools.netmiko_grep:main_ep"
 "netmiko-show" = "netmiko.cli_tools.netmiko_show:main_ep"
 "netmiko-cfg" = "netmiko.cli_tools.netmiko_cfg:main_ep"
+
+[tool.ruff]
+ignore = ["E501"]
