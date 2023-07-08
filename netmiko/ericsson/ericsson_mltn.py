@@ -20,7 +20,6 @@ class EricssonMinilinkBase(NoEnable, BaseConnection):
         *args: Any,
         **kwargs: Any,
     ) -> None:
-
         # Set default auth_timeout
         if kwargs.get("auth_timeout") is None:
             kwargs["auth_timeout"] = 20

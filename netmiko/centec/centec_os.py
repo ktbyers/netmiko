@@ -19,10 +19,8 @@ class CentecOSBase(CiscoBaseConnection):
 
 
 class CentecOSSSH(CentecOSBase):
-
     pass
 
 
 class CentecOSTelnet(CentecOSBase):
-
     pass

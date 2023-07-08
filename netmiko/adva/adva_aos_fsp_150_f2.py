@@ -60,7 +60,6 @@ class AdvaAosFsp150F2SSH(NoEnable, NoConfig, CiscoSSHConnection):
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
-
         prompt = self.find_prompt()
         match = re.search(pri_prompt_terminator, prompt)
         if not match:

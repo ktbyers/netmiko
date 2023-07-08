@@ -108,5 +108,4 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
 
 
 class SixwindOSSSH(SixwindOSBase):
-
     pass

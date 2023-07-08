@@ -667,7 +667,6 @@ where x is the total number of seconds to wait before timing out.\n"""
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time < read_timeout) or (not read_timeout):
-
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
@@ -1447,7 +1446,6 @@ A paramiko SSHException occurred during connection creation:
         return output
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
-
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
             pattern=re.escape(cmd), read_timeout=read_timeout

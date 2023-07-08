@@ -30,7 +30,6 @@ class AudiocodeBase(BaseConnection):
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
-
         if pattern is None:
             pattern = rf"\*?{self.prompt_pattern}"
 
@@ -60,7 +59,6 @@ class AudiocodeBase(BaseConnection):
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
-
         if pattern is None:
             pattern = rf"\*?{self.prompt_pattern}"
         return super().find_prompt(
@@ -228,7 +226,6 @@ class Audiocode72Base(AudiocodeBase):
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:
-
         if command:
             return super().disable_paging(
                 command=command,
@@ -292,7 +289,6 @@ class AudiocodeBase66(AudiocodeBase):
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:
-
         if command:
             return super().disable_paging(
                 command=command,
@@ -320,7 +316,6 @@ class AudiocodeBase66(AudiocodeBase):
         self,
         delay_factor: Optional[float] = 0.5,
     ) -> str:
-
         command_list: List[str] = [
             "cli-terminal",
             "set window-height 100",
@@ -401,7 +396,6 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
         terminator: str = r"/.*>",
         bypass_commands: Optional[str] = None,
     ) -> str:
-
         return super().send_config_set(
             config_commands=config_commands,
             exit_config_mode=exit_config_mode,

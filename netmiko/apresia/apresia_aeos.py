@@ -16,7 +16,6 @@ class ApresiaAeosBase(CiscoSSHConnection):
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:
-
         self.enable()
         check_command = f"show running-config | include {command}"
         show_run = self._send_command_str(check_command)

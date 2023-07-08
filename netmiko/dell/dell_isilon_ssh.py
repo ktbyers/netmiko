@@ -67,7 +67,6 @@ class DellIsilonSSH(BaseConnection):
         check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
-
         delay_factor = self.select_delay_factor(delay_factor=1)
         output = ""
 
