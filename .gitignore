@@ -24,6 +24,7 @@ bin/.netmiko.cfg
 .idea/
 
 # Virtual Environment files
+.env/
 .venv/
 bin/
 lib/
@@ -37,6 +38,8 @@ docs/build/doctrees/
 .tox/*
 
 .pytest_cache/*
+.mypy_cache/
+.ruff_cache/
 
 # Mac stuff
 .DS_Store
