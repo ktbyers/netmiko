@@ -83,6 +83,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         pattern: str = r"#",
         force_regex: bool = True,
     ) -> bool:
+
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )

@@ -97,6 +97,7 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
+
         # set callback function to handle telnet options.
         assert isinstance(self.remote_conn, Telnet)
         self.remote_conn.set_option_negotiation_callback(self._process_option)

@@ -103,6 +103,7 @@ class InLineTransfer(CiscoIosFileTransfer):
         progress4: Optional[Callable[..., Any]] = None,
         hash_supported: bool = True,
     ) -> None:
+
         if not dest_file:
             raise ValueError(
                 "Destination file must be specified for InlineTransfer operations."

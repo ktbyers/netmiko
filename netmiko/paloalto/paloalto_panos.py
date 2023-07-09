@@ -14,6 +14,7 @@ class SSHClient_interactive(SSHClient):
     def pa_banner_handler(
         self, title: str, instructions: str, prompt_list: List[Tuple[str, bool]]
     ) -> List[str]:
+
         resp = []
         for prompt, echo in prompt_list:
             if "Do you accept" in prompt:

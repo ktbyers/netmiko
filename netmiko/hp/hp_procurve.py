@@ -147,6 +147,7 @@ class HPProcurveBase(CiscoSSHConnection):
 
         output = ""
         for _ in range(10):
+
             # The connection might be dead here.
             try:
                 # "Do you want to log out"

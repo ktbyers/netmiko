@@ -97,11 +97,13 @@ output:
             kwargs["max_loops"] = 150
 
         if "Press any key" in output or "Press Enter to" in output:
+
             # Send an 'enter'
             output += self._send_command_timing_str(*second_args, **kwargs)
 
             # WLC has excessive delay after this appears on screen
             if "802.11b Advanced Configuration" in output:
+
                 # Defaults to 30 seconds
                 time.sleep(kwargs["delay_factor"] * 30)
                 not_done = True

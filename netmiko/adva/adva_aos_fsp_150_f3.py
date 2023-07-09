@@ -96,6 +96,7 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
+
         prompt = self.find_prompt()
         match = re.search(pri_prompt_terminator, prompt)
         if not match:
@@ -120,6 +121,7 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         terminator: str = r"#",
         bypass_commands: Optional[str] = None,
     ) -> str:
+
         if bypass_commands is None:
             categories = (
                 r"(?:superuser|crypto|maintenance|provisioning|retrieve|test-user)"
