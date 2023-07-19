@@ -1548,7 +1548,7 @@ markdown = ">=3.0"
 name = "pip"
 version = "23.1.2"
 description = "The PyPA recommended tool for installing Python packages."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -3161,4 +3161,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<4.0"
-content-hash = "3fda40fd112b986b0ed78cc1093f32809be6d76a27387ea78f14cd540b87f935"
+content-hash = "b880ec3fa33079b5d575fd4b7c50bb05abeafa7cac7cfb8332349030c5986136"

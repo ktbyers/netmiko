@@ -21,7 +21,6 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0"
-pip = "23.1.2"
 paramiko = ">=2.9.5"
 scp = ">=0.13.6"
 pyyaml = ">=5.3"
@@ -30,6 +29,7 @@ ntc-templates = ">=2.0.0"
 pyserial = ">=3.3"
 
 [tool.poetry.group.dev.dependencies]
+pip = "23.1.2"
 black = "22.3.0"
 mypy = "1.0.0"
 mypy-extensions = "1.0.0"
