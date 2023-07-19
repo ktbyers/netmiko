@@ -32,7 +32,7 @@ pyserial = ">=3.3"
 black = "22.3.0"
 mypy = "1.0.0"
 mypy-extensions = "1.0.0"
-PyYAML = "5.4.1"
+PyYAML = "6.0.1"
 pytest = "7.1.2"
 # Issue with build failure on pyflakes 2.5.0
 pyflakes = "2.4.0"
