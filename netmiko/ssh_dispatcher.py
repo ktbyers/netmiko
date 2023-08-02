@@ -134,6 +134,7 @@ from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
 from netmiko.hillstone import HillstoneStoneosSSH
+from netmiko.aviat import AviatWTMSSH
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -163,6 +164,7 @@ CLASS_MAPPER_BASE = {
     "audiocode_shell": AudiocodeShellSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
+    "aviat_wtm": AviatWTMSSH,
     "broadcom_icos": BroadcomIcosSSH,
     "brocade_fos": BrocadeFOSSSH,
     "brocade_fastiron": RuckusFastironSSH,
