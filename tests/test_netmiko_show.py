@@ -221,7 +221,6 @@ def test_send_command_genie(net_connect, commands, expected_responses):
 
 
 def test_send_multiline_timing(net_connect):
-
     debug = False
 
     if (
@@ -238,7 +237,6 @@ def test_send_multiline_timing(net_connect):
 
 
 def test_send_multiline(net_connect):
-
     debug = False
     if (
         "cisco_ios" not in net_connect.device_type
@@ -367,6 +365,9 @@ def test_enable_mode(net_connect, commands, expected_responses):
     """
     # testuser on pynetqa does not have root access
     if net_connect.username == "testuser" and net_connect.host == "3.15.148.177":
+        assert pytest.skip()
+    # aviatrix_wtm does not support enable mode
+    if "aviat_wtm" in net_connect.device_type:
         assert pytest.skip()
     try:
         net_connect.enable()

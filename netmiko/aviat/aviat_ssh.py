@@ -1,6 +1,7 @@
 from netmiko.cisco_base_connection import CiscoSSHConnection
 import re
 from netmiko import log
+from typing import Optional
 
 
 class AviatWTMSSH(CiscoSSHConnection):
@@ -11,7 +12,19 @@ class AviatWTMSSH(CiscoSSHConnection):
 
     def session_preparation(self) -> None:
         self._test_channel_read()
+        self.disable_paging()
         self.set_base_prompt()
+
+    def disable_paging(
+        self,
+        commands: list = ["session paginate false"],
+        delay_factor: Optional[float] = None,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -> str:
+        return self.send_config_set(
+            config_commands=commands,
+        )
 
     def find_prompt(self, delay_factor: float = 1.0, pattern: str = r"[$>#]") -> str:
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
@@ -26,15 +39,6 @@ class AviatWTMSSH(CiscoSSHConnection):
         Exits from configuration mode. Overwritten from base class because the device
         prompts to save uncommitted changes when exiting config mode and requires user confirmation.
         If 'Uncommitted changes found' is detected in the output, the function sends a 'confirm' command.
-
-        Args:
-        exit_config (str, optional): Command to exit configuration mode. Default is 'end'.
-        pattern (str, optional): Regex pattern to match the uncommitted changes prompt.
-            Default is 'Uncommitted changes.*CANCEL\]'.
-        confirm (str, optional): Command to confirm uncommitted changes. Default is 'yes'.
-
-        Returns:
-        str: Output from the device after exiting configuration mode.
         """
         output = ""
         if self.check_config_mode():
@@ -64,3 +68,25 @@ class AviatWTMSSH(CiscoSSHConnection):
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
+
+    def enable(
+        self,
+        cmd: str = "",
+        pattern: str = "ssword",
+        enable_pattern: Optional[str] = None,
+        check_state: bool = True,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
+        """Aviat WTM Outdoor Radio does not have an enable mode"""
+        pass
+
+    def save_config(
+        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
+    ) -> str:
+        """
+        Aviat WTM Outdoor Radio does not possess a 'save config' command. Instead,
+        when changes are detected in config mode, the user is prompted to commit these
+        changes. This happens either when trying to exit or when the 'commit'
+        command is typed.
+        """
+        raise NotImplementedError
