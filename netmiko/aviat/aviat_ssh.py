@@ -78,7 +78,7 @@ class AviatWTMSSH(CiscoSSHConnection):
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Aviat WTM Outdoor Radio does not have an enable mode"""
-        pass
+        raise NotImplementedError
 
     def save_config(
         self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
