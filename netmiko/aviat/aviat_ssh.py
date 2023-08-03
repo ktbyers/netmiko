@@ -84,9 +84,9 @@ class AviatWTMSSH(CiscoSSHConnection):
         self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """
-        Aviat WTM Outdoor Radio does not possess a 'save config' command. Instead,
+        Aviat WTM Outdoor Radio does not have a 'save config' command. Instead,
         when changes are detected in config mode, the user is prompted to commit these
-        changes. This happens either when trying to exit or when the 'commit'
-        command is typed.
+        changes. This happens either when trying to exit config mode or when the 'commit'
+        command is typed in config mode.
         """
         raise NotImplementedError
