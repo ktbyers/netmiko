@@ -375,6 +375,41 @@ telnet_platforms_str = "\n".join(telnet_platforms)
 telnet_platforms_str = "\n" + telnet_platforms_str
 
 
+def register_as(platform_name: str):
+    """
+    Decorator to register a class as a platform
+    
+    Ex:
+        from netmiko.ssh_dispatcher import register_as
+        from netmiko.base_connection import BaseConnection
+
+        @register_as('my_driver')
+        class MyDriver(BaseConnection):
+            # custom code and method overrides
+            pass
+    """
+    def register(cls: Type["BaseConnection"]) -> Type["BaseConnection"]:
+        global CLASS_MAPPER, platforms, platforms_base, platforms_str, telnet_platforms, telnet_platforms_str
+        CLASS_MAPPER[platform_name] = cls
+        platforms = list(CLASS_MAPPER.keys())
+        platforms.sort()
+        platforms_base = list(CLASS_MAPPER_BASE.keys())
+        platforms_base.sort()
+        platforms_str = "\n".join(platforms_base)
+        platforms_str = "\n" + platforms_str
+
+        scp_platforms = list(FILE_TRANSFER_MAP.keys())
+        scp_platforms.sort()
+        scp_platforms_str = "\n".join(scp_platforms)
+        scp_platforms_str = "\n" + scp_platforms_str
+
+        telnet_platforms = [x for x in platforms if "telnet" in x]
+        telnet_platforms_str = "\n".join(telnet_platforms)
+        telnet_platforms_str = "\n" + telnet_platforms_str
+        return cls
+    return register
+
+
 def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
     """Factory function selects the proper class and creates object based on device_type."""
     device_type = kwargs["device_type"]
