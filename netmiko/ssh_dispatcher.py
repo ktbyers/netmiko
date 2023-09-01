@@ -263,6 +263,7 @@ CLASS_MAPPER_BASE = {
     "supermicro_smis": SmciSwitchSmisSSH,
     "teldat_cit": TeldatCITSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
+    # ubiquiti_airos - Placeholder agreed to with NTC (if this driver is created in future)
     "ubiquiti_edge": UbiquitiEdgeSSH,
     "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
