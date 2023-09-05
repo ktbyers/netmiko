@@ -1,10 +1,10 @@
 from typing import Any, Sequence, Iterator, TextIO, Union
-from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.base_connection import BaseConnection
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 
 
-class ZyxelSSH(NoEnable, NoConfig, CiscoSSHConnection):
+class ZyxelSSH(NoEnable, NoConfig, BaseConnection):
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """No paging on Zyxel"""
         return ""
