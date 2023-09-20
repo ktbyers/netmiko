@@ -136,6 +136,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Saves Config."""
+        output = self.config_mode()
         output = super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
