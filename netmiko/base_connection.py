@@ -1085,7 +1085,7 @@ You can look at the Netmiko session_log or debug log for more information.
         self.channel: Channel
         if self.protocol == "telnet":
             self.remote_conn = telnetlib.Telnet(
-                self.host, port=self.port, timeout=self.timeout
+                self.host, port=self.port, timeout=self.conn_timeout
             )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
