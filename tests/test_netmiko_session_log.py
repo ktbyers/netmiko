@@ -4,6 +4,7 @@ import hashlib
 import io
 import logging
 from netmiko import ConnectHandler
+from netmiko.session_log import SessionLog
 
 
 def calc_md5(file_name=None, contents=None):
@@ -129,6 +130,48 @@ def test_session_log_secrets(device_slog):
         assert conn.password not in session_log
     if conn.secret:
         assert conn.secret not in session_log
+
+
+def test_session_log_custom_secrets(device_slog):
+    """Verify session_log does not contain custom words."""
+    # Dict of words that should be sanitized in session log
+    sanitize_secrets = {
+        "secret1": "admin_username",
+        "secret2": "snmp_auth_secret",
+        "secret3": "snmp_priv_secret",
+        "supersecret": "supersecret",
+    }
+    # Create custom session log
+    custom_log = SessionLog(file_name="device_log.log", no_log=sanitize_secrets)
+    # Pass in custom SessionLog obj to session_log attribute
+    device_slog["session_log"] = custom_log
+
+    conn = ConnectHandler(**device_slog)
+    conn.session_log.write("\nTesting password and secret replacement\n")
+    conn.session_log.write(
+        "This is my first secret {}\n".format(sanitize_secrets["secret1"])
+    )
+    conn.session_log.write(
+        "This is my second secret {}\n".format(sanitize_secrets["secret2"])
+    )
+    conn.session_log.write(
+        "This is my third secret {}\n".format(sanitize_secrets["secret3"])
+    )
+    conn.session_log.write(
+        "This is my super secret {}\n".format(sanitize_secrets["supersecret"])
+    )
+
+    file_name = device_slog["session_log"]
+    with open(file_name, "r") as f:
+        session_log = f.read()
+    if sanitize_secrets.get("secret1") is not None:
+        assert sanitize_secrets["secret1"] not in session_log
+    if sanitize_secrets.get("secret2") is not None:
+        assert sanitize_secrets["secret2"] not in session_log
+    if sanitize_secrets.get("secret3") is not None:
+        assert sanitize_secrets["secret3"] not in session_log
+    if sanitize_secrets("supersecret") is not None:
+        assert sanitize_secrets["supersecret"] not in session_log
 
 
 def test_logging_filter_secrets(net_connect_slog_wr):
