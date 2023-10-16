@@ -267,7 +267,8 @@ class BaseConnection:
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: True)
 
-        :param session_log: File path, SessionLog object, or BufferedIOBase subclass object to write the session log to.
+        :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+                to write the session log to.
 
         :param session_log_record_writes: The session log generally only records channel reads due
                 to eliminate command duplication due to command echo. You can enable this if you
