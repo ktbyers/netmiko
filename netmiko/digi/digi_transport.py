@@ -1,10 +1,11 @@
+"""Digi TransPort Routers"""
 from typing import Any
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class DigiOSBase(NoEnable, NoConfig, CiscoSSHConnection):
+class DigiTransportBase(NoEnable, NoConfig, CiscoSSHConnection):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
@@ -22,5 +23,5 @@ class DigiOSBase(NoEnable, NoConfig, CiscoSSHConnection):
         return output
 
 
-class DigiOSSSH(DigiOSBase):
+class DigiTransportSSH(DigiTransportBase):
     pass

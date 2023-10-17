@@ -1,3 +1,3 @@
-from netmiko.digi.digi_os import DigiOSSSH
+from netmiko.digi.digi_transport import DigiTransportSSH
 
-__all__ = ["DigiOSSSH"]
+__all__ = ["DigiTransportSSH"]
