@@ -100,7 +100,7 @@ class HPComwareBase(CiscoSSHConnection):
 
         # Strip off any leading RBM_. characters for firewall HA
         prompt = re.sub(r"^RBM_.", "", prompt, flags=re.M)
-        
+
         # Strip off leading character
         prompt = prompt[1:]
         prompt = prompt.strip()
