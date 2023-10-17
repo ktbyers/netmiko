@@ -391,9 +391,6 @@ class BaseConnection:
             elif isinstance(session_log, SessionLog):
                 # SessionLog object
                 self.session_log = session_log
-                # Check if filename was provided in session_log
-                if self.session_log.file_name is not None:
-                    self.session_log.open()
             else:
                 raise ValueError(
                     "session_log must be a path to a file, a file handle, "
