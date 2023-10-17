@@ -92,3 +92,22 @@ redispatch(net_connect, device_type='cisco_ios')
 # Now just do your normal Netmiko operations
 new_output = net_connect.send_command("show ip int brief")
 ```
+
+### Installing Netmiko `develop` branch (with Poetry support)
+
+To install the Netmiko `develop` branch follow this process.
+
+1. Install Python poetry. This should be documented online.
+2. export PATH="/home/<user>/.local/bin:$PATH"   # make sure poetry is on your $PATH
+3. git clone https://github.com/ktbyers/netmiko
+4. cd netmiko   # change dir into the base of the Netmiko repository.
+5. Create a new virtual environment
+
+```
+# Use the appropriate python3 for your machine
+# This creates a virtual environment named .venv
+python3.10 -m venv .venv
+```
+
+6. source .venv/bin/activate   # Activate virtual env 
+7. poetry install       # Install all of the Netmiko dependencies

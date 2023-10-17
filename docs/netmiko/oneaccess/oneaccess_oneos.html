@@ -28,7 +28,6 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Netmiko driver for OneAccess ONEOS&#34;&#34;&#34;
-import time
 from typing import Any
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
@@ -43,13 +42,21 @@ class OneaccessOneOSBase(CiscoBaseConnection):
 
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare connection - disable paging&#34;&#34;&#34;
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.set_terminal_width(command=&#34;stty columns 255&#34;, pattern=&#34;stty&#34;)
+
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.disable_paging(command=&#34;term len 0&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+
+        # try ONEOS6 command first - fallback to ONEOS5 if it fails
+        self.set_terminal_width(command=&#34;screen-width 512&#34;, cmd_verify=True)
+        output = self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        if &#34;error&#34; in output.lower():
+            self.set_terminal_width(command=&#34;stty columns 255&#34;, cmd_verify=True)
+        else:
+            # ONEOS6 uses different enter
+            self.RETURN = &#34;\n&#34;
+
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.set_base_prompt()
 
     def save_config(
         self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
@@ -97,13 +104,21 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare connection - disable paging&#34;&#34;&#34;
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.set_terminal_width(command=&#34;stty columns 255&#34;, pattern=&#34;stty&#34;)
+
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.disable_paging(command=&#34;term len 0&#34;)
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
+
+        # try ONEOS6 command first - fallback to ONEOS5 if it fails
+        self.set_terminal_width(command=&#34;screen-width 512&#34;, cmd_verify=True)
+        output = self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        if &#34;error&#34; in output.lower():
+            self.set_terminal_width(command=&#34;stty columns 255&#34;, cmd_verify=True)
+        else:
+            # ONEOS6 uses different enter
+            self.RETURN = &#34;\n&#34;
+
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.set_base_prompt()
 
     def save_config(
         self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
@@ -154,13 +169,21 @@ class OneaccessOneOSTelnet(OneaccessOneOSBase):
 </summary>
 <pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare connection - disable paging&#34;&#34;&#34;
-    self._test_channel_read()
-    self.set_base_prompt()
-    self.set_terminal_width(command=&#34;stty columns 255&#34;, pattern=&#34;stty&#34;)
+
+    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
     self.disable_paging(command=&#34;term len 0&#34;)
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
+
+    # try ONEOS6 command first - fallback to ONEOS5 if it fails
+    self.set_terminal_width(command=&#34;screen-width 512&#34;, cmd_verify=True)
+    output = self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+    if &#34;error&#34; in output.lower():
+        self.set_terminal_width(command=&#34;stty columns 255&#34;, cmd_verify=True)
+    else:
+        # ONEOS6 uses different enter
+        self.RETURN = &#34;\n&#34;
+
+    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+    self.set_base_prompt()</code></pre>
 </details>
 </dd>
 </dl>

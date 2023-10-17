@@ -15,14 +15,33 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
     Implements methods for interacting Ciena Saos devices.
     """
 
+    prompt_pattern = r"[>#$]"
+
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = "",
+        alt_prompt_terminator: str = "",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
+        """Ciena can use '>', '$', '#' for prompt terminator depending on the device."""
+        prompt = self.find_prompt(delay_factor=delay_factor)
+
+        pattern = rf"^.+{self.prompt_pattern}$"
+        if not re.search(pattern, prompt):
+            raise ValueError(f"Router prompt not found: {repr(prompt)}")
+        # Strip off trailing terminator
+        self.base_prompt = prompt[:-1]
+        return self.base_prompt
+
     def session_preparation(self) -> None:
-        self._test_channel_read(pattern=r"[>#]")
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.disable_paging(command="system shell session set more off")
 
     def _enter_shell(self) -> str:
         """Enter the Bourne Shell."""
-        output = self._send_command_str("diag shell", expect_string=r"[$#>]")
+        output = self._send_command_str("diag shell", expect_string=self.prompt_pattern)
         if "SHELL PARSER FAILURE" in output:
             msg = "SCP support on Ciena SAOS requires 'diag shell' permissions"
             raise ValueError(msg)

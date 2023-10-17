@@ -19,11 +19,16 @@ class CiscoBaseConnection(BaseConnection):
         cmd: str = "enable",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode."""
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
@@ -33,12 +38,10 @@ class CiscoBaseConnection(BaseConnection):
     def check_config_mode(
         self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
     ) -> bool:
-        """
-        Checks if the device is in configuration mode or not.
-
-        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-        """
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        """Checks if the device is in configuration mode or not."""
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
         self,
