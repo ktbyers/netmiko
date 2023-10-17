@@ -153,9 +153,9 @@ class HuaweiSSH(HuaweiBase):
 
         # Huawei prompts for secure the configuration before displaying the initial base prompt.
         if re.search(
-            r"security\srisks\sin\sthe\sconfiguration\sfile.*\?\s*\[[Yy]\/[nN]\]", data
+            r"security\srisks\sin\sthe\sconfiguration\sfile.*\[y\/n\]", data, flags=re.I
         ):
-            self.send_command("Y", expect_string=r"continue\?\s*\[[Yy]\/[nN]\]")
+            self.send_command("Y", expect_string=r"(?i)continue.*\[y\/n\]")
             self.send_command(
                 "Y", expect_string=r"saved\ssuccessfully", read_timeout=60
             )
