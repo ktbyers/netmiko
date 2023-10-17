@@ -81,6 +81,7 @@ from netmiko.f5 import F5LinuxSSH
 from netmiko.fiberstore import FiberstoreFsosSSH
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
+from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.huawei import HuaweiSmartAXSSH
@@ -89,6 +90,8 @@ from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
+from netmiko.maipu import MaipuSSH
+from netmiko.maipu import MaipuTelnet
 from netmiko.mikrotik import MikrotikRouterOsSSH, MikrotikRouterOsFileTransfer
 from netmiko.mikrotik import MikrotikSwitchOsSSH
 from netmiko.mellanox import MellanoxMlnxosSSH
@@ -133,7 +136,7 @@ from netmiko.zte import ZteZxrosTelnet
 from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
-from netmiko.hillstone import HillstoneStoneosSSH
+
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -274,6 +277,7 @@ CLASS_MAPPER_BASE = {
     "zte_zxros": ZteZxrosSSH,
     "yamaha": YamahaSSH,
     "zyxel_os": ZyxelSSH,
+    "maipu": MaipuSSH,
 }
 
 FILE_TRANSFER_MAP = {
@@ -351,6 +355,7 @@ CLASS_MAPPER["teldat_cit_telnet"] = TeldatCITTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
+CLASS_MAPPER["maipu_telnet"] = MaipuTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
