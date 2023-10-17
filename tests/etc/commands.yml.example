@@ -560,3 +560,14 @@ hillstone_stoneos:
   save_config_cmd: 'save all'
   save_config_confirm: True
   save_config_response: 'Saving configuration is finished'
+
+fiberstore_fsos:
+  version: "show version"
+  basic: "show ip interface"
+  wide_command: "show ip access-lists myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
+  extended_output: "show run"   # requires paging to be disabled
+  config:
+    - 'logging buffered severity 6'
+    - 'no logging console'
+    - 'logging buffered severity 3'
+  config_verification: "show run"

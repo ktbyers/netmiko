@@ -39,6 +39,7 @@
 - Extreme TierraOS
 - Extreme VDX (Brocade)
 - Extreme VSP (Avaya)
+- Fiberstore FSOS
 - Hillstone StoneOS
 - HPE Comware7
 - Huawei

@@ -280,7 +280,7 @@ class BaseConnection:
                 (default: False)
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: ascii)
+                (default: "utf-8")
 
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).

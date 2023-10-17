@@ -148,13 +148,7 @@ Alternatively you can try configuring 'configure system console -> set output st
         if self._vdoms:
             self._config_global()
 
-        self._send_command_str(
-            "config system console", expect_string=self.prompt_pattern
-        )
-        output = self._send_command_str(
-            "show full-configuration", expect_string=self.prompt_pattern
-        )
-        self._send_command_str("end", expect_string=self.prompt_pattern)
+        output = self._send_command_str("show full-configuration system console")
 
         if self._vdoms:
             self._exit_config_global()

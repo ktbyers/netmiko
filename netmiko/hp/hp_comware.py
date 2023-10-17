@@ -22,7 +22,7 @@ class HPComwareBase(CiscoSSHConnection):
             self._test_channel_read(pattern=r"[>\]]")
 
         self.set_base_prompt()
-        command = self.RETURN + "screen-length disable"
+        command = "screen-length disable"
         self.disable_paging(command=command)
 
     def config_mode(
@@ -97,6 +97,9 @@ class HPComwareBase(CiscoSSHConnection):
             delay_factor=delay_factor,
             pattern=pattern,
         )
+
+        # Strip off any leading RBM_. characters for firewall HA
+        prompt = re.sub(r"^RBM_.", "", prompt, flags=re.M)
 
         # Strip off leading character
         prompt = prompt[1:]
