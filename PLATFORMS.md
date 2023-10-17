@@ -164,7 +164,7 @@
 - dell_powerconnect
 - dell_sonic
 - dlink_ds
-- digi_os
+- digi_transport
 - eltex
 - eltex_esr
 - endace
