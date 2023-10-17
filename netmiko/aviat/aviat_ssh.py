@@ -38,7 +38,8 @@ class AviatWTMSSH(CiscoSSHConnection):
         """
         Exits from configuration mode. Overwritten from base class because the device
         prompts to save uncommitted changes when exiting config mode and requires user confirmation.
-        If 'Uncommitted changes found' is detected in the output, the function sends a 'confirm' command.
+        If 'Uncommitted changes found' is detected in the output, the function sends a 'confirm'
+        command.
         """
         output = ""
         if self.check_config_mode():
