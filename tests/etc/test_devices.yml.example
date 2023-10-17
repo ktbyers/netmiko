@@ -290,8 +290,8 @@ audiocode_shell:
   username: TestUser
   password: TestPass
 
-digi_os:
-  device_type: digi_os
+digi_transport:
+  device_type: digi_transport
   ip: 192.168.1.33
   username: bob
   password: bob

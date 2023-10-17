@@ -397,7 +397,7 @@ audiocode_shell:
   cmd_response_init: "Test_String1"
   cmd_response_final: "Test_String2"
 
-digi_os:
+digi_transport:
   base_prompt: "digi>"
   router_prompt: "digi>"
   enable_prompt: "digi#"
