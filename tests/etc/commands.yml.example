@@ -550,6 +550,11 @@ audiocode_shell:
   save_config_response: 'Configuration has been saved'
   config_mode_command: "conf"         # only use if needed
 
+digi_transport:
+  version: "type version"
+  basic: "type config.da0"
+  extended_output: "type version all"
+
 maipu:
   version: "show version"
   basic: "show ip interface brief"
@@ -597,3 +602,4 @@ fiberstore_fsos:
     - 'no logging console'
     - 'logging buffered severity 3'
   config_verification: "show run"
+
