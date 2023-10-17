@@ -20,9 +20,10 @@ SNMPDetect class defaults to SNMPv3
 Note, pysnmp is a required dependency for SNMPDetect and is intentionally not included in
 netmiko requirements. So installation of pysnmp might be required.
 """
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from typing.re import Pattern
 import re
+import socket
 
 try:
     from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -37,6 +38,11 @@ SNMP_MAPPER_BASE = {
     "arista_eos": {
         "oid": ".1.3.6.1.2.1.1.1.0",
         "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
+        "priority": 99,
+    },
+    "allied_telesis_awplus": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*AlliedWare Plus.*", re.IGNORECASE),
         "priority": 99,
     },
     "paloalto_panos": {
@@ -56,7 +62,7 @@ SNMP_MAPPER_BASE = {
     },
     "cisco_ios": {
         "oid": ".1.3.6.1.2.1.1.1.0",
-        "expr": re.compile(r".*Cisco IOS Software,.*", re.IGNORECASE),
+        "expr": re.compile(r".*Cisco IOS Software.*,.*", re.IGNORECASE),
         "priority": 60,
     },
     "cisco_xe": {
@@ -114,6 +120,11 @@ SNMP_MAPPER_BASE = {
         "expr": re.compile(r"PowerConnect.*", re.IGNORECASE),
         "priority": 50,
     },
+    "mikrotik_routeros": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*RouterOS.*", re.IGNORECASE),
+        "priority": 60,
+    },
 }
 
 # Ensure all SNMP device types are supported by Netmiko
@@ -122,6 +133,51 @@ std_device_types = list(CLASS_MAPPER.keys())
 for device_type in std_device_types:
     if SNMP_MAPPER_BASE.get(device_type):
         SNMP_MAPPER[device_type] = SNMP_MAPPER_BASE[device_type]
+
+
+def identify_address_type(entry: str) -> List[str]:
+    """
+    Return a list containing all ip types found. An empty list means no valid ip were found
+    Parameters
+    ----------
+    entry: str
+        Can be an ipv4, an ipv6 or an FQDN.
+
+    Returns
+    -------
+    list of string: list
+        A list of string 'IPv4' | 'IPv6' which indicates if entry is a valid ipv4 and/or ipv6.
+    """
+    try:
+        socket.inet_pton(socket.AF_INET, entry)
+        return ["IPv4"]
+    except socket.error:
+        pass
+
+    try:
+        socket.inet_pton(socket.AF_INET6, entry)
+        return ["IPv6"]
+    except socket.error:
+        pass
+
+    ip_types = []
+    try:
+        addrinfo = socket.getaddrinfo(entry, None)
+        for info in addrinfo:
+            ip = info[4][0]
+            try:
+                socket.inet_pton(socket.AF_INET, ip)
+                ip_types.append("IPv4")
+            except socket.error:
+                pass
+            try:
+                socket.inet_pton(socket.AF_INET6, ip)
+                ip_types.append("IPv6")
+            except socket.error:
+                pass
+    except socket.gaierror:
+        pass
+    return ip_types
 
 
 class SNMPDetect(object):
@@ -191,7 +247,6 @@ class SNMPDetect(object):
         auth_proto: str = "sha",
         encrypt_proto: str = "aes128",
     ) -> None:
-
         # Check that the SNMP version is matching predefined type or raise ValueError
         if snmp_version == "v1" or snmp_version == "v2c":
             if not community:
@@ -237,6 +292,16 @@ class SNMPDetect(object):
         self.auth_proto = self._snmp_v3_authentication[auth_proto]
         self.encryp_proto = self._snmp_v3_encryption[encrypt_proto]
         self._response_cache: Dict[str, str] = {}
+        self.snmp_target = (self.hostname, self.snmp_port)
+
+        if "IPv6" in identify_address_type(self.hostname):
+            self.udp_transport_target = cmdgen.Udp6TransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
+        else:
+            self.udp_transport_target = cmdgen.UdpTransportTarget(
+                self.snmp_target, timeout=1.5, retries=2
+            )
 
     def _get_snmpv3(self, oid: str) -> str:
         """
@@ -252,7 +317,6 @@ class SNMPDetect(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         """
-        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
@@ -263,7 +327,7 @@ class SNMPDetect(object):
                 authProtocol=self.auth_proto,
                 privProtocol=self.encryp_proto,
             ),
-            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            self.udp_transport_target,
             oid,
             lookupNames=True,
             lookupValues=True,
@@ -287,12 +351,11 @@ class SNMPDetect(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         """
-        snmp_target = (self.hostname, self.snmp_port)
         cmd_gen = cmdgen.CommandGenerator()
 
         (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
             cmdgen.CommunityData(self.community),
-            cmdgen.UdpTransportTarget(snmp_target, timeout=1.5, retries=2),
+            self.udp_transport_target,
             oid,
             lookupNames=True,
             lookupValues=True,

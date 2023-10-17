@@ -12,16 +12,26 @@ from netmiko.scp_handler import BaseFileTransfer
 class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
     """Common Methods for Mikrotik RouterOS and SwitchOS"""
 
+    prompt_pattern = r"\].*>"
+
     def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r\n"
 
         return super().__init__(**kwargs)
 
+    def special_login_handler(self, delay_factor: float = 1.0) -> None:
+        # Mikrotik might prompt to read software licenses before displaying the initial prompt.
+        license_prompt = "Do you want to see the software license"
+        combined_pattern = rf"(?:{self.prompt_pattern}|{license_prompt})"
+        data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
+        if license_prompt in data:
+            self.write_channel("n")
+            self.read_until_pattern(pattern=self.prompt_pattern)
+
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r"\].*>")
         self.set_base_prompt()
 
     def _modify_connection_params(self) -> None:
@@ -29,10 +39,10 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         c: disable console colors
         e: enable dumb terminal mode
         t: disable auto detect terminal capabilities
-        w511: set term width
-        h4098: set term height
+        511w: set term width
+        4098h: set term height
         """
-        self.username += "+ctw511h4098"
+        self.username += "+ct511w4098h"
 
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Mikrotik does not have paging by default."""

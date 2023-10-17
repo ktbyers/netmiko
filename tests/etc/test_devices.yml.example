@@ -295,3 +295,23 @@ digi_os:
   ip: 192.168.1.33
   username: bob
   password: bob
+
+maipu:
+  device_type: maipu
+  ip: 129.255.27.1
+  username: hxl
+  password: test123
+  secret: a
+
+maipu_telnet:
+  device_type: maipu_telnet
+  ip: 129.255.27.1
+  username: hxl
+  password: test123
+  secret: a
+
+hillstone:
+  device_type: hillstone_stoneos
+  ip: 192.168.100.234
+  username: hillstone
+  password: Hillstone
