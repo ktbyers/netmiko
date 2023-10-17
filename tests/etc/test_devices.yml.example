@@ -290,6 +290,20 @@ audiocode_shell:
   username: TestUser
   password: TestPass
 
+maipu:
+  device_type: maipu
+  ip: 129.255.27.1
+  username: hxl
+  password: test123
+  secret: a
+
+maipu_telnet:
+  device_type: maipu_telnet
+  ip: 129.255.27.1
+  username: hxl
+  password: test123
+  secret: a
+
 hillstone:
   device_type: hillstone_stoneos
   ip: 192.168.100.234
