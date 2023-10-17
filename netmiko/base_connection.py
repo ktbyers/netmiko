@@ -391,8 +391,6 @@ class BaseConnection:
             elif isinstance(session_log, SessionLog):
                 # SessionLog object
                 self.session_log = session_log
-                # Add filter after self.session_log is constructed
-                log.addFilter(SecretsFilter(no_log=self.session_log.no_log))
                 # Check if filename was provided in session_log
                 if self.session_log.file_name is not None:
                     self.session_log.open()
