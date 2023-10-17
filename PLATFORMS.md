@@ -32,7 +32,6 @@
 - Dell OS9 (Force10)
 - Dell OS10
 - Dell PowerConnect
-- Digi OS
 - Ericsson IPOS
 - Ericsson MINI-LINK 66XX & 63XX
 - Extreme ERS (Avaya)
@@ -48,6 +47,7 @@
 - Huawei SmartAX
 - IP Infusion OcNOS
 - Juniper ScreenOS
+- Maipu
 - MikroTik RouterOS
 - MikroTik SwitchOS
 - NetApp cDOT
@@ -84,6 +84,7 @@
 - Coriant
 - Dell OS6
 - Dell EMC Isilon
+- Digi TransPort Routers
 - Eltex
 - Enterasys
 - Endace
