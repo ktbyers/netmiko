@@ -151,6 +151,16 @@ class HuaweiSSH(HuaweiBase):
             self.write_channel("N" + self.RETURN)
             self.read_until_pattern(pattern=self.prompt_pattern)
 
+        # Huawei prompts for secure the configuration before displaying the initial base prompt.
+        if re.search(
+            r"security\srisks\sin\sthe\sconfiguration\sfile.*\[y\/n\]", data, flags=re.I
+        ):
+            self.send_command("Y", expect_string=r"(?i)continue.*\[y\/n\]")
+            self.send_command(
+                "Y", expect_string=r"saved\ssuccessfully", read_timeout=60
+            )
+            self.read_until_pattern(pattern=self.prompt_pattern)
+
 
 class HuaweiTelnet(HuaweiBase):
     """Huawei Telnet driver."""
