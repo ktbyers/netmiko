@@ -550,6 +550,37 @@ audiocode_shell:
   save_config_response: 'Configuration has been saved'
   config_mode_command: "conf"         # only use if needed
 
+digi_transport:
+  version: "type version"
+  basic: "type config.da0"
+  extended_output: "type version all"
+
+maipu:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show running-config"
+  config: 
+    - "logging buffer count 4096"           # base command
+    - "no logging console"
+    - "logging source default console deny"           # something you can verify has changed
+  config_verification: "show running-config | include logging"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'
+  
+maipu_telnet:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show running-config"
+  config: 
+    - "logging buffer count 4096"           # base command
+    - "no logging console"
+    - "logging source default console deny"           # something you can verify has changed
+  config_verification: "show running-config | include logging"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'
+
 hillstone_stoneos:
   version: "show version"
   basic: "show interface"
@@ -571,3 +602,4 @@ fiberstore_fsos:
     - 'no logging console'
     - 'logging buffered severity 3'
   config_verification: "show run"
+
