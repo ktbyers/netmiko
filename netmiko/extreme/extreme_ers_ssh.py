@@ -29,7 +29,7 @@ class ExtremeErsSSH(CiscoSSHConnection):
         Older devices the Ctrl-Y is before SSH-login (not 100% sure of this).
 
         Few devices after SSH-login the Ctrl-Y turns to blank screen-no pattern \
-        
+
         prompt appears after Enter/Return ( tested ).
 
         Newer devices this is after SSH-login.
