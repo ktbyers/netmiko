@@ -8,18 +8,15 @@ env:
 jobs:
   linters:
     name: linters
-    strategy:
-      matrix:
-        python-version: [ '3.11' ]
-        platform: [ubuntu-20.04]
-
-    runs-on: ${{ matrix.platform }}
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+
       - name: Setup python
         uses: actions/setup-python@v1
+        id: cp311
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.11'
           architecture: x64
 
       - name: Install Poetry
@@ -34,7 +31,7 @@ jobs:
         id: cached-poetry-dependencies
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-cache-${{ steps.cp311.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install Dependencies
         run: poetry install
@@ -66,11 +63,16 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v2
+
       - name: Setup python
         uses: actions/setup-python@v1
+        id: py_ver
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+
+      - name: Setup python
+        uses: actions/setup-python@v1
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -84,7 +86,7 @@ jobs:
         id: cached-poetry-dependencies
         with:
           path: .venv
-          key: venv-${{ matrix.python-version }}-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-cache-${{ steps.py_ver.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
         if: ${{ matrix.platform != 'windows-latest' }}  # windows hangs if using a cached venv
 
       - name: Install Dependencies
