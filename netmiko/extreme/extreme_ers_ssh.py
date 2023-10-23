@@ -2,6 +2,7 @@
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.exceptions import NetmikoAuthenticationException
+import time
 
 # Extreme ERS presents Enter Ctrl-Y to begin.
 CTRL_Y = "\x19"
@@ -27,6 +28,10 @@ class ExtremeErsSSH(CiscoSSHConnection):
 
         Older devices the Ctrl-Y is before SSH-login (not 100% sure of this).
 
+        Few devices after SSH-login the Ctrl-Y turns to blank screen-no pattern \
+
+        prompt appears after Enter/Return ( tested ).
+
         Newer devices this is after SSH-login.
         """
 
@@ -46,6 +51,9 @@ class ExtremeErsSSH(CiscoSSHConnection):
 
             if cntl_y in new_data:
                 self.write_channel(CTRL_Y)
+                time.sleep(1 * delay_factor)
+                # no pattern, blank for few devices till Return keypress
+                self.write_channel(self.RETURN)
             elif "Press ENTER" in new_data:
                 self.write_channel(self.RETURN)
             elif uname in new_data:
