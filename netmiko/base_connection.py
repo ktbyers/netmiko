@@ -28,6 +28,7 @@ import io
 import re
 import socket
 import telnetlib
+import telnet_proxy
 import time
 from collections import deque
 from os import path
@@ -267,8 +268,7 @@ class BaseConnection:
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: True)
 
-        :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
-                to write the session log to.
+        :param session_log: File path or BufferedIOBase subclass object to write the session log to.
 
         :param session_log_record_writes: The session log generally only records channel reads due
                 to eliminate command duplication due to command echo. You can enable this if you
@@ -281,7 +281,7 @@ class BaseConnection:
                 (default: False)
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: "utf-8")
+                (default: ascii)
 
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
@@ -367,7 +367,6 @@ class BaseConnection:
             no_log["password"] = self.password
         if self.secret:
             no_log["secret"] = self.secret
-        # Always sanitize username and password
         log.addFilter(SecretsFilter(no_log=no_log))
 
         # Netmiko will close the session_log if we open the file
@@ -388,13 +387,10 @@ class BaseConnection:
                     no_log=no_log,
                     record_writes=session_log_record_writes,
                 )
-            elif isinstance(session_log, SessionLog):
-                # SessionLog object
-                self.session_log = session_log
             else:
                 raise ValueError(
                     "session_log must be a path to a file, a file handle, "
-                    "SessionLog object, or a BufferedIOBase subclass."
+                    "or a BufferedIOBase subclass."
                 )
 
         # Default values
@@ -672,6 +668,7 @@ where x is the total number of seconds to wait before timing out.\n"""
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time < read_timeout) or (not read_timeout):
+
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
@@ -1088,9 +1085,14 @@ You can look at the Netmiko session_log or debug log for more information.
         """
         self.channel: Channel
         if self.protocol == "telnet":
-            self.remote_conn = telnetlib.Telnet(
-                self.host, port=self.port, timeout=self.timeout
-            )
+            if self.sock:
+                self.remote_conn = telnet_proxy.Telnet(
+                    self.host, port=self.port, timeout=self.timeout, proxy_dict=self.sock
+                )
+            else:
+                self.remote_conn = telnetlib.Telnet(
+                    self.host, port=self.port, timeout=self.timeout
+                )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
@@ -1451,6 +1453,7 @@ A paramiko SSHException occurred during connection creation:
         return output
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
+
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
             pattern=re.escape(cmd), read_timeout=read_timeout
