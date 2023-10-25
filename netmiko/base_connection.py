@@ -1091,7 +1091,10 @@ You can look at the Netmiko session_log or debug log for more information.
         if self.protocol == "telnet":
             if self.sock:
                 self.remote_conn = telnet_proxy.Telnet(
-                    self.host, port=self.port, timeout=self.timeout, proxy_dict=self.sock
+                    self.host,
+                    port=self.port,
+                    timeout=self.timeout,
+                    proxy_dict=self.sock,
                 )
             else:
                 self.remote_conn = telnetlib.Telnet(
