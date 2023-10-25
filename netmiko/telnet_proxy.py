@@ -1,19 +1,18 @@
-
 import sys
 import socks
 import socket
 import telnetlib
-from urllib.parse import urlparse
 
 __all__ = ["Telnet"]
 
-class Telnet(telnetlib.Telnet):
 
-    def __init__(self, host=None, port=0, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, proxy_dict=None):
+class Telnet(telnetlib.Telnet):
+    def __init__(
+        self, host=None, port=0, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, proxy_dict=None
+    ):
         self.proxy_dict = proxy_dict
         super().__init__(host=host, port=port, timeout=timeout)
-        
-        
+
     def open(self, host, port=0, timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
         """
         Connect to a host.
@@ -40,6 +39,3 @@ class Telnet(telnetlib.Telnet):
         sys.audit("telnetlib.Telnet.open", self, host, port)
 
         self.sock = socks.create_connection((host, port), timeout, **self.proxy_dict)
-
-
-
