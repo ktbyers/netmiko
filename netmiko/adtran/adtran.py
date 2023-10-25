@@ -28,7 +28,7 @@ class AdtranOSBase(CiscoBaseConnection):
         self,
         cmd: str = "enable",
         pattern: str = "ssword",
-        enable_pattern: str = "Falling back",
+        enable_pattern: Optional[str] = "Falling back",
         check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
@@ -58,7 +58,7 @@ class AdtranOSBase(CiscoBaseConnection):
             if re.search(pattern, output):
                 self.write_channel(self.normalize_cmd(self.secret))
                 output += self.read_until_prompt_or_pattern(
-                    pattern=enable_pattern, re_flags=re_flags
+                    pattern=str(enable_pattern), re_flags=re_flags
                 )
 
             # Search for terminating pattern if defined
