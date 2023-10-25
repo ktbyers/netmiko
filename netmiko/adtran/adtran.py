@@ -28,7 +28,7 @@ class AdtranOSBase(CiscoBaseConnection):
         self,
         cmd: str = "enable",
         pattern: str = "ssword",
-        enable_pattern: Optional[str] = "Falling back",
+        enable_pattern: str = "Falling back",
         check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
@@ -72,6 +72,8 @@ class AdtranOSBase(CiscoBaseConnection):
 
         except NetmikoTimeoutException:
             raise ValueError(msg)
+
+        return output
 
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
         return super().exit_enable_mode(exit_command=exit_command)
