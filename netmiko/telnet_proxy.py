@@ -5,8 +5,7 @@ import telnetlib
 
 __all__ = ["Telnet"]
 
-
-class Telnet(telnetlib.Telnet):
+class TelnetProxy(telnetlib.Telnet):
     def __init__(
         self, host=None, port=0, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, proxy_dict=None
     ):

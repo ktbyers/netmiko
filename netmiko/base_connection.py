@@ -28,7 +28,6 @@ import io
 import re
 import socket
 import telnetlib
-import telnet_proxy
 import time
 from collections import deque
 from os import path
@@ -62,6 +61,7 @@ from netmiko.utilities import (
     calc_old_timeout,
 )
 from netmiko.utilities import m_exec_time  # noqa
+from netmiko.telnet_proxy import TelnetProxy
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -1090,7 +1090,7 @@ You can look at the Netmiko session_log or debug log for more information.
         self.channel: Channel
         if self.protocol == "telnet":
             if self.sock:
-                self.remote_conn = telnet_proxy.Telnet(
+                self.remote_conn = TelnetProxy(
                     self.host,
                     port=self.port,
                     timeout=self.timeout,
