@@ -7,11 +7,6 @@ from netmiko.exceptions import NetmikoTimeoutException
 class AdtranOSBase(CiscoBaseConnection):
     prompt_pattern = r"[>#]"
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        if kwargs.get("global_cmd_verify") is None:
-            kwargs["global_cmd_verify"] = True
-        return super().__init__(*args, **kwargs)
-
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
