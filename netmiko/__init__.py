@@ -61,7 +61,7 @@ from netmiko.exceptions import NetmikoBaseException, ConnectionException  # noqa
 from netmiko.ssh_autodetect import SSHDetect  # noqa
 from netmiko.base_connection import BaseConnection  # noqa
 from netmiko.scp_functions import file_transfer, progress_bar  # noqa
-from netmiko.telnet_proxy import TelnetProxy #noqa
+from netmiko.telnet_proxy import TelnetProxy  # noqa
 
 # Alternate naming
 Netmiko = ConnectHandler
