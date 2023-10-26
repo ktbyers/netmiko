@@ -3,7 +3,8 @@ import socks
 import socket
 import telnetlib
 
-__all__ = ["Telnet"]
+__all__ = ["TelnetProxy"]
+
 
 class TelnetProxy(telnetlib.Telnet):
     def __init__(
