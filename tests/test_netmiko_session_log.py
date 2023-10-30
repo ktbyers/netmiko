@@ -109,7 +109,7 @@ def test_session_log_append(device_slog_test_name, commands, expected_responses)
 
     device_slog = device_slog_test_name[0]
     test_name = device_slog_test_name[1]
-    slog_file = expected_responses['session_log_append']
+    slog_file = expected_responses["session_log_append"]
     session_file = add_test_name_to_file_name(slog_file, test_name)
 
     # Create a starting file
@@ -124,7 +124,7 @@ def test_session_log_append(device_slog_test_name, commands, expected_responses)
     command = commands["basic"]
     session_action(conn, command)
 
-    compare_file_base = expected_responses['compare_log_append']
+    compare_file_base = expected_responses["compare_log_append"]
     dir_name, f_name = compare_file_base.split("/")
     compare_file = f"{dir_name}/{test_name}-{f_name}"
     session_log_md5_append(session_file, compare_file)
@@ -225,7 +225,6 @@ def test_session_log_bytesio(device_slog_test_name, commands, expected_responses
     """Verify session_log matches expected content, but when channel writes are also logged."""
     device_slog = device_slog_test_name[0]
     test_name = device_slog_test_name[1]
-    slog_file = device_slog["session_log"]
 
     s_log = io.BytesIO()
 
@@ -336,7 +335,7 @@ def test_session_log_custom_session_log(device_slog_test_name):
         "secret2": "snmp_auth_secret",
         "secret3": "snmp_priv_secret",
         "supersecret": "supersecret",
-        "data1": "terminal length 0",   # Hide something that Netmiko sends
+        "data1": "terminal length 0",  # Hide something that Netmiko sends
     }
     # Create custom session log
     custom_log = SessionLog(file_name=new_slog_file, no_log=sanitize_secrets)
@@ -362,7 +361,9 @@ def test_session_log_custom_session_log(device_slog_test_name):
     conn.session_log.flush()
 
     # Use send_command and send_command_timing to send something that should be filtered
-    conn.session_log.write("\n!Testing send_command() and send_command_timing() filtering")
+    conn.session_log.write(
+        "\n!Testing send_command() and send_command_timing() filtering"
+    )
     conn.send_command(sanitize_secrets["data1"])
     conn.send_command_timing(sanitize_secrets["data1"])
 
