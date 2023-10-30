@@ -143,7 +143,9 @@ def test_session_log_secrets(device_slog_test_name):
     conn.session_log.write("\nTesting password and secret replacement\n")
     conn.session_log.write("This is my password {}\n".format(conn.password))
     conn.session_log.write("This is my secret {}\n".format(conn.secret))
+    time.sleep(1)
     conn.session_log.flush()
+    conn.disconnect()
 
     file_name = device_slog["session_log"]
     with open(file_name, "r") as f:
@@ -186,16 +188,23 @@ def test_logging_filter_secrets(net_connect_slog_wr):
         assert nc.secret not in netmiko_log
 
 
-def test_unicode(device_slog):
+def test_unicode(device_slog_test_name):
     """Verify that you can write unicode characters into the session_log."""
+    device_slog = device_slog_test_name[0]
+    test_name = device_slog_test_name[1]
+    slog_file = device_slog["session_log"]
+
+    new_slog_file = add_test_name_to_file_name(slog_file, test_name)
+    device_slog["session_log"] = new_slog_file
+
     conn = ConnectHandler(**device_slog)
 
     smiley_face = "\N{grinning face with smiling eyes}"
     conn.session_log.write("\nTesting unicode\n")
     conn.session_log.write(smiley_face)
     conn.session_log.write(smiley_face)
-    time.sleep(1)
-    conn.session_log.flush()
+
+    conn.disconnect()
 
     file_name = device_slog["session_log"]
     with open(file_name, "r") as f:
@@ -203,19 +212,26 @@ def test_unicode(device_slog):
         assert smiley_face in session_log
 
 
-def test_session_log_bytesio(device_slog, commands, expected_responses):
+def test_session_log_bytesio(device_slog_test_name, commands, expected_responses):
     """Verify session_log matches expected content, but when channel writes are also logged."""
+    device_slog = device_slog_test_name[0]
+    test_name = device_slog_test_name[1]
+    slog_file = device_slog["session_log"]
+
     s_log = io.BytesIO()
 
     # The netmiko connection has not been established yet.
     device_slog["session_log"] = s_log
     device_slog["session_log_file_mode"] = "write"
+    device_slog["session_log_record_writes"] = True
 
     conn = ConnectHandler(**device_slog)
     command = commands["basic"]
     session_action(conn, command)
+    conn.disconnect()
 
     compare_file = expected_responses["compare_log"]
+    compare_file = add_test_name_to_file_name(compare_file, test_name)
     compare_log_md5 = calc_md5(file_name=compare_file)
 
     log_content = s_log.getvalue()
