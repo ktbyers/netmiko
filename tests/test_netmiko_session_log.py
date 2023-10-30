@@ -243,6 +243,3 @@ def test_session_log_custom_secrets(device_slog):
         assert sanitize_secrets["secret3"] not in session_log
     if sanitize_secrets.get("supersecret") is not None:
         assert sanitize_secrets["supersecret"] not in session_log
-
-
-def test_session_log_no_log(device_slog):
