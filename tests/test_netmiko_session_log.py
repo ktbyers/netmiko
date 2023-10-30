@@ -238,18 +238,53 @@ def test_session_log_bytesio(device_slog_test_name, commands, expected_responses
     session_log_md5 = calc_md5(contents=log_content)
     assert session_log_md5 == compare_log_md5
 
+def test_session_log_no_log(device_slog_test_name):
+    device_slog = device_slog_test_name[0]
+    test_name = device_slog_test_name[1]
+    slog_file = device_slog["session_log"]
+    new_slog_file = add_test_name_to_file_name(slog_file, test_name)
 
-def test_session_log_custom_secrets(device_slog):
+    # record_writes as well to make sure both the write and read-echo don't get logged.
+    device_slog["session_log"] = new_slog_file
+    device_slog["session_log_record_writes"] = True
+
+    conn = ConnectHandler(**device_slog)
+
+    # After connection change the password to "invalid"
+    fake_password = "invalid"
+    conn.password = fake_password
+
+    # Now try to actually send the fake password as a show command
+    conn.send_command(fake_password)
+
+    with open(new_slog_file, "r") as f:
+        session_log = f.read()
+
+    assert fake_password not in session_log
+    # One for read, one for write, one for Cisco "translating"
+    assert session_log.count("********") == 3
+
+    # Do disconnect after test (to make sure send_command() actually flushes session_log buffer)
+    conn.disconnect()
+
+
+def test_session_log_no_log2(device_slog_test_name):
     """Verify session_log does not contain custom words."""
+    device_slog = device_slog_test_name[0]
+    test_name = device_slog_test_name[1]
+    slog_file = device_slog["session_log"]
+    new_slog_file = add_test_name_to_file_name(slog_file, test_name)
+
     # Dict of words that should be sanitized in session log
     sanitize_secrets = {
         "secret1": "admin_username",
         "secret2": "snmp_auth_secret",
         "secret3": "snmp_priv_secret",
         "supersecret": "supersecret",
+        "data1": "terminal length 0",   # Hide something that Netmiko sends
     }
     # Create custom session log
-    custom_log = SessionLog(file_name="SLOG/device_log.log", no_log=sanitize_secrets)
+    custom_log = SessionLog(file_name=new_slog_file, no_log=sanitize_secrets)
 
     # Pass in custom SessionLog obj to session_log attribute
     device_slog["session_log"] = custom_log
@@ -268,11 +303,21 @@ def test_session_log_custom_secrets(device_slog):
     conn.session_log.write(
         "This is my super secret {}\n".format(sanitize_secrets["supersecret"])
     )
+    time.sleep(1)
+    conn.session_log.flush()
 
     # Retrieve the file name.
     file_name = custom_log.file_name
     with open(file_name, "r") as f:
         session_log = f.read()
+
+    # Ensure file exists and has logging content
+    assert "terminal width" in session_log
+
+    # 'terminal length 0' should be hidden in the session_log
+    assert "terminal length" not in session_log
+    assert ">********" in session_log
+
     if sanitize_secrets.get("secret1") is not None:
         assert sanitize_secrets["secret1"] not in session_log
     if sanitize_secrets.get("secret2") is not None:
