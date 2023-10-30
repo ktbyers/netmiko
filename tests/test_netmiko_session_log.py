@@ -171,6 +171,8 @@ def test_unicode(device_slog):
     conn.session_log.write("\nTesting unicode\n")
     conn.session_log.write(smiley_face)
     conn.session_log.write(smiley_face)
+    time.sleep(1)
+    conn.session_log.flush()
 
     file_name = device_slog["session_log"]
     with open(file_name, "r") as f:
@@ -241,3 +243,6 @@ def test_session_log_custom_secrets(device_slog):
         assert sanitize_secrets["secret3"] not in session_log
     if sanitize_secrets.get("supersecret") is not None:
         assert sanitize_secrets["supersecret"] not in session_log
+
+
+def test_session_log_no_log(device_slog):
