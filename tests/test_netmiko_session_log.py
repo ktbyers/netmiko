@@ -352,6 +352,11 @@ def test_session_log_custom_session_log(device_slog_test_name):
     time.sleep(1)
     conn.session_log.flush()
 
+    # Use send_command and send_command_timing to send something that should be filtered
+    conn.session_log.write("\n!Testing send_command() and send_command_timing() filtering")
+    conn.send_command(sanitize_secrets["data1"])
+    conn.send_command_timing(sanitize_secrets["data1"])
+
     # Retrieve the file name.
     file_name = custom_log.file_name
     with open(file_name, "r") as f:
