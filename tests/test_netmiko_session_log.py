@@ -157,13 +157,22 @@ def test_session_log_secrets(device_slog_test_name):
     assert "terminal width" in session_log
 
 
-def test_logging_filter_secrets(net_connect_slog_wr):
+def test_logging_filter_secrets(device_slog_test_name):
     """Verify logging DEBUG output does not contain password or secret."""
 
-    nc = net_connect_slog_wr
+    device_slog = device_slog_test_name[0]
+    test_name = device_slog_test_name[1]
+
+    # No session_log for this test
+    del device_slog["session_log"]
+
+    # Set the secret to be correct
+    device_slog["secret"] = device_slog["password"]
+
+    nc = ConnectHandler(**device_slog)
 
     # setup logger to output to file
-    file_name = "SLOG/netmiko.log"
+    file_name = f"SLOG/{test_name}-netmiko.log"
     netmikologger = logging.getLogger("netmiko")
     netmikologger.setLevel(logging.DEBUG)
     file_handler = logging.FileHandler(file_name)
