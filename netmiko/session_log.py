@@ -31,10 +31,10 @@ class SessionLog:
         else:
             self.session_log = None
 
-        # In order to ensure all the no_log entries get hidden properly
+        # In order to ensure all the no_log entries get hidden properly,
         # we must first store everying in memory and then write out to file.
-        # Otherwise, we might miss the data we are supposed to hide (they span
-        # multiple reads).
+        # Otherwise, we might miss the data we are supposed to hide (since
+        # the no_log data potentially spans multiple reads).
         if slog_buffer is None:
             self.slog_buffer = io.StringIO()
 
@@ -68,12 +68,18 @@ class SessionLog:
             data = data.replace(hidden_data, "********")
         return data
 
+    def _read_buffer(self) -> str:
+        self.slog_buffer.seek(0)
+        data = self.slog_buffer.read()
+        # Once read, create a new buffer
+        self.slog_buffer = io.StringIO()
+        return data
+
     def flush(self) -> None:
         """Force the slog_buffer to be written out to the actual file"""
 
         if self.session_log is not None:
-            self.slog_buffer.seek(0)
-            data = self.slog_buffer.read()
+            data = self._read_buffer()
             data = self.no_log_filter(data)
 
             if isinstance(self.session_log, io.BufferedIOBase):
