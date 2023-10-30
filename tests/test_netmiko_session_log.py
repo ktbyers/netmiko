@@ -7,6 +7,12 @@ from netmiko import ConnectHandler
 from netmiko.session_log import SessionLog
 
 
+def add_test_name_to_file_name(initial_fname, test_name):
+    dir_name, f_name = initial_fname.split("/")
+    new_file_name = f"{dir_name}/{test_name}-{f_name}"
+    return new_file_name
+
+
 def calc_md5(file_name=None, contents=None):
     """Compute MD5 hash of file."""
     if contents is not None:
@@ -98,30 +104,46 @@ def test_session_log_write(net_connect_slog_wr, commands, expected_responses):
     assert session_log_md5 == compare_log_md5
 
 
-def test_session_log_append(device_slog, commands, expected_responses):
+def test_session_log_append(device_slog_test_name, commands, expected_responses):
     """Verify session_log matches expected content, but when channel writes are also logged."""
-    session_file = expected_responses["session_log_append"]
+
+    device_slog = device_slog_test_name[0]
+    test_name = device_slog_test_name[1]
+    slog_file = expected_responses['session_log_append']
+    session_file = add_test_name_to_file_name(slog_file, test_name)
+
     # Create a starting file
     with open(session_file, "wb") as f:
         f.write(b"Initial file contents\n\n")
 
     # The netmiko connection has not been established yet.
     device_slog["session_log"] = session_file
+    device_slog["session_log_file_mode"] = "append"
 
     conn = ConnectHandler(**device_slog)
     command = commands["basic"]
     session_action(conn, command)
 
-    compare_file = expected_responses["compare_log_append"]
+    compare_file_base = expected_responses['compare_log_append']
+    dir_name, f_name = compare_file_base.split("/")
+    compare_file = f"{dir_name}/{test_name}-{f_name}"
     session_log_md5_append(session_file, compare_file)
 
 
-def test_session_log_secrets(device_slog):
+def test_session_log_secrets(device_slog_test_name):
     """Verify session_log does not contain password or secret."""
+    device_slog = device_slog_test_name[0]
+    test_name = device_slog_test_name[1]
+    slog_file = device_slog["session_log"]
+
+    new_slog_file = add_test_name_to_file_name(slog_file, test_name)
+    device_slog["session_log"] = new_slog_file
+
     conn = ConnectHandler(**device_slog)
     conn.session_log.write("\nTesting password and secret replacement\n")
     conn.session_log.write("This is my password {}\n".format(conn.password))
     conn.session_log.write("This is my secret {}\n".format(conn.secret))
+    conn.session_log.flush()
 
     file_name = device_slog["session_log"]
     with open(file_name, "r") as f:
@@ -130,6 +152,7 @@ def test_session_log_secrets(device_slog):
         assert conn.password not in session_log
     if conn.secret:
         assert conn.secret not in session_log
+    assert "terminal width" in session_log
 
 
 def test_logging_filter_secrets(net_connect_slog_wr):
@@ -211,7 +234,6 @@ def test_session_log_custom_secrets(device_slog):
     }
     # Create custom session log
     custom_log = SessionLog(file_name="SLOG/device_log.log", no_log=sanitize_secrets)
-    custom_log.open()
 
     # Pass in custom SessionLog obj to session_log attribute
     device_slog["session_log"] = custom_log
