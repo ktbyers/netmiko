@@ -238,7 +238,10 @@ def test_session_log_bytesio(device_slog_test_name, commands, expected_responses
     session_log_md5 = calc_md5(contents=log_content)
     assert session_log_md5 == compare_log_md5
 
+
 def test_session_log_no_log(device_slog_test_name):
+    """Test no_log works properly for show commands."""
+
     device_slog = device_slog_test_name[0]
     test_name = device_slog_test_name[1]
     slog_file = device_slog["session_log"]
@@ -256,20 +259,63 @@ def test_session_log_no_log(device_slog_test_name):
 
     # Now try to actually send the fake password as a show command
     conn.send_command(fake_password)
+    time.sleep(1)
+    conn.send_command_timing(fake_password)
 
     with open(new_slog_file, "r") as f:
         session_log = f.read()
 
     assert fake_password not in session_log
-    # One for read, one for write, one for Cisco "translating"
-    assert session_log.count("********") == 3
+    # One for read, one for write, one for Cisco "translating" (send_command)
+    # Plus one for read, one for write (send_command_timing)
+    assert session_log.count("********") == 5
 
     # Do disconnect after test (to make sure send_command() actually flushes session_log buffer)
     conn.disconnect()
 
 
-def test_session_log_no_log2(device_slog_test_name):
-    """Verify session_log does not contain custom words."""
+def test_session_log_no_log_cfg(device_slog_test_name, commands):
+    """Test no_log works properly for config commands."""
+    device_slog = device_slog_test_name[0]
+    test_name = device_slog_test_name[1]
+    slog_file = device_slog["session_log"]
+    new_slog_file = add_test_name_to_file_name(slog_file, test_name)
+
+    # Likely "logging buffered 20000" (hide/obscure this command)
+    config_command1 = commands["config"][0]
+
+    # Likely "no logging console" (this command should show up in the log)
+    config_command2 = commands["config"][1]
+
+    # Dict of strings that should be sanitized
+    no_log = {
+        "cfg1": config_command1,
+    }
+    # Create custom session log (use 'record_writes' just to test that situation)
+    custom_log = SessionLog(file_name=new_slog_file, no_log=no_log, record_writes=True)
+
+    # Pass in custom SessionLog obj to session_log attribute
+    device_slog["session_log"] = custom_log
+    device_slog["secret"] = device_slog["password"]
+
+    conn = ConnectHandler(**device_slog)
+    conn.enable()
+    conn.send_config_set([config_command1, config_command2])
+
+    # Check the results
+    with open(new_slog_file, "r") as f:
+        session_log = f.read()
+
+    assert config_command1 not in session_log
+    assert session_log.count("********") == 2
+    assert config_command2 in session_log
+
+    # Make sure send_config_set flushes the session_log (so disconnect after the asserts)
+    conn.disconnect()
+
+
+def test_session_log_custom_session_log(device_slog_test_name):
+    """Verify session_log does not contain custom words (use SessionLog obj)."""
     device_slog = device_slog_test_name[0]
     test_name = device_slog_test_name[1]
     slog_file = device_slog["session_log"]

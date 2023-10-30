@@ -1,6 +1,5 @@
 
 terminal width 511
-
 cisco1>
 cisco1>terminal width 511
 cisco1>terminal length 0
@@ -13,6 +12,10 @@ cisco1>********
 ********
 Translating "********"
 
+% Bad IP address or host name
+% Unknown command or computer name, or unable to find computer address
+cisco1>********
+********
 % Bad IP address or host name
 % Unknown command or computer name, or unable to find computer address
 cisco1>
