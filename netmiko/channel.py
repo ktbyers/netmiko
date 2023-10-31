@@ -13,23 +13,23 @@ class Channel(ABC):
     @abstractmethod
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Create the object."""
-        pass
+        return NotImplementedError
 
 
     @abstractmethod
     def read_buffer(self) -> str:
         """Single read of available data."""
-        pass
+        return NotImplementedError
 
     @abstractmethod
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
-        pass
+        return NotImplementedError
 
     @abstractmethod
     def write_channel(self, out_data: str) -> None:
         """Write data down the channel."""
-        pass
+        return NotImplementedError
 
 
 class SSHChannel(Channel):
