@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from abc import ABC, abstractmethod
 import paramiko
 import telnetlib
@@ -10,12 +10,12 @@ from netmiko.exceptions import ReadException, WriteException
 
 
 class Channel(ABC):
-    @abstractmethod
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    
+    def __init__(self, conn: Union[paramiko.Channel, telnetlib.Telnet, serial.Serial], encoding: str) -> None:
         """Create the object."""
-        return NotImplementedError
-
-
+        self.remote_conn = conn
+        self.encoding = encoding
+        
     @abstractmethod
     def read_buffer(self) -> str:
         """Single read of available data."""
@@ -33,14 +33,6 @@ class Channel(ABC):
 
 
 class SSHChannel(Channel):
-    def __init__(self, conn: Optional[paramiko.Channel], encoding: str) -> None:
-        """
-        Placeholder __init__ method so that reading and writing can be moved to the
-        channel class.
-        """
-        self.remote_conn = conn
-        # FIX: move encoding to GlobalState object?
-        self.encoding = encoding
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
@@ -75,14 +67,6 @@ class SSHChannel(Channel):
 
 
 class TelnetChannel(Channel):
-    def __init__(self, conn: Optional[telnetlib.Telnet], encoding: str) -> None:
-        """
-        Placeholder __init__ method so that reading and writing can be moved to the
-        channel class.
-        """
-        self.remote_conn = conn
-        # FIX: move encoding to GlobalState object?
-        self.encoding = encoding
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
@@ -103,14 +87,6 @@ class TelnetChannel(Channel):
 
 
 class SerialChannel(Channel):
-    def __init__(self, conn: Optional[serial.Serial], encoding: str) -> None:
-        """
-        Placeholder __init__ method so that reading and writing can be moved to the
-        channel class.
-        """
-        self.remote_conn = conn
-        # FIX: move encoding to GlobalState object?
-        self.encoding = encoding
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
