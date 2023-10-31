@@ -15,25 +15,6 @@ class Channel(ABC):
         """Create the object."""
         pass
 
-    # @abstractmethod
-    # def __repr__(self) -> str:
-    #     """String representation of the object."""
-    #     pass
-    #
-    # @abstractmethod
-    # def open(self, width: int = 511, height: int = 1000) -> None:
-    #     """Create the underlying connection."""
-    #     pass
-    #
-    # @abstractmethod
-    # def close(self) -> None:
-    #     """Close the underlying connection."""
-    #     pass
-    #
-    # @abstractmethod
-    # def login(self) -> None:
-    #     """Handle the channel login process for any channel that requires it."""
-    #     pass
 
     @abstractmethod
     def read_buffer(self) -> str:
@@ -49,11 +30,6 @@ class Channel(ABC):
     def write_channel(self, out_data: str) -> None:
         """Write data down the channel."""
         pass
-
-    # @abstractmethod
-    # def is_alive(self) -> bool:
-    #     """Is the channel alive."""
-    #     pass
 
 
 class SSHChannel(Channel):
