@@ -9,6 +9,7 @@ tests/etc/test_devices.yml
 tests/etc/commands.yml
 tests/etc/responses.yml
 tests/etc/test_devices_exc.yml
+tests/SLOG/test_logging_filter_secrets-netmiko.log
 
 examples/SECRET_DEVICE_CREDS.py
 ./build
