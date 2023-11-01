@@ -82,6 +82,7 @@
 - Cisco Viptela
 - Check Point GAiA
 - Coriant
+- DataCom
 - Dell OS6
 - Dell EMC Isilon
 - Digi TransPort Routers
@@ -155,6 +156,7 @@
 - cisco_xr
 - cloudgenix_ion
 - coriant
+- datacom
 - dell_dnos9
 - dell_force10
 - dell_isilon
