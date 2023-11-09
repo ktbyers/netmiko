@@ -1,19 +1,32 @@
-import sys
-import socks
+from typing import Dict, Any, Optional
 import socket
 import telnetlib
 
-__all__ = ["Telnet"]
+try:
+    import socks
+
+    SOCKS_SUPPORTED = True
+except ModuleNotFoundError:
+    SOCKS_SUPPORTED = False
 
 
 class Telnet(telnetlib.Telnet):
     def __init__(
-        self, host=None, port=0, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, proxy_dict=None
-    ):
+        self,
+        host: Optional[str] = None,
+        port: int = 0,
+        timeout: float = socket._GLOBAL_DEFAULT_TIMEOUT,  # type: ignore
+        proxy_dict: Optional[Dict[str, Any]] = None,
+    ) -> None:
         self.proxy_dict = proxy_dict
         super().__init__(host=host, port=port, timeout=timeout)
 
-    def open(self, host, port=0, timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
+    def open(
+        self,
+        host: str,
+        port: int = 0,
+        timeout: float = socket._GLOBAL_DEFAULT_TIMEOUT,  # type: ignore
+    ) -> None:
         """
         Connect to a host.
         The optional second argument is the port number, which
@@ -36,6 +49,13 @@ class Telnet(telnetlib.Telnet):
         self.port = port
         self.timeout = timeout
 
-        sys.audit("telnetlib.Telnet.open", self, host, port)
-
-        self.sock = socks.create_connection((host, port), timeout, **self.proxy_dict)
+        if SOCKS_SUPPORTED:
+            self.sock = socks.create_connection(
+                (host, port), timeout, **self.proxy_dict
+            )
+        else:
+            msg = """
+In order to use the telnet socks proxy, you must 'pip install pysocks'. Note, pysocks is
+unmaintained (so use at your own risk).
+"""
+            raise ModuleNotFoundError(msg)
