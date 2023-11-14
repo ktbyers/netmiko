@@ -103,6 +103,20 @@ def lock_channel(func: F) -> F:
     return cast(F, wrapper_decorator)
 
 
+def flush_session_log(func: F) -> F:
+    @functools.wraps(func)
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always flush the session_log
+            if self.session_log:
+                self.session_log.flush()
+        return return_val
+
+    return cast(F, wrapper_decorator)
+
+
 def log_writes(func: F) -> F:
     """Handle both session_log and log of writes."""
 
@@ -392,6 +406,7 @@ class BaseConnection:
             elif isinstance(session_log, SessionLog):
                 # SessionLog object
                 self.session_log = session_log
+                self.session_log.open()
             else:
                 raise ValueError(
                     "session_log must be a path to a file, a file handle, "
@@ -1476,6 +1491,7 @@ A paramiko SSHException occurred during connection creation:
             pass
         return new_data
 
+    @flush_session_log
     @select_cmd_verify
     def send_command_timing(
         self,
@@ -1624,6 +1640,7 @@ A paramiko SSHException occurred during connection creation:
             prompt = self.base_prompt
         return re.escape(prompt.strip())
 
+    @flush_session_log
     @select_cmd_verify
     def send_command(
         self,
@@ -2147,6 +2164,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             commands = cfg_file.readlines()
         return self.send_config_set(commands, **kwargs)
 
+    @flush_session_log
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,

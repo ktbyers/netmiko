@@ -117,7 +117,7 @@ def net_connect_slog_wr(request):
 @pytest.fixture(scope="module")
 def device_slog(request):
     """
-    Create the SSH connection to the remote device. Modify session_log init arguments.
+    Modify session_log init arguments.
 
     Return the netmiko device (not connected)
     """
@@ -129,6 +129,23 @@ def device_slog(request):
     device["verbose"] = False
     device["session_log_file_mode"] = "append"
     return device
+
+
+@pytest.fixture(scope="function")
+def device_slog_test_name(request):
+    """
+    Modify session_log init arguments.
+
+    Return the netmiko device (not connected)
+    """
+    device_under_test = request.config.getoption("test_device")
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    # Fictional secret
+    device["secret"] = "invalid"
+    device["verbose"] = False
+    test_name = request.node.name
+    return (device, test_name)
 
 
 @pytest.fixture(scope="module")
