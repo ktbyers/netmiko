@@ -36,7 +36,7 @@ Use Poetry to install Netmiko dependencies including the development dependencie
 ```
 # From the base of the Netmiko repository (the directory should contain the pyproject.toml file).
 $ poetry install
-<A lot of output stating..."Installing x">
+<"Installing x"...>
 ```
 
 Activate virtual environment that has all the needed dependencies:
@@ -56,7 +56,7 @@ All done! ✨ 🍰 ✨
 # Linter should report nothing (at this point)
 $ pylama .
 
-# Type hints should be happy :smiley:
+# Type hints should be happy 😃
 $ mypy netmiko/
 Success: no issues found in 194 source files
 ```
