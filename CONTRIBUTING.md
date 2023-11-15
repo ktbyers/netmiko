@@ -1,6 +1,6 @@
 ### Contributing to Netmiko
 
-Clone the Netmiko repository
+#### Clone the Netmiko repository
 
 ```
 git clone https://github.com/ktbyers/netmiko
@@ -19,8 +19,11 @@ nothing to commit, working tree clean
 
 ```
 
-Install Poetry (Poetry is used to manage the dependencies needed for the
-Netmiko development environment). Make sure that you add Poetry to your $PATH.
+#### Install Poetry 
+
+Poetry is used to manage the dependencies needed for the Netmiko development environment. 
+
+Make sure that you add Poetry to your $PATH.
 
 [Poetry Install](https://python-poetry.org/docs/#installing-with-the-official-installer)
 
@@ -31,7 +34,9 @@ $ poetry --version
 Poetry (version 1.x.y)
 ```
 
-Use Poetry to install Netmiko dependencies including the development dependencies. Note, this will also create a virtual environment located in .venv.
+#### Use Poetry to install Netmiko dependencies
+
+This will also create a virtual environment located in .venv.
 
 ```
 # From the base of the Netmiko repository (the directory should contain the pyproject.toml file).
@@ -39,13 +44,13 @@ $ poetry install
 <"Installing x"...>
 ```
 
-Activate virtual environment that has all the needed dependencies:
+#### Activate virtual environment that has all the needed dependencies:
 
 ```
 source .venv/bin/activate
 ```
 
-Test your environment is working right:
+#### Test your environment is working right:
 
 ```
 # Should report all files as 'unchanged'
@@ -80,7 +85,7 @@ tests/unit/test_utilities.py ............................                [100%]
 ============================== 58 passed in 6.41s ==============================
 ```
 
-Create a branch for your work:
+#### Create a branch for your work:
 
 ```
 $ git checkout -b my_cool_work origin/develop
@@ -88,7 +93,9 @@ branch 'my_cool_work' set up to track 'origin/develop'.
 Switched to a new branch 'my_cool_work'
 ```
 
-Make your changes. At the end of your changes the linters and unit tests MUST all pass.
+#### Make your changes pass the linters and tests. 
+
+At the end of your changes the linters and unit tests MUST all pass.
 
 ```
 cd {{ repo_base }}
@@ -105,8 +112,9 @@ mypy netmiko/
 $ py.test tests/unit/
 ```
 
-Submit your PR to the Netmiko repository. Place a clear statement regarding the purpose of the PR (bug it is fixing, feature it is adding).
+#### Submit your PR to the Netmiko repository. 
+
+Place a clear statement regarding the purpose of the PR (bug it is fixing, feature it is adding).
 
 For any more meaningful feature, you should open a GitHub issue or discussion first and make sure that we agree on implementing this feature.
-
 
