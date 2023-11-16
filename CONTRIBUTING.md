@@ -155,3 +155,5 @@ Place a clear statement regarding the purpose of the PR (bug it is fixing, featu
 For any more meaningful feature, you should open a GitHub issue or discussion first and make sure that we agree on implementing this feature.
 
 The PR will will be sourced from your forked repository + the forked repository branch in use, with the destination of Netmiko's develop branch.
+
+![An example PR from a forked repository](./images/03-contrib.png)
