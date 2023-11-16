@@ -1,11 +1,46 @@
 ### Contributing to Netmiko
 
+In order to contribute to Netmiko without having to be directly added as a contributor to this project it is best to follow the well known forking strategy. Follow the steps below to fork Netmiko and contribute back to the project from your personal fork.
+
+#### Navigate and Fork Netmiko Repository
+
+Navigate to the Netmiko project on GitHub. Once you're on the main repository page click on the fork button.
+
+![forking netmiko](./images/00-contrib.png)
+
+You'll then be brought to a screen to complete the fork into your personal user repository.
+
+![create fork](./images/01-contrib.png)
+
+You'll finally be redirected to your fork of Netmiko, which is linked to the parent Netmiko repository.
+
+![final fork view](./images/02-contrib.png)
+
 #### Clone the Netmiko repository
 
+Next you'll need to clone your forked repository.
+
 ```
-git clone https://github.com/ktbyers/netmiko
+▶ git clone git@github.com:<gituser>/netmiko.git
+Cloning into 'netmiko'...
+remote: Enumerating objects: 17427, done.
+remote: Counting objects: 100% (753/753), done.
+remote: Compressing objects: 100% (417/417), done.
+remote: Total 17427 (delta 395), reused 611 (delta 323), pack-reused 16674
+Receiving objects: 100% (17427/17427), 7.37 MiB | 8.25 MiB/s, done.
+Resolving deltas: 100% (11334/11334), done.
+```
+
+Once your forked repository is cloned you can change into the netmiko directory.
+
+```
 cd netmiko
-git statusdd
+```
+
+Finally you can check the status of git.
+
+```
+git status
 ```
 
 Git Status should look similar to the following:
@@ -87,6 +122,7 @@ tests/unit/test_utilities.py ............................                [100%]
 
 #### Create a branch for your work:
 
+
 ```
 $ git checkout -b my_cool_work origin/develop
 branch 'my_cool_work' set up to track 'origin/develop'.
@@ -118,3 +154,4 @@ Place a clear statement regarding the purpose of the PR (bug it is fixing, featu
 
 For any more meaningful feature, you should open a GitHub issue or discussion first and make sure that we agree on implementing this feature.
 
+The PR will will be sourced from your forked repository + the forked repository branch in use, with the destination of Netmiko's develop branch.
