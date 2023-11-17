@@ -136,7 +136,8 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -149,10 +150,13 @@ __all__ = [&#34;ArubaSSH&#34;]</code></pre>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;

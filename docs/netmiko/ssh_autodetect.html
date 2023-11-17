@@ -126,6 +126,12 @@ SSH_MAPPER_DICT = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
+    &#34;allied_telesis_awplus&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [&#34;AlliedWare Plus&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
     &#34;apresia_aeos&#34;: {
         &#34;cmd&#34;: &#34;show system&#34;,
         &#34;search_patterns&#34;: [&#34;Apresia&#34;],
@@ -134,19 +140,7 @@ SSH_MAPPER_DICT = {
     },
     &#34;arista_eos&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
-        &#34;search_patterns&#34;: [r&#34;Arista&#34;],
-        &#34;priority&#34;: 99,
-        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
-    },
-    &#34;arris_cer&#34;: {
-        &#34;cmd&#34;: &#34;show version&#34;,
-        &#34;search_patterns&#34;: [r&#34;CER&#34;],
-        &#34;priority&#34;: 99,
-        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
-    },
-    &#34;casa_cmts&#34;: {
-        &#34;cmd&#34;: &#34;show version&#34;,
-        &#34;search_patterns&#34;: [r&#34;Casa&#34;],
+        &#34;search_patterns&#34;: [r&#34;Arista&#34;, r&#34;vEOS&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
@@ -292,7 +286,9 @@ SSH_MAPPER_DICT = {
     },
     &#34;extreme_slx&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
-        &#34;search_patterns&#34;: [r&#34;SLX-OS Operating System Software&#34;],
+        &#34;search_patterns&#34;: [
+            r&#34;SLX-OS Operating System&#34;,
+        ],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
