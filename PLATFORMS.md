@@ -19,9 +19,11 @@
 - Adva AOS FSP150 F2 & F3
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
+- ARRIS CER
 - AudioCodes Gateways & Controllers
 - Broadcom ICOS
 - Calix B6
+- Casa Systems CMTS
 - Centec Networks
 - Cisco AireOS (Wireless LAN Controllers)
 - Cisco ASA
@@ -37,6 +39,7 @@
 - Extreme TierraOS
 - Extreme VDX (Brocade)
 - Extreme VSP (Avaya)
+- Fiberstore FSOS
 - Hillstone StoneOS
 - HPE Comware7
 - Huawei
@@ -44,6 +47,7 @@
 - Huawei SmartAX
 - IP Infusion OcNOS
 - Juniper ScreenOS
+- Maipu
 - MikroTik RouterOS
 - MikroTik SwitchOS
 - NetApp cDOT
@@ -70,10 +74,8 @@
 - Accedian
 - Allied Telesis AlliedWare Plus
 - Aruba
-- Arris CER
 - Brocade Fabric OS
 - C-DOT CROS
-- Casa CMTS
 - Ciena SAOS
 - Citrix Netscaler
 - Cisco Telepresence
@@ -82,6 +84,7 @@
 - Coriant
 - Dell OS6
 - Dell EMC Isilon
+- Digi TransPort Routers
 - Eltex
 - Enterasys
 - Endace
@@ -161,6 +164,7 @@
 - dell_powerconnect
 - dell_sonic
 - dlink_ds
+- digi_transport
 - eltex
 - eltex_esr
 - endace

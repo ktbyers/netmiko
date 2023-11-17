@@ -61,6 +61,7 @@ from netmiko.utilities import (
     calc_old_timeout,
 )
 from netmiko.utilities import m_exec_time  # noqa
+from netmiko import telnet_proxy
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -97,6 +98,20 @@ def lock_channel(func: F) -> F:
         finally:
             # Always unlock the channel, even on exception.
             self._unlock_netmiko_session()
+        return return_val
+
+    return cast(F, wrapper_decorator)
+
+
+def flush_session_log(func: F) -> F:
+    @functools.wraps(func)
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always flush the session_log
+            if self.session_log:
+                self.session_log.flush()
         return return_val
 
     return cast(F, wrapper_decorator)
@@ -181,6 +196,7 @@ class BaseConnection:
         allow_auto_change: bool = False,
         encoding: str = "utf-8",
         sock: Optional[socket.socket] = None,
+        sock_telnet: Optional[Dict[str, Any]] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
         disable_lf_normalization: bool = False,
@@ -267,7 +283,8 @@ class BaseConnection:
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: True)
 
-        :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+        :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+                to write the session log to.
 
         :param session_log_record_writes: The session log generally only records channel reads due
                 to eliminate command duplication due to command echo. You can enable this if you
@@ -280,10 +297,13 @@ class BaseConnection:
                 (default: False)
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: ascii)
+                (default: "utf-8")
 
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
+
+        :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+                telnet_proxy.py code for details.
 
         :param global_cmd_verify: Control whether command echo verification is enabled or disabled
                 (default: None). Global attribute takes precedence over function `cmd_verify`
@@ -351,6 +371,7 @@ class BaseConnection:
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
         self.sock = sock
+        self.sock_telnet = sock_telnet
         self.fast_cli = fast_cli
         self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
@@ -366,6 +387,7 @@ class BaseConnection:
             no_log["password"] = self.password
         if self.secret:
             no_log["secret"] = self.secret
+        # Always sanitize username and password
         log.addFilter(SecretsFilter(no_log=no_log))
 
         # Netmiko will close the session_log if we open the file
@@ -386,10 +408,14 @@ class BaseConnection:
                     no_log=no_log,
                     record_writes=session_log_record_writes,
                 )
+            elif isinstance(session_log, SessionLog):
+                # SessionLog object
+                self.session_log = session_log
+                self.session_log.open()
             else:
                 raise ValueError(
                     "session_log must be a path to a file, a file handle, "
-                    "or a BufferedIOBase subclass."
+                    "SessionLog object, or a BufferedIOBase subclass."
                 )
 
         # Default values
@@ -667,7 +693,6 @@ where x is the total number of seconds to wait before timing out.\n"""
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time < read_timeout) or (not read_timeout):
-
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
@@ -1084,9 +1109,17 @@ You can look at the Netmiko session_log or debug log for more information.
         """
         self.channel: Channel
         if self.protocol == "telnet":
-            self.remote_conn = telnetlib.Telnet(
-                self.host, port=self.port, timeout=self.timeout
-            )
+            if self.sock_telnet:
+                self.remote_conn = telnet_proxy.Telnet(
+                    self.host,
+                    port=self.port,
+                    timeout=self.timeout,
+                    proxy_dict=self.sock_telnet,
+                )
+            else:
+                self.remote_conn = telnetlib.Telnet(
+                    self.host, port=self.port, timeout=self.timeout
+                )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
@@ -1447,7 +1480,6 @@ A paramiko SSHException occurred during connection creation:
         return output
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
-
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
             pattern=re.escape(cmd), read_timeout=read_timeout
@@ -1464,6 +1496,7 @@ A paramiko SSHException occurred during connection creation:
             pass
         return new_data
 
+    @flush_session_log
     @select_cmd_verify
     def send_command_timing(
         self,
@@ -1612,6 +1645,7 @@ A paramiko SSHException occurred during connection creation:
             prompt = self.base_prompt
         return re.escape(prompt.strip())
 
+    @flush_session_log
     @select_cmd_verify
     def send_command(
         self,
@@ -2135,6 +2169,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             commands = cfg_file.readlines()
         return self.send_config_set(commands, **kwargs)
 
+    @flush_session_log
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,

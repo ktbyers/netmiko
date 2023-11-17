@@ -64,6 +64,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "allied_telesis_awplus": {
+        "cmd": "show version",
+        "search_patterns": ["AlliedWare Plus"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "apresia_aeos": {
         "cmd": "show system",
         "search_patterns": ["Apresia"],
@@ -72,19 +78,7 @@ SSH_MAPPER_DICT = {
     },
     "arista_eos": {
         "cmd": "show version",
-        "search_patterns": [r"Arista"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "arris_cer": {
-        "cmd": "show version",
-        "search_patterns": [r"CER"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
-    "casa_cmts": {
-        "cmd": "show version",
-        "search_patterns": [r"Casa"],
+        "search_patterns": [r"Arista", r"vEOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -230,7 +224,9 @@ SSH_MAPPER_DICT = {
     },
     "extreme_slx": {
         "cmd": "show version",
-        "search_patterns": [r"SLX-OS Operating System Software"],
+        "search_patterns": [
+            r"SLX-OS Operating System",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
