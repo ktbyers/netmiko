@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "netmiko"
-version = "4.2.0"
+version = "4.3.0"
 description = "Multi-vendor library to simplify legacy CLI connections to network devices"
 authors = ["Kirk Byers <ktbyers@twb-tech.com>"]
 license = "MIT"
@@ -16,6 +16,7 @@ classifiers = [
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
 ]
 
 [tool.poetry.dependencies]
