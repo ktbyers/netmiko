@@ -528,7 +528,7 @@ def get_structured_data_genie(
         )
         raise ValueError(msg)
 
-    if &#34;cisco&#34; not in platform:
+    if &#34;cisco&#34; not in platform and &#34;linux&#34; not in platform:
         return raw_output
 
     genie_device_mapper = {
@@ -537,6 +537,9 @@ def get_structured_data_genie(
         &#34;cisco_xr&#34;: &#34;iosxr&#34;,
         &#34;cisco_nxos&#34;: &#34;nxos&#34;,
         &#34;cisco_asa&#34;: &#34;asa&#34;,
+        &#34;linux&#34;: &#34;linux&#34;,
+        &#34;f5_linux&#34;: &#34;linux&#34;,
+        &#34;ovs_linux&#34;: &#34;linux&#34;,
     }
 
     os = None
@@ -1015,7 +1018,7 @@ then you must use an CliTable index file.</p></div>
         )
         raise ValueError(msg)
 
-    if &#34;cisco&#34; not in platform:
+    if &#34;cisco&#34; not in platform and &#34;linux&#34; not in platform:
         return raw_output
 
     genie_device_mapper = {
@@ -1024,6 +1027,9 @@ then you must use an CliTable index file.</p></div>
         &#34;cisco_xr&#34;: &#34;iosxr&#34;,
         &#34;cisco_nxos&#34;: &#34;nxos&#34;,
         &#34;cisco_asa&#34;: &#34;asa&#34;,
+        &#34;linux&#34;: &#34;linux&#34;,
+        &#34;f5_linux&#34;: &#34;linux&#34;,
+        &#34;ovs_linux&#34;: &#34;linux&#34;,
     }
 
     os = None

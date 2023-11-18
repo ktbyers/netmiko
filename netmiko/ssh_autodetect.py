@@ -64,6 +64,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "allied_telesis_awplus": {
+        "cmd": "show version",
+        "search_patterns": ["AlliedWare Plus"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "apresia_aeos": {
         "cmd": "show system",
         "search_patterns": ["Apresia"],

@@ -93,6 +93,7 @@ from netmiko.utilities import (
     calc_old_timeout,
 )
 from netmiko.utilities import m_exec_time  # noqa
+from netmiko import telnet_proxy
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -129,6 +130,20 @@ def lock_channel(func: F) -&gt; F:
         finally:
             # Always unlock the channel, even on exception.
             self._unlock_netmiko_session()
+        return return_val
+
+    return cast(F, wrapper_decorator)
+
+
+def flush_session_log(func: F) -&gt; F:
+    @functools.wraps(func)
+    def wrapper_decorator(self: &#34;BaseConnection&#34;, *args: Any, **kwargs: Any) -&gt; Any:
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always flush the session_log
+            if self.session_log:
+                self.session_log.flush()
         return return_val
 
     return cast(F, wrapper_decorator)
@@ -213,6 +228,7 @@ class BaseConnection:
         allow_auto_change: bool = False,
         encoding: str = &#34;utf-8&#34;,
         sock: Optional[socket.socket] = None,
+        sock_telnet: Optional[Dict[str, Any]] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
         disable_lf_normalization: bool = False,
@@ -299,7 +315,8 @@ class BaseConnection:
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: True)
 
-        :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+        :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+                to write the session log to.
 
         :param session_log_record_writes: The session log generally only records channel reads due
                 to eliminate command duplication due to command echo. You can enable this if you
@@ -312,10 +329,13 @@ class BaseConnection:
                 (default: False)
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: ascii)
+                (default: &#34;utf-8&#34;)
 
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
+
+        :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+                telnet_proxy.py code for details.
 
         :param global_cmd_verify: Control whether command echo verification is enabled or disabled
                 (default: None). Global attribute takes precedence over function `cmd_verify`
@@ -383,6 +403,7 @@ class BaseConnection:
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
         self.sock = sock
+        self.sock_telnet = sock_telnet
         self.fast_cli = fast_cli
         self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
@@ -398,6 +419,7 @@ class BaseConnection:
             no_log[&#34;password&#34;] = self.password
         if self.secret:
             no_log[&#34;secret&#34;] = self.secret
+        # Always sanitize username and password
         log.addFilter(SecretsFilter(no_log=no_log))
 
         # Netmiko will close the session_log if we open the file
@@ -418,10 +440,14 @@ class BaseConnection:
                     no_log=no_log,
                     record_writes=session_log_record_writes,
                 )
+            elif isinstance(session_log, SessionLog):
+                # SessionLog object
+                self.session_log = session_log
+                self.session_log.open()
             else:
                 raise ValueError(
                     &#34;session_log must be a path to a file, a file handle, &#34;
-                    &#34;or a BufferedIOBase subclass.&#34;
+                    &#34;SessionLog object, or a BufferedIOBase subclass.&#34;
                 )
 
         # Default values
@@ -699,7 +725,6 @@ where x is the total number of seconds to wait before timing out.\n&#34;&#34;&#3
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time &lt; read_timeout) or (not read_timeout):
-
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
@@ -1116,9 +1141,17 @@ You can look at the Netmiko session_log or debug log for more information.
         &#34;&#34;&#34;
         self.channel: Channel
         if self.protocol == &#34;telnet&#34;:
-            self.remote_conn = telnetlib.Telnet(
-                self.host, port=self.port, timeout=self.timeout
-            )
+            if self.sock_telnet:
+                self.remote_conn = telnet_proxy.Telnet(
+                    self.host,
+                    port=self.port,
+                    timeout=self.timeout,
+                    proxy_dict=self.sock_telnet,
+                )
+            else:
+                self.remote_conn = telnetlib.Telnet(
+                    self.host, port=self.port, timeout=self.timeout
+                )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
@@ -1479,7 +1512,6 @@ A paramiko SSHException occurred during connection creation:
         return output
 
     def command_echo_read(self, cmd: str, read_timeout: float) -&gt; str:
-
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
             pattern=re.escape(cmd), read_timeout=read_timeout
@@ -1496,6 +1528,7 @@ A paramiko SSHException occurred during connection creation:
             pass
         return new_data
 
+    @flush_session_log
     @select_cmd_verify
     def send_command_timing(
         self,
@@ -1644,6 +1677,7 @@ A paramiko SSHException occurred during connection creation:
             prompt = self.base_prompt
         return re.escape(prompt.strip())
 
+    @flush_session_log
     @select_cmd_verify
     def send_command(
         self,
@@ -2167,6 +2201,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             commands = cfg_file.readlines()
         return self.send_config_set(commands, **kwargs)
 
+    @flush_session_log
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
@@ -2536,6 +2571,29 @@ class TelnetConnection(BaseConnection):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="netmiko.base_connection.flush_session_log"><code class="name flex">
+<span>def <span class="ident">flush_session_log</span></span>(<span>func: ~F) ‑> ~F</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def flush_session_log(func: F) -&gt; F:
+    @functools.wraps(func)
+    def wrapper_decorator(self: &#34;BaseConnection&#34;, *args: Any, **kwargs: Any) -&gt; Any:
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always flush the session_log
+            if self.session_log:
+                self.session_log.flush()
+        return return_val
+
+    return cast(F, wrapper_decorator)</code></pre>
+</details>
+</dd>
 <dt id="netmiko.base_connection.lock_channel"><code class="name flex">
 <span>def <span class="ident">lock_channel</span></span>(<span>func: ~F) ‑> ~F</span>
 </code></dt>
@@ -2598,7 +2656,7 @@ class TelnetConnection(BaseConnection):
 <dl>
 <dt id="netmiko.base_connection.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Defines vendor independent methods.</p>
@@ -2686,7 +2744,8 @@ class TelnetConnection(BaseConnection):
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -2699,10 +2758,13 @@ class TelnetConnection(BaseConnection):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -2778,6 +2840,7 @@ class TelnetConnection(BaseConnection):
         allow_auto_change: bool = False,
         encoding: str = &#34;utf-8&#34;,
         sock: Optional[socket.socket] = None,
+        sock_telnet: Optional[Dict[str, Any]] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
         disable_lf_normalization: bool = False,
@@ -2864,7 +2927,8 @@ class TelnetConnection(BaseConnection):
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: True)
 
-        :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+        :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+                to write the session log to.
 
         :param session_log_record_writes: The session log generally only records channel reads due
                 to eliminate command duplication due to command echo. You can enable this if you
@@ -2877,10 +2941,13 @@ class TelnetConnection(BaseConnection):
                 (default: False)
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: ascii)
+                (default: &#34;utf-8&#34;)
 
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
+
+        :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+                telnet_proxy.py code for details.
 
         :param global_cmd_verify: Control whether command echo verification is enabled or disabled
                 (default: None). Global attribute takes precedence over function `cmd_verify`
@@ -2948,6 +3015,7 @@ class TelnetConnection(BaseConnection):
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
         self.sock = sock
+        self.sock_telnet = sock_telnet
         self.fast_cli = fast_cli
         self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
@@ -2963,6 +3031,7 @@ class TelnetConnection(BaseConnection):
             no_log[&#34;password&#34;] = self.password
         if self.secret:
             no_log[&#34;secret&#34;] = self.secret
+        # Always sanitize username and password
         log.addFilter(SecretsFilter(no_log=no_log))
 
         # Netmiko will close the session_log if we open the file
@@ -2983,10 +3052,14 @@ class TelnetConnection(BaseConnection):
                     no_log=no_log,
                     record_writes=session_log_record_writes,
                 )
+            elif isinstance(session_log, SessionLog):
+                # SessionLog object
+                self.session_log = session_log
+                self.session_log.open()
             else:
                 raise ValueError(
                     &#34;session_log must be a path to a file, a file handle, &#34;
-                    &#34;or a BufferedIOBase subclass.&#34;
+                    &#34;SessionLog object, or a BufferedIOBase subclass.&#34;
                 )
 
         # Default values
@@ -3264,7 +3337,6 @@ where x is the total number of seconds to wait before timing out.\n&#34;&#34;&#3
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time &lt; read_timeout) or (not read_timeout):
-
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
@@ -3681,9 +3753,17 @@ You can look at the Netmiko session_log or debug log for more information.
         &#34;&#34;&#34;
         self.channel: Channel
         if self.protocol == &#34;telnet&#34;:
-            self.remote_conn = telnetlib.Telnet(
-                self.host, port=self.port, timeout=self.timeout
-            )
+            if self.sock_telnet:
+                self.remote_conn = telnet_proxy.Telnet(
+                    self.host,
+                    port=self.port,
+                    timeout=self.timeout,
+                    proxy_dict=self.sock_telnet,
+                )
+            else:
+                self.remote_conn = telnetlib.Telnet(
+                    self.host, port=self.port, timeout=self.timeout
+                )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
@@ -4044,7 +4124,6 @@ A paramiko SSHException occurred during connection creation:
         return output
 
     def command_echo_read(self, cmd: str, read_timeout: float) -&gt; str:
-
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
             pattern=re.escape(cmd), read_timeout=read_timeout
@@ -4061,6 +4140,7 @@ A paramiko SSHException occurred during connection creation:
             pass
         return new_data
 
+    @flush_session_log
     @select_cmd_verify
     def send_command_timing(
         self,
@@ -4209,6 +4289,7 @@ A paramiko SSHException occurred during connection creation:
             prompt = self.base_prompt
         return re.escape(prompt.strip())
 
+    @flush_session_log
     @select_cmd_verify
     def send_command(
         self,
@@ -4732,6 +4813,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             commands = cfg_file.readlines()
         return self.send_config_set(commands, **kwargs)
 
+    @flush_session_log
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
@@ -5269,7 +5351,6 @@ def strip_backspaces(output: str) -&gt; str:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def command_echo_read(self, cmd: str, read_timeout: float) -&gt; str:
-
     # Make sure you read until you detect the command echo (avoid getting out of sync)
     new_data = self.read_until_pattern(
         pattern=re.escape(cmd), read_timeout=read_timeout
@@ -5539,9 +5620,17 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
         &#34;&#34;&#34;
         self.channel: Channel
         if self.protocol == &#34;telnet&#34;:
-            self.remote_conn = telnetlib.Telnet(
-                self.host, port=self.port, timeout=self.timeout
-            )
+            if self.sock_telnet:
+                self.remote_conn = telnet_proxy.Telnet(
+                    self.host,
+                    port=self.port,
+                    timeout=self.timeout,
+                    proxy_dict=self.sock_telnet,
+                )
+            else:
+                self.remote_conn = telnetlib.Telnet(
+                    self.host, port=self.port, timeout=self.timeout
+                )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
@@ -6077,7 +6166,6 @@ where x is the total number of seconds to wait before timing out.\n&#34;&#34;&#3
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time &lt; read_timeout) or (not read_timeout):
-
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
@@ -6330,7 +6418,8 @@ path, relative path, or name of file in current directory. (default: None).</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">    @select_cmd_verify
+<pre><code class="python">    @flush_session_log
+    @select_cmd_verify
     def send_command(
         self,
         command_string: str,
@@ -6572,7 +6661,8 @@ path, relative path, or name of file in current directory. (default: None).</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@select_cmd_verify
+<pre><code class="python">@flush_session_log
+@select_cmd_verify
 def send_command_timing(
     self,
     command_string: str,
@@ -6726,7 +6816,8 @@ where cmd_verify is automatically disabled.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def send_config_set(
+<pre><code class="python">@flush_session_log
+def send_config_set(
     self,
     config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
     *,
@@ -7586,7 +7677,7 @@ name is specified, allow every event.</p></div>
 </dd>
 <dt id="netmiko.base_connection.TelnetConnection"><code class="flex name class">
 <span>class <span class="ident">TelnetConnection</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Defines vendor independent methods.</p>
@@ -7674,7 +7765,8 @@ name is specified, allow every event.</p></div>
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -7687,10 +7779,13 @@ name is specified, allow every event.</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -7782,6 +7877,7 @@ name is specified, allow every event.</p></div>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="netmiko.base_connection.flush_session_log" href="#netmiko.base_connection.flush_session_log">flush_session_log</a></code></li>
 <li><code><a title="netmiko.base_connection.lock_channel" href="#netmiko.base_connection.lock_channel">lock_channel</a></code></li>
 <li><code><a title="netmiko.base_connection.log_writes" href="#netmiko.base_connection.log_writes">log_writes</a></code></li>
 </ul>

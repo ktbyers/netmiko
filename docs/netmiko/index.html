@@ -28,10 +28,10 @@
 </summary>
 <pre><code class="python">import sys
 
-__version__ = &#34;4.1.3&#34;
+__version__ = &#34;4.3.0&#34;
 PY_MAJ_VER = 3
-PY_MIN_VER = 7
-MIN_PYTHON_VER = &#34;3.7&#34;
+PY_MIN_VER = 8
+MIN_PYTHON_VER = &#34;3.8&#34;
 
 
 # Make sure user is using a valid Python version (for Netmiko)
@@ -66,6 +66,7 @@ log.addHandler(logging.NullHandler())
 
 
 from netmiko.ssh_dispatcher import ConnectHandler  # noqa
+from netmiko.ssh_dispatcher import TelnetFallback  # noqa
 from netmiko.ssh_dispatcher import ConnLogOnly  # noqa
 from netmiko.ssh_dispatcher import ConnUnify  # noqa
 from netmiko.ssh_dispatcher import ssh_dispatcher  # noqa
@@ -94,6 +95,7 @@ Netmiko = ConnectHandler
 
 __all__ = (
     &#34;ConnectHandler&#34;,
+    &#34;AgnosticHandler&#34;,
     &#34;ConnLogOnly&#34;,
     &#34;ConnUnify&#34;,
     &#34;ssh_dispatcher&#34;,
@@ -237,6 +239,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="netmiko.digi" href="digi/index.html">netmiko.digi</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="netmiko.dlink" href="dlink/index.html">netmiko.dlink</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -266,6 +272,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="netmiko.f5" href="f5/index.html">netmiko.f5</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="netmiko.fiberstore" href="fiberstore/index.html">netmiko.fiberstore</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -302,6 +312,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="netmiko.linux" href="linux/index.html">netmiko.linux</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="netmiko.maipu" href="maipu/index.html">netmiko.maipu</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -419,6 +433,10 @@ a new SSH connection with a remote host. This …</p></div>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="netmiko.telnet_proxy" href="telnet_proxy.html">netmiko.telnet_proxy</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="netmiko.terminal_server" href="terminal_server/index.html">netmiko.terminal_server</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -462,6 +480,31 @@ a new SSH connection with a remote host. This …</p></div>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="netmiko.AgnosticHandler"><code class="name flex">
+<span>def <span class="ident">AgnosticHandler</span></span>(<span>*args: Any, **kwargs: Any) ‑> <a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Factory function selects the proper class and creates object based on device_type.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ConnectHandler(*args: Any, **kwargs: Any) -&gt; &#34;BaseConnection&#34;:
+    &#34;&#34;&#34;Factory function selects the proper class and creates object based on device_type.&#34;&#34;&#34;
+    device_type = kwargs[&#34;device_type&#34;]
+    if device_type not in platforms:
+        if device_type is None:
+            msg_str = platforms_str
+        else:
+            msg_str = telnet_platforms_str if &#34;telnet&#34; in device_type else platforms_str
+        raise ValueError(
+            &#34;Unsupported &#39;device_type&#39; &#34;
+            &#34;currently supported platforms are: {}&#34;.format(msg_str)
+        )
+    ConnectionClass = ssh_dispatcher(device_type)
+    return ConnectionClass(*args, **kwargs)</code></pre>
+</details>
+</dd>
 <dt id="netmiko.ConnLogOnly"><code class="name flex">
 <span>def <span class="ident">ConnLogOnly</span></span>(<span>log_file: str = 'netmiko.log', log_level: Optional[int] = None, log_format: Optional[str] = None, **kwargs: Any) ‑> Optional[<a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a>]</span>
 </code></dt>
@@ -842,7 +885,7 @@ with terminal server.</p></div>
 <dl>
 <dt id="netmiko.BaseConnection"><code class="flex name class">
 <span>class <span class="ident">BaseConnection</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Defines vendor independent methods.</p>
@@ -930,7 +973,8 @@ with terminal server.</p></div>
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -943,10 +987,13 @@ with terminal server.</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1022,6 +1069,7 @@ with terminal server.</p></div>
         allow_auto_change: bool = False,
         encoding: str = &#34;utf-8&#34;,
         sock: Optional[socket.socket] = None,
+        sock_telnet: Optional[Dict[str, Any]] = None,
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
         disable_lf_normalization: bool = False,
@@ -1108,7 +1156,8 @@ with terminal server.</p></div>
                 to select smallest of global and specific. Sets default global_delay_factor to .1
                 (default: True)
 
-        :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+        :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+                to write the session log to.
 
         :param session_log_record_writes: The session log generally only records channel reads due
                 to eliminate command duplication due to command echo. You can enable this if you
@@ -1121,10 +1170,13 @@ with terminal server.</p></div>
                 (default: False)
 
         :param encoding: Encoding to be used when writing bytes to the output channel.
-                (default: ascii)
+                (default: &#34;utf-8&#34;)
 
         :param sock: An open socket or socket-like object (such as a `.Channel`) to use for
                 communication to the target host (default: None).
+
+        :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+                telnet_proxy.py code for details.
 
         :param global_cmd_verify: Control whether command echo verification is enabled or disabled
                 (default: None). Global attribute takes precedence over function `cmd_verify`
@@ -1192,6 +1244,7 @@ with terminal server.</p></div>
         self.allow_auto_change = allow_auto_change
         self.encoding = encoding
         self.sock = sock
+        self.sock_telnet = sock_telnet
         self.fast_cli = fast_cli
         self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
@@ -1207,6 +1260,7 @@ with terminal server.</p></div>
             no_log[&#34;password&#34;] = self.password
         if self.secret:
             no_log[&#34;secret&#34;] = self.secret
+        # Always sanitize username and password
         log.addFilter(SecretsFilter(no_log=no_log))
 
         # Netmiko will close the session_log if we open the file
@@ -1227,10 +1281,14 @@ with terminal server.</p></div>
                     no_log=no_log,
                     record_writes=session_log_record_writes,
                 )
+            elif isinstance(session_log, SessionLog):
+                # SessionLog object
+                self.session_log = session_log
+                self.session_log.open()
             else:
                 raise ValueError(
                     &#34;session_log must be a path to a file, a file handle, &#34;
-                    &#34;or a BufferedIOBase subclass.&#34;
+                    &#34;SessionLog object, or a BufferedIOBase subclass.&#34;
                 )
 
         # Default values
@@ -1508,7 +1566,6 @@ where x is the total number of seconds to wait before timing out.\n&#34;&#34;&#3
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time &lt; read_timeout) or (not read_timeout):
-
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
@@ -1925,9 +1982,17 @@ You can look at the Netmiko session_log or debug log for more information.
         &#34;&#34;&#34;
         self.channel: Channel
         if self.protocol == &#34;telnet&#34;:
-            self.remote_conn = telnetlib.Telnet(
-                self.host, port=self.port, timeout=self.timeout
-            )
+            if self.sock_telnet:
+                self.remote_conn = telnet_proxy.Telnet(
+                    self.host,
+                    port=self.port,
+                    timeout=self.timeout,
+                    proxy_dict=self.sock_telnet,
+                )
+            else:
+                self.remote_conn = telnetlib.Telnet(
+                    self.host, port=self.port, timeout=self.timeout
+                )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
@@ -2288,7 +2353,6 @@ A paramiko SSHException occurred during connection creation:
         return output
 
     def command_echo_read(self, cmd: str, read_timeout: float) -&gt; str:
-
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
             pattern=re.escape(cmd), read_timeout=read_timeout
@@ -2305,6 +2369,7 @@ A paramiko SSHException occurred during connection creation:
             pass
         return new_data
 
+    @flush_session_log
     @select_cmd_verify
     def send_command_timing(
         self,
@@ -2453,6 +2518,7 @@ A paramiko SSHException occurred during connection creation:
             prompt = self.base_prompt
         return re.escape(prompt.strip())
 
+    @flush_session_log
     @select_cmd_verify
     def send_command(
         self,
@@ -2976,6 +3042,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             commands = cfg_file.readlines()
         return self.send_config_set(commands, **kwargs)
 
+    @flush_session_log
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
@@ -3513,7 +3580,6 @@ def strip_backspaces(output: str) -&gt; str:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def command_echo_read(self, cmd: str, read_timeout: float) -&gt; str:
-
     # Make sure you read until you detect the command echo (avoid getting out of sync)
     new_data = self.read_until_pattern(
         pattern=re.escape(cmd), read_timeout=read_timeout
@@ -3783,9 +3849,17 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
         &#34;&#34;&#34;
         self.channel: Channel
         if self.protocol == &#34;telnet&#34;:
-            self.remote_conn = telnetlib.Telnet(
-                self.host, port=self.port, timeout=self.timeout
-            )
+            if self.sock_telnet:
+                self.remote_conn = telnet_proxy.Telnet(
+                    self.host,
+                    port=self.port,
+                    timeout=self.timeout,
+                    proxy_dict=self.sock_telnet,
+                )
+            else:
+                self.remote_conn = telnetlib.Telnet(
+                    self.host, port=self.port, timeout=self.timeout
+                )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
             self.telnet_login()
@@ -4321,7 +4395,6 @@ where x is the total number of seconds to wait before timing out.\n&#34;&#34;&#3
         start_time = time.time()
         # if read_timeout == 0 or 0.0 keep reading indefinitely
         while (time.time() - start_time &lt; read_timeout) or (not read_timeout):
-
             output += self.read_channel()
 
             if re.search(pattern, output, flags=re_flags):
@@ -4574,7 +4647,8 @@ path, relative path, or name of file in current directory. (default: None).</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">    @select_cmd_verify
+<pre><code class="python">    @flush_session_log
+    @select_cmd_verify
     def send_command(
         self,
         command_string: str,
@@ -4816,7 +4890,8 @@ path, relative path, or name of file in current directory. (default: None).</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@select_cmd_verify
+<pre><code class="python">@flush_session_log
+@select_cmd_verify
 def send_command_timing(
     self,
     command_string: str,
@@ -4970,7 +5045,8 @@ where cmd_verify is automatically disabled.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def send_config_set(
+<pre><code class="python">@flush_session_log
+def send_config_set(
     self,
     config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
     *,
@@ -6759,6 +6835,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.cloudgenix" href="cloudgenix/index.html">netmiko.cloudgenix</a></code></li>
 <li><code><a title="netmiko.coriant" href="coriant/index.html">netmiko.coriant</a></code></li>
 <li><code><a title="netmiko.dell" href="dell/index.html">netmiko.dell</a></code></li>
+<li><code><a title="netmiko.digi" href="digi/index.html">netmiko.digi</a></code></li>
 <li><code><a title="netmiko.dlink" href="dlink/index.html">netmiko.dlink</a></code></li>
 <li><code><a title="netmiko.eltex" href="eltex/index.html">netmiko.eltex</a></code></li>
 <li><code><a title="netmiko.endace" href="endace/index.html">netmiko.endace</a></code></li>
@@ -6767,6 +6844,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.exceptions" href="exceptions.html">netmiko.exceptions</a></code></li>
 <li><code><a title="netmiko.extreme" href="extreme/index.html">netmiko.extreme</a></code></li>
 <li><code><a title="netmiko.f5" href="f5/index.html">netmiko.f5</a></code></li>
+<li><code><a title="netmiko.fiberstore" href="fiberstore/index.html">netmiko.fiberstore</a></code></li>
 <li><code><a title="netmiko.flexvnf" href="flexvnf/index.html">netmiko.flexvnf</a></code></li>
 <li><code><a title="netmiko.fortinet" href="fortinet/index.html">netmiko.fortinet</a></code></li>
 <li><code><a title="netmiko.hillstone" href="hillstone/index.html">netmiko.hillstone</a></code></li>
@@ -6776,6 +6854,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.juniper" href="juniper/index.html">netmiko.juniper</a></code></li>
 <li><code><a title="netmiko.keymile" href="keymile/index.html">netmiko.keymile</a></code></li>
 <li><code><a title="netmiko.linux" href="linux/index.html">netmiko.linux</a></code></li>
+<li><code><a title="netmiko.maipu" href="maipu/index.html">netmiko.maipu</a></code></li>
 <li><code><a title="netmiko.mellanox" href="mellanox/index.html">netmiko.mellanox</a></code></li>
 <li><code><a title="netmiko.mikrotik" href="mikrotik/index.html">netmiko.mikrotik</a></code></li>
 <li><code><a title="netmiko.mrv" href="mrv/index.html">netmiko.mrv</a></code></li>
@@ -6804,6 +6883,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.ssh_autodetect" href="ssh_autodetect.html">netmiko.ssh_autodetect</a></code></li>
 <li><code><a title="netmiko.supermicro" href="supermicro/index.html">netmiko.supermicro</a></code></li>
 <li><code><a title="netmiko.teldat" href="teldat/index.html">netmiko.teldat</a></code></li>
+<li><code><a title="netmiko.telnet_proxy" href="telnet_proxy.html">netmiko.telnet_proxy</a></code></li>
 <li><code><a title="netmiko.terminal_server" href="terminal_server/index.html">netmiko.terminal_server</a></code></li>
 <li><code><a title="netmiko.tplink" href="tplink/index.html">netmiko.tplink</a></code></li>
 <li><code><a title="netmiko.ubiquiti" href="ubiquiti/index.html">netmiko.ubiquiti</a></code></li>
@@ -6817,6 +6897,7 @@ Try to determine the device type.</p>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
+<li><code><a title="netmiko.AgnosticHandler" href="#netmiko.AgnosticHandler">AgnosticHandler</a></code></li>
 <li><code><a title="netmiko.ConnLogOnly" href="#netmiko.ConnLogOnly">ConnLogOnly</a></code></li>
 <li><code><a title="netmiko.ConnUnify" href="#netmiko.ConnUnify">ConnUnify</a></code></li>
 <li><code><a title="netmiko.ConnectHandler" href="#netmiko.ConnectHandler">ConnectHandler</a></code></li>
