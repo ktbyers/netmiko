@@ -124,7 +124,7 @@ echo
 ### FIX: NEED TO ADD
 twine upload $DIR_PACKAGE $DIR_WHL_PACKAGE
 
-
+echo "Sleeping 90 seconds..."
 sleep 90
 echo
 echo "Test clean install from pypi"

@@ -49,15 +49,12 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         return super().__init__(**kwargs)
 
     def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;
-        Prepare the session after the connection has been established.
-        &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(0.3 * delay_factor)
-        self.clear_buffer()
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         self.enable()
+        self.set_base_prompt()
         self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -331,7 +328,8 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -344,10 +342,13 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -378,15 +379,12 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
         return super().__init__(**kwargs)
 
     def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;
-        Prepare the session after the connection has been established.
-        &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(0.3 * delay_factor)
-        self.clear_buffer()
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         self.enable()
+        self.set_base_prompt()
         self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -645,31 +643,6 @@ support a single command to completely exit the configuration mode.</p>
     return output</code></pre>
 </details>
 </dd>
-<dt id="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation"><code class="name flex">
-<span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Prepare the session after the connection has been established.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def session_preparation(self) -&gt; None:
-    &#34;&#34;&#34;
-    Prepare the session after the connection has been established.
-    &#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor=0)
-    time.sleep(0.3 * delay_factor)
-    self.clear_buffer()
-    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-    self.set_base_prompt()
-    self.enable()
-    self.disable_paging()
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
-</details>
-</dd>
 <dt id="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt"><code class="name flex">
 <span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator: str = &#x27;&gt;&#x27;, alt_prompt_terminator: str = '#', delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
 </code></dt>
@@ -743,6 +716,7 @@ stripped off.</p>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -844,7 +818,8 @@ stripped off.</p>
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -857,10 +832,13 @@ stripped off.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -951,7 +929,7 @@ stripped off.</p>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
-<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -1054,7 +1032,8 @@ stripped off.</p>
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1067,10 +1046,13 @@ stripped off.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1184,7 +1166,7 @@ stripped off.</p>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
-<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -1219,7 +1201,6 @@ stripped off.</p>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.check_config_mode" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.enable" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.enable">enable</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.exit_config_mode" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt">set_base_prompt</a></code></li>
 </ul>
 </li>

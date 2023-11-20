@@ -13,6 +13,12 @@ Multi-vendor library to simplify CLI connections to network devices
 
 <br />
 
+## Contributing to Netmiko
+
+[CONTRIBUTING.md](https://github.com/ktbyers/netmiko/blob/develop/CONTRIBUTING.md)
+
+<br />
+
 ## Why Netmiko?
 Network automation to screen-scraping devices is primarily concerned with gathering output from show commands and with making configuration changes.
 
