@@ -87,7 +87,7 @@ class HPProcurveBase(CiscoSSHConnection):
         # ProCurve requires elevated privileges to disable output paging :-(
         self.enable()
         self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
-        command = self.RETURN + &#34;no page&#34;
+        command = &#34;no page&#34;
         self.disable_paging(command=command)
 
     def check_config_mode(
@@ -355,7 +355,8 @@ class HPProcurveTelnet(HPProcurveBase):
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -368,10 +369,13 @@ class HPProcurveTelnet(HPProcurveBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -439,7 +443,7 @@ class HPProcurveTelnet(HPProcurveBase):
         # ProCurve requires elevated privileges to disable output paging :-(
         self.enable()
         self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
-        command = self.RETURN + &#34;no page&#34;
+        command = &#34;no page&#34;
         self.disable_paging(command=command)
 
     def check_config_mode(
@@ -733,7 +737,7 @@ class HPProcurveTelnet(HPProcurveBase):
     # ProCurve requires elevated privileges to disable output paging :-(
     self.enable()
     self.set_terminal_width(command=&#34;terminal width 511&#34;, pattern=&#34;terminal&#34;)
-    command = self.RETURN + &#34;no page&#34;
+    command = &#34;no page&#34;
     self.disable_paging(command=command)</code></pre>
 </details>
 </dd>
@@ -872,7 +876,8 @@ class HPProcurveTelnet(HPProcurveBase):
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -885,10 +890,13 @@ class HPProcurveTelnet(HPProcurveBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1074,7 +1082,8 @@ class HPProcurveTelnet(HPProcurveBase):
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1087,10 +1096,13 @@ class HPProcurveTelnet(HPProcurveBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
