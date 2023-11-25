@@ -29,14 +29,14 @@ ntc-templates = ">=2.0.0"
 pyserial = ">=3.3"
 
 [tool.poetry.group.dev.dependencies]
-black = "22.3.0"
+black = "23.11.0"
 mypy = "1.0.0"
 mypy-extensions = "1.0.0"
 PyYAML = "6.0.1"
 pytest = "7.1.2"
 # Issue with build failure on pyflakes 2.5.0
-pyflakes = "2.4.0"
-pylama = "8.3.8"
+pyflakes = "3.1.0"
+pylama = "8.4.1"
 twine = "1.15.0"
 pysnmp = "4.4.12"
 pdoc3 = "0.10.0"
