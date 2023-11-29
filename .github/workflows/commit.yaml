@@ -73,6 +73,9 @@ jobs:
 
       - name: Setup python
         uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: x64
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
