@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Union
 from abc import ABC, abstractmethod
 import paramiko
 import telnetlib
@@ -10,29 +10,37 @@ from netmiko.exceptions import ReadException, WriteException
 
 
 class Channel(ABC):
-    
-    def __init__(self, conn: Union[paramiko.Channel, telnetlib.Telnet, serial.Serial], encoding: str) -> None:
+    def __init__(
+        self,
+        conn: Union[paramiko.Channel, telnetlib.Telnet, serial.Serial],
+        encoding: str,
+    ) -> None:
         """Create the object."""
-        self.remote_conn = conn
-        self.encoding = encoding
-        
+        self.remote_conn: Union[
+            paramiko.Channel, telnetlib.Telnet, serial.Serial
+        ] = conn
+        self.encoding: str = encoding
+
     @abstractmethod
     def read_buffer(self) -> str:
         """Single read of available data."""
-        return NotImplementedError
+        raise NotImplementedError
 
     @abstractmethod
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
-        return NotImplementedError
+        raise NotImplementedError
 
     @abstractmethod
     def write_channel(self, out_data: str) -> None:
         """Write data down the channel."""
-        return NotImplementedError
+        raise NotImplementedError
 
 
 class SSHChannel(Channel):
+    def __init__(self, conn: paramiko.Channel, encoding: str) -> None:
+        super().__init__(conn, encoding)
+        self.remote_conn: paramiko.Channel = conn
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
@@ -67,6 +75,9 @@ class SSHChannel(Channel):
 
 
 class TelnetChannel(Channel):
+    def __init__(self, conn: telnetlib.Telnet, encoding: str) -> None:
+        super().__init__(conn, encoding)
+        self.remote_conn: telnetlib.Telnet = conn
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
@@ -87,6 +98,9 @@ class TelnetChannel(Channel):
 
 
 class SerialChannel(Channel):
+    def __init__(self, conn: serial.Serial, encoding: str) -> None:
+        super().__init__(conn, encoding)
+        self.remote_conn: serial.Serial = conn
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
