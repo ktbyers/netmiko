@@ -8,7 +8,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
-    prompt_pattern = r"[#$]"
+    prompt_pattern = r"[>#$]"
 
     def _modify_connection_params(self) -> None:
         """Modify connection parameters prior to SSH connection."""
@@ -33,7 +33,7 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
             self.write_channel("a\r")
             self._test_channel_read(pattern=self.prompt_pattern)
 
-        self.set_base_prompt()
+        self.set_base_prompt(pattern=self.prompt_pattern)
         self._vdoms = self._vdoms_enabled()
         self._os_version = self._determine_os_version()
         # Retain how the 'output mode' was original configured.
