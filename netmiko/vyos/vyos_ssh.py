@@ -136,9 +136,11 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Saves Config."""
-        output = super().save_config(
+        output = self.config_mode()
+        output += super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+        output += self.exit_config_mode()
         if "Done" not in output:
             raise ValueError(f"Save failed with following errors:\n\n{output}")
         return output

@@ -47,6 +47,7 @@
 - Huawei SmartAX
 - IP Infusion OcNOS
 - Juniper ScreenOS
+- Maipu
 - MikroTik RouterOS
 - MikroTik SwitchOS
 - NetApp cDOT
@@ -83,6 +84,7 @@
 - Coriant
 - Dell OS6
 - Dell EMC Isilon
+- Digi TransPort Routers
 - Eltex
 - Enterasys
 - Endace
@@ -162,6 +164,7 @@
 - dell_powerconnect
 - dell_sonic
 - dlink_ds
+- digi_transport
 - eltex
 - eltex_esr
 - endace

@@ -50,7 +50,7 @@ class HPComwareBase(CiscoSSHConnection):
             self._test_channel_read(pattern=r&#34;[&gt;\]]&#34;)
 
         self.set_base_prompt()
-        command = self.RETURN + &#34;screen-length disable&#34;
+        command = &#34;screen-length disable&#34;
         self.disable_paging(command=command)
 
     def config_mode(
@@ -125,6 +125,9 @@ class HPComwareBase(CiscoSSHConnection):
             delay_factor=delay_factor,
             pattern=pattern,
         )
+
+        # Strip off any leading RBM_. characters for firewall HA
+        prompt = re.sub(r&#34;^RBM_.&#34;, &#34;&#34;, prompt, flags=re.M)
 
         # Strip off leading character
         prompt = prompt[1:]
@@ -272,7 +275,8 @@ class HPComwareTelnet(HPComwareBase):
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -285,10 +289,13 @@ class HPComwareTelnet(HPComwareBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -326,7 +333,7 @@ class HPComwareTelnet(HPComwareBase):
             self._test_channel_read(pattern=r&#34;[&gt;\]]&#34;)
 
         self.set_base_prompt()
-        command = self.RETURN + &#34;screen-length disable&#34;
+        command = &#34;screen-length disable&#34;
         self.disable_paging(command=command)
 
     def config_mode(
@@ -401,6 +408,9 @@ class HPComwareTelnet(HPComwareBase):
             delay_factor=delay_factor,
             pattern=pattern,
         )
+
+        # Strip off any leading RBM_. characters for firewall HA
+        prompt = re.sub(r&#34;^RBM_.&#34;, &#34;&#34;, prompt, flags=re.M)
 
         # Strip off leading character
         prompt = prompt[1:]
@@ -567,7 +577,7 @@ class HPComwareTelnet(HPComwareBase):
         self._test_channel_read(pattern=r&#34;[&gt;\]]&#34;)
 
     self.set_base_prompt()
-    command = self.RETURN + &#34;screen-length disable&#34;
+    command = &#34;screen-length disable&#34;
     self.disable_paging(command=command)</code></pre>
 </details>
 </dd>
@@ -607,6 +617,9 @@ this will be the router prompt with &lt; &gt; or [ ] stripped off.</p>
         delay_factor=delay_factor,
         pattern=pattern,
     )
+
+    # Strip off any leading RBM_. characters for firewall HA
+    prompt = re.sub(r&#34;^RBM_.&#34;, &#34;&#34;, prompt, flags=re.M)
 
     # Strip off leading character
     prompt = prompt[1:]
@@ -746,7 +759,8 @@ this will be the router prompt with &lt; &gt; or [ ] stripped off.</p>
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -759,10 +773,13 @@ this will be the router prompt with &lt; &gt; or [ ] stripped off.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -930,7 +947,8 @@ this will be the router prompt with &lt; &gt; or [ ] stripped off.</p>
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -943,10 +961,13 @@ this will be the router prompt with &lt; &gt; or [ ] stripped off.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
