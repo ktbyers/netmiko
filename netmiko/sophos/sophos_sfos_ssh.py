@@ -32,7 +32,7 @@ class SophosSfosSSH(NoEnable, NoConfig, CiscoSSHConnection):
             Select Menu Number [0-7]:
         """
         self.write_channel(SOPHOS_MENU_DEFAULT + self.RETURN)
-        self._test_channel_read(pattern=r"[console>]")
+        self._test_channel_read(pattern=r"[#>]")
         self.set_base_prompt()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
