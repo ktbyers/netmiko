@@ -388,7 +388,8 @@ class BaseConnection:
         if self.secret:
             no_log["secret"] = self.secret
         # Always sanitize username and password
-        log.addFilter(SecretsFilter(no_log=no_log))
+        self._secrets_filter = SecretsFilter(no_log=no_log)
+        log.addFilter(self._secrets_filter)
 
         # Netmiko will close the session_log if we open the file
         if session_log is not None:
@@ -2480,6 +2481,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             self.remote_conn = None
             if self.session_log:
                 self.session_log.close()
+            log.removeFilter(self._secrets_filter)
 
     def commit(self) -> str:
         """Commit method for platforms that support this."""
