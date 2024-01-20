@@ -107,6 +107,7 @@ from netmiko.nokia import (
 )
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
+from netmiko.oneaccess import OneaccessTDRETelnet, OneaccessTDRESSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
@@ -255,6 +256,7 @@ CLASS_MAPPER_BASE = {
     "nokia_sros": NokiaSrosSSH,
     "nokia_srl": NokiaSrlSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
+    "oneaccess_tdre": OneaccessTDRESSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
     "pluribus": PluribusSSH,
@@ -347,6 +349,7 @@ CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
 CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
+CLASS_MAPPER["oneaccess_tdre_telnet"] = OneaccessTDRETelnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
