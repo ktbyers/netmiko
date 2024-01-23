@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Union
 from abc import ABC, abstractmethod
 import paramiko
 import telnetlib
@@ -10,61 +10,37 @@ from netmiko.exceptions import ReadException, WriteException
 
 
 class Channel(ABC):
-    @abstractmethod
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        conn: Union[paramiko.Channel, telnetlib.Telnet, serial.Serial],
+        encoding: str,
+    ) -> None:
         """Create the object."""
-        pass
-
-    # @abstractmethod
-    # def __repr__(self) -> str:
-    #     """String representation of the object."""
-    #     pass
-    #
-    # @abstractmethod
-    # def open(self, width: int = 511, height: int = 1000) -> None:
-    #     """Create the underlying connection."""
-    #     pass
-    #
-    # @abstractmethod
-    # def close(self) -> None:
-    #     """Close the underlying connection."""
-    #     pass
-    #
-    # @abstractmethod
-    # def login(self) -> None:
-    #     """Handle the channel login process for any channel that requires it."""
-    #     pass
+        self.remote_conn: Union[
+            paramiko.Channel, telnetlib.Telnet, serial.Serial
+        ] = conn
+        self.encoding: str = encoding
 
     @abstractmethod
     def read_buffer(self) -> str:
         """Single read of available data."""
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def read_channel(self) -> str:
         """Read all of the available data from the channel."""
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def write_channel(self, out_data: str) -> None:
         """Write data down the channel."""
-        pass
-
-    # @abstractmethod
-    # def is_alive(self) -> bool:
-    #     """Is the channel alive."""
-    #     pass
+        raise NotImplementedError
 
 
 class SSHChannel(Channel):
-    def __init__(self, conn: Optional[paramiko.Channel], encoding: str) -> None:
-        """
-        Placeholder __init__ method so that reading and writing can be moved to the
-        channel class.
-        """
-        self.remote_conn = conn
-        # FIX: move encoding to GlobalState object?
-        self.encoding = encoding
+    def __init__(self, conn: paramiko.Channel, encoding: str) -> None:
+        super().__init__(conn, encoding)
+        self.remote_conn: paramiko.Channel = conn
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
@@ -99,14 +75,9 @@ class SSHChannel(Channel):
 
 
 class TelnetChannel(Channel):
-    def __init__(self, conn: Optional[telnetlib.Telnet], encoding: str) -> None:
-        """
-        Placeholder __init__ method so that reading and writing can be moved to the
-        channel class.
-        """
-        self.remote_conn = conn
-        # FIX: move encoding to GlobalState object?
-        self.encoding = encoding
+    def __init__(self, conn: telnetlib.Telnet, encoding: str) -> None:
+        super().__init__(conn, encoding)
+        self.remote_conn: telnetlib.Telnet = conn
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
@@ -127,14 +98,9 @@ class TelnetChannel(Channel):
 
 
 class SerialChannel(Channel):
-    def __init__(self, conn: Optional[serial.Serial], encoding: str) -> None:
-        """
-        Placeholder __init__ method so that reading and writing can be moved to the
-        channel class.
-        """
-        self.remote_conn = conn
-        # FIX: move encoding to GlobalState object?
-        self.encoding = encoding
+    def __init__(self, conn: serial.Serial, encoding: str) -> None:
+        super().__init__(conn, encoding)
+        self.remote_conn: serial.Serial = conn
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
