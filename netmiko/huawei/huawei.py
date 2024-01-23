@@ -104,12 +104,18 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
          Configuration file had been saved successfully
          Note: The configuration file will take effect after being activated
         ######################################################################
+        or
+        ######################################################################
+        Warning: The current configuration will be written to the device. Continue? [Y/N]:y
+        Now saving the current configuration to the slot 1 .
+        Info: Save the configuration successfully.
+        ######################################################################
         """
 
         # Huawei devices might break if you try to use send_command_timing() so use send_command()
         # instead.
         if confirm:
-            pattern = rf"(?:Are you sure|{self.prompt_pattern})"
+            pattern = rf"(?:[Cc]ontinue\?|{self.prompt_pattern})"
             output = self._send_command_str(
                 command_string=cmd,
                 expect_string=pattern,
@@ -117,7 +123,7 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
                 strip_command=False,
                 read_timeout=100.0,
             )
-            if confirm_response and "Are you sure" in output:
+            if confirm_response and re.search(r"[Cc]ontinue\?", output):
                 output += self._send_command_str(
                     command_string=confirm_response,
                     expect_string=self.prompt_pattern,
@@ -266,7 +272,3 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         if error_marker in output:
             raise ValueError(f"Commit failed with following errors:\n\n{output}")
         return output
-
-    def save_config(self, *args: Any, **kwargs: Any) -> str:
-        """Not Implemented"""
-        raise NotImplementedError
