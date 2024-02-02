@@ -10,10 +10,10 @@ jobs:
     name: linters
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         id: cp311
         with:
           python-version: '3.11'
@@ -62,19 +62,13 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         id: py_ver
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: x64
-
-      - name: Setup python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.11'
           architecture: x64
 
       - name: Install Poetry
