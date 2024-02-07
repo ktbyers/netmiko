@@ -39,7 +39,7 @@ class AudiocodeBase(BaseConnection):
         else:
             prompt = self.find_prompt(delay_factor=delay_factor)
 
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+        if prompt[-1] not in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
 
         # If all we have is the 'terminator' just use that :-(
