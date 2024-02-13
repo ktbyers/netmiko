@@ -236,6 +236,24 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "extreme_fe": {
+      "cmd": "show sys-info",
+      "search_patterns": [r"FabricEngine"],
+      "priority": 99,
+      "dispatch": "_autodetect_std",
+  },
+    "extreme_voss": {
+      "cmd": "show sys-info",
+      "search_patterns": [r"VSP-"],
+      "priority": 99,
+      "dispatch": "_autodetect_std",
+  },
+    "extreme_boss": {
+      "cmd": "show system",
+      "search_patterns": [r"Ethernet Routing Switch"],
+      "priority": 99,
+      "dispatch": "_autodetect_std",
+  },
     "ubiquiti_edgeswitch": {
         "cmd": "show version",
         "search_patterns": [r"EdgeSwitch"],
