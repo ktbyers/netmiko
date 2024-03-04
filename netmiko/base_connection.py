@@ -1815,8 +1815,8 @@ before timing out.\n"""
             if self.next_page_string:
                 if re.search(self.next_page_string, read_channel_data):
                     self.write_channel(" ")
-                    time.sleep(loop_delay)
-                new_data = read_channel_data.replace(self.next_page_string, "")
+                    time.sleep(0.5)
+                new_data = re.sub(self.next_page_string, '', read_channel_data)
             else:
                 new_data = read_channel_data
 
