@@ -200,6 +200,7 @@ class BaseConnection:
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
         disable_lf_normalization: bool = False,
+        next_page_string: Optional[str] = None,
     ) -> None:
         """
         Initialize attributes for establishing connection to target device.
@@ -376,6 +377,7 @@ class BaseConnection:
         self._legacy_mode = _legacy_mode
         self.global_delay_factor = global_delay_factor
         self.global_cmd_verify = global_cmd_verify
+        self.next_page_string = next_page_string
         if self.fast_cli and self.global_delay_factor == 1:
             self.global_delay_factor = 0.1
         self.session_log = None
@@ -1767,6 +1769,7 @@ before timing out.\n"""
         # Start the clock
         start_time = time.time()
         self.write_channel(command_string)
+
         new_data = ""
 
         cmd = command_string.strip()
@@ -1808,7 +1811,14 @@ before timing out.\n"""
                             break
 
             time.sleep(loop_delay)
-            new_data = self.read_channel()
+            read_channel_data = self.read_channel()
+            if self.next_page_string:
+                if re.search(self.next_page_string, read_channel_data):
+                    self.write_channel(" ")
+                    time.sleep(0.5)
+                new_data = re.sub(self.next_page_string, '', read_channel_data)
+            else:
+                new_data = read_channel_data
 
         else:  # nobreak
             msg = f"""
@@ -1933,7 +1943,6 @@ You can also look at the Netmiko session_log or debug log for more information.
         """
         Strip command_string from output string
 
-        Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
 
         :param command_string: The command string sent to the device
         :type command_string: str
@@ -1941,6 +1950,14 @@ You can also look at the Netmiko session_log or debug log for more information.
         :param output: The returned output as a result of the command string sent to the device
         :type output: str
         """
+        # ruckus netiron adds backspaces with space for pagination output
+        backspace_char = "\x08 "
+
+        # Check for line wrap (remove backspaces)
+        if backspace_char in output:
+            output = output.replace(backspace_char, "")
+
+        # Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
         backspace_char = "\x08"
 
         # Check for line wrap (remove backspaces)
