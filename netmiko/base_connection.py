@@ -1951,6 +1951,13 @@ You can also look at the Netmiko session_log or debug log for more information.
         :param output: The returned output as a result of the command string sent to the device
         :type output: str
         """
+        backspace_char = "\x08 "
+
+        # Check for line wrap (remove backspaces)
+        if backspace_char in output:
+            output = output.replace(backspace_char, "")
+
+
         backspace_char = "\x08"
 
         # Check for line wrap (remove backspaces)
