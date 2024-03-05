@@ -1943,7 +1943,6 @@ You can also look at the Netmiko session_log or debug log for more information.
         """
         Strip command_string from output string
 
-        Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
 
         :param command_string: The command string sent to the device
         :type command_string: str
@@ -1951,13 +1950,14 @@ You can also look at the Netmiko session_log or debug log for more information.
         :param output: The returned output as a result of the command string sent to the device
         :type output: str
         """
+        # ruckus netiron adds backspaces with space for pagination output
         backspace_char = "\x08 "
 
         # Check for line wrap (remove backspaces)
         if backspace_char in output:
             output = output.replace(backspace_char, "")
 
-
+        # Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
         backspace_char = "\x08"
 
         # Check for line wrap (remove backspaces)
