@@ -229,6 +229,7 @@ CLASS_MAPPER_BASE = {
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
     "hillstone_stoneos": HillstoneStoneosSSH,
+    "h3c": HPComwareSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
