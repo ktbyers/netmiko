@@ -156,7 +156,7 @@ SSH_MAPPER_DICT = {
     },
     "f5_tmsh": {
         "cmd": "show sys version",
-        "search_patterns": [r"BIG-IP"],
+        "search_patterns": [r"BIG-IP", r"BIG-IQ"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
