@@ -22,7 +22,7 @@ class F5TmshSSH(NoConfig, BaseConnection):
         return output
 
     def exit_tmsh(self) -> str:
-        output = self._send_command_str("quit", expect_string=r"#")
+        output = self._send_command_str("quit", expect_string=r"")
         self.set_base_prompt()
         return output
 
