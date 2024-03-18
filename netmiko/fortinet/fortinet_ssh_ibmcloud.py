@@ -184,7 +184,6 @@ Alternatively you can try configuring 'configure system console -> set output st
             if result_mode in ["more", "standard"]:
                 return result_mode
 
-
     def _get_output_mode(self) -> str:
         """Save the state of the output mode so it can be reset at the end of the session."""
 
@@ -217,3 +216,5 @@ Alternatively you can try configuring 'configure system console -> set output st
     ) -> str:
         """Not Implemented"""
         raise NotImplementedError
+        
+        
