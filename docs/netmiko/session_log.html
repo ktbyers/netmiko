@@ -38,8 +38,9 @@ class SessionLog:
         buffered_io: Optional[io.BufferedIOBase] = None,
         file_mode: str = &#34;write&#34;,
         file_encoding: str = &#34;utf-8&#34;,
-        no_log: Dict[str, Any] = None,
+        no_log: Optional[Dict[str, Any]] = None,
         record_writes: bool = False,
+        slog_buffer: Optional[io.StringIO] = None,
     ) -&gt; None:
         if no_log is None:
             self.no_log = {}
@@ -57,6 +58,13 @@ class SessionLog:
             self.session_log = buffered_io
         else:
             self.session_log = None
+
+        # In order to ensure all the no_log entries get hidden properly,
+        # we must first store everying in memory and then write out to file.
+        # Otherwise, we might miss the data we are supposed to hide (since
+        # the no_log data potentially spans multiple reads).
+        if slog_buffer is None:
+            self.slog_buffer = io.StringIO()
 
         # Ensures last write operations prior to disconnect are recorded.
         self.fin = False
@@ -77,15 +85,30 @@ class SessionLog:
 
     def close(self) -&gt; None:
         &#34;&#34;&#34;Close the session_log file (if it is a file that we opened).&#34;&#34;&#34;
+        self.flush()
         if self.session_log and self._session_log_close:
             self.session_log.close()
             self.session_log = None
 
-    def write(self, data: str) -&gt; None:
-        if self.session_log is not None and len(data) &gt; 0:
-            # Hide the password and secret in the session_log
-            for hidden_data in self.no_log.values():
-                data = data.replace(hidden_data, &#34;********&#34;)
+    def no_log_filter(self, data: str) -&gt; str:
+        &#34;&#34;&#34;Filter content from the session_log.&#34;&#34;&#34;
+        for hidden_data in self.no_log.values():
+            data = data.replace(hidden_data, &#34;********&#34;)
+        return data
+
+    def _read_buffer(self) -&gt; str:
+        self.slog_buffer.seek(0)
+        data = self.slog_buffer.read()
+        # Once read, create a new buffer
+        self.slog_buffer = io.StringIO()
+        return data
+
+    def flush(self) -&gt; None:
+        &#34;&#34;&#34;Force the slog_buffer to be written out to the actual file&#34;&#34;&#34;
+
+        if self.session_log is not None:
+            data = self._read_buffer()
+            data = self.no_log_filter(data)
 
             if isinstance(self.session_log, io.BufferedIOBase):
                 self.session_log.write(write_bytes(data, encoding=self.file_encoding))
@@ -95,7 +118,13 @@ class SessionLog:
             assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
                 self.session_log, io.TextIOBase
             )
-            self.session_log.flush()</code></pre>
+
+            # Flush the underlying file
+            self.session_log.flush()
+
+    def write(self, data: str) -&gt; None:
+        if len(data) &gt; 0:
+            self.slog_buffer.write(data)</code></pre>
 </details>
 </section>
 <section>
@@ -109,7 +138,7 @@ class SessionLog:
 <dl>
 <dt id="netmiko.session_log.SessionLog"><code class="flex name class">
 <span>class <span class="ident">SessionLog</span></span>
-<span>(</span><span>file_name: Optional[str] = None, buffered_io: Optional[io.BufferedIOBase] = None, file_mode: str = 'write', file_encoding: str = 'utf-8', no_log: Dict[str, Any] = None, record_writes: bool = False)</span>
+<span>(</span><span>file_name: Optional[str] = None, buffered_io: Optional[io.BufferedIOBase] = None, file_mode: str = 'write', file_encoding: str = 'utf-8', no_log: Optional[Dict[str, Any]] = None, record_writes: bool = False, slog_buffer: Optional[_io.StringIO] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -124,8 +153,9 @@ class SessionLog:
         buffered_io: Optional[io.BufferedIOBase] = None,
         file_mode: str = &#34;write&#34;,
         file_encoding: str = &#34;utf-8&#34;,
-        no_log: Dict[str, Any] = None,
+        no_log: Optional[Dict[str, Any]] = None,
         record_writes: bool = False,
+        slog_buffer: Optional[io.StringIO] = None,
     ) -&gt; None:
         if no_log is None:
             self.no_log = {}
@@ -143,6 +173,13 @@ class SessionLog:
             self.session_log = buffered_io
         else:
             self.session_log = None
+
+        # In order to ensure all the no_log entries get hidden properly,
+        # we must first store everying in memory and then write out to file.
+        # Otherwise, we might miss the data we are supposed to hide (since
+        # the no_log data potentially spans multiple reads).
+        if slog_buffer is None:
+            self.slog_buffer = io.StringIO()
 
         # Ensures last write operations prior to disconnect are recorded.
         self.fin = False
@@ -163,15 +200,30 @@ class SessionLog:
 
     def close(self) -&gt; None:
         &#34;&#34;&#34;Close the session_log file (if it is a file that we opened).&#34;&#34;&#34;
+        self.flush()
         if self.session_log and self._session_log_close:
             self.session_log.close()
             self.session_log = None
 
-    def write(self, data: str) -&gt; None:
-        if self.session_log is not None and len(data) &gt; 0:
-            # Hide the password and secret in the session_log
-            for hidden_data in self.no_log.values():
-                data = data.replace(hidden_data, &#34;********&#34;)
+    def no_log_filter(self, data: str) -&gt; str:
+        &#34;&#34;&#34;Filter content from the session_log.&#34;&#34;&#34;
+        for hidden_data in self.no_log.values():
+            data = data.replace(hidden_data, &#34;********&#34;)
+        return data
+
+    def _read_buffer(self) -&gt; str:
+        self.slog_buffer.seek(0)
+        data = self.slog_buffer.read()
+        # Once read, create a new buffer
+        self.slog_buffer = io.StringIO()
+        return data
+
+    def flush(self) -&gt; None:
+        &#34;&#34;&#34;Force the slog_buffer to be written out to the actual file&#34;&#34;&#34;
+
+        if self.session_log is not None:
+            data = self._read_buffer()
+            data = self.no_log_filter(data)
 
             if isinstance(self.session_log, io.BufferedIOBase):
                 self.session_log.write(write_bytes(data, encoding=self.file_encoding))
@@ -181,7 +233,13 @@ class SessionLog:
             assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
                 self.session_log, io.TextIOBase
             )
-            self.session_log.flush()</code></pre>
+
+            # Flush the underlying file
+            self.session_log.flush()
+
+    def write(self, data: str) -&gt; None:
+        if len(data) &gt; 0:
+            self.slog_buffer.write(data)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -196,9 +254,55 @@ class SessionLog:
 </summary>
 <pre><code class="python">def close(self) -&gt; None:
     &#34;&#34;&#34;Close the session_log file (if it is a file that we opened).&#34;&#34;&#34;
+    self.flush()
     if self.session_log and self._session_log_close:
         self.session_log.close()
         self.session_log = None</code></pre>
+</details>
+</dd>
+<dt id="netmiko.session_log.SessionLog.flush"><code class="name flex">
+<span>def <span class="ident">flush</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Force the slog_buffer to be written out to the actual file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def flush(self) -&gt; None:
+    &#34;&#34;&#34;Force the slog_buffer to be written out to the actual file&#34;&#34;&#34;
+
+    if self.session_log is not None:
+        data = self._read_buffer()
+        data = self.no_log_filter(data)
+
+        if isinstance(self.session_log, io.BufferedIOBase):
+            self.session_log.write(write_bytes(data, encoding=self.file_encoding))
+        else:
+            self.session_log.write(data)
+
+        assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
+            self.session_log, io.TextIOBase
+        )
+
+        # Flush the underlying file
+        self.session_log.flush()</code></pre>
+</details>
+</dd>
+<dt id="netmiko.session_log.SessionLog.no_log_filter"><code class="name flex">
+<span>def <span class="ident">no_log_filter</span></span>(<span>self, data: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Filter content from the session_log.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def no_log_filter(self, data: str) -&gt; str:
+    &#34;&#34;&#34;Filter content from the session_log.&#34;&#34;&#34;
+    for hidden_data in self.no_log.values():
+        data = data.replace(hidden_data, &#34;********&#34;)
+    return data</code></pre>
 </details>
 </dd>
 <dt id="netmiko.session_log.SessionLog.open"><code class="name flex">
@@ -235,20 +339,8 @@ class SessionLog:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def write(self, data: str) -&gt; None:
-    if self.session_log is not None and len(data) &gt; 0:
-        # Hide the password and secret in the session_log
-        for hidden_data in self.no_log.values():
-            data = data.replace(hidden_data, &#34;********&#34;)
-
-        if isinstance(self.session_log, io.BufferedIOBase):
-            self.session_log.write(write_bytes(data, encoding=self.file_encoding))
-        else:
-            self.session_log.write(data)
-
-        assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
-            self.session_log, io.TextIOBase
-        )
-        self.session_log.flush()</code></pre>
+    if len(data) &gt; 0:
+        self.slog_buffer.write(data)</code></pre>
 </details>
 </dd>
 </dl>
@@ -273,6 +365,8 @@ class SessionLog:
 <h4><code><a title="netmiko.session_log.SessionLog" href="#netmiko.session_log.SessionLog">SessionLog</a></code></h4>
 <ul class="">
 <li><code><a title="netmiko.session_log.SessionLog.close" href="#netmiko.session_log.SessionLog.close">close</a></code></li>
+<li><code><a title="netmiko.session_log.SessionLog.flush" href="#netmiko.session_log.SessionLog.flush">flush</a></code></li>
+<li><code><a title="netmiko.session_log.SessionLog.no_log_filter" href="#netmiko.session_log.SessionLog.no_log_filter">no_log_filter</a></code></li>
 <li><code><a title="netmiko.session_log.SessionLog.open" href="#netmiko.session_log.SessionLog.open">open</a></code></li>
 <li><code><a title="netmiko.session_log.SessionLog.write" href="#netmiko.session_log.SessionLog.write">write</a></code></li>
 </ul>

@@ -37,23 +37,47 @@ if TYPE_CHECKING:
 
 
 class AristaBase(CiscoSSHConnection):
+    prompt_pattern = r&#34;[$&gt;#]&#34;
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read(pattern=self.prompt_pattern)
         cmd = &#34;terminal width 511&#34;
-        # Arista will echo immediately and then when the device really responds (like NX-OS)
         self.set_terminal_width(command=cmd, pattern=r&#34;Width set to&#34;)
         self.disable_paging(cmd_verify=False, pattern=r&#34;Pagination disabled&#34;)
         self.set_base_prompt()
+
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        Arista&#39;s sometimes duplicate the command echo if they fall behind.
+
+        arista9-napalm#
+        show version | json
+        arista9-napalm#show version | json
+
+        Using the terminating pattern tries to ensure that it is less likely they
+        fall behind.
+        &#34;&#34;&#34;
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def enable(
         self,
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = r&#34;\#&#34;,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def check_config_mode(
@@ -185,7 +209,7 @@ class AristaFileTransfer(CiscoFileTransfer):
 <dl>
 <dt id="netmiko.arista.arista.AristaBase"><code class="flex name class">
 <span>class <span class="ident">AristaBase</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -226,6 +250,9 @@ class AristaFileTransfer(CiscoFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -240,13 +267,17 @@ class AristaFileTransfer(CiscoFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -259,11 +290,14 @@ class AristaFileTransfer(CiscoFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -276,10 +310,13 @@ class AristaFileTransfer(CiscoFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -291,29 +328,56 @@ class AristaFileTransfer(CiscoFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AristaBase(CiscoSSHConnection):
+    prompt_pattern = r&#34;[$&gt;#]&#34;
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read(pattern=self.prompt_pattern)
         cmd = &#34;terminal width 511&#34;
-        # Arista will echo immediately and then when the device really responds (like NX-OS)
         self.set_terminal_width(command=cmd, pattern=r&#34;Width set to&#34;)
         self.disable_paging(cmd_verify=False, pattern=r&#34;Pagination disabled&#34;)
         self.set_base_prompt()
+
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        Arista&#39;s sometimes duplicate the command echo if they fall behind.
+
+        arista9-napalm#
+        show version | json
+        arista9-napalm#show version | json
+
+        Using the terminating pattern tries to ensure that it is less likely they
+        fall behind.
+        &#34;&#34;&#34;
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def enable(
         self,
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = r&#34;\#&#34;,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def check_config_mode(
@@ -376,6 +440,13 @@ class AristaFileTransfer(CiscoFileTransfer):
 <li><a title="netmiko.arista.arista.AristaSSH" href="#netmiko.arista.arista.AristaSSH">AristaSSH</a></li>
 <li><a title="netmiko.arista.arista.AristaTelnet" href="#netmiko.arista.arista.AristaTelnet">AristaTelnet</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.arista.arista.AristaBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.arista.arista.AristaBase.check_config_mode"><code class="name flex">
@@ -440,6 +511,38 @@ loc1-core01(s1)#</p>
     )</code></pre>
 </details>
 </dd>
+<dt id="netmiko.arista.arista.AristaBase.find_prompt"><code class="name flex">
+<span>def <span class="ident">find_prompt</span></span>(<span>self, delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Arista's sometimes duplicate the command echo if they fall behind.</p>
+<p>arista9-napalm#
+show version | json
+arista9-napalm#show version | json</p>
+<p>Using the terminating pattern tries to ensure that it is less likely they
+fall behind.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_prompt(
+    self, delay_factor: float = 1.0, pattern: Optional[str] = None
+) -&gt; str:
+    &#34;&#34;&#34;
+    Arista&#39;s sometimes duplicate the command echo if they fall behind.
+
+    arista9-napalm#
+    show version | json
+    arista9-napalm#show version | json
+
+    Using the terminating pattern tries to ensure that it is less likely they
+    fall behind.
+    &#34;&#34;&#34;
+    if not pattern:
+        pattern = self.prompt_pattern
+    return super().find_prompt(delay_factor=delay_factor, pattern=pattern)</code></pre>
+</details>
+</dd>
 <dt id="netmiko.arista.arista.AristaBase.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
@@ -451,8 +554,8 @@ loc1-core01(s1)#</p>
 </summary>
 <pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    self._test_channel_read(pattern=self.prompt_pattern)
     cmd = &#34;terminal width 511&#34;
-    # Arista will echo immediately and then when the device really responds (like NX-OS)
     self.set_terminal_width(command=cmd, pattern=r&#34;Width set to&#34;)
     self.disable_paging(cmd_verify=False, pattern=r&#34;Pagination disabled&#34;)
     self.set_base_prompt()</code></pre>
@@ -473,7 +576,6 @@ loc1-core01(s1)#</p>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
@@ -603,7 +705,7 @@ loc1-core01(s1)#</p>
 </dd>
 <dt id="netmiko.arista.arista.AristaSSH"><code class="flex name class">
 <span>class <span class="ident">AristaSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -644,6 +746,9 @@ loc1-core01(s1)#</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -658,13 +763,17 @@ loc1-core01(s1)#</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -677,11 +786,14 @@ loc1-core01(s1)#</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -694,10 +806,13 @@ loc1-core01(s1)#</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -709,6 +824,9 @@ loc1-core01(s1)#</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -740,7 +858,7 @@ loc1-core01(s1)#</p>
 <li><code><a title="netmiko.arista.arista.AristaBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
-<li><code><a title="netmiko.arista.arista.AristaBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
+<li><code><a title="netmiko.arista.arista.AristaBase.find_prompt" href="#netmiko.arista.arista.AristaBase.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
@@ -816,6 +934,9 @@ loc1-core01(s1)#</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -830,13 +951,17 @@ loc1-core01(s1)#</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -849,11 +974,14 @@ loc1-core01(s1)#</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -866,10 +994,13 @@ loc1-core01(s1)#</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -881,6 +1012,9 @@ loc1-core01(s1)#</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -915,7 +1049,7 @@ loc1-core01(s1)#</p>
 <li><code><a title="netmiko.arista.arista.AristaBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
-<li><code><a title="netmiko.arista.arista.AristaBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
+<li><code><a title="netmiko.arista.arista.AristaBase.find_prompt" href="#netmiko.arista.arista.AristaBase.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
@@ -969,6 +1103,8 @@ loc1-core01(s1)#</p>
 <ul class="">
 <li><code><a title="netmiko.arista.arista.AristaBase.check_config_mode" href="#netmiko.arista.arista.AristaBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.config_mode" href="#netmiko.arista.arista.AristaBase.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.arista.arista.AristaBase.find_prompt" href="#netmiko.arista.arista.AristaBase.find_prompt">find_prompt</a></code></li>
+<li><code><a title="netmiko.arista.arista.AristaBase.prompt_pattern" href="#netmiko.arista.arista.AristaBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.arista.arista.AristaBase.session_preparation" href="#netmiko.arista.arista.AristaBase.session_preparation">session_preparation</a></code></li>
 </ul>
 </li>

@@ -39,6 +39,8 @@ from netmiko.cisco.cisco_ftd_ssh import CiscoFtdSSH
 from netmiko.cisco.cisco_nxos_ssh import CiscoNxosSSH, CiscoNxosFileTransfer
 from netmiko.cisco.cisco_xr import CiscoXrSSH, CiscoXrTelnet, CiscoXrFileTransfer
 from netmiko.cisco.cisco_wlc_ssh import CiscoWlcSSH
+from netmiko.cisco.cisco_s200 import CiscoS200SSH
+from netmiko.cisco.cisco_s200 import CiscoS200Telnet
 from netmiko.cisco.cisco_s300 import CiscoS300SSH
 from netmiko.cisco.cisco_s300 import CiscoS300Telnet
 from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH
@@ -53,6 +55,8 @@ __all__ = [
     &#34;CiscoXrSSH&#34;,
     &#34;CiscoXrTelnet&#34;,
     &#34;CiscoWlcSSH&#34;,
+    &#34;CiscoS200SSH&#34;,
+    &#34;CiscoS200Telnet&#34;,
     &#34;CiscoS300SSH&#34;,
     &#34;CiscoS300Telnet&#34;,
     &#34;CiscoTpTcCeSSH&#34;,
@@ -83,6 +87,10 @@ __all__ = [
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="netmiko.cisco.cisco_nxos_ssh" href="cisco_nxos_ssh.html">netmiko.cisco.cisco_nxos_ssh</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="netmiko.cisco.cisco_s200" href="cisco_s200.html">netmiko.cisco.cisco_s200</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -205,6 +213,9 @@ Expressway/VCS …</p></div>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -219,13 +230,17 @@ Expressway/VCS …</p></div>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -238,11 +253,14 @@ Expressway/VCS …</p></div>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -255,10 +273,13 @@ Expressway/VCS …</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -270,6 +291,9 @@ Expressway/VCS …</p></div>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -323,10 +347,15 @@ Expressway/VCS …</p></div>
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = r&#34;\#&#34;,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def send_command_timing(
@@ -708,7 +737,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 </dd>
 <dt id="netmiko.cisco.CiscoFtdSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoFtdSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Subclass specific to Cisco FTD.</p>
@@ -749,6 +778,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -763,13 +795,17 @@ happens the trailing '(config*' needs stripped off.</p></div>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -782,11 +818,14 @@ happens the trailing '(config*' needs stripped off.</p></div>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -799,10 +838,13 @@ happens the trailing '(config*' needs stripped off.</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -814,6 +856,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -941,7 +986,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 </dd>
 <dt id="netmiko.cisco.CiscoIosBase"><code class="flex name class">
 <span>class <span class="ident">CiscoIosBase</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Common Methods for IOS (both SSH and telnet).</p>
@@ -982,6 +1027,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -996,13 +1044,17 @@ happens the trailing '(config*' needs stripped off.</p></div>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1015,11 +1067,14 @@ happens the trailing '(config*' needs stripped off.</p></div>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1032,10 +1087,13 @@ happens the trailing '(config*' needs stripped off.</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1047,6 +1105,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1119,6 +1180,30 @@ happens the trailing '(config*' needs stripped off.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="netmiko.cisco.CiscoIosBase.check_config_mode"><code class="name flex">
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ')#', pattern: str = &#x27;[&gt;#]&#x27;, force_regex: bool = False) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if the device is in configuration mode or not.</p>
+<p>Cisco IOS devices abbreviate the prompt at 20 chars in config mode</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_config_mode(
+    self,
+    check_string: str = &#34;)#&#34;,
+    pattern: str = r&#34;[&gt;#]&#34;,
+    force_regex: bool = False,
+) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if the device is in configuration mode or not.
+
+    Cisco IOS devices abbreviate the prompt at 20 chars in config mode
+    &#34;&#34;&#34;
+    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
+</details>
+</dd>
 <dt id="netmiko.cisco.CiscoIosBase.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'write mem', confirm: bool = False, confirm_response: str = '') ‑> str</span>
 </code></dt>
@@ -1191,7 +1276,6 @@ happens the trailing '(config*' needs stripped off.</p></div>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -1284,7 +1368,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 </dd>
 <dt id="netmiko.cisco.CiscoIosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cisco IOS SSH driver.</p>
@@ -1325,6 +1409,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1339,13 +1426,17 @@ happens the trailing '(config*' needs stripped off.</p></div>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1358,11 +1449,14 @@ happens the trailing '(config*' needs stripped off.</p></div>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1375,10 +1469,13 @@ happens the trailing '(config*' needs stripped off.</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1390,6 +1487,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1410,7 +1510,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -1457,7 +1557,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 </dd>
 <dt id="netmiko.cisco.CiscoIosSerial"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSerial</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cisco IOS Serial driver.</p>
@@ -1498,6 +1598,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1512,13 +1615,17 @@ happens the trailing '(config*' needs stripped off.</p></div>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1531,11 +1638,14 @@ happens the trailing '(config*' needs stripped off.</p></div>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1548,10 +1658,13 @@ happens the trailing '(config*' needs stripped off.</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1563,6 +1676,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1583,7 +1699,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -1630,7 +1746,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 </dd>
 <dt id="netmiko.cisco.CiscoIosTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoIosTelnet</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cisco IOS Telnet driver.</p>
@@ -1671,6 +1787,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1685,13 +1804,17 @@ happens the trailing '(config*' needs stripped off.</p></div>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1704,11 +1827,14 @@ happens the trailing '(config*' needs stripped off.</p></div>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1721,10 +1847,13 @@ happens the trailing '(config*' needs stripped off.</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1736,6 +1865,9 @@ happens the trailing '(config*' needs stripped off.</p></div>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1756,7 +1888,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -1972,7 +2104,7 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
 </dd>
 <dt id="netmiko.cisco.CiscoNxosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoNxosSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -2013,6 +2145,9 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -2027,13 +2162,17 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -2046,11 +2185,14 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -2063,10 +2205,13 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -2078,6 +2223,9 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -2150,25 +2298,6 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.cisco.CiscoNxosSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ')#', pattern: str = &#x27;[&gt;#]&#x27;, force_regex: bool = False) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Checks if the device is in configuration mode or not.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_config_mode(
-    self,
-    check_string: str = &#34;)#&#34;,
-    pattern: str = r&#34;[&gt;#]&#34;,
-    force_regex: bool = False,
-) -&gt; bool:
-    &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
-</details>
-</dd>
 <dt id="netmiko.cisco.CiscoNxosSSH.normalize_linefeeds"><code class="name flex">
 <span>def <span class="ident">normalize_linefeeds</span></span>(<span>self, a_string: str) ‑> str</span>
 </code></dt>
@@ -2215,6 +2344,7 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -2257,9 +2387,391 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
 </li>
 </ul>
 </dd>
+<dt id="netmiko.cisco.CiscoS200SSH"><code class="flex name class">
+<span>class <span class="ident">CiscoS200SSH</span></span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Support for Cisco SG200 series of devices.</p>
+<p>This connection class writes for low cost switches SG200 series, in which there is no command:</p>
+<p>ip ssh password-auth</p>
+<p>Consequently, Netmiko must handle the SSH authentication itself.</p>
+<pre><code>    Initialize attributes for establishing connection to target device.
+
+    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
+        provided.
+
+    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
+            provided.
+
+    :param username: Username to authenticate against target device if
+            required.
+
+    :param password: Password to authenticate against target device if
+            required.
+
+    :param secret: The enable password if target device requires one.
+
+    :param port: The destination port used to connect to the target
+            device.
+
+    :param device_type: Class selection based on device type.
+
+    :param verbose: Enable additional messages to standard output.
+
+    :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
+
+    :param use_keys: Connect to target device using SSH keys.
+
+    :param key_file: Filename path of the SSH key file to use.
+
+    :param pkey: SSH key object to use.
+
+    :param passphrase: Passphrase to use for encrypted key; password will be used for key
+            decryption if not specified.
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
+
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
+    :param allow_agent: Enable use of SSH key-agent.
+
+    :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
+            means unknown SSH host keys will be accepted).
+
+    :param system_host_keys: Load host keys from the users known_hosts file.
+
+    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
+            alt_key_file.
+
+    :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
+
+    :param ssh_config_file: File name of OpenSSH configuration file.
+
+    :param conn_timeout: TCP connection timeout.
+
+    :param session_timeout: Set a timeout for parallel requests.
+
+    :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
+
+    :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
+            Currently defaults to 0, for backwards compatibility (it will not attempt
+            to keep the connection alive).
+
+    :param default_enter: Character(s) to send to correspond to enter key (default:
+</code></pre>
+<p>).</p>
+<pre><code>    :param response_return: Character(s) to use in normalized return data to represent
+            enter key (default:
+</code></pre>
+<p>)</p>
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+            to select smallest of global and specific. Sets default global_delay_factor to .1
+            (default: True)
+
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
+
+    :param session_log_record_writes: The session log generally only records channel reads due
+            to eliminate command duplication due to command echo. You can enable this if you
+            want to record both channel reads and channel writes in the log (default: False).
+
+    :param session_log_file_mode: "write" or "append" for session_log file mode
+            (default: "write")
+
+    :param allow_auto_change: Allow automatic configuration changes for terminal settings.
+            (default: False)
+
+    :param encoding: Encoding to be used when writing bytes to the output channel.
+            (default: "utf-8")
+
+    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
+            communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
+            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CiscoS200SSH(CiscoS200Base):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="netmiko.cisco.cisco_s200.CiscoS200Base" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base">CiscoS200Base</a></li>
+<li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
+<li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
+<li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="netmiko.cisco.cisco_s200.CiscoS200Base" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base">CiscoS200Base</a></b></code>:
+<ul class="hlist">
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.session_preparation" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.special_login_handler" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base.special_login_handler">special_login_handler</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.telnet_login" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login">telnet_login</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="netmiko.cisco.CiscoS200Telnet"><code class="flex name class">
+<span>class <span class="ident">CiscoS200Telnet</span></span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Support for Cisco SG200 series of devices.</p>
+<p>This connection class writes for low cost switches SG200 series, in which there is no command:</p>
+<p>ip ssh password-auth</p>
+<p>Consequently, Netmiko must handle the SSH authentication itself.</p>
+<pre><code>    Initialize attributes for establishing connection to target device.
+
+    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
+        provided.
+
+    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
+            provided.
+
+    :param username: Username to authenticate against target device if
+            required.
+
+    :param password: Password to authenticate against target device if
+            required.
+
+    :param secret: The enable password if target device requires one.
+
+    :param port: The destination port used to connect to the target
+            device.
+
+    :param device_type: Class selection based on device type.
+
+    :param verbose: Enable additional messages to standard output.
+
+    :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
+
+    :param use_keys: Connect to target device using SSH keys.
+
+    :param key_file: Filename path of the SSH key file to use.
+
+    :param pkey: SSH key object to use.
+
+    :param passphrase: Passphrase to use for encrypted key; password will be used for key
+            decryption if not specified.
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
+
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
+    :param allow_agent: Enable use of SSH key-agent.
+
+    :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
+            means unknown SSH host keys will be accepted).
+
+    :param system_host_keys: Load host keys from the users known_hosts file.
+
+    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
+            alt_key_file.
+
+    :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
+
+    :param ssh_config_file: File name of OpenSSH configuration file.
+
+    :param conn_timeout: TCP connection timeout.
+
+    :param session_timeout: Set a timeout for parallel requests.
+
+    :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
+
+    :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
+            Currently defaults to 0, for backwards compatibility (it will not attempt
+            to keep the connection alive).
+
+    :param default_enter: Character(s) to send to correspond to enter key (default:
+</code></pre>
+<p>).</p>
+<pre><code>    :param response_return: Character(s) to use in normalized return data to represent
+            enter key (default:
+</code></pre>
+<p>)</p>
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+            to select smallest of global and specific. Sets default global_delay_factor to .1
+            (default: True)
+
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
+
+    :param session_log_record_writes: The session log generally only records channel reads due
+            to eliminate command duplication due to command echo. You can enable this if you
+            want to record both channel reads and channel writes in the log (default: False).
+
+    :param session_log_file_mode: "write" or "append" for session_log file mode
+            (default: "write")
+
+    :param allow_auto_change: Allow automatic configuration changes for terminal settings.
+            (default: False)
+
+    :param encoding: Encoding to be used when writing bytes to the output channel.
+            (default: "utf-8")
+
+    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
+            communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
+            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CiscoS200Telnet(CiscoS200Base):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="netmiko.cisco.cisco_s200.CiscoS200Base" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base">CiscoS200Base</a></li>
+<li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
+<li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
+<li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="netmiko.cisco.cisco_s200.CiscoS200Base" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base">CiscoS200Base</a></b></code>:
+<ul class="hlist">
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.session_preparation" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.special_login_handler" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base.special_login_handler">special_login_handler</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.strip_backspaces" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_backspaces">strip_backspaces</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.strip_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_command">strip_command</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.strip_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_prompt">strip_prompt</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.telnet_login" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login">telnet_login</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.write_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.write_channel">write_channel</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="netmiko.cisco.CiscoS300SSH"><code class="flex name class">
 <span>class <span class="ident">CiscoS300SSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Support for Cisco SG300 series of devices.</p>
@@ -2303,6 +2815,9 @@ ip ssh password-auth</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -2317,13 +2832,17 @@ ip ssh password-auth</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -2336,11 +2855,14 @@ ip ssh password-auth</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -2353,10 +2875,13 @@ ip ssh password-auth</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -2368,6 +2893,9 @@ ip ssh password-auth</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -2434,7 +2962,7 @@ ip ssh password-auth</p>
 </dd>
 <dt id="netmiko.cisco.CiscoS300Telnet"><code class="flex name class">
 <span>class <span class="ident">CiscoS300Telnet</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Support for Cisco SG300 series of devices, with telnet.
@@ -2476,6 +3004,9 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -2490,13 +3021,17 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -2509,11 +3044,14 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -2526,10 +3064,13 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -2541,6 +3082,9 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -2653,6 +3197,9 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -2667,13 +3214,17 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -2686,11 +3237,14 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -2703,10 +3257,13 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -2718,6 +3275,9 @@ Note: can be used with Sx200 series, with telnet enabled.</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -3000,7 +3560,7 @@ self.set_terminal_width()</p></div>
 </dd>
 <dt id="netmiko.cisco.CiscoViptelaSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoViptelaSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Subclass specific to Cisco Viptela.</p>
@@ -3041,6 +3601,9 @@ self.set_terminal_width()</p></div>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -3055,13 +3618,17 @@ self.set_terminal_width()</p></div>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -3074,11 +3641,14 @@ self.set_terminal_width()</p></div>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -3091,10 +3661,13 @@ self.set_terminal_width()</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -3106,6 +3679,9 @@ self.set_terminal_width()</p></div>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -3195,22 +3771,6 @@ self.set_terminal_width()</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.cisco.CiscoViptelaSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ')#', pattern: str = '#', force_regex: bool = False) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Checks if the device is in configuration mode or not.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_config_mode(
-    self, check_string: str = &#34;)#&#34;, pattern: str = &#34;#&#34;, force_regex: bool = False
-) -&gt; bool:
-    &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
-</details>
-</dd>
 <dt id="netmiko.cisco.CiscoViptelaSSH.exit_config_mode"><code class="name flex">
 <span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config: str = 'end', pattern: str = '#') ‑> str</span>
 </code></dt>
@@ -3289,6 +3849,7 @@ self.set_terminal_width()</p></div>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -3332,7 +3893,7 @@ self.set_terminal_width()</p></div>
 </dd>
 <dt id="netmiko.cisco.CiscoWlcSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoWlcSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Netmiko Cisco WLC support.</p>
@@ -3373,6 +3934,9 @@ self.set_terminal_width()</p></div>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -3387,13 +3951,17 @@ self.set_terminal_width()</p></div>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -3406,11 +3974,14 @@ self.set_terminal_width()</p></div>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -3423,10 +3994,13 @@ self.set_terminal_width()</p></div>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -3438,6 +4012,9 @@ self.set_terminal_width()</p></div>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -3632,6 +4209,8 @@ output:
                 self._session_log_fin = True
                 self.write_channel(&#34;n&#34; + self.RETURN)
 
+            time.sleep(0.5)
+
             try:
                 self.write_channel(self.RETURN)
             except socket.error:
@@ -3761,6 +4340,8 @@ output:
         if &#34;Would you like to save them now&#34; in output:
             self._session_log_fin = True
             self.write_channel(&#34;n&#34; + self.RETURN)
+
+        time.sleep(0.5)
 
         try:
             self.write_channel(self.RETURN)
@@ -4173,7 +4754,7 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 </dd>
 <dt id="netmiko.cisco.CiscoXrSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoXrSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cisco XR SSH driver.</p>
@@ -4214,6 +4795,9 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -4228,13 +4812,17 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -4247,11 +4835,14 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -4264,10 +4855,13 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -4279,6 +4873,9 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -4346,7 +4943,7 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 </dd>
 <dt id="netmiko.cisco.CiscoXrTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoXrTelnet</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cisco XR Telnet driver.</p>
@@ -4387,6 +4984,9 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -4401,13 +5001,17 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -4420,11 +5024,14 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -4437,10 +5044,13 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -4452,6 +5062,9 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -4820,6 +5433,7 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 <li><code><a title="netmiko.cisco.cisco_ftd_ssh" href="cisco_ftd_ssh.html">netmiko.cisco.cisco_ftd_ssh</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios" href="cisco_ios.html">netmiko.cisco.cisco_ios</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_nxos_ssh" href="cisco_nxos_ssh.html">netmiko.cisco.cisco_nxos_ssh</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_s200" href="cisco_s200.html">netmiko.cisco.cisco_s200</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s300" href="cisco_s300.html">netmiko.cisco.cisco_s300</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_tp_tcce" href="cisco_tp_tcce.html">netmiko.cisco.cisco_tp_tcce</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_viptela" href="cisco_viptela.html">netmiko.cisco.cisco_viptela</a></code></li>
@@ -4855,6 +5469,7 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 <li>
 <h4><code><a title="netmiko.cisco.CiscoIosBase" href="#netmiko.cisco.CiscoIosBase">CiscoIosBase</a></code></h4>
 <ul class="">
+<li><code><a title="netmiko.cisco.CiscoIosBase.check_config_mode" href="#netmiko.cisco.CiscoIosBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoIosBase.save_config" href="#netmiko.cisco.CiscoIosBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoIosBase.session_preparation" href="#netmiko.cisco.CiscoIosBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>
@@ -4881,10 +5496,15 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 <li>
 <h4><code><a title="netmiko.cisco.CiscoNxosSSH" href="#netmiko.cisco.CiscoNxosSSH">CiscoNxosSSH</a></code></h4>
 <ul class="">
-<li><code><a title="netmiko.cisco.CiscoNxosSSH.check_config_mode" href="#netmiko.cisco.CiscoNxosSSH.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoNxosSSH.normalize_linefeeds" href="#netmiko.cisco.CiscoNxosSSH.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoNxosSSH.session_preparation" href="#netmiko.cisco.CiscoNxosSSH.session_preparation">session_preparation</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="netmiko.cisco.CiscoS200SSH" href="#netmiko.cisco.CiscoS200SSH">CiscoS200SSH</a></code></h4>
+</li>
+<li>
+<h4><code><a title="netmiko.cisco.CiscoS200Telnet" href="#netmiko.cisco.CiscoS200Telnet">CiscoS200Telnet</a></code></h4>
 </li>
 <li>
 <h4><code><a title="netmiko.cisco.CiscoS300SSH" href="#netmiko.cisco.CiscoS300SSH">CiscoS300SSH</a></code></h4>
@@ -4907,7 +5527,6 @@ def process_md5(md5_output: str, pattern: str = r&#34;^([a-fA-F0-9]+)$&#34;) -&g
 <li>
 <h4><code><a title="netmiko.cisco.CiscoViptelaSSH" href="#netmiko.cisco.CiscoViptelaSSH">CiscoViptelaSSH</a></code></h4>
 <ul class="">
-<li><code><a title="netmiko.cisco.CiscoViptelaSSH.check_config_mode" href="#netmiko.cisco.CiscoViptelaSSH.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoViptelaSSH.exit_config_mode" href="#netmiko.cisco.CiscoViptelaSSH.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoViptelaSSH.save_config" href="#netmiko.cisco.CiscoViptelaSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.CiscoViptelaSSH.session_preparation" href="#netmiko.cisco.CiscoViptelaSSH.session_preparation">session_preparation</a></code></li>

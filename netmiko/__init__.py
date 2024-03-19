@@ -1,9 +1,9 @@
 import sys
 
-__version__ = "4.1.2"
+__version__ = "4.3.0"
 PY_MAJ_VER = 3
-PY_MIN_VER = 7
-MIN_PYTHON_VER = "3.7"
+PY_MIN_VER = 8
+MIN_PYTHON_VER = "3.8"
 
 
 # Make sure user is using a valid Python version (for Netmiko)
@@ -38,6 +38,7 @@ log.addHandler(logging.NullHandler())
 
 
 from netmiko.ssh_dispatcher import ConnectHandler  # noqa
+from netmiko.ssh_dispatcher import TelnetFallback  # noqa
 from netmiko.ssh_dispatcher import ConnLogOnly  # noqa
 from netmiko.ssh_dispatcher import ConnUnify  # noqa
 from netmiko.ssh_dispatcher import ssh_dispatcher  # noqa
@@ -66,6 +67,7 @@ Netmiko = ConnectHandler
 
 __all__ = (
     "ConnectHandler",
+    "AgnosticHandler",
     "ConnLogOnly",
     "ConnUnify",
     "ssh_dispatcher",

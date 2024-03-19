@@ -330,7 +330,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <dl>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosBase"><code class="flex name class">
 <span>class <span class="ident">CiscoIosBase</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Common Methods for IOS (both SSH and telnet).</p>
@@ -371,6 +371,9 @@ class InLineTransfer(CiscoIosFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -385,13 +388,17 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -404,11 +411,14 @@ class InLineTransfer(CiscoIosFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -421,10 +431,13 @@ class InLineTransfer(CiscoIosFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -436,6 +449,9 @@ class InLineTransfer(CiscoIosFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -508,6 +524,30 @@ class InLineTransfer(CiscoIosFileTransfer):
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode"><code class="name flex">
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ')#', pattern: str = &#x27;[&gt;#]&#x27;, force_regex: bool = False) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if the device is in configuration mode or not.</p>
+<p>Cisco IOS devices abbreviate the prompt at 20 chars in config mode</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_config_mode(
+    self,
+    check_string: str = &#34;)#&#34;,
+    pattern: str = r&#34;[&gt;#]&#34;,
+    force_regex: bool = False,
+) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if the device is in configuration mode or not.
+
+    Cisco IOS devices abbreviate the prompt at 20 chars in config mode
+    &#34;&#34;&#34;
+    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
+</details>
+</dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosBase.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'write mem', confirm: bool = False, confirm_response: str = '') ‑> str</span>
 </code></dt>
@@ -580,7 +620,6 @@ class InLineTransfer(CiscoIosFileTransfer):
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -673,7 +712,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosSSH"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cisco IOS SSH driver.</p>
@@ -714,6 +753,9 @@ class InLineTransfer(CiscoIosFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -728,13 +770,17 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -747,11 +793,14 @@ class InLineTransfer(CiscoIosFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -764,10 +813,13 @@ class InLineTransfer(CiscoIosFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -779,6 +831,9 @@ class InLineTransfer(CiscoIosFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -799,7 +854,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="#netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -846,7 +901,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosSerial"><code class="flex name class">
 <span>class <span class="ident">CiscoIosSerial</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cisco IOS Serial driver.</p>
@@ -887,6 +942,9 @@ class InLineTransfer(CiscoIosFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -901,13 +959,17 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -920,11 +982,14 @@ class InLineTransfer(CiscoIosFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -937,10 +1002,13 @@ class InLineTransfer(CiscoIosFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -952,6 +1020,9 @@ class InLineTransfer(CiscoIosFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -972,7 +1043,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="#netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -1019,7 +1090,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 </dd>
 <dt id="netmiko.cisco.cisco_ios.CiscoIosTelnet"><code class="flex name class">
 <span>class <span class="ident">CiscoIosTelnet</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cisco IOS Telnet driver.</p>
@@ -1060,6 +1131,9 @@ class InLineTransfer(CiscoIosFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1074,13 +1148,17 @@ class InLineTransfer(CiscoIosFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1093,11 +1171,14 @@ class InLineTransfer(CiscoIosFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1110,10 +1191,13 @@ class InLineTransfer(CiscoIosFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1125,6 +1209,9 @@ class InLineTransfer(CiscoIosFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1145,7 +1232,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="#netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -1492,6 +1579,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 <li>
 <h4><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></code></h4>
 <ul class="">
+<li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode" href="#netmiko.cisco.cisco_ios.CiscoIosBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.save_config" href="#netmiko.cisco.cisco_ios.CiscoIosBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation" href="#netmiko.cisco.cisco_ios.CiscoIosBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt" href="#netmiko.cisco.cisco_ios.CiscoIosBase.set_base_prompt">set_base_prompt</a></code></li>

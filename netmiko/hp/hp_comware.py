@@ -22,7 +22,7 @@ class HPComwareBase(CiscoSSHConnection):
             self._test_channel_read(pattern=r"[>\]]")
 
         self.set_base_prompt()
-        command = self.RETURN + "screen-length disable"
+        command = "screen-length disable"
         self.disable_paging(command=command)
 
     def config_mode(
@@ -98,6 +98,9 @@ class HPComwareBase(CiscoSSHConnection):
             pattern=pattern,
         )
 
+        # Strip off any leading RBM_. characters for firewall HA
+        prompt = re.sub(r"^RBM_.", "", prompt, flags=re.M)
+
         # Strip off leading character
         prompt = prompt[1:]
         prompt = prompt.strip()
@@ -109,6 +112,7 @@ class HPComwareBase(CiscoSSHConnection):
         cmd: str = "system-view",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """enable mode on Comware is system-view."""

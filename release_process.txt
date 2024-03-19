@@ -13,13 +13,13 @@ $ pdoc3 --html --output-dir docs netmiko --force
 
 # Merge into master / checkout master (use PR in GitHub for this)
 
-# python setup.py sdist bdist_wheel
+# poetry build
 
 # Run ./_release.sh
 
 # Create a tag for the version
-git tag -a v4.1.0 -m "Version 4.1.0 Release"
-git push origin_ssh v4.1.0
+git tag -a v4.3.0 -m "Version 4.3.0 Release"
+git push origin_ssh v4.2.0
 
 # Make sure to run the performance tests for the new release and to update the graphs!
 

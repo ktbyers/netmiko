@@ -20,7 +20,7 @@ while true; do
     esac
 done
 
-pylama
+pylama .
 if [ $? -eq 0 ]; then
     echo
     echo "pylama ... [OK]"
@@ -32,7 +32,7 @@ else
 fi
 
 echo
-python setup.py sdist bdist_wheel > /dev/null
+poetry build > /dev/null
 if [ $? -eq 0 ]; then
     echo "creating distribution ... [OK]"
     ls -ltr $DIR_PACKAGE
@@ -124,7 +124,7 @@ echo
 ### FIX: NEED TO ADD
 twine upload $DIR_PACKAGE $DIR_WHL_PACKAGE
 
-
+echo "Sleeping 90 seconds..."
 sleep 90
 echo
 echo "Test clean install from pypi"

@@ -274,7 +274,7 @@ class BaseFileTransfer(object):
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
             self.ssh_ctl_chan._enter_shell()
-            remote_cmd = f&#34;/bin/ls {self.file_system}&#34;
+            remote_cmd = f&#34;/bin/ls {self.file_system}/{self.dest_file} 2&gt; /dev/null&#34;
             remote_out = self.ssh_ctl_chan._send_command_str(
                 remote_cmd, expect_string=r&#34;[\$#]&#34;
             )
@@ -302,7 +302,8 @@ class BaseFileTransfer(object):
         remote_out = &#34;&#34;.join(remote_out_lines)
         # Match line containing file name
         assert isinstance(remote_file, str)
-        escape_file_name = re.escape(remote_file)
+        remote_file_base = os.path.basename(remote_file)
+        escape_file_name = re.escape(remote_file_base)
         pattern = r&#34;.*({}).*&#34;.format(escape_file_name)
         match = re.search(pattern, remote_out)
         if match:
@@ -654,7 +655,7 @@ class BaseFileTransfer(object):
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
             self.ssh_ctl_chan._enter_shell()
-            remote_cmd = f&#34;/bin/ls {self.file_system}&#34;
+            remote_cmd = f&#34;/bin/ls {self.file_system}/{self.dest_file} 2&gt; /dev/null&#34;
             remote_out = self.ssh_ctl_chan._send_command_str(
                 remote_cmd, expect_string=r&#34;[\$#]&#34;
             )
@@ -682,7 +683,8 @@ class BaseFileTransfer(object):
         remote_out = &#34;&#34;.join(remote_out_lines)
         # Match line containing file name
         assert isinstance(remote_file, str)
-        escape_file_name = re.escape(remote_file)
+        remote_file_base = os.path.basename(remote_file)
+        escape_file_name = re.escape(remote_file_base)
         pattern = r&#34;.*({}).*&#34;.format(escape_file_name)
         match = re.search(pattern, remote_out)
         if match:
@@ -848,6 +850,7 @@ class BaseFileTransfer(object):
 <li><a title="netmiko.juniper.juniper.JuniperFileTransfer" href="juniper/juniper.html#netmiko.juniper.juniper.JuniperFileTransfer">JuniperFileTransfer</a></li>
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer" href="mikrotik/mikrotik_ssh.html#netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer">MikrotikRouterOsFileTransfer</a></li>
 <li><a title="netmiko.nokia.nokia_sros.NokiaSrosFileTransfer" href="nokia/nokia_sros.html#netmiko.nokia.nokia_sros.NokiaSrosFileTransfer">NokiaSrosFileTransfer</a></li>
+<li><a title="netmiko.ubiquiti.edgerouter_ssh.UbiquitiEdgeRouterFileTransfer" href="ubiquiti/edgerouter_ssh.html#netmiko.ubiquiti.edgerouter_ssh.UbiquitiEdgeRouterFileTransfer">UbiquitiEdgeRouterFileTransfer</a></li>
 </ul>
 <h3>Static methods</h3>
 <dl>
@@ -1131,7 +1134,8 @@ the string</p>
     remote_out = &#34;&#34;.join(remote_out_lines)
     # Match line containing file name
     assert isinstance(remote_file, str)
-    escape_file_name = re.escape(remote_file)
+    remote_file_base = os.path.basename(remote_file)
+    escape_file_name = re.escape(remote_file_base)
     pattern = r&#34;.*({}).*&#34;.format(escape_file_name)
     match = re.search(pattern, remote_out)
     if match:

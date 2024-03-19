@@ -27,11 +27,15 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from netmiko.ubiquiti.edge_ssh import UbiquitiEdgeSSH
-from netmiko.ubiquiti.edgerouter_ssh import UbiquitiEdgeRouterSSH
+from netmiko.ubiquiti.edgerouter_ssh import (
+    UbiquitiEdgeRouterSSH,
+    UbiquitiEdgeRouterFileTransfer,
+)
 from netmiko.ubiquiti.unifiswitch_ssh import UbiquitiUnifiSwitchSSH
 
 __all__ = [
     &#34;UbiquitiEdgeRouterSSH&#34;,
+    &#34;UbiquitiEdgeRouterFileTransfer&#34;,
     &#34;UbiquitiEdgeSSH&#34;,
     &#34;UbiquitiUnifiSwitchSSH&#34;,
 ]</code></pre>
@@ -61,9 +65,152 @@ __all__ = [
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer"><code class="flex name class">
+<span>class <span class="ident">UbiquitiEdgeRouterFileTransfer</span></span>
+<span>(</span><span>ssh_conn: BaseConnection, source_file: str, dest_file: str, file_system: Optional[str] = '/', direction: str = 'put', **kwargs: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Ubiquiti EdgeRouter SCP File Transfer driver.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UbiquitiEdgeRouterFileTransfer(BaseFileTransfer):
+    &#34;&#34;&#34;Ubiquiti EdgeRouter SCP File Transfer driver.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        ssh_conn: &#34;BaseConnection&#34;,
+        source_file: str,
+        dest_file: str,
+        file_system: Optional[str] = &#34;/&#34;,
+        direction: str = &#34;put&#34;,
+        **kwargs: Any,
+    ) -&gt; None:
+        super().__init__(
+            ssh_conn=ssh_conn,
+            source_file=source_file,
+            dest_file=dest_file,
+            file_system=file_system,
+            direction=direction,
+            **kwargs,
+        )
+
+    def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
+        &#34;&#34;&#34;Check if the dest_file already exists on the file system.&#34;&#34;&#34;
+        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+
+    def remote_space_available(self, search_pattern: str = &#34;&#34;) -&gt; int:
+        &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        return self._remote_space_available_unix(search_pattern=search_pattern)
+
+    def remote_md5(
+        self, base_cmd: str = &#34;md5sum&#34;, remote_file: Optional[str] = None
+    ) -&gt; str:
+        &#34;&#34;&#34;Calculate remote MD5 and returns the hash.&#34;&#34;&#34;
+        return super().remote_md5(base_cmd=base_cmd, remote_file=remote_file)
+
+    def remote_file_size(
+        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
+    ) -&gt; int:
+        &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+        return self._remote_file_size_unix(
+            remote_cmd=remote_cmd, remote_file=remote_file
+        )
+
+    @staticmethod
+    def process_md5(md5_output: str, pattern: str = r&#34;(\S+)\s+&#34;) -&gt; str:
+        &#34;&#34;&#34;Process the string to retrieve the MD5 hash&#34;&#34;&#34;
+        match = re.search(pattern, md5_output)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError(f&#34;Invalid output from MD5 command: {md5_output}&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer.process_md5"><code class="name flex">
+<span>def <span class="ident">process_md5</span></span>(<span>md5_output: str, pattern: str = '(\\S+)\\s+') ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Process the string to retrieve the MD5 hash</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def process_md5(md5_output: str, pattern: str = r&#34;(\S+)\s+&#34;) -&gt; str:
+    &#34;&#34;&#34;Process the string to retrieve the MD5 hash&#34;&#34;&#34;
+    match = re.search(pattern, md5_output)
+    if match:
+        return match.group(1)
+    else:
+        raise ValueError(f&#34;Invalid output from MD5 command: {md5_output}&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer.check_file_exists"><code class="name flex">
+<span>def <span class="ident">check_file_exists</span></span>(<span>self, remote_cmd: str = '') ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the dest_file already exists on the file system.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
+    &#34;&#34;&#34;Check if the dest_file already exists on the file system.&#34;&#34;&#34;
+    return self._check_file_exists_unix(remote_cmd=remote_cmd)</code></pre>
+</details>
+</dd>
+<dt id="netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer.remote_md5"><code class="name flex">
+<span>def <span class="ident">remote_md5</span></span>(<span>self, base_cmd: str = 'md5sum', remote_file: Optional[str] = None) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate remote MD5 and returns the hash.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remote_md5(
+    self, base_cmd: str = &#34;md5sum&#34;, remote_file: Optional[str] = None
+) -&gt; str:
+    &#34;&#34;&#34;Calculate remote MD5 and returns the hash.&#34;&#34;&#34;
+    return super().remote_md5(base_cmd=base_cmd, remote_file=remote_file)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></b></code>:
+<ul class="hlist">
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.close_scp_chan" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.close_scp_chan">close_scp_chan</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.compare_md5" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.compare_md5">compare_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.disable_scp" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.disable_scp">disable_scp</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.enable_scp" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.enable_scp">enable_scp</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.establish_scp_conn" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.establish_scp_conn">establish_scp_conn</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.file_md5" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.file_md5">file_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.get_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.get_file">get_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.local_space_available" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.local_space_available">local_space_available</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.put_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.put_file">put_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_file_size" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.remote_file_size">remote_file_size</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_space_available" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.remote_space_available">remote_space_available</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.transfer_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.transfer_file">transfer_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.verify_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.verify_file">verify_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.verify_space_available" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.verify_space_available">verify_space_available</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="netmiko.ubiquiti.UbiquitiEdgeRouterSSH"><code class="flex name class">
 <span>class <span class="ident">UbiquitiEdgeRouterSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Implement methods for interacting with EdgeOS EdgeRouter network devices.</p>
@@ -104,6 +251,9 @@ __all__ = [
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -118,13 +268,17 @@ __all__ = [
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -137,11 +291,14 @@ __all__ = [
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -154,10 +311,13 @@ __all__ = [
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -169,6 +329,9 @@ __all__ = [
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -176,6 +339,14 @@ __all__ = [
 </summary>
 <pre><code class="python">class UbiquitiEdgeRouterSSH(VyOSSSH):
     &#34;&#34;&#34;Implement methods for interacting with EdgeOS EdgeRouter network devices.&#34;&#34;&#34;
+
+    def _enter_shell(self) -&gt; str:
+        &#34;&#34;&#34;Already in shell.&#34;&#34;&#34;
+        return &#34;&#34;
+
+    def _return_cli(self) -&gt; str:
+        &#34;&#34;&#34;The shell is the CLI.&#34;&#34;&#34;
+        return &#34;&#34;
 
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
@@ -257,7 +428,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.ubiquiti.UbiquitiEdgeSSH"><code class="flex name class">
 <span>class <span class="ident">UbiquitiEdgeSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Implements support for Ubiquity EdgeSwitch devices.</p>
@@ -300,6 +471,9 @@ __all__ = [
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -314,13 +488,17 @@ __all__ = [
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -333,11 +511,14 @@ __all__ = [
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -350,10 +531,13 @@ __all__ = [
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -365,6 +549,9 @@ __all__ = [
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -464,22 +651,6 @@ __all__ = [
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.ubiquiti.UbiquitiEdgeSSH.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ')#', pattern: str = '', force_regex: bool = False) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Checks if the device is in configuration mode or not.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_config_mode(
-    self, check_string: str = &#34;)#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-) -&gt; bool:
-    &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
-    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
-</details>
-</dd>
 <dt id="netmiko.ubiquiti.UbiquitiEdgeSSH.config_mode"><code class="name flex">
 <span>def <span class="ident">config_mode</span></span>(<span>self, config_command: str = 'configure', pattern: str = '', re_flags: int = 0) ‑> str</span>
 </code></dt>
@@ -583,6 +754,7 @@ __all__ = [
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -625,7 +797,7 @@ __all__ = [
 </dd>
 <dt id="netmiko.ubiquiti.UbiquitiUnifiSwitchSSH"><code class="flex name class">
 <span>class <span class="ident">UbiquitiUnifiSwitchSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Implements support for Ubiquity EdgeSwitch devices.</p>
@@ -668,6 +840,9 @@ __all__ = [
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -682,13 +857,17 @@ __all__ = [
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -701,11 +880,14 @@ __all__ = [
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -718,10 +900,13 @@ __all__ = [
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -733,6 +918,9 @@ __all__ = [
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -825,7 +1013,7 @@ environment.</p></div>
 <ul class="hlist">
 <li><code><b><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH" href="edge_ssh.html#netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH">UbiquitiEdgeSSH</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH.check_config_mode" href="edge_ssh.html#netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
@@ -893,12 +1081,19 @@ environment.</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer" href="#netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer">UbiquitiEdgeRouterFileTransfer</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer.check_file_exists" href="#netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer.check_file_exists">check_file_exists</a></code></li>
+<li><code><a title="netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer.process_md5" href="#netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer.process_md5">process_md5</a></code></li>
+<li><code><a title="netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer.remote_md5" href="#netmiko.ubiquiti.UbiquitiEdgeRouterFileTransfer.remote_md5">remote_md5</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="netmiko.ubiquiti.UbiquitiEdgeRouterSSH" href="#netmiko.ubiquiti.UbiquitiEdgeRouterSSH">UbiquitiEdgeRouterSSH</a></code></h4>
 </li>
 <li>
 <h4><code><a title="netmiko.ubiquiti.UbiquitiEdgeSSH" href="#netmiko.ubiquiti.UbiquitiEdgeSSH">UbiquitiEdgeSSH</a></code></h4>
 <ul class="">
-<li><code><a title="netmiko.ubiquiti.UbiquitiEdgeSSH.check_config_mode" href="#netmiko.ubiquiti.UbiquitiEdgeSSH.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.ubiquiti.UbiquitiEdgeSSH.config_mode" href="#netmiko.ubiquiti.UbiquitiEdgeSSH.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.ubiquiti.UbiquitiEdgeSSH.exit_config_mode" href="#netmiko.ubiquiti.UbiquitiEdgeSSH.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.ubiquiti.UbiquitiEdgeSSH.exit_enable_mode" href="#netmiko.ubiquiti.UbiquitiEdgeSSH.exit_enable_mode">exit_enable_mode</a></code></li>

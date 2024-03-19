@@ -35,7 +35,7 @@ from cryptography.hazmat.primitives.asymmetric.dsa import DSAParameterNumbers
 
 from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.exceptions import NetmikoTimeoutException
+from netmiko.exceptions import ReadTimeout
 
 
 class TPLinkJetStreamBase(CiscoSSHConnection):
@@ -49,15 +49,12 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         return super().__init__(**kwargs)
 
     def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;
-        Prepare the session after the connection has been established.
-        &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(0.3 * delay_factor)
-        self.clear_buffer()
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         self.enable()
+        self.set_base_prompt()
         self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -68,6 +65,7 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         cmd: str = &#34;&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         &#34;&#34;&#34;
@@ -78,30 +76,40 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
         enable all functions.
         &#34;&#34;&#34;
 
+        msg = &#34;&#34;&#34;
+Failed to enter enable mode. Please ensure you pass
+the &#39;secret&#39; argument to ConnectHandler.
+&#34;&#34;&#34;
+
         # If end-user passes in &#34;cmd&#34; execute that using normal process.
         if cmd:
-            return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+            return super().enable(
+                cmd=cmd,
+                pattern=pattern,
+                enable_pattern=enable_pattern,
+                check_state=check_state,
+                re_flags=re_flags,
+            )
 
         output = &#34;&#34;
-        msg = (
-            &#34;Failed to enter enable mode. Please ensure you pass &#34;
-            &#34;the &#39;secret&#39; argument to ConnectHandler.&#34;
-        )
+        if check_state and self.check_enable_mode():
+            return output
 
-        cmds = [&#34;enable&#34;, &#34;enable-admin&#34;]
-        if not self.check_enable_mode():
-            for cmd in cmds:
-                self.write_channel(self.normalize_cmd(cmd))
-                try:
-                    output += self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags, read_entire_line=True
-                    )
+        for cmd in (&#34;enable&#34;, &#34;enable-admin&#34;):
+            self.write_channel(self.normalize_cmd(cmd))
+            try:
+                new_data = self.read_until_prompt_or_pattern(
+                    pattern=pattern, re_flags=re_flags, read_entire_line=True
+                )
+                output += new_data
+                if re.search(pattern, new_data):
                     self.write_channel(self.normalize_cmd(self.secret))
                     output += self.read_until_prompt(read_entire_line=True)
-                except NetmikoTimeoutException:
-                    raise ValueError(msg)
-                if not self.check_enable_mode():
-                    raise ValueError(msg)
+            except ReadTimeout:
+                raise ValueError(msg)
+
+        if not self.check_enable_mode():
+            raise ValueError(msg)
         return output
 
     def config_mode(
@@ -274,6 +282,9 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -288,13 +299,17 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -307,11 +322,14 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -324,10 +342,13 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -339,6 +360,9 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -355,15 +379,12 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
         return super().__init__(**kwargs)
 
     def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;
-        Prepare the session after the connection has been established.
-        &#34;&#34;&#34;
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(0.3 * delay_factor)
-        self.clear_buffer()
         self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
         self.set_base_prompt()
         self.enable()
+        self.set_base_prompt()
         self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -374,6 +395,7 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
         cmd: str = &#34;&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         &#34;&#34;&#34;
@@ -384,30 +406,40 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
         enable all functions.
         &#34;&#34;&#34;
 
+        msg = &#34;&#34;&#34;
+Failed to enter enable mode. Please ensure you pass
+the &#39;secret&#39; argument to ConnectHandler.
+&#34;&#34;&#34;
+
         # If end-user passes in &#34;cmd&#34; execute that using normal process.
         if cmd:
-            return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+            return super().enable(
+                cmd=cmd,
+                pattern=pattern,
+                enable_pattern=enable_pattern,
+                check_state=check_state,
+                re_flags=re_flags,
+            )
 
         output = &#34;&#34;
-        msg = (
-            &#34;Failed to enter enable mode. Please ensure you pass &#34;
-            &#34;the &#39;secret&#39; argument to ConnectHandler.&#34;
-        )
+        if check_state and self.check_enable_mode():
+            return output
 
-        cmds = [&#34;enable&#34;, &#34;enable-admin&#34;]
-        if not self.check_enable_mode():
-            for cmd in cmds:
-                self.write_channel(self.normalize_cmd(cmd))
-                try:
-                    output += self.read_until_prompt_or_pattern(
-                        pattern=pattern, re_flags=re_flags, read_entire_line=True
-                    )
+        for cmd in (&#34;enable&#34;, &#34;enable-admin&#34;):
+            self.write_channel(self.normalize_cmd(cmd))
+            try:
+                new_data = self.read_until_prompt_or_pattern(
+                    pattern=pattern, re_flags=re_flags, read_entire_line=True
+                )
+                output += new_data
+                if re.search(pattern, new_data):
                     self.write_channel(self.normalize_cmd(self.secret))
                     output += self.read_until_prompt(read_entire_line=True)
-                except NetmikoTimeoutException:
-                    raise ValueError(msg)
-                if not self.check_enable_mode():
-                    raise ValueError(msg)
+            except ReadTimeout:
+                raise ValueError(msg)
+
+        if not self.check_enable_mode():
+            raise ValueError(msg)
         return output
 
     def config_mode(
@@ -509,7 +541,7 @@ class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
 </details>
 </dd>
 <dt id="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = '', pattern: str = 'ssword', enable_pattern: Optional[str] = None, re_flags: int = re.IGNORECASE) ‑> str</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = '', pattern: str = 'ssword', enable_pattern: Optional[str] = None, check_state: bool = True, re_flags: int = re.IGNORECASE) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>TPLink JetStream requires you to first execute "enable" and then execute "enable-admin".
@@ -520,46 +552,57 @@ enable all functions.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def enable(
-    self,
-    cmd: str = &#34;&#34;,
-    pattern: str = &#34;ssword&#34;,
-    enable_pattern: Optional[str] = None,
-    re_flags: int = re.IGNORECASE,
-) -&gt; str:
-    &#34;&#34;&#34;
-    TPLink JetStream requires you to first execute &#34;enable&#34; and then execute &#34;enable-admin&#34;.
-    This is necessary as &#34;configure&#34; is generally only available at &#34;enable-admin&#34; level
+<pre><code class="python">    def enable(
+        self,
+        cmd: str = &#34;&#34;,
+        pattern: str = &#34;ssword&#34;,
+        enable_pattern: Optional[str] = None,
+        check_state: bool = True,
+        re_flags: int = re.IGNORECASE,
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        TPLink JetStream requires you to first execute &#34;enable&#34; and then execute &#34;enable-admin&#34;.
+        This is necessary as &#34;configure&#34; is generally only available at &#34;enable-admin&#34; level
 
-    If the user does not have the Admin role, he will need to execute enable-admin to really
-    enable all functions.
-    &#34;&#34;&#34;
+        If the user does not have the Admin role, he will need to execute enable-admin to really
+        enable all functions.
+        &#34;&#34;&#34;
 
-    # If end-user passes in &#34;cmd&#34; execute that using normal process.
-    if cmd:
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        msg = &#34;&#34;&#34;
+Failed to enter enable mode. Please ensure you pass
+the &#39;secret&#39; argument to ConnectHandler.
+&#34;&#34;&#34;
 
-    output = &#34;&#34;
-    msg = (
-        &#34;Failed to enter enable mode. Please ensure you pass &#34;
-        &#34;the &#39;secret&#39; argument to ConnectHandler.&#34;
-    )
+        # If end-user passes in &#34;cmd&#34; execute that using normal process.
+        if cmd:
+            return super().enable(
+                cmd=cmd,
+                pattern=pattern,
+                enable_pattern=enable_pattern,
+                check_state=check_state,
+                re_flags=re_flags,
+            )
 
-    cmds = [&#34;enable&#34;, &#34;enable-admin&#34;]
-    if not self.check_enable_mode():
-        for cmd in cmds:
+        output = &#34;&#34;
+        if check_state and self.check_enable_mode():
+            return output
+
+        for cmd in (&#34;enable&#34;, &#34;enable-admin&#34;):
             self.write_channel(self.normalize_cmd(cmd))
             try:
-                output += self.read_until_prompt_or_pattern(
+                new_data = self.read_until_prompt_or_pattern(
                     pattern=pattern, re_flags=re_flags, read_entire_line=True
                 )
-                self.write_channel(self.normalize_cmd(self.secret))
-                output += self.read_until_prompt(read_entire_line=True)
-            except NetmikoTimeoutException:
+                output += new_data
+                if re.search(pattern, new_data):
+                    self.write_channel(self.normalize_cmd(self.secret))
+                    output += self.read_until_prompt(read_entire_line=True)
+            except ReadTimeout:
                 raise ValueError(msg)
-            if not self.check_enable_mode():
-                raise ValueError(msg)
-    return output</code></pre>
+
+        if not self.check_enable_mode():
+            raise ValueError(msg)
+        return output</code></pre>
 </details>
 </dd>
 <dt id="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.exit_config_mode"><code class="name flex">
@@ -598,31 +641,6 @@ support a single command to completely exit the configuration mode.</p>
         log.debug(f&#34;exit_config_mode: {output}&#34;)
 
     return output</code></pre>
-</details>
-</dd>
-<dt id="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation"><code class="name flex">
-<span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Prepare the session after the connection has been established.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def session_preparation(self) -&gt; None:
-    &#34;&#34;&#34;
-    Prepare the session after the connection has been established.
-    &#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor=0)
-    time.sleep(0.3 * delay_factor)
-    self.clear_buffer()
-    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-    self.set_base_prompt()
-    self.enable()
-    self.disable_paging()
-    # Clear the read buffer
-    time.sleep(0.3 * self.global_delay_factor)
-    self.clear_buffer()</code></pre>
 </details>
 </dd>
 <dt id="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt"><code class="name flex">
@@ -698,6 +716,7 @@ stripped off.</p>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -753,6 +772,9 @@ stripped off.</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -767,13 +789,17 @@ stripped off.</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -786,11 +812,14 @@ stripped off.</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -803,10 +832,13 @@ stripped off.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -818,6 +850,9 @@ stripped off.</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -894,7 +929,7 @@ stripped off.</p>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
-<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -951,6 +986,9 @@ stripped off.</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -965,13 +1003,17 @@ stripped off.</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -984,11 +1026,14 @@ stripped off.</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1001,10 +1046,13 @@ stripped off.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1016,6 +1064,9 @@ stripped off.</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1115,7 +1166,7 @@ stripped off.</p>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
-<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation">session_preparation</a></code></li>
+<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
@@ -1150,7 +1201,6 @@ stripped off.</p>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.check_config_mode" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.enable" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.enable">enable</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.exit_config_mode" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt" href="#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase.set_base_prompt">set_base_prompt</a></code></li>
 </ul>
 </li>

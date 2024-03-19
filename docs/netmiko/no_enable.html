@@ -53,6 +53,7 @@ class NoEnable:
         cmd: str = &#34;&#34;,
         pattern: str = &#34;&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         return &#34;&#34;
@@ -109,6 +110,7 @@ don't explicitly support enable mode.</p></div>
         cmd: str = &#34;&#34;,
         pattern: str = &#34;&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         return &#34;&#34;
@@ -119,19 +121,27 @@ don't explicitly support enable mode.</p></div>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="netmiko.accedian.accedian_ssh.AccedianSSH" href="accedian/accedian_ssh.html#netmiko.accedian.accedian_ssh.AccedianSSH">AccedianSSH</a></li>
+<li><a title="netmiko.adva.adva_aos_fsp_150_f2.AdvaAosFsp150F2SSH" href="adva/adva_aos_fsp_150_f2.html#netmiko.adva.adva_aos_fsp_150_f2.AdvaAosFsp150F2SSH">AdvaAosFsp150F2SSH</a></li>
+<li><a title="netmiko.adva.adva_aos_fsp_150_f3.AdvaAosFsp150F3SSH" href="adva/adva_aos_fsp_150_f3.html#netmiko.adva.adva_aos_fsp_150_f3.AdvaAosFsp150F3SSH">AdvaAosFsp150F3SSH</a></li>
 <li><a title="netmiko.alcatel.alcatel_aos_ssh.AlcatelAosSSH" href="alcatel/alcatel_aos_ssh.html#netmiko.alcatel.alcatel_aos_ssh.AlcatelAosSSH">AlcatelAosSSH</a></li>
 <li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase" href="audiocode/audiocode_ssh.html#netmiko.audiocode.audiocode_ssh.AudiocodeShellBase">AudiocodeShellBase</a></li>
 <li><a title="netmiko.brocade.brocade_fos_ssh.BrocadeFOSSSH" href="brocade/brocade_fos_ssh.html#netmiko.brocade.brocade_fos_ssh.BrocadeFOSSSH">BrocadeFOSSSH</a></li>
+<li><a title="netmiko.casa.casa_cmts.CasaCMTSBase" href="casa/casa_cmts.html#netmiko.casa.casa_cmts.CasaCMTSBase">CasaCMTSBase</a></li>
 <li><a title="netmiko.cdot.cdot_cros_ssh.CdotCrosSSH" href="cdot/cdot_cros_ssh.html#netmiko.cdot.cdot_cros_ssh.CdotCrosSSH">CdotCrosSSH</a></li>
 <li><a title="netmiko.ciena.ciena_saos.CienaSaosBase" href="ciena/ciena_saos.html#netmiko.ciena.ciena_saos.CienaSaosBase">CienaSaosBase</a></li>
 <li><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH" href="cisco/cisco_ftd_ssh.html#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH">CiscoFtdSSH</a></li>
 <li><a title="netmiko.coriant.coriant_ssh.CoriantSSH" href="coriant/coriant_ssh.html#netmiko.coriant.coriant_ssh.CoriantSSH">CoriantSSH</a></li>
 <li><a title="netmiko.dell.dell_sonic_ssh.DellSonicSSH" href="dell/dell_sonic_ssh.html#netmiko.dell.dell_sonic_ssh.DellSonicSSH">DellSonicSSH</a></li>
+<li><a title="netmiko.digi.digi_transport.DigiTransportBase" href="digi/digi_transport.html#netmiko.digi.digi_transport.DigiTransportBase">DigiTransportBase</a></li>
 <li><a title="netmiko.dlink.dlink_ds.DlinkDSBase" href="dlink/dlink_ds.html#netmiko.dlink.dlink_ds.DlinkDSBase">DlinkDSBase</a></li>
+<li><a title="netmiko.ericsson.ericsson_mltn.EricssonMinilinkBase" href="ericsson/ericsson_mltn.html#netmiko.ericsson.ericsson_mltn.EricssonMinilinkBase">EricssonMinilinkBase</a></li>
 <li><a title="netmiko.extreme.extreme_nos_ssh.ExtremeNosSSH" href="extreme/extreme_nos_ssh.html#netmiko.extreme.extreme_nos_ssh.ExtremeNosSSH">ExtremeNosSSH</a></li>
 <li><a title="netmiko.extreme.extreme_slx_ssh.ExtremeSlxSSH" href="extreme/extreme_slx_ssh.html#netmiko.extreme.extreme_slx_ssh.ExtremeSlxSSH">ExtremeSlxSSH</a></li>
 <li><a title="netmiko.extreme.extreme_tierraos_ssh.ExtremeTierraSSH" href="extreme/extreme_tierraos_ssh.html#netmiko.extreme.extreme_tierraos_ssh.ExtremeTierraSSH">ExtremeTierraSSH</a></li>
+<li><a title="netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH" href="fiberstore/fiberstore_fsos.html#netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH">FiberstoreFsosSSH</a></li>
 <li><a title="netmiko.flexvnf.flexvnf_ssh.FlexvnfSSH" href="flexvnf/flexvnf_ssh.html#netmiko.flexvnf.flexvnf_ssh.FlexvnfSSH">FlexvnfSSH</a></li>
+<li><a title="netmiko.fortinet.fortinet_ssh.FortinetSSH" href="fortinet/fortinet_ssh.html#netmiko.fortinet.fortinet_ssh.FortinetSSH">FortinetSSH</a></li>
+<li><a title="netmiko.hillstone.hillstone.HillstoneStoneosBase" href="hillstone/hillstone.html#netmiko.hillstone.hillstone.HillstoneStoneosBase">HillstoneStoneosBase</a></li>
 <li><a title="netmiko.huawei.huawei.HuaweiBase" href="huawei/huawei.html#netmiko.huawei.huawei.HuaweiBase">HuaweiBase</a></li>
 <li><a title="netmiko.juniper.juniper.JuniperBase" href="juniper/juniper.html#netmiko.juniper.juniper.JuniperBase">JuniperBase</a></li>
 <li><a title="netmiko.juniper.juniper_screenos.JuniperScreenOsSSH" href="juniper/juniper_screenos.html#netmiko.juniper.juniper_screenos.JuniperScreenOsSSH">JuniperScreenOsSSH</a></li>
@@ -144,6 +154,7 @@ don't explicitly support enable mode.</p></div>
 <li><a title="netmiko.sixwind.sixwind_os.SixwindOSBase" href="sixwind/sixwind_os.html#netmiko.sixwind.sixwind_os.SixwindOSBase">SixwindOSBase</a></li>
 <li><a title="netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH" href="sophos/sophos_sfos_ssh.html#netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH">SophosSfosSSH</a></li>
 <li><a title="netmiko.supermicro.smci_smis.SmciSwitchSmisBase" href="supermicro/smci_smis.html#netmiko.supermicro.smci_smis.SmciSwitchSmisBase">SmciSwitchSmisBase</a></li>
+<li><a title="netmiko.teldat.teldat_cit.TeldatCITBase" href="teldat/teldat_cit.html#netmiko.teldat.teldat_cit.TeldatCITBase">TeldatCITBase</a></li>
 <li><a title="netmiko.vyos.vyos_ssh.VyOSSSH" href="vyos/vyos_ssh.html#netmiko.vyos.vyos_ssh.VyOSSSH">VyOSSSH</a></li>
 <li><a title="netmiko.zyxel.zyxel_ssh.ZyxelSSH" href="zyxel/zyxel_ssh.html#netmiko.zyxel.zyxel_ssh.ZyxelSSH">ZyxelSSH</a></li>
 </ul>
@@ -163,7 +174,7 @@ don't explicitly support enable mode.</p></div>
 </details>
 </dd>
 <dt id="netmiko.no_enable.NoEnable.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = '', pattern: str = '', enable_pattern: Optional[str] = None, re_flags: int = re.IGNORECASE) ‑> str</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = '', pattern: str = '', enable_pattern: Optional[str] = None, check_state: bool = True, re_flags: int = re.IGNORECASE) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -176,6 +187,7 @@ don't explicitly support enable mode.</p></div>
     cmd: str = &#34;&#34;,
     pattern: str = &#34;&#34;,
     enable_pattern: Optional[str] = None,
+    check_state: bool = True,
     re_flags: int = re.IGNORECASE,
 ) -&gt; str:
     return &#34;&#34;</code></pre>

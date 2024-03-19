@@ -10,8 +10,9 @@ class SessionLog:
         buffered_io: Optional[io.BufferedIOBase] = None,
         file_mode: str = "write",
         file_encoding: str = "utf-8",
-        no_log: Dict[str, Any] = None,
+        no_log: Optional[Dict[str, Any]] = None,
         record_writes: bool = False,
+        slog_buffer: Optional[io.StringIO] = None,
     ) -> None:
         if no_log is None:
             self.no_log = {}
@@ -29,6 +30,13 @@ class SessionLog:
             self.session_log = buffered_io
         else:
             self.session_log = None
+
+        # In order to ensure all the no_log entries get hidden properly,
+        # we must first store everying in memory and then write out to file.
+        # Otherwise, we might miss the data we are supposed to hide (since
+        # the no_log data potentially spans multiple reads).
+        if slog_buffer is None:
+            self.slog_buffer = io.StringIO()
 
         # Ensures last write operations prior to disconnect are recorded.
         self.fin = False
@@ -49,15 +57,30 @@ class SessionLog:
 
     def close(self) -> None:
         """Close the session_log file (if it is a file that we opened)."""
+        self.flush()
         if self.session_log and self._session_log_close:
             self.session_log.close()
             self.session_log = None
 
-    def write(self, data: str) -> None:
-        if self.session_log is not None and len(data) > 0:
-            # Hide the password and secret in the session_log
-            for hidden_data in self.no_log.values():
-                data = data.replace(hidden_data, "********")
+    def no_log_filter(self, data: str) -> str:
+        """Filter content from the session_log."""
+        for hidden_data in self.no_log.values():
+            data = data.replace(hidden_data, "********")
+        return data
+
+    def _read_buffer(self) -> str:
+        self.slog_buffer.seek(0)
+        data = self.slog_buffer.read()
+        # Once read, create a new buffer
+        self.slog_buffer = io.StringIO()
+        return data
+
+    def flush(self) -> None:
+        """Force the slog_buffer to be written out to the actual file"""
+
+        if self.session_log is not None:
+            data = self._read_buffer()
+            data = self.no_log_filter(data)
 
             if isinstance(self.session_log, io.BufferedIOBase):
                 self.session_log.write(write_bytes(data, encoding=self.file_encoding))
@@ -67,4 +90,10 @@ class SessionLog:
             assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
                 self.session_log, io.TextIOBase
             )
+
+            # Flush the underlying file
             self.session_log.flush()
+
+    def write(self, data: str) -> None:
+        if len(data) > 0:
+            self.slog_buffer.write(data)

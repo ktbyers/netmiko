@@ -44,14 +44,33 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
     Implements methods for interacting Ciena Saos devices.
     &#34;&#34;&#34;
 
+    prompt_pattern = r&#34;[&gt;#$]&#34;
+
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;&#34;,
+        alt_prompt_terminator: str = &#34;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;Ciena can use &#39;&gt;&#39;, &#39;$&#39;, &#39;#&#39; for prompt terminator depending on the device.&#34;&#34;&#34;
+        prompt = self.find_prompt(delay_factor=delay_factor)
+
+        pattern = rf&#34;^.+{self.prompt_pattern}$&#34;
+        if not re.search(pattern, prompt):
+            raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
+        # Strip off trailing terminator
+        self.base_prompt = prompt[:-1]
+        return self.base_prompt
+
     def session_preparation(self) -&gt; None:
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.disable_paging(command=&#34;system shell session set more off&#34;)
 
     def _enter_shell(self) -&gt; str:
         &#34;&#34;&#34;Enter the Bourne Shell.&#34;&#34;&#34;
-        output = self._send_command_str(&#34;diag shell&#34;, expect_string=r&#34;[$#&gt;]&#34;)
+        output = self._send_command_str(&#34;diag shell&#34;, expect_string=self.prompt_pattern)
         if &#34;SHELL PARSER FAILURE&#34; in output:
             msg = &#34;SCP support on Ciena SAOS requires &#39;diag shell&#39; permissions&#34;
             raise ValueError(msg)
@@ -239,7 +258,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 <dl>
 <dt id="netmiko.ciena.ciena_saos.CienaSaosBase"><code class="flex name class">
 <span>class <span class="ident">CienaSaosBase</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Ciena SAOS support.</p>
@@ -281,6 +300,9 @@ class CienaSaosFileTransfer(BaseFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -295,13 +317,17 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -314,11 +340,14 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -331,10 +360,13 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -346,6 +378,9 @@ class CienaSaosFileTransfer(BaseFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -358,14 +393,33 @@ class CienaSaosFileTransfer(BaseFileTransfer):
     Implements methods for interacting Ciena Saos devices.
     &#34;&#34;&#34;
 
+    prompt_pattern = r&#34;[&gt;#$]&#34;
+
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;&#34;,
+        alt_prompt_terminator: str = &#34;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;Ciena can use &#39;&gt;&#39;, &#39;$&#39;, &#39;#&#39; for prompt terminator depending on the device.&#34;&#34;&#34;
+        prompt = self.find_prompt(delay_factor=delay_factor)
+
+        pattern = rf&#34;^.+{self.prompt_pattern}$&#34;
+        if not re.search(pattern, prompt):
+            raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
+        # Strip off trailing terminator
+        self.base_prompt = prompt[:-1]
+        return self.base_prompt
+
     def session_preparation(self) -&gt; None:
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.disable_paging(command=&#34;system shell session set more off&#34;)
 
     def _enter_shell(self) -&gt; str:
         &#34;&#34;&#34;Enter the Bourne Shell.&#34;&#34;&#34;
-        output = self._send_command_str(&#34;diag shell&#34;, expect_string=r&#34;[$#&gt;]&#34;)
+        output = self._send_command_str(&#34;diag shell&#34;, expect_string=self.prompt_pattern)
         if &#34;SHELL PARSER FAILURE&#34; in output:
             msg = &#34;SCP support on Ciena SAOS requires &#39;diag shell&#39; permissions&#34;
             raise ValueError(msg)
@@ -397,6 +451,13 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.ciena.ciena_saos.CienaSaosSSH" href="#netmiko.ciena.ciena_saos.CienaSaosSSH">CienaSaosSSH</a></li>
 <li><a title="netmiko.ciena.ciena_saos.CienaSaosTelnet" href="#netmiko.ciena.ciena_saos.CienaSaosTelnet">CienaSaosTelnet</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.ciena.ciena_saos.CienaSaosBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.ciena.ciena_saos.CienaSaosBase.save_config"><code class="name flex">
@@ -418,6 +479,33 @@ class CienaSaosFileTransfer(BaseFileTransfer):
     return super().save_config(
         cmd=cmd, confirm=confirm, confirm_response=confirm_response
     )</code></pre>
+</details>
+</dd>
+<dt id="netmiko.ciena.ciena_saos.CienaSaosBase.set_base_prompt"><code class="name flex">
+<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator: str = '', alt_prompt_terminator: str = '', delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Ciena can use '&gt;', '$', '#' for prompt terminator depending on the device.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_base_prompt(
+    self,
+    pri_prompt_terminator: str = &#34;&#34;,
+    alt_prompt_terminator: str = &#34;&#34;,
+    delay_factor: float = 1.0,
+    pattern: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;Ciena can use &#39;&gt;&#39;, &#39;$&#39;, &#39;#&#39; for prompt terminator depending on the device.&#34;&#34;&#34;
+    prompt = self.find_prompt(delay_factor=delay_factor)
+
+    pattern = rf&#34;^.+{self.prompt_pattern}$&#34;
+    if not re.search(pattern, prompt):
+        raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
+    # Strip off trailing terminator
+    self.base_prompt = prompt[:-1]
+    return self.base_prompt</code></pre>
 </details>
 </dd>
 </dl>
@@ -456,7 +544,6 @@ class CienaSaosFileTransfer(BaseFileTransfer):
 <li><code><a title="netmiko.base_connection.BaseConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -714,7 +801,7 @@ tmpfs
 </dd>
 <dt id="netmiko.ciena.ciena_saos.CienaSaosSSH"><code class="flex name class">
 <span>class <span class="ident">CienaSaosSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Ciena SAOS support.</p>
@@ -756,6 +843,9 @@ tmpfs
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -770,13 +860,17 @@ tmpfs
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -789,11 +883,14 @@ tmpfs
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -806,10 +903,13 @@ tmpfs
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -821,6 +921,9 @@ tmpfs
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -872,7 +975,7 @@ tmpfs
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.set_base_prompt" href="#netmiko.ciena.ciena_saos.CienaSaosBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -929,6 +1032,9 @@ tmpfs
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -943,13 +1049,17 @@ tmpfs
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -962,11 +1072,14 @@ tmpfs
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -979,10 +1092,13 @@ tmpfs
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -994,6 +1110,9 @@ tmpfs
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1048,7 +1167,7 @@ tmpfs
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
-<li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
+<li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.set_base_prompt" href="#netmiko.ciena.ciena_saos.CienaSaosBase.set_base_prompt">set_base_prompt</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.set_terminal_width" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_terminal_width">set_terminal_width</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.special_login_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.special_login_handler">special_login_handler</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.strip_ansi_escape_codes" href="../base_connection.html#netmiko.base_connection.BaseConnection.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>
@@ -1080,7 +1199,9 @@ tmpfs
 <li>
 <h4><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase" href="#netmiko.ciena.ciena_saos.CienaSaosBase">CienaSaosBase</a></code></h4>
 <ul class="">
+<li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.prompt_pattern" href="#netmiko.ciena.ciena_saos.CienaSaosBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.save_config" href="#netmiko.ciena.ciena_saos.CienaSaosBase.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.ciena.ciena_saos.CienaSaosBase.set_base_prompt" href="#netmiko.ciena.ciena_saos.CienaSaosBase.set_base_prompt">set_base_prompt</a></code></li>
 </ul>
 </li>
 <li>

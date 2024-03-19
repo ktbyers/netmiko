@@ -1,0 +1,54 @@
+[build-system]
+requires = ["poetry==1.3.2"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "netmiko"
+version = "4.3.0"
+description = "Multi-vendor library to simplify legacy CLI connections to network devices"
+authors = ["Kirk Byers <ktbyers@twb-tech.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/ktbyers/netmiko"
+classifiers = [
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+paramiko = ">=2.9.5"
+scp = ">=0.13.6"
+pyyaml = ">=5.3"
+textfsm = ">=1.1.3"
+ntc-templates = ">=2.0.0"
+pyserial = ">=3.3"
+
+[tool.poetry.group.dev.dependencies]
+black = "22.3.0"
+mypy = "1.0.0"
+mypy-extensions = "1.0.0"
+PyYAML = "6.0.1"
+pytest = "7.1.2"
+# Issue with build failure on pyflakes 2.5.0
+pyflakes = "2.4.0"
+pylama = "8.3.8"
+twine = "1.15.0"
+pysnmp = "4.4.12"
+pdoc3 = "0.10.0"
+types-paramiko = "3.0.0.2"
+types-PyYAML = "6.0.12.4"
+
+[tool.poetry.group.parsers.dependencies]
+pyats = ">=23.1"
+genie = ">=23.1"
+ttp = ">=0.9.0"
+
+[tool.poetry.scripts]
+"netmiko-grep" = "netmiko.cli_tools.netmiko_grep:main_ep"
+"netmiko-show" = "netmiko.cli_tools.netmiko_show:main_ep"
+"netmiko-cfg" = "netmiko.cli_tools.netmiko_cfg:main_ep"

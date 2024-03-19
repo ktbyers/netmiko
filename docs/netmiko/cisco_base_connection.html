@@ -48,11 +48,16 @@ class CiscoBaseConnection(BaseConnection):
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
@@ -62,12 +67,10 @@ class CiscoBaseConnection(BaseConnection):
     def check_config_mode(
         self, check_string: str = &#34;)#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
     ) -&gt; bool:
-        &#34;&#34;&#34;
-        Checks if the device is in configuration mode or not.
-
-        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-        &#34;&#34;&#34;
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
         self,
@@ -308,7 +311,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <dl>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoBaseConnection</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -349,6 +352,9 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -363,13 +369,17 @@ class CiscoFileTransfer(BaseFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -382,11 +392,14 @@ class CiscoFileTransfer(BaseFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -399,10 +412,13 @@ class CiscoFileTransfer(BaseFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -414,6 +430,9 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -431,11 +450,16 @@ class CiscoFileTransfer(BaseFileTransfer):
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
@@ -445,12 +469,10 @@ class CiscoFileTransfer(BaseFileTransfer):
     def check_config_mode(
         self, check_string: str = &#34;)#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
     ) -&gt; bool:
-        &#34;&#34;&#34;
-        Checks if the device is in configuration mode or not.
-
-        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-        &#34;&#34;&#34;
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
         self,
@@ -685,9 +707,11 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.cisco.cisco_xr.CiscoXrBase" href="cisco/cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase">CiscoXrBase</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
 <li><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase" href="dell/dell_powerconnect.html#netmiko.dell.dell_powerconnect.DellPowerConnectBase">DellPowerConnectBase</a></li>
+<li><a title="netmiko.hillstone.hillstone.HillstoneStoneosBase" href="hillstone/hillstone.html#netmiko.hillstone.hillstone.HillstoneStoneosBase">HillstoneStoneosBase</a></li>
 <li><a title="netmiko.huawei.huawei.HuaweiBase" href="huawei/huawei.html#netmiko.huawei.huawei.HuaweiBase">HuaweiBase</a></li>
 <li><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH" href="huawei/huawei_smartax.html#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH">HuaweiSmartAXSSH</a></li>
 <li><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="ipinfusion/ipinfusion_ocnos.html#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></li>
+<li><a title="netmiko.maipu.maipu.MaipuBase" href="maipu/maipu.html#netmiko.maipu.maipu.MaipuBase">MaipuBase</a></li>
 <li><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase" href="oneaccess/oneaccess_oneos.html#netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase">OneaccessOneOSBase</a></li>
 <li><a title="netmiko.raisecom.raisecom_roap.RaisecomRoapBase" href="raisecom/raisecom_roap.html#netmiko.raisecom.raisecom_roap.RaisecomRoapBase">RaisecomRoapBase</a></li>
 <li><a title="netmiko.ruijie.ruijie_os.RuijieOSBase" href="ruijie/ruijie_os.html#netmiko.ruijie.ruijie_os.RuijieOSBase">RuijieOSBase</a></li>
@@ -701,8 +725,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ')#', pattern: str = '', force_regex: bool = False) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Checks if the device is in configuration mode or not.</p>
-<p>Cisco IOS devices abbreviate the prompt at 20 chars in config mode</p></div>
+<div class="desc"><p>Checks if the device is in configuration mode or not.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -710,12 +733,10 @@ class CiscoFileTransfer(BaseFileTransfer):
 <pre><code class="python">def check_config_mode(
     self, check_string: str = &#34;)#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
 ) -&gt; bool:
-    &#34;&#34;&#34;
-    Checks if the device is in configuration mode or not.
-
-    Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-    &#34;&#34;&#34;
-    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
+    &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
+    return super().check_config_mode(
+        check_string=check_string, pattern=pattern, force_regex=force_regex
+    )</code></pre>
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode"><code class="name flex">
@@ -755,7 +776,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'enable', pattern: str = 'ssword', enable_pattern: Optional[str] = None, re_flags: int = re.IGNORECASE) ‑> str</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'enable', pattern: str = 'ssword', enable_pattern: Optional[str] = None, check_state: bool = True, re_flags: int = re.IGNORECASE) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Enter enable mode.</p></div>
@@ -768,11 +789,16 @@ class CiscoFileTransfer(BaseFileTransfer):
     cmd: str = &#34;enable&#34;,
     pattern: str = &#34;ssword&#34;,
     enable_pattern: Optional[str] = None,
+    check_state: bool = True,
     re_flags: int = re.IGNORECASE,
 ) -&gt; str:
     &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
     return super().enable(
-        cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+        cmd=cmd,
+        pattern=pattern,
+        enable_pattern=enable_pattern,
+        check_state=check_state,
+        re_flags=re_flags,
     )</code></pre>
 </details>
 </dd>
@@ -1096,7 +1122,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoSSHConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoSSHConnection</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -1137,6 +1163,9 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1151,13 +1180,17 @@ class CiscoFileTransfer(BaseFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1170,11 +1203,14 @@ class CiscoFileTransfer(BaseFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1187,10 +1223,13 @@ class CiscoFileTransfer(BaseFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1202,6 +1241,9 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1219,16 +1261,21 @@ class CiscoFileTransfer(BaseFileTransfer):
 <ul class="hlist">
 <li><a title="netmiko.a10.a10_ssh.A10SSH" href="a10/a10_ssh.html#netmiko.a10.a10_ssh.A10SSH">A10SSH</a></li>
 <li><a title="netmiko.accedian.accedian_ssh.AccedianSSH" href="accedian/accedian_ssh.html#netmiko.accedian.accedian_ssh.AccedianSSH">AccedianSSH</a></li>
+<li><a title="netmiko.adva.adva_aos_fsp_150_f2.AdvaAosFsp150F2SSH" href="adva/adva_aos_fsp_150_f2.html#netmiko.adva.adva_aos_fsp_150_f2.AdvaAosFsp150F2SSH">AdvaAosFsp150F2SSH</a></li>
+<li><a title="netmiko.adva.adva_aos_fsp_150_f3.AdvaAosFsp150F3SSH" href="adva/adva_aos_fsp_150_f3.html#netmiko.adva.adva_aos_fsp_150_f3.AdvaAosFsp150F3SSH">AdvaAosFsp150F3SSH</a></li>
 <li><a title="netmiko.alcatel.alcatel_aos_ssh.AlcatelAosSSH" href="alcatel/alcatel_aos_ssh.html#netmiko.alcatel.alcatel_aos_ssh.AlcatelAosSSH">AlcatelAosSSH</a></li>
 <li><a title="netmiko.apresia.apresia_aeos.ApresiaAeosBase" href="apresia/apresia_aeos.html#netmiko.apresia.apresia_aeos.ApresiaAeosBase">ApresiaAeosBase</a></li>
 <li><a title="netmiko.arista.arista.AristaBase" href="arista/arista.html#netmiko.arista.arista.AristaBase">AristaBase</a></li>
+<li><a title="netmiko.arris.arris_cer.ArrisCERBase" href="arris/arris_cer.html#netmiko.arris.arris_cer.ArrisCERBase">ArrisCERBase</a></li>
 <li><a title="netmiko.aruba.aruba_ssh.ArubaSSH" href="aruba/aruba_ssh.html#netmiko.aruba.aruba_ssh.ArubaSSH">ArubaSSH</a></li>
 <li><a title="netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH" href="broadcom/broadcom_icos_ssh.html#netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH">BroadcomIcosSSH</a></li>
 <li><a title="netmiko.brocade.brocade_fos_ssh.BrocadeFOSSSH" href="brocade/brocade_fos_ssh.html#netmiko.brocade.brocade_fos_ssh.BrocadeFOSSSH">BrocadeFOSSSH</a></li>
 <li><a title="netmiko.calix.calix_b6.CalixB6Base" href="calix/calix_b6.html#netmiko.calix.calix_b6.CalixB6Base">CalixB6Base</a></li>
+<li><a title="netmiko.casa.casa_cmts.CasaCMTSBase" href="casa/casa_cmts.html#netmiko.casa.casa_cmts.CasaCMTSBase">CasaCMTSBase</a></li>
 <li><a title="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH" href="cisco/cisco_asa_ssh.html#netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH">CiscoAsaSSH</a></li>
 <li><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH" href="cisco/cisco_ftd_ssh.html#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH">CiscoFtdSSH</a></li>
 <li><a title="netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH" href="cisco/cisco_nxos_ssh.html#netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH">CiscoNxosSSH</a></li>
+<li><a title="netmiko.cisco.cisco_s200.CiscoS200Base" href="cisco/cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base">CiscoS200Base</a></li>
 <li><a title="netmiko.cisco.cisco_s300.CiscoS300Base" href="cisco/cisco_s300.html#netmiko.cisco.cisco_s300.CiscoS300Base">CiscoS300Base</a></li>
 <li><a title="netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH" href="cisco/cisco_tp_tcce.html#netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH">CiscoTpTcCeSSH</a></li>
 <li><a title="netmiko.cisco.cisco_viptela.CiscoViptelaSSH" href="cisco/cisco_viptela.html#netmiko.cisco.cisco_viptela.CiscoViptelaSSH">CiscoViptelaSSH</a></li>
@@ -1237,6 +1284,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.dell.dell_force10_ssh.DellForce10SSH" href="dell/dell_force10_ssh.html#netmiko.dell.dell_force10_ssh.DellForce10SSH">DellForce10SSH</a></li>
 <li><a title="netmiko.dell.dell_os10_ssh.DellOS10SSH" href="dell/dell_os10_ssh.html#netmiko.dell.dell_os10_ssh.DellOS10SSH">DellOS10SSH</a></li>
 <li><a title="netmiko.dell.dell_sonic_ssh.DellSonicSSH" href="dell/dell_sonic_ssh.html#netmiko.dell.dell_sonic_ssh.DellSonicSSH">DellSonicSSH</a></li>
+<li><a title="netmiko.digi.digi_transport.DigiTransportBase" href="digi/digi_transport.html#netmiko.digi.digi_transport.DigiTransportBase">DigiTransportBase</a></li>
 <li><a title="netmiko.dlink.dlink_ds.DlinkDSBase" href="dlink/dlink_ds.html#netmiko.dlink.dlink_ds.DlinkDSBase">DlinkDSBase</a></li>
 <li><a title="netmiko.eltex.eltex_esr_ssh.EltexEsrSSH" href="eltex/eltex_esr_ssh.html#netmiko.eltex.eltex_esr_ssh.EltexEsrSSH">EltexEsrSSH</a></li>
 <li><a title="netmiko.eltex.eltex_ssh.EltexSSH" href="eltex/eltex_ssh.html#netmiko.eltex.eltex_ssh.EltexSSH">EltexSSH</a></li>
@@ -1250,6 +1298,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.extreme.extreme_tierraos_ssh.ExtremeTierraSSH" href="extreme/extreme_tierraos_ssh.html#netmiko.extreme.extreme_tierraos_ssh.ExtremeTierraSSH">ExtremeTierraSSH</a></li>
 <li><a title="netmiko.extreme.extreme_vsp_ssh.ExtremeVspSSH" href="extreme/extreme_vsp_ssh.html#netmiko.extreme.extreme_vsp_ssh.ExtremeVspSSH">ExtremeVspSSH</a></li>
 <li><a title="netmiko.extreme.extreme_wing_ssh.ExtremeWingSSH" href="extreme/extreme_wing_ssh.html#netmiko.extreme.extreme_wing_ssh.ExtremeWingSSH">ExtremeWingSSH</a></li>
+<li><a title="netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH" href="fiberstore/fiberstore_fsos.html#netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH">FiberstoreFsosSSH</a></li>
 <li><a title="netmiko.fortinet.fortinet_ssh.FortinetSSH" href="fortinet/fortinet_ssh.html#netmiko.fortinet.fortinet_ssh.FortinetSSH">FortinetSSH</a></li>
 <li><a title="netmiko.hp.hp_comware.HPComwareBase" href="hp/hp_comware.html#netmiko.hp.hp_comware.HPComwareBase">HPComwareBase</a></li>
 <li><a title="netmiko.hp.hp_procurve.HPProcurveBase" href="hp/hp_procurve.html#netmiko.hp.hp_procurve.HPProcurveBase">HPProcurveBase</a></li>

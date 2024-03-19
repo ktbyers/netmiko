@@ -37,10 +37,18 @@ from netmiko import log
 class HuaweiSmartAXSSH(CiscoBaseConnection):
     &#34;&#34;&#34;Supports Huawei SmartAX and OLT.&#34;&#34;&#34;
 
+    prompt_pattern = r&#34;[&gt;$]&#34;
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+
+        data = self._test_channel_read(pattern=f&#34;YES.NO|{self.prompt_pattern}&#34;)
+        # Huawei OLT might put a post-login banner that requires &#39;yes&#39; to be sent.
+        if re.search(r&#34;YES.NO&#34;, data):
+            self.write_channel(f&#34;yes{self.RETURN}&#34;)
+            self._test_channel_read(pattern=self.prompt_pattern)
+
         self.set_base_prompt()
         self._disable_smart_interaction()
         self.disable_paging()
@@ -119,10 +127,15 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         return super().enable(
-            cmd=cmd, pattern=pattern, re_flags=re_flags, enable_pattern=enable_pattern
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def set_base_prompt(
@@ -159,7 +172,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 <dl>
 <dt id="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH"><code class="flex name class">
 <span>class <span class="ident">HuaweiSmartAXSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Supports Huawei SmartAX and OLT.</p>
@@ -200,6 +213,9 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -214,13 +230,17 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -233,11 +253,14 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -250,10 +273,13 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -265,6 +291,9 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -273,10 +302,18 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 <pre><code class="python">class HuaweiSmartAXSSH(CiscoBaseConnection):
     &#34;&#34;&#34;Supports Huawei SmartAX and OLT.&#34;&#34;&#34;
 
+    prompt_pattern = r&#34;[&gt;$]&#34;
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+
+        data = self._test_channel_read(pattern=f&#34;YES.NO|{self.prompt_pattern}&#34;)
+        # Huawei OLT might put a post-login banner that requires &#39;yes&#39; to be sent.
+        if re.search(r&#34;YES.NO&#34;, data):
+            self.write_channel(f&#34;yes{self.RETURN}&#34;)
+            self._test_channel_read(pattern=self.prompt_pattern)
+
         self.set_base_prompt()
         self._disable_smart_interaction()
         self.disable_paging()
@@ -355,10 +392,15 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         return super().enable(
-            cmd=cmd, pattern=pattern, re_flags=re_flags, enable_pattern=enable_pattern
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def set_base_prompt(
@@ -388,6 +430,13 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.save_config"><code class="name flex">
@@ -420,7 +469,13 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 <pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self.ansi_escape_codes = True
-    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+
+    data = self._test_channel_read(pattern=f&#34;YES.NO|{self.prompt_pattern}&#34;)
+    # Huawei OLT might put a post-login banner that requires &#39;yes&#39; to be sent.
+    if re.search(r&#34;YES.NO&#34;, data):
+        self.write_channel(f&#34;yes{self.RETURN}&#34;)
+        self._test_channel_read(pattern=self.prompt_pattern)
+
     self.set_base_prompt()
     self._disable_smart_interaction()
     self.disable_paging()</code></pre>
@@ -520,6 +575,7 @@ The extra space is problematic.</p></div>
 <li>
 <h4><code><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH" href="#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH">HuaweiSmartAXSSH</a></code></h4>
 <ul class="">
+<li><code><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.prompt_pattern" href="#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.save_config" href="#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.session_preparation" href="#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.strip_ansi_escape_codes" href="#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH.strip_ansi_escape_codes">strip_ansi_escape_codes</a></code></li>

@@ -31,26 +31,35 @@ import re
 import os
 
 from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.base_connection import BaseConnection
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class MikrotikBase(NoEnable, CiscoSSHConnection):
+class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
     &#34;&#34;&#34;Common Methods for Mikrotik RouterOS and SwitchOS&#34;&#34;&#34;
+
+    prompt_pattern = r&#34;\].*&gt;&#34;
 
     def __init__(self, **kwargs: Any) -&gt; None:
         if kwargs.get(&#34;default_enter&#34;) is None:
             kwargs[&#34;default_enter&#34;] = &#34;\r\n&#34;
 
-        self._in_config_mode = False
-
         return super().__init__(**kwargs)
+
+    def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
+        # Mikrotik might prompt to read software licenses before displaying the initial prompt.
+        license_prompt = &#34;Do you want to see the software license&#34;
+        combined_pattern = rf&#34;(?:{self.prompt_pattern}|{license_prompt})&#34;
+        data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
+        if license_prompt in data:
+            self.write_channel(&#34;n&#34;)
+            self.read_until_pattern(pattern=self.prompt_pattern)
 
     def session_preparation(self, *args: Any, **kwargs: Any) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r&#34;\].*&gt;&#34;)
         self.set_base_prompt()
 
     def _modify_connection_params(self) -&gt; None:
@@ -58,35 +67,13 @@ class MikrotikBase(NoEnable, CiscoSSHConnection):
         c: disable console colors
         e: enable dumb terminal mode
         t: disable auto detect terminal capabilities
-        w511: set term width
-        h4098: set term height
+        511w: set term width
+        4098h: set term height
         &#34;&#34;&#34;
-        self.username += &#34;+ctw511h4098&#34;
+        self.username += &#34;+ct511w4098h&#34;
 
     def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;Mikrotik does not have paging by default.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
-        &#34;&#34;&#34;No save command, all configuration is atomic&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def config_mode(
-        self, config_command: str = &#34;&#34;, pattern: str = &#34;&#34;, re_flags: int = 0
-    ) -&gt; str:
-        &#34;&#34;&#34;No configuration mode on Mikrotik&#34;&#34;&#34;
-        self._in_config_mode = True
-        return &#34;&#34;
-
-    def check_config_mode(
-        self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-    ) -&gt; bool:
-        &#34;&#34;&#34;Checks whether in configuration mode. Returns a boolean.&#34;&#34;&#34;
-        return self._in_config_mode
-
-    def exit_config_mode(self, exit_config: str = &#34;&gt;&#34;, pattern: str = &#34;&#34;) -&gt; str:
-        &#34;&#34;&#34;No configuration mode on Mikrotik&#34;&#34;&#34;
-        self._in_config_mode = False
         return &#34;&#34;
 
     def strip_prompt(self, a_string: str) -&gt; str:
@@ -346,21 +333,29 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class MikrotikBase(NoEnable, CiscoSSHConnection):
+<pre><code class="python">class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
     &#34;&#34;&#34;Common Methods for Mikrotik RouterOS and SwitchOS&#34;&#34;&#34;
+
+    prompt_pattern = r&#34;\].*&gt;&#34;
 
     def __init__(self, **kwargs: Any) -&gt; None:
         if kwargs.get(&#34;default_enter&#34;) is None:
             kwargs[&#34;default_enter&#34;] = &#34;\r\n&#34;
 
-        self._in_config_mode = False
-
         return super().__init__(**kwargs)
+
+    def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
+        # Mikrotik might prompt to read software licenses before displaying the initial prompt.
+        license_prompt = &#34;Do you want to see the software license&#34;
+        combined_pattern = rf&#34;(?:{self.prompt_pattern}|{license_prompt})&#34;
+        data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
+        if license_prompt in data:
+            self.write_channel(&#34;n&#34;)
+            self.read_until_pattern(pattern=self.prompt_pattern)
 
     def session_preparation(self, *args: Any, **kwargs: Any) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r&#34;\].*&gt;&#34;)
         self.set_base_prompt()
 
     def _modify_connection_params(self) -&gt; None:
@@ -368,35 +363,13 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
         c: disable console colors
         e: enable dumb terminal mode
         t: disable auto detect terminal capabilities
-        w511: set term width
-        h4098: set term height
+        511w: set term width
+        4098h: set term height
         &#34;&#34;&#34;
-        self.username += &#34;+ctw511h4098&#34;
+        self.username += &#34;+ct511w4098h&#34;
 
     def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;Mikrotik does not have paging by default.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
-        &#34;&#34;&#34;No save command, all configuration is atomic&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def config_mode(
-        self, config_command: str = &#34;&#34;, pattern: str = &#34;&#34;, re_flags: int = 0
-    ) -&gt; str:
-        &#34;&#34;&#34;No configuration mode on Mikrotik&#34;&#34;&#34;
-        self._in_config_mode = True
-        return &#34;&#34;
-
-    def check_config_mode(
-        self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-    ) -&gt; bool:
-        &#34;&#34;&#34;Checks whether in configuration mode. Returns a boolean.&#34;&#34;&#34;
-        return self._in_config_mode
-
-    def exit_config_mode(self, exit_config: str = &#34;&gt;&#34;, pattern: str = &#34;&#34;) -&gt; str:
-        &#34;&#34;&#34;No configuration mode on Mikrotik&#34;&#34;&#34;
-        self._in_config_mode = False
         return &#34;&#34;
 
     def strip_prompt(self, a_string: str) -&gt; str:
@@ -476,6 +449,7 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
+<li><a title="netmiko.no_config.NoConfig" href="../no_config.html#netmiko.no_config.NoConfig">NoConfig</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
@@ -485,41 +459,15 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsSSH" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsSSH">MikrotikRouterOsSSH</a></li>
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikSwitchOsSSH" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikSwitchOsSSH">MikrotikSwitchOsSSH</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
-<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = '', pattern: str = '', force_regex: bool = False) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Checks whether in configuration mode. Returns a boolean.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_config_mode(
-    self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-) -&gt; bool:
-    &#34;&#34;&#34;Checks whether in configuration mode. Returns a boolean.&#34;&#34;&#34;
-    return self._in_config_mode</code></pre>
-</details>
-</dd>
-<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command: str = '', pattern: str = '', re_flags: int = 0) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>No configuration mode on Mikrotik</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def config_mode(
-    self, config_command: str = &#34;&#34;, pattern: str = &#34;&#34;, re_flags: int = 0
-) -&gt; str:
-    &#34;&#34;&#34;No configuration mode on Mikrotik&#34;&#34;&#34;
-    self._in_config_mode = True
-    return &#34;&#34;</code></pre>
-</details>
-</dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging"><code class="name flex">
 <span>def <span class="ident">disable_paging</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
 </code></dt>
@@ -531,35 +479,6 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
 </summary>
 <pre><code class="python">def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
     &#34;&#34;&#34;Mikrotik does not have paging by default.&#34;&#34;&#34;
-    return &#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode"><code class="name flex">
-<span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config: str = &#x27;&gt;&#x27;, pattern: str = '') ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>No configuration mode on Mikrotik</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config: str = &#34;&gt;&#34;, pattern: str = &#34;&#34;) -&gt; str:
-    &#34;&#34;&#34;No configuration mode on Mikrotik&#34;&#34;&#34;
-    self._in_config_mode = False
-    return &#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>No save command, all configuration is atomic</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
-    &#34;&#34;&#34;No save command, all configuration is atomic&#34;&#34;&#34;
     return &#34;&#34;</code></pre>
 </details>
 </dd>
@@ -596,7 +515,6 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
 <pre><code class="python">def session_preparation(self, *args: Any, **kwargs: Any) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
     self.ansi_escape_codes = True
-    self._test_channel_read(pattern=r&#34;\].*&gt;&#34;)
     self.set_base_prompt()</code></pre>
 </details>
 </dd>
@@ -705,13 +623,16 @@ repainting.</p></div>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
@@ -724,6 +645,7 @@ repainting.</p></div>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -1014,6 +936,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <ul class="hlist">
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase">MikrotikBase</a></li>
 <li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
+<li><a title="netmiko.no_config.NoConfig" href="../no_config.html#netmiko.no_config.NoConfig">NoConfig</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
@@ -1022,17 +945,17 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <ul class="hlist">
 <li><code><b><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase">MikrotikBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
@@ -1045,7 +968,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -1086,6 +1009,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <ul class="hlist">
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase">MikrotikBase</a></li>
 <li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
+<li><a title="netmiko.no_config.NoConfig" href="../no_config.html#netmiko.no_config.NoConfig">NoConfig</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
@@ -1094,17 +1018,17 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <ul class="hlist">
 <li><code><b><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase">MikrotikBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode">check_config_mode</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode">config_mode</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
@@ -1117,7 +1041,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -1158,11 +1082,8 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <li>
 <h4><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase">MikrotikBase</a></code></h4>
 <ul class="two-column">
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.check_config_mode">check_config_mode</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging">disable_paging</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode">exit_config_mode</a></code></li>
-<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.prompt_pattern" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command_timing" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.session_preparation" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.set_base_prompt" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.set_base_prompt">set_base_prompt</a></code></li>

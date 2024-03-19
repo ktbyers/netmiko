@@ -126,6 +126,12 @@ SSH_MAPPER_DICT = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
+    &#34;allied_telesis_awplus&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [&#34;AlliedWare Plus&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
     &#34;apresia_aeos&#34;: {
         &#34;cmd&#34;: &#34;show system&#34;,
         &#34;search_patterns&#34;: [&#34;Apresia&#34;],
@@ -134,7 +140,7 @@ SSH_MAPPER_DICT = {
     },
     &#34;arista_eos&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
-        &#34;search_patterns&#34;: [r&#34;Arista&#34;],
+        &#34;search_patterns&#34;: [r&#34;Arista&#34;, r&#34;vEOS&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
@@ -159,6 +165,12 @@ SSH_MAPPER_DICT = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
+    &#34;cisco_xe&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Cisco IOS XE Software&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
     &#34;cisco_nxos&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
         &#34;search_patterns&#34;: [r&#34;Cisco Nexus Operating System&#34;, r&#34;NX-OS&#34;],
@@ -167,6 +179,12 @@ SSH_MAPPER_DICT = {
     },
     &#34;cisco_xr&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Cisco IOS XR&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;cisco_xr_2&#34;: {
+        &#34;cmd&#34;: &#34;show version brief&#34;,
         &#34;search_patterns&#34;: [r&#34;Cisco IOS XR&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
@@ -216,6 +234,12 @@ SSH_MAPPER_DICT = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
+    &#34;hp_procurve&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Image stamp.*/code/build&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
     &#34;huawei&#34;: {
         &#34;cmd&#34;: &#34;display version&#34;,
         &#34;search_patterns&#34;: [
@@ -242,6 +266,12 @@ SSH_MAPPER_DICT = {
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
+    &#34;ericsson_ipos&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Ericsson IPOS Version&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
     &#34;extreme_exos&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
         &#34;search_patterns&#34;: [r&#34;ExtremeXOS&#34;],
@@ -256,7 +286,9 @@ SSH_MAPPER_DICT = {
     },
     &#34;extreme_slx&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
-        &#34;search_patterns&#34;: [r&#34;SLX-OS Operating System Software&#34;],
+        &#34;search_patterns&#34;: [
+            r&#34;SLX-OS Operating System&#34;,
+        ],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
@@ -281,7 +313,7 @@ SSH_MAPPER_DICT = {
     &#34;cisco_wlc_85&#34;: {
         &#34;cmd&#34;: &#34;show inventory&#34;,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
-        &#34;search_patterns&#34;: [r&#34;Cisco Wireless Controller&#34;],
+        &#34;search_patterns&#34;: [r&#34;Cisco.*Wireless.*Controller&#34;],
         &#34;priority&#34;: 99,
     },
     &#34;mellanox_mlnxos&#34;: {
@@ -317,6 +349,18 @@ SSH_MAPPER_DICT = {
     &#34;flexvnf&#34;: {
         &#34;cmd&#34;: &#34;show system package-info&#34;,
         &#34;search_patterns&#34;: [r&#34;Versa FlexVNF&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;cisco_viptela&#34;: {
+        &#34;cmd&#34;: &#34;show system status&#34;,
+        &#34;search_patterns&#34;: [r&#34;Viptela, Inc&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;oneaccess_oneos&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;OneOS&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
@@ -374,6 +418,10 @@ class SSHDetect(object):
         # Always set cmd_verify to False for autodetect
         kwargs[&#34;global_cmd_verify&#34;] = False
         self.connection = ConnectHandler(*args, **kwargs)
+
+        # Add additional sleep to let the login complete.
+        time.sleep(3)
+
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
         self.initial_buffer = output
@@ -404,7 +452,9 @@ class SSHDetect(object):
                     # WLC needs two different auto-dectect solutions
                     if &#34;cisco_wlc_85&#34; in best_match[0]:
                         best_match[0] = (&#34;cisco_wlc&#34;, 99)
-
+                    # IOS XR needs two different auto-dectect solutions
+                    if &#34;cisco_xr_2&#34; in best_match[0]:
+                        best_match[0] = (&#34;cisco_xr&#34;, 99)
                     self.connection.disconnect()
                     return best_match[0][0]
 
@@ -434,7 +484,7 @@ class SSHDetect(object):
         &#34;&#34;&#34;
         self.connection.write_channel(cmd + &#34;\n&#34;)
         time.sleep(1)
-        output = self.connection.read_channel_timing()
+        output = self.connection.read_channel_timing(last_read=6.0)
         output = self.connection.strip_backspaces(output)
         return output
 
@@ -632,6 +682,10 @@ Try to determine the device type.</p>
         # Always set cmd_verify to False for autodetect
         kwargs[&#34;global_cmd_verify&#34;] = False
         self.connection = ConnectHandler(*args, **kwargs)
+
+        # Add additional sleep to let the login complete.
+        time.sleep(3)
+
         # Call the _test_channel_read() in base to clear initial data
         output = BaseConnection._test_channel_read(self.connection)
         self.initial_buffer = output
@@ -662,7 +716,9 @@ Try to determine the device type.</p>
                     # WLC needs two different auto-dectect solutions
                     if &#34;cisco_wlc_85&#34; in best_match[0]:
                         best_match[0] = (&#34;cisco_wlc&#34;, 99)
-
+                    # IOS XR needs two different auto-dectect solutions
+                    if &#34;cisco_xr_2&#34; in best_match[0]:
+                        best_match[0] = (&#34;cisco_xr&#34;, 99)
                     self.connection.disconnect()
                     return best_match[0][0]
 
@@ -692,7 +748,7 @@ Try to determine the device type.</p>
         &#34;&#34;&#34;
         self.connection.write_channel(cmd + &#34;\n&#34;)
         time.sleep(1)
-        output = self.connection.read_channel_timing()
+        output = self.connection.read_channel_timing(last_read=6.0)
         output = self.connection.strip_backspaces(output)
         return output
 
@@ -853,7 +909,9 @@ Try to determine the device type.</p>
                 # WLC needs two different auto-dectect solutions
                 if &#34;cisco_wlc_85&#34; in best_match[0]:
                     best_match[0] = (&#34;cisco_wlc&#34;, 99)
-
+                # IOS XR needs two different auto-dectect solutions
+                if &#34;cisco_xr_2&#34; in best_match[0]:
+                    best_match[0] = (&#34;cisco_xr&#34;, 99)
                 self.connection.disconnect()
                 return best_match[0][0]
 

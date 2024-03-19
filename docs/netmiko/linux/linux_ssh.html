@@ -143,6 +143,7 @@ class LinuxSSH(CiscoSSHConnection):
         cmd: str = &#34;sudo -s&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         &#34;&#34;&#34;Attempt to become root.&#34;&#34;&#34;
@@ -157,22 +158,25 @@ permissions.
 &#34;&#34;&#34;
 
         output = &#34;&#34;
-        if not self.check_enable_mode():
-            self.write_channel(self.normalize_cmd(cmd))
-            # Failed &#34;sudo -s&#34; will put &#34;#&#34; in output so have to delineate further
-            root_prompt = rf&#34;(?m:{LINUX_PROMPT_ROOT}\s*$)&#34;
-            prompt_or_password = rf&#34;({root_prompt}|{pattern})&#34;
-            output += self.read_until_pattern(pattern=prompt_or_password)
-            if re.search(pattern, output, flags=re_flags):
-                self.write_channel(self.normalize_cmd(self.secret))
-                try:
-                    output += self.read_until_pattern(pattern=root_prompt)
-                except ReadTimeout:
-                    raise ValueError(msg)
-            # Nature of prompt might change with the privilege escalation
-            self.set_base_prompt(pattern=root_prompt)
-            if not self.check_enable_mode():
+        if check_state and self.check_enable_mode():
+            return output
+
+        self.write_channel(self.normalize_cmd(cmd))
+
+        # Failed &#34;sudo -s&#34; will put &#34;#&#34; in output so have to delineate further
+        root_prompt = rf&#34;(?m:{LINUX_PROMPT_ROOT}\s*$)&#34;
+        prompt_or_password = rf&#34;({root_prompt}|{pattern})&#34;
+        output += self.read_until_pattern(pattern=prompt_or_password)
+        if re.search(pattern, output, flags=re_flags):
+            self.write_channel(self.normalize_cmd(self.secret))
+            try:
+                output += self.read_until_pattern(pattern=root_prompt)
+            except ReadTimeout:
                 raise ValueError(msg)
+        # Nature of prompt might change with the privilege escalation
+        self.set_base_prompt(pattern=root_prompt)
+        if not self.check_enable_mode():
+            raise ValueError(msg)
         return output
 
     def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
@@ -369,7 +373,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
 </dd>
 <dt id="netmiko.linux.linux_ssh.LinuxSSH"><code class="flex name class">
 <span>class <span class="ident">LinuxSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -410,6 +414,9 @@ class LinuxFileTransfer(CiscoFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -424,13 +431,17 @@ class LinuxFileTransfer(CiscoFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -443,11 +454,14 @@ class LinuxFileTransfer(CiscoFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -460,10 +474,13 @@ class LinuxFileTransfer(CiscoFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -475,6 +492,9 @@ class LinuxFileTransfer(CiscoFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -581,6 +601,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
         cmd: str = &#34;sudo -s&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         &#34;&#34;&#34;Attempt to become root.&#34;&#34;&#34;
@@ -595,22 +616,25 @@ permissions.
 &#34;&#34;&#34;
 
         output = &#34;&#34;
-        if not self.check_enable_mode():
-            self.write_channel(self.normalize_cmd(cmd))
-            # Failed &#34;sudo -s&#34; will put &#34;#&#34; in output so have to delineate further
-            root_prompt = rf&#34;(?m:{LINUX_PROMPT_ROOT}\s*$)&#34;
-            prompt_or_password = rf&#34;({root_prompt}|{pattern})&#34;
-            output += self.read_until_pattern(pattern=prompt_or_password)
-            if re.search(pattern, output, flags=re_flags):
-                self.write_channel(self.normalize_cmd(self.secret))
-                try:
-                    output += self.read_until_pattern(pattern=root_prompt)
-                except ReadTimeout:
-                    raise ValueError(msg)
-            # Nature of prompt might change with the privilege escalation
-            self.set_base_prompt(pattern=root_prompt)
-            if not self.check_enable_mode():
+        if check_state and self.check_enable_mode():
+            return output
+
+        self.write_channel(self.normalize_cmd(cmd))
+
+        # Failed &#34;sudo -s&#34; will put &#34;#&#34; in output so have to delineate further
+        root_prompt = rf&#34;(?m:{LINUX_PROMPT_ROOT}\s*$)&#34;
+        prompt_or_password = rf&#34;({root_prompt}|{pattern})&#34;
+        output += self.read_until_pattern(pattern=prompt_or_password)
+        if re.search(pattern, output, flags=re_flags):
+            self.write_channel(self.normalize_cmd(self.secret))
+            try:
+                output += self.read_until_pattern(pattern=root_prompt)
+            except ReadTimeout:
                 raise ValueError(msg)
+        # Nature of prompt might change with the privilege escalation
+        self.set_base_prompt(pattern=root_prompt)
+        if not self.check_enable_mode():
+            raise ValueError(msg)
         return output
 
     def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
@@ -722,7 +746,7 @@ permissions.
 </details>
 </dd>
 <dt id="netmiko.linux.linux_ssh.LinuxSSH.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'sudo -s', pattern: str = 'ssword', enable_pattern: Optional[str] = None, re_flags: int = re.IGNORECASE) ‑> str</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'sudo -s', pattern: str = 'ssword', enable_pattern: Optional[str] = None, check_state: bool = True, re_flags: int = re.IGNORECASE) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Attempt to become root.</p></div>
@@ -735,6 +759,7 @@ permissions.
         cmd: str = &#34;sudo -s&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         &#34;&#34;&#34;Attempt to become root.&#34;&#34;&#34;
@@ -749,22 +774,25 @@ permissions.
 &#34;&#34;&#34;
 
         output = &#34;&#34;
-        if not self.check_enable_mode():
-            self.write_channel(self.normalize_cmd(cmd))
-            # Failed &#34;sudo -s&#34; will put &#34;#&#34; in output so have to delineate further
-            root_prompt = rf&#34;(?m:{LINUX_PROMPT_ROOT}\s*$)&#34;
-            prompt_or_password = rf&#34;({root_prompt}|{pattern})&#34;
-            output += self.read_until_pattern(pattern=prompt_or_password)
-            if re.search(pattern, output, flags=re_flags):
-                self.write_channel(self.normalize_cmd(self.secret))
-                try:
-                    output += self.read_until_pattern(pattern=root_prompt)
-                except ReadTimeout:
-                    raise ValueError(msg)
-            # Nature of prompt might change with the privilege escalation
-            self.set_base_prompt(pattern=root_prompt)
-            if not self.check_enable_mode():
+        if check_state and self.check_enable_mode():
+            return output
+
+        self.write_channel(self.normalize_cmd(cmd))
+
+        # Failed &#34;sudo -s&#34; will put &#34;#&#34; in output so have to delineate further
+        root_prompt = rf&#34;(?m:{LINUX_PROMPT_ROOT}\s*$)&#34;
+        prompt_or_password = rf&#34;({root_prompt}|{pattern})&#34;
+        output += self.read_until_pattern(pattern=prompt_or_password)
+        if re.search(pattern, output, flags=re_flags):
+            self.write_channel(self.normalize_cmd(self.secret))
+            try:
+                output += self.read_until_pattern(pattern=root_prompt)
+            except ReadTimeout:
                 raise ValueError(msg)
+        # Nature of prompt might change with the privilege escalation
+        self.set_base_prompt(pattern=root_prompt)
+        if not self.check_enable_mode():
+            raise ValueError(msg)
         return output</code></pre>
 </details>
 </dd>

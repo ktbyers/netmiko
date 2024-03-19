@@ -31,10 +31,13 @@ import re
 from typing import Optional
 
 from netmiko.no_config import NoConfig
+from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class FortinetSSH(NoConfig, CiscoSSHConnection):
+class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
+    prompt_pattern = r&#34;[#$]&#34;
+
     def _modify_connection_params(self) -&gt; None:
         &#34;&#34;&#34;Modify connection parameters prior to SSH connection.&#34;&#34;&#34;
         paramiko_transport = getattr(paramiko, &#34;Transport&#34;)
@@ -45,18 +48,83 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
             &#34;diffie-hellman-group1-sha1&#34;,
         )
 
+    def _try_session_preparation(self, force_data: bool = False) -&gt; None:
+        super()._try_session_preparation(force_data=force_data)
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
 
-        data = self._test_channel_read(pattern=&#34;to accept|[#$]&#34;)
+        data = self._test_channel_read(pattern=f&#34;to accept|{self.prompt_pattern}&#34;)
         # If &#34;set post-login-banner enable&#34; is set it will require you to press &#39;a&#39;
         # to accept the banner before you login. This will accept if it occurs
         if &#34;to accept&#34; in data:
             self.write_channel(&#34;a\r&#34;)
-            self._test_channel_read(pattern=r&#34;[#$]&#34;)
+            self._test_channel_read(pattern=self.prompt_pattern)
 
-        self.set_base_prompt(alt_prompt_terminator=&#34;$&#34;)
+        self.set_base_prompt()
+        self._vdoms = self._vdoms_enabled()
+        self._os_version = self._determine_os_version()
+        # Retain how the &#39;output mode&#39; was original configured.
+        self._original_output_mode = self._get_output_mode()
+        self._output_mode = self._original_output_mode
         self.disable_paging()
+
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = r&#34;#&#34;,
+        alt_prompt_terminator: str = r&#34;$&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -&gt; str:
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+
+    def _vdoms_enabled(self) -&gt; bool:
+        &#34;&#34;&#34;Determine whether virtual domains are enabled or not.&#34;&#34;&#34;
+        check_command = &#34;get system status | grep Virtual&#34;
+        output = self._send_command_str(
+            check_command, expect_string=self.prompt_pattern
+        )
+        return bool(
+            re.search(r&#34;Virtual domain configuration: (multiple|enable)&#34;, output)
+        )
+
+    def _config_global(self) -&gt; str:
+        &#34;&#34;&#34;Enter &#39;config global&#39; mode, raise a ValueError exception on failure.&#34;&#34;&#34;
+        try:
+            return self._send_command_str(
+                &#34;config global&#34;, expect_string=self.prompt_pattern
+            )
+        except Exception:
+            msg = &#34;&#34;&#34;
+Netmiko may require &#39;config global&#39; access to properly disable output paging.
+Alternatively you can try configuring &#39;configure system console -&gt; set output standard&#39;.
+&#34;&#34;&#34;
+            raise ValueError(msg)
+
+    def _exit_config_global(self) -&gt; str:
+        &#34;&#34;&#34;Exit &#39;config global&#39; mode.&#34;&#34;&#34;
+        try:
+            return self._send_command_str(&#34;end&#34;, expect_string=self.prompt_pattern)
+        except Exception:
+            msg = &#34;Unable to properly exit &#39;config global&#39; mode.&#34;
+            raise ValueError(msg)
 
     def disable_paging(
         self,
@@ -66,63 +134,111 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
         pattern: Optional[str] = None,
     ) -&gt; str:
         &#34;&#34;&#34;Disable paging is only available with specific roles so it may fail.&#34;&#34;&#34;
-        check_command = &#34;get system status | grep Virtual&#34;
-        output = self._send_command_timing_str(check_command)
-        self.allow_disable_global = True
-        self.vdoms = False
-        self._output_mode = &#34;more&#34;
 
-        if re.search(r&#34;Virtual domain configuration: (multiple|enable)&#34;, output):
-            self.vdoms = True
-            vdom_additional_command = &#34;config global&#34;
-            output = self._send_command_timing_str(vdom_additional_command, last_read=3)
-            if &#34;Command fail&#34; in output:
-                self.allow_disable_global = False
-                if self.remote_conn is not None:
-                    self.remote_conn.close()
-                self.establish_connection(width=100, height=1000)
+        output = &#34;&#34;
+        if self._output_mode == &#34;standard&#34;:
+            # Do nothing - already correct.
+            return &#34;&#34;
 
-        new_output = &#34;&#34;
-        if self.allow_disable_global:
-            self._retrieve_output_mode()
-            disable_paging_commands = [
-                &#34;config system console&#34;,
-                &#34;set output standard&#34;,
-                &#34;end&#34;,
-            ]
-            # There is an extra &#39;end&#39; required if in multi-vdoms are enabled
-            if self.vdoms:
-                disable_paging_commands.append(&#34;end&#34;)
-            outputlist = [
-                self._send_command_timing_str(command, last_read=3)
-                for command in disable_paging_commands
-            ]
-            # Should test output is valid
-            new_output = self.RETURN.join(outputlist)
+        if self._vdoms:
+            output += self._config_global()
+        disable_paging_commands = [
+            &#34;config system console&#34;,
+            &#34;set output standard&#34;,
+            &#34;end&#34;,
+        ]
+        output += self.send_multiline(
+            disable_paging_commands, expect_string=self.prompt_pattern
+        )
+        self._output_mode = &#34;standard&#34;
 
-        return output + new_output
+        if self._vdoms:
+            output += self._exit_config_global()
+        return output
 
-    def _retrieve_output_mode(self) -&gt; None:
-        &#34;&#34;&#34;Save the state of the output mode so it can be reset at the end of the session.&#34;&#34;&#34;
-        reg_mode = re.compile(r&#34;output\s+:\s+(?P&lt;mode&gt;.*)\s+\n&#34;)
-        output = self._send_command_str(&#34;get system console&#34;)
-        result_mode_re = reg_mode.search(output)
+    def _determine_os_version(self) -&gt; str:
+        check_command = &#34;get system status | grep Version&#34;
+        output = self._send_command_str(
+            check_command, expect_string=self.prompt_pattern
+        )
+        if re.search(r&#34;^Version: .* (v[78]\.).*$&#34;, output, flags=re.M):
+            return &#34;v7_or_later&#34;
+        elif re.search(r&#34;^Version: .* (v[654]\.).*$&#34;, output, flags=re.M):
+            return &#34;v6_or_earlier&#34;
+        else:
+            raise ValueError(&#34;Unexpected FortiOS Version encountered.&#34;)
+
+    def _get_output_mode_v6(self) -&gt; str:
+        &#34;&#34;&#34;
+        FortiOS V6 and earlier.
+        Retrieve the current output mode.
+        &#34;&#34;&#34;
+        if self._vdoms:
+            self._config_global()
+
+        output = self._send_command_str(&#34;show full-configuration system console&#34;)
+
+        if self._vdoms:
+            self._exit_config_global()
+
+        pattern = r&#34;^\s+set output (?P&lt;mode&gt;\S+)\s*$&#34;
+        result_mode_re = re.search(pattern, output, flags=re.M)
         if result_mode_re:
             result_mode = result_mode_re.group(&#34;mode&#34;).strip()
             if result_mode in [&#34;more&#34;, &#34;standard&#34;]:
-                self._output_mode = result_mode
+                return result_mode
+
+        raise ValueError(&#34;Unable to determine the output mode on the Fortinet device.&#34;)
+
+    def _get_output_mode_v7(self) -&gt; str:
+        &#34;&#34;&#34;
+        FortiOS V7 and later.
+        Retrieve the current output mode.
+        &#34;&#34;&#34;
+        if self._vdoms:
+            self._config_global()
+
+        output = self._send_command_str(
+            &#34;get system console&#34;, expect_string=self.prompt_pattern
+        )
+
+        if self._vdoms:
+            self._exit_config_global()
+
+        pattern = r&#34;output\s+:\s+(?P&lt;mode&gt;\S+)\s*$&#34;
+        result_mode_re = re.search(pattern, output, flags=re.M)
+        if result_mode_re:
+            result_mode = result_mode_re.group(&#34;mode&#34;).strip()
+            if result_mode in [&#34;more&#34;, &#34;standard&#34;]:
+                return result_mode
+
+        raise ValueError(&#34;Unable to determine the output mode on the Fortinet device.&#34;)
+
+    def _get_output_mode(self) -&gt; str:
+        &#34;&#34;&#34;Save the state of the output mode so it can be reset at the end of the session.&#34;&#34;&#34;
+
+        # Fortios Version6 does not support &#39;get system console&#39;
+        if &#34;v6&#34; in self._os_version:
+            return self._get_output_mode_v6()
+        elif &#34;v7&#34; in self._os_version:
+            return self._get_output_mode_v7()
+        else:
+            raise ValueError(&#34;Unexpected FortiOS Version encountered.&#34;)
 
     def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
         &#34;&#34;&#34;Re-enable paging globally.&#34;&#34;&#34;
-        if self.allow_disable_global:
-            # Return paging state
-            output_mode_cmd = f&#34;set output {self._output_mode}&#34;
-            enable_paging_commands = [&#34;config system console&#34;, output_mode_cmd, &#34;end&#34;]
-            if self.vdoms:
-                enable_paging_commands.insert(0, &#34;config global&#34;)
-            # Should test output is valid
-            for command in enable_paging_commands:
-                self.send_command_timing(command)
+        output = &#34;&#34;
+        if self._original_output_mode == &#34;more&#34;:
+            if self._vdoms:
+                output += self._config_global()
+            commands = [
+                &#34;config system console&#34;,
+                &#34;set output more&#34;,
+                &#34;end&#34;,
+            ]
+            output += self.send_multiline(commands, expect_string=self.prompt_pattern)
+            if self._vdoms:
+                self._exit_config_global()
         return super().cleanup(command=command)
 
     def save_config(
@@ -143,7 +259,7 @@ class FortinetSSH(NoConfig, CiscoSSHConnection):
 <dl>
 <dt id="netmiko.fortinet.fortinet_ssh.FortinetSSH"><code class="flex name class">
 <span>class <span class="ident">FortinetSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Class for platforms that have no config mode.</p>
@@ -189,6 +305,9 @@ overwrite check_config_mode in the platform specific driver and return False.</p
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -203,13 +322,17 @@ overwrite check_config_mode in the platform specific driver and return False.</p
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -222,11 +345,14 @@ overwrite check_config_mode in the platform specific driver and return False.</p
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -239,10 +365,13 @@ overwrite check_config_mode in the platform specific driver and return False.</p
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -254,12 +383,17 @@ overwrite check_config_mode in the platform specific driver and return False.</p
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class FortinetSSH(NoConfig, CiscoSSHConnection):
+<pre><code class="python">class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
+    prompt_pattern = r&#34;[#$]&#34;
+
     def _modify_connection_params(self) -&gt; None:
         &#34;&#34;&#34;Modify connection parameters prior to SSH connection.&#34;&#34;&#34;
         paramiko_transport = getattr(paramiko, &#34;Transport&#34;)
@@ -270,18 +404,83 @@ overwrite check_config_mode in the platform specific driver and return False.</p
             &#34;diffie-hellman-group1-sha1&#34;,
         )
 
+    def _try_session_preparation(self, force_data: bool = False) -&gt; None:
+        super()._try_session_preparation(force_data=force_data)
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
 
-        data = self._test_channel_read(pattern=&#34;to accept|[#$]&#34;)
+        data = self._test_channel_read(pattern=f&#34;to accept|{self.prompt_pattern}&#34;)
         # If &#34;set post-login-banner enable&#34; is set it will require you to press &#39;a&#39;
         # to accept the banner before you login. This will accept if it occurs
         if &#34;to accept&#34; in data:
             self.write_channel(&#34;a\r&#34;)
-            self._test_channel_read(pattern=r&#34;[#$]&#34;)
+            self._test_channel_read(pattern=self.prompt_pattern)
 
-        self.set_base_prompt(alt_prompt_terminator=&#34;$&#34;)
+        self.set_base_prompt()
+        self._vdoms = self._vdoms_enabled()
+        self._os_version = self._determine_os_version()
+        # Retain how the &#39;output mode&#39; was original configured.
+        self._original_output_mode = self._get_output_mode()
+        self._output_mode = self._original_output_mode
         self.disable_paging()
+
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = r&#34;#&#34;,
+        alt_prompt_terminator: str = r&#34;$&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
+    ) -&gt; str:
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+
+    def _vdoms_enabled(self) -&gt; bool:
+        &#34;&#34;&#34;Determine whether virtual domains are enabled or not.&#34;&#34;&#34;
+        check_command = &#34;get system status | grep Virtual&#34;
+        output = self._send_command_str(
+            check_command, expect_string=self.prompt_pattern
+        )
+        return bool(
+            re.search(r&#34;Virtual domain configuration: (multiple|enable)&#34;, output)
+        )
+
+    def _config_global(self) -&gt; str:
+        &#34;&#34;&#34;Enter &#39;config global&#39; mode, raise a ValueError exception on failure.&#34;&#34;&#34;
+        try:
+            return self._send_command_str(
+                &#34;config global&#34;, expect_string=self.prompt_pattern
+            )
+        except Exception:
+            msg = &#34;&#34;&#34;
+Netmiko may require &#39;config global&#39; access to properly disable output paging.
+Alternatively you can try configuring &#39;configure system console -&gt; set output standard&#39;.
+&#34;&#34;&#34;
+            raise ValueError(msg)
+
+    def _exit_config_global(self) -&gt; str:
+        &#34;&#34;&#34;Exit &#39;config global&#39; mode.&#34;&#34;&#34;
+        try:
+            return self._send_command_str(&#34;end&#34;, expect_string=self.prompt_pattern)
+        except Exception:
+            msg = &#34;Unable to properly exit &#39;config global&#39; mode.&#34;
+            raise ValueError(msg)
 
     def disable_paging(
         self,
@@ -291,63 +490,111 @@ overwrite check_config_mode in the platform specific driver and return False.</p
         pattern: Optional[str] = None,
     ) -&gt; str:
         &#34;&#34;&#34;Disable paging is only available with specific roles so it may fail.&#34;&#34;&#34;
-        check_command = &#34;get system status | grep Virtual&#34;
-        output = self._send_command_timing_str(check_command)
-        self.allow_disable_global = True
-        self.vdoms = False
-        self._output_mode = &#34;more&#34;
 
-        if re.search(r&#34;Virtual domain configuration: (multiple|enable)&#34;, output):
-            self.vdoms = True
-            vdom_additional_command = &#34;config global&#34;
-            output = self._send_command_timing_str(vdom_additional_command, last_read=3)
-            if &#34;Command fail&#34; in output:
-                self.allow_disable_global = False
-                if self.remote_conn is not None:
-                    self.remote_conn.close()
-                self.establish_connection(width=100, height=1000)
+        output = &#34;&#34;
+        if self._output_mode == &#34;standard&#34;:
+            # Do nothing - already correct.
+            return &#34;&#34;
 
-        new_output = &#34;&#34;
-        if self.allow_disable_global:
-            self._retrieve_output_mode()
-            disable_paging_commands = [
-                &#34;config system console&#34;,
-                &#34;set output standard&#34;,
-                &#34;end&#34;,
-            ]
-            # There is an extra &#39;end&#39; required if in multi-vdoms are enabled
-            if self.vdoms:
-                disable_paging_commands.append(&#34;end&#34;)
-            outputlist = [
-                self._send_command_timing_str(command, last_read=3)
-                for command in disable_paging_commands
-            ]
-            # Should test output is valid
-            new_output = self.RETURN.join(outputlist)
+        if self._vdoms:
+            output += self._config_global()
+        disable_paging_commands = [
+            &#34;config system console&#34;,
+            &#34;set output standard&#34;,
+            &#34;end&#34;,
+        ]
+        output += self.send_multiline(
+            disable_paging_commands, expect_string=self.prompt_pattern
+        )
+        self._output_mode = &#34;standard&#34;
 
-        return output + new_output
+        if self._vdoms:
+            output += self._exit_config_global()
+        return output
 
-    def _retrieve_output_mode(self) -&gt; None:
-        &#34;&#34;&#34;Save the state of the output mode so it can be reset at the end of the session.&#34;&#34;&#34;
-        reg_mode = re.compile(r&#34;output\s+:\s+(?P&lt;mode&gt;.*)\s+\n&#34;)
-        output = self._send_command_str(&#34;get system console&#34;)
-        result_mode_re = reg_mode.search(output)
+    def _determine_os_version(self) -&gt; str:
+        check_command = &#34;get system status | grep Version&#34;
+        output = self._send_command_str(
+            check_command, expect_string=self.prompt_pattern
+        )
+        if re.search(r&#34;^Version: .* (v[78]\.).*$&#34;, output, flags=re.M):
+            return &#34;v7_or_later&#34;
+        elif re.search(r&#34;^Version: .* (v[654]\.).*$&#34;, output, flags=re.M):
+            return &#34;v6_or_earlier&#34;
+        else:
+            raise ValueError(&#34;Unexpected FortiOS Version encountered.&#34;)
+
+    def _get_output_mode_v6(self) -&gt; str:
+        &#34;&#34;&#34;
+        FortiOS V6 and earlier.
+        Retrieve the current output mode.
+        &#34;&#34;&#34;
+        if self._vdoms:
+            self._config_global()
+
+        output = self._send_command_str(&#34;show full-configuration system console&#34;)
+
+        if self._vdoms:
+            self._exit_config_global()
+
+        pattern = r&#34;^\s+set output (?P&lt;mode&gt;\S+)\s*$&#34;
+        result_mode_re = re.search(pattern, output, flags=re.M)
         if result_mode_re:
             result_mode = result_mode_re.group(&#34;mode&#34;).strip()
             if result_mode in [&#34;more&#34;, &#34;standard&#34;]:
-                self._output_mode = result_mode
+                return result_mode
+
+        raise ValueError(&#34;Unable to determine the output mode on the Fortinet device.&#34;)
+
+    def _get_output_mode_v7(self) -&gt; str:
+        &#34;&#34;&#34;
+        FortiOS V7 and later.
+        Retrieve the current output mode.
+        &#34;&#34;&#34;
+        if self._vdoms:
+            self._config_global()
+
+        output = self._send_command_str(
+            &#34;get system console&#34;, expect_string=self.prompt_pattern
+        )
+
+        if self._vdoms:
+            self._exit_config_global()
+
+        pattern = r&#34;output\s+:\s+(?P&lt;mode&gt;\S+)\s*$&#34;
+        result_mode_re = re.search(pattern, output, flags=re.M)
+        if result_mode_re:
+            result_mode = result_mode_re.group(&#34;mode&#34;).strip()
+            if result_mode in [&#34;more&#34;, &#34;standard&#34;]:
+                return result_mode
+
+        raise ValueError(&#34;Unable to determine the output mode on the Fortinet device.&#34;)
+
+    def _get_output_mode(self) -&gt; str:
+        &#34;&#34;&#34;Save the state of the output mode so it can be reset at the end of the session.&#34;&#34;&#34;
+
+        # Fortios Version6 does not support &#39;get system console&#39;
+        if &#34;v6&#34; in self._os_version:
+            return self._get_output_mode_v6()
+        elif &#34;v7&#34; in self._os_version:
+            return self._get_output_mode_v7()
+        else:
+            raise ValueError(&#34;Unexpected FortiOS Version encountered.&#34;)
 
     def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
         &#34;&#34;&#34;Re-enable paging globally.&#34;&#34;&#34;
-        if self.allow_disable_global:
-            # Return paging state
-            output_mode_cmd = f&#34;set output {self._output_mode}&#34;
-            enable_paging_commands = [&#34;config system console&#34;, output_mode_cmd, &#34;end&#34;]
-            if self.vdoms:
-                enable_paging_commands.insert(0, &#34;config global&#34;)
-            # Should test output is valid
-            for command in enable_paging_commands:
-                self.send_command_timing(command)
+        output = &#34;&#34;
+        if self._original_output_mode == &#34;more&#34;:
+            if self._vdoms:
+                output += self._config_global()
+            commands = [
+                &#34;config system console&#34;,
+                &#34;set output more&#34;,
+                &#34;end&#34;,
+            ]
+            output += self.send_multiline(commands, expect_string=self.prompt_pattern)
+            if self._vdoms:
+                self._exit_config_global()
         return super().cleanup(command=command)
 
     def save_config(
@@ -359,10 +606,18 @@ overwrite check_config_mode in the platform specific driver and return False.</p
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.no_config.NoConfig" href="../no_config.html#netmiko.no_config.NoConfig">NoConfig</a></li>
+<li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.fortinet.fortinet_ssh.FortinetSSH.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.fortinet.fortinet_ssh.FortinetSSH.cleanup"><code class="name flex">
@@ -376,15 +631,18 @@ overwrite check_config_mode in the platform specific driver and return False.</p
 </summary>
 <pre><code class="python">def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
     &#34;&#34;&#34;Re-enable paging globally.&#34;&#34;&#34;
-    if self.allow_disable_global:
-        # Return paging state
-        output_mode_cmd = f&#34;set output {self._output_mode}&#34;
-        enable_paging_commands = [&#34;config system console&#34;, output_mode_cmd, &#34;end&#34;]
-        if self.vdoms:
-            enable_paging_commands.insert(0, &#34;config global&#34;)
-        # Should test output is valid
-        for command in enable_paging_commands:
-            self.send_command_timing(command)
+    output = &#34;&#34;
+    if self._original_output_mode == &#34;more&#34;:
+        if self._vdoms:
+            output += self._config_global()
+        commands = [
+            &#34;config system console&#34;,
+            &#34;set output more&#34;,
+            &#34;end&#34;,
+        ]
+        output += self.send_multiline(commands, expect_string=self.prompt_pattern)
+        if self._vdoms:
+            self._exit_config_global()
     return super().cleanup(command=command)</code></pre>
 </details>
 </dd>
@@ -405,41 +663,27 @@ overwrite check_config_mode in the platform specific driver and return False.</p
     pattern: Optional[str] = None,
 ) -&gt; str:
     &#34;&#34;&#34;Disable paging is only available with specific roles so it may fail.&#34;&#34;&#34;
-    check_command = &#34;get system status | grep Virtual&#34;
-    output = self._send_command_timing_str(check_command)
-    self.allow_disable_global = True
-    self.vdoms = False
-    self._output_mode = &#34;more&#34;
 
-    if re.search(r&#34;Virtual domain configuration: (multiple|enable)&#34;, output):
-        self.vdoms = True
-        vdom_additional_command = &#34;config global&#34;
-        output = self._send_command_timing_str(vdom_additional_command, last_read=3)
-        if &#34;Command fail&#34; in output:
-            self.allow_disable_global = False
-            if self.remote_conn is not None:
-                self.remote_conn.close()
-            self.establish_connection(width=100, height=1000)
+    output = &#34;&#34;
+    if self._output_mode == &#34;standard&#34;:
+        # Do nothing - already correct.
+        return &#34;&#34;
 
-    new_output = &#34;&#34;
-    if self.allow_disable_global:
-        self._retrieve_output_mode()
-        disable_paging_commands = [
-            &#34;config system console&#34;,
-            &#34;set output standard&#34;,
-            &#34;end&#34;,
-        ]
-        # There is an extra &#39;end&#39; required if in multi-vdoms are enabled
-        if self.vdoms:
-            disable_paging_commands.append(&#34;end&#34;)
-        outputlist = [
-            self._send_command_timing_str(command, last_read=3)
-            for command in disable_paging_commands
-        ]
-        # Should test output is valid
-        new_output = self.RETURN.join(outputlist)
+    if self._vdoms:
+        output += self._config_global()
+    disable_paging_commands = [
+        &#34;config system console&#34;,
+        &#34;set output standard&#34;,
+        &#34;end&#34;,
+    ]
+    output += self.send_multiline(
+        disable_paging_commands, expect_string=self.prompt_pattern
+    )
+    self._output_mode = &#34;standard&#34;
 
-    return output + new_output</code></pre>
+    if self._vdoms:
+        output += self._exit_config_global()
+    return output</code></pre>
 </details>
 </dd>
 <dt id="netmiko.fortinet.fortinet_ssh.FortinetSSH.save_config"><code class="name flex">
@@ -470,14 +714,19 @@ overwrite check_config_mode in the platform specific driver and return False.</p
 <pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
 
-    data = self._test_channel_read(pattern=&#34;to accept|[#$]&#34;)
+    data = self._test_channel_read(pattern=f&#34;to accept|{self.prompt_pattern}&#34;)
     # If &#34;set post-login-banner enable&#34; is set it will require you to press &#39;a&#39;
     # to accept the banner before you login. This will accept if it occurs
     if &#34;to accept&#34; in data:
         self.write_channel(&#34;a\r&#34;)
-        self._test_channel_read(pattern=r&#34;[#$]&#34;)
+        self._test_channel_read(pattern=self.prompt_pattern)
 
-    self.set_base_prompt(alt_prompt_terminator=&#34;$&#34;)
+    self.set_base_prompt()
+    self._vdoms = self._vdoms_enabled()
+    self._os_version = self._determine_os_version()
+    # Retain how the &#39;output mode&#39; was original configured.
+    self._original_output_mode = self._get_output_mode()
+    self._output_mode = self._original_output_mode
     self.disable_paging()</code></pre>
 </details>
 </dd>
@@ -548,6 +797,7 @@ overwrite check_config_mode in the platform specific driver and return False.</p
 <ul class="">
 <li><code><a title="netmiko.fortinet.fortinet_ssh.FortinetSSH.cleanup" href="#netmiko.fortinet.fortinet_ssh.FortinetSSH.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.fortinet.fortinet_ssh.FortinetSSH.disable_paging" href="#netmiko.fortinet.fortinet_ssh.FortinetSSH.disable_paging">disable_paging</a></code></li>
+<li><code><a title="netmiko.fortinet.fortinet_ssh.FortinetSSH.prompt_pattern" href="#netmiko.fortinet.fortinet_ssh.FortinetSSH.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.fortinet.fortinet_ssh.FortinetSSH.save_config" href="#netmiko.fortinet.fortinet_ssh.FortinetSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.fortinet.fortinet_ssh.FortinetSSH.session_preparation" href="#netmiko.fortinet.fortinet_ssh.FortinetSSH.session_preparation">session_preparation</a></code></li>
 </ul>

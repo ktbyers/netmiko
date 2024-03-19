@@ -36,6 +36,8 @@ from netmiko.no_enable import NoEnable
 class AudiocodeBase(BaseConnection):
     &#34;&#34;&#34;Common Methods for AudioCode Drivers.&#34;&#34;&#34;
 
+    prompt_pattern = r&#34;[&gt;#]&#34;
+
     def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
         default_enter = kwargs.get(&#34;default_enter&#34;)
         kwargs[&#34;default_enter&#34;] = &#34;\r&#34; if default_enter is None else default_enter
@@ -43,7 +45,7 @@ class AudiocodeBase(BaseConnection):
 
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.disable_paging()
         # Clear the read buffer
@@ -54,20 +56,41 @@ class AudiocodeBase(BaseConnection):
         pri_prompt_terminator: str = &#34;#&#34;,
         alt_prompt_terminator: str = &#34;&gt;&#34;,
         delay_factor: float = 1.0,
-        pattern: Optional[str] = r&#34;\*?(#|&gt;)&#34;,
+        pattern: Optional[str] = None,
     ) -&gt; str:
-        return super().set_base_prompt(
-            pri_prompt_terminator=pri_prompt_terminator,
-            alt_prompt_terminator=alt_prompt_terminator,
-            delay_factor=delay_factor,
-            pattern=pattern,
-        )
+
+        if pattern is None:
+            pattern = rf&#34;\*?{self.prompt_pattern}&#34;
+
+        if pattern:
+            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
+        else:
+            prompt = self.find_prompt(delay_factor=delay_factor)
+
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
+
+        # If all we have is the &#39;terminator&#39; just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Audiocode will return a prompt with * in it in certain
+            # situations: &#39;MYDEVICE*#&#39;, strip this off.
+            if &#34;*#&#34; in prompt or &#34;*&gt;&#34; in prompt:
+                self.base_prompt = prompt[:-2]
+            else:
+                # Strip off trailing terminator
+                self.base_prompt = prompt[:-1]
+        return self.base_prompt
 
     def find_prompt(
         self,
         delay_factor: float = 1.0,
-        pattern: Optional[str] = r&#34;\*?(#|&gt;)&#34;,
+        pattern: Optional[str] = None,
     ) -&gt; str:
+
+        if pattern is None:
+            pattern = rf&#34;\*?{self.prompt_pattern}&#34;
         return super().find_prompt(
             delay_factor=delay_factor,
             pattern=pattern,
@@ -81,11 +104,10 @@ class AudiocodeBase(BaseConnection):
 
     def check_config_mode(
         self,
-        check_string: str = r&#34;(\)#|\)\*#)&#34;,
+        check_string: str = r&#34;(?:\)#|\)\*#)&#34;,
         pattern: str = r&#34;..#&#34;,
         force_regex: bool = True,
     ) -&gt; bool:
-
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
@@ -110,10 +132,15 @@ class AudiocodeBase(BaseConnection):
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = &#34;#&#34;,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = r&#34;#&#34;) -&gt; str:
@@ -400,7 +427,7 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
         enter_config_mode: bool = True,
         error_pattern: str = &#34;&#34;,
         terminator: str = r&#34;/.*&gt;&#34;,
-        bypass_commands: str = None,
+        bypass_commands: Optional[str] = None,
     ) -&gt; str:
 
         return super().send_config_set(
@@ -475,7 +502,7 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
         delay_factor: Optional[float] = 0.5,
     ) -&gt; str:
         &#34;&#34;&#34;Not supported&#34;&#34;&#34;
-        pass
+        return &#34;&#34;
 
     def strip_command(self, command_string: str, output: str) -&gt; str:
         # Support for Audiocode_Shell.
@@ -555,6 +582,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -569,13 +599,17 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -588,11 +622,14 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -605,10 +642,13 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -620,6 +660,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -726,6 +769,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -740,13 +786,17 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -759,11 +809,14 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -776,10 +829,13 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -791,6 +847,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -897,6 +956,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -911,13 +973,17 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -930,11 +996,14 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -947,10 +1016,13 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -962,6 +1034,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1124,6 +1199,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1138,13 +1216,17 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1157,11 +1239,14 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1174,10 +1259,13 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1189,6 +1277,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1295,6 +1386,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1309,13 +1403,17 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1328,11 +1426,14 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1345,10 +1446,13 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1360,6 +1464,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1466,6 +1573,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1480,13 +1590,17 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1499,11 +1613,14 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1516,10 +1633,13 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1531,6 +1651,9 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1539,6 +1662,8 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
 <pre><code class="python">class AudiocodeBase(BaseConnection):
     &#34;&#34;&#34;Common Methods for AudioCode Drivers.&#34;&#34;&#34;
 
+    prompt_pattern = r&#34;[&gt;#]&#34;
+
     def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
         default_enter = kwargs.get(&#34;default_enter&#34;)
         kwargs[&#34;default_enter&#34;] = &#34;\r&#34; if default_enter is None else default_enter
@@ -1546,7 +1671,7 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
 
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.disable_paging()
         # Clear the read buffer
@@ -1557,20 +1682,41 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
         pri_prompt_terminator: str = &#34;#&#34;,
         alt_prompt_terminator: str = &#34;&gt;&#34;,
         delay_factor: float = 1.0,
-        pattern: Optional[str] = r&#34;\*?(#|&gt;)&#34;,
+        pattern: Optional[str] = None,
     ) -&gt; str:
-        return super().set_base_prompt(
-            pri_prompt_terminator=pri_prompt_terminator,
-            alt_prompt_terminator=alt_prompt_terminator,
-            delay_factor=delay_factor,
-            pattern=pattern,
-        )
+
+        if pattern is None:
+            pattern = rf&#34;\*?{self.prompt_pattern}&#34;
+
+        if pattern:
+            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
+        else:
+            prompt = self.find_prompt(delay_factor=delay_factor)
+
+        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
+
+        # If all we have is the &#39;terminator&#39; just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Audiocode will return a prompt with * in it in certain
+            # situations: &#39;MYDEVICE*#&#39;, strip this off.
+            if &#34;*#&#34; in prompt or &#34;*&gt;&#34; in prompt:
+                self.base_prompt = prompt[:-2]
+            else:
+                # Strip off trailing terminator
+                self.base_prompt = prompt[:-1]
+        return self.base_prompt
 
     def find_prompt(
         self,
         delay_factor: float = 1.0,
-        pattern: Optional[str] = r&#34;\*?(#|&gt;)&#34;,
+        pattern: Optional[str] = None,
     ) -&gt; str:
+
+        if pattern is None:
+            pattern = rf&#34;\*?{self.prompt_pattern}&#34;
         return super().find_prompt(
             delay_factor=delay_factor,
             pattern=pattern,
@@ -1584,11 +1730,10 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
 
     def check_config_mode(
         self,
-        check_string: str = r&#34;(\)#|\)\*#)&#34;,
+        check_string: str = r&#34;(?:\)#|\)\*#)&#34;,
         pattern: str = r&#34;..#&#34;,
         force_regex: bool = True,
     ) -&gt; bool:
-
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
@@ -1613,10 +1758,15 @@ class AudiocodeShellTelnet(AudiocodeShellBase):
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = &#34;#&#34;,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = r&#34;#&#34;) -&gt; str:
@@ -1731,6 +1881,13 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase66">AudiocodeBase66</a></li>
 <li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase" href="#netmiko.audiocode.audiocode_ssh.AudiocodeShellBase">AudiocodeShellBase</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.audiocode.audiocode_ssh.AudiocodeBase.cleanup"><code class="name flex">
@@ -1808,7 +1965,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 </summary>
 <pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+    self._test_channel_read(pattern=self.prompt_pattern)
     self.set_base_prompt()
     self.disable_paging()
     # Clear the read buffer
@@ -1904,6 +2061,9 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1918,13 +2078,17 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1937,11 +2101,14 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1954,10 +2121,13 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1969,6 +2139,9 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -2130,6 +2303,9 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -2144,13 +2320,17 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -2163,11 +2343,14 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -2180,10 +2363,13 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -2195,6 +2381,9 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -2254,7 +2443,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
         enter_config_mode: bool = True,
         error_pattern: str = &#34;&#34;,
         terminator: str = r&#34;/.*&gt;&#34;,
-        bypass_commands: str = None,
+        bypass_commands: Optional[str] = None,
     ) -&gt; str:
 
         return super().send_config_set(
@@ -2329,7 +2518,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
         delay_factor: Optional[float] = 0.5,
     ) -&gt; str:
         &#34;&#34;&#34;Not supported&#34;&#34;&#34;
-        pass
+        return &#34;&#34;
 
     def strip_command(self, command_string: str, output: str) -&gt; str:
         # Support for Audiocode_Shell.
@@ -2473,6 +2662,9 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -2487,13 +2679,17 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -2506,11 +2702,14 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -2523,10 +2722,13 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -2538,6 +2740,9 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -2645,6 +2850,9 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -2659,13 +2867,17 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -2678,11 +2890,14 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -2695,10 +2910,13 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -2710,6 +2928,9 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -2810,6 +3031,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <ul class="">
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.cleanup" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.save_config" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.session_preparation" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.session_preparation">session_preparation</a></code></li>
 </ul>

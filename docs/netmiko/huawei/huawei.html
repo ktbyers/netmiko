@@ -27,7 +27,6 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from typing import Optional, Any, Union, Sequence, Iterator, TextIO
-import time
 import re
 import warnings
 
@@ -39,6 +38,10 @@ from netmiko import log
 
 
 class HuaweiBase(NoEnable, CiscoBaseConnection):
+    prompt_pattern = r&#34;[\]&gt;]&#34;
+    password_change_prompt = r&#34;(?:Change now|Please choose)&#34;
+    prompt_or_password_change = rf&#34;(?:Change now|Please choose|{prompt_pattern})&#34;
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
@@ -118,10 +121,48 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
     def save_config(
         self, cmd: str = &#34;save&#34;, confirm: bool = True, confirm_response: str = &#34;y&#34;
     ) -&gt; str:
-        &#34;&#34;&#34;Save Config for HuaweiSSH&#34;&#34;&#34;
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        &#34;&#34;&#34;Save Config for HuaweiSSH
+
+        Expected behavior:
+
+        ######################################################################
+        Warning: The current configuration will be written to the device.
+        Are you sure to continue?[Y/N]:y
+         It will take several minutes to save configuration file, please wait.....................
+         Configuration file had been saved successfully
+         Note: The configuration file will take effect after being activated
+        ######################################################################
+        &#34;&#34;&#34;
+
+        # Huawei devices might break if you try to use send_command_timing() so use send_command()
+        # instead.
+        if confirm:
+            pattern = rf&#34;(?:Are you sure|{self.prompt_pattern})&#34;
+            output = self._send_command_str(
+                command_string=cmd,
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+            if confirm_response and &#34;Are you sure&#34; in output:
+                output += self._send_command_str(
+                    command_string=confirm_response,
+                    expect_string=self.prompt_pattern,
+                    strip_prompt=False,
+                    strip_command=False,
+                    read_timeout=100.0,
+                )
+        # no confirm.
+        else:
+            # Some devices are slow so match on trailing-prompt if you can
+            output = self._send_command_str(
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+        return output
 
     def cleanup(self, command: str = &#34;quit&#34;) -&gt; None:
         return super().cleanup(command=command)
@@ -133,12 +174,20 @@ class HuaweiSSH(HuaweiBase):
     def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
         # Huawei prompts for password change before displaying the initial base prompt.
         # Search for that password change prompt or for base prompt.
-        password_change_prompt = r&#34;(Change now|Please choose)&#34;
-        prompt_or_password_change = r&#34;(?:Change now|Please choose|[&gt;\]])&#34;
-        data = self.read_until_pattern(pattern=prompt_or_password_change)
-        if re.search(password_change_prompt, data):
+        data = self.read_until_pattern(pattern=self.prompt_or_password_change)
+        if re.search(self.password_change_prompt, data):
             self.write_channel(&#34;N&#34; + self.RETURN)
-            self.read_until_pattern(pattern=r&#34;[&gt;\]]&#34;)
+            self.read_until_pattern(pattern=self.prompt_pattern)
+
+        # Huawei prompts for secure the configuration before displaying the initial base prompt.
+        if re.search(
+            r&#34;security\srisks\sin\sthe\sconfiguration\sfile.*\[y\/n\]&#34;, data, flags=re.I
+        ):
+            self.send_command(&#34;Y&#34;, expect_string=r&#34;(?i)continue.*\[y\/n\]&#34;)
+            self.send_command(
+                &#34;Y&#34;, expect_string=r&#34;saved\ssuccessfully&#34;, read_timeout=60
+            )
+            self.read_until_pattern(pattern=self.prompt_pattern)
 
 
 class HuaweiTelnet(HuaweiBase):
@@ -146,79 +195,49 @@ class HuaweiTelnet(HuaweiBase):
 
     def telnet_login(
         self,
-        pri_prompt_terminator: str = r&#34;]\s*$&#34;,
-        alt_prompt_terminator: str = r&#34;&gt;\s*$&#34;,
+        pri_prompt_terminator: str = r&#34;&#34;,
+        alt_prompt_terminator: str = r&#34;&#34;,
         username_pattern: str = r&#34;(?:user:|username|login|user name)&#34;,
         pwd_pattern: str = r&#34;assword&#34;,
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -&gt; str:
         &#34;&#34;&#34;Telnet login for Huawei Devices&#34;&#34;&#34;
-
-        delay_factor = self.select_delay_factor(delay_factor)
-        password_change_prompt = r&#34;(Change now|Please choose &#39;YES&#39; or &#39;NO&#39;).+&#34;
-        combined_pattern = r&#34;({}|{}|{})&#34;.format(
-            pri_prompt_terminator, alt_prompt_terminator, password_change_prompt
-        )
-
         output = &#34;&#34;
         return_msg = &#34;&#34;
-        i = 1
-        while i &lt;= max_loops:
-            try:
-                # Search for username pattern / send username
-                output = self.read_until_pattern(
-                    pattern=username_pattern, re_flags=re.I
-                )
+        try:
+            # Search for username pattern / send username
+            output = self.read_until_pattern(pattern=username_pattern, re_flags=re.I)
+            return_msg += output
+            self.write_channel(self.username + self.TELNET_RETURN)
+
+            # Search for password pattern / send password
+            output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+            return_msg += output
+            assert self.password is not None
+            self.write_channel(self.password + self.TELNET_RETURN)
+
+            # Waiting for the prompt or password change message
+            output = self.read_until_pattern(pattern=self.prompt_or_password_change)
+            return_msg += output
+
+            # If password change prompt, send &#34;N&#34;
+            if re.search(self.password_change_prompt, output):
+                self.write_channel(&#34;N&#34; + self.TELNET_RETURN)
+                output = self.read_until_pattern(pattern=self.prompt_pattern)
                 return_msg += output
-                self.write_channel(self.username + self.TELNET_RETURN)
+                return return_msg
+            elif re.search(self.prompt_pattern, output):
+                return return_msg
 
-                # Search for password pattern / send password
-                output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
-                return_msg += output
-                assert self.password is not None
-                self.write_channel(self.password + self.TELNET_RETURN)
+            # Should never be here
+            raise EOFError
 
-                # Waiting for combined output
-                output = self.read_until_pattern(pattern=combined_pattern)
-                return_msg += output
-
-                # Search for password change prompt, send &#34;N&#34;
-                if re.search(password_change_prompt, output):
-                    self.write_channel(&#34;N&#34; + self.TELNET_RETURN)
-                    output = self.read_until_pattern(pattern=combined_pattern)
-                    return_msg += output
-
-                # Check if proper data received
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
-                    return return_msg
-
-                self.write_channel(self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                i += 1
-
-            except EOFError:
-                assert self.remote_conn is not None
-                self.remote_conn.close()
-                msg = f&#34;Login failed: {self.host}&#34;
-                raise NetmikoAuthenticationException(msg)
-
-        # Last try to see if we already logged in
-        self.write_channel(self.TELNET_RETURN)
-        time.sleep(0.5 * delay_factor)
-        output = self.read_channel()
-        return_msg += output
-        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-            alt_prompt_terminator, output, flags=re.M
-        ):
-            return return_msg
-
-        assert self.remote_conn is not None
-        self.remote_conn.close()
-        msg = f&#34;Login failed: {self.host}&#34;
-        raise NetmikoAuthenticationException(msg)
+        except EOFError:
+            assert self.remote_conn is not None
+            self.remote_conn.close()
+            msg = f&#34;Login failed: {self.host}&#34;
+            raise NetmikoAuthenticationException(msg)
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
@@ -292,7 +311,7 @@ class HuaweiVrpv8SSH(HuaweiSSH):
 <dl>
 <dt id="netmiko.huawei.huawei.HuaweiBase"><code class="flex name class">
 <span>class <span class="ident">HuaweiBase</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Class for platforms that have no enable mode.</p>
@@ -340,6 +359,9 @@ don't explicitly support enable mode.</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -354,13 +376,17 @@ don't explicitly support enable mode.</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -373,11 +399,14 @@ don't explicitly support enable mode.</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -390,10 +419,13 @@ don't explicitly support enable mode.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -405,12 +437,19 @@ don't explicitly support enable mode.</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class HuaweiBase(NoEnable, CiscoBaseConnection):
+    prompt_pattern = r&#34;[\]&gt;]&#34;
+    password_change_prompt = r&#34;(?:Change now|Please choose)&#34;
+    prompt_or_password_change = rf&#34;(?:Change now|Please choose|{prompt_pattern})&#34;
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
@@ -490,10 +529,48 @@ don't explicitly support enable mode.</p>
     def save_config(
         self, cmd: str = &#34;save&#34;, confirm: bool = True, confirm_response: str = &#34;y&#34;
     ) -&gt; str:
-        &#34;&#34;&#34;Save Config for HuaweiSSH&#34;&#34;&#34;
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        &#34;&#34;&#34;Save Config for HuaweiSSH
+
+        Expected behavior:
+
+        ######################################################################
+        Warning: The current configuration will be written to the device.
+        Are you sure to continue?[Y/N]:y
+         It will take several minutes to save configuration file, please wait.....................
+         Configuration file had been saved successfully
+         Note: The configuration file will take effect after being activated
+        ######################################################################
+        &#34;&#34;&#34;
+
+        # Huawei devices might break if you try to use send_command_timing() so use send_command()
+        # instead.
+        if confirm:
+            pattern = rf&#34;(?:Are you sure|{self.prompt_pattern})&#34;
+            output = self._send_command_str(
+                command_string=cmd,
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+            if confirm_response and &#34;Are you sure&#34; in output:
+                output += self._send_command_str(
+                    command_string=confirm_response,
+                    expect_string=self.prompt_pattern,
+                    strip_prompt=False,
+                    strip_command=False,
+                    read_timeout=100.0,
+                )
+        # no confirm.
+        else:
+            # Some devices are slow so match on trailing-prompt if you can
+            output = self._send_command_str(
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+        return output
 
     def cleanup(self, command: str = &#34;quit&#34;) -&gt; None:
         return super().cleanup(command=command)</code></pre>
@@ -509,6 +586,21 @@ don't explicitly support enable mode.</p>
 <li><a title="netmiko.huawei.huawei.HuaweiSSH" href="#netmiko.huawei.huawei.HuaweiSSH">HuaweiSSH</a></li>
 <li><a title="netmiko.huawei.huawei.HuaweiTelnet" href="#netmiko.huawei.huawei.HuaweiTelnet">HuaweiTelnet</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.huawei.huawei.HuaweiBase.password_change_prompt"><code class="name">var <span class="ident">password_change_prompt</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="netmiko.huawei.huawei.HuaweiBase.prompt_or_password_change"><code class="name">var <span class="ident">prompt_or_password_change</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="netmiko.huawei.huawei.HuaweiBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.huawei.huawei.HuaweiBase.check_config_mode"><code class="name flex">
@@ -545,7 +637,15 @@ don't explicitly support enable mode.</p>
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'save', confirm: bool = True, confirm_response: str = 'y') ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Save Config for HuaweiSSH</p></div>
+<div class="desc"><p>Save Config for HuaweiSSH</p>
+<p>Expected behavior:</p>
+<h6 id="_1"></h6>
+<p>Warning: The current configuration will be written to the device.
+Are you sure to continue?[Y/N]:y
+It will take several minutes to save configuration file, please wait.....................
+Configuration file had been saved successfully
+Note: The configuration file will take effect after being activated</p>
+<h6 id="_2"></h6></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -553,10 +653,48 @@ don't explicitly support enable mode.</p>
 <pre><code class="python">def save_config(
     self, cmd: str = &#34;save&#34;, confirm: bool = True, confirm_response: str = &#34;y&#34;
 ) -&gt; str:
-    &#34;&#34;&#34;Save Config for HuaweiSSH&#34;&#34;&#34;
-    return super().save_config(
-        cmd=cmd, confirm=confirm, confirm_response=confirm_response
-    )</code></pre>
+    &#34;&#34;&#34;Save Config for HuaweiSSH
+
+    Expected behavior:
+
+    ######################################################################
+    Warning: The current configuration will be written to the device.
+    Are you sure to continue?[Y/N]:y
+     It will take several minutes to save configuration file, please wait.....................
+     Configuration file had been saved successfully
+     Note: The configuration file will take effect after being activated
+    ######################################################################
+    &#34;&#34;&#34;
+
+    # Huawei devices might break if you try to use send_command_timing() so use send_command()
+    # instead.
+    if confirm:
+        pattern = rf&#34;(?:Are you sure|{self.prompt_pattern})&#34;
+        output = self._send_command_str(
+            command_string=cmd,
+            expect_string=pattern,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=100.0,
+        )
+        if confirm_response and &#34;Are you sure&#34; in output:
+            output += self._send_command_str(
+                command_string=confirm_response,
+                expect_string=self.prompt_pattern,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+    # no confirm.
+    else:
+        # Some devices are slow so match on trailing-prompt if you can
+        output = self._send_command_str(
+            command_string=cmd,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=100.0,
+        )
+    return output</code></pre>
 </details>
 </dd>
 <dt id="netmiko.huawei.huawei.HuaweiBase.session_preparation"><code class="name flex">
@@ -697,7 +835,7 @@ to move the cursor to the left one.</p>
 </dd>
 <dt id="netmiko.huawei.huawei.HuaweiSSH"><code class="flex name class">
 <span>class <span class="ident">HuaweiSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Huawei SSH driver.</p>
@@ -738,6 +876,9 @@ to move the cursor to the left one.</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -752,13 +893,17 @@ to move the cursor to the left one.</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -771,11 +916,14 @@ to move the cursor to the left one.</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -788,10 +936,13 @@ to move the cursor to the left one.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -803,6 +954,9 @@ to move the cursor to the left one.</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -814,12 +968,20 @@ to move the cursor to the left one.</p>
     def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
         # Huawei prompts for password change before displaying the initial base prompt.
         # Search for that password change prompt or for base prompt.
-        password_change_prompt = r&#34;(Change now|Please choose)&#34;
-        prompt_or_password_change = r&#34;(?:Change now|Please choose|[&gt;\]])&#34;
-        data = self.read_until_pattern(pattern=prompt_or_password_change)
-        if re.search(password_change_prompt, data):
+        data = self.read_until_pattern(pattern=self.prompt_or_password_change)
+        if re.search(self.password_change_prompt, data):
             self.write_channel(&#34;N&#34; + self.RETURN)
-            self.read_until_pattern(pattern=r&#34;[&gt;\]]&#34;)</code></pre>
+            self.read_until_pattern(pattern=self.prompt_pattern)
+
+        # Huawei prompts for secure the configuration before displaying the initial base prompt.
+        if re.search(
+            r&#34;security\srisks\sin\sthe\sconfiguration\sfile.*\[y\/n\]&#34;, data, flags=re.I
+        ):
+            self.send_command(&#34;Y&#34;, expect_string=r&#34;(?i)continue.*\[y\/n\]&#34;)
+            self.send_command(
+                &#34;Y&#34;, expect_string=r&#34;saved\ssuccessfully&#34;, read_timeout=60
+            )
+            self.read_until_pattern(pattern=self.prompt_pattern)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -883,7 +1045,7 @@ to move the cursor to the left one.</p>
 </dd>
 <dt id="netmiko.huawei.huawei.HuaweiTelnet"><code class="flex name class">
 <span>class <span class="ident">HuaweiTelnet</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Huawei Telnet driver.</p>
@@ -924,6 +1086,9 @@ to move the cursor to the left one.</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -938,13 +1103,17 @@ to move the cursor to the left one.</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -957,11 +1126,14 @@ to move the cursor to the left one.</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -974,10 +1146,13 @@ to move the cursor to the left one.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -989,6 +1164,9 @@ to move the cursor to the left one.</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -999,79 +1177,49 @@ to move the cursor to the left one.</p>
 
     def telnet_login(
         self,
-        pri_prompt_terminator: str = r&#34;]\s*$&#34;,
-        alt_prompt_terminator: str = r&#34;&gt;\s*$&#34;,
+        pri_prompt_terminator: str = r&#34;&#34;,
+        alt_prompt_terminator: str = r&#34;&#34;,
         username_pattern: str = r&#34;(?:user:|username|login|user name)&#34;,
         pwd_pattern: str = r&#34;assword&#34;,
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -&gt; str:
         &#34;&#34;&#34;Telnet login for Huawei Devices&#34;&#34;&#34;
-
-        delay_factor = self.select_delay_factor(delay_factor)
-        password_change_prompt = r&#34;(Change now|Please choose &#39;YES&#39; or &#39;NO&#39;).+&#34;
-        combined_pattern = r&#34;({}|{}|{})&#34;.format(
-            pri_prompt_terminator, alt_prompt_terminator, password_change_prompt
-        )
-
         output = &#34;&#34;
         return_msg = &#34;&#34;
-        i = 1
-        while i &lt;= max_loops:
-            try:
-                # Search for username pattern / send username
-                output = self.read_until_pattern(
-                    pattern=username_pattern, re_flags=re.I
-                )
+        try:
+            # Search for username pattern / send username
+            output = self.read_until_pattern(pattern=username_pattern, re_flags=re.I)
+            return_msg += output
+            self.write_channel(self.username + self.TELNET_RETURN)
+
+            # Search for password pattern / send password
+            output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+            return_msg += output
+            assert self.password is not None
+            self.write_channel(self.password + self.TELNET_RETURN)
+
+            # Waiting for the prompt or password change message
+            output = self.read_until_pattern(pattern=self.prompt_or_password_change)
+            return_msg += output
+
+            # If password change prompt, send &#34;N&#34;
+            if re.search(self.password_change_prompt, output):
+                self.write_channel(&#34;N&#34; + self.TELNET_RETURN)
+                output = self.read_until_pattern(pattern=self.prompt_pattern)
                 return_msg += output
-                self.write_channel(self.username + self.TELNET_RETURN)
+                return return_msg
+            elif re.search(self.prompt_pattern, output):
+                return return_msg
 
-                # Search for password pattern / send password
-                output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
-                return_msg += output
-                assert self.password is not None
-                self.write_channel(self.password + self.TELNET_RETURN)
+            # Should never be here
+            raise EOFError
 
-                # Waiting for combined output
-                output = self.read_until_pattern(pattern=combined_pattern)
-                return_msg += output
-
-                # Search for password change prompt, send &#34;N&#34;
-                if re.search(password_change_prompt, output):
-                    self.write_channel(&#34;N&#34; + self.TELNET_RETURN)
-                    output = self.read_until_pattern(pattern=combined_pattern)
-                    return_msg += output
-
-                # Check if proper data received
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
-                    return return_msg
-
-                self.write_channel(self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                i += 1
-
-            except EOFError:
-                assert self.remote_conn is not None
-                self.remote_conn.close()
-                msg = f&#34;Login failed: {self.host}&#34;
-                raise NetmikoAuthenticationException(msg)
-
-        # Last try to see if we already logged in
-        self.write_channel(self.TELNET_RETURN)
-        time.sleep(0.5 * delay_factor)
-        output = self.read_channel()
-        return_msg += output
-        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-            alt_prompt_terminator, output, flags=re.M
-        ):
-            return return_msg
-
-        assert self.remote_conn is not None
-        self.remote_conn.close()
-        msg = f&#34;Login failed: {self.host}&#34;
-        raise NetmikoAuthenticationException(msg)</code></pre>
+        except EOFError:
+            assert self.remote_conn is not None
+            self.remote_conn.close()
+            msg = f&#34;Login failed: {self.host}&#34;
+            raise NetmikoAuthenticationException(msg)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1083,7 +1231,7 @@ to move the cursor to the left one.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.huawei.huawei.HuaweiTelnet.telnet_login"><code class="name flex">
-<span>def <span class="ident">telnet_login</span></span>(<span>self, pri_prompt_terminator: str = ']\\s*$', alt_prompt_terminator: str = &#x27;&gt;\\s*$&#x27;, username_pattern: str = '(?:user:|username|login|user name)', pwd_pattern: str = 'assword', delay_factor: float = 1.0, max_loops: int = 20) ‑> str</span>
+<span>def <span class="ident">telnet_login</span></span>(<span>self, pri_prompt_terminator: str = '', alt_prompt_terminator: str = '', username_pattern: str = '(?:user:|username|login|user name)', pwd_pattern: str = 'assword', delay_factor: float = 1.0, max_loops: int = 20) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Telnet login for Huawei Devices</p></div>
@@ -1093,79 +1241,49 @@ to move the cursor to the left one.</p>
 </summary>
 <pre><code class="python">def telnet_login(
     self,
-    pri_prompt_terminator: str = r&#34;]\s*$&#34;,
-    alt_prompt_terminator: str = r&#34;&gt;\s*$&#34;,
+    pri_prompt_terminator: str = r&#34;&#34;,
+    alt_prompt_terminator: str = r&#34;&#34;,
     username_pattern: str = r&#34;(?:user:|username|login|user name)&#34;,
     pwd_pattern: str = r&#34;assword&#34;,
     delay_factor: float = 1.0,
     max_loops: int = 20,
 ) -&gt; str:
     &#34;&#34;&#34;Telnet login for Huawei Devices&#34;&#34;&#34;
-
-    delay_factor = self.select_delay_factor(delay_factor)
-    password_change_prompt = r&#34;(Change now|Please choose &#39;YES&#39; or &#39;NO&#39;).+&#34;
-    combined_pattern = r&#34;({}|{}|{})&#34;.format(
-        pri_prompt_terminator, alt_prompt_terminator, password_change_prompt
-    )
-
     output = &#34;&#34;
     return_msg = &#34;&#34;
-    i = 1
-    while i &lt;= max_loops:
-        try:
-            # Search for username pattern / send username
-            output = self.read_until_pattern(
-                pattern=username_pattern, re_flags=re.I
-            )
+    try:
+        # Search for username pattern / send username
+        output = self.read_until_pattern(pattern=username_pattern, re_flags=re.I)
+        return_msg += output
+        self.write_channel(self.username + self.TELNET_RETURN)
+
+        # Search for password pattern / send password
+        output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+        return_msg += output
+        assert self.password is not None
+        self.write_channel(self.password + self.TELNET_RETURN)
+
+        # Waiting for the prompt or password change message
+        output = self.read_until_pattern(pattern=self.prompt_or_password_change)
+        return_msg += output
+
+        # If password change prompt, send &#34;N&#34;
+        if re.search(self.password_change_prompt, output):
+            self.write_channel(&#34;N&#34; + self.TELNET_RETURN)
+            output = self.read_until_pattern(pattern=self.prompt_pattern)
             return_msg += output
-            self.write_channel(self.username + self.TELNET_RETURN)
+            return return_msg
+        elif re.search(self.prompt_pattern, output):
+            return return_msg
 
-            # Search for password pattern / send password
-            output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
-            return_msg += output
-            assert self.password is not None
-            self.write_channel(self.password + self.TELNET_RETURN)
+        # Should never be here
+        raise EOFError
 
-            # Waiting for combined output
-            output = self.read_until_pattern(pattern=combined_pattern)
-            return_msg += output
-
-            # Search for password change prompt, send &#34;N&#34;
-            if re.search(password_change_prompt, output):
-                self.write_channel(&#34;N&#34; + self.TELNET_RETURN)
-                output = self.read_until_pattern(pattern=combined_pattern)
-                return_msg += output
-
-            # Check if proper data received
-            if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                alt_prompt_terminator, output, flags=re.M
-            ):
-                return return_msg
-
-            self.write_channel(self.TELNET_RETURN)
-            time.sleep(0.5 * delay_factor)
-            i += 1
-
-        except EOFError:
-            assert self.remote_conn is not None
-            self.remote_conn.close()
-            msg = f&#34;Login failed: {self.host}&#34;
-            raise NetmikoAuthenticationException(msg)
-
-    # Last try to see if we already logged in
-    self.write_channel(self.TELNET_RETURN)
-    time.sleep(0.5 * delay_factor)
-    output = self.read_channel()
-    return_msg += output
-    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-        alt_prompt_terminator, output, flags=re.M
-    ):
-        return return_msg
-
-    assert self.remote_conn is not None
-    self.remote_conn.close()
-    msg = f&#34;Login failed: {self.host}&#34;
-    raise NetmikoAuthenticationException(msg)</code></pre>
+    except EOFError:
+        assert self.remote_conn is not None
+        self.remote_conn.close()
+        msg = f&#34;Login failed: {self.host}&#34;
+        raise NetmikoAuthenticationException(msg)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1219,7 +1337,7 @@ to move the cursor to the left one.</p>
 </dd>
 <dt id="netmiko.huawei.huawei.HuaweiVrpv8SSH"><code class="flex name class">
 <span>class <span class="ident">HuaweiVrpv8SSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Huawei SSH driver.</p>
@@ -1260,6 +1378,9 @@ to move the cursor to the left one.</p>
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1274,13 +1395,17 @@ to move the cursor to the left one.</p>
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1293,11 +1418,14 @@ to move the cursor to the left one.</p>
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1310,10 +1438,13 @@ to move the cursor to the left one.</p>
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1325,6 +1456,9 @@ to move the cursor to the left one.</p>
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1562,6 +1696,9 @@ command_string = commit comment <comment></p>
 <ul class="">
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.check_config_mode" href="#netmiko.huawei.huawei.HuaweiBase.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.exit_config_mode" href="#netmiko.huawei.huawei.HuaweiBase.exit_config_mode">exit_config_mode</a></code></li>
+<li><code><a title="netmiko.huawei.huawei.HuaweiBase.password_change_prompt" href="#netmiko.huawei.huawei.HuaweiBase.password_change_prompt">password_change_prompt</a></code></li>
+<li><code><a title="netmiko.huawei.huawei.HuaweiBase.prompt_or_password_change" href="#netmiko.huawei.huawei.HuaweiBase.prompt_or_password_change">prompt_or_password_change</a></code></li>
+<li><code><a title="netmiko.huawei.huawei.HuaweiBase.prompt_pattern" href="#netmiko.huawei.huawei.HuaweiBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.save_config" href="#netmiko.huawei.huawei.HuaweiBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.session_preparation" href="#netmiko.huawei.huawei.HuaweiBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiBase.set_base_prompt" href="#netmiko.huawei.huawei.HuaweiBase.set_base_prompt">set_base_prompt</a></code></li>

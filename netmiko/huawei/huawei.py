@@ -1,5 +1,4 @@
 from typing import Optional, Any, Union, Sequence, Iterator, TextIO
-import time
 import re
 import warnings
 
@@ -11,6 +10,10 @@ from netmiko import log
 
 
 class HuaweiBase(NoEnable, CiscoBaseConnection):
+    prompt_pattern = r"[\]>]"
+    password_change_prompt = r"(?:Change now|Please choose)"
+    prompt_or_password_change = rf"(?:Change now|Please choose|{prompt_pattern})"
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -90,10 +93,54 @@ class HuaweiBase(NoEnable, CiscoBaseConnection):
     def save_config(
         self, cmd: str = "save", confirm: bool = True, confirm_response: str = "y"
     ) -> str:
-        """Save Config for HuaweiSSH"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        """Save Config for HuaweiSSH
+
+        Expected behavior:
+
+        ######################################################################
+        Warning: The current configuration will be written to the device.
+        Are you sure to continue?[Y/N]:y
+         It will take several minutes to save configuration file, please wait.....................
+         Configuration file had been saved successfully
+         Note: The configuration file will take effect after being activated
+        ######################################################################
+        or
+        ######################################################################
+        Warning: The current configuration will be written to the device. Continue? [Y/N]:y
+        Now saving the current configuration to the slot 1 .
+        Info: Save the configuration successfully.
+        ######################################################################
+        """
+
+        # Huawei devices might break if you try to use send_command_timing() so use send_command()
+        # instead.
+        if confirm:
+            pattern = rf"(?:[Cc]ontinue\?|{self.prompt_pattern})"
+            output = self._send_command_str(
+                command_string=cmd,
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+            if confirm_response and re.search(r"[Cc]ontinue\?", output):
+                output += self._send_command_str(
+                    command_string=confirm_response,
+                    expect_string=self.prompt_pattern,
+                    strip_prompt=False,
+                    strip_command=False,
+                    read_timeout=100.0,
+                )
+        # no confirm.
+        else:
+            # Some devices are slow so match on trailing-prompt if you can
+            output = self._send_command_str(
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+        return output
 
     def cleanup(self, command: str = "quit") -> None:
         return super().cleanup(command=command)
@@ -105,12 +152,20 @@ class HuaweiSSH(HuaweiBase):
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         # Huawei prompts for password change before displaying the initial base prompt.
         # Search for that password change prompt or for base prompt.
-        password_change_prompt = r"(Change now|Please choose)"
-        prompt_or_password_change = r"(?:Change now|Please choose|[>\]])"
-        data = self.read_until_pattern(pattern=prompt_or_password_change)
-        if re.search(password_change_prompt, data):
+        data = self.read_until_pattern(pattern=self.prompt_or_password_change)
+        if re.search(self.password_change_prompt, data):
             self.write_channel("N" + self.RETURN)
-            self.read_until_pattern(pattern=r"[>\]]")
+            self.read_until_pattern(pattern=self.prompt_pattern)
+
+        # Huawei prompts for secure the configuration before displaying the initial base prompt.
+        if re.search(
+            r"security\srisks\sin\sthe\sconfiguration\sfile.*\[y\/n\]", data, flags=re.I
+        ):
+            self.send_command("Y", expect_string=r"(?i)continue.*\[y\/n\]")
+            self.send_command(
+                "Y", expect_string=r"saved\ssuccessfully", read_timeout=60
+            )
+            self.read_until_pattern(pattern=self.prompt_pattern)
 
 
 class HuaweiTelnet(HuaweiBase):
@@ -118,79 +173,49 @@ class HuaweiTelnet(HuaweiBase):
 
     def telnet_login(
         self,
-        pri_prompt_terminator: str = r"]\s*$",
-        alt_prompt_terminator: str = r">\s*$",
+        pri_prompt_terminator: str = r"",
+        alt_prompt_terminator: str = r"",
         username_pattern: str = r"(?:user:|username|login|user name)",
         pwd_pattern: str = r"assword",
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
         """Telnet login for Huawei Devices"""
-
-        delay_factor = self.select_delay_factor(delay_factor)
-        password_change_prompt = r"(?:Change now|Please choose 'YES' or 'NO').+"
-        combined_pattern = r"({}|{}|{})".format(
-            pri_prompt_terminator, alt_prompt_terminator, password_change_prompt
-        )
-
         output = ""
         return_msg = ""
-        i = 1
-        while i <= max_loops:
-            try:
-                # Search for username pattern / send username
-                output = self.read_until_pattern(
-                    pattern=username_pattern, re_flags=re.I
-                )
+        try:
+            # Search for username pattern / send username
+            output = self.read_until_pattern(pattern=username_pattern, re_flags=re.I)
+            return_msg += output
+            self.write_channel(self.username + self.TELNET_RETURN)
+
+            # Search for password pattern / send password
+            output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+            return_msg += output
+            assert self.password is not None
+            self.write_channel(self.password + self.TELNET_RETURN)
+
+            # Waiting for the prompt or password change message
+            output = self.read_until_pattern(pattern=self.prompt_or_password_change)
+            return_msg += output
+
+            # If password change prompt, send "N"
+            if re.search(self.password_change_prompt, output):
+                self.write_channel("N" + self.TELNET_RETURN)
+                output = self.read_until_pattern(pattern=self.prompt_pattern)
                 return_msg += output
-                self.write_channel(self.username + self.TELNET_RETURN)
+                return return_msg
+            elif re.search(self.prompt_pattern, output):
+                return return_msg
 
-                # Search for password pattern / send password
-                output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
-                return_msg += output
-                assert self.password is not None
-                self.write_channel(self.password + self.TELNET_RETURN)
+            # Should never be here
+            raise EOFError
 
-                # Waiting for combined output
-                output = self.read_until_pattern(pattern=combined_pattern)
-                return_msg += output
-
-                # Search for password change prompt, send "N"
-                if re.search(password_change_prompt, output):
-                    self.write_channel("N" + self.TELNET_RETURN)
-                    output = self.read_until_pattern(pattern=combined_pattern)
-                    return_msg += output
-
-                # Check if proper data received
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
-                    return return_msg
-
-                self.write_channel(self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                i += 1
-
-            except EOFError:
-                assert self.remote_conn is not None
-                self.remote_conn.close()
-                msg = f"Login failed: {self.host}"
-                raise NetmikoAuthenticationException(msg)
-
-        # Last try to see if we already logged in
-        self.write_channel(self.TELNET_RETURN)
-        time.sleep(0.5 * delay_factor)
-        output = self.read_channel()
-        return_msg += output
-        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-            alt_prompt_terminator, output, flags=re.M
-        ):
-            return return_msg
-
-        assert self.remote_conn is not None
-        self.remote_conn.close()
-        msg = f"Login failed: {self.host}"
-        raise NetmikoAuthenticationException(msg)
+        except EOFError:
+            assert self.remote_conn is not None
+            self.remote_conn.close()
+            msg = f"Login failed: {self.host}"
+            raise NetmikoAuthenticationException(msg)
 
 
 class HuaweiVrpv8SSH(HuaweiSSH):
@@ -247,7 +272,3 @@ class HuaweiVrpv8SSH(HuaweiSSH):
         if error_marker in output:
             raise ValueError(f"Commit failed with following errors:\n\n{output}")
         return output
-
-    def save_config(self, *args: Any, **kwargs: Any) -> str:
-        """Not Implemented"""
-        raise NotImplementedError
