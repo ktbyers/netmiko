@@ -4,9 +4,12 @@ import os
 import sys
 from os.path import dirname, join, relpath
 import pytest
+from textfsm.clitable import CliTableError
 
 from netmiko import utilities
 from textfsm import clitable
+
+from netmiko.exceptions import NetmikoParsingException
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
 RELATIVE_RESOURCE_FOLDER = join(dirname(dirname(relpath(__file__))), "etc")
@@ -297,6 +300,35 @@ def test_textfsm_missing_template():
         template=f"{RESOURCE_FOLDER}/nothinghere",
     )
     assert result == raw_output
+
+
+@pytest.mark.parametrize(
+    "raw_output,platform,command,exception",
+    [
+        # Invalid output with valid template/platform
+        ("Unparsable output", "cisco_ios", "show version", NetmikoParsingException),
+        # Valid output with invalid template/platform
+        (
+            "Cisco IOS Software, Catalyst 4500 L3 Switch Software",
+            "cisco_ios",
+            "show invalid-command",
+            CliTableError,
+        ),
+        # Missing platform (behaviour consistent between `raise_parsing_error=True|False`
+        ("", "", "show version", CliTableError),
+    ],
+)
+def test_textfsm_parsing_error_invalid_command(
+    raw_output, platform, command, exception
+):
+    """Verify that an error is raised if TextFSM parsing fails and `raise_parsing_error` is set."""
+    with pytest.raises(exception):
+        utilities.get_structured_data_textfsm(
+            raw_output,
+            platform,
+            command,
+            raise_parsing_error=True,
+        )
 
 
 def test_get_structured_data_genie():
