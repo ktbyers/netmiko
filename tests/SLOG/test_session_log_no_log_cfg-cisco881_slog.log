@@ -1,0 +1,36 @@
+
+terminal width 511
+cisco1>
+cisco1>terminal width 511
+cisco1>terminal length 0
+terminal length 0
+cisco1>
+
+cisco1>
+
+cisco1>enable
+enable
+Password: 88newclass
+
+cisco1#
+
+cisco1#
+
+cisco1#configure terminal
+configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+cisco1(config)#
+
+cisco1(config)#********
+********
+cisco1(config)#no logging console
+no logging console
+cisco1(config)#
+
+cisco1(config)#end
+end
+cisco1#
+
+cisco1#
+
+cisco1#exit

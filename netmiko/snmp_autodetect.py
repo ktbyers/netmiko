@@ -40,6 +40,11 @@ SNMP_MAPPER_BASE = {
         "expr": re.compile(r".*Arista Networks EOS.*", re.IGNORECASE),
         "priority": 99,
     },
+    "allied_telesis_awplus": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*AlliedWare Plus.*", re.IGNORECASE),
+        "priority": 99,
+    },
     "paloalto_panos": {
         "oid": ".1.3.6.1.2.1.1.1.0",
         "expr": re.compile(r".*Palo Alto Networks.*", re.IGNORECASE),

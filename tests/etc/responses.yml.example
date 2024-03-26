@@ -397,6 +397,31 @@ audiocode_shell:
   cmd_response_init: "Test_String1"
   cmd_response_final: "Test_String2"
 
+digi_transport:
+  base_prompt: "digi>"
+  router_prompt: "digi>"
+  enable_prompt: "digi#"
+  interface_ip: 192.168.1.33
+  version_banner: "Ci Version"
+
+maipu:
+  base_prompt: maipu_sw
+  router_prompt : maipu_sw>
+  enable_prompt: maipu_sw#
+  interface_ip: 11.11.11.11
+  version_banner: "Version Information"
+  multiple_line_output: ""
+  save_config: 'OK'
+  
+maipu_telnet:
+  base_prompt: maipu_sw
+  router_prompt : maipu_sw>
+  enable_prompt: maipu_sw#
+  interface_ip: 11.11.11.11
+  version_banner: "Version Information"
+  multiple_line_output: ""
+  save_config: 'OK'
+
 hillstone:
   base_prompt: SG-6000
   router_prompt : SG-6000#
