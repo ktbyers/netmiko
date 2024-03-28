@@ -24,6 +24,7 @@ import importlib.resources as pkg_resources
 from textfsm import clitable
 from textfsm.clitable import CliTableError
 from netmiko import log
+from netmiko.exceptions import NetmikoParsingException
 
 # For decorators
 F = TypeVar("F", bound=Callable[..., Any])
@@ -332,6 +333,7 @@ def _textfsm_parse(
     raw_output: str,
     attrs: Dict[str, str],
     template_file: Optional[str] = None,
+    raise_parsing_error: bool = False,
 ) -> Union[str, List[Dict[str, str]]]:
     """Perform the actual TextFSM parsing using the CliTable object."""
     tfsm_parse: Callable[..., Any] = textfsm_obj.ParseCmd
@@ -344,10 +346,16 @@ def _textfsm_parse(
 
         structured_data = clitable_to_dict(textfsm_obj)
         if structured_data == []:
+            if raise_parsing_error:
+                raise NetmikoParsingException(
+                    "Failed to parse CLI output with TextFSM, empty list returned."
+                )
             return raw_output
         else:
             return structured_data
-    except (FileNotFoundError, CliTableError):
+    except (FileNotFoundError, CliTableError) as error:
+        if raise_parsing_error:
+            raise error
         return raw_output
 
 
@@ -356,6 +364,7 @@ def get_structured_data_textfsm(
     platform: Optional[str] = None,
     command: Optional[str] = None,
     template: Optional[str] = None,
+    raise_parsing_error: bool = False,
 ) -> Union[str, List[Dict[str, str]]]:
     """
     Convert raw CLI output to structured data using TextFSM template.
@@ -376,7 +385,12 @@ def get_structured_data_textfsm(
         template_dir = get_template_dir()
         index_file = os.path.join(template_dir, "index")
         textfsm_obj = clitable.CliTable(index_file, template_dir)
-        output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        output = _textfsm_parse(
+            textfsm_obj,
+            raw_output,
+            attrs,
+            raise_parsing_error=raise_parsing_error,
+        )
 
         # Retry the output if "cisco_xe" and not structured data
         if platform and "cisco_xe" in platform:
@@ -391,7 +405,11 @@ def get_structured_data_textfsm(
         # CliTable with no index will fall-back to a TextFSM parsing behavior
         textfsm_obj = clitable.CliTable(template_dir=template_dir_alt)
         return _textfsm_parse(
-            textfsm_obj, raw_output, attrs, template_file=template_file
+            textfsm_obj,
+            raw_output,
+            attrs,
+            template_file=template_file,
+            raise_parsing_error=raise_parsing_error,
         )
 
 
@@ -399,7 +417,9 @@ def get_structured_data_textfsm(
 get_structured_data = get_structured_data_textfsm
 
 
-def get_structured_data_ttp(raw_output: str, template: str) -> Union[str, List[Any]]:
+def get_structured_data_ttp(
+    raw_output: str, template: str, raise_parsing_error: bool = False
+) -> Union[str, List[Any]]:
     """
     Convert raw CLI output to structured data using TTP template.
 
@@ -414,7 +434,9 @@ def get_structured_data_ttp(raw_output: str, template: str) -> Union[str, List[A
         ttp_parser.parse(one=True)
         result: List[Any] = ttp_parser.result(format="raw")
         return result
-    except Exception:
+    except Exception as exception:
+        if raise_parsing_error:
+            raise exception
         return raw_output
 
 
@@ -487,7 +509,7 @@ def run_ttp_template(
 
 
 def get_structured_data_genie(
-    raw_output: str, platform: str, command: str
+    raw_output: str, platform: str, command: str, raise_parsing_error: bool = False
 ) -> Union[str, Dict[str, Any]]:
     if not sys.version_info >= (3, 4):
         raise ValueError("Genie requires Python >= 3.4")
@@ -535,7 +557,9 @@ def get_structured_data_genie(
         get_parser(command, device)
         parsed_output: Dict[str, Any] = device.parse(command, output=raw_output)
         return parsed_output
-    except Exception:
+    except Exception as exception:
+        if raise_parsing_error:
+            raise exception
         return raw_output
 
 
@@ -548,16 +572,22 @@ def structured_data_converter(
     use_genie: bool = False,
     textfsm_template: Optional[str] = None,
     ttp_template: Optional[str] = None,
+    raise_parsing_error: bool = False,
 ) -> Union[str, List[Any], Dict[str, Any]]:
     """
     Try structured data converters in the following order: TextFSM, TTP, Genie.
 
-    Return the first structured data found, else return the raw_data as-is.
+    Return the first structured data found, else return the raw_data as-is unless
+    `raise_parsing_error` is True, then bubble up the exception to the caller.
     """
     command = command.strip()
     if use_textfsm:
         structured_output_tfsm = get_structured_data_textfsm(
-            raw_data, platform=platform, command=command, template=textfsm_template
+            raw_data,
+            platform=platform,
+            command=command,
+            template=textfsm_template,
+            raise_parsing_error=raise_parsing_error,
         )
         if not isinstance(structured_output_tfsm, str):
             return structured_output_tfsm
