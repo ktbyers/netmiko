@@ -34,9 +34,6 @@ class NecIxBase(BaseConnection):
         self.base_prompt = base_prompt[:16]
         return self.base_prompt
 
-    def check_enable_mode(self, check_string: str = ")#") -> bool:
-        return super().check_enable_mode(check_string=check_string)
-
     def enable(
         self,
         cmd: str = "svintr-config",
@@ -60,10 +57,11 @@ class NecIxBase(BaseConnection):
             re_flags=re_flags,
         )
 
+    def check_enable_mode(self, check_string: str = "(config)#") -> bool:
+        return super().check_enable_mode(check_string=check_string)
+
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
-        """
-        Exits enable mode.
-        """
+        """Exits enable mode."""
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
@@ -77,35 +75,51 @@ class NecIxBase(BaseConnection):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def check_config_mode(
-        self, check_string: str = "(config)#", pattern: str = "", force_regex: bool = False
-    ) -> bool:
-        """Checks if the device is in Configuration mode or not."""
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
-
     def config_mode(
         self,
         config_command: str = "configure",
         pattern: str = "",
-        re_flags: int = 0
+        re_flags: int = re.IGNORECASE,
     ) -> str:
         """configure command is used to go to the top menu in configuration mode."""
-        self.disable_paging(command = self.RETURN +"terminal length 0")
-        return ""
+        return self.enable(
+            cmd=config_command,
+            pattern=pattern,
+            re_flags=re_flags
+        )
 
-    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "#") -> str:
+    def check_config_mode(
+        self,
+        check_string: str = "(config)#",
+        pattern: str = "",
+        force_regex: bool = False
+    ) -> bool:
+        """Checks if the device is in Configuration mode or not."""
+        return super().check_config_mode(
+            check_string=check_string,
+            pattern=pattern
+        )
+
+    def exit_config_mode(
+        self, 
+        exit_config: str = "configure", 
+        pattern: str = ""
+    ) -> str:
         """
-        No action taken. Call 'exit_enable_mode()' to explicitly exit Administration
-        Level.
+        When you exit configuration mode, the show commands available to you are limited.
+        Therefore, use the configure command to go to the top menu.
         """
         return ""
 
     def save_config(
-        self, cmd: str = "write memory", confirm: bool = False, confirm_response: str = ""
+        self, cmd: str = "write memory",
+        confirm: bool = False,
+        confirm_response: str = ""
     ) -> str:
         """Save Config."""
         return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+            cmd=cmd, confirm=confirm,
+            confirm_response=confirm_response
         )
 
 
