@@ -109,7 +109,13 @@ class NecIxBase(BaseConnection):
         When you exit configuration mode, the show commands available to you are limited.
         Therefore, use the configure command to go to the top menu.
         """
-        return ""
+        output = ""
+        if self.check_config_mode():
+            self.write_channel(self.normalize_cmd(exit_config))
+            time.sleep(1)
+            if self.base_prompt not in output:
+                output += self.read_until_prompt(read_entire_line=True)
+        return output
 
     def save_config(
         self, cmd: str = "write memory",
