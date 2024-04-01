@@ -11,6 +11,8 @@ class NecIxBase(BaseConnection):
         self.set_base_prompt()
         self.enable()
         time.sleep(0.3 * self.global_delay_factor)
+        self.config_mode()
+        time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
         self.disable_paging(command = self.RETURN +"terminal length 0")
 
@@ -57,7 +59,7 @@ class NecIxBase(BaseConnection):
             re_flags=re_flags,
         )
 
-    def check_enable_mode(self, check_string: str = "(config)#") -> bool:
+    def check_enable_mode(self, check_string: str = ")#") -> bool:
         return super().check_enable_mode(check_string=check_string)
 
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
@@ -82,8 +84,8 @@ class NecIxBase(BaseConnection):
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """configure command is used to go to the top menu in configuration mode."""
-        return self.enable(
-            cmd=config_command,
+        return super().config_mode(
+            config_command=config_command,
             pattern=pattern,
             re_flags=re_flags
         )
