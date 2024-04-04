@@ -14,12 +14,12 @@ class NecIxBase(BaseConnection):
         self.config_mode()
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-        self.disable_paging(command = self.RETURN +"terminal length 0")
+        self.disable_paging(command=self.RETURN + "terminal length 0")
 
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
-        #alt_prompt_terminator: str = "",
+        # alt_prompt_terminator: str = "",
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
@@ -29,7 +29,7 @@ class NecIxBase(BaseConnection):
         """
         base_prompt = super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
-            #alt_prompt_terminator=alt_prompt_terminator,
+            # alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
             pattern=pattern,
         )
@@ -85,27 +85,20 @@ class NecIxBase(BaseConnection):
     ) -> str:
         """configure command is used to go to the top menu in configuration mode."""
         return super().config_mode(
-            config_command=config_command,
-            pattern=pattern,
-            re_flags=re_flags
+            config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
     def check_config_mode(
         self,
         check_string: str = "(config)#",
         pattern: str = "",
-        force_regex: bool = False
+        force_regex: bool = False,
     ) -> bool:
         """Checks if the device is in Configuration mode or not."""
-        return super().check_config_mode(
-            check_string=check_string,
-            pattern=pattern
-        )
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def exit_config_mode(
-        self, 
-        exit_config: str = "configure", 
-        pattern: str = ""
+        self, exit_config: str = "configure", pattern: str = ""
     ) -> str:
         """
         When you exit configuration mode, the show commands available to you are limited.
@@ -120,26 +113,27 @@ class NecIxBase(BaseConnection):
         return output
 
     def save_config(
-        self, cmd: str = "write memory",
+        self,
+        cmd: str = "write memory",
         confirm: bool = False,
-        confirm_response: str = ""
+        confirm_response: str = "",
     ) -> str:
         """Save Config."""
         return super().save_config(
-            cmd=cmd, confirm=confirm,
-            confirm_response=confirm_response
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
 
 
 class NecIxSSH(NecIxBase):
     """NecIx SSH driver."""
+
     pass
 
 
 class NecIxTelnet(NecIxBase):
     """NecIx Telnet driver."""
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
-

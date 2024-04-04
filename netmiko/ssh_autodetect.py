@@ -313,7 +313,7 @@ SSH_MAPPER_DICT = {
         "search_patterns": [r"IX Series"],
         "priority": 99,
         "dispatch": "_autodetect_std",
-    }
+    },
 }
 
 # Sort SSH_MAPPER_DICT such that the most common commands are first
