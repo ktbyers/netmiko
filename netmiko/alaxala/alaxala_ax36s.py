@@ -30,8 +30,9 @@ class AlaxalaAx36sBase(CiscoSSHConnection):
 
     def exit_config_mode(self, exit_command: str = "end", pattern: str = "") -> str:
         """
-        When any changes have been made, the prompt 'Save new configuration ? (Y/N)'
-        appears before exiting. Ignore this by entering 'N'.
+        If there are unsaved configuration changes, the prompt is
+        "Unsaved changes found! Do you exit "configure" without save ? (y/n):" is output.
+        enter "y" to exit configure mode.
         """
         output = ""
         if self.check_config_mode():
@@ -55,7 +56,7 @@ class AlaxalaAx36sBase(CiscoSSHConnection):
         """
         "save_config" must be executed in config mode.
         if the configuration change is not saved,
-        "!" will be displayed at the beginning of the prompt.
+        a "!" will appear at the beginning of the prompt.
         """
         output = ""
         if not self.check_config_mode():
