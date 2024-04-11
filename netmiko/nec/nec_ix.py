@@ -120,9 +120,14 @@ class NecIxBase(BaseConnection):
         confirm_response: str = "",
     ) -> str:
         """Save Config."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        self.config_mode()
+        output = self._send_command_str(
+            command_string=cmd,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=100.0,
         )
+        return output
 
 
 class NecIxSSH(NecIxBase):
