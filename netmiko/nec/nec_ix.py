@@ -1,5 +1,6 @@
 import time
 import re
+from telnetlib import Telnet
 from typing import Any, Optional
 
 from netmiko.base_connection import BaseConnection
@@ -137,3 +138,28 @@ class NecIxTelnet(NecIxBase):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
+
+    def ignore_option_negotiation(self, sock: Any, cmd: Any, opt: Any) -> None:
+        pass
+
+    def telnet_login(
+        self,
+        pri_prompt_terminator: str = r"#\s*$",
+        alt_prompt_terminator: str = r">\s*$",
+        username_pattern: str = r"login",
+        pwd_pattern: str = r"assword",
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -> str:
+        if isinstance(self.remote_conn, Telnet):
+            self.remote_conn.set_option_negotiation_callback(
+                self.ignore_option_negotiation
+            )
+        return super().telnet_login(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            username_pattern=username_pattern,
+            pwd_pattern=pwd_pattern,
+            delay_factor=delay_factor,
+            max_loops=max_loops,
+        )
