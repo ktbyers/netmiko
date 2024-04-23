@@ -109,6 +109,10 @@ class GarderosSSH(CiscoSSHConnection):
             )
         elif not commit_result.__contains__("Values will be reloaded"):
             raise ValueError(f"Commit was unsuccessful. Device said: {commit_result}")
+        # Garderos needs a second to apply the config
+        # If the "show configuration running" command is executed to quickly after committing
+        # it will result in error "No running configuration found."
+        sleep(1)
         # Return device output
         commit_result = str(commit_result)
         return commit_result
