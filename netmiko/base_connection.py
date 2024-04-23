@@ -2397,6 +2397,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_cursor_down = chr(27) + r"\[\d*B"
         code_wrap_around = chr(27) + r"\[\?7h"
         code_bracketed_paste_mode = chr(27) + r"\[\?2004h"
+        code_underline = chr(27) + r"\[4m"
 
         code_set = [
             code_position_cursor,
@@ -2427,6 +2428,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_cursor_forward,
             code_wrap_around,
             code_bracketed_paste_mode,
+            code_underline,
         ]
 
         output = string_buffer
