@@ -23,54 +23,25 @@ class GarderosGrsSSH(CiscoSSHConnection):
 
     def send_command(
         self,
-        command_string: str,
-        expect_string: Optional[str] = None,
-        read_timeout: float = 10.0,
-        delay_factor: Optional[float] = None,
-        max_loops: Optional[int] = None,
-        auto_find_prompt: bool = True,
-        strip_prompt: bool = True,
-        strip_command: bool = True,
-        normalize: bool = True,
-        use_textfsm: bool = False,
-        textfsm_template: Optional[str] = None,
-        use_ttp: bool = False,
-        ttp_template: Optional[str] = None,
-        use_genie: bool = False,
-        cmd_verify: bool = True,
+        *args: Any,
+        **kwargs: Any,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Add strip() command to output of send_command()"""
-        # First check if command contains a newline character
+
+        # First check if command contains a newline/carriage-return.
         # This is not allowed in Garderos GRS
-        newline_chars = ["\n", "\r"]
-        for newline in newline_chars:
-            if newline in command_string:
-                raise ValueError(
-                    "The following command contains an illegal newline character: "
-                    + command_string
-                )
+        command_string = args[0] if args else kwargs["command_string"]
+        if "\n" in command_string or "\r" in command_string:
+            raise ValueError(
+                f"The command contains an illegal newline/carriage-return: {command_string}"
+            )
+
         # Send command to device
-        result = super().send_command(
-            command_string=command_string,
-            expect_string=expect_string,
-            read_timeout=read_timeout,
-            delay_factor=delay_factor,
-            max_loops=max_loops,
-            auto_find_prompt=auto_find_prompt,
-            strip_prompt=strip_prompt,
-            strip_command=strip_command,
-            normalize=normalize,
-            use_textfsm=use_textfsm,
-            textfsm_template=textfsm_template,
-            use_ttp=use_ttp,
-            ttp_template=ttp_template,
-            use_genie=use_genie,
-            cmd_verify=cmd_verify,
-        )
+        result = super().send_command(*args, **kwargs)
+
         # Optimize output of strings
         if isinstance(result, str):
             result = result.strip()
-        # Return result
         return result
 
     def check_config_mode(
@@ -100,21 +71,22 @@ class GarderosGrsSSH(CiscoSSHConnection):
         # Verify device is not in configuration mode
         if self.check_config_mode():
             raise ValueError("Device is in configuration mode. Please exit first.")
+
         # Run commit command
         commit_result = self.send_command(commit)
+
         # Verify success
-        if commit_result.__contains__("No configuration to commit"):
+        if "No configuration to commit" in commit_result:
             raise ValueError(
                 "No configuration to commit. Please configure device first."
             )
-        elif not commit_result.__contains__("Values will be reloaded"):
+        elif "Values will be reloaded" not in commit_result:
             raise ValueError(f"Commit was unsuccessful. Device said: {commit_result}")
+
         # Garderos needs a second to apply the config
         # If the "show configuration running" command is executed to quickly after committing
         # it will result in error "No running configuration found."
         sleep(1)
-        # Return device output
-        commit_result = str(commit_result)
         return commit_result
 
     def save_config(
@@ -127,26 +99,25 @@ class GarderosGrsSSH(CiscoSSHConnection):
         # Verify device is not in configuration mode
         if self.check_config_mode():
             raise ValueError("Device is in configuration mode. Please exit first.")
+
         # Variables confirm and confirm_response are not relevant for Garderos
         if confirm:
             raise ValueError(
                 "Garderos saves the config without the need of confirmation. "
                 "Please set variable 'confirm' to False!"
             )
-        # Run write command
+
         save_config_result = self.send_command(cmd)
+
         # Verify success
-        if not save_config_result.__contains__(
-            "Values are persistently saved to STARTUP-CONF"
-        ):
+        if "Values are persistently saved to STARTUP-CONF" not in save_config_result:
             raise ValueError(
                 f"Saving configuration was unsuccessful. Device said: {save_config_result}"
             )
-        # Return device output
-        save_config_result = str(save_config_result)
+
         return save_config_result
 
-    def check_linux_mode(self, check_string: str = "]#", pattern: str = "#") -> bool:
+    def _check_linux_mode(self, check_string: str = "]#", pattern: str = "#") -> bool:
         """Checks if the device is in Linux mode or not.
 
         :param check_string: Identification of configuration mode from the device
@@ -157,7 +128,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
         output = self.read_until_prompt(read_entire_line=True)
         return check_string in output
 
-    def linux_mode(self, linux_command: str = "linux-shell", pattern: str = "") -> str:
+    def _linux_mode(self, linux_command: str = "linux-shell", pattern: str = "") -> str:
         """Enter into Linux mode.
 
         :param config_command: Linux command to send to the device
@@ -165,14 +136,14 @@ class GarderosGrsSSH(CiscoSSHConnection):
         :param pattern: Pattern to terminate reading of channel
         """
         output = ""
-        if not self.check_linux_mode():
+        if not self._check_linux_mode():
             self.write_channel(self.normalize_cmd(linux_command))
             output = self.read_until_pattern(pattern=pattern)
-            if not self.check_linux_mode():
+            if not self._check_linux_mode():
                 raise ValueError("Failed to enter Linux mode.")
         return output
 
-    def exit_linux_mode(self, exit_linux: str = "exit", pattern: str = "#") -> str:
+    def _exit_linux_mode(self, exit_linux: str = "exit", pattern: str = "#") -> str:
         """Exit from Linux mode.
 
         :param exit_config: Command to exit Linux mode
@@ -180,14 +151,14 @@ class GarderosGrsSSH(CiscoSSHConnection):
         :param pattern: Pattern to terminate reading of channel
         """
         output = ""
-        if self.check_linux_mode():
+        if self._check_linux_mode():
             self.write_channel(self.normalize_cmd(exit_linux))
             output = self.read_until_pattern(pattern=pattern)
-            if self.check_linux_mode():
+            if self._check_linux_mode():
                 raise ValueError("Failed to exit Linux mode")
         return output
 
-    def remove_and_replace_control_chars(self, s: str) -> str:
+    def _cleanse_enter(self, s: str, pattern: str = "\r\n\r", replace: str = "\n") -> str:
         """Removing all occurrences of "\r\n\r" except of the last occurrence
         Last occurence will be replaced by "\n"
 
@@ -196,19 +167,13 @@ class GarderosGrsSSH(CiscoSSHConnection):
         # Because the sequence "\r\n\r" also matches "\r\n\r\n",
         # we need to replace "\r\n\r\n" with "\n\n" first
         s = s.replace("\r\n\r\n", "\n\n")
-        # Now we have eliminated "\r\n\r\n"
-        # and can begin working on the remaining "\r\n\r" occurrences
-        control_seq = "\r\n\r"
-        if s.count(control_seq) == 0:
+
+        pos = s.rfind(pattern)
+        if pos == -1:
             return s
-        else:
-            index_last_occurrence = s.rfind(control_seq)
-            index_rest_of_string = index_last_occurrence + len(control_seq)
-            return (
-                s[:index_last_occurrence].replace(control_seq, "")
-                + "\n"
-                + s[index_rest_of_string:]
-            )
+
+        # Recursion is more fun.
+        return _cleanse_enter(f"{s[:pos]}{replace}{s[pos + len(pattern):}]", pattern, replace)
 
     def normalize_linefeeds(self, a_string: str) -> str:
         """Optimised normalisation of line feeds
@@ -224,7 +189,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
 
         # First we will remove all the occurrences of "\r\n\r" except of the last one.
         # The last occurrence will be replaced by "\r\n".
-        a_string = self.remove_and_replace_control_chars(a_string)
+        a_string = self._cleanse_enter(a_string)
 
         # Then we will pass the string to normalize_linefeeds() to replace all line feeds with "\n"
         return super().normalize_linefeeds(a_string=a_string)
