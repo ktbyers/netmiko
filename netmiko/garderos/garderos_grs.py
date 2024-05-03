@@ -89,7 +89,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
         sleep(1)
         return commit_result
 
-   def save_config(
+    def save_config(
         self,
         cmd: str = "write startup-configuration",
         confirm: bool = False,
@@ -116,7 +116,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
 
         return save_config_result
 
-    def check_linux_mode(self, check_string: str = "]#", pattern: str = "#") -> bool:
+    def _check_linux_mode(self, check_string: str = "]#", pattern: str = "#") -> bool:
         """Checks if the device is in Linux mode or not.
 
         :param check_string: Identification of configuration mode from the device
@@ -127,7 +127,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
         output = self.read_until_prompt(read_entire_line=True)
         return check_string in output
 
-    def linux_mode(self, linux_command: str = "linux-shell", pattern: str = "") -> str:
+    def _linux_mode(self, linux_command: str = "linux-shell", pattern: str = "") -> str:
         """Enter into Linux mode.
 
         :param config_command: Linux command to send to the device
@@ -135,14 +135,14 @@ class GarderosGrsSSH(CiscoSSHConnection):
         :param pattern: Pattern to terminate reading of channel
         """
         output = ""
-        if not self.check_linux_mode():
+        if not self._check_linux_mode():
             self.write_channel(self.normalize_cmd(linux_command))
             output = self.read_until_pattern(pattern=pattern)
-            if not self.check_linux_mode():
+            if not self._check_linux_mode():
                 raise ValueError("Failed to enter Linux mode.")
         return output
 
-    def exit_linux_mode(self, exit_linux: str = "exit", pattern: str = "#") -> str:
+    def _exit_linux_mode(self, exit_linux: str = "exit", pattern: str = "#") -> str:
         """Exit from Linux mode.
 
         :param exit_config: Command to exit Linux mode
@@ -150,10 +150,10 @@ class GarderosGrsSSH(CiscoSSHConnection):
         :param pattern: Pattern to terminate reading of channel
         """
         output = ""
-        if self.check_linux_mode():
+        if self._check_linux_mode():
             self.write_channel(self.normalize_cmd(exit_linux))
             output = self.read_until_pattern(pattern=pattern)
-            if self.check_linux_mode():
+            if self._check_linux_mode():
                 raise ValueError("Failed to exit Linux mode")
         return output
 
