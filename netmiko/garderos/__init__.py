@@ -1,3 +1,3 @@
-from netmiko.garderos.garderos_ssh import GarderosSSH
+from netmiko.garderos.garderos_grs import GarderosGrsSSH
 
-__all__ = ["GarderosSSH"]
+__all__ = ["GarderosGrsSSH"]
