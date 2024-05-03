@@ -13,6 +13,26 @@ from typing import (
 )
 
 
+def _cleanse_enter(s: str, pattern: str = "\r\n\r", replace: str = "\n") -> str:
+    """Removing all occurrences of "\r\n\r" except of the last occurrence
+    Last occurence will be replaced by "\n"
+
+    :param s: String that needs to be cleansed
+    """
+    # Because the sequence "\r\n\r" also matches "\r\n\r\n",
+    # we need to replace "\r\n\r\n" with "\n\n" first
+    s = s.replace("\r\n\r\n", "\n\n")
+
+    pos = s.rfind(pattern)
+    if pos == -1:
+        return s
+
+    # Recursion is more fun.
+    return _cleanse_enter(
+        f"{s[:pos]}{replace}{s[pos + len(pattern):]}", pattern, replace
+    )
+
+
 class GarderosGrsSSH(CiscoSSHConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established"""
@@ -158,23 +178,6 @@ class GarderosGrsSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit Linux mode")
         return output
 
-    def _cleanse_enter(self, s: str, pattern: str = "\r\n\r", replace: str = "\n") -> str:
-        """Removing all occurrences of "\r\n\r" except of the last occurrence
-        Last occurence will be replaced by "\n"
-
-        :param s: String that needs to be cleansed
-        """
-        # Because the sequence "\r\n\r" also matches "\r\n\r\n",
-        # we need to replace "\r\n\r\n" with "\n\n" first
-        s = s.replace("\r\n\r\n", "\n\n")
-
-        pos = s.rfind(pattern)
-        if pos == -1:
-            return s
-
-        # Recursion is more fun.
-        return _cleanse_enter(f"{s[:pos]}{replace}{s[pos + len(pattern):}]", pattern, replace)
-
     def normalize_linefeeds(self, a_string: str) -> str:
         """Optimised normalisation of line feeds
 
@@ -189,7 +192,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
 
         # First we will remove all the occurrences of "\r\n\r" except of the last one.
         # The last occurrence will be replaced by "\r\n".
-        a_string = self._cleanse_enter(a_string)
+        a_string = _cleanse_enter(a_string)
 
         # Then we will pass the string to normalize_linefeeds() to replace all line feeds with "\n"
         return super().normalize_linefeeds(a_string=a_string)
