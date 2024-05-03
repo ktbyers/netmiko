@@ -68,24 +68,25 @@ class GarderosGrsSSH(CiscoSSHConnection):
 
     def commit(self, commit: str = "commit") -> str:
         """Commit the candidate configuration."""
-        # Verify device is not in configuration mode
+
         if self.check_config_mode():
             raise ValueError("Device is in configuration mode. Please exit first.")
+
         # Run commit command
-        commit_result = self.send_command(commit)
+        commit_result = self._send_command_str(commit)
+
         # Verify success
-        if commit_result.__contains__("No configuration to commit"):
+        if "No configuration to commit" in commit_result:
             raise ValueError(
                 "No configuration to commit. Please configure device first."
             )
-        elif not commit_result.__contains__("Values will be reloaded"):
+        elif "Values will be reloaded" not in commit_result:
             raise ValueError(f"Commit was unsuccessful. Device said: {commit_result}")
+
         # Garderos needs a second to apply the config
         # If the "show configuration running" command is executed to quickly after committing
         # it will result in error "No running configuration found."
         sleep(1)
-        # Return device output
-        commit_result = str(commit_result)
         return commit_result
 
     def save_config(
