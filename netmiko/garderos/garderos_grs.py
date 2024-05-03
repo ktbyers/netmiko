@@ -89,33 +89,31 @@ class GarderosGrsSSH(CiscoSSHConnection):
         sleep(1)
         return commit_result
 
-    def save_config(
+   def save_config(
         self,
         cmd: str = "write startup-configuration",
         confirm: bool = False,
         confirm_response: str = "",
     ) -> str:
         """Saves Config."""
-        # Verify device is not in configuration mode
+
         if self.check_config_mode():
             raise ValueError("Device is in configuration mode. Please exit first.")
-        # Variables confirm and confirm_response are not relevant for Garderos
+
         if confirm:
             raise ValueError(
                 "Garderos saves the config without the need of confirmation. "
                 "Please set variable 'confirm' to False!"
             )
-        # Run write command
-        save_config_result = self.send_command(cmd)
+
+        save_config_result = self._send_command_str(cmd)
+
         # Verify success
-        if not save_config_result.__contains__(
-            "Values are persistently saved to STARTUP-CONF"
-        ):
+        if "Values are persistently saved to STARTUP-CONF" not in save_config_result:
             raise ValueError(
                 f"Saving configuration was unsuccessful. Device said: {save_config_result}"
             )
-        # Return device output
-        save_config_result = str(save_config_result)
+
         return save_config_result
 
     def check_linux_mode(self, check_string: str = "]#", pattern: str = "#") -> bool:
