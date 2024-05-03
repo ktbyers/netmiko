@@ -28,11 +28,6 @@ class ArubaCxSSH(CiscoSSHConnection):
         pattern: str = r"[>#]",
         force_regex: bool = False,
     ) -> bool:
-        """
-        Checks if the device is in configuration mode or not.
-
-        Aruba uses "(<controller name>)(config)#" as config prompt
-        """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def config_mode(
