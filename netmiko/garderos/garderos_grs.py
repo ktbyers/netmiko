@@ -13,7 +13,7 @@ from typing import (
 )
 
 
-class GarderosSSH(CiscoSSHConnection):
+class GarderosGrsSSH(CiscoSSHConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established"""
         self.ansi_escape_codes = True
