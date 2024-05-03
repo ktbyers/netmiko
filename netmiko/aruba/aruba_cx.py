@@ -8,7 +8,7 @@ from typing import Any
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ArubaAosCxSSH(CiscoSSHConnection):
+class ArubaCxSSH(CiscoSSHConnection):
     """Aruba AOS CX support"""
 
     def __init__(self, **kwargs: Any) -> None:
@@ -17,7 +17,6 @@ class ArubaAosCxSSH(CiscoSSHConnection):
         return super().__init__(**kwargs)
 
     def session_preparation(self) -> None:
-        # Aruba switches output ansi codes TODO: does Aos CX do?
         self.ansi_escape_codes = True
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()

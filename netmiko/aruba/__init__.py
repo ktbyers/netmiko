@@ -1,4 +1,4 @@
-from netmiko.aruba.aruba_ssh import ArubaSSH
-from netmiko.aruba.aruba_aoscx_ssh import ArubaAosCxSSH
+from netmiko.aruba.aruba_os import ArubaOsSSH
+from netmiko.aruba.aruba_cx import ArubaCxSSH
 
-__all__ = ["ArubaSSH", "ArubaAosCxSSH"]
+__all__ = ["ArubaOsSSH", "ArubaCxSSH"]
