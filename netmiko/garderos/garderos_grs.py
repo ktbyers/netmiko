@@ -23,54 +23,25 @@ class GarderosGrsSSH(CiscoSSHConnection):
 
     def send_command(
         self,
-        command_string: str,
-        expect_string: Optional[str] = None,
-        read_timeout: float = 10.0,
-        delay_factor: Optional[float] = None,
-        max_loops: Optional[int] = None,
-        auto_find_prompt: bool = True,
-        strip_prompt: bool = True,
-        strip_command: bool = True,
-        normalize: bool = True,
-        use_textfsm: bool = False,
-        textfsm_template: Optional[str] = None,
-        use_ttp: bool = False,
-        ttp_template: Optional[str] = None,
-        use_genie: bool = False,
-        cmd_verify: bool = True,
+        *args: Any,
+        **kwargs: Any,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Add strip() command to output of send_command()"""
-        # First check if command contains a newline character
+
+        # First check if command contains a newline/carriage-return.
         # This is not allowed in Garderos GRS
-        newline_chars = ["\n", "\r"]
-        for newline in newline_chars:
-            if newline in command_string:
-                raise ValueError(
-                    "The following command contains an illegal newline character: "
-                    + command_string
-                )
+        command_string = args[0] if args else kwargs["command_string"]
+        if "\n" in command_string or "\r" in command_string:
+            raise ValueError(
+                f"The command contains an illegal newline/carriage-return: {command_string}"
+            )
+
         # Send command to device
-        result = super().send_command(
-            command_string=command_string,
-            expect_string=expect_string,
-            read_timeout=read_timeout,
-            delay_factor=delay_factor,
-            max_loops=max_loops,
-            auto_find_prompt=auto_find_prompt,
-            strip_prompt=strip_prompt,
-            strip_command=strip_command,
-            normalize=normalize,
-            use_textfsm=use_textfsm,
-            textfsm_template=textfsm_template,
-            use_ttp=use_ttp,
-            ttp_template=ttp_template,
-            use_genie=use_genie,
-            cmd_verify=cmd_verify,
-        )
+        result = super().send_command(*args, **kwargs)
+
         # Optimize output of strings
         if isinstance(result, str):
             result = result.strip()
-        # Return result
         return result
 
     def check_config_mode(
