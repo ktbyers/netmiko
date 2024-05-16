@@ -1,5 +1,6 @@
 """A10 support."""
 from netmiko.cisco_base_connection import CiscoSSHConnection
+import re
 
 
 class A10SSH(CiscoSSHConnection):
@@ -20,3 +21,22 @@ class A10SSH(CiscoSSHConnection):
     ) -> str:
         """Not Implemented"""
         raise NotImplementedError
+
+
+    def find_failover(self) -> str:
+
+        pattern_act = 'Active'
+        pattern_stby = 'Standby'
+        #pattern_off = 'Standalone'
+
+        output = self.find_prompt()
+
+        if re.search(pattern_act, output):
+            return "Active"
+
+        elif re.search(pattern_stby, output):
+            return "Standby"
+
+        else:
+            return "Off"
+

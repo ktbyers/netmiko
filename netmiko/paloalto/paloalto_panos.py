@@ -252,5 +252,23 @@ class PaloAltoPanosSSH(PaloAltoPanosBase):
         return remote_conn_pre
 
 
+    def find_failover(self) -> str:
+
+
+        pattern_act = 'active'
+        pattern_stby = 'passive'
+
+        output = self.find_prompt()
+
+        if re.search(pattern_act, output):
+            return "Active"
+
+        elif re.search(pattern_stby, output):
+            return "Standby"
+
+        else:
+            return "Off"
+
+
 class PaloAltoPanosTelnet(PaloAltoPanosBase):
     pass

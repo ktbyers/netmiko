@@ -388,8 +388,7 @@ class BaseConnection:
         if self.secret:
             no_log["secret"] = self.secret
         # Always sanitize username and password
-        self._secrets_filter = SecretsFilter(no_log=no_log)
-        log.addFilter(self._secrets_filter)
+        log.addFilter(SecretsFilter(no_log=no_log))
 
         # Netmiko will close the session_log if we open the file
         if session_log is not None:
@@ -2481,7 +2480,6 @@ You can also look at the Netmiko session_log or debug log for more information.
             self.remote_conn = None
             if self.session_log:
                 self.session_log.close()
-            log.removeFilter(self._secrets_filter)
 
     def commit(self) -> str:
         """Commit method for platforms that support this."""
@@ -2528,6 +2526,9 @@ You can also look at the Netmiko session_log or debug log for more information.
         return run_ttp_template(
             connection=self, template=template, res_kwargs=res_kwargs, **kwargs
         )
+
+    def find_failover(self) -> str:
+        raise NotImplementedError
 
 
 class TelnetConnection(BaseConnection):

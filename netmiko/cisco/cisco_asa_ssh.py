@@ -4,6 +4,7 @@ import re
 import time
 from netmiko.cisco_base_connection import CiscoSSHConnection, CiscoFileTransfer
 from netmiko.exceptions import NetmikoAuthenticationException
+import re
 
 
 class CiscoAsaSSH(CiscoSSHConnection):
@@ -173,6 +174,36 @@ class CiscoAsaSSH(CiscoSSHConnection):
             return re.sub("\r", "", a_string)
         else:
             return a_string
+
+
+    def find_failover(self) -> str:
+
+        command = 'show failover'
+        pattern_act = 'This ((C|c)ontext|(H|h)ost): .*Active'
+        pattern_stby = 'This ((C|c)ontext|(H|h)ost): .*Standby'
+        pattern_off = 'Failover Off'
+
+        output = self.send_command(command)
+
+        if "Failover On" in output:
+
+            if re.search(pattern_act, output):
+                return "Active"
+
+            elif re.search(pattern_stby, output):
+                return "Standby"
+
+            else:
+                raise ValueError("Act/Stby Pattern Error")
+                return None
+
+        elif re.search(pattern_off, output):
+            return "Off"
+
+        else:
+            raise ValueError("Act/Stby Unknown Error")
+            return None
+
 
 
 class CiscoAsaFileTransfer(CiscoFileTransfer):
