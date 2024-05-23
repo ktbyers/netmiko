@@ -8,7 +8,7 @@ from typing import Any
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class ArubaSSH(CiscoSSHConnection):
+class ArubaOsSSH(CiscoSSHConnection):
     """Aruba OS support"""
 
     def __init__(self, **kwargs: Any) -> None:
