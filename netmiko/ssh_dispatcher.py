@@ -128,6 +128,7 @@ from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
 from netmiko.ubiquiti import UbiquitiEdgeRouterSSH, UbiquitiEdgeRouterFileTransfer
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ubiquiti import UbiquitiUnifiSwitchSSH
+from netmiko.vertiv import VertivMPHSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.watchguard import WatchguardFirewareSSH
 from netmiko.yamaha import YamahaSSH
@@ -274,6 +275,7 @@ CLASS_MAPPER_BASE = {
     "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
     "ubiquiti_unifiswitch": UbiquitiUnifiSwitchSSH,
+    "vertiv_mph": VertivMPHSSH,
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "watchguard_fireware": WatchguardFirewareSSH,
