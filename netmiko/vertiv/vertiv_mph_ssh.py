@@ -5,7 +5,10 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class VertivMPHBase(NoEnable, NoConfig, CiscoSSHConnection):
-    """TODO"""
+    """
+    Support for Vertiv MPH Power Distribution Units.
+    Should work with any Vertiv Device with an RPC2 module.
+    """
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -28,11 +31,3 @@ class VertivMPHBase(NoEnable, NoConfig, CiscoSSHConnection):
 
 class VertivMPHSSH(VertivMPHBase):
     pass
-
-
-"""class DlinkDSTelnet(VertivMPHBase):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        default_enter = kwargs.get("default_enter")
-        kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
-        super().__init__(*args, **kwargs)
-"""
