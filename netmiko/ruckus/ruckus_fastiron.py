@@ -12,6 +12,7 @@ class RuckusFastironBase(CiscoSSHConnection):
 
     def session_preparation(self) -> None:
         """FastIron requires to be enable mode to disable paging."""
+        self.send_command("\n")
         self._test_channel_read()
         self.set_base_prompt()
         self.enable()
