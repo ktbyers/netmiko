@@ -52,7 +52,9 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        python-version: [ '3.8', '3.9', '3.10', '3.11', "3.12", "3.13.0-beta.2" ]
+        # pyats and genie breakage on newer python versions.
+        # python-version: [ '3.8', '3.9', '3.10', '3.11', "3.12", "3.13.0-beta.2" ]
+        python-version: [ '3.8', '3.9', '3.10', '3.11']
         platform: [ubuntu-20.04]
 
     runs-on: ${{ matrix.platform }}
