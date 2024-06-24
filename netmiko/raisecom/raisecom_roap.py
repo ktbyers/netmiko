@@ -3,7 +3,7 @@ import re
 import time
 from socket import socket
 
-from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
+from netmiko._telnetlib.telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
 from netmiko.exceptions import NetmikoAuthenticationException
 
 

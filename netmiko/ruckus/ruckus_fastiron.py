@@ -3,7 +3,7 @@ import time
 from socket import socket
 from typing import Optional, Any
 
-from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT, Telnet
+from netmiko._telnetlib.telnetlib import DO, DONT, ECHO, IAC, WILL, WONT, Telnet
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 

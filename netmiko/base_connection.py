@@ -27,7 +27,6 @@ from types import TracebackType
 import io
 import re
 import socket
-import telnetlib
 import time
 from collections import deque
 from os import path
@@ -50,6 +49,7 @@ from netmiko.exceptions import (
     ReadException,
     ReadTimeout,
 )
+from netmiko._telnetlib import telnetlib
 from netmiko.channel import Channel, SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.utilities import (

@@ -3,7 +3,7 @@ from socket import socket
 from typing import Any
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
-from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
+from netmiko._telnetlib.telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
 
 
 class ZteZxrosBase(CiscoBaseConnection):

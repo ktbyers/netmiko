@@ -1,6 +1,6 @@
 from typing import Dict, Any, Optional
 import socket
-import telnetlib
+from netmiko._telnetlib import telnetlib
 
 try:
     import socks

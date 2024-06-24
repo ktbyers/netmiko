@@ -1,9 +1,9 @@
 from typing import Any, Optional
 from abc import ABC, abstractmethod
 import paramiko
-import telnetlib
 import serial
 
+from netmiko._telnetlib import telnetlib
 from netmiko.utilities import write_bytes
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.exceptions import ReadException, WriteException
