@@ -2,7 +2,17 @@ import time
 from typing import Any
 from socket import socket
 
-from netmiko._telnetlib.telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, TTYPE, Telnet
+from netmiko._telnetlib.telnetlib import (
+    IAC,
+    DO,
+    DONT,
+    WILL,
+    WONT,
+    SB,
+    SE,
+    TTYPE,
+    Telnet,
+)
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
