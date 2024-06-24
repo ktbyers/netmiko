@@ -113,7 +113,7 @@ class TelnetChannel(Channel):
             raise WriteException(
                 "Attempt to write data, but there is no active channel."
             )
-        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))	# type: ignore
+        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))  # type: ignore
 
     def read_buffer(self) -> str:
         """Single read of available data."""
@@ -123,7 +123,7 @@ class TelnetChannel(Channel):
         """Read all of the available data from the channel."""
         if self.remote_conn is None:
             raise ReadException("Attempt to read, but there is no active channel.")
-        return self.remote_conn.read_very_eager().decode(self.encoding, "ignore") # type: ignore
+        return self.remote_conn.read_very_eager().decode(self.encoding, "ignore")  # type: ignore
 
 
 class SerialChannel(Channel):

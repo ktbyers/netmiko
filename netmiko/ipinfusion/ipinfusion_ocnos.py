@@ -77,7 +77,7 @@ class IpInfusionOcNOSTelnet(IpInfusionOcNOSBase):
         # set callback function to handle telnet options.
         assert self.remote_conn is not None
         assert isinstance(self.remote_conn, Telnet)
-        self.remote_conn.set_option_negotiation_callback(self._process_option) # type: ignore
+        self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
         return super().telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,

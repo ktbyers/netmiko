@@ -74,5 +74,5 @@ class ZteZxrosTelnet(ZteZxrosBase):
     def telnet_login(self, *args: Any, **kwargs: Any) -> str:
         # set callback function to handle telnet options.
         assert isinstance(self.remote_conn, Telnet)
-        self.remote_conn.set_option_negotiation_callback(self._process_option) # type: ignore
+        self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
         return super().telnet_login(*args, **kwargs)
