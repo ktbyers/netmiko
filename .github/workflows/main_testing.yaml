@@ -14,28 +14,23 @@ jobs:
 
       - name: Setup python
         uses: actions/setup-python@v5
-        id: cp311
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           architecture: x64
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.8.3
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+      - name: Install poetry
+        run: |
+          pipx install poetry
 
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v2
-        id: cached-poetry-dependencies
+      - name: Set up Python 
+        uses: actions/setup-python@v5
         with:
-          path: .venv
-          key: venv-${{ runner.os }}-cache-${{ steps.cp311.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          python-version: '3.12'
+          cache: 'poetry'
 
-      - name: Install Dependencies
-        run: poetry install
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      - name: Install dependencies
+        run: |
+          poetry install
 
       - name: Run pylama
         run: |
@@ -66,29 +61,24 @@ jobs:
 
       - name: Setup python
         uses: actions/setup-python@v5
-        id: py_ver
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+      - uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install poetry
+        run: |
+          pipx install poetry
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
-          version: 1.8.3
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
 
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v2
-        id: cached-poetry-dependencies
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-cache-${{ steps.py_ver.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
-        if: ${{ matrix.platform != 'windows-latest' }}  # windows hangs if using a cached venv
-
-      - name: Install Dependencies
-        run: poetry install
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      - name: Install dependencies
+        run: |
+          poetry install
 
       - name: Run Tests
         run: |
