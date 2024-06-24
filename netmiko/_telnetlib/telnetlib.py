@@ -39,7 +39,7 @@ import selectors
 from time import monotonic as _time
 import warnings
 
-warnings._deprecated(__name__, remove=(3, 13))
+# warnings._deprecated(__name__, remove=(3, 13))
 
 __all__ = ["Telnet"]
 

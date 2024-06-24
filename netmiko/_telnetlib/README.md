@@ -8,5 +8,6 @@ All contributions were made by the original contributor as documented
 in the referenced github.com repository or as documented otherwise
 by telnetlib's history.
 
-Kirk Byers has made no code contributions to this library.
+Kirk Byers has made no code contributions to this library (well I 
+removed one deprecation warning for PY3.13)
 
