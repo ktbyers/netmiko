@@ -1,5 +1,5 @@
 [build-system]
-requires = ["poetry==1.3.2"]
+requires = ["poetry==1.8.3"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
@@ -17,6 +17,7 @@ classifiers = [
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
 ]
 
 [tool.poetry.dependencies]
