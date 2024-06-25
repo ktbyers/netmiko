@@ -31,7 +31,7 @@ pyserial = ">=3.3"
 # Needed for PY3.13 and cffi
 cffi = [
     {version = ">=1.0.0", python = "<3.13"},
-    {version = "1.17.0rc1", python = ">=3.13"}
+    {version = ">=1.17.0rc1", python = ">=3.13"}
 ]
 
 [tool.poetry.group.dev.dependencies]
@@ -46,8 +46,8 @@ pylama = "8.3.8"
 twine = "1.15.0"
 # docutils/poetry release issue on 0.21.1
 docutils = [
-    {version = "0.20", python = "3.8.*"},
-    {version = "0.21.2", python = ">=3.9"}
+    {version = "<=0.20", python = "3.8.*"},
+    {version = ">=0.21.2", python = ">=3.9"}
 ]
 pysnmp = "4.4.12"
 pdoc3 = "0.10.0"
