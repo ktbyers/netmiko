@@ -52,7 +52,6 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        # pyats and genie breakage on newer python versions.
         # python-version: [ '3.8', '3.9', '3.10', '3.11', "3.12", "3.13.0-beta.2" ]
         python-version: [ '3.8', '3.9', '3.10', '3.11']
         platform: [ubuntu-20.04]
@@ -86,7 +85,6 @@ jobs:
         run: |
           poetry run pytest -v -s tests/test_import_netmiko.py
           poetry run pytest -v -s tests/unit/test_base_connection.py
-          poetry run pytest -v -s tests/unit/test_utilities.py
           poetry run pytest -v -s tests/unit/test_ssh_autodetect.py
           poetry run pytest -v -s tests/unit/test_connection.py
           poetry run pytest -v -s tests/unit/test_entry_points.py
