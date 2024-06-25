@@ -88,3 +88,46 @@ jobs:
           poetry run pytest -v -s tests/unit/test_ssh_autodetect.py
           poetry run pytest -v -s tests/unit/test_connection.py
           poetry run pytest -v -s tests/unit/test_entry_points.py
+
+  pytest_parsers:
+    name: Testing on Python ${{ matrix.python-version }} (${{ matrix.platform}})
+    defaults:
+      run:
+        shell: bash
+
+    # Only use latest Python version that will work with pyats/genie due to their
+    # ongoing issues supporting newer Python versions.
+    strategy:
+      matrix:
+        python-version: [ '3.11']
+        platform: [ubuntu-20.04]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: |
+          pipx install poetry
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install --with parsers
+
+      - name: Run Tests
+        run: |
+          poetry run pytest -v -s tests/test_import_netmiko.py
+          poetry run pytest -v -s tests/unit/test_utilities.py
