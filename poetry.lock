@@ -526,6 +526,20 @@ test = ["certifi", "pretend", "pytest (>=6.2.0)", "pytest-benchmark", "pytest-co
 test-randomorder = ["pytest-randomly"]
 
 [[package]]
+name = "dict2xml"
+version = "1.7.5"
+description = "Small utility to convert a python dictionary into an XML string"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "dict2xml-1.7.5-py3-none-any.whl", hash = "sha256:f5380dcda0039807bff5543801009f36e5bfff355705863628835cb69f4711b6"},
+    {file = "dict2xml-1.7.5.tar.gz", hash = "sha256:e279f4707cf7733f1e56b2cea39e257c727b86f74e449deccc6a712a1cfe4e45"},
+]
+
+[package.extras]
+tests = ["noseofyeti[black] (==2.4.4)", "pytest (==7.4.4)"]
+
+[[package]]
 name = "dill"
 version = "0.3.8"
 description = "serialize all of Python"
@@ -558,6 +572,19 @@ description = "Docutils -- Python Documentation Utilities"
 optional = false
 python-versions = "*"
 files = []
+
+[[package]]
+name = "f5-icontrol-rest"
+version = "1.3.13"
+description = "F5 BIG-IP iControl REST API client"
+optional = false
+python-versions = "*"
+files = [
+    {file = "f5-icontrol-rest-1.3.13.tar.gz", hash = "sha256:49fffd999fb4971d6754beb0e066051175db9d9baeb8a76fca6c801dacc89359"},
+]
+
+[package.dependencies]
+requests = ">=2.5.0,<3"
 
 [[package]]
 name = "frozenlist"
@@ -658,53 +685,55 @@ files = [
 
 [[package]]
 name = "genie"
-version = "23.6"
+version = "24.5"
 description = "Genie: THE standard pyATS Library System"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.8"
 files = [
-    {file = "genie-23.6-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:0d3e5467fcf11774dbb5d9eec242bed8aebaadc68f73b41e15a1244ec473e54a"},
-    {file = "genie-23.6-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:5601fb948c7f7c05d91e49a85ed3f0f009f199cdba70d439054015237d2d50fc"},
-    {file = "genie-23.6-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:f88bdad1ae4f14afe2e3b0548e049ff23005388c22f34c53ae616e3b32ae3f3d"},
-    {file = "genie-23.6-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:2739504b2f757b04935db25fdc1d783e2fe9a8adaca13e7858839b52d83eea3c"},
-    {file = "genie-23.6-cp37-cp37m-macosx_11_0_x86_64.whl", hash = "sha256:2b2983ff69906b0b09282f00b48b50f69cb080263b0ab86321e3298e24a70df1"},
-    {file = "genie-23.6-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:5219f16c1a91586e3856e5e3c5ed928ded9873451baeae8338077d769fa2ef65"},
-    {file = "genie-23.6-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:1f9a29e4a2dbbda7c866b1cdbafef87422a161e6c4eb4fc7ff01caeb86ebe49d"},
-    {file = "genie-23.6-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:8f2280a19cbc0a515030680631e4c740ab6a5c331bf9948be870cf260deed3ea"},
-    {file = "genie-23.6-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:4bb727cb548690e410198341b2210890e278b786da26736b257a1f716e2543b5"},
-    {file = "genie-23.6-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:28603b18454f1adc56147adb2fc168137ffad6c151e3fab614c49b171af22207"},
-    {file = "genie-23.6-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:a9aa56a24fb46688e380c1c1352ecda1848ce7600afab063b8685cdffa681b57"},
-    {file = "genie-23.6-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:595681e525718fd7b31691725416799d94e0e0ea4f196962f7a6ddbf4e6cca25"},
-    {file = "genie-23.6-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:4faaa119fe792a159532cfd933ea7e18bc08f6dcaf0232a6ec51f174d53b3589"},
+    {file = "genie-24.5-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:6a1fb51e38f947dfde0c63fa4d17f7cc927b23a679d8e06a79723f654149a7c5"},
+    {file = "genie-24.5-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:1d96c30cfa7c689f81cd8902a4be607ddcbbace2d14922595fd5c2d4d0dce65f"},
+    {file = "genie-24.5-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:711c545c2f7b134a53d8640277a61305c0472726f273d8eef2a0eb0e90b01795"},
+    {file = "genie-24.5-cp311-cp311-macosx_11_0_universal2.whl", hash = "sha256:b424981bbd4c3dca4ca2040b67644001f3e19f5a6955127a9183c0b32eb2ee58"},
+    {file = "genie-24.5-cp311-cp311-manylinux2014_aarch64.whl", hash = "sha256:09f7418775b7585b26a9a7bd5a51c4c94c042ff3bd4d5017d2bda8ff866a40b4"},
+    {file = "genie-24.5-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:a4261f1834ad21cf1c66ecbed65767f0421c78c9a3045331e34a503b139e377f"},
+    {file = "genie-24.5-cp312-cp312-macosx_11_0_universal2.whl", hash = "sha256:0478657ad1c80e61dbf807cadf8cb4e6cca27c6e63ad7171924d14232d65f44d"},
+    {file = "genie-24.5-cp312-cp312-manylinux2014_aarch64.whl", hash = "sha256:c2d2c133aeb00fa92de5fe9a4e40fc207c1aad4d113fcae7114a7eda489d3c41"},
+    {file = "genie-24.5-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:40753081452bef5b2fbb1a00eecac2bc0639e839575133cef7837593fc6cebff"},
+    {file = "genie-24.5-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:a81d1af37fde811fbd85c49cb074f08ed5dd428d1870d64e2c4643a1c13565bd"},
+    {file = "genie-24.5-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:c914c8aa64ec62dcac63c66fdc40b0cf2e2f19c653966ea9a69ef138912f2511"},
+    {file = "genie-24.5-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:899f0d0f86970b3c1066956fc6339a0ed3aff1e3e8905d6c51039643e8eb8750"},
+    {file = "genie-24.5-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:f4e93903e2ffe18c64e2d400c4bc83064a2b2075bf37b88c0ba458a7280635ef"},
+    {file = "genie-24.5-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:9729844ce4a3555a261a2184e7325c725d23b677ca6ba9878f5220193384596a"},
+    {file = "genie-24.5-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:0a9bda3314447da8026f9723f6636b1496654448d44ac61bacb56445424b1e5e"},
 ]
 
 [package.dependencies]
 dill = "*"
-"genie.libs.clean" = ">=23.6.0,<23.7.0"
-"genie.libs.conf" = ">=23.6.0,<23.7.0"
-"genie.libs.filetransferutils" = ">=23.6.0,<23.7.0"
-"genie.libs.health" = ">=23.6.0,<23.7.0"
-"genie.libs.ops" = ">=23.6.0,<23.7.0"
-"genie.libs.parser" = ">=23.6.0,<23.7.0"
-"genie.libs.sdk" = ">=23.6.0,<23.7.0"
+"genie.libs.clean" = ">=24.5.0,<24.6.0"
+"genie.libs.conf" = ">=24.5.0,<24.6.0"
+"genie.libs.filetransferutils" = ">=24.5.0,<24.6.0"
+"genie.libs.health" = ">=24.5.0,<24.6.0"
+"genie.libs.ops" = ">=24.5.0,<24.6.0"
+"genie.libs.parser" = ">=24.5.0,<24.6.0"
+"genie.libs.sdk" = ">=24.5.0,<24.6.0"
 jsonpickle = "*"
-netaddr = "*"
+netaddr = "<1.0.0"
 PrettyTable = "*"
 tqdm = "*"
 
 [package.extras]
 dev = ["Sphinx", "coverage", "restview", "sphinx-rtd-theme"]
-full = ["genie.libs.clean", "genie.libs.conf", "genie.libs.filetransferutils", "genie.libs.health", "genie.libs.ops", "genie.libs.parser", "genie.libs.robot (>=23.6.0,<23.7.0)", "genie.libs.sdk", "genie.telemetry (>=23.6.0,<23.7.0)", "genie.trafficgen (>=23.6.0,<23.7.0)", "pyats.robot (>=23.6.0,<23.7.0)"]
-robot = ["genie.libs.robot (>=23.6.0,<23.7.0)", "pyats.robot (>=23.6.0,<23.7.0)"]
+full = ["genie.libs.clean", "genie.libs.conf", "genie.libs.filetransferutils", "genie.libs.health", "genie.libs.ops", "genie.libs.parser", "genie.libs.robot (>=24.5.0,<24.6.0)", "genie.libs.sdk", "genie.telemetry (>=24.5.0,<24.6.0)", "genie.trafficgen (>=24.5.0,<24.6.0)", "pyats.robot (>=24.5.0,<24.6.0)"]
+robot = ["genie.libs.robot (>=24.5.0,<24.6.0)", "pyats.robot (>=24.5.0,<24.6.0)"]
 
 [[package]]
 name = "genie-libs-clean"
-version = "23.6"
+version = "24.5"
 description = "Genie Library for device clean support"
 optional = false
 python-versions = "*"
 files = [
-    {file = "genie.libs.clean-23.6-py3-none-any.whl", hash = "sha256:a2c13cbe450b3c3de7aa119f607f1bbef485872768751af2449478b0f9e309df"},
+    {file = "genie.libs.clean-24.5-py3-none-any.whl", hash = "sha256:d051ff93d3e2f5fc3d28ff6434850cb0820b833c7ae30b5d7ea1ad4c6f7aec5d"},
 ]
 
 [package.dependencies]
@@ -717,12 +746,12 @@ dev = ["Sphinx", "coverage", "paramiko", "restview", "sphinx-rtd-theme", "sphinx
 
 [[package]]
 name = "genie-libs-conf"
-version = "23.6"
+version = "24.5"
 description = "Genie libs Conf: Libraries to configures topology through Python object attributes"
 optional = false
 python-versions = "*"
 files = [
-    {file = "genie.libs.conf-23.6-py3-none-any.whl", hash = "sha256:fe490b39c3b65780b92d3fcfc9d554417ceb1cbcbcfbac26f9faa1b137736d4a"},
+    {file = "genie.libs.conf-24.5-py3-none-any.whl", hash = "sha256:71fb185cd1b7ecde460798d0af94b82e3bf65b91a3b2c45fe58778c9648c656c"},
 ]
 
 [package.extras]
@@ -730,12 +759,12 @@ dev = ["Sphinx", "coverage", "restview", "sphinx-rtd-theme"]
 
 [[package]]
 name = "genie-libs-filetransferutils"
-version = "23.6"
+version = "24.5"
 description = "Genie libs FileTransferUtils: Genie FileTransferUtils Libraries"
 optional = false
 python-versions = "*"
 files = [
-    {file = "genie.libs.filetransferutils-23.6-py3-none-any.whl", hash = "sha256:e116d602dceedf4ec84257cc7f79249c3a0adbbf7b62a4e27863a6467670f7a5"},
+    {file = "genie.libs.filetransferutils-24.5-py3-none-any.whl", hash = "sha256:ae75d25a0e9bd60d847fc0fe38c2d900c74cabb969a5fe72e38e9fe08be982ec"},
 ]
 
 [package.dependencies]
@@ -748,12 +777,12 @@ dev = ["Sphinx", "coverage", "restview", "sphinx-rtd-theme"]
 
 [[package]]
 name = "genie-libs-health"
-version = "23.6"
+version = "24.5"
 description = "pyATS Health Check for monitoring device health status"
 optional = false
 python-versions = "*"
 files = [
-    {file = "genie.libs.health-23.6-py3-none-any.whl", hash = "sha256:d420fff797198bbb6eba2f43f9cf7a3a41c0e1850ad06eab0db44df9f14b238f"},
+    {file = "genie.libs.health-24.5-py3-none-any.whl", hash = "sha256:05c3dcbe127be3326e3da1797bcd1df90c929ff3acaa57a661ac015c8c63ffc2"},
 ]
 
 [package.dependencies]
@@ -766,12 +795,12 @@ dev = ["Sphinx", "coverage", "paramiko", "restview", "sphinx-rtd-theme", "sphinx
 
 [[package]]
 name = "genie-libs-ops"
-version = "23.6"
+version = "24.5"
 description = "Genie libs Ops: Libraries to retrieve operational state of the topology"
 optional = false
 python-versions = "*"
 files = [
-    {file = "genie.libs.ops-23.6-py3-none-any.whl", hash = "sha256:55d0487fa42901837b3173a83e89ac346277adf6361013d33394282dad879ea6"},
+    {file = "genie.libs.ops-24.5-py3-none-any.whl", hash = "sha256:a86d2fe28173e95b82e6a19847592f2d581109eff5b47efa0417689dfa9029e1"},
 ]
 
 [package.extras]
@@ -779,12 +808,12 @@ dev = ["Sphinx", "coverage", "restview", "sphinx-rtd-theme"]
 
 [[package]]
 name = "genie-libs-parser"
-version = "23.6"
+version = "24.5"
 description = "Genie libs Parser: Genie Parser Libraries"
 optional = false
 python-versions = "*"
 files = [
-    {file = "genie.libs.parser-23.6-py3-none-any.whl", hash = "sha256:9c801ede00cea67dd7c02ebc8af8f44f2170e7b4acbc1943d716009aaf9d2d1b"},
+    {file = "genie.libs.parser-24.5-py3-none-any.whl", hash = "sha256:71685e1acbe92aba8e952fce3841dbe0bb8ab03aab89d29f293d6f5d71a79b20"},
 ]
 
 [package.dependencies]
@@ -795,17 +824,20 @@ dev = ["Sphinx", "coverage", "restview", "sphinx-rtd-theme"]
 
 [[package]]
 name = "genie-libs-sdk"
-version = "23.6"
+version = "24.5"
 description = "Genie libs sdk: Libraries containing all Triggers and Verifications"
 optional = false
 python-versions = "*"
 files = [
-    {file = "genie.libs.sdk-23.6-py3-none-any.whl", hash = "sha256:fae8394eafab6c5e346c0418d778e90dd9e987053304f92995b0ecb2eea9e3eb"},
+    {file = "genie.libs.sdk-24.5-py3-none-any.whl", hash = "sha256:c64401b5316de5ea9aeb1ca2f22ccf42ecb746d4bab69b4f6ff470f385dc9c89"},
 ]
 
 [package.dependencies]
+pyasn1 = "0.4.8"
+pysnmp-lextudio = "5.0.29"
+"rest.connector" = ">=24.5.0,<24.6.0"
 "ruamel.yaml" = "*"
-"yang.connector" = "*"
+"yang.connector" = ">=24.5.0,<24.6.0"
 
 [package.extras]
 dev = ["Sphinx", "coverage", "grpcio", "rest.connector", "restview", "sphinx-rtd-theme", "sphinxcontrib-napoleon", "xmltodict", "yang.connector"]
@@ -1387,17 +1419,14 @@ six = "*"
 
 [[package]]
 name = "netaddr"
-version = "1.3.0"
+version = "0.10.1"
 description = "A network address manipulation library for Python"
 optional = false
-python-versions = ">=3.7"
+python-versions = "*"
 files = [
-    {file = "netaddr-1.3.0-py3-none-any.whl", hash = "sha256:c2c6a8ebe5554ce33b7d5b3a306b71bbb373e000bbbf2350dd5213cc56e3dbbe"},
-    {file = "netaddr-1.3.0.tar.gz", hash = "sha256:5c3c3d9895b551b763779ba7db7a03487dc1f8e3b385af819af341ae9ef6e48a"},
+    {file = "netaddr-0.10.1-py2.py3-none-any.whl", hash = "sha256:9822305b42ea1020d54fee322d43cee5622b044c07a1f0130b459bb467efcf88"},
+    {file = "netaddr-0.10.1.tar.gz", hash = "sha256:f4da4222ca8c3f43c8e18a8263e5426c750a3a837fdfeccf74c68d0408eaa3bf"},
 ]
-
-[package.extras]
-nicer-shell = ["ipython"]
 
 [[package]]
 name = "nh3"
@@ -1631,13 +1660,13 @@ files = [
 
 [[package]]
 name = "pyasn1"
-version = "0.6.0"
-description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
+version = "0.4.8"
+description = "ASN.1 types and codecs"
 optional = false
-python-versions = ">=3.8"
+python-versions = "*"
 files = [
-    {file = "pyasn1-0.6.0-py2.py3-none-any.whl", hash = "sha256:cca4bb0f2df5504f02f6f8a775b6e416ff9b0b3b16f7ee80b5a3153d9b804473"},
-    {file = "pyasn1-0.6.0.tar.gz", hash = "sha256:3a35ab2c4b5ef98e17dfdec8ab074046fbda76e281c5a706ccd82328cfc8f64c"},
+    {file = "pyasn1-0.4.8-py2.py3-none-any.whl", hash = "sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d"},
+    {file = "pyasn1-0.4.8.tar.gz", hash = "sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba"},
 ]
 
 [[package]]
@@ -2320,6 +2349,22 @@ files = [
 ply = "*"
 
 [[package]]
+name = "pysmi-lextudio"
+version = "1.4.3"
+description = "A pure-Python implementation of SNMP/SMI MIB parsing and conversion library."
+optional = false
+python-versions = "<4.0,>=3.8"
+files = [
+    {file = "pysmi_lextudio-1.4.3-py3-none-any.whl", hash = "sha256:cb629c6386a30c976f83c29fc71e53b06d60f15094d0c0114cf8d095351b76e5"},
+    {file = "pysmi_lextudio-1.4.3.tar.gz", hash = "sha256:7d255fb38669410835acf6c2e8ab41975a6d8e64593b119552e36ecba004054f"},
+]
+
+[package.dependencies]
+Jinja2 = ">=3.1.3,<4.0.0"
+ply = ">=3.11,<4.0"
+requests = ">=2.26.0,<3.0.0"
+
+[[package]]
 name = "pysnmp"
 version = "4.4.12"
 description = "SNMP library for Python"
@@ -2334,6 +2379,36 @@ files = [
 pyasn1 = ">=0.2.3"
 pycryptodomex = "*"
 pysmi = "*"
+
+[[package]]
+name = "pysnmp-lextudio"
+version = "5.0.29"
+description = ""
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "pysnmp_lextudio-5.0.29-py3-none-any.whl", hash = "sha256:073e93cac4b29be9f40ea5514ad5ac3ba6c26824a96b7a2a96dab7cfa6422e5d"},
+    {file = "pysnmp_lextudio-5.0.29.tar.gz", hash = "sha256:eacc5f33d3a8c7a30122e5f06fd97393a0f101961ffb3f549eabd33ea22f5f6c"},
+]
+
+[package.dependencies]
+pyasn1 = ">=0.4.8,<0.5.0"
+pysmi-lextudio = ">=1.0.4,<2.0.0"
+pysnmpcrypto = ">=0.0.4,<0.0.5"
+
+[[package]]
+name = "pysnmpcrypto"
+version = "0.0.4"
+description = "Strong cryptography support for PySNMP (SNMP library for Python)"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pysnmpcrypto-0.0.4-py2.py3-none-any.whl", hash = "sha256:5889733caa030f45d9e03ea9d6370fb06426a8cb7f839aabbcdde33c6f634679"},
+    {file = "pysnmpcrypto-0.0.4.tar.gz", hash = "sha256:b635fb3b1ec6637b9a0033f50506214e16eb84574b1d25ab027bbde4caa55129"},
+]
+
+[package.dependencies]
+cryptography = {version = "*", markers = "python_version >= \"3.4\""}
 
 [[package]]
 name = "pytest"
@@ -2509,6 +2584,24 @@ files = [
 
 [package.dependencies]
 requests = ">=2.0.1,<3.0.0"
+
+[[package]]
+name = "rest-connector"
+version = "24.5"
+description = "pyATS REST connection package"
+optional = false
+python-versions = "*"
+files = [
+    {file = "rest.connector-24.5-py3-none-any.whl", hash = "sha256:8cd6b458de2830947b8ebe0c4948249796d367ce19af0ecbbe9da5f2d3927767"},
+]
+
+[package.dependencies]
+dict2xml = "*"
+f5-icontrol-rest = "*"
+requests = ">=1.15.1"
+
+[package.extras]
+dev = ["Sphinx", "coverage", "requests-mock", "restview", "sphinx-rtd-theme"]
 
 [[package]]
 name = "ruamel-yaml"
@@ -3043,4 +3136,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4.0"
-content-hash = "b6c2c96e2034295b561c65bca79b6511a8b8fe796e8ce4e07bc6f75544f78170"
+content-hash = "8a19ff3e59faaf37f6282a97e10918b6f6df6109e07cc61f7671144030e123e6"

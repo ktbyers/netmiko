@@ -1,10 +1,10 @@
 [build-system]
-requires = ["poetry==1.6.1"]
+requires = ["poetry>=1.6.1"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "netmiko"
-version = "4.3.0"
+version = "4.4.0"
 description = "Multi-vendor library to simplify legacy CLI connections to network devices"
 authors = ["Kirk Byers <ktbyers@twb-tech.com>"]
 license = "MIT"
@@ -45,8 +45,8 @@ types-paramiko = "3.0.0.2"
 types-PyYAML = "6.0.12.4"
 
 [tool.poetry.group.parsers.dependencies]
-pyats = ">=23.1"
-genie = ">=23.1"
+pyats = ">=24.5"
+genie = ">=24.5"
 ttp = ">=0.9.0"
 
 [tool.poetry.scripts]
