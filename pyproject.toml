@@ -1,5 +1,5 @@
 [build-system]
-requires = ["poetry==1.8.3"]
+requires = ["poetry==1.6.1"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
