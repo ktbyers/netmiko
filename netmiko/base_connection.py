@@ -27,7 +27,6 @@ from types import TracebackType
 import io
 import re
 import socket
-import telnetlib
 import time
 from collections import deque
 from os import path
@@ -50,6 +49,7 @@ from netmiko.exceptions import (
     ReadException,
     ReadTimeout,
 )
+from netmiko._telnetlib import telnetlib
 from netmiko.channel import Channel, SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.utilities import (
@@ -599,7 +599,7 @@ key_file: {self.key_file}
                 log.debug("Sending IAC + NOP")
                 # Need to send multiple times to test connection
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                telnet_socket = self.remote_conn.get_socket()
+                telnet_socket = self.remote_conn.get_socket()  # type: ignore
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
@@ -1118,7 +1118,7 @@ You can look at the Netmiko session_log or debug log for more information.
                     proxy_dict=self.sock_telnet,
                 )
             else:
-                self.remote_conn = telnetlib.Telnet(
+                self.remote_conn = telnetlib.Telnet(  # type: ignore
                     self.host, port=self.port, timeout=self.timeout
                 )
             # Migrating communication to channel class
@@ -2469,7 +2469,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                self.remote_conn.close()
+                self.remote_conn.close()  # type: ignore
             elif self.protocol == "serial":
                 assert isinstance(self.remote_conn, serial.Serial)
                 self.remote_conn.close()
