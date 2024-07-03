@@ -43,7 +43,7 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
             self.write_channel("n")
             data = self.read_until_pattern(pattern=self.prompt_pattern, re_flags=re.I)
         
-        # Do we nee do to raise exception? Doesn't look to be in the original pattern, leaving as pseudo-code
+        # Do we need to raise exception? Doesn't look to be in the original pattern, leaving as pseudo-code
         #if self.prompt_pattern not in data:
         #    raise ValueError("Did not find the expected prompt pattern.")
 
