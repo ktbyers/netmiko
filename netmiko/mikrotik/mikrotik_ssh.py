@@ -17,12 +17,12 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
     def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r\n"
-
+        self.default_enter = kwargs["default_enter"]
         return super().__init__(**kwargs)
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Handles special case scenarios for logins that might be encountered.
-        
+ 
         Special cases:
         Mikrotik might prompt to read software licenses before displaying the initial prompt.
         Mikrotik might also prompt for acknowledging no software key message if unlicensed.
@@ -30,22 +30,18 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         no_license_message = 'Please press "Enter" to continue!'
         license_prompt = "Do you want to see the software license"
         combined_pattern = rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt})"
-        
+
         data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
-        
+
         # Handle "no license" message
         if no_license_message in data:
-            self.write_channel("\r\n")
+            self.write_channel(self.default_enter)
             data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
-        
+
         # Handle software license prompt
         if license_prompt in data:
             self.write_channel("n")
             data = self.read_until_pattern(pattern=self.prompt_pattern, re_flags=re.I)
-        
-        # Do we need to raise exception? Doesn't look to be in the original pattern, leaving as pseudo-code
-        #if self.prompt_pattern not in data:
-        #    raise ValueError("Did not find the expected prompt pattern.")
 
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
