@@ -22,14 +22,16 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Handles special case scenarios for logins that might be encountered.
- 
+
         Special cases:
         Mikrotik might prompt to read software licenses before displaying the initial prompt.
         Mikrotik might also prompt for acknowledging no software key message if unlicensed.
         """
         no_license_message = 'Please press "Enter" to continue!'
         license_prompt = "Do you want to see the software license"
-        combined_pattern = rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt})"
+        combined_pattern = (
+            rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt})"
+        )
 
         data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
 
