@@ -1123,11 +1123,7 @@ The extra space is problematic.</p></div>
 
         if error_marker in output:
             raise ValueError(f&#34;Commit failed with following errors:\n\n{output}&#34;)
-        return output
-
-    def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
-        &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
-        raise NotImplementedError</code></pre>
+        return output</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1199,20 +1195,6 @@ command_string = commit comment <comment></p>
     return output</code></pre>
 </details>
 </dd>
-<dt id="netmiko.huawei.HuaweiVrpv8SSH.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Not Implemented</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
-    &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
-    raise NotImplementedError</code></pre>
-</details>
-</dd>
 <dt id="netmiko.huawei.HuaweiVrpv8SSH.send_config_set"><code class="name flex">
 <span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands: Union[str, Sequence[str], Iterator[str], TextIO, ForwardRef(None)] = None, exit_config_mode: bool = False, **kwargs: Any) ‑> str</span>
 </code></dt>
@@ -1261,6 +1243,7 @@ command_string = commit comment <comment></p>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
+<li><code><a title="netmiko.huawei.huawei.HuaweiSSH.save_config" href="huawei.html#netmiko.huawei.huawei.HuaweiBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.huawei.huawei.HuaweiSSH.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -1325,7 +1308,6 @@ command_string = commit comment <comment></p>
 <h4><code><a title="netmiko.huawei.HuaweiVrpv8SSH" href="#netmiko.huawei.HuaweiVrpv8SSH">HuaweiVrpv8SSH</a></code></h4>
 <ul class="">
 <li><code><a title="netmiko.huawei.HuaweiVrpv8SSH.commit" href="#netmiko.huawei.HuaweiVrpv8SSH.commit">commit</a></code></li>
-<li><code><a title="netmiko.huawei.HuaweiVrpv8SSH.save_config" href="#netmiko.huawei.HuaweiVrpv8SSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.huawei.HuaweiVrpv8SSH.send_config_set" href="#netmiko.huawei.HuaweiVrpv8SSH.send_config_set">send_config_set</a></code></li>
 </ul>
 </li>

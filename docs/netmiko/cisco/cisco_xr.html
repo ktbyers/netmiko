@@ -219,7 +219,7 @@ class CiscoXrBase(CiscoBaseConnection):
             # Read until we detect either an Uncommitted change or the end prompt
             if not re.search(r&#34;(Uncommitted|#$)&#34;, output):
                 output += self.read_until_pattern(pattern=r&#34;(Uncommitted|#$)&#34;)
-            if &#34;Uncommitted changes found&#34; in output:
+            if &#34;Uncommitted&#34; in output:
                 self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
                 output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
             if not re.search(pattern, output, flags=re.M):
@@ -613,7 +613,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
             # Read until we detect either an Uncommitted change or the end prompt
             if not re.search(r&#34;(Uncommitted|#$)&#34;, output):
                 output += self.read_until_pattern(pattern=r&#34;(Uncommitted|#$)&#34;)
-            if &#34;Uncommitted changes found&#34; in output:
+            if &#34;Uncommitted&#34; in output:
                 self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
                 output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
             if not re.search(pattern, output, flags=re.M):
@@ -847,7 +847,7 @@ an exception to be generated.</p></div>
         # Read until we detect either an Uncommitted change or the end prompt
         if not re.search(r&#34;(Uncommitted|#$)&#34;, output):
             output += self.read_until_pattern(pattern=r&#34;(Uncommitted|#$)&#34;)
-        if &#34;Uncommitted changes found&#34; in output:
+        if &#34;Uncommitted&#34; in output:
             self.write_channel(self.normalize_cmd(&#34;no\n&#34;))
             output += self.read_until_pattern(pattern=r&#34;[&gt;#]&#34;)
         if not re.search(pattern, output, flags=re.M):
