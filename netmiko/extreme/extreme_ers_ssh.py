@@ -1,4 +1,5 @@
 """Netmiko support for Extreme Ethernet Routing Switch."""
+
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.exceptions import NetmikoAuthenticationException
