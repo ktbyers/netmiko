@@ -2361,7 +2361,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         ESC[6n       Get cursor position
         ESC[1D       Move cursor position leftward by x characters (1 in this case)
         ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
-                     very bottom of the screen).
+                     very bottom of the screen)
+        ESC[c        Unknown code (added, for example, by MikroTik in 'Safe-Mode').
 
         HP ProCurve and Cisco SG300 require this (possible others).
 
@@ -2398,6 +2399,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_cursor_down = chr(27) + r"\[\d*B"
         code_wrap_around = chr(27) + r"\[\?7h"
         code_bracketed_paste_mode = chr(27) + r"\[\?2004h"
+        code_unknown_0 = chr(27) + r"\[c"
 
         code_set = [
             code_position_cursor,
@@ -2428,6 +2430,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_cursor_forward,
             code_wrap_around,
             code_bracketed_paste_mode,
+            code_unknown_0,
         ]
 
         output = string_buffer
