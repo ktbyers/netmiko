@@ -1,4 +1,5 @@
 """MRV Communications Driver (LX)."""
+
 import time
 import re
 from typing import Optional

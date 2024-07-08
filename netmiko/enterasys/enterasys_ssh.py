@@ -1,4 +1,5 @@
 """Enterasys support."""
+
 from typing import Any
 from netmiko.cisco_base_connection import CiscoSSHConnection
 

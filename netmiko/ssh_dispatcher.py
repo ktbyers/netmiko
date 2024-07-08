@@ -1,4 +1,5 @@
 """Controls selection of proper class based on the device type."""
+
 from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
 import re

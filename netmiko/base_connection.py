@@ -6,6 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
+
 from typing import (
     Optional,
     Callable,
