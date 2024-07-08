@@ -1,0 +1,37 @@
+### Description of Issue/Question
+
+*Note*: Please check https://guides.github.com/features/mastering-markdown/
+to see how to properly format your request.
+
+### Setup
+
+### Netmiko version
+(Paste verbatim output from `pip freeze | grep netmiko` between quotes below)
+
+```
+
+```
+
+### Netmiko device_type (if relevant to the issue)
+(Paste `device_type` between quotes below)
+
+```
+
+```
+
+### Steps to Reproduce the Issue
+
+### Error Traceback
+(Paste the complete traceback of the exception between quotes below)
+
+```
+
+```
+
+### Relevant Python code
+(Please try to essentialize your Python code to the minimum code needed to reproduce the issue)
+(Paste the code between the quotes below)
+
+```python
+
+```

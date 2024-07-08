@@ -186,7 +186,7 @@ don't explicitly support enable mode.</p>
 <pre><code class="python">class SophosSfosSSH(NoEnable, NoConfig, CiscoSSHConnection):
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read()
+        self._test_channel_read(pattern=r&#34;Main Menu&#34;)
         &#34;&#34;&#34;
         Sophos Firmware Version SFOS 18.0.0 GA-Build339
 
@@ -203,8 +203,8 @@ don't explicitly support enable mode.</p>
 
             Select Menu Number [0-7]:
         &#34;&#34;&#34;
-        self.write_channel(&#34;4&#34; + self.RETURN)
-        self._test_channel_read(pattern=r&#34;[console&gt;]&#34;)
+        self.write_channel(SOPHOS_MENU_DEFAULT + self.RETURN)
+        self._test_channel_read(pattern=r&#34;[#&gt;]&#34;)
         self.set_base_prompt()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
@@ -249,7 +249,7 @@ don't explicitly support enable mode.</p>
 </summary>
 <pre><code class="python">def session_preparation(self) -&gt; None:
     &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-    self._test_channel_read()
+    self._test_channel_read(pattern=r&#34;Main Menu&#34;)
     &#34;&#34;&#34;
     Sophos Firmware Version SFOS 18.0.0 GA-Build339
 
@@ -266,8 +266,8 @@ don't explicitly support enable mode.</p>
 
         Select Menu Number [0-7]:
     &#34;&#34;&#34;
-    self.write_channel(&#34;4&#34; + self.RETURN)
-    self._test_channel_read(pattern=r&#34;[console&gt;]&#34;)
+    self.write_channel(SOPHOS_MENU_DEFAULT + self.RETURN)
+    self._test_channel_read(pattern=r&#34;[#&gt;]&#34;)
     self.set_base_prompt()
     # Clear the read buffer
     time.sleep(0.3 * self.global_delay_factor)

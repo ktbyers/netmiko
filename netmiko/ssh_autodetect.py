@@ -38,6 +38,7 @@ Examples
 >>> remote_device['device_type'] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
+
 from typing import Any, List, Optional, Union, Dict
 import re
 import time
@@ -91,6 +92,12 @@ SSH_MAPPER_DICT = {
     "cisco_asa": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "cisco_ftd": {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco Firepower"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -299,6 +306,12 @@ SSH_MAPPER_DICT = {
     "oneaccess_oneos": {
         "cmd": "show version",
         "search_patterns": [r"OneOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "netgear_prosafe": {
+        "cmd": "show version",
+        "search_patterns": [r"ProSAFE"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },

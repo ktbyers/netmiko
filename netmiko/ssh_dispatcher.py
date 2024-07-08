@@ -1,4 +1,5 @@
 """Controls selection of proper class based on the device type."""
+
 from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
 import re
@@ -14,7 +15,7 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.arris import ArrisCERSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
-from netmiko.aruba import ArubaSSH
+from netmiko.aruba import ArubaOsSSH, ArubaCxSSH
 from netmiko.audiocode import (
     Audiocode72SSH,
     Audiocode66SSH,
@@ -159,7 +160,8 @@ CLASS_MAPPER_BASE = {
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "arris_cer": ArrisCERSSH,
-    "aruba_os": ArubaSSH,
+    "aruba_os": ArubaOsSSH,
+    "aruba_aoscx": ArubaCxSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
     "audiocode_72": Audiocode72SSH,

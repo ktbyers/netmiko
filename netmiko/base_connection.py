@@ -6,6 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
+
 from typing import (
     Optional,
     Callable,
@@ -27,7 +28,6 @@ from types import TracebackType
 import io
 import re
 import socket
-import telnetlib
 import time
 from collections import deque
 from os import path
@@ -50,6 +50,7 @@ from netmiko.exceptions import (
     ReadException,
     ReadTimeout,
 )
+from netmiko._telnetlib import telnetlib
 from netmiko.channel import Channel, SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.utilities import (
@@ -388,7 +389,8 @@ class BaseConnection:
         if self.secret:
             no_log["secret"] = self.secret
         # Always sanitize username and password
-        log.addFilter(SecretsFilter(no_log=no_log))
+        self._secrets_filter = SecretsFilter(no_log=no_log)
+        log.addFilter(self._secrets_filter)
 
         # Netmiko will close the session_log if we open the file
         if session_log is not None:
@@ -598,7 +600,7 @@ key_file: {self.key_file}
                 log.debug("Sending IAC + NOP")
                 # Need to send multiple times to test connection
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                telnet_socket = self.remote_conn.get_socket()
+                telnet_socket = self.remote_conn.get_socket()  # type: ignore
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
@@ -1117,7 +1119,7 @@ You can look at the Netmiko session_log or debug log for more information.
                     proxy_dict=self.sock_telnet,
                 )
             else:
-                self.remote_conn = telnetlib.Telnet(
+                self.remote_conn = telnetlib.Telnet(  # type: ignore
                     self.host, port=self.port, timeout=self.timeout
                 )
             # Migrating communication to channel class
@@ -2468,7 +2470,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                self.remote_conn.close()
+                self.remote_conn.close()  # type: ignore
             elif self.protocol == "serial":
                 assert isinstance(self.remote_conn, serial.Serial)
                 self.remote_conn.close()
@@ -2480,6 +2482,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             self.remote_conn = None
             if self.session_log:
                 self.session_log.close()
+            log.removeFilter(self._secrets_filter)
 
     def commit(self) -> str:
         """Commit method for platforms that support this."""

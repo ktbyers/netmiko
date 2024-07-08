@@ -1,4 +1,5 @@
 """Subclass specific to Cisco ASA."""
+
 from typing import Any, Union, List, Dict, Optional
 import re
 import time

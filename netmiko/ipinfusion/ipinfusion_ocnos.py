@@ -2,7 +2,17 @@ import time
 from typing import Any
 from socket import socket
 
-from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, TTYPE, Telnet
+from netmiko._telnetlib.telnetlib import (
+    IAC,
+    DO,
+    DONT,
+    WILL,
+    WONT,
+    SB,
+    SE,
+    TTYPE,
+    Telnet,
+)
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
@@ -67,7 +77,7 @@ class IpInfusionOcNOSTelnet(IpInfusionOcNOSBase):
         # set callback function to handle telnet options.
         assert self.remote_conn is not None
         assert isinstance(self.remote_conn, Telnet)
-        self.remote_conn.set_option_negotiation_callback(self._process_option)
+        self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
         return super().telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,

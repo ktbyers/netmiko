@@ -1,4 +1,5 @@
 """Mellanox MLNX-OS Switch support."""
+
 import re
 from typing import Optional
 

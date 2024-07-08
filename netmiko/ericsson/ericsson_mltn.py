@@ -1,4 +1,5 @@
 """Ericsson MiniLink driver."""
+
 import time
 import re
 from os import path
