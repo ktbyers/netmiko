@@ -17,7 +17,7 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
     def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r\n"
-        self.default_enter = kwargs["default_enter"]
+
         return super().__init__(**kwargs)
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
@@ -34,16 +34,14 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         )
 
         data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
-
-        # Handle "no license" message
         if no_license_message in data:
-            self.write_channel(self.default_enter)
-            data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
-
-        # Handle software license prompt
-        if license_prompt in data:
+            # Handle "no license" message
+            self.write_channel(self.default_enter)  # type: ignore
+            self.read_until_pattern(pattern=self.prompt_pattern)
+        elif license_prompt in data:
+            # Handle software license prompt
             self.write_channel("n")
-            data = self.read_until_pattern(pattern=self.prompt_pattern, re_flags=re.I)
+            self.read_until_pattern(pattern=self.prompt_pattern)
 
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
