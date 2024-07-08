@@ -36,7 +36,7 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
         if no_license_message in data:
             # Handle "no license" message
-            self.write_channel(self.default_enter)  # type: ignore
+            self.write_channel(self.RETURN)
             self.read_until_pattern(pattern=self.prompt_pattern)
         elif license_prompt in data:
             # Handle software license prompt
