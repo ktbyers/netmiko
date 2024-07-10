@@ -33,6 +33,7 @@ from netmiko.centec import CentecOSSSH, CentecOSTelnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import CienaSaosSSH, CienaSaosTelnet, CienaSaosFileTransfer
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
+from netmiko.cisco import CiscoApicSSH
 from netmiko.cisco import CiscoFtdSSH
 from netmiko.cisco import (
     CiscoIosSSH,
@@ -185,6 +186,7 @@ CLASS_MAPPER_BASE = {
     "centec_os": CentecOSSSH,
     "ciena_saos": CienaSaosSSH,
     "cisco_asa": CiscoAsaSSH,
+    "cisco_apic": CiscoApicSSH,
     "cisco_ftd": CiscoFtdSSH,
     "cisco_ios": CiscoIosSSH,
     "cisco_nxos": CiscoNxosSSH,
