@@ -29,9 +29,9 @@
 <pre><code class="python">from typing import Any, Optional
 from abc import ABC, abstractmethod
 import paramiko
-import telnetlib
 import serial
 
+from netmiko._telnetlib import telnetlib
 from netmiko.utilities import write_bytes
 from netmiko.netmiko_globals import MAX_BUFFER
 from netmiko.exceptions import ReadException, WriteException
@@ -141,7 +141,7 @@ class TelnetChannel(Channel):
             raise WriteException(
                 &#34;Attempt to write data, but there is no active channel.&#34;
             )
-        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
+        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))  # type: ignore
 
     def read_buffer(self) -&gt; str:
         &#34;&#34;&#34;Single read of available data.&#34;&#34;&#34;
@@ -151,7 +151,7 @@ class TelnetChannel(Channel):
         &#34;&#34;&#34;Read all of the available data from the channel.&#34;&#34;&#34;
         if self.remote_conn is None:
             raise ReadException(&#34;Attempt to read, but there is no active channel.&#34;)
-        return self.remote_conn.read_very_eager().decode(self.encoding, &#34;ignore&#34;)
+        return self.remote_conn.read_very_eager().decode(self.encoding, &#34;ignore&#34;)  # type: ignore
 
 
 class SerialChannel(Channel):
@@ -462,7 +462,7 @@ channel class.</p></div>
 </dd>
 <dt id="netmiko.channel.TelnetChannel"><code class="flex name class">
 <span>class <span class="ident">TelnetChannel</span></span>
-<span>(</span><span>conn: Optional[telnetlib.Telnet], encoding: str)</span>
+<span>(</span><span>conn: Optional[netmiko._telnetlib.telnetlib.Telnet], encoding: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -488,7 +488,7 @@ channel class.</p></div>
             raise WriteException(
                 &#34;Attempt to write data, but there is no active channel.&#34;
             )
-        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
+        self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))  # type: ignore
 
     def read_buffer(self) -&gt; str:
         &#34;&#34;&#34;Single read of available data.&#34;&#34;&#34;
@@ -498,7 +498,7 @@ channel class.</p></div>
         &#34;&#34;&#34;Read all of the available data from the channel.&#34;&#34;&#34;
         if self.remote_conn is None:
             raise ReadException(&#34;Attempt to read, but there is no active channel.&#34;)
-        return self.remote_conn.read_very_eager().decode(self.encoding, &#34;ignore&#34;)</code></pre>
+        return self.remote_conn.read_very_eager().decode(self.encoding, &#34;ignore&#34;)  # type: ignore</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
