@@ -1,4 +1,3 @@
-from typing import Any
 from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoSSHConnection
@@ -25,7 +24,6 @@ class VertivMPHBase(NoEnable, NoConfig, CiscoSSHConnection):
         )
 
     def cleanup(self, command: str = "logout") -> None:
-        """Return paging before disconnect"""
         return super().cleanup(command=command)
 
 
