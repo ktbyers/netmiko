@@ -1,4 +1,5 @@
 """Support for Extreme SLX."""
+
 import time
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection

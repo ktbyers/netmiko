@@ -1,4 +1,5 @@
 """Subclass specific to Cisco Viptela."""
+
 from typing import Union, Sequence, Iterator, TextIO, Any
 import re
 

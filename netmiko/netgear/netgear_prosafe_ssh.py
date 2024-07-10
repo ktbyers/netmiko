@@ -1,4 +1,5 @@
 """ProSafe OS support"""
+
 import time
 from typing import Any
 
