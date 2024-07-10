@@ -6,6 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
+
 from typing import (
     Optional,
     Callable,
@@ -27,7 +28,6 @@ from types import TracebackType
 import io
 import re
 import socket
-import telnetlib
 import time
 from collections import deque
 from os import path
@@ -50,6 +50,7 @@ from netmiko.exceptions import (
     ReadException,
     ReadTimeout,
 )
+from netmiko._telnetlib import telnetlib
 from netmiko.channel import Channel, SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.utilities import (
@@ -599,7 +600,7 @@ key_file: {self.key_file}
                 log.debug("Sending IAC + NOP")
                 # Need to send multiple times to test connection
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                telnet_socket = self.remote_conn.get_socket()
+                telnet_socket = self.remote_conn.get_socket()  # type: ignore
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
@@ -1118,7 +1119,7 @@ You can look at the Netmiko session_log or debug log for more information.
                     proxy_dict=self.sock_telnet,
                 )
             else:
-                self.remote_conn = telnetlib.Telnet(
+                self.remote_conn = telnetlib.Telnet(  # type: ignore
                     self.host, port=self.port, timeout=self.timeout
                 )
             # Migrating communication to channel class
@@ -2343,7 +2344,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         http://en.wikipedia.org/wiki/ANSI_escape_code
 
         Note: this does not capture ALL possible ANSI Escape Codes only the ones
-        I have encountered
+        that have been encountered
 
         Current codes that are filtered:
         ESC = '\x1b' or chr(27)
@@ -2361,9 +2362,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         ESC[6n       Get cursor position
         ESC[1D       Move cursor position leftward by x characters (1 in this case)
         ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
-                     very bottom of the screen).
-
-        HP ProCurve and Cisco SG300 require this (possible others).
+                     very bottom of the screen)
+        ESC[c        Query Device (used by MikroTik in 'Safe-Mode')
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
@@ -2398,6 +2398,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_cursor_down = chr(27) + r"\[\d*B"
         code_wrap_around = chr(27) + r"\[\?7h"
         code_bracketed_paste_mode = chr(27) + r"\[\?2004h"
+        code_query_device = chr(27) + r"\[c"
 
         code_set = [
             code_position_cursor,
@@ -2428,6 +2429,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_cursor_forward,
             code_wrap_around,
             code_bracketed_paste_mode,
+            code_query_device,
         ]
 
         output = string_buffer
@@ -2469,7 +2471,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                self.remote_conn.close()
+                self.remote_conn.close()  # type: ignore
             elif self.protocol == "serial":
                 assert isinstance(self.remote_conn, serial.Serial)
                 self.remote_conn.close()

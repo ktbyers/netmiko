@@ -100,6 +100,7 @@ Examples
 &gt;&gt;&gt; remote_device[&#39;device_type&#39;] = best_match
 &gt;&gt;&gt; connection = ConnectHandler(**remote_device)
 &#34;&#34;&#34;
+
 from typing import Any, List, Optional, Union, Dict
 import re
 import time
@@ -153,6 +154,12 @@ SSH_MAPPER_DICT = {
     &#34;cisco_asa&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
         &#34;search_patterns&#34;: [r&#34;Cisco Adaptive Security Appliance&#34;, r&#34;Cisco ASA&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;cisco_ftd&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;Cisco Firepower&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },
@@ -361,6 +368,12 @@ SSH_MAPPER_DICT = {
     &#34;oneaccess_oneos&#34;: {
         &#34;cmd&#34;: &#34;show version&#34;,
         &#34;search_patterns&#34;: [r&#34;OneOS&#34;],
+        &#34;priority&#34;: 99,
+        &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
+    },
+    &#34;netgear_prosafe&#34;: {
+        &#34;cmd&#34;: &#34;show version&#34;,
+        &#34;search_patterns&#34;: [r&#34;ProSAFE&#34;],
         &#34;priority&#34;: 99,
         &#34;dispatch&#34;: &#34;_autodetect_std&#34;,
     },

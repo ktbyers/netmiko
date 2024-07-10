@@ -1,4 +1,5 @@
 """Controls selection of proper class based on the device type."""
+
 from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
 import re
@@ -161,7 +162,7 @@ CLASS_MAPPER_BASE = {
     "arista_eos": AristaSSH,
     "arris_cer": ArrisCERSSH,
     "aruba_os": ArubaOsSSH,
-    "aruba_cx": ArubaCxSSH,
+    "aruba_aoscx": ArubaCxSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
     "audiocode_72": Audiocode72SSH,

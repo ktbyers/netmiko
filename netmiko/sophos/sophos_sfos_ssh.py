@@ -1,4 +1,5 @@
 """SophosXG (SFOS) Firewall support"""
+
 from typing import Any
 import time
 import os
