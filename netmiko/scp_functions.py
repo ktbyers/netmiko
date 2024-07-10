@@ -5,6 +5,7 @@ Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
 """
+
 from typing import AnyStr, Optional, Callable, Any, Dict
 from typing import TYPE_CHECKING
 from netmiko.scp_handler import BaseFileTransfer

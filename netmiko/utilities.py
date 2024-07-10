@@ -1,4 +1,5 @@
 """Miscellaneous utility functions."""
+
 from typing import (
     Any,
     AnyStr,

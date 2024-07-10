@@ -1,4 +1,5 @@
 """CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms."""
+
 from typing import Optional
 import re
 import time
