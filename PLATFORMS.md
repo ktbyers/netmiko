@@ -80,6 +80,7 @@
 - C-DOT CROS
 - Ciena SAOS
 - Citrix Netscaler
+- Cisco APIC (Linux)
 - Cisco Telepresence
 - Cisco Viptela
 - Check Point GAiA
