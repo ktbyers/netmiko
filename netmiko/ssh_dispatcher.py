@@ -83,6 +83,7 @@ from netmiko.f5 import F5LinuxSSH
 from netmiko.fiberstore import FiberstoreFsosSSH
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
+from netmiko.garderos import GarderosGrsSSH
 from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
@@ -229,6 +230,7 @@ CLASS_MAPPER_BASE = {
     "fiberstore_fsos": FiberstoreFsosSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
+    "garderos_grs": GarderosGrsSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
     "hillstone_stoneos": HillstoneStoneosSSH,
