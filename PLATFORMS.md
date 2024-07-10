@@ -73,6 +73,7 @@
 
 - A10
 - Accedian
+- Alaxala AX2600S and AX3600S 
 - Allied Telesis AlliedWare Plus
 - Aruba OS (Wireless Controllers/WAPs)
 - Aruba AOS-CX

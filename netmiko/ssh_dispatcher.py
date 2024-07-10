@@ -159,6 +159,7 @@ CLASS_MAPPER_BASE = {
     "adva_fsp150f2": AdvaAosFsp150F2SSH,
     "adva_fsp150f3": AdvaAosFsp150F3SSH,
     "alaxala_ax36s": AlaxalaAx36sSSH,
+    "alaxala_ax26s": AlaxalaAx36sSSH,
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "allied_telesis_awplus": AlliedTelesisAwplusSSH,
