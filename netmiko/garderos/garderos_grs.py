@@ -84,7 +84,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
             raise ValueError(f"Commit was unsuccessful. Device said: {commit_result}")
 
         # Garderos needs a second to apply the config
-        # If the "show configuration running" command is executed to quickly after committing
+        # If the "show configuration running" command is executed too quickly after committing
         # it will result in error "No running configuration found."
         sleep(1)
         return commit_result
@@ -127,7 +127,9 @@ class GarderosGrsSSH(CiscoSSHConnection):
         output = self.read_until_prompt(read_entire_line=True)
         return check_string in output
 
-    def _linux_mode(self, linux_command: str = "linux-shell", pattern: str = "") -> str:
+    def _linux_mode(
+        self, linux_command: str = "linux-shell", pattern: str = r"#"
+    ) -> str:
         """Enter into Linux mode.
 
         :param config_command: Linux command to send to the device
@@ -157,49 +159,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
                 raise ValueError("Failed to exit Linux mode")
         return output
 
-    def remove_and_replace_control_chars(self, s: str) -> str:
-        """Removing all occurrences of "\r\n\r" except of the last occurrence
-        Last occurence will be replaced by "\n"
-
-        :param s: String that needs to be cleansed
-        """
-        # Because the sequence "\r\n\r" also matches "\r\n\r\n",
-        # we need to replace "\r\n\r\n" with "\n\n" first
-        s = s.replace("\r\n\r\n", "\n\n")
-        # Now we have eliminated "\r\n\r\n"
-        # and can begin working on the remaining "\r\n\r" occurrences
-        control_seq = "\r\n\r"
-        if s.count(control_seq) == 0:
-            return s
-        else:
-            index_last_occurrence = s.rfind(control_seq)
-            index_rest_of_string = index_last_occurrence + len(control_seq)
-            return (
-                s[:index_last_occurrence].replace(control_seq, "")
-                + "\n"
-                + s[index_rest_of_string:]
-            )
-
-    def normalize_linefeeds(self, a_string: str) -> str:
-        """Optimised normalisation of line feeds
-
-        :param a_string: A string that may have non-normalized line feeds
-            i.e. output returned from device, or a device prompt
-        """
-        # Garderos has special behavior in terms of line feeds:
-        # The echo of commands sometimes contains "\r\n\r"
-        # which breaks the functionality of _sanitize_output().
-        # Therefore, this character sequence needs to be fixed
-        # before passing the string to normalize_linefeeds().
-
-        # First we will remove all the occurrences of "\r\n\r" except of the last one.
-        # The last occurrence will be replaced by "\r\n".
-        a_string = self.remove_and_replace_control_chars(a_string)
-
-        # Then we will pass the string to normalize_linefeeds() to replace all line feeds with "\n"
-        return super().normalize_linefeeds(a_string=a_string)
-
-    def send_config_command(
+    def _send_config_command(
         self,
         command_string: str,
         expect_string: Optional[str] = None,
@@ -216,13 +176,13 @@ class GarderosGrsSSH(CiscoSSHConnection):
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = True,
-    ) -> Union[str, List[Any], Dict[str, Any]]:
+    ) -> str:
         """
         Execute a command in configuration mode and raise error if command execution failed.
         Function neither checks if device is configuration mode nor turns on configuration mode.
         """
         # Send command to device
-        command_result = self.send_command(
+        command_result = self._send_command_str(
             command_string=command_string,
             expect_string=expect_string,
             read_timeout=read_timeout,
@@ -265,49 +225,16 @@ class GarderosGrsSSH(CiscoSSHConnection):
         terminator: str = r"#",
         bypass_commands: Optional[str] = None,
     ) -> str:
-        """
-        Optimised version of send_config_set() for Garderos.
-        Checks whether single config commands executed successfully.
 
-        Automatically exits/enters configuration mode.
-
-        :param config_commands: Multiple configuration commands to be sent to the device
-
-        :param exit_config_mode: Determines whether or not to exit config mode after complete
-
-        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param strip_prompt: Determines whether or not to strip the prompt
-
-        :param strip_command: Determines whether or not to strip the command
-
-        :param read_timeout: Absolute timer to send to read_channel_timing. Also adjusts
-        read_timeout in read_until_pattern calls.
-
-        :param config_mode_command: The command to enter into config mode
-
-        :param cmd_verify: Whether or not to verify command echo for each command in config_set
-
-        :param enter_config_mode: Do you enter config mode before sending config commands
-
-        :param error_pattern: Regular expression pattern to detect config errors in the
-        output.
-
-        :param terminator: Regular expression pattern to use as an alternate terminator in certain
-        situations.
-
-        :param bypass_commands: Regular expression pattern indicating configuration commands
-        where cmd_verify is automatically disabled.
-        """
         # The result of all commands will be collected to config_results
         config_results = ""
+
         # Set delay_factor to given value
         if delay_factor is None:
             delay_factor = self.select_delay_factor(0)
         else:
             delay_factor = self.select_delay_factor(delay_factor)
+
         # Verify if config_commands is an array
         if config_commands is None:
             return config_results
@@ -315,21 +242,20 @@ class GarderosGrsSSH(CiscoSSHConnection):
             config_commands = (config_commands,)
         if not hasattr(config_commands, "__iter__"):
             raise ValueError("Invalid argument passed into send_config_set")
+
         # Go to config mode. Use given config_mode_command if necessary.
         if enter_config_mode:
             if config_mode_command:
                 config_results += self.config_mode(config_mode_command)
             else:
                 config_results += self.config_mode()
+
         # Send all commands to the router and verify their successful execution
         for command in config_commands:
-            # Verification is done in send_config_command() function
+            # Verification is done in send_config_command()
             # Will raise error on execution failure
-            result = self.send_config_command(command)
-            config_results = f"{command}\n{result}\n"
-        # Exit config mode if needed
+            config_results += self._send_config_command(command)
+
         if exit_config_mode:
-            self.exit_config_mode()
-        # Return all results
-        # Will only be executed if no error occured
+            config_results += self.exit_config_mode()
         return config_results
