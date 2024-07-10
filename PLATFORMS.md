@@ -106,6 +106,7 @@
 - Sophos SFOS
 - Ubiquiti Unifi Switch
 - Versa Networks FlexVNF
+- Vertiv MPH Power Distribution Units
 - Watchguard Firebox
 - Zyxel NOS
 - 6WIND TurboRouter

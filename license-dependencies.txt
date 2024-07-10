@@ -1,27 +1,16 @@
-#### Netmiko dependencies
-#### 2022-03-23
+#### Netmiko itself
  
-Name           Version  License
--------------  -------  -------
-netmiko        4.1.0    MIT License                                         
+Name           License
+-------------  -------
+netmiko        MIT License
+telnetlib      PSF2
 
 ##### Direct dependencies
-Name           Version  License
--------------  -------  -------
-paramiko       2.10.4   GNU Library or Lesser General Public License (LGPL) 
-scp            0.14.4   GNU Library or Lesser General Public License (LGPL) 
-ntc-templates  3.0.0    Apache Software License                             
-pyserial       3.5      BSD License
-PyYAML         6.0      MIT License                                         
-
-##### Child dependencies
-Name                 Version  License
--------------        -------  -------
-PyNaCl               1.5.0    Apache License 2.0                                  
-bcrypt               3.2.0    Apache Software License                             
-textfsm              1.1.2    Apache Software License                             
-cryptography         37.0.0   Apache Software License; BSD License                
-pycparser            2.21     BSD License                                         
-cffi                 1.15.0   MIT License                                         
-future               0.18.2   MIT License                                         
-six                  1.16.0   MIT License                                         
+Name           License
+-------------  -------
+paramiko       GNU Library or Lesser General Public License (LGPL)
+scp            GNU Library or Lesser General Public License (LGPL)
+PyYAML         MIT License
+textfsm        Apache2
+ntc-templates  Apache2
+pyserial       BSD License

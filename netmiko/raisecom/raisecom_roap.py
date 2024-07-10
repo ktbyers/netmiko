@@ -3,7 +3,19 @@ import re
 import time
 from socket import socket
 
-from telnetlib import IAC, DO, DONT, WILL, WONT, SB, SE, ECHO, SGA, NAWS, Telnet
+from netmiko._telnetlib.telnetlib import (
+    IAC,
+    DO,
+    DONT,
+    WILL,
+    WONT,
+    SB,
+    SE,
+    ECHO,
+    SGA,
+    NAWS,
+    Telnet,
+)
 from netmiko.exceptions import NetmikoAuthenticationException
 
 
@@ -100,7 +112,7 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
 
         # set callback function to handle telnet options.
         assert isinstance(self.remote_conn, Telnet)
-        self.remote_conn.set_option_negotiation_callback(self._process_option)
+        self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
 
@@ -140,7 +152,7 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
                 time.sleep(0.5 * delay_factor)
                 i += 1
             except EOFError:
-                self.remote_conn.close()
+                self.remote_conn.close()  # type: ignore
                 msg = f"Login failed: {self.host}"
                 raise NetmikoAuthenticationException(msg)
 
@@ -155,5 +167,5 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
             return return_msg
 
         msg = f"Login failed: {self.host}"
-        self.remote_conn.close()
+        self.remote_conn.close()  # type: ignore
         raise NetmikoAuthenticationException(msg)

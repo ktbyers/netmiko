@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">from typing import Dict, Any, Optional
 import socket
-import telnetlib
+from netmiko._telnetlib import telnetlib
 
 try:
     import socks
@@ -47,7 +47,7 @@ class Telnet(telnetlib.Telnet):
         proxy_dict: Optional[Dict[str, Any]] = None,
     ) -&gt; None:
         self.proxy_dict = proxy_dict
-        super().__init__(host=host, port=port, timeout=timeout)
+        super().__init__(host=host, port=port, timeout=timeout)  # type: ignore
 
     def open(
         self,
@@ -162,7 +162,7 @@ and timeout are optional.</p></div>
         proxy_dict: Optional[Dict[str, Any]] = None,
     ) -&gt; None:
         self.proxy_dict = proxy_dict
-        super().__init__(host=host, port=port, timeout=timeout)
+        super().__init__(host=host, port=port, timeout=timeout)  # type: ignore
 
     def open(
         self,
@@ -205,7 +205,7 @@ unmaintained (so use at your own risk).
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>telnetlib.Telnet</li>
+<li>netmiko._telnetlib.telnetlib.Telnet</li>
 </ul>
 <h3>Methods</h3>
 <dl>

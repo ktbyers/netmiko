@@ -1,4 +1,5 @@
 """Controls selection of proper class based on the device type."""
+
 from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
 import re
@@ -129,6 +130,7 @@ from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
 from netmiko.ubiquiti import UbiquitiEdgeRouterSSH, UbiquitiEdgeRouterFileTransfer
 from netmiko.ubiquiti import UbiquitiEdgeSSH
 from netmiko.ubiquiti import UbiquitiUnifiSwitchSSH
+from netmiko.vertiv import VertivMPHSSH
 from netmiko.vyos import VyOSSSH
 from netmiko.watchguard import WatchguardFirewareSSH
 from netmiko.yamaha import YamahaSSH
@@ -161,7 +163,7 @@ CLASS_MAPPER_BASE = {
     "arista_eos": AristaSSH,
     "arris_cer": ArrisCERSSH,
     "aruba_os": ArubaOsSSH,
-    "aruba_cx": ArubaCxSSH,
+    "aruba_aoscx": ArubaCxSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
     "audiocode_72": Audiocode72SSH,
@@ -276,6 +278,7 @@ CLASS_MAPPER_BASE = {
     "ubiquiti_edgerouter": UbiquitiEdgeRouterSSH,
     "ubiquiti_edgeswitch": UbiquitiEdgeSSH,
     "ubiquiti_unifiswitch": UbiquitiUnifiSwitchSSH,
+    "vertiv_mph": VertivMPHSSH,
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "watchguard_fireware": WatchguardFirewareSSH,

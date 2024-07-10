@@ -4,6 +4,7 @@ Aruba OS support.
 For use with Aruba OS Controllers.
 
 """
+
 from typing import Any
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
