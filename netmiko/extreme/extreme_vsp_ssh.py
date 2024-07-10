@@ -1,4 +1,5 @@
 """Extreme Virtual Services Platform Support."""
+
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 

@@ -1,4 +1,5 @@
 """Dell N2/3/4000 base driver- supports DNOS6."""
+
 from netmiko.dell.dell_powerconnect import DellPowerConnectBase
 
 
