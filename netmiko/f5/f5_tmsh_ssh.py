@@ -1,6 +1,6 @@
 from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
-
+import re
 
 class F5TmshSSH(NoConfig, BaseConnection):
     def session_preparation(self) -> None:
@@ -36,3 +36,25 @@ class F5TmshSSH(NoConfig, BaseConnection):
         # Always try to send final 'exit' (command)
         self._session_log_fin = True
         self.write_channel(command + self.RETURN)
+
+    def find_failover(self) -> str:
+
+        #command = 'show failover'
+        pattern_act = 'Active'
+        pattern_stby = 'Standby'
+        pattern_off = 'Standalone'
+
+        output = self.find_prompt()
+
+        if re.search(pattern_off, output):
+            return "Off"
+
+        elif re.search(pattern_act, output):
+            return "Active"
+
+        elif re.search(pattern_stby, output):
+            return "Standby"
+
+        else:
+            raise ValueError("Act/Stby Pattern Error")
+            return None
