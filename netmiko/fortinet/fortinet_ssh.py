@@ -74,7 +74,9 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
             check_command, expect_string=self.prompt_pattern
         )
         return bool(
-            re.search(r"Virtual domain configuration: (multiple|enable)", output)
+            re.search(
+                r"Virtual domain configuration: (multiple|enable|split-task)", output
+            )
         )
 
     def _config_global(self) -> str:
