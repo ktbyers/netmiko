@@ -15,7 +15,7 @@ The containerlab node hostname is clab-srltest-srl1.
 ## Run the test
 
 ```
-sudo sh test_srl.sh 
+./test_srl.sh 
 ```
 
 ## Destroy containerlab Node
