@@ -170,7 +170,10 @@ SSH_MAPPER_DICT = {
     },
     "dell_os10": {
         "cmd": "show version",
-        "search_patterns": [r"Dell EMC Networking OS10.Enterprise"],
+        "search_patterns": [
+            r"Dell EMC Networking OS10.Enterprise",
+            r"Dell SmartFabric OS10[\s*|-]Enterprise",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
