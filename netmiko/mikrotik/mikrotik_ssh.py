@@ -63,9 +63,9 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         return ""
 
     def _prompt_handler(self, auto_find_prompt: bool) -> str:
-        """Prompt regex for MikroTik generates so it matches
-        only if prompt string is found in the end of string
-        (no more printable symbols were printed after it)
+        """Prompt regex for MikroTik is generated to match
+        only if the prompt string is at the end of the string
+        (with no more printable characters printed after it)
         """
         if auto_find_prompt:
             try:
