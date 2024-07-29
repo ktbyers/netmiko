@@ -140,6 +140,7 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         """MikroTik uses 'quit' command instead of 'exit'."""
         return super().cleanup(command=command)
 
+
 class MikrotikRouterOsSSH(MikrotikBase):
     """Mikrotik RouterOS SSH driver."""
 
