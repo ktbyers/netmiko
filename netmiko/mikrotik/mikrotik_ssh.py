@@ -150,6 +150,10 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
             command_string=command_string, cmd_verify=cmd_verify, **kwargs
         )
 
+    def cleanup(self, command: str = "quit") -> None:
+        """MikroTik uses 'quit' command instead of 'exit'."""
+        return super().cleanup(command=command)
+
 
 class MikrotikRouterOsSSH(MikrotikBase):
     """Mikrotik RouterOS SSH driver."""
