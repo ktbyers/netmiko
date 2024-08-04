@@ -25,9 +25,10 @@ from typing import Optional, Dict, List
 from typing.re import Pattern
 import re
 import socket
+import asyncio
 
 try:
-    from pysnmp.entity.rfc3413.oneliner import cmdgen
+    from pysnmp.hlapi.asyncio import cmdgen
 except ImportError:
     raise ImportError("pysnmp not installed; please install it: 'pip install pysnmp'")
 
@@ -304,6 +305,34 @@ class SNMPDetect(object):
                 self.snmp_target, timeout=1.5, retries=2
             )
 
+    async def _run_query(self, creds: object, oid: str) -> str:
+        """
+        Asynchronous getCmd query to the device.
+
+        Parameters
+        ----------
+        creds : UsmUserData or CommunityData object
+            The authentication credentials.
+        oid : str
+            The SNMP OID that you want to get.
+
+        Returns
+        -------
+        string : str
+            The string as part of the value from the OID you are trying to retrieve.
+        """
+        errorIndication, errorStatus, errorIndex, varBinds = await cmdgen.getCmd(
+            cmdgen.SnmpEngine(),
+            creds,
+            self.udp_transport_target,
+            cmdgen.ContextData(),
+            cmdgen.ObjectType(cmdgen.ObjectIdentity(oid)),
+        )
+
+        if not errorIndication and varBinds[0][1]:
+            return str(varBinds[0][1])
+        return ""
+
     def _get_snmpv3(self, oid: str) -> str:
         """
         Try to send an SNMP GET operation using SNMPv3 for the specified OID.
@@ -318,25 +347,19 @@ class SNMPDetect(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         """
-        cmd_gen = cmdgen.CommandGenerator()
 
-        (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
-            cmdgen.UsmUserData(
-                self.user,
-                self.auth_key,
-                self.encrypt_key,
-                authProtocol=self.auth_proto,
-                privProtocol=self.encryp_proto,
-            ),
-            self.udp_transport_target,
-            oid,
-            lookupNames=True,
-            lookupValues=True,
+        return asyncio.run(
+            self._run_query(
+                cmdgen.UsmUserData(
+                    self.user,
+                    self.auth_key,
+                    self.encrypt_key,
+                    authProtocol=self.auth_proto,
+                    privProtocol=self.encryp_proto,
+                ),
+                oid,
+            )
         )
-
-        if not error_detected and snmp_data[0][1]:
-            return str(snmp_data[0][1])
-        return ""
 
     def _get_snmpv2c(self, oid: str) -> str:
         """
@@ -352,19 +375,8 @@ class SNMPDetect(object):
         string : str
             The string as part of the value from the OID you are trying to retrieve.
         """
-        cmd_gen = cmdgen.CommandGenerator()
 
-        (error_detected, error_status, error_index, snmp_data) = cmd_gen.getCmd(
-            cmdgen.CommunityData(self.community),
-            self.udp_transport_target,
-            oid,
-            lookupNames=True,
-            lookupValues=True,
-        )
-
-        if not error_detected and snmp_data[0][1]:
-            return str(snmp_data[0][1])
-        return ""
+        return asyncio.run(self._run_query(cmdgen.CommunityData(self.community), oid))
 
     def _get_snmp(self, oid: str) -> str:
         """Wrapper for generic SNMP call."""
