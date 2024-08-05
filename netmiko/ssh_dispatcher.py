@@ -372,10 +372,10 @@ CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
 CLASS_MAPPER["maipu_telnet"] = MaipuTelnet
-CLASS_MAPPER["op_golt_944"] = OptilinkGOLT944Telnet
-CLASS_MAPPER["op_golt_924"] = OptilinkGOLT92416Telnet
-CLASS_MAPPER["op_eolt_1144"] = OptilinkEOLT1144Telnet
-CLASS_MAPPER["op_eolt_9702"] = OptilinkEOLT9702Telnet
+CLASS_MAPPER["optilink_golt_944_telnet"] = OptilinkGOLT944Telnet
+CLASS_MAPPER["optilink_golt_924_telnet"] = OptilinkGOLT92416Telnet
+CLASS_MAPPER["optilink_eolt_1144_telnet"] = OptilinkEOLT1144Telnet
+CLASS_MAPPER["optilink_eolt_9702_telnet"] = OptilinkEOLT9702Telnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
