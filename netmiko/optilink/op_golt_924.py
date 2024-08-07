@@ -1,4 +1,3 @@
-import time
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
@@ -15,8 +14,6 @@ class OptilinkGOLT92416Base(CiscoBaseConnection):
             output += self.read_until_pattern(pattern=r"gpon>")
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
-        print("exit_enable_mode")
-        print(self.find_prompt())
         return output
 
 

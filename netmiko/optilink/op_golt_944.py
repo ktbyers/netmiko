@@ -13,11 +13,6 @@ class OptilinkGOLT944Telnet(HuaweiTelnet):
     """Optilink GOLT 944 telnet driver"""
 
     def check_enable_mode(self, check_string: str = "<") -> bool:
-        """Check if in enable mode. Return boolean.
-
-        :param check_string: Identification of privilege mode from device
-        :type check_string: str
-        """
         self.write_channel(self.RETURN)
         output = self.read_until_prompt(read_entire_line=True)
         return check_string in output
@@ -25,18 +20,6 @@ class OptilinkGOLT944Telnet(HuaweiTelnet):
     def check_config_mode(
         self, check_string: str = "]", pattern: str = "", force_regex: bool = False
     ) -> bool:
-        """Checks if the device is in configuration mode or not.
-
-        :param check_string: Identification of configuration mode from the device
-        :type check_string: str
-
-        :param pattern: Pattern to terminate reading of channel
-        :type pattern: str
-
-        :param force_regex: Use regular expression pattern to find check_string in output
-        :type force_regex: bool
-
-        """
         self.write_channel(self.RETURN)
         # You can encounter an issue here (on router name changes) prefer delay-based solution
         if not pattern:
@@ -88,29 +71,18 @@ class OptilinkGOLT944Telnet(HuaweiTelnet):
             # Search for terminating pattern if defined
             if enable_pattern and not re.search(enable_pattern, output):
                 output += self.read_until_pattern(pattern=enable_pattern)
-            else:
-                if not self.check_enable_mode():
-                    raise ValueError(msg)
+            elif not self.check_enable_mode():
+                raise ValueError(msg)
 
-        except NetmikoTimeoutException:
-            raise ValueError(msg)
+        except NetmikoTimeoutException as e:
+            raise ValueError(msg) from e
 
         return output
 
     def config_mode(
         self, config_command: str = "sys", pattern: str = "", re_flags: int = 0
     ) -> str:
-        """Enter into config_mode.
 
-        :param config_command: Configuration command to send to the device
-        :type config_command: str
-
-        :param pattern: Pattern to terminate reading of channel
-        :type pattern: str
-
-        :param re_flags: Regular expression flags
-        :type re_flags: RegexFlag
-        """
         output = ""
         if not self.check_config_mode():
             self.write_channel(self.normalize_cmd(config_command))
@@ -128,14 +100,12 @@ class OptilinkGOLT944Telnet(HuaweiTelnet):
         return output
 
     def exit_enable_mode(self, exit_command: str = "quit") -> str:
-        """Exit enable mode.
 
-        :param exit_command: Command that exits the session from privileged mode
-        :type exit_command: str
-        """
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
+            self.read_until_pattern(pattern=exit_command)
+            # output += self.read_until_pattern(pattern=r">")
             output += self.read_until_prompt()
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
