@@ -30,8 +30,8 @@ class OptilinkEOLT9702Base(CiscoBaseConnection):
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
-            self.find_prompt()
-            output += self.read_until_prompt()
+            self.read_until_pattern(pattern=exit_command)
+            output += self.read_until_pattern(pattern=r"OP_OLT>")
             if self.check_enable_mode():
                 raise ValueError("Failed to exit enable mode.")
         return output
