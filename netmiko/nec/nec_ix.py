@@ -1,6 +1,6 @@
 import time
 import re
-from telnetlib import Telnet
+from netmiko._telnetlib.telnetlib import Telnet
 from typing import Any, Optional
 
 from netmiko.base_connection import BaseConnection
