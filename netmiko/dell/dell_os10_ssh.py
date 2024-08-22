@@ -1,4 +1,5 @@
 """Dell EMC Networking OS10 Driver - supports dellos10."""
+
 from typing import Any, Optional
 from netmiko.base_connection import BaseConnection
 from netmiko.cisco_base_connection import CiscoSSHConnection

@@ -4,7 +4,7 @@ import time
 from os.path import dirname, join
 from threading import Lock
 
-from netmiko import NetmikoTimeoutException
+from netmiko import NetmikoTimeoutException, log
 from netmiko.base_connection import BaseConnection
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
@@ -468,6 +468,7 @@ def test_strip_ansi_codes():
         "\x1b[J",  # code_erase_display
         "\x1b[0m",  # code_attrs_off
         "\x1b[7m",  # code_reverse
+        "\x1b[c",  # code_query_device
     ]
     for ansi_code in ansi_codes_to_strip:
         assert connection.strip_ansi_escape_codes(ansi_code) == ""
@@ -480,3 +481,13 @@ def test_strip_ansi_codes():
 
     # code_next_line must be substituted with a return
     assert connection.strip_ansi_escape_codes("\x1bE") == "\n"
+
+
+def test_remove_SecretsFilter_after_disconnection():
+    connection = BaseConnection(
+        host="testhost",  # Enter the hostname to pass initialization
+        auto_connect=False,  # No need to connect for the test purposes
+    )
+    connection.disconnect()
+
+    assert not log.filters

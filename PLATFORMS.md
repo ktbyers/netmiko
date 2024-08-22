@@ -8,7 +8,6 @@
 - Cisco IOS-XR
 - Cisco NX-OS
 - Cisco SG300
-- HP ProCurve
 - Juniper Junos
 - Linux
 
@@ -20,6 +19,7 @@
 - Alcatel AOS6/AOS8
 - Apresia Systems AEOS
 - ARRIS CER
+- Aruba OS Switch
 - AudioCodes Gateways & Controllers
 - Broadcom ICOS
 - Calix B6
@@ -42,6 +42,7 @@
 - Fiberstore FSOS
 - Hillstone StoneOS
 - HPE Comware7
+- HPE ProCurve
 - Huawei
 - Huawei OLT
 - Huawei SmartAX
@@ -72,12 +73,15 @@
 
 - A10
 - Accedian
+- Alaxala AX2600S and AX3600S 
 - Allied Telesis AlliedWare Plus
-- Aruba
+- Aruba OS (Wireless Controllers/WAPs)
+- Aruba AOS-CX
 - Brocade Fabric OS
 - C-DOT CROS
 - Ciena SAOS
 - Citrix Netscaler
+- Cisco APIC (Linux)
 - Cisco Telepresence
 - Cisco Viptela
 - Check Point GAiA
@@ -94,6 +98,7 @@
 - F5 TMSH
 - F5 Linux
 - Fortinet
+- Garderos GRS
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
@@ -104,6 +109,7 @@
 - Sophos SFOS
 - Ubiquiti Unifi Switch
 - Versa Networks FlexVNF
+- Vertiv MPH Power Distribution Units
 - Watchguard Firebox
 - Zyxel NOS
 - 6WIND TurboRouter
