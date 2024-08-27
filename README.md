@@ -48,7 +48,7 @@ Netmiko aims to accomplish both of these operations and to do it across a very b
 
 ## Installation
 
-To install netmiko, simply us pip:
+To install netmiko, simply use pip:
 
 ```
 $ pip install netmiko
