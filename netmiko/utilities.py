@@ -295,15 +295,23 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     else:
         # Try 'pip installed' ntc-templates
         try:
-            with pkg_resources.path(
-                package="ntc_templates", resource="parse.py"
-            ) as posix_path:
-                # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
-                template_dir = str(posix_path.parent.joinpath("templates"))
-                # This is for Netmiko automated testing
-                if _skip_ntc_package:
-                    raise ModuleNotFoundError()
-
+            # New API for Python 3.13+
+            if sys.version_info >= (3, 13):
+                with pkg_resources.path("ntc_templates", "parse.py") as posix_path:
+                    # Example: /venv/netmiko/lib/python3.13/site-packages/ntc_templates/templates
+                    template_dir = str(posix_path.parent.joinpath("templates"))
+                    # This is for Netmiko automated testing
+                    if _skip_ntc_package:
+                        raise ModuleNotFoundError()
+            else:
+                with pkg_resources.path(
+                    package="ntc_templates", resource="parse.py"
+                ) as posix_path:
+                    # Example: /opt/venv/netmiko/lib/python3.9/site-packages/ntc_templates/templates
+                    template_dir = str(posix_path.parent.joinpath("templates"))
+                    # This is for Netmiko automated testing
+                    if _skip_ntc_package:
+                        raise ModuleNotFoundError()
         except ModuleNotFoundError:
             # Finally check in ~/ntc-templates/ntc_templates/templates
             home_dir = os.path.expanduser("~")
