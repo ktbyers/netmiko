@@ -2372,6 +2372,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
                      very bottom of the screen)
         ESC[c        Query Device (used by MikroTik in 'Safe-Mode')
+        ESC[2004h    Enable bracketed paste mode
+        ESC[2004l    Disable bracketed paste mode
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
@@ -2405,7 +2407,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_cursor_up = chr(27) + r"\[\d*A"
         code_cursor_down = chr(27) + r"\[\d*B"
         code_wrap_around = chr(27) + r"\[\?7h"
-        code_bracketed_paste_mode = chr(27) + r"\[\?2004h"
+        code_enable_bracketed_paste_mode = chr(27) + r"\[\?2004h"
+        code_disable_bracketed_paste_mode = chr(27) + r"\[\?2004l"
         code_underline = chr(27) + r"\[4m"
         code_query_device = chr(27) + r"\[c"
 
@@ -2437,7 +2440,8 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_cursor_down,
             code_cursor_forward,
             code_wrap_around,
-            code_bracketed_paste_mode,
+            code_enable_bracketed_paste_mode,
+            code_disable_bracketed_paste_mode,
             code_underline,
             code_query_device,
         ]
