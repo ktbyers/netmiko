@@ -57,6 +57,6 @@ class ReadTimeout(ReadException):
 
 
 class NetmikoParsingException(ReadException):
-    """Exception raised when there is a generic parsing error."""
+    """Exception raised when there is a parsing error."""
 
     pass

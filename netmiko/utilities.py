@@ -356,15 +356,18 @@ def _textfsm_parse(
         structured_data = clitable_to_dict(textfsm_obj)
         if structured_data == []:
             if raise_parsing_error:
-                raise NetmikoParsingException(
-                    "Failed to parse CLI output with TextFSM, empty list returned."
-                )
+                msg = """Failed to parse CLI output using TextFSM
+(template found, but unexpected data?)"""
+                raise NetmikoParsingException(msg)
             return raw_output
         else:
             return structured_data
     except (FileNotFoundError, CliTableError) as error:
         if raise_parsing_error:
-            raise error
+            msg = f"""Failed to parse CLI output using TextFSM
+(template not found for command and device_type/platform?)
+{error}"""
+            raise NetmikoParsingException(msg)
         return raw_output
 
 
@@ -442,10 +445,17 @@ def get_structured_data_ttp(
         ttp_parser = ttp(data=raw_output, template=template)
         ttp_parser.parse(one=True)
         result: List[Any] = ttp_parser.result(format="raw")
+        # TTP will treat a string as a directly passed template so try to catch this
+        if raise_parsing_error and result == [[{}]]:
+            msg = """Failed to parse CLI output using TTP
+Empty results returned (TTP template could not be found?)"""
+            raise NetmikoParsingException(msg)
         return result
     except Exception as exception:
         if raise_parsing_error:
-            raise exception
+            raise NetmikoParsingException(
+                f"Failed to parse CLI output using TTP\n{exception}"
+            )
         return raw_output
 
 
@@ -568,7 +578,9 @@ def get_structured_data_genie(
         return parsed_output
     except Exception as exception:
         if raise_parsing_error:
-            raise exception
+            raise NetmikoParsingException(
+                f"Failed to parse CLI output using Genie\n{exception}"
+            )
         return raw_output
 
 
@@ -609,7 +621,9 @@ The argument 'ttp_template=/path/to/template.ttp' must be set when use_ttp=True
             raise ValueError(msg)
         else:
             structured_output_ttp = get_structured_data_ttp(
-                raw_data, template=ttp_template
+                raw_data,
+                template=ttp_template,
+                raise_parsing_error=raise_parsing_error,
             )
 
         if not isinstance(structured_output_ttp, str):
@@ -617,7 +631,10 @@ The argument 'ttp_template=/path/to/template.ttp' must be set when use_ttp=True
 
     if use_genie:
         structured_output_genie = get_structured_data_genie(
-            raw_data, platform=platform, command=command
+            raw_data,
+            platform=platform,
+            command=command,
+            raise_parsing_error=raise_parsing_error,
         )
         if not isinstance(structured_output_genie, str):
             return structured_output_genie
