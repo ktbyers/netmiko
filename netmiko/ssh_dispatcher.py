@@ -17,6 +17,7 @@ from netmiko.arista import AristaFileTransfer
 from netmiko.arris import ArrisCERSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaOsSSH, ArubaCxSSH
+from netmiko.asterfusion import AsterfusionSSH
 from netmiko.audiocode import (
     Audiocode72SSH,
     Audiocode66SSH,
@@ -167,6 +168,7 @@ CLASS_MAPPER_BASE = {
     "arista_eos": AristaSSH,
     "arris_cer": ArrisCERSSH,
     "aruba_os": ArubaOsSSH,
+    "asterfusion_asternos": AsterfusionSSH,
     "aruba_aoscx": ArubaCxSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,

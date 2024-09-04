@@ -82,7 +82,7 @@ class AsterfusionBase(NoEnable, CiscoSSHConnection):
         return super().save_config(cmd="write", confirm=True, confirm_response="y")
 
 
-class AsterfusionSSH(NoEnable, AsterfusionBase):
+class AsterfusionSSH(AsterfusionBase):
 
     def send_command(
         self,
