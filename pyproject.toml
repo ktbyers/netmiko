@@ -39,11 +39,7 @@ pytest = "8.3.3"
 pyflakes = "3.2.0"
 pylama = "8.4.1"
 twine = "5.1.1"
-# docutils/poetry release issue on 0.21.1
-docutils = [
-    {version = "<=0.20", python = "3.8.*"},
-    {version = ">=0.21.2", python = ">=3.9"}
-]
+docutils = "0.21.2"
 pysnmp = "6.2.6"
 pdoc3 = "0.11.1"
 types-paramiko = "3.5.0.20240918"
