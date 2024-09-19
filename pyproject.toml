@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "netmiko"
-version = "4.4.0"
+version = "5.0.0"
 description = "Multi-vendor library to simplify legacy CLI connections to network devices"
 authors = ["Kirk Byers <ktbyers@twb-tech.com>"]
 license = "MIT"
@@ -12,7 +12,6 @@ readme = "README.md"
 repository = "https://github.com/ktbyers/netmiko"
 classifiers = [
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -21,7 +20,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
+python = ">=3.9,<4.0"
 setuptools = ">=65.0.0"
 paramiko = ">=2.9.5"
 scp = ">=0.13.6"
@@ -32,24 +31,19 @@ pyserial = ">=3.3"
 cffi = ">=1.17.0rc1"
 
 [tool.poetry.group.dev.dependencies]
-black = "24.4.2"
-mypy = "1.10.1"
+black = "24.8.0"
+mypy = "1.11.2"
 mypy-extensions = "1.0.0"
-PyYAML = "6.0.1"
-pytest = "8.2.2"
-# Issue with build failure on pyflakes 2.5.0
+PyYAML = "6.0.2"
+pytest = "8.3.3"
 pyflakes = "3.2.0"
 pylama = "8.4.1"
 twine = "5.1.1"
-# docutils/poetry release issue on 0.21.1
-docutils = [
-    {version = "<=0.20", python = "3.8.*"},
-    {version = ">=0.21.2", python = ">=3.9"}
-]
-pysnmp = "6.2.4"
-pdoc3 = "0.10.0"
-types-paramiko = "3.4.0.20240423"
-types-PyYAML = "6.0.12.20240311"
+docutils = "0.21.2"
+pysnmp = "6.2.6"
+pdoc3 = "0.11.1"
+types-paramiko = "3.5.0.20240918"
+types-PyYAML = "6.0.12.20240917"
 
 [tool.poetry.group.parsers]
 optional = true
