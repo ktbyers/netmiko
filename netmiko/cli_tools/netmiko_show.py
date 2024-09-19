@@ -1,18 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Return output from single show cmd using Netmiko."""
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import argparse
 import sys
 import os
 import subprocess
-import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-try:
-    from Queue import Queue
-except ImportError:
-    from queue import Queue
 from datetime import datetime
 from getpass import getpass
 
@@ -28,7 +21,9 @@ if not os.path.exists(GREP):
     GREP = "/usr/bin/grep"
 NETMIKO_BASE_DIR = "~/.netmiko"
 ERROR_PATTERN = "%%%failed%%%"
-__version__ = "0.1.0"
+__version__ = "5.0.0"
+
+max_workers = int(os.environ.get("NETMIKO_MAX_THREADS", 10))
 
 
 def grepx(files, pattern, grep_options, use_colors=True):
@@ -51,15 +46,14 @@ def grepx(files, pattern, grep_options, use_colors=True):
     return ""
 
 
-def ssh_conn(device_name, a_device, cli_command, output_q):
+def ssh_conn(device_name, a_device, cli_command):
     try:
-        net_connect = ConnectHandler(**a_device)
-        net_connect.enable()
-        output = net_connect.send_command_expect(cli_command)
-        net_connect.disconnect()
+        with ConnectHandler(**a_device) as net_connect:
+            net_connect.enable()
+            output = net_connect.send_command_expect(cli_command)
+            return device_name, output
     except Exception:
-        output = ERROR_PATTERN
-    output_q.put({device_name: output})
+        return device_name, ERROR_PATTERN
 
 
 def parse_arguments(args):
@@ -134,7 +128,8 @@ def main(args):
     use_cached_files = cli_args.use_cache
     hide_failed = cli_args.hide_failed
 
-    output_q = Queue()
+    # device_group is a dictionary of all the devices to connect to which might be a single
+    # device or a group of devices.
     my_devices = load_devices()
     if device_or_group == "all":
         device_group = obtain_all_devices(my_devices)
@@ -156,7 +151,9 @@ def main(args):
     # Retrieve output from devices
     my_files = []
     failed_devices = []
+    results = {}
     if not use_cached_files:
+        device_tasks = []
         for device_name, a_device in device_group.items():
             if cli_username:
                 a_device["username"] = cli_username
@@ -166,27 +163,24 @@ def main(args):
                 a_device["secret"] = cli_secret
             if not cmd_arg:
                 cli_command = SHOW_RUN_MAPPER.get(a_device["device_type"], "show run")
-            my_thread = threading.Thread(
-                target=ssh_conn, args=(device_name, a_device, cli_command, output_q)
-            )
-            my_thread.start()
-        # Make sure all threads have finished
-        main_thread = threading.current_thread()
-        for some_thread in threading.enumerate():
-            if some_thread != main_thread:
-                some_thread.join()
-        # Write files
-        while not output_q.empty():
-            my_dict = output_q.get()
-            netmiko_base_dir, netmiko_full_dir = find_netmiko_dir()
-            ensure_dir_exists(netmiko_base_dir)
-            ensure_dir_exists(netmiko_full_dir)
-            for device_name, output in my_dict.items():
-                file_name = write_tmp_file(device_name, output)
-                if ERROR_PATTERN not in output:
-                    my_files.append(file_name)
-                else:
-                    failed_devices.append(device_name)
+            device_tasks.append((device_name, a_device, cli_command))
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(ssh_conn, *args) for args in device_tasks]
+            for future in as_completed(futures):
+                device_name, output = future.result()
+                results[device_name] = output
+
+        netmiko_base_dir, netmiko_full_dir = find_netmiko_dir()
+        ensure_dir_exists(netmiko_base_dir)
+        ensure_dir_exists(netmiko_full_dir)
+        for device_name, output in results.items():
+
+            file_name = write_tmp_file(device_name, output)
+            if ERROR_PATTERN not in output:
+                my_files.append(file_name)
+            else:
+                failed_devices.append(device_name)
     else:
         for device_name in device_group:
             file_name = obtain_netmiko_filename(device_name)
