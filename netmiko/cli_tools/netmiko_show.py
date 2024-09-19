@@ -11,10 +11,10 @@ from getpass import getpass
 
 from netmiko import ConnectHandler
 from netmiko.utilities import load_devices, display_inventory
-from netmiko.utilities import obtain_all_devices
 from netmiko.utilities import obtain_netmiko_filename, write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
+from netmiko.cli_tools.cli_helpers import obtain_devices
 
 GREP = "/bin/grep"
 if not os.path.exists(GREP):
@@ -103,6 +103,8 @@ def main_ep():
 
 def main(args):
     start_time = datetime.now()
+
+    # CLI ARGS #####
     cli_args = parse_arguments(args)
 
     cli_username = cli_args.username if cli_args.username else None
@@ -128,25 +130,8 @@ def main(args):
     use_cached_files = cli_args.use_cache
     hide_failed = cli_args.hide_failed
 
-    # device_group is a dictionary of all the devices to connect to which might be a single
-    # device or a group of devices.
-    my_devices = load_devices()
-    if device_or_group == "all":
-        device_group = obtain_all_devices(my_devices)
-    else:
-        try:
-            devicedict_or_group = my_devices[device_or_group]
-            device_group = {}
-            if isinstance(devicedict_or_group, list):
-                for tmp_device_name in devicedict_or_group:
-                    device_group[tmp_device_name] = my_devices[tmp_device_name]
-            else:
-                device_group[device_or_group] = devicedict_or_group
-        except KeyError:
-            return (
-                "Error reading from netmiko devices file."
-                " Device or group not found: {0}".format(device_or_group)
-            )
+    # DEVICE LOADING #####
+    devices = obtain_devices(device_or_group)
 
     # Retrieve output from devices
     my_files = []
@@ -154,7 +139,7 @@ def main(args):
     results = {}
     if not use_cached_files:
         device_tasks = []
-        for device_name, a_device in device_group.items():
+        for device_name, a_device in devices.items():
             if cli_username:
                 a_device["username"] = cli_username
             if cli_password:
@@ -182,7 +167,7 @@ def main(args):
             else:
                 failed_devices.append(device_name)
     else:
-        for device_name in device_group:
+        for device_name in devices:
             file_name = obtain_netmiko_filename(device_name)
             try:
                 with open(file_name) as f:
