@@ -15,8 +15,8 @@ from netmiko.utilities import obtain_netmiko_filename, write_tmp_file, ensure_di
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
 from netmiko.cli_tools import ERROR_PATTERN, GREP, MAX_WORKERS, __version__
-from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params, ssh_conn
-from netmiko.cli_tools.cli_helpers import output_dispatcher
+from netmiko.cli_tools.helpers import obtain_devices, update_device_params, ssh_conn
+from netmiko.cli_tools.outputters import output_dispatcher
 
 
 def grepx(files, pattern, grep_options, use_colors=True):
