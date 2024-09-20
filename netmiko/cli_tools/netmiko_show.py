@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from datetime import datetime
 from getpass import getpass
+from rich import print
 
 from netmiko.utilities import load_devices, display_inventory
 from netmiko.utilities import obtain_netmiko_filename, write_tmp_file, ensure_dir_exists
@@ -15,6 +16,7 @@ from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
 from netmiko.cli_tools import ERROR_PATTERN, GREP, MAX_WORKERS, __version__
 from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params, ssh_conn
+from netmiko.cli_tools.cli_helpers import output_dispatcher
 
 
 def grepx(files, pattern, grep_options, use_colors=True):
@@ -70,6 +72,9 @@ def parse_arguments(args):
     parser.add_argument(
         "--hide-failed", help="Hide failed devices", action="store_true"
     )
+    parser.add_argument(
+        "--json", help="Output results in JSON format", action="store_true"
+    )
     parser.add_argument("--version", help="Display version", action="store_true")
     cli_args = parser.parse_args(args)
     if not cli_args.list_devices and not cli_args.version:
@@ -102,6 +107,7 @@ def main(args):
         display_inventory(my_devices)
         return 0
 
+    output_json = cli_args.json
     cli_command = cli_args.cmd
     cmd_arg = False
     if cli_command:
@@ -147,16 +153,14 @@ def main(args):
                 device_name, output = future.result()
                 results[device_name] = output
 
-        netmiko_base_dir, netmiko_full_dir = find_netmiko_dir()
-        ensure_dir_exists(netmiko_base_dir)
-        ensure_dir_exists(netmiko_full_dir)
-        for device_name, output in results.items():
+        # OUTPUT PROCESSING #####
+        out_format = "text"
+        if output_json:
+            out_format = "json"
+        # elif output_yaml:
+        #    out_format = "yaml"
+        output_dispatcher(out_format, results)
 
-            file_name = write_tmp_file(device_name, output)
-            if ERROR_PATTERN not in output:
-                my_files.append(file_name)
-            else:
-                failed_devices.append(device_name)
     else:
         for device_name in devices:
             file_name = obtain_netmiko_filename(device_name)
@@ -170,8 +174,8 @@ def main(args):
             else:
                 failed_devices.append(device_name)
 
-    grep_options = []
-    grepx(my_files, pattern, grep_options)
+    # grep_options = []
+    # grepx(my_files, pattern, grep_options)
     if cli_args.display_runtime:
         print("Total time: {0}".format(datetime.now() - start_time))
 

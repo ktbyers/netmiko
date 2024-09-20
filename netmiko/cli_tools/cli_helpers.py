@@ -1,7 +1,14 @@
 from typing import Any, Dict
+import json
+from rich import print, print_json
+from rich.console import Console
+from rich.panel import Panel
+from rich.theme import Theme
+
 from netmiko import ConnectHandler
 from netmiko.utilities import load_devices, obtain_all_devices
 from netmiko.cli_tools import ERROR_PATTERN
+
 
 
 def ssh_conn(device_name, device_params, cli_command=None, cfg_command=None):
@@ -58,3 +65,54 @@ def update_device_params(params, username=None, password=None, secret=None):
     if secret:
         params["secret"] = secret
     return params
+
+
+def output_text(results):
+    # Create a custom theme for consistent coloring
+    custom_theme = Theme({
+        "device_name": "bold magenta",
+        "border": "cyan",
+        "output": "green",
+    })
+
+    console = Console(theme=custom_theme)
+    for device_name, output in results.items():
+        panel = Panel(
+            output,
+            title=device_name,
+            expand=False,
+            border_style="border",
+            title_align="left",
+            padding=(1, 1),
+        )
+        console.print()
+        console.print(panel)
+        console.print()
+#        print()
+#        print("-" * 40)
+#        print(device_name)
+#        print(output)
+#        print("-" * 40)
+
+
+def output_json(results):
+    for device_name, output in results.items():
+        if output_json:
+            # Try to parse the output as JSON
+            json_data = json.loads(output)
+            print_json(json.dumps({device_name: json_data}))
+
+
+def output_yaml(results):
+    pass
+
+
+def output_dispatcher(out_format, results):
+
+    output_functions = {
+        'text': output_text,
+        'json': output_json,
+        'yaml': output_yaml
+    }
+    func = output_functions.get(out_format, output_text)
+    return func(results)
