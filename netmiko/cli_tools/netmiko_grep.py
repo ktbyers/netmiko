@@ -12,16 +12,8 @@ from netmiko.utilities import load_devices, display_inventory
 from netmiko.utilities import obtain_netmiko_filename, write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
-from netmiko.cli_tools import ERROR_PATTERN
+from netmiko.cli_tools import ERROR_PATTERN, GREP, MAX_WORKERS, __version__
 from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params, ssh_conn
-
-GREP = "/bin/grep"
-if not os.path.exists(GREP):
-    GREP = "/usr/bin/grep"
-NETMIKO_BASE_DIR = "~/.netmiko"
-__version__ = "5.0.0"
-
-max_workers = int(os.environ.get("NETMIKO_MAX_THREADS", 10))
 
 
 def grepx(files, pattern, grep_options, use_colors=True):
@@ -147,7 +139,7 @@ def main(args):
             )
 
         # THREADING #####
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             futures = [executor.submit(ssh_conn, **kwargs) for kwargs in device_tasks]
             for future in as_completed(futures):
                 device_name, output = future.result()
