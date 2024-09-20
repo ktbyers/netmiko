@@ -18,7 +18,7 @@ from netmiko.utilities import load_devices, display_inventory
 from netmiko.utilities import write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
-from netmiko.cli_tools.cli_helpers import obtain_devices
+from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params
 
 GREP = "/bin/grep"
 if not os.path.exists(GREP):
@@ -26,16 +26,6 @@ if not os.path.exists(GREP):
 NETMIKO_BASE_DIR = "~/.netmiko"
 ERROR_PATTERN = "%%%failed%%%"
 __version__ = "5.0.0"
-
-PY2 = sys.version_info.major == 2
-PY3 = sys.version_info.major == 3
-
-if sys.version_info.major == 3:
-    string_types = (str,)
-    text_type = str
-else:
-    string_types = (basestring,)  # noqa
-    text_type = unicode  # noqa
 
 
 def grepx(files, pattern, grep_options, use_colors=True):
@@ -58,14 +48,13 @@ def grepx(files, pattern, grep_options, use_colors=True):
     return ""
 
 
-def ssh_conn(device_name, a_device, cfg_command, output_q):
+def ssh_conn(device_name, device_params, cfg_command, output_q):
     try:
-        net_connect = ConnectHandler(**a_device)
-        net_connect.enable()
-        if isinstance(cfg_command, string_types):
-            cfg_command = [cfg_command]
-        output = net_connect.send_config_set(cfg_command)
-        net_connect.disconnect()
+        with ConnectHandler(**device_params) as net_connect:
+            net_connect.enable()
+            if isinstance(cfg_command, str):
+                cfg_command = [cfg_command]
+            output = net_connect.send_config_set(cfg_command)
     except Exception:
         output = ERROR_PATTERN
     output_q.put({device_name: output})
@@ -162,17 +151,22 @@ def main(args):
     # Retrieve output from devices
     my_files = []
     failed_devices = []
-    for device_name, a_device in devices.items():
-        if cli_username:
-            a_device["username"] = cli_username
-        if cli_password:
-            a_device["password"] = cli_password
-        if cli_secret:
-            a_device["secret"] = cli_secret
+
+    # UPDATE DEVICE PARAMS (WITH CLI ARGS) / Create Task List #####
+    for device_name, device_params in devices.items():
+        update_device_params(
+            device_params,
+            username=cli_username,
+            password=cli_password,
+            secret=cli_secret,
+        )
         if not cmd_arg:
-            cli_command = SHOW_RUN_MAPPER.get(a_device["device_type"], "show run")
+            device_type = device_params["device_type"]
+            cli_command = SHOW_RUN_MAPPER.get(device_type, "show run")
+
+        # THREADING #####
         my_thread = threading.Thread(
-            target=ssh_conn, args=(device_name, a_device, cli_command, output_q)
+            target=ssh_conn, args=(device_name, device_params, cli_command, output_q)
         )
         my_thread.start()
     # Make sure all threads have finished

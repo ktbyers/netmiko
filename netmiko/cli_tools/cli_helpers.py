@@ -32,3 +32,13 @@ def obtain_devices(device_or_group: str) -> Dict[str, Dict[str, Any]]:
             )
 
     return devices
+
+
+def update_device_params(params, username=None, password=None, secret=None):
+    if username:
+        params["username"] = username
+    if password:
+        params["password"] = password
+    if secret:
+        params["secret"] = secret
+    return params

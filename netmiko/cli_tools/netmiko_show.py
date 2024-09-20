@@ -14,7 +14,7 @@ from netmiko.utilities import load_devices, display_inventory
 from netmiko.utilities import obtain_netmiko_filename, write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
-from netmiko.cli_tools.cli_helpers import obtain_devices
+from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params
 
 GREP = "/bin/grep"
 if not os.path.exists(GREP):
@@ -46,11 +46,11 @@ def grepx(files, pattern, grep_options, use_colors=True):
     return ""
 
 
-def ssh_conn(device_name, a_device, cli_command):
+def ssh_conn(device_name, device_params, cli_command):
     try:
-        with ConnectHandler(**a_device) as net_connect:
+        with ConnectHandler(**device_params) as net_connect:
             net_connect.enable()
-            output = net_connect.send_command_expect(cli_command)
+            output = net_connect.send_command(cli_command)
             return device_name, output
     except Exception:
         return device_name, ERROR_PATTERN
@@ -138,18 +138,22 @@ def main(args):
     failed_devices = []
     results = {}
     if not use_cached_files:
-        device_tasks = []
-        for device_name, a_device in devices.items():
-            if cli_username:
-                a_device["username"] = cli_username
-            if cli_password:
-                a_device["password"] = cli_password
-            if cli_secret:
-                a_device["secret"] = cli_secret
-            if not cmd_arg:
-                cli_command = SHOW_RUN_MAPPER.get(a_device["device_type"], "show run")
-            device_tasks.append((device_name, a_device, cli_command))
 
+        # UPDATE DEVICE PARAMS (WITH CLI ARGS) / Create Task List #####
+        device_tasks = []
+        for device_name, device_params in devices.items():
+            update_device_params(
+                device_params,
+                username=cli_username,
+                password=cli_password,
+                secret=cli_secret,
+            )
+            if not cmd_arg:
+                device_type = device_params["device_type"]
+                cli_command = SHOW_RUN_MAPPER.get(device_type, "show run")
+            device_tasks.append((device_name, device_params, cli_command))
+
+        # THREADING #####
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = [executor.submit(ssh_conn, *args) for args in device_tasks]
             for future in as_completed(futures):
