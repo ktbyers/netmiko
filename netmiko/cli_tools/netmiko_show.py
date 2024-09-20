@@ -75,6 +75,7 @@ def parse_arguments(args):
     parser.add_argument(
         "--json", help="Output results in JSON format", action="store_true"
     )
+    parser.add_argument("--raw", help="Display raw output", action="store_true")
     parser.add_argument("--version", help="Display version", action="store_true")
     cli_args = parser.parse_args(args)
     if not cli_args.list_devices and not cli_args.version:
@@ -108,6 +109,7 @@ def main(args):
         return 0
 
     output_json = cli_args.json
+    output_raw = cli_args.raw
     cli_command = cli_args.cmd
     cmd_arg = False
     if cli_command:
@@ -157,6 +159,8 @@ def main(args):
         out_format = "text"
         if output_json:
             out_format = "json"
+        elif output_raw:
+            out_format = "raw"
         # elif output_yaml:
         #    out_format = "yaml"
         output_dispatcher(out_format, results)
