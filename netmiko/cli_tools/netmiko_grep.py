@@ -148,7 +148,7 @@ def main(args):
 
         # THREADING #####
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = [executor.submit(ssh_conn, *kwargs) for kwargs in device_tasks]
+            futures = [executor.submit(ssh_conn, **kwargs) for kwargs in device_tasks]
             for future in as_completed(futures):
                 device_name, output = future.result()
                 results[device_name] = output
