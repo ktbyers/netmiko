@@ -4,14 +4,9 @@ import argparse
 import sys
 import os
 import subprocess
-import threading
-
-try:
-    from Queue import Queue
-except ImportError:
-    from queue import Queue
 from datetime import datetime
 from getpass import getpass
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from netmiko import ConnectHandler
 from netmiko.utilities import load_devices, display_inventory
@@ -19,6 +14,8 @@ from netmiko.utilities import write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
 from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params
+
+max_workers = int(os.environ.get("NETMIKO_MAX_THREADS", 10))
 
 GREP = "/bin/grep"
 if not os.path.exists(GREP):
@@ -48,16 +45,16 @@ def grepx(files, pattern, grep_options, use_colors=True):
     return ""
 
 
-def ssh_conn(device_name, device_params, cfg_command, output_q):
+def ssh_conn(device_name, device_params, cfg_command):
     try:
         with ConnectHandler(**device_params) as net_connect:
             net_connect.enable()
             if isinstance(cfg_command, str):
                 cfg_command = [cfg_command]
             output = net_connect.send_config_set(cfg_command)
+            return device_name, output
     except Exception:
-        output = ERROR_PATTERN
-    output_q.put({device_name: output})
+        return device_name, ERROR_PATTERN
 
 
 def parse_arguments(args):
@@ -143,16 +140,16 @@ def main(args):
     pattern = r"."
     hide_failed = cli_args.hide_failed
 
-    output_q = Queue()
-
     # DEVICE LOADING #####
     devices = obtain_devices(device_or_group)
 
     # Retrieve output from devices
     my_files = []
     failed_devices = []
+    results = {}
 
     # UPDATE DEVICE PARAMS (WITH CLI ARGS) / Create Task List #####
+    device_tasks = []
     for device_name, device_params in devices.items():
         update_device_params(
             device_params,
@@ -163,29 +160,24 @@ def main(args):
         if not cmd_arg:
             device_type = device_params["device_type"]
             cli_command = SHOW_RUN_MAPPER.get(device_type, "show run")
+        device_tasks.append((device_name, device_params, cli_command))
 
-        # THREADING #####
-        my_thread = threading.Thread(
-            target=ssh_conn, args=(device_name, device_params, cli_command, output_q)
-        )
-        my_thread.start()
-    # Make sure all threads have finished
-    main_thread = threading.current_thread()
-    for some_thread in threading.enumerate():
-        if some_thread != main_thread:
-            some_thread.join()
-    # Write files
-    while not output_q.empty():
-        my_dict = output_q.get()
-        netmiko_base_dir, netmiko_full_dir = find_netmiko_dir()
-        ensure_dir_exists(netmiko_base_dir)
-        ensure_dir_exists(netmiko_full_dir)
-        for device_name, output in my_dict.items():
-            file_name = write_tmp_file(device_name, output)
-            if ERROR_PATTERN not in output:
-                my_files.append(file_name)
-            else:
-                failed_devices.append(device_name)
+    # THREADING #####
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(ssh_conn, *args) for args in device_tasks]
+        for future in as_completed(futures):
+            device_name, output = future.result()
+            results[device_name] = output
+
+    netmiko_base_dir, netmiko_full_dir = find_netmiko_dir()
+    ensure_dir_exists(netmiko_base_dir)
+    ensure_dir_exists(netmiko_full_dir)
+    for device_name, output in results.items():
+        file_name = write_tmp_file(device_name, output)
+        if ERROR_PATTERN not in output:
+            my_files.append(file_name)
+        else:
+            failed_devices.append(device_name)
 
     grep_options = []
     grepx(my_files, pattern, grep_options)
