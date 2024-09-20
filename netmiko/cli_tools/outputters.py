@@ -31,19 +31,28 @@ def output_text(results):
         console.print()
 
 
-#        print()
-#        print("-" * 40)
-#        print(device_name)
-#        print(output)
-#        print("-" * 40)
-
-
 def output_json(results):
     for device_name, output in results.items():
         if output_json:
-            # Try to parse the output as JSON
-            json_data = json.loads(output)
-            print_json(json.dumps({device_name: json_data}))
+            try:
+                json_data = json.loads(output)
+                print_json(json.dumps({device_name: json_data}))
+            except json.decoder.JSONDecodeError as e:
+                msg = f"""
+
+Error processing output for device: {device_name}
+
+In order to use display the output in JSON (--json arg), you must provide the output in JSON
+format (i.e. device supports '| json' or parse with TextFSM)
+
+"""
+                new_exception = json.decoder.JSONDecodeError(
+                    msg,
+                    e.doc,
+                    e.pos
+                )
+                # Raise the new exception, chaining it to the original one
+                raise new_exception from e
 
 
 def output_yaml(results):
