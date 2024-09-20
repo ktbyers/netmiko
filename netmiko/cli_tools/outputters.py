@@ -45,28 +45,30 @@ def output_text(results):
         console.print()
 
 
-def output_json(results):
+def output_json(results, raw=False):
     console = Console(theme=CUSTOM_THEME)
+    border_color = CUSTOM_THEME.styles.get("border").color.name
+
     for device_name, output in results.items():
         try:
             json_data = json.loads(output)
             formatted_json = json.dumps({device_name: json_data}, indent=2)
+            banner = "-" * len(device_name)
+            if raw:
+                print()
+                print(device_name)
+                print(banner)
+                print(formatted_json)
+                print()
+            else:
+                # Create a syntax-highlighted version of the JSON
+                syntax = Syntax(formatted_json, "json", theme="monokai")
 
-            # Create a syntax-highlighted version of the JSON
-            syntax = Syntax(formatted_json, "json", theme="monokai")
-
-            panel = Panel(
-                syntax,
-                title=device_name,
-                expand=False,
-                border_style="border",
-                title_align="left",
-                padding=(1, 3),
-                width=80,
-            )
-            console.print()
-            console.print(panel)
-            console.print()
+                console.print()
+                console.print(f"[bold {border_color}]{device_name}[/]")
+                rich.print(f"[{border_color}]{banner}[/]")
+                console.print(syntax)
+                console.print()
 
         except json.decoder.JSONDecodeError as e:
             msg = f"""
@@ -88,11 +90,20 @@ def output_yaml(results):
 
 def output_dispatcher(out_format, results):
 
+    # Sort the results dictionary by device_name
+    results = dict(sorted(results.items()))
+
     output_functions = {
         "text": output_text,
         "json": output_json,
         "yaml": output_yaml,
         "raw": output_raw,
+        "json_raw": output_json,
     }
-    func = output_functions.get(out_format, output_text)
-    return func(results)
+    kwargs = {}
+    if out_format == "json_raw":
+        func = output_functions.get(out_format, output_text)
+        kwargs["raw"] = True
+    else:
+        func = output_functions.get(out_format, output_text)
+    return func(results, **kwargs)

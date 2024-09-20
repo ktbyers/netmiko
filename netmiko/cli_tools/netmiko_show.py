@@ -157,7 +157,9 @@ def main(args):
 
         # OUTPUT PROCESSING #####
         out_format = "text"
-        if output_json:
+        if output_json and output_raw:
+            out_format = "json_raw"
+        elif output_json:
             out_format = "json"
         elif output_raw:
             out_format = "raw"
