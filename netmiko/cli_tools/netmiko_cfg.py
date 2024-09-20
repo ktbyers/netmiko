@@ -8,12 +8,12 @@ from datetime import datetime
 from getpass import getpass
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from netmiko import ConnectHandler
 from netmiko.utilities import load_devices, display_inventory
 from netmiko.utilities import write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
-from netmiko.utilities import SHOW_RUN_MAPPER
-from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params
+from netmiko.cli_tools import ERROR_PATTERN
+from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params, ssh_conn
+
 
 max_workers = int(os.environ.get("NETMIKO_MAX_THREADS", 10))
 
@@ -21,7 +21,6 @@ GREP = "/bin/grep"
 if not os.path.exists(GREP):
     GREP = "/usr/bin/grep"
 NETMIKO_BASE_DIR = "~/.netmiko"
-ERROR_PATTERN = "%%%failed%%%"
 __version__ = "5.0.0"
 
 
@@ -43,18 +42,6 @@ def grepx(files, pattern, grep_options, use_colors=True):
     proc = subprocess.Popen(grep_list, shell=False)
     proc.communicate()
     return ""
-
-
-def ssh_conn(device_name, device_params, cfg_command):
-    try:
-        with ConnectHandler(**device_params) as net_connect:
-            net_connect.enable()
-            if isinstance(cfg_command, str):
-                cfg_command = [cfg_command]
-            output = net_connect.send_config_set(cfg_command)
-            return device_name, output
-    except Exception:
-        return device_name, ERROR_PATTERN
 
 
 def parse_arguments(args):
@@ -122,18 +109,15 @@ def main(args):
         display_inventory(my_devices)
         return 0
 
-    cli_command = cli_args.cmd
-    cmd_arg = False
-    if cli_command:
-        cmd_arg = True
-        if r"\n" in cli_command:
-            cli_command = cli_command.strip()
-            cli_command = cli_command.split(r"\n")
+    cfg_command = cli_args.cmd
+    if cfg_command:
+        if r"\n" in cfg_command:
+            cfg_command = cfg_command.strip()
+            cfg_command = cfg_command.split(r"\n")
     elif input:
-        cmd_arg = True
         command_data = cli_args.infile.read()
         command_data = command_data.strip()
-        cli_command = command_data.splitlines()
+        cfg_command = command_data.splitlines()
     else:
         raise ValueError("No configuration commands provided.")
     device_or_group = cli_args.devices.strip()
@@ -157,14 +141,17 @@ def main(args):
             password=cli_password,
             secret=cli_secret,
         )
-        if not cmd_arg:
-            device_type = device_params["device_type"]
-            cli_command = SHOW_RUN_MAPPER.get(device_type, "show run")
-        device_tasks.append((device_name, device_params, cli_command))
+        device_tasks.append(
+            {
+                "device_name": device_name,
+                "device_params": device_params,
+                "cfg_command": cfg_command,
+            }
+        )
 
     # THREADING #####
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(ssh_conn, *args) for args in device_tasks]
+        futures = [executor.submit(ssh_conn, **kwargs) for kwargs in device_tasks]
         for future in as_completed(futures):
             device_name, output = future.result()
             results[device_name] = output

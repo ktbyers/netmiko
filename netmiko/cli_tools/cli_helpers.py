@@ -1,5 +1,21 @@
 from typing import Any, Dict
+from netmiko import ConnectHandler
 from netmiko.utilities import load_devices, obtain_all_devices
+from netmiko.cli_tools import ERROR_PATTERN
+
+
+def ssh_conn(device_name, device_params, cli_command=None, cfg_command=None):
+    try:
+        output = ""
+        with ConnectHandler(**device_params) as net_connect:
+            net_connect.enable()
+            if cli_command:
+                output += net_connect.send_command(cli_command)
+            if cfg_command:
+                output += net_connect.send_config_set(cfg_command)
+            return device_name, output
+    except Exception:
+        return device_name, ERROR_PATTERN
 
 
 def obtain_devices(device_or_group: str) -> Dict[str, Dict[str, Any]]:

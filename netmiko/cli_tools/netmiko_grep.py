@@ -8,18 +8,17 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from getpass import getpass
 
-from netmiko import ConnectHandler
 from netmiko.utilities import load_devices, display_inventory
 from netmiko.utilities import obtain_netmiko_filename, write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
-from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params
+from netmiko.cli_tools import ERROR_PATTERN
+from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params, ssh_conn
 
 GREP = "/bin/grep"
 if not os.path.exists(GREP):
     GREP = "/usr/bin/grep"
 NETMIKO_BASE_DIR = "~/.netmiko"
-ERROR_PATTERN = "%%%failed%%%"
 __version__ = "5.0.0"
 
 max_workers = int(os.environ.get("NETMIKO_MAX_THREADS", 10))
@@ -43,16 +42,6 @@ def grepx(files, pattern, grep_options, use_colors=True):
     proc = subprocess.Popen(grep_list, shell=False)
     proc.communicate()
     return ""
-
-
-def ssh_conn(device_name, device_params, cli_command):
-    try:
-        with ConnectHandler(**device_params) as net_connect:
-            net_connect.enable()
-            output = net_connect.send_command(cli_command)
-            return device_name, output
-    except Exception:
-        return device_name, ERROR_PATTERN
 
 
 def parse_arguments(args):
@@ -149,11 +138,17 @@ def main(args):
             if not cmd_arg:
                 device_type = device_params["device_type"]
                 cli_command = SHOW_RUN_MAPPER.get(device_type, "show run")
-            device_tasks.append((device_name, device_params, cli_command))
+            device_tasks.append(
+                {
+                    "device_name": device_name,
+                    "device_params": device_params,
+                    "cli_command": cli_command,
+                }
+            )
 
         # THREADING #####
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = [executor.submit(ssh_conn, *args) for args in device_tasks]
+            futures = [executor.submit(ssh_conn, *kwargs) for kwargs in device_tasks]
             for future in as_completed(futures):
                 device_name, output = future.result()
                 results[device_name] = output

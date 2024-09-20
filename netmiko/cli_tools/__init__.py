@@ -1,0 +1,1 @@
+ERROR_PATTERN = "%%%failed%%%"
