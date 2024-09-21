@@ -105,3 +105,13 @@ def output_dispatcher(out_format, results):
     else:
         func = output_functions.get(out_format, output_text)
     return func(results, **kwargs)
+
+def output_failed_devices(failed_devices):
+    if failed_devices:
+        print("\n")
+        print("-" * 20)
+        print("Failed devices:")
+        failed_devices.sort()
+        for device_name in failed_devices:
+            print("  {}".format(device_name))
+        print()

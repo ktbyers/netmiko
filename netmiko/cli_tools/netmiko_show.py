@@ -11,12 +11,11 @@ from getpass import getpass
 from rich import print
 
 from netmiko.utilities import load_devices, display_inventory
-from netmiko.utilities import obtain_netmiko_filename, write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
 from netmiko.cli_tools import ERROR_PATTERN, GREP, MAX_WORKERS, __version__
 from netmiko.cli_tools.helpers import obtain_devices, update_device_params, ssh_conn
-from netmiko.cli_tools.outputters import output_dispatcher
+from netmiko.cli_tools.outputters import output_dispatcher, output_failed_devices
 
 
 def grepx(files, pattern, grep_options, use_colors=True):
@@ -115,85 +114,72 @@ def main(args):
     if cli_command:
         cmd_arg = True
     device_or_group = cli_args.devices.strip()
-    pattern = r"."
-    use_cached_files = cli_args.use_cache
+    use_cached_files = cli_args.use_cache  # noqa
     hide_failed = cli_args.hide_failed
 
     # DEVICE LOADING #####
     devices = obtain_devices(device_or_group)
 
     # Retrieve output from devices
-    my_files = []
     failed_devices = []
     results = {}
-    if not use_cached_files:
 
-        # UPDATE DEVICE PARAMS (WITH CLI ARGS) / Create Task List #####
-        device_tasks = []
-        for device_name, device_params in devices.items():
-            update_device_params(
-                device_params,
-                username=cli_username,
-                password=cli_password,
-                secret=cli_secret,
-            )
-            if not cmd_arg:
-                device_type = device_params["device_type"]
-                cli_command = SHOW_RUN_MAPPER.get(device_type, "show run")
-            device_tasks.append(
-                {
-                    "device_name": device_name,
-                    "device_params": device_params,
-                    "cli_command": cli_command,
-                }
-            )
+    # UPDATE DEVICE PARAMS (WITH CLI ARGS) / Create Task List #####
+    device_tasks = []
+    for device_name, device_params in devices.items():
+        update_device_params(
+            device_params,
+            username=cli_username,
+            password=cli_password,
+            secret=cli_secret,
+        )
+        if not cmd_arg:
+            device_type = device_params["device_type"]
+            cli_command = SHOW_RUN_MAPPER.get(device_type, "show run")
+        device_tasks.append(
+            {
+                "device_name": device_name,
+                "device_params": device_params,
+                "cli_command": cli_command,
+            }
+        )
 
-        # THREADING #####
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            futures = [executor.submit(ssh_conn, **kwargs) for kwargs in device_tasks]
-            for future in as_completed(futures):
-                device_name, output = future.result()
-                results[device_name] = output
+    # THREADING #####
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = [executor.submit(ssh_conn, **kwargs) for kwargs in device_tasks]
+        for future in as_completed(futures):
+            device_name, output = future.result()
+            results[device_name] = output
 
-        # OUTPUT PROCESSING #####
-        out_format = "text"
-        if output_json and output_raw:
-            out_format = "json_raw"
-        elif output_json:
-            out_format = "json"
-        elif output_raw:
-            out_format = "raw"
-        # elif output_yaml:
-        #    out_format = "yaml"
-        output_dispatcher(out_format, results)
+    # FIND FAILED DEVICES #####
+    # NEED NEW WAY TO CACHE AND RE-USE CACHED FILES
+    valid_results = {}
+    for device_name, output in results.items():
+        # Cache output(?)
+        # file_name = write_tmp_file(device_name, output)
+        if ERROR_PATTERN in output:
+            failed_devices.append(device_name)
+            continue
+        valid_results[device_name] = output
 
-    else:
-        for device_name in devices:
-            file_name = obtain_netmiko_filename(device_name)
-            try:
-                with open(file_name) as f:
-                    output = f.read()
-            except IOError:
-                return "Some cache files are missing: unable to use --use-cache option."
-            if ERROR_PATTERN not in output:
-                my_files.append(file_name)
-            else:
-                failed_devices.append(device_name)
+    # OUTPUT PROCESSING #####
+    out_format = "text"
+    if output_json and output_raw:
+        out_format = "json_raw"
+    elif output_json:
+        out_format = "json"
+    elif output_raw:
+        out_format = "raw"
+    # elif output_yaml:
+    #    out_format = "yaml"
+    output_dispatcher(out_format, valid_results)
 
-    # grep_options = []
-    # grepx(my_files, pattern, grep_options)
     if cli_args.display_runtime:
         print("Total time: {0}".format(datetime.now() - start_time))
 
     if not hide_failed:
-        if failed_devices:
-            print("\n")
-            print("-" * 20)
-            print("Failed devices:")
-            failed_devices.sort()
-            for device_name in failed_devices:
-                print("  {}".format(device_name))
-            print()
+        output_failed_devices(failed_devices)
+
     return 0
 
 
