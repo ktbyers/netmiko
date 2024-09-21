@@ -4,12 +4,16 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.theme import Theme
 from rich.syntax import Syntax
+from rich.text import Text
 
 CUSTOM_THEME = Theme(
     {
         "device_name": "bold magenta",
         "border": "cyan",
         "output": "green",
+        "failed_title": "bold red",
+        "failed_device": "red",
+        "failed_border": "black",
     }
 )
 
@@ -106,12 +110,29 @@ def output_dispatcher(out_format, results):
         func = output_functions.get(out_format, output_text)
     return func(results, **kwargs)
 
+
 def output_failed_devices(failed_devices):
     if failed_devices:
-        print("\n")
-        print("-" * 20)
-        print("Failed devices:")
+        console = Console(theme=CUSTOM_THEME)
+
+        # Sort the failed devices list
         failed_devices.sort()
+
+        # Create the content for the panel
+        content = Text()
         for device_name in failed_devices:
-            print("  {}".format(device_name))
-        print()
+            content.append(f"  {device_name}\n", style="failed_device")
+
+        # Create and print the panel
+        panel = Panel(
+            content,
+            title="Failed devices",
+            expand=False,
+            border_style="failed_border",
+            title_align="left",
+            padding=(1, 1),
+        )
+
+        console.print()
+        console.print(panel, style="failed_title")
+        console.print()
