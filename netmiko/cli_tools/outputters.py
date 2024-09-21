@@ -47,12 +47,11 @@ def output_text(results):
 
 def output_json(results, raw=False):
     console = Console(theme=CUSTOM_THEME)
-    border_color = CUSTOM_THEME.styles.get("border").color.name
 
     for device_name, output in results.items():
         try:
             json_data = json.loads(output)
-            formatted_json = json.dumps({device_name: json_data}, indent=2)
+            formatted_json = json.dumps(json_data, indent=2)
             banner = "-" * len(device_name)
             if raw:
                 print()
@@ -61,12 +60,11 @@ def output_json(results, raw=False):
                 print(formatted_json)
                 print()
             else:
-                # Create a syntax-highlighted version of the JSON
-                syntax = Syntax(formatted_json, "json", theme="monokai")
+                syntax = Syntax(formatted_json, "json", theme="one-dark")
 
                 console.print()
-                console.print(f"[bold {border_color}]{device_name}[/]")
-                rich.print(f"[{border_color}]{banner}[/]")
+                print(device_name)
+                print(banner)
                 console.print(syntax)
                 console.print()
 
