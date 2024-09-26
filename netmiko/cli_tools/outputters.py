@@ -5,7 +5,6 @@ from rich.panel import Panel
 from rich.style import Style
 from rich.theme import Theme
 from rich.syntax import Syntax
-from rich.text import Text
 
 NAVY_BLUE = "#000080"
 BLUE = "#1E90FF"
@@ -68,12 +67,13 @@ def output_json(results, raw=False):
                 print()
             else:
                 # "xcode" alternate theme
+                theme = "trac"
                 syntax = Syntax(formatted_json, "json", theme=theme)
                 panel = Panel(
                     syntax,
                     border_style=Style(color=NAVY_BLUE),
                     expand=False,
-                    padding=(1, 1)
+                    padding=(1, 1),
                 )
 
                 console.print()
@@ -128,9 +128,9 @@ def output_failed_devices(failed_devices):
         failed_devices.sort()
 
         # Create the content for the panel
-        content = Text()
+        content = "\n"
         for device_name in failed_devices:
-            content.append(f"  {device_name}\n", style="failed_device")
+            content += f"  {device_name}\n"
 
         # Create and print the panel
         panel = Panel(
@@ -143,5 +143,5 @@ def output_failed_devices(failed_devices):
         )
 
         console.print()
-        console.print(panel, style="failed_title")
+        console.print(panel)
         console.print()
