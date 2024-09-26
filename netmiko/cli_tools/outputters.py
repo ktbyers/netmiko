@@ -67,21 +67,18 @@ def output_json(results, raw=False):
                 print(formatted_json)
                 print()
             else:
-                # theme = random.choice(rich_syntax_themes)
                 # "xcode" alternate theme
-                theme = "one-dark"
                 syntax = Syntax(formatted_json, "json", theme=theme)
-#                panel = Panel(
-#                    syntax,
-#                    border_style=Style(color=NAVY_BLUE),
-#                    expand=False,
-#                    padding=(1, 1)
-#                )
-#
+                panel = Panel(
+                    syntax,
+                    border_style=Style(color=NAVY_BLUE),
+                    expand=False,
+                    padding=(1, 1)
+                )
+
                 console.print()
                 print(device_name)
-#                console.print(panel)
-                console.print(syntax)
+                console.print(panel)
                 console.print()
 
         except json.decoder.JSONDecodeError as e:
