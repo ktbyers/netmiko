@@ -2,18 +2,21 @@ import json
 import rich
 from rich.console import Console
 from rich.panel import Panel
+from rich.style import Style
 from rich.theme import Theme
 from rich.syntax import Syntax
 from rich.text import Text
 
+NAVY_BLUE = "#000080"
+BLUE = "#1E90FF"
 CUSTOM_THEME = Theme(
     {
         "device_name": "bold magenta",
-        "border": "cyan",
+        "border": BLUE,
         "output": "green",
-        "failed_title": "bold red",
-        "failed_device": "red",
-        "failed_border": "black",
+        "failed_title": "bold #800000",
+        "failed_device": "black",
+        "failed_border": "#800000",
     }
 )
 
@@ -64,11 +67,20 @@ def output_json(results, raw=False):
                 print(formatted_json)
                 print()
             else:
-                syntax = Syntax(formatted_json, "json", theme="one-dark")
-
+                # theme = random.choice(rich_syntax_themes)
+                # "xcode" alternate theme
+                theme = "one-dark"
+                syntax = Syntax(formatted_json, "json", theme=theme)
+#                panel = Panel(
+#                    syntax,
+#                    border_style=Style(color=NAVY_BLUE),
+#                    expand=False,
+#                    padding=(1, 1)
+#                )
+#
                 console.print()
                 print(device_name)
-                print(banner)
+#                console.print(panel)
                 console.print(syntax)
                 console.print()
 
