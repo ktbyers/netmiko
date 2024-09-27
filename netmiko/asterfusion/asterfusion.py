@@ -109,7 +109,6 @@ class AsterfusionBase(NoEnable, CiscoSSHConnection):
 
 
 class AsterfusionSSH(AsterfusionBase):
-
     def send_command(
         self,
         command_string: str,
@@ -136,9 +135,7 @@ class AsterfusionSSH(AsterfusionBase):
         try:
             output = super().send_command(
                 command_string,
-                expect_string=(
-                    expect_string if expect_string else r"\$|#|password|sudoers"
-                ),
+                expect_string,
                 read_timeout=read_timeout,
                 delay_factor=delay_factor,
                 max_loops=max_loops,
