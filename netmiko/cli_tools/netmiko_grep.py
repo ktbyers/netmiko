@@ -5,15 +5,13 @@ import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
-from getpass import getpass
 
-from netmiko.utilities import load_devices, display_inventory
 from netmiko.utilities import write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
 from netmiko.cli_tools import ERROR_PATTERN, GREP, MAX_WORKERS, __version__
 from netmiko.cli_tools.helpers import obtain_devices, update_device_params, ssh_conn
-from netmiko.cli_tools.argument_handling import parse_arguments
+from netmiko.cli_tools.argument_handling import parse_arguments, extract_cli_vars
 
 
 COMMAND = "netmiko-grep"
@@ -45,29 +43,17 @@ def main_ep():
 
 def main(args):
     start_time = datetime.now()
+
+    # CLI ARGS #####
     cli_args = parse_arguments(args, COMMAND)
-
-    cli_username = cli_args.username if cli_args.username else None
-    cli_password = getpass() if cli_args.password else None
-    cli_secret = getpass("Enable secret: ") if cli_args.secret else None
-
-    version = cli_args.version
-    if version:
-        print(f"{COMMAND} v{__version__}")
-        return 0
-    list_devices = cli_args.list_devices
-    if list_devices:
-        my_devices = load_devices()
-        display_inventory(my_devices)
-        return 0
-
+    cli_vars = extract_cli_vars(cli_args, command=COMMAND, __version__=__version__)
     cli_command = cli_args.cmd
     cmd_arg = False
     if cli_command:
         cmd_arg = True
     device_or_group = cli_args.devices.strip()
-    pattern = cli_args.pattern
     hide_failed = cli_args.hide_failed
+    pattern = cli_args.pattern
 
     # DEVICE LOADING #####
     devices = obtain_devices(device_or_group)
@@ -82,9 +68,9 @@ def main(args):
     for device_name, device_params in devices.items():
         update_device_params(
             device_params,
-            username=cli_username,
-            password=cli_password,
-            secret=cli_secret,
+            username=cli_vars["cli_username"],
+            password=cli_vars["cli_password"],
+            secret=cli_vars["cli_secret"],
         )
         if not cmd_arg:
             device_type = device_params["device_type"]

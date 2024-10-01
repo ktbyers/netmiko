@@ -1,4 +1,6 @@
 import argparse
+from getpass import getpass
+from netmiko.utilities import load_devices, display_inventory
 
 
 def common_args(parser):
@@ -96,3 +98,22 @@ def parse_arguments(args, command):
             parser.error("Grep pattern not specified.")
 
     return cli_args
+
+
+def extract_cli_vars(cli_args, command, __version__):
+
+    return_vars = {}
+    return_vars["cli_username"] = cli_args.username if cli_args.username else None
+    return_vars["cli_password"] = getpass() if cli_args.password else None
+    return_vars["cli_secret"] = getpass("Enable secret: ") if cli_args.secret else None
+    version = cli_args.version
+    if version:
+        print(f"{command} v{__version__}")
+        return 0
+    list_devices = cli_args.list_devices
+    if list_devices:
+        my_devices = load_devices()
+        display_inventory(my_devices)
+        return 0
+
+    return return_vars

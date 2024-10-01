@@ -4,15 +4,13 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from datetime import datetime
-from getpass import getpass
 from rich import print
 
-from netmiko.utilities import load_devices, display_inventory
 from netmiko.utilities import SHOW_RUN_MAPPER
 from netmiko.cli_tools import ERROR_PATTERN, MAX_WORKERS, __version__
 from netmiko.cli_tools.helpers import obtain_devices, update_device_params, ssh_conn
 from netmiko.cli_tools.outputters import output_dispatcher, output_failed_devices
-from netmiko.cli_tools.argument_handling import parse_arguments
+from netmiko.cli_tools.argument_handling import parse_arguments, extract_cli_vars
 
 
 COMMAND = "netmiko-show"
@@ -27,23 +25,7 @@ def main(args):
 
     # CLI ARGS #####
     cli_args = parse_arguments(args, COMMAND)
-
-    cli_username = cli_args.username if cli_args.username else None
-    cli_password = getpass() if cli_args.password else None
-    cli_secret = getpass("Enable secret: ") if cli_args.secret else None
-
-    version = cli_args.version
-    if version:
-        print(f"{COMMAND} v{__version__}")
-        return 0
-    list_devices = cli_args.list_devices
-    if list_devices:
-        my_devices = load_devices()
-        display_inventory(my_devices)
-        return 0
-
-    output_json = cli_args.json
-    output_raw = cli_args.raw
+    cli_vars = extract_cli_vars(cli_args, command=COMMAND, __version__=__version__)
     cli_command = cli_args.cmd
     cmd_arg = False
     if cli_command:
@@ -63,9 +45,9 @@ def main(args):
     for device_name, device_params in devices.items():
         update_device_params(
             device_params,
-            username=cli_username,
-            password=cli_password,
-            secret=cli_secret,
+            username=cli_vars["cli_username"],
+            password=cli_vars["cli_password"],
+            secret=cli_vars["cli_secret"],
         )
         if not cmd_arg:
             device_type = device_params["device_type"]
@@ -98,11 +80,11 @@ def main(args):
 
     # OUTPUT PROCESSING #####
     out_format = "text"
-    if output_json and output_raw:
+    if cli_args.json and cli_args.raw:
         out_format = "json_raw"
-    elif output_json:
+    elif cli_args.json:
         out_format = "json"
-    elif output_raw:
+    elif cli_args.raw:
         out_format = "raw"
     # elif output_yaml:
     #    out_format = "yaml"
