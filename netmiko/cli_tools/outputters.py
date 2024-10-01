@@ -1,10 +1,12 @@
 import json
+import re
 import rich
 from rich.console import Console
 from rich.panel import Panel
 from rich.style import Style
 from rich.theme import Theme
 from rich.syntax import Syntax
+from rich.text import Text
 
 NAVY_BLUE = "#000080"
 BLUE = "#1E90FF"
@@ -52,9 +54,15 @@ def output_raw(results):
             print()
 
 
-def output_text(results):
+def output_text(results, pattern=None):
     console = Console(theme=CUSTOM_THEME)
+
     for device_name, output in results.items():
+        if pattern:
+            output = highlight_regex(output, pattern)
+        else:
+            output = Text(output)
+
         panel = Panel(
             output,
             title=device_name,
@@ -115,27 +123,6 @@ def output_yaml(results):
     pass
 
 
-def output_dispatcher(out_format, results):
-
-    # Sort the results dictionary by device_name
-    results = dict(sorted(results.items()))
-
-    output_functions = {
-        "text": output_text,
-        "json": output_json,
-        "yaml": output_yaml,
-        "raw": output_raw,
-        "json_raw": output_json,
-    }
-    kwargs = {}
-    if out_format == "json_raw":
-        func = output_functions.get(out_format, output_text)
-        kwargs["raw"] = True
-    else:
-        func = output_functions.get(out_format, output_text)
-    return func(results, **kwargs)
-
-
 def output_failed_devices(failed_devices):
     if failed_devices:
         console = Console(theme=CUSTOM_THEME)
@@ -161,3 +148,40 @@ def output_failed_devices(failed_devices):
         console.print()
         console.print(panel)
         console.print()
+
+
+def highlight_regex(text, pattern, highlight_color="red"):
+    """
+    Highlight text matching a regex pattern using Rich.
+    """
+    text_obj = Text(text)
+    for match in re.finditer(pattern, text):
+        start, end = match.span()
+        text_obj.stylize(highlight_color, start, end)
+
+    return text_obj
+
+
+def output_dispatcher(out_format, results, pattern=None):
+
+    # Sort the results dictionary by device_name
+    results = dict(sorted(results.items()))
+
+    output_functions = {
+        "text": output_text,
+        "text_highlighted": output_text,
+        "json": output_json,
+        "yaml": output_yaml,
+        "raw": output_raw,
+        "json_raw": output_json,
+    }
+    kwargs = {}
+    func = output_functions.get(out_format, output_text)
+    if out_format == "text_highlighted":
+        if pattern is None:
+            raise ValueError("Regex search pattern must be set for!")
+        kwargs["pattern"] = pattern
+    elif out_format == "json_raw":
+        kwargs["raw"] = True
+
+    return func(results, **kwargs)
