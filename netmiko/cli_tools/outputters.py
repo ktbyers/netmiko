@@ -59,7 +59,8 @@ def output_text(results, pattern=None):
 
     for device_name, output in results.items():
         if pattern:
-            output = highlight_regex(output, pattern)
+            # output = highlight_regex(output, pattern)
+            output = highlight_regex_with_context(output, pattern)
         else:
             output = Text(output)
 
@@ -158,6 +159,40 @@ def highlight_regex(text, pattern, highlight_color="red"):
     for match in re.finditer(pattern, text):
         start, end = match.span()
         text_obj.stylize(highlight_color, start, end)
+
+    return text_obj
+
+
+def highlight_regex_with_context(text, pattern, highlight_color="red", context_lines=2):
+    """
+    Highlight text matching a regex pattern using Rich, showing only the matching lines
+    with a specified number of context lines before and after.
+    """
+    lines = text.split("\n")
+    text_obj = Text()
+    pattern = re.compile(pattern)
+
+    for i, line in enumerate(lines):
+        if pattern.search(line):
+            # Add context lines before
+            start = max(0, i - context_lines)
+            for j in range(start, i):
+                text_obj.append(lines[j] + "\n")
+
+            # Add the matching line with highlighting
+            line_obj = Text(line + "\n")
+            for match in pattern.finditer(line):
+                line_obj.stylize(highlight_color, match.start(), match.end())
+            text_obj.append(line_obj)
+
+            # Add context lines after
+            end = min(len(lines), i + context_lines + 1)
+            for j in range(i + 1, end):
+                text_obj.append(lines[j] + "\n")
+
+            # Add a separator if this isn't the last match
+            if i + context_lines + 1 < len(lines):
+                text_obj.append("...\n\n")
 
     return text_obj
 
