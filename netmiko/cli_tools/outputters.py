@@ -8,6 +8,23 @@ from rich.syntax import Syntax
 
 NAVY_BLUE = "#000080"
 BLUE = "#1E90FF"
+LINEN_WHITE = "#FAF0E6"
+
+# "xcode"/"trac" alternate light themes
+LIGHT_THEME = "trac"
+LIGHT_BOX = NAVY_BLUE
+# "rrt"/"vim" alternate dark themes
+DARK_THEME = "rrt"
+DARK_BOX = LINEN_WHITE
+
+DARK_MODE = False
+if DARK_MODE:
+    DEFAULT_THEME = DARK_THEME
+    DEFAULT_BOX = DARK_BOX
+else:
+    DEFAULT_THEME = LIGHT_THEME
+    DEFAULT_BOX = LIGHT_BOX
+
 CUSTOM_THEME = Theme(
     {
         "device_name": "bold magenta",
@@ -66,12 +83,11 @@ def output_json(results, raw=False):
                 print(formatted_json)
                 print()
             else:
-                # "xcode" alternate theme
-                theme = "trac"
+                theme = DEFAULT_THEME
                 syntax = Syntax(formatted_json, "json", theme=theme)
                 panel = Panel(
                     syntax,
-                    border_style=Style(color=NAVY_BLUE),
+                    border_style=Style(color=DEFAULT_BOX),
                     expand=False,
                     padding=(1, 1),
                 )
