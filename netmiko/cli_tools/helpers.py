@@ -1,4 +1,5 @@
 from typing import Any, Dict
+
 from netmiko import ConnectHandler
 from netmiko.utilities import load_devices, obtain_all_devices
 from netmiko.cli_tools import ERROR_PATTERN
