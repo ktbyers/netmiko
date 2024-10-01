@@ -4,13 +4,6 @@ import argparse
 def common_args(parser):
     """Add common arguments to the parser."""
     parser.add_argument(
-        "devices",
-        nargs="?",
-        help="Device or group to connect to",
-        action="store",
-        type=str,
-    )
-    parser.add_argument(
         "--cmd",
         help="Command to execute",
         action="store",
@@ -38,18 +31,42 @@ def common_args(parser):
 
 def show_args(parser):
     """Add arguments specific to netmiko_show.py."""
-    pass
+    parser.add_argument(
+        "devices",
+        help="Device or group to connect to",
+        action="store",
+        type=str,
+    )
 
 
 def cfg_args(parser):
     """Add arguments specific to netmiko_cfg.py."""
     parser.add_argument(
+        "devices",
+        help="Device or group to connect to",
+        action="store",
+        type=str,
+    )
+    parser.add_argument(
         "--infile", help="Read commands from file", type=argparse.FileType("r")
     )
 
 
+def grep_args(parser):
+    """Add arguments specific to netmiko_grep.py."""
+    parser.add_argument(
+        "pattern", nargs="?", help="Pattern to search for", action="store", type=str
+    )
+    parser.add_argument(
+        "devices",
+        help="Device or group to connect to",
+        action="store",
+        type=str,
+    )
+
+
 def parse_arguments(args, command):
-    """Parse command-line arguments for both scripts."""
+    """Parse command-line arguments for all scripts."""
 
     if command == "netmiko-cfg":
         description = "Execute configurations command using Netmiko"
@@ -58,12 +75,10 @@ def parse_arguments(args, command):
         description = "Execute show command using Netmiko (defaults to 'show run')"
         addl_args = show_args
     elif command == "netmiko-grep":
-        # FIX
-        description = ""
-        # addl_args = grep_args
+        description = "Grep pattern search on Netmiko output (defaults to 'show run')"
+        addl_args = grep_args
     else:
-        # FIX: better message
-        raise ValueError()
+        raise ValueError(f"Unknown Netmiko cli-tool: {command}")
 
     parser = argparse.ArgumentParser(description=description)
     common_args(parser)
@@ -75,7 +90,9 @@ def parse_arguments(args, command):
     if not cli_args.list_devices and not cli_args.version:
         if not cli_args.devices:
             parser.error("Devices not specified.")
-        if command == "netmiko-cfg" and not cli_args.cmd and not cli_args.infile:
+        elif command == "netmiko-cfg" and not cli_args.cmd and not cli_args.infile:
             parser.error("No configuration commands provided.")
+        elif command == "netmiko-grep" and not cli_args.pattern:
+            parser.error("Grep pattern not specified.")
 
     return cli_args

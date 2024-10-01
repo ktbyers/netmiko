@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """Create grep like remote behavior on show run or command output."""
-import argparse
 import sys
 import os
 import subprocess
@@ -9,11 +8,15 @@ from datetime import datetime
 from getpass import getpass
 
 from netmiko.utilities import load_devices, display_inventory
-from netmiko.utilities import obtain_netmiko_filename, write_tmp_file, ensure_dir_exists
+from netmiko.utilities import write_tmp_file, ensure_dir_exists
 from netmiko.utilities import find_netmiko_dir
 from netmiko.utilities import SHOW_RUN_MAPPER
 from netmiko.cli_tools import ERROR_PATTERN, GREP, MAX_WORKERS, __version__
-from netmiko.cli_tools.cli_helpers import obtain_devices, update_device_params, ssh_conn
+from netmiko.cli_tools.helpers import obtain_devices, update_device_params, ssh_conn
+from netmiko.cli_tools.argument_handling import parse_arguments
+
+
+COMMAND = "netmiko-grep"
 
 
 def grepx(files, pattern, grep_options, use_colors=True):
@@ -36,55 +39,13 @@ def grepx(files, pattern, grep_options, use_colors=True):
     return ""
 
 
-def parse_arguments(args):
-    """Parse command-line arguments."""
-    description = "Grep pattern search on Netmiko output (defaults to running-config)"
-    parser = argparse.ArgumentParser(description=description)
-    parser.add_argument(
-        "pattern", nargs="?", help="Pattern to search for", action="store", type=str
-    )
-    parser.add_argument(
-        "devices",
-        nargs="?",
-        help="Device or group to connect to",
-        action="store",
-        type=str,
-    )
-    parser.add_argument(
-        "--cmd",
-        help="Remote command to execute",
-        action="store",
-        default=None,
-        type=str,
-    )
-    parser.add_argument("--username", help="Username", action="store", type=str)
-    parser.add_argument("--password", help="Password", action="store_true")
-    parser.add_argument("--secret", help="Enable Secret", action="store_true")
-    parser.add_argument("--use-cache", help="Use cached files", action="store_true")
-    parser.add_argument(
-        "--list-devices", help="List devices from inventory", action="store_true"
-    )
-    parser.add_argument(
-        "--display-runtime", help="Display program runtime", action="store_true"
-    )
-    parser.add_argument(
-        "--hide-failed", help="Hide failed devices", action="store_true"
-    )
-    parser.add_argument("--version", help="Display version", action="store_true")
-    cli_args = parser.parse_args(args)
-    if not cli_args.list_devices and not cli_args.version:
-        if not cli_args.devices or not cli_args.pattern:
-            parser.error("Grep pattern or devices not specified.")
-    return cli_args
-
-
 def main_ep():
     sys.exit(main(sys.argv[1:]))
 
 
 def main(args):
     start_time = datetime.now()
-    cli_args = parse_arguments(args)
+    cli_args = parse_arguments(args, COMMAND)
 
     cli_username = cli_args.username if cli_args.username else None
     cli_password = getpass() if cli_args.password else None
@@ -92,7 +53,7 @@ def main(args):
 
     version = cli_args.version
     if version:
-        print("netmiko-grep v{}".format(__version__))
+        print(f"{COMMAND} v{__version__}")
         return 0
     list_devices = cli_args.list_devices
     if list_devices:
@@ -106,7 +67,6 @@ def main(args):
         cmd_arg = True
     device_or_group = cli_args.devices.strip()
     pattern = cli_args.pattern
-    use_cached_files = cli_args.use_cache
     hide_failed = cli_args.hide_failed
 
     # DEVICE LOADING #####
@@ -116,57 +76,44 @@ def main(args):
     my_files = []
     failed_devices = []
     results = {}
-    if not use_cached_files:
 
-        # UPDATE DEVICE PARAMS (WITH CLI ARGS) #####
-        device_tasks = []
-        for device_name, device_params in devices.items():
-            update_device_params(
-                device_params,
-                username=cli_username,
-                password=cli_password,
-                secret=cli_secret,
-            )
-            if not cmd_arg:
-                device_type = device_params["device_type"]
-                cli_command = SHOW_RUN_MAPPER.get(device_type, "show run")
-            device_tasks.append(
-                {
-                    "device_name": device_name,
-                    "device_params": device_params,
-                    "cli_command": cli_command,
-                }
-            )
+    # UPDATE DEVICE PARAMS (WITH CLI ARGS) #####
+    device_tasks = []
+    for device_name, device_params in devices.items():
+        update_device_params(
+            device_params,
+            username=cli_username,
+            password=cli_password,
+            secret=cli_secret,
+        )
+        if not cmd_arg:
+            device_type = device_params["device_type"]
+            cli_command = SHOW_RUN_MAPPER.get(device_type, "show run")
+        device_tasks.append(
+            {
+                "device_name": device_name,
+                "device_params": device_params,
+                "cli_command": cli_command,
+            }
+        )
 
-        # THREADING #####
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            futures = [executor.submit(ssh_conn, **kwargs) for kwargs in device_tasks]
-            for future in as_completed(futures):
-                device_name, output = future.result()
-                results[device_name] = output
+    # THREADING #####
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = [executor.submit(ssh_conn, **kwargs) for kwargs in device_tasks]
+        for future in as_completed(futures):
+            device_name, output = future.result()
+            results[device_name] = output
 
-        netmiko_base_dir, netmiko_full_dir = find_netmiko_dir()
-        ensure_dir_exists(netmiko_base_dir)
-        ensure_dir_exists(netmiko_full_dir)
-        for device_name, output in results.items():
+    netmiko_base_dir, netmiko_full_dir = find_netmiko_dir()
+    ensure_dir_exists(netmiko_base_dir)
+    ensure_dir_exists(netmiko_full_dir)
+    for device_name, output in results.items():
 
-            file_name = write_tmp_file(device_name, output)
-            if ERROR_PATTERN not in output:
-                my_files.append(file_name)
-            else:
-                failed_devices.append(device_name)
-    else:
-        for device_name in devices:
-            file_name = obtain_netmiko_filename(device_name)
-            try:
-                with open(file_name) as f:
-                    output = f.read()
-            except IOError:
-                return "Some cache files are missing: unable to use --use-cache option."
-            if ERROR_PATTERN not in output:
-                my_files.append(file_name)
-            else:
-                failed_devices.append(device_name)
+        file_name = write_tmp_file(device_name, output)
+        if ERROR_PATTERN not in output:
+            my_files.append(file_name)
+        else:
+            failed_devices.append(device_name)
 
     grep_options = []
     grepx(my_files, pattern, grep_options)
