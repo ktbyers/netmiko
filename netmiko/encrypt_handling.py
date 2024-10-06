@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
-ENCRYPTION_PREFIX = "_encrypt_:"
+ENCRYPTION_PREFIX = "_encrypt_"
 
 
 def get_encryption_key():

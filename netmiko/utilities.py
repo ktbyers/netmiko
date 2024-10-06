@@ -129,7 +129,7 @@ def load_netmiko_yml(file_name: Union[str, bytes, "PathLike[Any]", None] = None)
     config_params = netmiko_yaml_data.pop("__meta__", {}):
     encrypt = tools_config.get("encryption", False)
     encrypt_type = tools_config.get("encryption_type", "fernet")
-    return config_params, netmiko_yaml_data 
+    return config_params, netmiko_yaml_data
 
 
 def load_devices(file_name: Union[str, bytes, "PathLike[Any]", None] = None) -> Any:

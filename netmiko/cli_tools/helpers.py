@@ -1,7 +1,8 @@
 from typing import Any, Dict
 
 from netmiko import ConnectHandler
-from netmiko.utilities import load_devices, obtain_all_devices
+from netmiko.utilities import load_devices, obtain_all_devices, load_netmiko_yml
+from netmiko.encrypt_handling import decrypt_config, get_encryption_key
 from netmiko.cli_tools import ERROR_PATTERN
 
 
@@ -25,7 +26,12 @@ def obtain_devices(device_or_group: str) -> Dict[str, Dict[str, Any]]:
     a device-name. A group-name will be a list of device-names. A device-name
     will just be a dictionary of device parameters (ConnectHandler **kwargs).
     """
-    my_devices = load_devices()
+    config_params, my_devices = load_netmiko_yml()
+    use_encryption = tools_config.get("encryption", False)
+    encryption_type = tools_config.get("encryption_type", "fernet")
+    if use_encryption:
+        key = get_encryption_key()
+        my_devices = decrypt_config(my_devices, key, encryption_type)
     if device_or_group == "all":
         devices = obtain_all_devices(my_devices)
     else:
