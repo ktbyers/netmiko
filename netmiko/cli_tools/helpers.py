@@ -29,6 +29,7 @@ def obtain_devices(device_or_group: str) -> Dict[str, Dict[str, Any]]:
     config_params, my_devices = load_netmiko_yml()
     use_encryption = config_params.get("encryption", False)
     encryption_type = config_params.get("encryption_type", "fernet")
+    import pdbr; pdbr.set_trace()
     if use_encryption:
         key = get_encryption_key()
         my_devices = decrypt_config(my_devices, key, encryption_type)

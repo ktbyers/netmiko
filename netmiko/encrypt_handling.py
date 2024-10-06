@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
-ENCRYPTION_PREFIX = "_encrypt_"
+ENCRYPTION_PREFIX = "__encrypt__"
 
 
 def get_encryption_key():
@@ -37,7 +37,7 @@ def decrypt_value(encrypted_value, key, encryption_type):
 
     if encryption_type == "fernet":
         f = Fernet(base64.urlsafe_b64encode(derived_key))
-        return f.decrypt(ciphertext.encode()).decode()
+        return f.decrypt(base64.b64decode(ciphertext)).decode()
     elif encryption_type == "aes128":
         iv = base64.b64decode(ciphertext[:24])
         ciphertext = base64.b64decode(ciphertext[24:])
@@ -49,13 +49,14 @@ def decrypt_value(encrypted_value, key, encryption_type):
     else:
         raise ValueError(f"Unsupported encryption type: {encryption_type}")
 
-
 def decrypt_config(config, key, encryption_type):
     for device, params in config.items():
         if isinstance(params, dict):
             for field, value in params.items():
                 if isinstance(value, str) and value.startswith(ENCRYPTION_PREFIX):
-                    params[field] = decrypt_value(value, key, encryption_type)
+                    len_prefix = len(ENCRYPTION_PREFIX)
+                    data = value[len_prefix:]
+                    params[field] = decrypt_value(data, key, encryption_type)
     return config
 
 
