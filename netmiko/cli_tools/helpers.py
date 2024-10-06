@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from netmiko import ConnectHandler
-from netmiko.utilities import load_devices, obtain_all_devices, load_netmiko_yml
+from netmiko.utilities import obtain_all_devices, load_netmiko_yml
 from netmiko.encrypt_handling import decrypt_config, get_encryption_key
 from netmiko.cli_tools import ERROR_PATTERN
 
@@ -27,8 +27,8 @@ def obtain_devices(device_or_group: str) -> Dict[str, Dict[str, Any]]:
     will just be a dictionary of device parameters (ConnectHandler **kwargs).
     """
     config_params, my_devices = load_netmiko_yml()
-    use_encryption = tools_config.get("encryption", False)
-    encryption_type = tools_config.get("encryption_type", "fernet")
+    use_encryption = config_params.get("encryption", False)
+    encryption_type = config_params.get("encryption_type", "fernet")
     if use_encryption:
         key = get_encryption_key()
         my_devices = decrypt_config(my_devices, key, encryption_type)

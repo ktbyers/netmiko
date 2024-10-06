@@ -126,9 +126,7 @@ def load_netmiko_yml(file_name: Union[str, bytes, "PathLike[Any]", None] = None)
     """
     yaml_devices_file = find_cfg_file(file_name)
     netmiko_yaml_data = load_yaml_file(yaml_devices_file)
-    config_params = netmiko_yaml_data.pop("__meta__", {}):
-    encrypt = tools_config.get("encryption", False)
-    encrypt_type = tools_config.get("encryption_type", "fernet")
+    config_params = netmiko_yaml_data.pop("__meta__", {})
     return config_params, netmiko_yaml_data
 
 
