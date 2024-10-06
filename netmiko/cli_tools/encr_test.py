@@ -5,6 +5,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
+ENCRYPTION_PREFIX = "__encrypt__"
+
 
 def encrypt_value(value, key, encryption_type):
     salt = os.urandom(16)
@@ -29,7 +31,8 @@ def encrypt_value(value, key, encryption_type):
         raise ValueError(f"Unsupported encryption type: {encryption_type}")
 
     # Combine salt and encrypted data
-    return f"{base64.b64encode(salt).decode()}:{base64.b64encode(encrypted).decode()}"
+    b64_salt = base64.b64encode(salt).decode()
+    return f"{ENCRYPTION_PREFIX}{b64_salt}:{base64.b64encode(encrypted).decode()}"
 
 
 key = input("Enter your encryption key: ").encode()
