@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from netmiko import ConnectHandler
 from netmiko.utilities import obtain_all_devices, load_netmiko_yml
-from netmiko.encrypt_handling import decrypt_config, get_encryption_key
+from netmiko.encryption_handling import decrypt_config, get_encryption_key
 from netmiko.cli_tools import ERROR_PATTERN
 
 

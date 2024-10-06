@@ -15,6 +15,7 @@ from netmiko.cli_tools.argument_handling import parse_arguments, extract_cli_var
 
 COMMAND = "netmiko-show"
 
+# FIX: --list-devices currently fails due to missing 'device/group'
 
 def main_ep():
     sys.exit(main(sys.argv[1:]))
