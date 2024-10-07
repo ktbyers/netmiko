@@ -30,7 +30,7 @@ ntc-templates = ">=3.1.0"
 pyserial = ">=3.3"
 cffi = ">=1.17.0rc1"
 rich = ">=13.8"
-ruamel.yaml = ">=0.17"
+"ruamel.yaml" = ">=0.17"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.8.0"
