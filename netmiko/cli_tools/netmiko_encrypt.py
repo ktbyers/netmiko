@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 import os
+import sys
 import argparse
 from getpass import getpass
 
 from netmiko.utilities import load_netmiko_yml
 from netmiko.encryption_handling import encrypt_value
+
+
+def main_ep():
+    sys.exit(main())
 
 
 def main():
@@ -56,6 +61,8 @@ Use --type or set 'encryption_type' in .netmiko.yml in the '__meta__' section.""
     encrypted_data = encrypt_value(data, key, encryption_type)
     print(f"\nEncrypted data: {encrypted_data}\n")
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

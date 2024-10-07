@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 import argparse
-import yaml
 import sys
 from pathlib import Path
+from ruamel.yaml import YAML
 
 from netmiko.encryption_handling import encrypt_value, get_encryption_key
+
+yaml = YAML()
+yaml.preserve_quotes = True
+yaml.indent(mapping=2, sequence=4, offset=2)
 
 
 def encrypt_netmiko_yml(
@@ -13,7 +17,7 @@ def encrypt_netmiko_yml(
     # Read the input YAML file
     input_path = Path(input_file).expanduser()
     with input_path.open("r") as f:
-        config = yaml.safe_load(f)
+        config = yaml.load(f)
 
     # Get the encryption key
     key = get_encryption_key()
@@ -27,7 +31,7 @@ def encrypt_netmiko_yml(
                 )
                 params["password"] = encrypted_value
             if "secret" in params:
-                # Use the same encrypted value for secret if it's identical to password
+                encrypted_value = encrypt_value(params["secret"], key, encryption_type)
                 params["secret"] = encrypted_value
 
     # Write the updated config to the output file or stdout
@@ -37,6 +41,10 @@ def encrypt_netmiko_yml(
             yaml.dump(config, f)
     else:
         yaml.dump(config, sys.stdout)
+
+
+def main_ep():
+    sys.exit(main())
 
 
 def main():
@@ -69,6 +77,8 @@ def main():
             file=sys.stderr,
         )
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
