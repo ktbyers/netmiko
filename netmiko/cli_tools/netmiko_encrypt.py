@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Encrypt data using Netmiko's encryption."
     )
-    parser.add_argument("data", help="The data to encrypt", nargs='?')
+    parser.add_argument("data", help="The data to encrypt", nargs="?")
     parser.add_argument(
         "--key",
         help="The encryption key (if not provided, will use NETMIKO_TOOLS_KEY env variable)",
