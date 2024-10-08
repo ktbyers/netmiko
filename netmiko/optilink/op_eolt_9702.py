@@ -2,6 +2,11 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class OptilinkEOLT9702Base(CiscoBaseConnection):
+    """
+    Optilink EOLT 97028P2AB
+    Optilink EOLT 97024P
+    """
+
     def session_preparation(self) -> None:
         self._test_channel_read(pattern=r"[>#]")
         self.set_base_prompt()
@@ -17,16 +22,19 @@ class OptilinkEOLT9702Base(CiscoBaseConnection):
         pattern: str = "",
         re_flags: int = 0,
     ) -> str:
+        """Enter into configuration mode."""
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
     def check_enable_mode(self, check_string: str = "#") -> bool:
+        """Check if in enable mode. Return a boolean."""
         self.write_channel(self.RETURN)
         output = self.read_until_prompt(read_entire_line=True)
         return check_string in output
 
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
+        """Exit from enable mode."""
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
@@ -42,6 +50,9 @@ class OptilinkEOLT9702Base(CiscoBaseConnection):
 
 
 class OptilinkEOLT9702Telnet(OptilinkEOLT9702Base):
-    """Optilink EOLT 97028P2AB telnet driver"""
+    """
+    Optilink EOLT 97028P2AB telnet driver
+    Optilink EOLT 97024P telnet driver
+    """
 
     pass
