@@ -300,13 +300,12 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
             hash_supported=hash_supported,
         )
 
-    def _file_cmd_prefix(self) -> str:
+    def _file_list_command(self) -> str:
         """
-        Allow MD-CLI to execute file operations by using classical CLI.
+        return the md-cli command in mdcli mode, otherwise classic
 
-        Returns "//" if the current prompt is MD-CLI (empty string otherwise).
         """
-        return "//" if "@" in self.ssh_ctl_chan.base_prompt else ""
+        return "file list " if "@" in self.ssh_ctl_chan.base_prompt else "file dir "
 
     def remote_space_available(
         self, search_pattern: str = r"(\d+)\s+\w+\s+free"
@@ -315,7 +314,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 
         # Sample text for search_pattern.
         # "               3 Dir(s)               961531904 bytes free."
-        remote_cmd = self._file_cmd_prefix() + "file dir {}".format(self.file_system)
+        remote_cmd = self._file_list_command() + "{}".format(self.file_system)
         remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
         match = re.search(search_pattern, remote_output)
         assert match is not None
@@ -326,7 +325,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 
         if self.direction == "put":
             if not remote_cmd:
-                remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
+                remote_cmd = self._file_list_command() + "{}/{}".format(
                     self.file_system, self.dest_file
                 )
             dest_file_name = self.dest_file.replace("\\", "/").split("/")[-1]
@@ -355,12 +354,12 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
             else:
                 raise ValueError("Unexpected value for self.direction")
         if not remote_cmd:
-            remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
+            remote_cmd = self._file_list_command() + "{}/{}".format(
                 self.file_system, remote_file
             )
         remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
 
-        if "File Not Found" in remote_out:
+        if "File Not Found" in remote_out or "Invalid element value" in remote_out:
             raise IOError("Unable to find file on remote system")
 
         dest_file_name = remote_file.replace("\\", "/").split("/")[-1]
