@@ -3,7 +3,7 @@ import base64
 from typing import Dict, Any, Union
 
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, padding
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
@@ -46,7 +46,8 @@ def decrypt_value(encrypted_value: str, key: bytes, encryption_type: str) -> str
         cipher = Cipher(algorithms.AES(derived_key[:16]), modes.CBC(iv))
         decryptor = cipher.decryptor()
         padded: bytes = decryptor.update(ciphertext) + decryptor.finalize()
-        unpadded: bytes = padded[: -padded[-1]]
+        unpadder = padding.PKCS7(128).unpadder()
+        unpadded: bytes = unpadder.update(padded) + unpadder.finalize()
         return unpadded.decode()
     else:
         raise ValueError(f"Unsupported encryption type: {encryption_type}")
@@ -66,7 +67,7 @@ def decrypt_config(
 
 
 def encrypt_value(value: str, key: bytes, encryption_type: str) -> str:
-    salt: bytes = os.urandom(16)
+    salt = os.urandom(16)
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -77,19 +78,17 @@ def encrypt_value(value: str, key: bytes, encryption_type: str) -> str:
 
     if encryption_type == "fernet":
         f = Fernet(base64.urlsafe_b64encode(derived_key))
-        fernet_encrypted: bytes = f.encrypt(value.encode())
-        encrypted_data = fernet_encrypted
+        encrypted = f.encrypt(value.encode())
     elif encryption_type == "aes128":
-        iv: bytes = os.urandom(16)
+        iv = os.urandom(16)
+        padder = padding.PKCS7(128).padder()
+        padded_data = padder.update(value.encode()) + padder.finalize()
         cipher = Cipher(algorithms.AES(derived_key[:16]), modes.CBC(iv))
         encryptor = cipher.encryptor()
-        padded: bytes = value.encode() + b"\0" * (16 - len(value) % 16)
-        aes_encrypted: bytes = iv + encryptor.update(padded) + encryptor.finalize()
-        encrypted_data = aes_encrypted
+        encrypted = iv + encryptor.update(padded_data) + encryptor.finalize()
     else:
         raise ValueError(f"Unsupported encryption type: {encryption_type}")
 
-    # Combine salt and encrypted data, and add prefix
-    b64_salt: str = base64.b64encode(salt).decode()
-    b64_encrypted: str = base64.b64encode(encrypted_data).decode()
-    return f"{ENCRYPTION_PREFIX}{b64_salt}:{b64_encrypted}"
+    # Combine salt and encrypted data
+    b64_salt = base64.b64encode(salt).decode()
+    return f"{ENCRYPTION_PREFIX}{b64_salt}:{base64.b64encode(encrypted).decode()}"

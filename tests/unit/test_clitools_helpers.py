@@ -70,11 +70,12 @@ def test_ssh_conn_failure(mock_connecthandler):
     assert result == (device_name, ERROR_PATTERN)
 
 
-@pytest.mark.parametrize("netmiko_yml", ["netmiko-cleartext.yml", "netmiko-encr.yml"])
+@pytest.mark.parametrize("netmiko_yml", ["netmiko-cleartext.yml", "netmiko-encr.yml", "netmiko-encr-aes128.yml"])
 def test_obtain_devices_all(netmiko_yml, monkeypatch, set_encryption_key):
     yml_path = BASE_YAML_PATH / netmiko_yml
     monkeypatch.setenv("NETMIKO_TOOLS_CFG", str(yml_path))
 
+    import pdbr; pdbr.set_trace()
     result = obtain_devices("all")
 
     assert len(result) == 7  # Total number of devices
