@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import pytest
 from unittest.mock import patch, MagicMock
 
@@ -7,21 +7,13 @@ from netmiko.cli_tools.helpers import ssh_conn, obtain_devices, update_device_pa
 
 
 TEST_ENCRYPTION_KEY = "boguskey"
-TEST_NETMIKO_YML_PATH = os.path.join(
-    os.path.dirname(__file__), "NETMIKO_YAML", "netmiko-cleartext.yml"
-)
+BASE_YAML_PATH = Path(__file__).parent / "NETMIKO_YAML"
 
 
 @pytest.fixture
 def set_encryption_key(monkeypatch):
     """Fixture to set a test encryption key"""
     monkeypatch.setenv("NETMIKO_TOOLS_KEY", TEST_ENCRYPTION_KEY)
-
-
-@pytest.fixture
-def set_netmiko_yml_path(monkeypatch):
-    """Fixture to set the NETMIKO_YML environment variable for testing"""
-    monkeypatch.setenv("NETMIKO_TOOLS_CFG", TEST_NETMIKO_YML_PATH)
 
 
 @pytest.fixture
@@ -78,7 +70,11 @@ def test_ssh_conn_failure(mock_connecthandler):
     assert result == (device_name, ERROR_PATTERN)
 
 
-def test_obtain_devices_all(set_netmiko_yml_path, set_encryption_key):
+@pytest.mark.parametrize("netmiko_yml", ["netmiko-cleartext.yml", "netmiko-encr.yml"])
+def test_obtain_devices_all(netmiko_yml, monkeypatch, set_encryption_key):
+    yml_path = BASE_YAML_PATH / netmiko_yml
+    monkeypatch.setenv("NETMIKO_TOOLS_CFG", str(yml_path))
+
     result = obtain_devices("all")
 
     assert len(result) == 7  # Total number of devices
