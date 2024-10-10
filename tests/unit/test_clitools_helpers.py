@@ -6,38 +6,13 @@ from netmiko.cli_tools import ERROR_PATTERN
 from netmiko.cli_tools.helpers import ssh_conn, obtain_devices, update_device_params
 
 
-TEST_ENCRYPTION_KEY = "boguskey"
 BASE_YAML_PATH = Path(__file__).parent / "NETMIKO_YAML"
-
-
-@pytest.fixture
-def set_encryption_key(monkeypatch):
-    """Fixture to set a test encryption key"""
-    monkeypatch.setenv("NETMIKO_TOOLS_KEY", TEST_ENCRYPTION_KEY)
 
 
 @pytest.fixture
 def mock_connecthandler():
     with patch("netmiko.cli_tools.helpers.ConnectHandler") as mock:
         yield mock
-
-
-# @pytest.fixture
-# def mock_load_netmiko_yml():
-#    with patch("helpers.load_netmiko_yml") as mock:
-#        yield mock
-#
-#
-# @pytest.fixture
-# def mock_decrypt_config():
-#    with patch("helpers.decrypt_config") as mock:
-#        yield mock
-
-
-# @pytest.fixture
-# def mock_get_encryption_key():
-#    with patch("helpers.get_encryption_key") as mock:
-#        yield mock
 
 
 def test_ssh_conn_success(mock_connecthandler):
@@ -70,12 +45,14 @@ def test_ssh_conn_failure(mock_connecthandler):
     assert result == (device_name, ERROR_PATTERN)
 
 
-@pytest.mark.parametrize("netmiko_yml", ["netmiko-cleartext.yml", "netmiko-encr.yml", "netmiko-encr-aes128.yml"])
+@pytest.mark.parametrize(
+    "netmiko_yml",
+    ["netmiko-cleartext.yml", "netmiko-encr.yml", "netmiko-encr-aes128.yml"],
+)
 def test_obtain_devices_all(netmiko_yml, monkeypatch, set_encryption_key):
     yml_path = BASE_YAML_PATH / netmiko_yml
     monkeypatch.setenv("NETMIKO_TOOLS_CFG", str(yml_path))
 
-    import pdbr; pdbr.set_trace()
     result = obtain_devices("all")
 
     assert len(result) == 7  # Total number of devices
@@ -96,3 +73,57 @@ def test_obtain_devices_all(netmiko_yml, monkeypatch, set_encryption_key):
     assert result["den-asa"]["device_type"] == "cisco_asa"
     assert result["den-asa"]["ip"] == "10.1.1.1"
     assert result["den-asa"]["secret"] == "supersecretpass"
+
+
+BASE_PARAMS = {"device_type": "cisco_ios", "host": "bogus.domain.com"}
+
+
+@pytest.mark.parametrize(
+    "initial_params, update_args, expected_result",
+    [
+        (
+            {**BASE_PARAMS},
+            {"username": "admin", "password": "new_pass", "secret": "new_secret"},
+            {
+                **BASE_PARAMS,
+                "username": "admin",
+                "password": "new_pass",
+                "secret": "new_secret",
+            },
+        ),
+        (
+            {**BASE_PARAMS, "username": "old_user"},
+            {"password": "new_pass"},
+            {**BASE_PARAMS, "username": "old_user", "password": "new_pass"},
+        ),
+        (
+            {**BASE_PARAMS, "username": "user", "password": "pass"},
+            {"secret": "new_secret"},
+            {
+                **BASE_PARAMS,
+                "username": "user",
+                "password": "pass",
+                "secret": "new_secret",
+            },
+        ),
+        (
+            {**BASE_PARAMS, "username": "user", "password": "pass", "secret": "secret"},
+            {},
+            {**BASE_PARAMS, "username": "user", "password": "pass", "secret": "secret"},
+        ),
+        (
+            {**BASE_PARAMS, "username": "existing_user"},
+            {"username": "new_user"},
+            {
+                **BASE_PARAMS,
+                "username": "new_user",
+            },
+        ),
+    ],
+)
+def test_update_device_params(initial_params, update_args, expected_result):
+    result = update_device_params(initial_params, **update_args)
+    assert result == expected_result, f"Expected {expected_result}, but got {result}"
+    assert (
+        result is initial_params
+    ), "Function should modify the original dictionary, not create a new one"

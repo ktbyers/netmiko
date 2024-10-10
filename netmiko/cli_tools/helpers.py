@@ -58,6 +58,7 @@ def obtain_devices(device_or_group: str) -> Dict[str, Dict[str, Any]]:
 
 
 def update_device_params(params, username=None, password=None, secret=None):
+    """Add username, password, and secret fields to params dictionary"""
     if username:
         params["username"] = username
     if password:
