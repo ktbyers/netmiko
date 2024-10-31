@@ -167,6 +167,7 @@ def find_cfg_file(
 
 def display_inventory(my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) -> None:
     """Print out inventory devices and groups."""
+    config_params = my_devices.pop("__meta__", {})  # noqa
     inventory_groups = ["all"]
     inventory_devices = []
     for k, v in my_devices.items():

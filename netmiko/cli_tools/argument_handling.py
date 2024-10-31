@@ -1,3 +1,4 @@
+import sys
 import argparse
 from getpass import getpass
 from netmiko.utilities import load_devices, display_inventory
@@ -38,6 +39,7 @@ def show_args(parser):
         help="Device or group to connect to",
         action="store",
         type=str,
+        nargs="?",
     )
 
 
@@ -48,6 +50,7 @@ def cfg_args(parser):
         help="Device or group to connect to",
         action="store",
         type=str,
+        nargs="?",
     )
     parser.add_argument(
         "--infile", help="Read commands from file", type=argparse.FileType("r")
@@ -64,6 +67,7 @@ def grep_args(parser):
         help="Device or group to connect to",
         action="store",
         type=str,
+        nargs="?",
     )
 
 
@@ -109,11 +113,11 @@ def extract_cli_vars(cli_args, command, __version__):
     version = cli_args.version
     if version:
         print(f"{command} v{__version__}")
-        return 0
+        sys.exit(0)
     list_devices = cli_args.list_devices
     if list_devices:
         my_devices = load_devices()
         display_inventory(my_devices)
-        return 0
+        sys.exit(0)
 
     return return_vars
