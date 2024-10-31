@@ -39,7 +39,7 @@ def show_args(parser):
         help="Device or group to connect to",
         action="store",
         type=str,
-        nargs="?"
+        nargs="?",
     )
 
 
@@ -50,7 +50,7 @@ def cfg_args(parser):
         help="Device or group to connect to",
         action="store",
         type=str,
-        nargs="?"
+        nargs="?",
     )
     parser.add_argument(
         "--infile", help="Read commands from file", type=argparse.FileType("r")
@@ -67,7 +67,7 @@ def grep_args(parser):
         help="Device or group to connect to",
         action="store",
         type=str,
-        nargs="?"
+        nargs="?",
     )
 
 
