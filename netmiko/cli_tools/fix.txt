@@ -1,2 +1,0 @@
-management api http-commands
-  no protocol https ssl profile

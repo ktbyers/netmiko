@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# FIX: would be better to have it read the __meta__ field for the encryption type
+# if no encryption type is specified.
 import argparse
 import sys
 from pathlib import Path
