@@ -1,0 +1,61 @@
+__meta__:
+  encryption: true
+  encryption_type: aes128
+
+sf1:
+  device_type: cisco_xe
+  host: sf-rtr1.bogus.com
+  username: admin
+  password: __encrypt__yFOcJAvns8+JhQK+5/epzw==:txdHCA3C3xriWWFPnOvPjyMVwOdBtuhWDzQv0+TovFU=
+
+sf2:
+  device_type: cisco_xe
+  host: sf-rtr2.bogus.com
+  username: admin
+  password: __encrypt__NMygaF1Vbxc1rT6jjVNO7A==:GOrWTKZPaYZIXcG/uKvchW523hQmXuI+w9arjELzAdo=
+
+den-asa:
+  device_type: cisco_asa
+  ip: 10.1.1.1
+  username: admin
+  password: __encrypt__sILzphFAkXclAXzy9OM8EQ==:UI8Mu+mAL8qCyd0MOz/77XnY9ZNY9Q7L8Lg8KQ6pTQ0=
+  secret: __encrypt__HwvT4RviwnFuzNz+zM4Feg==:f+Yh/Z0t6qtDkW+Cn2LEhg/IBmSTkuMBwEqI931MRso=
+
+den1:
+  device_type: arista_eos
+  host: den-sw1.bogus.com
+  username: admin
+  password: __encrypt__818vfy+HawwWxTLwJ/iemQ==:tp5m1y4qIAiIwxYbswCGgUKU4YVeCGiJhifBcwO0ujs=
+
+den2:
+  device_type: arista_eos
+  host: den-sw2.bogus.com
+  username: admin
+  password: __encrypt__jksKL5km3mt1IzjkgkQolQ==:Y6+FGEsf5p6/G4g5Bl+jugKF2i9THnw7BoQgFhaGVp8=
+
+nyc1:
+  device_type: juniper_junos
+  host: nyc-vmx1.lasthop.io
+  username: admin
+  password: __encrypt__t/Oz00uBfsweZR7t3wcAvg==:dQuCvAQvy/mApnXcnz3HlfJWYYu7UKur1i0sChqajdI=
+
+nyc2:
+  device_type: juniper_junos
+  host: nyc-vmx2.lasthop.io
+  username: admin
+  password: __encrypt__XmXUrKrYKm/GwVn5Tv6+Hg==:XQMrSUhKMIWkjo1q0FYrEhgvjZYc5yobt97B1sN30qg=
+
+
+sf:
+  - sf1
+  - sf2
+
+denver:
+  - den-asa
+  - den1
+  - den2
+
+nyc:
+  - nyc1
+  - nyc2
+

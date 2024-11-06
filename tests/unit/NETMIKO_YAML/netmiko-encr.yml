@@ -1,0 +1,69 @@
+__meta__:
+  encryption: true
+  encryption_type: fernet
+
+sf1:
+  device_type: cisco_xe
+  host: sf-rtr1.bogus.com
+  username: admin
+  password: 
+    __encrypt__eimmzMumJna+Gb+sJaZVNA==:Z0FBQUFBQm5CdWV0ZEMtS1VCcWNfZ2hPUjVpdkhVeHVXRHZnVkFQcmluQ0FjWXVFcjk3b1VQMDhUbVdrUjdiQmtnWlNHaWV1aTVQZi1POG1UdDJWZjRCc3R4UWtjSGRqSnc9PQ==
+
+sf2:
+  device_type: cisco_xe
+  host: sf-rtr2.bogus.com
+  username: admin
+  password: 
+    __encrypt__y5kL3jcKoskqxg/uYNuQ8Q==:Z0FBQUFBQm5CdWV0cHBXZG9PX0dOdXczRFhkbVZmMGE1YjFSUWh4aHhkSHFTd1k2Yy03WkJtcXV1T0FJTzEzdFlNU2d1Z2lyd3luTzRTbTFJWVhlYmY3d3h2S29fNmx6Z1E9PQ==
+
+den-asa:
+  device_type: cisco_asa
+  ip: 10.1.1.1
+  username: admin
+  password: 
+    __encrypt__VuoXrdmj2aAXgeyUgvXzcg==:Z0FBQUFBQm5CdWV0dGQxSkJFVVFlZ3gwbzhpZ0Z5UTg3cTMyWnI4NnAyLXFTMHRwaGNsY0FJMEV3TEhTeGdOT0ZpaVpHUXNuMjM4TmgzYlIzVHlYZERIem9wd0dHQ1JvM0E9PQ==
+  secret: 
+    __encrypt__W+XpxyjtEubh9N/t+pojIA==:Z0FBQUFBQm5CdWV0Z2hwY3FJRzE4eGd2R2RxNHEyaHJYM2ZqVUxYQkRQOTBKVlF2eXlYZlR5Undvb2I1dENoSmQ1RFZBUkNYQ0JjVnNxQldzUmNfZU1iNHRRN3ZjeFVmbGc9PQ==
+
+den1:
+  device_type: arista_eos
+  host: den-sw1.bogus.com
+  username: admin
+  password: 
+    __encrypt__7heDC/COKDgR9CIMcW2hrg==:Z0FBQUFBQm5CdWV0YkJDZUN6blRzelVNM1RrWjk0ZE9zX0JiNnhnUjB5eE1JaEw4SEs5eEZlYkZZUTdBRkdtTXpEY3M4MWp2RmtRS1MtQWxYbk1jcUt1QTNYbUF0VG5wOXc9PQ==
+
+den2:
+  device_type: arista_eos
+  host: den-sw2.bogus.com
+  username: admin
+  password: 
+    __encrypt__GmyLR/e+Xfjs3zNP/5gkWA==:Z0FBQUFBQm5CdWV0OHk5bllITWF1T1EtMENvem9GNEJDRWdhQU9MYmExTTJYeVJmMEJ4TTQxTE5ZMDhEMVR0a09JdGpFUzFTakF2UlpXYmdrekE1VmpyTURaNWVuenpYMEE9PQ==
+
+nyc1:
+  device_type: juniper_junos
+  host: nyc-vmx1.lasthop.io
+  username: admin
+  password: 
+    __encrypt__LU5txtsDreQzJygejVRvKQ==:Z0FBQUFBQm5CdWV0eTVELUpQSWxBa1lWSUt3WVhRYjhIeklBV25qbll6QVR2Qml2XzdpNjJXNUUzUkl4dXUxaGlLSmVGNW1DNGFDcDdCbkY1dzFIOUNnOXFfS1BwOEc0N3c9PQ==
+
+nyc2:
+  device_type: juniper_junos
+  host: nyc-vmx2.lasthop.io
+  username: admin
+  password: 
+    __encrypt__35npOuncqKVwQPHdL/3/fQ==:Z0FBQUFBQm5CdWV0Mjh4VHZwNmtIaWFLTXpMdTlONkp6U211bFdDdTZxMXByM2cyVzZGQi1hanB5d1pfNmhTRDI0RFdPdjVtenVvWndVNlpRRHVWRldSX1dQOEN6b1ZXblE9PQ==
+
+
+sf:
+  - sf1
+  - sf2
+
+denver:
+  - den-asa
+  - den1
+  - den2
+
+nyc:
+  - nyc1
+  - nyc2
+
