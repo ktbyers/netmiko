@@ -56,9 +56,9 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
     def strip_prompt(self, *args: Any, **kwargs: Any) -> str:
         """Strip the line1 of multiline prompt from the output."""
         a_string = super().strip_prompt(*args, **kwargs)
-        return self.strip_context_items(a_string)
+        return self._strip_context_items(a_string)
 
-    def strip_context_items(self, a_string: str) -> str:
+    def _strip_context_items(self, a_string: str) -> str:
         """Strip NokiaSRL-specific output.
 
         Nokia will put extra context is line 1 of the prompt, such as:
