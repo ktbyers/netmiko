@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import pytest
 import time
 from os.path import dirname, join
 from threading import Lock
@@ -553,3 +553,71 @@ def test_disable_sha2_fix():
     assert {"rsa-sha2-512", "rsa-sha2-256"} & allowed_pubkeys == set()
 
     connection.disconnect()
+
+
+TEST_CASES = [
+    ("some important data\n--{ running }--[  ]--\nA:srl1#", "some important data"),
+    (
+        "more data\nsome important data\n--{ running }--[  ]--\nA:srl1#",
+        "more data\nsome important data",
+    ),
+    (
+        "more data\nsome important data\n--{ candidate private private-admin }--[  ]--\nA:srl1#",
+        "more data\nsome important data",
+    ),
+    (
+        "more data\nsome important data\n--{ candidate private private-admin }--[  ]--\nA:srl1#",
+        "more data\nsome important data",
+    ),
+    (
+        """
+{
+  "basic system info": {
+    "Hostname": "srl1",
+    "Chassis Type": "7220 IXR-D2L",
+    "Part Number": "Sim Part No.",
+    "Serial Number": "Sim Serial No.",
+    "System HW MAC Address": "1A:03:00:FF:00:00",
+    "OS": "SR Linux",
+    "Software Version": "v24.7.2",
+    "Build Number": "319-g64b71941f7",
+    "Architecture": "<Unknown>",
+    "Last Booted": "2024-11-01T17:21:00.164Z",
+    "Total Memory": "<Unknown>",
+    "Free Memory": "<Unknown>"
+  }
+}
+
+--{ running }--[  ]--
+A:srl1#""",
+        """
+{
+  "basic system info": {
+    "Hostname": "srl1",
+    "Chassis Type": "7220 IXR-D2L",
+    "Part Number": "Sim Part No.",
+    "Serial Number": "Sim Serial No.",
+    "System HW MAC Address": "1A:03:00:FF:00:00",
+    "OS": "SR Linux",
+    "Software Version": "v24.7.2",
+    "Build Number": "319-g64b71941f7",
+    "Architecture": "<Unknown>",
+    "Last Booted": "2024-11-01T17:21:00.164Z",
+    "Total Memory": "<Unknown>",
+    "Free Memory": "<Unknown>"
+  }
+}
+""",
+    ),
+]
+
+
+@pytest.mark.parametrize("test_string,expected", TEST_CASES)
+def test_nokiasrl_prompt_stripping(test_string, expected):
+    conn = ConnectHandler(
+        host="testhost",
+        device_type="nokia_srl",
+        auto_connect=False,  # No need to connect for the test purposes
+    )
+    result = conn.strip_prompt(a_string=test_string)
+    assert result == expected
