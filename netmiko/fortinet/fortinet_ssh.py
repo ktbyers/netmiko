@@ -9,21 +9,21 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
     prompt_pattern = r"[#$]"
+    preferred_kex = {
+        "diffie-hellman-group14-sha1",
+        "diffie-hellman-group-exchange-sha1",
+        "diffie-hellman-group-exchange-sha256",
+        "diffie-hellman-group1-sha1",
+    }
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         disabled_algorithms = kwargs.get("disabled_algorithms")
         if disabled_algorithms is None:
-            # We only want these and disable the rest
-            _preferred_kex = {
-                "diffie-hellman-group14-sha1",
-                "diffie-hellman-group-exchange-sha1",
-                "diffie-hellman-group-exchange-sha256",
-                "diffie-hellman-group1-sha1",
-            }
             paramiko_transport = getattr(paramiko, "Transport")
-            kwargs["disabled_algorithms"] = {
-                "kex": list(set(paramiko_transport._preferred_kex) - _preferred_kex)
-            }
+            paramiko_cur_kex = set(paramiko_transport._preferred_kex)
+            # Disable any kex not in allowed fortinet set
+            disabled_kex = list(paramiko_cur_kex - self.preferred_kex)
+            kwargs["disabled_algorithms"] = {"kex": disabled_kex}
 
         super().__init__(*args, **kwargs)
 
