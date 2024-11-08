@@ -569,6 +569,46 @@ TEST_CASES = [
         "more data\nsome important data\n--{ candidate private private-admin }--[  ]--\nA:srl1#",
         "more data\nsome important data",
     ),
+    (
+        """
+{
+  "basic system info": {
+    "Hostname": "srl1",
+    "Chassis Type": "7220 IXR-D2L",
+    "Part Number": "Sim Part No.",
+    "Serial Number": "Sim Serial No.",
+    "System HW MAC Address": "1A:03:00:FF:00:00",
+    "OS": "SR Linux",
+    "Software Version": "v24.7.2",
+    "Build Number": "319-g64b71941f7",
+    "Architecture": "<Unknown>",
+    "Last Booted": "2024-11-01T17:21:00.164Z",
+    "Total Memory": "<Unknown>",
+    "Free Memory": "<Unknown>"
+  }
+}
+
+--{ running }--[  ]--
+A:srl1#""",
+        """
+{
+  "basic system info": {
+    "Hostname": "srl1",
+    "Chassis Type": "7220 IXR-D2L",
+    "Part Number": "Sim Part No.",
+    "Serial Number": "Sim Serial No.",
+    "System HW MAC Address": "1A:03:00:FF:00:00",
+    "OS": "SR Linux",
+    "Software Version": "v24.7.2",
+    "Build Number": "319-g64b71941f7",
+    "Architecture": "<Unknown>",
+    "Last Booted": "2024-11-01T17:21:00.164Z",
+    "Total Memory": "<Unknown>",
+    "Free Memory": "<Unknown>"
+  }
+}
+""",
+    ),
 ]
 
 
