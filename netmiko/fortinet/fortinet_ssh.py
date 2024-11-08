@@ -18,7 +18,8 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         disabled_algorithms = kwargs.get("disabled_algorithms")
-        if disabled_algorithms is None:
+        # Set this as long as no "kex" settings being passed via disabled_algorithms
+        if disabled_algorithms is None or not disabled_algorithms.get("kex"):
             paramiko_transport = getattr(paramiko, "Transport")
             paramiko_cur_kex = set(paramiko_transport._preferred_kex)
             # Disable any kex not in allowed fortinet set
