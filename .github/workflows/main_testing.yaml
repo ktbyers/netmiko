@@ -52,7 +52,7 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        python-version: [ '3.8', '3.9', '3.10', '3.11', "3.12", "3.13.0-beta.2" ]
+        python-version: [ '3.9', '3.10', '3.11', "3.12", "3.13" ]
         platform: [ubuntu-24.04, windows-2022]
 
     runs-on: ${{ matrix.platform }}
@@ -96,7 +96,7 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        python-version: [ '3.8', '3.9', '3.10', '3.11' ]
+        python-version: [ '3.9', '3.10', '3.11' ]
         platform: [macos-13]
 
     runs-on: ${{ matrix.platform }}
