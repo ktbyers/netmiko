@@ -134,8 +134,6 @@ Netmiko's 'encryption_handling.py' has this with the 'decrypt_config' function,
 but this function is a bit specific to Netmiko Tools .netmiko.yml format (i.e.
 it will need modified if you want to use it in a more generic context).
 
-```
-
 ## Implementation Notes
 
 1. Encryption is processed transparently when Netmiko Tools reads the YAML file
