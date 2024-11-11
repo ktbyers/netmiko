@@ -129,10 +129,11 @@ clear_value = decrypt_value(encrypted_value, key, encryption_type="fernet)
 ```
 
 Or you can create a simple function to decrypt all of the fields in the YAML
-file dynamically (by looking for any fields that start with `__encrypt__`.
-Netmiko's 'encryption_handling.py' has this with the 'decrypt_config' function,
-but this function is a bit specific to Netmiko Tools .netmiko.yml format (i.e.
-it will need modified if you want to use it in a more generic context).
+file dynamically (by looking for any fields that start with `__encrypt__`).
+
+Netmiko's 'encryption_handling.py' implements this using the 'decrypt_config'
+function, but this function is a specific to Netmiko Tools' .netmiko.yml format 
+(i.e. it will need modified if you want to use it in a more generic context).
 
 ## Implementation Notes
 
