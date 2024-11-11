@@ -42,8 +42,10 @@ arista1:
   device_type: arista_eos
   host: arista1.domain.com
   username: pyclass
-  password: __encrypt__ifcs7SWOUER4m1K3ZEZYlw==:Z0FBQUFBQm5CQ9lrdV9BVS0xOWxYelF1YmlzV3hBcnF4am1SWjRYNnVSRGdBb1FPVmJ2Q2EzX1RjTWxYMVVMdlBZSXVqYWVqUVNASXNROFBpR1MxRTkxN2J0NWxVeZNKT0E9PQ==
-  global_delay_factor: 1
+  password: >
+    __encrypt__ifcs7SWOUER4m1K3ZEZYlw==:Z0FBQUFBQm5CQ9lrdV9BVS0xOWxYelF1Yml
+    zV3hBcnF4am1SWjRYNnVSRGdBb1FPVmJ2Q2EzX1RjTWxYMVVMdlBZSXVqYWVqUVNASXNRO
+    FBpR1MxRTkxN2J0NWxVeZNKT0E9PQ==
 ```
 
 ### Encryption Functions
