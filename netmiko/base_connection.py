@@ -472,15 +472,18 @@ class BaseConnection:
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
             self.alt_key_file = alt_key_file
+            self.disabled_algorithms = disabled_algorithms
 
-            if disabled_algorithms:
-                self.disabled_algorithms = disabled_algorithms
-            else:
-                self.disabled_algorithms = (
-                    {"pubkeys": ["rsa-sha2-256", "rsa-sha2-512"]}
-                    if disable_sha2_fix
-                    else {}
-                )
+            if disable_sha2_fix:
+                sha2_pubkeys = ["rsa-sha2-256", "rsa-sha2-512"]
+                if self.disabled_algorithms is None:
+                    self.disabled_algorithms = {"pubkeys": sha2_pubkeys}
+                else:
+                    # Merge sha2_pubkeys into pubkeys and prevent duplicates
+                    current_pubkeys = self.disabled_algorithms.get("pubkeys", [])
+                    self.disabled_algorithms["pubkeys"] = list(
+                        set(current_pubkeys + sha2_pubkeys)
+                    )
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
