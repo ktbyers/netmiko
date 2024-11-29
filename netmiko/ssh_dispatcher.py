@@ -86,6 +86,7 @@ from netmiko.f5 import F5LinuxSSH
 from netmiko.fiberstore import FiberstoreFsosSSH
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
+from netmiko.gigamon import GigamonVUESSH
 from netmiko.garderos import GarderosGrsSSH
 from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
@@ -240,6 +241,7 @@ CLASS_MAPPER_BASE = {
     "garderos_grs": GarderosGrsSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
+    "gigamon_gigavue": GigamonVUESSH,
     "hillstone_stoneos": HillstoneStoneosSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
