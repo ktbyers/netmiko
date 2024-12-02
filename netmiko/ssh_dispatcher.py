@@ -111,6 +111,7 @@ from netmiko.nokia import (
 )
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
+from netmiko.optilink.op_eolt_11444 import OptilinkEOLT11444Telnet
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
@@ -142,7 +143,10 @@ from netmiko.zte import ZteZxrosTelnet
 from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
-
+from netmiko.optilink.op_golt_944 import OptilinkGOLT944Telnet
+from netmiko.optilink.op_eolt_9702 import OptilinkEOLT9702Telnet
+from netmiko.optilink.op_golt_924 import OptilinkGOLT924Telnet
+from netmiko.genexis.genexis_solt33 import GenexisSOLT33Telnet
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -369,6 +373,11 @@ CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
 CLASS_MAPPER["maipu_telnet"] = MaipuTelnet
+CLASS_MAPPER["optilink_golt_944_telnet"] = OptilinkGOLT944Telnet
+CLASS_MAPPER["optilink_golt_924_telnet"] = OptilinkGOLT924Telnet
+CLASS_MAPPER["optilink_eolt_11444_telnet"] = OptilinkEOLT11444Telnet
+CLASS_MAPPER["optilink_eolt_9702_telnet"] = OptilinkEOLT9702Telnet
+CLASS_MAPPER["genexis_solt33_telnet"] = GenexisSOLT33Telnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
