@@ -14,8 +14,6 @@ class RuckusFastironBase(CiscoSSHConnection):
         """FastIron requires to be enable mode to disable paging."""
         self._test_channel_read()
         self.set_base_prompt()
-        self.enable()
-        self.disable_paging(command="skip-page-display")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
