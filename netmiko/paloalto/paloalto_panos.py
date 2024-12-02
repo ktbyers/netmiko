@@ -162,7 +162,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
             if device_and_network:
                 command_string += " device-and-network"
             if policy_and_objects:
-                command_string += " device-and-network"
+                command_string += " policy-and-objects"
             if no_vsys:
                 command_string += " no-vsys"
             command_string += " excluded"
