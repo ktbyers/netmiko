@@ -107,7 +107,7 @@ SSH_MAPPER_DICT = {
             "Cisco IOS Software",
             "Cisco Internetwork Operating System Software",
         ],
-        "priority": 99,
+        "priority": 95,
         "dispatch": "_autodetect_std",
     },
     "cisco_xe": {
