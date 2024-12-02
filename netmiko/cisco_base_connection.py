@@ -112,6 +112,14 @@ class CiscoBaseConnection(BaseConnection):
                     output = self.read_channel()
                     return_msg += output
 
+                    # Check for MOTD/Wake Up
+                    if (not re.search(username_pattern, output, flags=re.I) and
+                            not re.search(pwd_pattern, output, flags=re.I)):
+                        self.write_channel("\r")
+                        time.sleep(1 * delay_factor)
+                        output = self.read_channel()
+                        return_msg += output
+
                     # Search for username pattern / send username
                     if re.search(username_pattern, output, flags=re.I):
                         # Sometimes username/password must be terminated with "\r" and not "\r\n"
